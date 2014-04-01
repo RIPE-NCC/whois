@@ -174,6 +174,21 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
+                "ASSANY-64": """\
+                inet6num:     2001:601::/64
+                netname:      EU-ZZ-2001-600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ASSIGNED ANYCAST
+                changed:      dbtest@ripe.net 20130101
+                source:       TEST
+                """,
                 "AS222": """
                 aut-num:        AS222
                 as-name:        ASTEST
@@ -304,6 +319,21 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
+                inet6num:     2001:601::/64
+                netname:      EU-ZZ-2001-600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ASSIGNED ANYCAST
+                sponsoring-org: ORG-LIRA-TEST
+                changed:      dbtest@ripe.net 20130101
+                source:       TEST
+
                 aut-num:        AS222
                 as-name:        ASTEST
                 descr:          description
@@ -329,19 +359,21 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         then:
         def ack = new AckResponse("", message)
 
-        ack.summary.nrFound == 4
-        ack.summary.assertSuccess(4, 4, 0, 0, 0)
+        ack.summary.nrFound == 5
+        ack.summary.assertSuccess(5, 5, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
         ack.successes.any {it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255"}
         ack.successes.any {it.operation == "Create" && it.key == "[inet6num] 2001:600::/64"}
+        ack.successes.any {it.operation == "Create" && it.key == "[inet6num] 2001:601::/64"}
         ack.successes.any {it.operation == "Create" && it.key == "[aut-num] AS222"}
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "sponsoring-org:\\s*ORG-LIRA-TEST")
+        query_object_matches("-r -BG -T inet6num 2001:601::/64", "inet6num", "2001:601::/64", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
@@ -1790,20 +1822,20 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.countErrorWarnInfo(8, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The sponsoring-org can only be added by the RIPE NCC",
-                 "Referenced object must have org-type LIR"]
+                ["Referenced object must have org-type LIR",
+                        "The sponsoring-org can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The sponsoring-org can only be added by the RIPE NCC",
-                 "Referenced object must have org-type LIR"]
+                ["Referenced object must have org-type LIR",
+                        "The sponsoring-org can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
-                ["The sponsoring-org can only be added by the RIPE NCC",
-                 "Referenced object must have org-type LIR"]
+                ["Referenced object must have org-type LIR",
+                        "The sponsoring-org can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
         ack.errorMessagesFor("Modify", "[aut-num] AS222") ==
-                ["The sponsoring-org can only be added by the RIPE NCC",
-                 "Referenced object must have org-type LIR"]
+                ["Referenced object must have org-type LIR",
+                        "The sponsoring-org can only be added by the RIPE NCC"]
 
         query_object_not_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:")
         query_object_not_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:")
@@ -2112,20 +2144,20 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.countErrorWarnInfo(8, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["Referenced sponsoring-org can only be changed by the RIPE NCC",
-                "Referenced object must have org-type LIR"]
+                ["Referenced object must have org-type LIR",
+                        "Referenced sponsoring-org can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["Referenced sponsoring-org can only be changed by the RIPE NCC",
-                        "Referenced object must have org-type LIR"]
+                ["Referenced object must have org-type LIR",
+                        "Referenced sponsoring-org can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
-                ["Referenced sponsoring-org can only be changed by the RIPE NCC",
-                        "Referenced object must have org-type LIR"]
+                ["Referenced object must have org-type LIR",
+                        "Referenced sponsoring-org can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
         ack.errorMessagesFor("Modify", "[aut-num] AS222") ==
-                ["Referenced sponsoring-org can only be changed by the RIPE NCC",
-                        "Referenced object must have org-type LIR"]
+                ["Referenced object must have org-type LIR",
+                        "Referenced sponsoring-org can only be changed by the RIPE NCC"]
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
@@ -2388,7 +2420,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
 
     def "create inet6num with status ASSIGNED, with type LIR sponsoring org, with RS pw"() {
         expect:
-        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryObjectNotFound("-r -BG -T inet6num 12001:600::/64", "inet6num", "2001:600::/64")
 
         when:
         def message = syncUpdate("""\
@@ -2421,11 +2453,97 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
                 ["The \"sponsoring-org:\" attribute is not allowed with this status value"]
 
-        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+    }
+
+    @Ignore
+    // requires business rule to prevent creation without sponsoring-org
+    def "create inet6num with status ASSIGNED PI, without sponsoring org, with RS pw"() {
+        expect:
+        queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+
+        when:
+        def message = syncUpdate("""\
+                inet6num:     2001:600::/64
+                netname:      EU-ZZ-2001-600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ASSIGNED PI
+                changed:      dbtest@ripe.net 20130101
+                source:       TEST
+
+                password: nccend
+                password: hm
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
+                ["This object must have a \"sponsoring-org:\" attribute"]
+
+        queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+    }
+
+    @Ignore
+    // requires business rule to prevent creation without sponsoring-org
+    def "create inet6num with status ASSIGNED ANYCAST, without sponsoring org, with RS pw"() {
+        expect:
+        queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+
+        when:
+        def message = syncUpdate("""\
+                inet6num:     2001:600::/64
+                netname:      EU-ZZ-2001-600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ASSIGNED ANYCAST
+                changed:      dbtest@ripe.net 20130101
+                source:       TEST
+
+                password: nccend
+                password: hm
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
+                ["This object must have a \"sponsoring-org:\" attribute"]
+
+        queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
     }
 
 }
