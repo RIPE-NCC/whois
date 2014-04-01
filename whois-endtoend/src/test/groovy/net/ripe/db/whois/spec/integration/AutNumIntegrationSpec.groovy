@@ -671,7 +671,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
 
       then:
-        create =~ /Error:   "sponsoring-org" value is managed by RIPE NCC/
+        create =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
     }
 
     def "create autnum with sponsoring-org, org not LIR"() {
@@ -754,7 +754,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
 
       then:
-        update =~ /Error:   "sponsoring-org" value is managed by RIPE NCC/
+        update =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
     }
 
     def "modify autnum add sponsoring-org succeeds"() {

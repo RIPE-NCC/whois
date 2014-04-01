@@ -1247,7 +1247,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         then:
             response =~ /Create FAILED: \[inetnum\] 194.0.0.0 - 194.0.0.255/
             response =~ /Error:   Referenced object must have org-type LIR/
-            response =~ /Error:   \"sponsoring-org\" value is managed by RIPE NCC/
+            response =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
     }
 
     def "create SUB-ALLOCATED PA inetnum with LIR sponsoring-org"() {
@@ -1268,7 +1268,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
         then:
             response =~ /Create FAILED: \[inetnum\] 194.0.0.0 - 194.0.0.255/
-            response =~ /Error:   \"sponsoring-org\" value is managed by RIPE NCC/
+            response =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
     }
 
     def "create ALLOCATED PI inetnum with LIR sponsoring-org"() {
@@ -1289,7 +1289,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
         then:
             response =~ /Create FAILED: \[inetnum\] 195.0.0.0 - 195.0.0.255/
-            response =~ /Error:   \"sponsoring-org\" value is managed by RIPE NCC/
+            response =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
     }
 
     def "create ALLOCATED PA inetnum with LIR sponsoring-org as rs-maintainer"() {
@@ -1402,7 +1402,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     """.stripIndent()))
         then:
             response =~ /Modify FAILED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
-            response =~ /Error:   "sponsoring-org" value is managed by RIPE NCC/
+            response =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
             response =~ /Error:   Referenced object must have org-type LIR/
     }
 
@@ -1424,7 +1424,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     """.stripIndent()))
         then:
             response =~ /Modify FAILED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
-            response =~ /Error:   "sponsoring-org" value is managed by RIPE NCC/
+            response =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
     }
 
     def "update ALLOCATED PA inetnum add OTHER sponsoring-org as rs-maintainer"() {
@@ -1551,7 +1551,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     """.stripIndent()))
         then:
             response =~ /Modify FAILED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
-            response =~ /Error:   "sponsoring-org" value is managed by RIPE NCC/
+            response =~ /Error:   Referenced sponsoring-org can only be changed by the RIPE NCC/
             response =~ /Error:   Referenced object must have org-type LIR/
 
     }
@@ -1670,7 +1670,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     """.stripIndent()))
         then:
             response =~ /Modify FAILED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
-            response =~ /Error:   "sponsoring-org" value is managed by RIPE NCC/
+            response =~ /Error:   The sponsoring-org can only be removed by the RIPE NCC/
     }
 
     def "update ALLOCATED PA inetnum remove sponsoring-org as rs-maintainer"() {
