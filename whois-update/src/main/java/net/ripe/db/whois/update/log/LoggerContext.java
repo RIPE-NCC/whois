@@ -71,7 +71,7 @@ public class LoggerContext {
 
     private File getCreatedDir(final String name) {
         final File dir = new File(name);
-        if (!dir.exists() && !dir.mkdirs()) {
+        if (!dir.mkdirs() && !dir.exists()) {
             throw new IllegalStateException("Unable to create directory: " + dir.getAbsolutePath());
         }
 

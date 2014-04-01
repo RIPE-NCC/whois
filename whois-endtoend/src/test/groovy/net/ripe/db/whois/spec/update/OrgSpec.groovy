@@ -1,6 +1,5 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -427,7 +426,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "This org-type value can only be set by administrative mntners"]
+                "\"org-type:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
 
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
@@ -464,7 +463,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "This org-type value can only be set by administrative mntners"]
+                "\"org-type:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
 
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
@@ -501,7 +500,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "This org-type value can only be set by administrative mntners"]
+                "\"org-type:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
 
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
@@ -538,7 +537,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "This org-type value can only be set by administrative mntners"]
+                "\"org-type:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
 
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
@@ -575,7 +574,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "This org-type value can only be set by administrative mntners"]
+                "\"org-type:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
 
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
@@ -2059,7 +2058,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
                 ["Authorisation for [organisation] ORG-LIR2-TEST failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",
-                 "The org name can only be set by administrative mntners"]
+                 "\"org-name:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
     }
@@ -2259,7 +2258,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
-                ["The org name can only be set by administrative mntners"]
+                ["\"org-name:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
 
         query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
     }
@@ -2384,7 +2383,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
-                ["The org name can only be set by administrative mntners"]
+                ["\"org-name:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
 
         query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
     }
@@ -2428,7 +2427,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",
-                 "The org attribute value can only be set by administrative mntners"]
+                 "\"org:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
 
         query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
     }
@@ -2754,7 +2753,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.255.0 - 192.168.255.255") ==
-                ["The org attribute value can only be set by administrative mntners"]
+                ["\"org:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
 
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIR2-TEST")
     }

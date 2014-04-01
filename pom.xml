@@ -18,6 +18,7 @@
             <url>https://raw.github.com/RIPE-NCC/whois/master/LICENSE.txt</url>
             <distribution>repo</distribution>
         </license>
+
     </licenses>
 
     <properties>
@@ -658,7 +659,7 @@
                 <version>2.16</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx512m -DjvmId=${surefire.forkNumber:0}</argLine>
+                    <argLine>-Xmx512m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
@@ -677,7 +678,7 @@
                 <version>2.16</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber:0}</argLine>
+                    <argLine>-Xmx1024m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
