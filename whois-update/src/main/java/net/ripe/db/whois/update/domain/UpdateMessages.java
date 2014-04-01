@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
@@ -559,6 +560,30 @@ public final class UpdateMessages {
 
     public static Message ripeAccessServerUnavailable() {
         return new Message(Type.ERROR, "RIPE NCC Access server is unavailable");
+    }
+
+    public static Message statusCannotBeRemoved(final AutnumStatus status) {
+        return new Message(Type.ERROR, "Status %s cannot be removed.", status);
+    }
+
+    public static Message statusCanOnlyBeAddedByRsMaintainer(final AutnumStatus status) {
+        return new Message(Type.ERROR, "Status %s can only be added by a RIPE NCC Maintainer.", status);
+    }
+
+    public static Message invalidStatusMustBeAssigned(final AutnumStatus status) {
+        return new Message(Type.ERROR, "Invalid status %s (must be 'ASSIGNED' if maintained by a RIPE NCC Maintainer)", status);
+    }
+
+    public static Message invalidStatusMustBeOther() {
+        return new Message(Type.ERROR, "Invalid status %s (must be 'OTHER' if not authorised by a RIPE NCC Maintainer)");
+    }
+
+    public static Message invalidStatusCannotBeAssigned() {
+        return new Message(Type.ERROR, "Invalid status %s (can only be 'ASSIGNED' if maintained by a RIPE NCC Maintainer)");
+    }
+
+    public static Message statusCanOnlyBeChangedByOverride(final AutnumStatus previousStatus, final AutnumStatus currentStatus) {
+        return new Message(Type.ERROR, "Status can only be changed from %s to %s by the RIPE NCC", previousStatus, currentStatus);
     }
 
     public static Message sponsoringOrgChanged() {

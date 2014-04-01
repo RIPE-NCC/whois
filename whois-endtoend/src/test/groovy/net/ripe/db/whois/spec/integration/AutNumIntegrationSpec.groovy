@@ -1,6 +1,6 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
@@ -29,6 +29,17 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
             changed: dbtest@ripe.net 20120707
             source: TEST
+            """,
+                "PWR-MNT": """\
+            mntner:  RIPE-NCC-HM-MNT
+            descr:   description
+            admin-c: AP1-TEST
+            mnt-by:  RIPE-NCC-HM-MNT
+            referral-by: RIPE-NCC-HM-MNT
+            upd-to:  dbtest@ripe.net
+            auth:    MD5-PW \$1\$tnG/zrDw\$nps8tg76q4jgg5zg5o6os. # hm
+            changed: dbtest@ripe.net 20120707
+            source:  TEST
             """,
                 "AP1-PN": """\
             person:  Admin Person
@@ -172,7 +183,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate update
 
       then:
-        println response
         response =~ /SUCCESS/
     }
 
@@ -347,6 +357,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
+                        status:         OTHER
                         member-of:      AS-TESTSET
                         descr:          description
                         admin-c:        AP1-TEST
@@ -366,6 +377,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         def updateResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
+                        status:         OTHER
                         member-of:      AS-TESTSET
                         descr:          other description
                         admin-c:        AP1-TEST
@@ -464,6 +476,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
+                        status:         OTHER
                         descr:          description
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
@@ -480,6 +493,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         def updateResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
+                        status:         OTHER
                         member-of:      AS-TESTSET
                         descr:          other description
                         admin-c:        AP1-TEST
@@ -532,6 +546,111 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Syntax error in ato AS1 announce 192.0.0.1/
         response =~ /Syntax error in _UPD-MNT-MNT-MNT/
         response =~ /Syntax error in to AS5580 announce AS2/
+    }
+
+    def "create aut-num object, generate OTHER status"() {
+      when:
+        def response = syncUpdate  new SyncUpdate(data: """\
+                        aut-num:        AS102
+                        as-name:        End-User-2
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: update
+                        """.stripIndent())
+      then:
+        response =~ /SUCCESS/
+      then:
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+        autnum =~ /status:         OTHER/
+    }
+
+    def "create aut-num object, generate ASSIGNED status"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                        aut-num:        AS102
+                        as-name:        RS-2
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         RIPE-NCC-HM-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: hm
+                        password: update
+                        """.stripIndent())
+      then:
+        response =~ /SUCCESS/
+      then:
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+        autnum =~ /status:         ASSIGNED/
+    }
+
+    def "create aut-num object, replace user-specified status"() {
+      when:
+        def response = syncUpdate  new SyncUpdate(data: """\
+                        aut-num:        AS102
+                        as-name:        End-User-2
+                        status:         LEGACY
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: update
+                        """.stripIndent())
+      then:
+        response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
+        response =~ /SUCCESS/
+      then:
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+        autnum =~ /status:         OTHER/
+    }
+
+    def "create aut-num object, replace rs-specified status"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                        aut-num:        AS102
+                        as-name:        RS-2
+                        status:         LEGACY
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         RIPE-NCC-HM-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: hm
+                        password: update
+                        """.stripIndent())
+      then:
+        response =~ /SUCCESS/
+        response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
+      then:
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+        autnum =~ /status:         ASSIGNED/
+    }
+
+    def "create aut-num object, invalid status"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                        aut-num:        AS102
+                        as-name:        RS-2
+                        status:         INVALID
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: update
+                        """.stripIndent())
+      then:
+        response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
+        response =~ /SUCCESS/
     }
 
     def "create autnum with sponsoring-org, no RS mntner"() {
