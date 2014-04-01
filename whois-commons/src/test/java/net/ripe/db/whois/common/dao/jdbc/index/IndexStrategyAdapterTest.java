@@ -1,6 +1,8 @@
 package net.ripe.db.whois.common.dao.jdbc.index;
 
+import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,6 +34,8 @@ public class IndexStrategyAdapterTest {
     @Test
     public void findInIndex() {
         assertThat(subject.findInIndex(null, (String) null), hasSize(0));
+        assertThat(subject.findInIndex(null, new RpslObjectInfo(1, ObjectType.AUT_NUM, "AS000")), hasSize(0));
+        assertThat(subject.findInIndex(null, new RpslObjectInfo(1, ObjectType.AUT_NUM, "AS000"), ObjectType.AUT_NUM), hasSize(0));
     }
 
     @Test
