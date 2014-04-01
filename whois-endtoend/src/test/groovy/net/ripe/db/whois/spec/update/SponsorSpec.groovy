@@ -998,16 +998,220 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.countErrorWarnInfo(4, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["????"]
+                ["Referenced sponsoring-org can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["????"]
+                ["Referenced sponsoring-org can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
-                ["????"]
+                ["Referenced sponsoring-org can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
         ack.errorMessagesFor("Modify", "[aut-num] AS222") ==
-                ["????"]
+                ["Referenced sponsoring-org can only be changed by the RIPE NCC"]
+
+        query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
+        query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
+        query_object_matches("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "sponsoring-org:\\s*ORG-LIRA-TEST")
+        query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, without sponsoring org, add sponsoring org with type LIR, with LIR pw"() {
+        given:
+        syncUpdate(getTransient("ASSPI") + "override: denis,override1")
+        syncUpdate(getTransient("ASSANY") + "override: denis,override1")
+        syncUpdate(getTransient("ASSPI-64") + "override: denis,override1")
+        syncUpdate(getTransient("AS222") + "override: denis,override1")
+
+        expect:
+        query_object_not_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:")
+        query_object_not_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:")
+        query_object_not_matches("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "sponsoring-org:")
+        query_object_not_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                sponsoring-org: ORG-LIRA2-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.201.0 - 192.168.201.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED ANYCAST
+                sponsoring-org: ORG-LIRA2-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inet6num:     2001:600::/64
+                netname:      EU-ZZ-2001-600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ASSIGNED PI
+                sponsoring-org: ORG-LIRA2-TEST
+                changed:      dbtest@ripe.net 20130101
+                source:       TEST
+
+                aut-num:        AS222
+                as-name:        ASTEST
+                descr:          description
+                sponsoring-org: ORG-LIRA2-TEST
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 4
+        ack.summary.assertSuccess(4, 0, 4, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(4, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["The sponsoring-org can only be added by the RIPE NCC"]
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["The sponsoring-org can only be added by the RIPE NCC"]
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
+                ["The sponsoring-org can only be added by the RIPE NCC"]
+        ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
+        ack.errorMessagesFor("Modify", "[aut-num] AS222") ==
+                ["The sponsoring-org can only be added by the RIPE NCC"]
+
+        query_object_not_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:")
+        query_object_not_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:")
+        query_object_not_matches("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "sponsoring-org:")
+        query_object_not_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:")
+    }
+
+    def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, remove sponsoring org, with LIR pw"() {
+        given:
+        syncUpdate(getTransient("ASSPISPON") + "override: denis,override1")
+        syncUpdate(getTransient("ASSANYSPON") + "override: denis,override1")
+        syncUpdate(getTransient("ASSPI-64SPON") + "override: denis,override1")
+        syncUpdate(getTransient("AS222SPON") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
+        query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
+        query_object_matches("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "sponsoring-org:\\s*ORG-LIRA-TEST")
+        query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.201.0 - 192.168.201.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED ANYCAST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inet6num:     2001:600::/64
+                netname:      EU-ZZ-2001-600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ASSIGNED PI
+                changed:      dbtest@ripe.net 20130101
+                source:       TEST
+
+                aut-num:        AS222
+                as-name:        ASTEST
+                descr:          description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 4
+        ack.summary.assertSuccess(4, 0, 4, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(4, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["The sponsoring-org can only be removed by the RIPE NCC"]
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["The sponsoring-org can only be removed by the RIPE NCC"]
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
+                ["The sponsoring-org can only be removed by the RIPE NCC"]
+        ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
+        ack.errorMessagesFor("Modify", "[aut-num] AS222") ==
+                ["The sponsoring-org can only be removed by the RIPE NCC"]
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
