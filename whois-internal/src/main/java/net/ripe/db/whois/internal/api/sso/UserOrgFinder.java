@@ -37,36 +37,29 @@ public class UserOrgFinder {
     // auth <- mntner <- org (mnt-by/mnt-ref)
     @Transactional
     public Set<RpslObject> findOrganisationsForAuth(final String auth) {
-        final Set<RpslObjectInfo> orgIds = Sets.newHashSet();
-
-        for (RpslObjectInfo mntnerId : IndexStrategies.get(AttributeType.AUTH).findInIndex(jdbcTemplate, auth)) {
-            orgIds.addAll(findOrgsByMntner(mntnerId, MntByOrRef.MNT_BY));
-            orgIds.addAll(findOrgsByMntner(mntnerId, MntByOrRef.MNT_REF));
-        }
 
         final Set<RpslObject> result = Sets.newHashSet();
-        for (RpslObjectInfo orgId : orgIds) {
-            result.add(JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId.getObjectId()));
+        for (RpslObjectInfo mntnerId : IndexStrategies.get(AttributeType.AUTH).findInIndex(jdbcTemplate, auth)) {
+            result.addAll(findOrgsByMntner(mntnerId, MntByOrRef.MNT_BY));
+            result.addAll(findOrgsByMntner(mntnerId, MntByOrRef.MNT_REF));
         }
-
         return result;
     }
 
-    private Set<RpslObjectInfo> findOrgsByMntner(final RpslObjectInfo mntnerId, final MntByOrRef refOrBy) {
-        final Set<RpslObjectInfo> filteredOrgIds = Sets.newHashSet();
+    private Set<RpslObject> findOrgsByMntner(final RpslObjectInfo mntnerId, final MntByOrRef refOrBy) {
+        final Set<RpslObject> result = Sets.newHashSet();
 
         final IndexStrategy strategy = (refOrBy == MntByOrRef.MNT_REF) ?
                 IndexStrategies.get(AttributeType.MNT_REF) : IndexStrategies.get(AttributeType.MNT_BY);
 
         for (RpslObjectInfo orgId : strategy.findInIndex(jdbcTemplate, mntnerId, ObjectType.ORGANISATION)) {
-            if (refOrBy == MntByOrRef.MNT_REF && isOrgMntByRS(orgId)) {
-                filteredOrgIds.add(orgId);
-            }
-            if (refOrBy == MntByOrRef.MNT_BY) {
-                filteredOrgIds.add(orgId);
+            if (refOrBy == MntByOrRef.MNT_BY ||
+                    (refOrBy == MntByOrRef.MNT_REF && isOrgMntByRS(orgId))) {
+
+                result.add(JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId.getObjectId()));
             }
         }
-        return filteredOrgIds;
+        return result;
     }
 
     private boolean isOrgMntByRS(final RpslObjectInfo orgId) {
