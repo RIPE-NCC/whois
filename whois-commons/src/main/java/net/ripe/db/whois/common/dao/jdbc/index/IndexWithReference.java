@@ -108,6 +108,7 @@ class IndexWithReference extends IndexStrategySimpleLookup {
                 new RpslObjectInfoResultSetExtractor());
     }
 
+    //
     public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo value) {
         // FIXME: [AH] joining to last is very costly and unnecessary here; look for ways to drop this join
         final String query = MessageFormat.format(
