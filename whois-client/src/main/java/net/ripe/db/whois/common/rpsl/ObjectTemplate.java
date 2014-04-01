@@ -122,6 +122,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.ROUTE_SET;
 import static net.ripe.db.whois.common.rpsl.AttributeType.RTR_SET;
 import static net.ripe.db.whois.common.rpsl.AttributeType.SIGNATURE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.SOURCE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.SPONSORING_ORG;
 import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.TEXT;
@@ -175,6 +176,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, GENERATED, SINGLE),
@@ -242,6 +244,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, MANDATORY, SINGLE),
@@ -264,6 +267,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, MANDATORY, SINGLE),
@@ -699,11 +703,11 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         final AttributeType attributeType = attributeTemplate.getAttributeType();
         final int attributeTypeCount = attributeCount.get(attributeType);
 
-        if (MANDATORY.equals(attributeTemplate.getRequirement()) && attributeTypeCount == 0) {
+        if (attributeTemplate.getRequirement() == MANDATORY && attributeTypeCount == 0) {
             objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
         }
 
-        if (SINGLE.equals(attributeTemplate.getCardinality()) && attributeTypeCount > 1) {
+        if ((attributeTemplate.getCardinality() == SINGLE || attributeTemplate.getRequirement() == GENERATED) && attributeTypeCount > 1) {
             objectMessages.addMessage(ValidationMessages.tooManyAttributesOfType(attributeType));
         }
     }

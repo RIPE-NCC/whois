@@ -44,7 +44,6 @@ public class WhoisServerHandler extends SimpleChannelUpstreamHandler {
         channel.getPipeline().sendDownstream(new QueryCompletedEvent(channel));
     }
 
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // Base class throws exception
     @Override
     public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         closed = true;

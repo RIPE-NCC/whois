@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.Before;
@@ -24,6 +25,7 @@ public class AccessControlListManagerAccountingTest {
     @Mock DateTimeProvider dateTimeProvider;
     @Mock IpResourceConfiguration ipResourceConfiguration;
     @Mock AccessControlListDao accessControlListDao;
+    @Mock IpRanges ipRanges;
     private PersonalObjectAccounting personalObjectAccounting = new TestPersonalObjectAccounting();
 
 
@@ -32,7 +34,7 @@ public class AccessControlListManagerAccountingTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, accessControlListDao, personalObjectAccounting);
+        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, accessControlListDao, personalObjectAccounting, ipRanges);
         ipv4Address = Inet4Address.getLocalHost();
         ipv6Address = Inet6Address.getByName("::1");
     }

@@ -585,4 +585,12 @@ public final class UpdateMessages {
     public static Message statusCanOnlyBeChangedByOverride(final AutnumStatus previousStatus, final AutnumStatus currentStatus) {
         return new Message(Type.ERROR, "Status can only be changed from %s to %s by the RIPE NCC", previousStatus, currentStatus);
     }
+
+    public static Message sponsoringOrgChanged() {
+        return new Message(Type.ERROR, "\"sponsoring-org\" value is managed by RIPE NCC");
+    }
+
+    public static Message sponsoringOrgNotLIR() {
+        return new Message(Type.ERROR, "Referenced object must have org-type LIR");
+    }
 }
