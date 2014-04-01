@@ -35,7 +35,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
     @BeforeClass
     public static void setProperty() {
         // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.freetext.index", "var${jvmId}/idx");
+        System.setProperty("dir.freetext.index", "${dir.var}/idx");
     }
 
     @AfterClass

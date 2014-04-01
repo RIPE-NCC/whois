@@ -365,4 +365,18 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
         final List<RpslObject> byKeys = subject.getByKeys(ObjectType.ROLE, ciSet("TEST-PN"));
         assertThat(byKeys, hasSize(0));
     }
+
+    @Test
+    public void getById() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:          Test\n" +
+                "nic-hdl:         TEST-PN\n" +
+                "source:          RIPE\n");
+
+        databaseHelper.addObject(rpslObject);
+
+        final RpslObject object = subject.getById(1);
+        assertThat(object, is(rpslObject));
+    }
+
 }
