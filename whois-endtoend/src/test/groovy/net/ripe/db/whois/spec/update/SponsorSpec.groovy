@@ -191,7 +191,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 """,
     ]}
 
-    def "create inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, with RS auth"() {
+    def "create inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, with RS pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
@@ -280,7 +280,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
-    def "create inetnum with status ASSIGNED PI, with 2x type LIR sponsoring org, with RS auth"() {
+    def "create inetnum with status ASSIGNED PI, with 2x type LIR sponsoring org, with RS pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
@@ -321,45 +321,84 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_not_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
-    @Ignore //TODO this test case seems to be in progress
-    def "delete allocation, override"() {
-        given:
-        syncUpdate(getTransient("ALLOC-PA") + "override:  denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    def "create inetnum, inet6num, aut-num, with type OTHER sponsoring org, with RS pw"() {
+        expect:
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
         when:
         def message = syncUpdate("""\
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
                 country:      NL
-                org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-MNT
+                status:       ASSIGNED PI
+                sponsoring-org: ORG-OFA10-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                delete:  test override
-                override:  denis,override1
 
+                inet6num:     2001:600::/64
+                netname:      EU-ZZ-2001-600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       ASSIGNED PI
+                sponsoring-org: ORG-OFA10-TEST
+                changed:      dbtest@ripe.net 20130101
+                source:       TEST
+
+                aut-num:        AS222
+                as-name:        ASTEST
+                descr:          description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                sponsoring-org: ORG-OFA10-TEST
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password: nccend
+                password: hm
+                password: owner3
                 """.stripIndent()
         )
 
         then:
         def ack = new AckResponse("", message)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 1, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.nrFound == 3
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(3, 3, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.infoSuccessMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "Authorisation override used"]
+        ack.countErrorWarnInfo(3, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Referenced object must have org-type LIR"]
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
+                ["Referenced object must have org-type LIR"]
+        ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS222" }
+        ack.errorMessagesFor("Create", "[aut-num] AS222") ==
+                ["Referenced object must have org-type LIR"]
 
-        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        query_object_not_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-OFA10-TEST")
+        query_object_not_matches("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "sponsoring-org:\\s*ORG-OFA10-TEST")
+        query_object_not_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-OFA10-TEST")
     }
+
 
 }
