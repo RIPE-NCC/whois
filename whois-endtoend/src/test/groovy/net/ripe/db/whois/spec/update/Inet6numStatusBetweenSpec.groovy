@@ -1,6 +1,5 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
@@ -367,7 +366,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ALLOCATED-BY-LIR not allowed when more specific object has status ALLOCATED-BY-RIR"]
+                ["Status ALLOCATED-BY-LIR not allowed when more specific object '2001:600::/25' has status ALLOCATED-BY-RIR"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -415,7 +414,8 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status AGGREGATED-BY-LIR not allowed when more specific object has status ALLOCATED-BY-RIR"]
+                ["Status AGGREGATED-BY-LIR not allowed when more specific object '2001:600::/25' has status ALLOCATED-BY-RIR"]
+
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -462,7 +462,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED not allowed when more specific object has status ALLOCATED-BY-RIR"]
+                ["Status ASSIGNED not allowed when more specific object '2001:600::/25' has status ALLOCATED-BY-RIR"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -509,7 +509,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED PI not allowed when more specific object has status ALLOCATED-BY-RIR"]
+                ["Status ASSIGNED PI not allowed when more specific object '2001:600::/25' has status ALLOCATED-BY-RIR"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -556,7 +556,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED ANYCAST not allowed when more specific object has status ALLOCATED-BY-RIR"]
+                ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/25' has status ALLOCATED-BY-RIR"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -696,7 +696,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status AGGREGATED-BY-LIR not allowed when more specific object has status ALLOCATED-BY-LIR"]
+                ["Status AGGREGATED-BY-LIR not allowed when more specific object '2001:600::/30' has status ALLOCATED-BY-LIR"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -743,7 +743,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED not allowed when more specific object has status ALLOCATED-BY-LIR"]
+                ["Status ASSIGNED not allowed when more specific object '2001:600::/30' has status ALLOCATED-BY-LIR"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -790,7 +790,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED PI not allowed when more specific object has status ALLOCATED-BY-LIR"]
+                ["Status ASSIGNED PI not allowed when more specific object '2001:600::/30' has status ALLOCATED-BY-LIR"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -837,7 +837,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED ANYCAST not allowed when more specific object has status ALLOCATED-BY-LIR"]
+                ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/30' has status ALLOCATED-BY-LIR"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1022,7 +1022,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED not allowed when more specific object has status AGGREGATED-BY-LIR"]
+                ["Status ASSIGNED not allowed when more specific object '2001:600::/48' has status AGGREGATED-BY-LIR"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1069,7 +1069,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED PI not allowed when more specific object has status AGGREGATED-BY-LIR"]
+                ["Status ASSIGNED PI not allowed when more specific object '2001:600::/48' has status AGGREGATED-BY-LIR"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1116,7 +1116,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED ANYCAST not allowed when more specific object has status AGGREGATED-BY-LIR"]
+                ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/48' has status AGGREGATED-BY-LIR"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1301,7 +1301,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED not allowed when more specific object has status ASSIGNED"]
+                ["Status ASSIGNED not allowed when more specific object '2001:600::/64' has status ASSIGNED"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1348,7 +1348,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED PI not allowed when more specific object has status ASSIGNED"]
+                ["Status ASSIGNED PI not allowed when more specific object '2001:600::/64' has status ASSIGNED"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1395,7 +1395,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED ANYCAST not allowed when more specific object has status ASSIGNED"]
+                ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/64' has status ASSIGNED"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1489,7 +1489,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ALLOCATED-BY-LIR not allowed when more specific object has status ASSIGNED PI"]
+                ["Status ALLOCATED-BY-LIR not allowed when more specific object '2001:600::/64' has status ASSIGNED PI"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1537,7 +1537,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status AGGREGATED-BY-LIR not allowed when more specific object has status ASSIGNED PI"]
+                ["Status AGGREGATED-BY-LIR not allowed when more specific object '2001:600::/64' has status ASSIGNED PI"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1584,7 +1584,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED not allowed when more specific object has status ASSIGNED PI"]
+                ["Status ASSIGNED not allowed when more specific object '2001:600::/64' has status ASSIGNED PI"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1631,7 +1631,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED PI not allowed when more specific object has status ASSIGNED PI"]
+                ["Status ASSIGNED PI not allowed when more specific object '2001:600::/64' has status ASSIGNED PI"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1678,7 +1678,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED ANYCAST not allowed when more specific object has status ASSIGNED PI"]
+                ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/64' has status ASSIGNED PI"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1772,7 +1772,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ALLOCATED-BY-LIR not allowed when more specific object has status ASSIGNED ANYCAST"]
+                ["Status ALLOCATED-BY-LIR not allowed when more specific object '2001:600::/32' has status ASSIGNED ANYCAST"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1820,7 +1820,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status AGGREGATED-BY-LIR not allowed when more specific object has status ASSIGNED ANYCAST"]
+                ["Status AGGREGATED-BY-LIR not allowed when more specific object '2001:600::/32' has status ASSIGNED ANYCAST"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1867,7 +1867,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED not allowed when more specific object has status ASSIGNED ANYCAST"]
+                ["Status ASSIGNED not allowed when more specific object '2001:600::/32' has status ASSIGNED ANYCAST"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1914,7 +1914,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED PI not allowed when more specific object has status ASSIGNED ANYCAST"]
+                ["Status ASSIGNED PI not allowed when more specific object '2001:600::/32' has status ASSIGNED ANYCAST"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }
@@ -1961,7 +1961,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
-                ["Status ASSIGNED ANYCAST not allowed when more specific object has status ASSIGNED ANYCAST"]
+                ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/32' has status ASSIGNED ANYCAST"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
     }

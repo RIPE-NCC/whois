@@ -301,7 +301,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.169.0.0 - 192.170.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.169.0.0 - 192.170.255.255") == [
                 "This range overlaps with 192.168.0.0 - 192.169.255.255",
-                "Status ASSIGNED PA not allowed when more specific object has status ALLOCATED PA"
+                "Status ASSIGNED PA not allowed when more specific object '192.170.0.0 - 192.170.255.255' has status ALLOCATED PA"
         ]
 
         queryObjectNotFound("-rGBT inetnum 192.169.0.0 - 192.170.255.255", "inetnum", "192.169.0.0 - 192.170.255.255")
@@ -396,7 +396,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.169.0.0 - 192.171.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.169.0.0 - 192.171.255.255") == [
                 "This range overlaps with 192.168.0.0 - 192.169.255.255",
-                "Status ALLOCATED PA not allowed when more specific object has status ALLOCATED PA"
+                "Status ALLOCATED PA not allowed when more specific object '192.171.0.0 - 192.171.255.255' has status ALLOCATED PA"
         ];
 
         queryObjectNotFound("-rGBT inetnum 192.169.0.0 - 192.171.255.255", "inetnum", "192.169.0.0 - 192.171.255.255")
