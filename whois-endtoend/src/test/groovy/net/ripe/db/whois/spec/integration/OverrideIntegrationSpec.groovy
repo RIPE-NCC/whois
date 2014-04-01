@@ -156,7 +156,9 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
                 "            ignored")
 
         result.contains("" +
-                "***Error:   This org-type value can only be set by administrative mntners")
+                "Error:   \"org-type:\" value can only be changed by the RIPE NCC for this\n" +
+                "            organisation.\n" +
+                "            Please contact \"ncc@ripe.net\" to change the name.")
     }
 
     def "override wrong password"() {
