@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
-import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -16,11 +16,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import java.util.List;
 import java.util.Set;
 
 @Component
 public class UserOrgFinder {
+
+    private enum MntByOrRef {MNT_BY, MNT_REF}
+
     private final Maintainers maintainers;
     private final JdbcTemplate jdbcTemplate;
 
@@ -37,17 +39,9 @@ public class UserOrgFinder {
     public Set<RpslObject> findOrganisationsForAuth(final String auth) {
         final Set<RpslObjectInfo> orgIds = Sets.newHashSet();
 
-        List<RpslObjectInfo> mntnerIds = IndexStrategies.get(AttributeType.AUTH).findInIndex(jdbcTemplate, auth);
-
-        // FIXME: Denis needs to specify what this actually needs to do
-        for (final RpslObjectInfo mntnerId : mntnerIds) {
-            final RpslObject mntner = JdbcRpslObjectOperations.getObjectById(jdbcTemplate, mntnerId.getObjectId());
-
-            final Set<CIString> intersection = Sets.intersection(mntner.getValuesForAttribute(AttributeType.MNT_BY), maintainers.getPowerMaintainers());
-
-            AttributeType inverseLookupAttr = intersection.isEmpty() ? AttributeType.MNT_BY : AttributeType.MNT_REF;
-
-            orgIds.addAll(IndexStrategies.get(inverseLookupAttr).findInIndex(jdbcTemplate, mntnerId, ObjectType.ORGANISATION));
+        for (RpslObjectInfo mntnerId : IndexStrategies.get(AttributeType.AUTH).findInIndex(jdbcTemplate, auth)) {
+            orgIds.addAll(findOrgsByMntner(mntnerId, MntByOrRef.MNT_BY));
+            orgIds.addAll(findOrgsByMntner(mntnerId, MntByOrRef.MNT_REF));
         }
 
         final Set<RpslObject> result = Sets.newHashSet();
@@ -56,5 +50,27 @@ public class UserOrgFinder {
         }
 
         return result;
+    }
+
+    private Set<RpslObjectInfo> findOrgsByMntner(final RpslObjectInfo mntnerId, final MntByOrRef refOrBy) {
+        final Set<RpslObjectInfo> filteredOrgIds = Sets.newHashSet();
+
+        final IndexStrategy strategy = (refOrBy == MntByOrRef.MNT_REF) ?
+                IndexStrategies.get(AttributeType.MNT_REF) : IndexStrategies.get(AttributeType.MNT_BY);
+
+        for (RpslObjectInfo orgId : strategy.findInIndex(jdbcTemplate, mntnerId, ObjectType.ORGANISATION)) {
+            if (refOrBy == MntByOrRef.MNT_REF && isOrgMntByRS(orgId)) {
+                filteredOrgIds.add(orgId);
+            }
+            if (refOrBy == MntByOrRef.MNT_BY && !isOrgMntByRS(orgId)) {
+                filteredOrgIds.add(orgId);
+            }
+        }
+        return filteredOrgIds;
+    }
+
+    private boolean isOrgMntByRS(final RpslObjectInfo orgId) {
+        RpslObject org = JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId.getObjectId());
+        return Sets.intersection(org.getValuesForAttribute(AttributeType.MNT_BY), maintainers.getPowerMaintainers()).size() > 0;
     }
 }

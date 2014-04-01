@@ -15,7 +15,6 @@ import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,14 +86,14 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void organisations_found_via_mnt_by() {
-        databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO random@ripe.net");
+        databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO db-test@ripe.net");
         final RpslObject organisation = RpslObject.parse("" +
                 "organisation: ORG-TST-TEST\n" +
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
         databaseHelper.addObject(organisation);
 
-        final WhoisResources result = RestTest.target(getPort(), "api/user/017f750e-6eb8-4ab1-b5ec-8ad64ce9a503/organisations", null, apiKey)
+        final WhoisResources result = RestTest.target(getPort(), "api/user/ed7cd420-6402-11e3-949a-0800200c9a66/organisations", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
@@ -120,7 +119,6 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
     }
 
     @Test
-    @Ignore
     public void organisations_w_mnt_by_RS_found_via_mnt_ref(){
         databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO db-test@ripe.net");
         databaseHelper.addObject("mntner: RIPE-NCC-HM-MNT\nmnt-by:RIPE-NCC-HM-MNT\nauth: SSO person@net.net");
@@ -141,7 +139,6 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
     }
 
     @Test
-    @Ignore
     public void organisations_w_mnt_by_RS_not_found_via_mnt_by() {
         databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO person@net.net");
         databaseHelper.addObject("mntner: RIPE-NCC-HM-MNT\nmnt-by:RIPE-NCC-HM-MNT\nauth: SSO db-test@ripe.net");

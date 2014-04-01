@@ -7,8 +7,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Test;
 
-import java.util.List;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -22,8 +20,9 @@ public class IndexWithReferenceTest extends IndexTestBase {
         final RpslObjectUpdateInfo objectInfo = rpslObjectUpdateDao.createObject(maintainer);
         whoisTemplate.update(String.format("INSERT INTO mnt_ref(object_id, mnt_id, object_type) VALUES(%s, %s, %s)", 1, objectInfo.getObjectId(), 18));
 
-        final List<RpslObjectInfo> result = subject.findInIndex(whoisTemplate, objectInfo.getKey());
-        assertThat(result.size(), is(1));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo.getKey()).size(), is(1));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo).size(), is(1));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo, ObjectType.ORGANISATION).size(), is(1));
     }
 
     @Test
@@ -32,8 +31,9 @@ public class IndexWithReferenceTest extends IndexTestBase {
         final RpslObject maintainer = RpslObject.parse("mntner:MNT-TEST\nmnt-by:MNT-TEST");
         final RpslObjectUpdateInfo objectInfo = rpslObjectUpdateDao.createObject(maintainer);
 
-        final List<RpslObjectInfo> result = subject.findInIndex(whoisTemplate, objectInfo.getKey());
-        assertThat(result.size(), is(0));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo.getKey()).size(), is(0));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo).size(), is(0));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo, ObjectType.ORGANISATION).size(), is(0));
     }
 
     @Test
