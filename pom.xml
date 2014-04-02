@@ -659,7 +659,7 @@
                 <version>2.16</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx512m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx512m -Ddir.var=var0 -Dsurefire.forkNumber=0</argLine>
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
@@ -678,7 +678,7 @@
                 <version>2.16</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx1024m -Ddir.var=var0 -Dsurefire.forkNumber=0</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
