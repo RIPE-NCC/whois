@@ -1193,14 +1193,19 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.ROUTE, AttributeType.PINGABLE, "192.168.1.10,192.168.1.11");
         verifyFailure(ObjectType.ROUTE, AttributeType.PINGABLE, "0/0");
 
+        verifySuccess(ObjectType.ROUTE, AttributeType.PINGABLE, "193.0.0.1");
+        verifySuccess(ObjectType.ROUTE, AttributeType.PINGABLE, "193.0.0.1/32");
+        verifyFailure(ObjectType.ROUTE, AttributeType.PINGABLE, "193.0.0.0/24");
+
         verifyFailure(ObjectType.ROUTE6, AttributeType.PINGABLE, "");
         verifyFailure(ObjectType.ROUTE6, AttributeType.PINGABLE, "100.100.100");
         verifyFailure(ObjectType.ROUTE6, AttributeType.PINGABLE, "0/0");
         verifyFailure(ObjectType.ROUTE6, AttributeType.PINGABLE, "2a00:c00::/48,2a00:c01::/48");
         verifyFailure(ObjectType.ROUTE6, AttributeType.PINGABLE, "::0/0");
-        
+
         verifySuccess(ObjectType.ROUTE, AttributeType.PINGABLE, "192.168.1.10");
         verifySuccess(ObjectType.ROUTE6, AttributeType.PINGABLE, "2a00:c00::");
+        verifySuccess(ObjectType.ROUTE6, AttributeType.PINGABLE, "2a00:c01::1234/128");
     }
 
     @Test
