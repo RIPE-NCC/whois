@@ -9,6 +9,27 @@ import net.ripe.db.whois.spec.domain.Message
 class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
     @Override
+    Map<String, String> getFixtures() {
+        [
+            "RIPE-NCC-RPSL-MNT": """\
+                mntner:      RIPE-NCC-RPSL-MNT
+                descr:       This maintainer may be used to create objects to represent
+                descr:       routing policy in the RIPE Database for number resources not
+                descr:       allocated or assigned from the RIPE NCC.
+                upd-to:      updto_hm@ripe.net
+                mnt-nfy:     mntnfy_hm@ripe.net
+                notify:      notify_hm@ripe.net
+                auth:        MD5-PW \$1\$0W0joRg1\$eOOcT4JsBIh6q3mu/yTvj1 # rpsl
+                notify:      dbtest@ripe.net
+                mnt-by:      RIPE-DBM-MNT
+                changed:     dbtest@ripe.net
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+        ]
+    }
+
+    @Override
     Map<String, String> getTransients() {
         [
             "IRT1": """\
@@ -29,7 +50,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 """,
             "AS222 - AS333": """\
                 as-block:       AS222 - AS333
-                descr:          ARIN ASN block
+                descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
                 changed:        dbtest@ripe.net
@@ -37,14 +58,22 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 """,
             "AS222 - AS333-NOLOW": """\
                 as-block:       AS222 - AS333
-                descr:          ARIN ASN block
+                descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
+                changed:        dbtest@ripe.net
+                source:         TEST
+                """,
+            "AS444 - AS555": """\
+                as-block:       AS444 - AS555
+                descr:          APNIC ASN block
+                mnt-by:         RIPE-DBM-MNT
+                mnt-lower:      RIPE-NCC-RPSL-MNT
                 changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS0 - AS4294967295": """\
                 as-block:       AS0 - AS4294967295
-                descr:          ARIN ASN block
+                descr:          RIPE ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
                 changed:        dbtest@ripe.net
@@ -87,8 +116,8 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             "AS200": """
                 aut-num:        AS200
                 as-name:        ASTEST
-                status:         ASSIGNED
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -104,6 +133,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS300
                 as-name:        ASTEST
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS200 accept ANY
                 export:         to AS200 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -128,9 +158,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, with mnt-by RS and LIR, and a parent mnt-lower RS"() {
       given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
@@ -140,6 +170,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -173,9 +204,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, with mnt-by RS and LIR, and a parent no mnt-lower, mnt-by pw supplied"() {
       given:
         syncUpdate(getTransient("AS222 - AS333-NOLOW") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
@@ -185,6 +216,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 default:        to AS8505
@@ -221,9 +253,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, with mnt-by RS and LIR, mnt-by pw supplied, and a parent mnt-lower RS, no pw supplied"() {
       given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
@@ -233,6 +265,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -267,9 +300,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, with mnt-by RS and LIR, no pw for parent mnt-lower RS, with override"() {
       given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
@@ -277,6 +310,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -309,15 +343,16 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
     def "create aut-num, mnt-by pw supplied, no parent"() {
       expect:
-        queryObjectNotFound("-rBG -T aut-num AS550", "aut-num", "AS550")
+        queryObjectNotFound("-rBG -T aut-num AS650", "aut-num", "AS650")
 
       when:
         def message = send new Message(
                 subject: "",
                 body: """\
-                aut-num:        AS550
+                aut-num:        AS650
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -341,22 +376,23 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS550" }
-        ack.errorMessagesFor("Create", "[aut-num] AS550") ==
-              ["No parent as-block found for AS550"]
+        ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS650" }
+        ack.errorMessagesFor("Create", "[aut-num] AS650") ==
+              ["No parent as-block found for AS650"]
 
-        queryObjectNotFound("-rBG -T aut-num AS550", "aut-num", "AS550")
+        queryObjectNotFound("-rBG -T aut-num AS650", "aut-num", "AS650")
     }
 
     def "create aut-num, mnt-by pw supplied, no parent, with override"() {
       expect:
-        queryObjectNotFound("-rBG -T aut-num AS550", "aut-num", "AS550")
+        queryObjectNotFound("-rBG -T aut-num AS650", "aut-num", "AS650")
 
       when:
         def message = syncUpdate("""
-                aut-num:        AS550
+                aut-num:        AS650
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -379,11 +415,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS550" }
-        ack.infoSuccessMessagesFor("Create", "[aut-num] AS550") == [
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS650" }
+        ack.infoSuccessMessagesFor("Create", "[aut-num] AS650") == [
                 "Authorisation override used"]
 
-        queryObject("-rBG -T aut-num AS550", "aut-num", "AS550")
+        queryObject("-rBG -T aut-num AS650", "aut-num", "AS650")
     }
 
     // Create aut-num, testing some elements of policy attrs
@@ -395,16 +431,17 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, testing some elements of policy attrs"() {
       given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
         def message = syncUpdate("""
-                aut-num:        AS250
+                aut-num:      AS250
                 as-name:      ASTEST
                 descr:        TEST TELEKOM
+                status:         ASSIGNED
                 import:       from AS1 accept {1.2.3.4/24}
                 export:       to AS2 announce {1.2.3.4/24}
                 import:       from AS1 accept (AS75535 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
@@ -494,9 +531,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, testing some more elements of policy attrs"() {
       given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
@@ -504,6 +541,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS250
                 as-name:      ASTEST
                 descr:        TEST TELEKOM
+                status:         ASSIGNED
                 import:       from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
                 import:       from AS1 accept community.contains(22:65536)
                 import:       from AS1 accept community.contains(2:-1)
@@ -550,20 +588,21 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, mix up import/export syntax"() {
       given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
         def message = syncUpdate("""
                 aut-num:        AS250
-                as-name:      ASTEST
-                status:       ASSIGNED
-                descr:        TEST TELEKOM
-                remarks:      following import is missing the 'and'
-                remarks:      from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
-                import:       from AS1 accept (AS65536 not AS7775535  AS1:as-myset:AS94967295:As-otherset)
+                as-name:        ASTEST
+                status:         ASSIGNED
+                descr:          TEST TELEKOM
+                status:         ASSIGNED
+                remarks:        following import is missing the 'and'
+                remarks:        from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
+                import:         from AS1 accept (AS65536 not AS7775535  AS1:as-myset:AS94967295:As-otherset)
                 import:         to AS1 announce ANY
                 import:         from AS1 announce ANY
                 import:         from AS1 accept FRED
@@ -607,9 +646,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, mp- attrs"() {
       given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
@@ -617,6 +656,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS250
                 as-name:      ASTEST
                 descr:        TEST TELEKOM
+                status:         ASSIGNED
                 import:       from AS1 accept {1.2.3.4/24}
                 export:       to AS2 announce {1.2.3.4/24}
                 mp-import:    afi ipv4.unicast from AS1 accept ANY;
@@ -666,18 +706,19 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, import only"() {
       given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
         def message = syncUpdate("""
                 aut-num:        AS250
-                as-name:      ASTEST
-                descr:        TEST TELEKOM
-                remarks:      following import is missing the 'and'
-                remarks:      from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
+                as-name:        ASTEST
+                descr:          TEST TELEKOM
+                status:         ASSIGNED
+                remarks:        following import is missing the 'and'
+                remarks:        from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
                 import:         from AS1 accept ANY
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
@@ -707,18 +748,19 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, export only"() {
       given:
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
         def message = syncUpdate("""
                 aut-num:        AS250
-                as-name:      ASTEST
-                descr:        TEST TELEKOM
-                remarks:      following import is missing the 'and'
-                remarks:      from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
+                as-name:        ASTEST
+                descr:          TEST TELEKOM
+                status:         ASSIGNED
+                remarks:        following import is missing the 'and'
+                remarks:        from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
                 export:         to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
@@ -748,9 +790,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create 32 bit aut-num"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS94967295", "aut-num", "AS94967295")
 
       when:
@@ -760,6 +802,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS94967295
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -793,9 +836,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create max 32 bit aut-num"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS4294967295", "aut-num", "AS4294967295")
 
       when:
@@ -805,6 +848,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS4294967295
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
@@ -834,9 +878,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create highest 16 bit aut-num"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS65535", "aut-num", "AS65535")
 
       when:
@@ -846,6 +890,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS65535
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -879,9 +924,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create lowest 16 bit aut-num"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS0", "aut-num", "AS0")
 
       when:
@@ -891,6 +936,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        As0
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -924,9 +970,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num range"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS0 - AS1", "aut-num", "AS0 - AS1")
 
       when:
@@ -936,6 +982,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS0 - AS1
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -971,9 +1018,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create -ve aut-num"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS-1", "aut-num", "AS-1")
 
       when:
@@ -983,6 +1030,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS-1
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1018,9 +1066,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create leading 0 aut-num"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS01", "aut-num", "AS01")
 
       when:
@@ -1030,6 +1078,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS01
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1065,9 +1114,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num > 32 bit"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS01", "aut-num", "AS4294967299")
 
       when:
@@ -1077,6 +1126,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS4294967299
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1112,9 +1162,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num AS2.3"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS2.3", "aut-num", "AS2.3")
 
       when:
@@ -1124,6 +1174,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS2.3
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1159,11 +1210,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, member-of, mbrs-by-ref"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS-SET") + "password: lir\noverride: denis,override1")
-        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1173,6 +1224,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1205,11 +1257,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, member-of, mbrs-by-ref, syntax errors"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS-SET") + "password: lir\noverride: denis,override1")
-        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1219,6 +1271,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1258,11 +1311,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, member-of, mbrs-by-ref, wrong mntner"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS-SET") + "password: lir\noverride: denis,override1")
-        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1272,6 +1325,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1306,11 +1360,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, member-of, no mbrs-by-ref"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS-SET-NO-REF") + "password: lir\noverride: denis,override1")
-        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1320,6 +1374,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1354,9 +1409,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, member-of, set does not exist"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
         queryObjectNotFound("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
 
@@ -1367,6 +1422,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1401,8 +1457,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "delete aut-num, RS auth"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+
+      expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1411,8 +1469,8 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
-                status:         ASSIGNED
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1444,8 +1502,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "delete aut-num, LIR auth"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+
+      expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1454,8 +1514,8 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
-                status:         ASSIGNED
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1505,8 +1565,8 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
-                status:         ASSIGNED
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1539,13 +1599,13 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "delete aut-num, RS auth, referenced in other aut-num"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
         syncUpdate(getTransient("AS300") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT aut-num AS300", "aut-num", "AS300")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
+        queryObject("-rGBT aut-num AS300", "aut-num", "AS300")
         query_object_matches("-r -T aut-num AS300", "aut-num", "AS300", "AS200")
 
       when:
@@ -1554,8 +1614,8 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
-                status:         ASSIGNED
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1588,10 +1648,12 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "delete aut-num, RS auth, referenced in as-set"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
         syncUpdate(getTransient("AS-SET-200") + "password: lir\noverride: denis,override1")
+
+      expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
         query_object_matches("-rGBT as-set AS7775535:AS-TEST", "as-set", "AS7775535:AS-TEST", "AS200")
 
       when:
@@ -1600,8 +1662,8 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
-                status:         ASSIGNED
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1634,8 +1696,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "modify aut-num, LIR auth"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+
+      expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1644,8 +1708,8 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
-                status:         ASSIGNED
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1677,8 +1741,10 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "modify aut-num, LIR auth, remove RS mntner"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+
+      expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1687,8 +1753,8 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS200
                 as-name:        ASTEST
-                status:         ASSIGNED
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1721,9 +1787,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create aut-num, (mp-)import/export/default have invalid AS values"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS0", "aut-num", "AS0")
 
       when:
@@ -1732,8 +1798,8 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        As0
                 as-name:        End-User-1
-                status:         ASSIGNED
                 descr:          description
+                status:         ASSIGNED
                 import:         from AS01 accept ANY
                 import:         from AS2.1 accept ANY
                 import:         from AS7777777234 accept ANY
@@ -1812,9 +1878,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "create very long aut-num, no org ref"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS702", "aut-num", "AS702")
 
       when:
@@ -1824,6 +1890,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:      AS702
                 as-name:      AS702
                 descr:        ISP
+                status:         ASSIGNED
                 import:       from AS72 194.98.169.195 at 194.98.169.196 accept AS72
                 import:       from AS109 213.53.49.50 at 213.53.49.49 accept AS109
                 import:       from AS137 194.242.224.15 at 194.242.224.18 accept AS-FOO1
