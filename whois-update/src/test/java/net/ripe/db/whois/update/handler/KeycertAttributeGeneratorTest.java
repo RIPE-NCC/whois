@@ -35,13 +35,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AttributeGeneratorTest {
+public class KeycertAttributeGeneratorTest {
     @Mock private Update update;
     @Mock private UpdateContext updateContext;
     @Mock private KeyWrapperFactory keyWrapperFactory;
     @Mock private Maintainers maintainers;
     @Mock private RpslObjectDao rpslObjectDao;
-    @InjectMocks private AttributeGenerator subject;
+    @InjectMocks private KeycertAttributeGenerator subject;
 
     @Test
     public void generate_attributes_for_x509_certificate() {
@@ -246,7 +246,7 @@ public class AttributeGeneratorTest {
     // helper methods
 
     private void validateAttributeType(final RpslObject rpslObject, final AttributeType attributeType, final String... values) {
-        final List attributes = Lists.transform(Arrays.<String>asList(values), new Function<String, RpslAttribute>() {
+        final List attributes = Lists.transform(Arrays.asList(values), new Function<String, RpslAttribute>() {
             @Override
             public RpslAttribute apply(@Nullable String input) {
                 return new RpslAttribute(attributeType, input);

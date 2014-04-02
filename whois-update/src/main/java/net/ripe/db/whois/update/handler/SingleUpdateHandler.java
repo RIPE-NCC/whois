@@ -45,7 +45,8 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 public class SingleUpdateHandler {
     private final AutoKeyResolver autoKeyResolver;
     private final AttributeSanitizer attributeSanitizer;
-    private final AttributeGenerator attributeGenerator;
+    private final KeycertAttributeGenerator keycertAttributeGenerator;
+    private final AutnumStatusAttributeGenerator autnumStatusAttributeGenerator;
     private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final UpdateLockDao updateLockDao;
@@ -64,7 +65,8 @@ public class SingleUpdateHandler {
 
     @Autowired
     public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver,
-                               final AttributeGenerator attributeGenerator,
+                               final KeycertAttributeGenerator keycertAttributeGenerator,
+                               final AutnumStatusAttributeGenerator autnumStatusAttributeGenerator,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final LoggerContext loggerContext,
@@ -76,7 +78,8 @@ public class SingleUpdateHandler {
                                final PendingUpdateHandler pendingUpdateHandler,
                                final SsoTranslator ssoTranslator) {
         this.autoKeyResolver = autoKeyResolver;
-        this.attributeGenerator = attributeGenerator;
+        this.keycertAttributeGenerator = keycertAttributeGenerator;
+        this.autnumStatusAttributeGenerator = autnumStatusAttributeGenerator;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
@@ -99,8 +102,8 @@ public class SingleUpdateHandler {
         }
 
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
-        RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
-        final RpslObject originalObject = getOriginalObject(updatedObject, update, updateContext, overrideOptions);
+        final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
+        RpslObject updatedObject = getUpdatedObject(originalObject, update, updateContext, keyword);
         final Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
@@ -146,7 +149,7 @@ public class SingleUpdateHandler {
     }
 
     @CheckForNull
-    private RpslObject getOriginalObject(final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final OverrideOptions overrideOptions) {
+    private RpslObject getOriginalObject(final Update update, final UpdateContext updateContext, final OverrideOptions overrideOptions) {
         RpslObject originalObject;
         if (overrideOptions.isObjectIdOverride()) {
             final int objectId = overrideOptions.getObjectId();
@@ -163,10 +166,10 @@ public class SingleUpdateHandler {
                 return null;
             }
         } else {
-            final CIString key = updatedObject.getKey();
+            final CIString key = update.getSubmittedObject().getKey();
 
             try {
-                originalObject = rpslObjectDao.getByKey(updatedObject.getType(), key);
+                originalObject = rpslObjectDao.getByKey(update.getSubmittedObject().getType(), key);
             } catch (EmptyResultDataAccessException e) {
                 return null;
             } catch (IncorrectResultSizeDataAccessException e) {
@@ -178,7 +181,7 @@ public class SingleUpdateHandler {
         return originalObject;
     }
 
-    private RpslObject getUpdatedObject(final Update update, final UpdateContext updateContext, final Keyword keyword) {
+    private RpslObject getUpdatedObject(final RpslObject originalObject, final Update update, final UpdateContext updateContext, final Keyword keyword) {
         RpslObject updatedObject = update.getSubmittedObject();
 
         if (RpslObjectFilter.isFiltered(updatedObject)) {
@@ -200,7 +203,8 @@ public class SingleUpdateHandler {
             }
         } else {
             updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
-            updatedObject = attributeGenerator.generateAttributes(updatedObject, update, updateContext);
+            updatedObject = keycertAttributeGenerator.generateAttributes(updatedObject, update, updateContext);
+            updatedObject = autnumStatusAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
 
             final ObjectMessages messages = ObjectTemplate.getTemplate(updatedObject.getType()).validate(updatedObject);
             if (messages.hasMessages()) {
