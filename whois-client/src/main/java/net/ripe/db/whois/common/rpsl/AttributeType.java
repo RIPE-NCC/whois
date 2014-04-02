@@ -600,7 +600,7 @@ public enum AttributeType implements Documented {
             .references(ObjectType.ORGANISATION)),
 
     STATUS(new Builder("status", "st")
-            .doc("Specifies the status of the address range represented by inetnum or inet6num object.") //TODO Denis to suggest phrasing to include autnum status
+            .doc("Specifies the status of the resource.")
             .syntax(STATUS_SYNTAX)),
 
     TECH_C(new Builder("tech-c", "tc")
