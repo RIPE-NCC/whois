@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 import static net.ripe.db.whois.common.rpsl.AttributeType.SPONSORING_ORG;
 
 @Component
-public class SponsoringOrgAttributeGenerator extends AbstractAttributeGenerator {
+public class SponsoringOrgAttributeGenerator extends AttributeGenerator {
 
-    public RpslObject generateAttribute(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
+    public RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
         switch (updatedObject.getType()) {
             case AUT_NUM:
             case INET6NUM:

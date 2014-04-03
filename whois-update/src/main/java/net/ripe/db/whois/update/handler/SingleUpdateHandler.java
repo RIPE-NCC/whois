@@ -132,7 +132,7 @@ public class SingleUpdateHandler {
 
         loggerContext.logPreparedUpdate(preparedUpdate);
         authenticator.authenticate(origin, preparedUpdate, updateContext);
-        preparedUpdate = new PreparedUpdate(update, originalObject, sponsoringOrgAttributeGenerator.generateAttribute(originalObject, updatedObject, update, updateContext), action, overrideOptions);
+        preparedUpdate = new PreparedUpdate(update, originalObject, sponsoringOrgAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext), action, overrideOptions);
 
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
         final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
