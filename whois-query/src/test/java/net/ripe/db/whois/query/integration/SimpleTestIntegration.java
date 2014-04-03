@@ -605,6 +605,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                         "     o ASSIGNED ANYCAST\n" +
                         "     o EARLY-REGISTRATION\n" +
                         "     o NOT-SET\n" +
+                        "     o LEGACY\n" +
                         "\n" +
                         "remarks\n" +
                         "\n" +

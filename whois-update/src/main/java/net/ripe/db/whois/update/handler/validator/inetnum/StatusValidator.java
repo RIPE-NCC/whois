@@ -18,6 +18,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.update.authentication.Principal;
+import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -71,13 +72,13 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
         if (update.getAction().equals(Action.CREATE)) {
             validateCreate(update, updateContext);
         } else if (update.getAction().equals(Action.DELETE)) {
-            validateDelete(update, updateContext);
+            validateDelete(update, updateContext, ipv4Tree);
         } else {
             validateModify(update, updateContext);
         }
     }
 
-    private void validateCreate(PreparedUpdate update, UpdateContext updateContext) {
+    private void validateCreate(final PreparedUpdate update, final UpdateContext updateContext) {
         final IpInterval ipInterval = IpInterval.parse(update.getUpdatedObject().getKey());
         if (update.getType().equals(ObjectType.INETNUM)) {
             validateCreate(update, updateContext, ipv4Tree, ipInterval);
@@ -118,6 +119,10 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
                 return;
             }
 
+            if (updatedObject.getType() == ObjectType.INETNUM) {
+                validateStatusLegacy(updatedObject, parentObject, update, updateContext);
+            }
+
             final Set<CIString> updateMntBy = updatedObject.getValuesForAttribute(AttributeType.MNT_BY);
             final boolean hasRsMaintainer = !Sets.intersection(maintainers.getRsMaintainers(), updateMntBy).isEmpty();
 
@@ -139,6 +144,10 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
                 checkAuthorizationForStatusInHierarchy(update, updateContext, ipTree, ipInterval, UpdateMessages.incorrectParentStatus(updatedObject.getType(), parentStatus.toString()));
             }
         }
+    }
+
+    private boolean authByRsOrOverride(final Subject subject) {
+        return subject.hasPrincipal(Principal.RS_MAINTAINER) || subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER);
     }
 
     private void checkAuthorizationForStatusInHierarchy(final PreparedUpdate update, final UpdateContext updateContext, final IpTree ipTree, final IpInterval ipInterval, final Message errorMessage) {
@@ -245,7 +254,7 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
         return true;
     }
 
-    private void validateModify(PreparedUpdate update, UpdateContext updateContext) {
+    private void validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
         final CIString originalStatus = update.getReferenceObject().getValueForAttribute(AttributeType.STATUS);
         final CIString updateStatus = update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS);
 
@@ -254,7 +263,7 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
         }
     }
 
-    private void validateDelete(PreparedUpdate update, UpdateContext updateContext) {
+    private void validateDelete(final PreparedUpdate update, final UpdateContext updateContext, final IpTree ipTree) {
         InetStatus status;
 
         try {
@@ -268,7 +277,7 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
             return;
         }
 
-        if (status.equals(NOT_SET)) {
+        if (status.equals(NOT_SET)) {   //TODO will this ever succeed?
             updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(NOT_SET));
             return;
         }
@@ -277,6 +286,25 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
             final Set<CIString> mntBy = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
             if (Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty()) {
                 updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(status.toString()));
+            }
+        }
+
+        if (update.getUpdatedObject().getType() == ObjectType.INETNUM) {
+            final IpInterval ipInterval = IpInterval.parse(update.getUpdatedObject().getKey());
+            final List<IpEntry> parents = ipTree.findFirstLessSpecific(ipInterval);
+            if (parents.size() != 1) {
+                updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipInterval));
+                return;
+            }
+            validateStatusLegacy(update.getUpdatedObject(), objectDao.getById(parents.get(0).getObjectId()), update, updateContext);
+        }
+    }
+
+    private void validateStatusLegacy(final RpslObject updatedObject, final RpslObject parentObject, final PreparedUpdate update, final UpdateContext updateContext) {
+        if (updatedObject.getValueForAttribute(AttributeType.STATUS).equals("LEGACY") &&
+                !parentObject.getValueForAttribute(AttributeType.STATUS).equals("LEGACY")) {
+            if (!authByRsOrOverride(updateContext.getSubject(update))) {
+                updateContext.addMessage(update, UpdateMessages.inetnumStatusLegacy());
             }
         }
     }
