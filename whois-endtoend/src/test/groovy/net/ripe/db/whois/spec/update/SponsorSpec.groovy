@@ -2378,6 +2378,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
+    @Ignore
     def "create inetnum with status ASSIGNED PA, with type LIR sponsoring org, with RS pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2418,6 +2419,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
+    @Ignore
     def "create inet6num with status ASSIGNED, with type LIR sponsoring org, with RS pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inet6num 12001:600::/64", "inet6num", "2001:600::/64")
