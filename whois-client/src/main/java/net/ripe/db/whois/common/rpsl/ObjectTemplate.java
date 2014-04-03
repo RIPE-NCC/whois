@@ -520,8 +520,14 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         }
 
         @Override
-        public int compare(RpslAttribute o1, RpslAttribute o2) {
-            return order.get(o1.getType()) - order.get(o2.getType());
+        public int compare(final RpslAttribute o1, final RpslAttribute o2) {
+            final Integer o1order = order.get(o1.getType());
+            final Integer o2order = order.get(o2.getType());
+            if (o1order == null || o2order == null) {
+                return 0;
+            } else {
+                return o1order.compareTo(o2order);
+            }
         }
     }
 
