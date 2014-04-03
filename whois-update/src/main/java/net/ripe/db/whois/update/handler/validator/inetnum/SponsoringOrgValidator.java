@@ -2,10 +2,14 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_TYPE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.SPONSORING_ORG;
@@ -34,10 +39,12 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     private static final List<ObjectType> OBJECT_TYPES = ImmutableList.of(INETNUM, INET6NUM, AUT_NUM);
 
     private final RpslObjectDao objectDao;
+    private final Maintainers maintainers;
 
     @Autowired
-    public SponsoringOrgValidator(final RpslObjectDao objectDao) {
+    public SponsoringOrgValidator(final RpslObjectDao objectDao, final Maintainers maintainers) {
         this.objectDao = objectDao;
+        this.maintainers = maintainers;
     }
 
     @Override
@@ -56,12 +63,23 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         final CIString updSponsoringOrg = update.getUpdatedObject().getValueOrNullForAttribute(SPONSORING_ORG);
         final Action action = update.getAction();
 
+
+        final RpslObject updatedObject = update.getUpdatedObject();
+
+        if (action == Action.CREATE && !updatedObject.containsAttribute(SPONSORING_ORG) && updatedObject.containsAttribute(AttributeType.ORG) && hasEndUserMntner(updatedObject)) {
+            final List<RpslObject> organisations = objectDao.getByKeys(ObjectType.ORGANISATION, Collections.singleton(updatedObject.getValueForAttribute(AttributeType.ORG)));
+            if (!organisations.isEmpty()) {
+                if (OrgType.OTHER == OrgType.getFor(organisations.get(0).getValueForAttribute(AttributeType.ORG_TYPE))) {
+                    updateContext.addMessage(update, UpdateMessages.sponsoringOrgMustBePresent());
+                    return;
+                }
+            }
+        }
+
         final boolean sponsoringOrgHasChanged = sponsoringOrgHasChangedAtAll(refSponsoringOrg, updSponsoringOrg, action);
         if (!sponsoringOrgHasChanged) {
             return;
         }
-
-        final RpslObject updatedObject = update.getUpdatedObject();
 
         if (updatedObject.containsAttribute(SPONSORING_ORG)) {
             final List<RpslObject> sponsoringOrganisations = objectDao.getByKeys(ORGANISATION, Collections.singletonList(updatedObject.getValueOrNullForAttribute(SPONSORING_ORG)));
@@ -103,5 +121,10 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         final boolean referencedPresent = referencedSponsoringOrg != null && !referencedSponsoringOrg.equals("");
         final boolean updatedPresent = updatedSponsoringOrg != null && !updatedSponsoringOrg.equals("");
         return action == MODIFY && referencedPresent && updatedPresent && !Objects.equal(referencedSponsoringOrg, updatedSponsoringOrg);
+    }
+
+    private boolean hasEndUserMntner(final RpslObject object) {
+        final Set<CIString> mntBy = object.getValuesForAttribute(AttributeType.MNT_BY);
+        return !Sets.intersection(maintainers.getEnduserMaintainers(), mntBy).isEmpty();
     }
 }

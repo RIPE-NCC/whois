@@ -601,4 +601,9 @@ public final class UpdateMessages {
     public static Message sponsoringOrgNotLIR() {
         return new Message(Type.ERROR, "Referenced object must have org-type LIR");
     }
+
+    //TODO PO to figure out errormessage
+    public static Message sponsoringOrgMustBePresent() {
+        return new Message(Type.ERROR, "The sponsoring-org must be present when referenced org has org-type OTHER");
+    }
 }
