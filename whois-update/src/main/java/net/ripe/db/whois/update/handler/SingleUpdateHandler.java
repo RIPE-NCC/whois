@@ -46,7 +46,7 @@ public class SingleUpdateHandler {
     private final AutoKeyResolver autoKeyResolver;
     private final AttributeSanitizer attributeSanitizer;
     private final KeycertAttributeGenerator keycertAttributeGenerator;
-    private final AutnumStatusAttributeGenerator autnumStatusAttributeGenerator;
+    private final AutnumAttributeGenerator autnumAttributeGenerator;
     private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final UpdateLockDao updateLockDao;
@@ -66,7 +66,7 @@ public class SingleUpdateHandler {
     @Autowired
     public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver,
                                final KeycertAttributeGenerator keycertAttributeGenerator,
-                               final AutnumStatusAttributeGenerator autnumStatusAttributeGenerator,
+                               final AutnumAttributeGenerator autnumAttributeGenerator,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final LoggerContext loggerContext,
@@ -79,7 +79,7 @@ public class SingleUpdateHandler {
                                final SsoTranslator ssoTranslator) {
         this.autoKeyResolver = autoKeyResolver;
         this.keycertAttributeGenerator = keycertAttributeGenerator;
-        this.autnumStatusAttributeGenerator = autnumStatusAttributeGenerator;
+        this.autnumAttributeGenerator = autnumAttributeGenerator;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
@@ -203,8 +203,8 @@ public class SingleUpdateHandler {
             }
         } else {
             updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
-            updatedObject = keycertAttributeGenerator.generateAttributes(updatedObject, update, updateContext);
-            updatedObject = autnumStatusAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+            updatedObject = keycertAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+            updatedObject = autnumAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
 
             final ObjectMessages messages = ObjectTemplate.getTemplate(updatedObject.getType()).validate(updatedObject);
             if (messages.hasMessages()) {

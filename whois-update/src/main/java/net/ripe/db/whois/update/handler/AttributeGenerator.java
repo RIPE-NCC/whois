@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.handler;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Update;
@@ -13,7 +14,9 @@ import java.util.Collections;
 import java.util.ListIterator;
 import java.util.Set;
 
-public class AbstractAttributeGenerator {
+public abstract class AttributeGenerator {
+
+    public abstract RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext);
 
     protected void cleanupAttributeType(final Update update, final UpdateContext updateContext, final RpslObjectBuilder builder, final AttributeType attributeType, final String validAttributeValue) {
         cleanupAttributeType(update, updateContext, builder, attributeType, Collections.singleton(validAttributeValue));
