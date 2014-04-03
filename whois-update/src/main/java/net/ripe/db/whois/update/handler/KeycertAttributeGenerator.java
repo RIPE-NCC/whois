@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class KeycertAttributeGenerator extends AbstractAttributeGenerator {
+public class KeycertAttributeGenerator extends AttributeGenerator {
     private final KeyWrapperFactory keyWrapperFactory;
 
     @Autowired
@@ -19,12 +19,17 @@ public class KeycertAttributeGenerator extends AbstractAttributeGenerator {
         this.keyWrapperFactory = keyWrapperFactory;
     }
 
-    public RpslObject generateAttributes(final RpslObject object, final Update update, final UpdateContext updateContext) {
-        switch (object.getType()) {
+    public RpslObject generateAttributes(final RpslObject originalObject, final Update update, final UpdateContext updateContext) {
+        return generateAttributes(originalObject, originalObject, update, updateContext);
+    }
+
+    @Override
+    public RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
+        switch (updatedObject.getType()) {
             case KEY_CERT:
-                return generateKeycertAttributesForKeycert(object, update, updateContext);
+                return generateKeycertAttributesForKeycert(updatedObject, update, updateContext);
             default:
-                return object;
+                return updatedObject;
         }
     }
 

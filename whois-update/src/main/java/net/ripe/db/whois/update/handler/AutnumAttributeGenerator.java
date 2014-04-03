@@ -15,14 +15,15 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 @Component
-public class AutnumStatusAttributeGenerator extends AbstractAttributeGenerator {
+public class AutnumAttributeGenerator extends AttributeGenerator {
     private final Maintainers maintainers;
 
     @Autowired
-    public AutnumStatusAttributeGenerator(final Maintainers maintainers) {
+    public AutnumAttributeGenerator(final Maintainers maintainers) {
         this.maintainers = maintainers;
     }
 
+    @Override
     public RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
         switch (updatedObject.getType()) {
             case AUT_NUM:
