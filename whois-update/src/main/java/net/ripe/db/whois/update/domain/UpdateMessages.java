@@ -295,6 +295,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This range overlaps with %s", intervalToString(intersectingRange));
     }
 
+    public static Message inetnumStatusLegacy() {
+        return new Message(Type.ERROR, "Only RIPE NCC can create/delete a top level object with status 'LEGACY'\nContact legacy@ripe.net for more info");
+    }
+
     private static CharSequence intervalToString(final Interval<?> interval) {
         if (interval instanceof Ipv4Resource) {
             return ((Ipv4Resource) interval).toRangeString();

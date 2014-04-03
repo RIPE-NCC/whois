@@ -5,10 +5,17 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static net.ripe.db.whois.common.rpsl.attrs.OrgType.*;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.IANA;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.LIR;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.OTHER;
+import static net.ripe.db.whois.common.rpsl.attrs.OrgType.RIR;
 
 public enum InetnumStatus implements InetStatus {
     ALLOCATED_PA("ALLOCATED PA", IANA, RIR, LIR),
@@ -21,7 +28,8 @@ public enum InetnumStatus implements InetStatus {
     ASSIGNED_PI("ASSIGNED PI", LIR, OTHER, RIR),
     ASSIGNED_ANYCAST("ASSIGNED ANYCAST", LIR, OTHER),
     EARLY_REGISTRATION("EARLY-REGISTRATION", LIR, OTHER),
-    NOT_SET("NOT-SET", LIR, OTHER);
+    NOT_SET("NOT-SET", LIR, OTHER),
+    LEGACY("LEGACY", LIR, OTHER);
 
     private static final List<InetnumStatus> RS_MNTNER_STATUSES = Lists.newArrayList(ASSIGNED_ANYCAST, EARLY_REGISTRATION, ALLOCATED_UNSPECIFIED);
 
