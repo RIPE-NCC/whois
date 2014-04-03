@@ -47,6 +47,7 @@ public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
     private final KeycertAttributeGenerator keycertAttributeGenerator;
     private final AutnumAttributeGenerator autnumAttributeGenerator;
+    private final SponsoringOrgAttributeGenerator sponsoringOrgAttributeGenerator;
     private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final UpdateLockDao updateLockDao;
@@ -80,6 +81,7 @@ public class SingleUpdateHandler {
         this.autoKeyResolver = autoKeyResolver;
         this.keycertAttributeGenerator = keycertAttributeGenerator;
         this.autnumAttributeGenerator = autnumAttributeGenerator;
+        this.sponsoringOrgAttributeGenerator = new SponsoringOrgAttributeGenerator();
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
@@ -130,6 +132,8 @@ public class SingleUpdateHandler {
 
         loggerContext.logPreparedUpdate(preparedUpdate);
         authenticator.authenticate(origin, preparedUpdate, updateContext);
+        preparedUpdate = new PreparedUpdate(update, originalObject, sponsoringOrgAttributeGenerator.generateAttribute(originalObject, updatedObject, update, updateContext), action, overrideOptions);
+
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
         final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
 
