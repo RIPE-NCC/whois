@@ -1,4 +1,5 @@
 package net.ripe.db.whois.spec.integration
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
@@ -651,6 +652,147 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
         response =~ /SUCCESS/
+    }
+
+    def "create autnum without sponsoring-org, with referenced ORG orgtype OTHER, end-mnt"() {
+      given:
+        databaseHelper.addObject("" +
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$UfJlEnmZ\$2.e732Z780Y9Y1GB2rOtg/ # ende\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "source: TEST")
+        databaseHelper.addObject("" +
+                "organisation:    ORG-OTO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        Other Test org\n" +
+                "address:         RIPE NCC\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "ref-nfy:         dbtest-org@ripe.net\n" +
+                "mnt-by:          upd-mnt\n" +
+                "mnt-ref:          upd-mnt\n" +
+                "changed: denis@ripe.net 20121016\n" +
+                "source:  TEST")
+      when:
+        def create = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                descr:          other description
+                org:            ORG-OTO1-TEST
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: ende
+                password: emptypassword
+                password: update
+                """.stripIndent()))
+
+      then:
+        create =~ /Create FAILED: \[aut-num\] AS400/
+        create =~ /Error:   The sponsoring-org must be present when referenced org has org-type
+            OTHER/
+    }
+
+    def "create autnum with sponsoring-org, with referenced ORG orgtype OTHER, end-mnt"() {
+      given:
+        databaseHelper.addObject("" +
+              "mntner: RIPE-NCC-END-MNT\n" +
+              "auth: MD5-PW \$1\$UfJlEnmZ\$2.e732Z780Y9Y1GB2rOtg/ # ende\n" +
+              "mnt-by: RIPE-NCC-END-MNT\n" +
+              "source: TEST")
+        databaseHelper.addObject("" +
+              "organisation:    ORG-OTO1-TEST\n" +
+              "org-type:        other\n" +
+              "org-name:        Other Test org\n" +
+              "address:         RIPE NCC\n" +
+              "e-mail:          dbtest@ripe.net\n" +
+              "ref-nfy:         dbtest-org@ripe.net\n" +
+              "mnt-by:          upd-mnt\n" +
+              "mnt-ref:          upd-mnt\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST")
+      when:
+        def create = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                descr:          other description
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-NCC1-RIPE
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: ende
+                password: emptypassword
+                password: update
+                """.stripIndent()))
+      then:
+        create =~ /Create SUCCEEDED: \[aut-num\] AS400/
+    }
+
+    def "create autnum without sponsoring-org, with referenced ORG orgtype LIR, end-mnt"() {
+      given:
+        databaseHelper.addObject("" +
+              "mntner: RIPE-NCC-END-MNT\n" +
+              "auth: MD5-PW \$1\$UfJlEnmZ\$2.e732Z780Y9Y1GB2rOtg/ # ende\n" +
+              "mnt-by: RIPE-NCC-END-MNT\n" +
+              "source: TEST")
+      when:
+        def create = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                descr:          other description
+                org:            ORG-NCC1-RIPE
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: ende
+                password: emptypassword
+                password: update
+                """.stripIndent()))
+      then:
+        create =~ /Create SUCCEEDED: \[aut-num\] AS400/
+    }
+
+    def "create autnum without sponsoring-org, with referenced ORG orgtype OTHER, not end-mnt"() {
+      given:
+        databaseHelper.addObject("" +
+              "mntner: RIPE-NCC-END-MNT\n" +
+              "auth: MD5-PW \$1\$UfJlEnmZ\$2.e732Z780Y9Y1GB2rOtg/ # ende\n" +
+              "mnt-by: RIPE-NCC-END-MNT\n" +
+              "source: TEST")
+        databaseHelper.addObject("" +
+              "organisation:    ORG-OTO1-TEST\n" +
+              "org-type:        other\n" +
+              "org-name:        Other Test org\n" +
+              "address:         RIPE NCC\n" +
+              "e-mail:          dbtest@ripe.net\n" +
+              "ref-nfy:         dbtest-org@ripe.net\n" +
+              "mnt-by:          upd-mnt\n" +
+              "mnt-ref:          upd-mnt\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST")
+      when:
+        def create = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                descr:          other description
+                org:            ORG-OTO1-TEST
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         RIPE-NCC-HM-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: emptypassword
+                password: hm
+                password: update
+                """.stripIndent()))
+      then:
+        create =~ /Create SUCCEEDED: \[aut-num\] AS400/
     }
 
     def "create autnum with sponsoring-org, no RS mntner"() {
