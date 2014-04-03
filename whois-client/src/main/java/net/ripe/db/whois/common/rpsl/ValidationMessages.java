@@ -51,8 +51,7 @@ public final class ValidationMessages {
         return new Message(Messages.Type.INFO, "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
     }
 
-    //TODO get someone to specify the info message
-    public static Message attributeValueSticky(final AttributeType attributeType, final String stuck) {
-        return new Message(Messages.Type.INFO, "Attribute '%s' has been put back with value '%s'", attributeType.getName(), stuck);
+    public static Message attributeValueSticky(final AttributeType attributeType) {
+        return new Message(Messages.Type.INFO, "The attribute '%s' can only be remove by RIPE NCC", attributeType.getName());
     }
 }

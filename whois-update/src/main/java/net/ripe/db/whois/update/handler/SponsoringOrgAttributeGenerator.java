@@ -35,7 +35,7 @@ public class SponsoringOrgAttributeGenerator extends AttributeGenerator {
 
             final String originalSponsoringOrgValue = originalObject.getValueOrNullForAttribute(SPONSORING_ORG).toString();
             cleanupAttributeType(update, updateContext, builder, AttributeType.SPONSORING_ORG, originalSponsoringOrgValue);
-            updateContext.addMessage(update, ValidationMessages.attributeValueSticky(AttributeType.SPONSORING_ORG, originalSponsoringOrgValue));
+            updateContext.addMessage(update, ValidationMessages.attributeValueSticky(AttributeType.SPONSORING_ORG));
             return builder.get();
         }
 
