@@ -690,8 +690,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         create =~ /Create FAILED: \[aut-num\] AS400/
-        create =~ /Error:   The sponsoring-org must be present when referenced org has org-type
-            OTHER/
+        create =~ /Error:   This resource object must be created with a sponsoring-org attribute/
     }
 
     def "create autnum with sponsoring-org, with referenced ORG orgtype OTHER, end-mnt"() {
@@ -1014,6 +1013,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
+        update =~ /Info:    The attribute 'sponsoring-org' can only be remove by RIPE NCC/
         queryObject("-rBG AS400", "sponsoring-org", "ORG-NCC1-RIPE")
     }
 
