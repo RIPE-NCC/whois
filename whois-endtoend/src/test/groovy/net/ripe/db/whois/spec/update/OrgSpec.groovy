@@ -2222,7 +2222,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
     def "modify organisation, org-type:OTHER, ref from PI, change org-name"() {
         given:
-        syncUpdate(getTransient("ASSIGN-PI-OTHER") + "override: denis,override1")
+        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER"))
 
         expect:
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "ASSIGNED PI")
@@ -2347,7 +2347,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
     def "modify organisation, org-type:OTHER, ref from ASN, change org-name"() {
         given:
-        syncUpdate(getTransient("AS500") + "override: denis,override1")
+        databaseHelper.addObject(getTransient("AS500"))
 
         expect:
         queryObject("-r -T aut-num AS500", "aut-num", "AS500")
