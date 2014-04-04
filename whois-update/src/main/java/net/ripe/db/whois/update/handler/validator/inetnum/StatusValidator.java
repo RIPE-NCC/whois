@@ -301,8 +301,8 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
     }
 
     private void validateStatusLegacy(final RpslObject updatedObject, final RpslObject parentObject, final PreparedUpdate update, final UpdateContext updateContext) {
-        if (updatedObject.getValueForAttribute(AttributeType.STATUS).equals("LEGACY") &&
-                !parentObject.getValueForAttribute(AttributeType.STATUS).equals("LEGACY")) {
+        if (updatedObject.getValueForAttribute(AttributeType.STATUS).equals(InetnumStatus.LEGACY.toString()) &&
+                !parentObject.getValueForAttribute(AttributeType.STATUS).equals(InetnumStatus.LEGACY.toString())) {
             if (!authByRsOrOverride(updateContext.getSubject(update))) {
                 updateContext.addMessage(update, UpdateMessages.inetnumStatusLegacy());
             }
