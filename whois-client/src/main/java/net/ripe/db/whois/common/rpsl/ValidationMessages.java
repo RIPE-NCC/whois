@@ -52,6 +52,6 @@ public final class ValidationMessages {
     }
 
     public static Message attributeValueSticky(final AttributeType attributeType) {
-        return new Message(Messages.Type.INFO, "The attribute '%s' can only be remove by RIPE NCC", attributeType.getName());
+        return new Message(Messages.Type.INFO, "The attribute '%s' can only be removed by RIPE NCC", attributeType.getName());
     }
 }
