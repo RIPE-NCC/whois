@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class AutNumAuthSpec extends BaseQueryUpdateSpec {
@@ -30,6 +31,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS251
                 as-name:        End-User-1
                 descr:          description
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -72,22 +74,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
-            "AS12668": """\
-                aut-num:        AS12668
-                as-name:        End-User-1
-                descr:          description
-                status:         legacy
-                import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
-                mp-import:      afi ipv6.unicast from AS1 accept ANY
-                mp-export:      afi ipv6.unicast to AS1 announce AS2
-                org:            ORG-OTO1-TEST
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
-                source:         TEST
-                """
         ]
     }
 
@@ -188,6 +174,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        ASTEST
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -204,6 +191,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        End-User-1
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -221,6 +209,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        ASTEST
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS200 accept ANY
                 export:         to AS200 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -271,8 +260,25 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         CHILD-MB-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                """
-    ]}
+                """,
+            "AS12668": """\
+                aut-num:        AS12668
+                as-name:        End-User-1
+                descr:          description
+                status:         legacy
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                """,
+        ]
+    }
 
     def "create aut-num, with mnt-by RS and LIR, and a parent mnt-lower RS"() {
       given:
@@ -290,6 +296,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        End-User-1
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -336,6 +343,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        End-User-1
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 default:        to AS8505
@@ -385,6 +393,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        End-User-1
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -430,6 +439,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        End-User-1
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -472,6 +482,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        End-User-1
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -512,6 +523,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        End-User-1
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -922,6 +934,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        End-User-1
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -968,6 +981,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        End-User-1
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
@@ -1010,6 +1024,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        End-User-1
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1056,6 +1071,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        End-User-1
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1590,6 +1606,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        ASTEST
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1635,6 +1652,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        ASTEST
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1686,6 +1704,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        ASTEST
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1735,6 +1754,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        ASTEST
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1783,6 +1803,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        ASTEST
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1829,6 +1850,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        ASTEST
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1874,6 +1896,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 as-name:        ASTEST
                 descr:          description
                 status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -2721,6 +2744,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObject("-rBG -T aut-num AS702", "aut-num", "AS702")
     }
 
+    @Ignore
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, RS pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -2742,6 +2766,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -2788,6 +2813,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -2813,6 +2839,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status LEGACY, RS pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -2834,6 +2861,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -2862,6 +2890,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read http:")
     }
 
+    @Ignore
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status OTHER, RS pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -2883,6 +2912,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -2910,6 +2940,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "create aut-num, ripe as-block, with mnt-by LIR, status ASSIGNED, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -2919,9 +2950,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS12666", "aut-num", "AS12666")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS12666
                 as-name:        End-User-1
                 descr:          description
@@ -2942,7 +2971,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -2955,6 +2984,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
+    @Ignore
     def "create aut-num, ripe as-block, with mnt-by LIR, no status, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -2964,9 +2994,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS12666", "aut-num", "AS12666")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS12666
                 as-name:        End-User-1
                 descr:          description
@@ -2986,7 +3014,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -2998,6 +3026,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read http:")
     }
 
+    @Ignore
     def "create aut-num, ripe as-block, with mnt-by LIR, status LEGACY, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3007,9 +3036,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS12666", "aut-num", "AS12666")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS12666
                 as-name:        End-User-1
                 descr:          description
@@ -3030,7 +3057,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3042,6 +3069,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read http:")
     }
 
+    @Ignore
     def "create aut-num, ripe as-block, with mnt-by LIR, status OTHER, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3051,9 +3079,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS12666", "aut-num", "AS12666")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS12666
                 as-name:        End-User-1
                 descr:          description
@@ -3074,7 +3100,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3087,6 +3113,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
+    @Ignore
     def "create aut-num, apnic as-block, with mnt-by LIR, status ASSIGNED, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3115,7 +3142,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                password:   hm
+                password:   rpsl
                 password:   owner3
                 """.stripIndent()
         )
@@ -3161,7 +3188,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                password:   hm
+                password:   rpsl
                 password:   owner3
                 """.stripIndent()
         )
@@ -3178,6 +3205,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
+    @Ignore
     def "create aut-num, apnic as-block, with mnt-by LIR, status LEGACY, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3206,7 +3234,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                password:   hm
+                password:   rpsl
                 password:   owner3
                 """.stripIndent()
         )
@@ -3253,7 +3281,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                password:   hm
+                password:   rpsl
                 password:   owner3
                 """.stripIndent()
         )
@@ -3270,6 +3298,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, RS pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3291,6 +3320,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -3316,6 +3346,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3337,6 +3368,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -3362,6 +3394,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3372,9 +3405,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
@@ -3383,6 +3414,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -3395,7 +3427,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3408,6 +3440,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, remove status, LIR pw, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3453,6 +3486,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, remove status, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3463,9 +3497,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS12666
                 as-name:        End-User-1
                 descr:          description
@@ -3485,7 +3517,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3498,6 +3530,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
+    @Ignore
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, remove status, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3543,6 +3576,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
+    @Ignore
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, remove status, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3553,9 +3587,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*LEGACY")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS444
                 as-name:        End-User-1
                 descr:          description
@@ -3575,7 +3607,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3588,6 +3620,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add ASSIGNED, RS pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3609,6 +3642,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -3632,6 +3666,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add LEGACY, RS pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3653,6 +3688,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -3678,6 +3714,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add OTHER, RS pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3699,6 +3736,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -3724,6 +3762,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add ASSIGNED, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3733,9 +3772,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS251
                 as-name:        End-User-1
                 descr:          description
@@ -3745,6 +3782,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -3757,7 +3795,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3768,6 +3806,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add LEGACY, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3777,9 +3816,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS251
                 as-name:        End-User-1
                 descr:          description
@@ -3789,6 +3826,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -3801,7 +3839,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3814,6 +3852,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add OTHER, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3823,9 +3862,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS251
                 as-name:        End-User-1
                 descr:          description
@@ -3835,6 +3872,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -3847,7 +3885,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3860,6 +3898,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by LIR, no status, add ASSIGNED, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3869,9 +3908,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBG -T aut-num AS12667", "aut-num", "AS12667", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS12667
                 as-name:        End-User-1
                 descr:          description
@@ -3892,7 +3929,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3905,6 +3942,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12667", "aut-num", "AS12667", "status:\\s*LEGACY")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by LIR, no status, add LEGACY, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3914,9 +3952,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBG -T aut-num AS12667", "aut-num", "AS12667", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS12667
                 as-name:        End-User-1
                 descr:          description
@@ -3937,7 +3973,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3948,6 +3984,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12667", "aut-num", "AS12667", "status:\\s*LEGACY")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by LIR, no status, add OTHER, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3957,9 +3994,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBG -T aut-num AS12667", "aut-num", "AS12667", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS12667
                 as-name:        End-User-1
                 descr:          description
@@ -3980,7 +4015,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3993,6 +4028,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12667", "aut-num", "AS12667", "status:\\s*LEGACY")
     }
 
+    @Ignore
     def "modify aut-num, apnic as-block, with mnt-by LIR, no status, add ASSIGNED, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -4002,9 +4038,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS445
                 as-name:        End-User-1
                 descr:          description
@@ -4025,7 +4059,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -4038,6 +4072,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
 
+    @Ignore
     def "modify aut-num, apnic as-block, with mnt-by LIR, no status, add LEGACY, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -4047,9 +4082,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS445
                 as-name:        End-User-1
                 descr:          description
@@ -4070,7 +4103,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -4083,6 +4116,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
 
+    @Ignore
     def "modify aut-num, apnic as-block, with mnt-by LIR, no status, add OTHER, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -4092,9 +4126,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS445
                 as-name:        End-User-1
                 descr:          description
@@ -4115,7 +4147,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -4126,6 +4158,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, change to LEGACY, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -4148,6 +4181,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -4173,6 +4207,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, change to OTHER, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -4195,6 +4230,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
                 org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
@@ -4220,6 +4256,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
+    @Ignore
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, change to ASSIGNED, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -4266,6 +4303,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
+    @Ignore
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, change to LEGACY, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -4312,6 +4350,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to ASSIGNED, LIR pw, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -4358,6 +4397,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to OTHER, LIR pw, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -4404,6 +4444,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
+    @Ignore
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to ASSIGNED, add mnt-by RS, override, no longer on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -4414,9 +4455,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12668", "aut-num", "AS12668", "status:\\s*LEGACY")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 aut-num:        AS12668
                 as-name:        End-User-1
                 descr:          description
@@ -4438,7 +4477,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
