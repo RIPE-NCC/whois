@@ -1013,7 +1013,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
-        update =~ /Info:    The attribute 'sponsoring-org' can only be remove by RIPE NCC/
+        update =~ /Info:    The attribute 'sponsoring-org' can only be removed by RIPE NCC/
         queryObject("-rBG AS400", "sponsoring-org", "ORG-NCC1-RIPE")
     }
 

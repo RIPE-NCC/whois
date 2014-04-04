@@ -1669,8 +1669,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password: update
                     """.stripIndent()))
         then:
-            response =~ /Modify FAILED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
-            response =~ /Error:   The sponsoring-org can only be removed by the RIPE NCC/
+            response =~ /Modify SUCCEEDED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
+            response =~ /Info:    The attribute 'sponsoring-org' can only be removed by RIPE NCC/
     }
 
     def "update ALLOCATED PA inetnum remove sponsoring-org as rs-maintainer"() {

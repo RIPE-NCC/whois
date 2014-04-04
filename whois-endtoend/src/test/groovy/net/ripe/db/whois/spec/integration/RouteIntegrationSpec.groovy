@@ -1521,6 +1521,18 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create route pending auth, inetnum deleted after authenticated"() {
+      given:
+        databaseHelper.addObject("" +
+                "inetnum: 197.0.0.0 - 197.0.255.255\n" +
+                "netname: RIPE-NCC\n" +
+                "descr: description\n" +
+                "country: NL\n" +
+                "admin-c: TEST-PN\n" +
+                "tech-c: TEST-PN\n" +
+                "status: SUB-ALLOCATED PA\n" +
+                "mnt-by: TEST-MNT3\n" +
+                "changed: ripe@test.net 20120601\n" +
+                "source: TEST")
       when:
         def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
                             route: 197.0.0.0/24
