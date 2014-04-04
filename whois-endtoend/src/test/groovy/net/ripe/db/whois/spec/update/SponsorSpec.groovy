@@ -2655,7 +2655,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 netname:      EU-ZZ-2001-600
                 descr:        European Regional Registry
                 country:      EU
-                org:          ORG-LIRA-TEST
+                org:          ORG-OFA10-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
