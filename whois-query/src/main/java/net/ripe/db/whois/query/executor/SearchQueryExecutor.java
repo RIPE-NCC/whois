@@ -47,7 +47,8 @@ public class SearchQueryExecutor implements QueryExecutor {
                 || query.isVerbose()
                 || query.isVersionList()
                 || query.isObjectVersion()
-                || query.isVersionDiff()) {
+                || query.isVersionDiff()
+                || query.isMatchPrimaryKeyOnly()) {
             return false;
         }
 
