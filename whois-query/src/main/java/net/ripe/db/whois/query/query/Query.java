@@ -63,6 +63,7 @@ public class Query {
     private String ssoToken;
     private Origin origin;
     private boolean trusted;
+    private boolean matchPrimaryKeyOnly;
 
     private Query(final String query, final Origin origin) {
         try {
@@ -570,6 +571,14 @@ public class Query {
 
     public boolean matchesObjectTypeAndAttribute(final ObjectType objectType, final AttributeType attributeType) {
         return ObjectTemplate.getTemplate(objectType).getLookupAttributes().contains(attributeType) && AttributeMatcher.fetchableBy(attributeType, this);
+    }
+
+    public boolean isMatchPrimaryKeyOnly() {
+        return matchPrimaryKeyOnly;
+    }
+
+    public void setMatchPrimaryKeyOnly(boolean matchPrimaryKeyOnly) {
+        this.matchPrimaryKeyOnly = matchPrimaryKeyOnly;
     }
 
     public static enum MatchOperation {

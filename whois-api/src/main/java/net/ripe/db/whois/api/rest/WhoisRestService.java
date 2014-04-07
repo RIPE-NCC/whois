@@ -312,7 +312,8 @@ public class WhoisRestService {
         }
 
         final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords);
-
+        // for REST call we only lookup on primary key.
+        query.setMatchPrimaryKeyOnly(true);
         return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
     }
 
