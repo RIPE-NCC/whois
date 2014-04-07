@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -312,10 +313,10 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
         RpslObject person = databaseHelper.addObject(RpslObject.parse("person:Brian Riddle\nnic-hdl:BRD-RIPE"));
         RpslObject role = databaseHelper.addObject(RpslObject.parse("role:RIPE NCC Operations\nadmin-c:BRD-RIPE\nnic-hdl:OPS4-RIPE"));
 
-        List<RpslObjectInfo> result = subject.relatedTo(role, Collections.<ObjectType>emptySet());
+        Collection<RpslObjectInfo> result = subject.relatedTo(role, Collections.<ObjectType>emptySet());
 
         assertThat(result, hasSize(1));
-        assertThat(result.get(0).getKey(), is(person.getKey().toString()));
+        assertThat(result.iterator().next().getKey(), is(person.getKey().toString()));
     }
 
     @Test
@@ -323,7 +324,7 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
         databaseHelper.addObject(RpslObject.parse("person:Brian Riddle\nnic-hdl:BRD-RIPE"));
         RpslObject role = databaseHelper.addObject(RpslObject.parse("role:RIPE NCC Operations\nadmin-c:BRD-RIPE\nnic-hdl:OPS4-RIPE"));
 
-        List<RpslObjectInfo> result = subject.relatedTo(role, Collections.singleton(ObjectType.PERSON));
+        Collection<RpslObjectInfo> result = subject.relatedTo(role, Collections.singleton(ObjectType.PERSON));
         assertThat(result, hasSize(0));
     }
 
