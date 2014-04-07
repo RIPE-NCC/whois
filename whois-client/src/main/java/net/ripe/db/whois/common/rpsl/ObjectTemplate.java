@@ -538,6 +538,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     private final Set<AttributeType> allAttributeTypes;
     private final Set<AttributeType> keyAttributes;
     private final Set<AttributeType> lookupAttributes;
+    private final AttributeType keyLookupAttribute;
     private final Set<AttributeType> inverseLookupAttributes;
     private final Set<AttributeType> mandatoryAttributes;
     private final Set<AttributeType> multipleAttributes;
@@ -566,6 +567,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         inverseLookupAttributes = getAttributes(attributeTemplates, INVERSE_KEY);
         mandatoryAttributes = getAttributes(attributeTemplates, MANDATORY);
         multipleAttributes = getAttributes(attributeTemplates, MULTIPLE);
+        keyLookupAttribute = Iterables.getOnlyElement(Sets.intersection(keyAttributes, lookupAttributes));
 
         comparator = new AttributeTypeComparator(attributeTemplates);
     }
@@ -634,6 +636,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
     public Set<AttributeType> getLookupAttributes() {
         return lookupAttributes;
+    }
+
+    public AttributeType getKeyLookupAttribute() {
+        return keyLookupAttribute;
     }
 
     public Set<AttributeType> getMandatoryAttributes() {
