@@ -315,12 +315,15 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                         continue;
                     }
 
-                    result.addAll(findByKeyInIndex(objectType, referenceValue.toString()));
+                    for (RpslObjectInfo rpslObjectInfo : findByKeyInIndex(objectType, referenceValue.toString())) {
+                        if (rpslObjectInfo.getObjectId() != identifiable.getObjectId()) {
+                            result.add(rpslObjectInfo);
+                        }
+                    }
                 }
             }
         }
 
-        result.remove(identifiable);
         return result;
     }
 }

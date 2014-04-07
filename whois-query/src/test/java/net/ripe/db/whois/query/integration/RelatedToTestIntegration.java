@@ -53,6 +53,7 @@ public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
 
     private void references_self(final String query) {
         final String response = DummyWhoisClient.query(QueryServer.port, query);
+        System.err.println(response);
 
         final String check = "role:           Asia Pacific Network Information Centre\n";
         assertThat(response, containsString(check));
