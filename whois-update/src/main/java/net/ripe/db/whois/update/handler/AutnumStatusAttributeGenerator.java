@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 @Component
-public class AutnumAttributeGenerator extends AttributeGenerator {
+public class AutnumStatusAttributeGenerator extends AttributeGenerator {
     private final Maintainers maintainers;
 
     @Autowired
-    public AutnumAttributeGenerator(final Maintainers maintainers) {
+    public AutnumStatusAttributeGenerator(final Maintainers maintainers) {
         this.maintainers = maintainers;
     }
 
