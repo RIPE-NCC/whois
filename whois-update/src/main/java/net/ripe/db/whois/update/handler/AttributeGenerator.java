@@ -19,8 +19,20 @@ public abstract class AttributeGenerator {
 
     public abstract RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext);
 
+    protected RpslObject cleanupAttributeType(final Update update, final UpdateContext updateContext, final RpslObject rpslObject, final AttributeType attributeType, final CIString... validAttributeValues) {
+        final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
+        cleanupAttributeType(update, updateContext, builder, attributeType, Arrays.asList(validAttributeValues));
+        return builder.get();
+    }
+
     protected void cleanupAttributeType(final Update update, final UpdateContext updateContext, final RpslObjectBuilder builder, final AttributeType attributeType, final CIString... validAttributeValues) {
         cleanupAttributeType(update, updateContext, builder, attributeType, Arrays.asList(validAttributeValues));
+    }
+
+    protected RpslObject cleanupAttributeType(final Update update, final UpdateContext updateContext, final RpslObject rpslObject, final AttributeType attributeType, final Collection<CIString> validAttributeValues) {
+        final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
+        cleanupAttributeType(update, updateContext, builder, attributeType, validAttributeValues);
+        return builder.get();
     }
 
     protected void cleanupAttributeType(final Update update, final UpdateContext updateContext, final RpslObjectBuilder builder, final AttributeType attributeType, final Collection<CIString> validAttributeValues) {

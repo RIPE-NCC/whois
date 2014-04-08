@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.handler;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Update;
@@ -31,12 +30,8 @@ public class SponsoringOrgAttributeGenerator extends AttributeGenerator {
         final boolean isOverride =  updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
 
         if (!(authByRS || isOverride) && sponsoringOrgWasRemoved(originalObject, updatedObject)) {
-            final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
-
-            final CIString originalSponsoringOrgValue = originalObject.getValueOrNullForAttribute(SPONSORING_ORG);
-            cleanupAttributeType(update, updateContext, builder, AttributeType.SPONSORING_ORG, originalSponsoringOrgValue);
             updateContext.addMessage(update, ValidationMessages.attributeValueSticky(AttributeType.SPONSORING_ORG));
-            return builder.get();
+            return cleanupAttributeType(update, updateContext, updatedObject, AttributeType.SPONSORING_ORG, originalObject.getValueForAttribute(SPONSORING_ORG));
         }
 
         return updatedObject;
