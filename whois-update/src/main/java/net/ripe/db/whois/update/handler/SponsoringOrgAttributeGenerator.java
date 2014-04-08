@@ -33,7 +33,7 @@ public class SponsoringOrgAttributeGenerator extends AttributeGenerator {
         if (!(authByRS || isOverride) && sponsoringOrgWasRemoved(originalObject, updatedObject)) {
             final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
 
-            final String originalSponsoringOrgValue = originalObject.getValueOrNullForAttribute(SPONSORING_ORG).toString();
+            final CIString originalSponsoringOrgValue = originalObject.getValueOrNullForAttribute(SPONSORING_ORG);
             cleanupAttributeType(update, updateContext, builder, AttributeType.SPONSORING_ORG, originalSponsoringOrgValue);
             updateContext.addMessage(update, ValidationMessages.attributeValueSticky(AttributeType.SPONSORING_ORG));
             return builder.get();
