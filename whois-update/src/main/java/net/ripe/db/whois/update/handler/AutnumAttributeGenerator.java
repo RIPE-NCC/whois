@@ -38,12 +38,12 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
         if (originalObject == null) {
             if (isMaintainedByRsMaintainer(updatedObject)) {
                 final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
-                cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, AutnumStatus.ASSIGNED.toString());
+                cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, AutnumStatus.ASSIGNED.getCIName());
                 return builder.get();
             } else {
                 // TODO: [ES] need more exact rules on difference between LEGACY and OTHER
                 final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
-                cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, AutnumStatus.OTHER.toString());
+                cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, AutnumStatus.OTHER.getCIName());
                 return builder.get();
             }
         }

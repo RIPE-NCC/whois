@@ -30,12 +30,20 @@ public final class RpslAttribute {
     private int hash;
     private Set<CIString> cleanValues;
 
+    public RpslAttribute(final AttributeType attributeType, final CIString value) {
+        this(attributeType, value.toString());
+    }
+
     public RpslAttribute(final AttributeType attributeType, final String value) {
         Validate.notNull(attributeType);
         Validate.notNull(value);
         this.key = attributeType.getName();
         this.value = value;
         this.type = attributeType;
+    }
+
+    public RpslAttribute(final String key, final CIString value) {
+        this(key, value.toString());
     }
 
     public RpslAttribute(final String key, final String value) {
