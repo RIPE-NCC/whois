@@ -19,12 +19,12 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AutnumAttributeGeneratorTest {
+public class AutnumStatusAttributeGeneratorTest {
 
     @Mock Update update;
     @Mock UpdateContext updateContext;
     @Mock Maintainers maintainers;
-    @InjectMocks AutnumAttributeGenerator autnumAttributeGenerator;
+    @InjectMocks AutnumStatusAttributeGenerator autnumStatusAttributeGenerator;
 
     @Before
     public void setup() {
@@ -35,7 +35,7 @@ public class AutnumAttributeGeneratorTest {
     public void generate_other_status_on_create() {
         final RpslObject autnum  = RpslObject.parse("aut-num: AS3333\nmnt-by: TEST-MNT\nsource: RIPE");
 
-        final RpslObject result = autnumAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
+        final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
         assertThat(result.getValueForAttribute(AttributeType.STATUS), is(CIString.ciString("OTHER")));
     }
@@ -44,7 +44,7 @@ public class AutnumAttributeGeneratorTest {
     public void generate_assigned_status_on_create() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS3333\nmnt-by: RIPE-NCC-HM-MNT\nsource: RIPE");
 
-        final RpslObject result = autnumAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
+        final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
         assertThat(result.getValueForAttribute(AttributeType.STATUS), is(CIString.ciString("ASSIGNED")));
     }
@@ -55,7 +55,7 @@ public class AutnumAttributeGeneratorTest {
         final RpslObject originalObject = RpslObject.parse("aut-num: AS3333\nmnt-by: RIPE-NCC-HM-MNT\nsource: RIPE");
         final RpslObject updatedObject = RpslObject.parse("aut-num: AS3333\nremarks: updated\nmnt-by: RIPE-NCC-HM-MNT\nsource: RIPE");
 
-        final RpslObject result = autnumAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+        final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
 
         assertThat(result.containsAttribute(AttributeType.STATUS), is(false));
     }
