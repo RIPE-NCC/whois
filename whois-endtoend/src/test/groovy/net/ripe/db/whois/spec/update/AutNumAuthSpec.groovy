@@ -766,9 +766,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 ["Syntax error in to AS1 announce ANY",
                  "Syntax error in from AS1 announce ANY",
                  "Syntax error in from AS1 accept FRED",
+                 "Syntax error in afi ipv6.unicast to AS1 announce ANY",
                  "Syntax error in from AS1 accept AS2",
                  "Syntax error in to AS1 accept AS2",
-                 "Syntax error in afi ipv6.unicast to AS1 announce ANY",
                  "Syntax error in afi ipv6.unicast from AS1 accept AS2"]
 
         queryObjectNotFound("-rGBT aut-num AS250", "aut-num", "AS250")
@@ -1605,14 +1605,15 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                status:         ASSIGNED
-                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
+                export:         to AS1 announce AS2
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
+                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1651,14 +1652,15 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                status:         ASSIGNED
-                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
+                export:         to AS1 announce AS2
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
+                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1686,8 +1688,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "delete aut-num, RS auth, referenced in route"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+        def ghg = syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
         syncUpdate(getTransient("ROUTE") + "override: denis,override1")
+        println ghg
 
       expect:
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
@@ -1703,20 +1706,20 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                status:         ASSIGNED
-                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
+                export:         to AS1 announce AS2
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
+                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
-
                 password:   nccend
                 """.stripIndent()
         )
@@ -1737,8 +1740,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "delete aut-num, RS auth, referenced in other aut-num"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+        def stt = syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
         syncUpdate(getTransient("AS300") + "password: dbm\noverride: denis,override1")
+        println stt
 
       expect:
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
@@ -1753,14 +1757,15 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                status:         ASSIGNED
-                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
+                export:         to AS1 announce AS2
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
+                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1787,8 +1792,9 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     def "delete aut-num, RS auth, referenced in as-set"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+        def sts = syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
         syncUpdate(getTransient("AS-SET-200") + "password: lir\noverride: denis,override1")
+        println sts
 
       expect:
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
@@ -1802,14 +1808,15 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                status:         ASSIGNED
-                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
-                export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
+                export:         to AS1 announce AS2
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
+                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1879,6 +1886,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT aut-num AS200", "aut-num", "AS200", "just added")
     }
 
+    @Ignore
     def "modify aut-num, LIR auth, remove RS mntner"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
@@ -1966,6 +1974,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS17777777234:As-otherset)
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS777.234:As-otherset)
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS077234:As-otherset)
+                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
