@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -37,14 +36,10 @@ public class AutnumStatusAttributeGenerator extends AttributeGenerator {
         // TODO: [ES] status is only generated on create
         if (originalObject == null) {
             if (isMaintainedByRsMaintainer(updatedObject)) {
-                final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
-                cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, AutnumStatus.ASSIGNED.getCIName());
-                return builder.get();
+                return cleanupAttributeType(update, updateContext, updatedObject, AttributeType.STATUS, AutnumStatus.ASSIGNED.getCIName());
             } else {
                 // TODO: [ES] need more exact rules on difference between LEGACY and OTHER
-                final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
-                cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, AutnumStatus.OTHER.getCIName());
-                return builder.get();
+                return cleanupAttributeType(update, updateContext, updatedObject, AttributeType.STATUS, AutnumStatus.OTHER.getCIName());
             }
         }
 
