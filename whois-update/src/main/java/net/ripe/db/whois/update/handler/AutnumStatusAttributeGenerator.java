@@ -40,6 +40,7 @@ public class AutnumStatusAttributeGenerator extends AttributeGenerator {
     private RpslObject generateStatus(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
         if (update.getOperation() != Operation.DELETE) {
             final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
+
             if (isMaintainedByRsMaintainer(updatedObject)) {
                 cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, AutnumStatus.ASSIGNED.getCIName());
             } else {
@@ -51,12 +52,19 @@ public class AutnumStatusAttributeGenerator extends AttributeGenerator {
                 updateContext.addMessage(update, ValidationMessages.attributeCannotBeRemoved(AttributeType.STATUS));
             }
 
-            cleanupAttributeType(update, updateContext, builder, AttributeType.REMARKS, ciString(ValidationMessages.autnumStatusRemark().getText()));
+            generateRemarks(updatedObject, update, updateContext, builder);
 
             return builder.get();
         }
 
         return updatedObject;
+    }
+
+    private void generateRemarks(RpslObject updatedObject, Update update, UpdateContext updateContext, RpslObjectBuilder builder) {
+        final Set<CIString> remarks = updatedObject.getValuesForAttribute(AttributeType.REMARKS);
+        remarks.add(ciString(ValidationMessages.autnumStatusRemark().getText()));
+
+        cleanupAttributeType(update, updateContext, builder, AttributeType.REMARKS, remarks);
     }
 
     private boolean isMaintainedByRsMaintainer(final RpslObject object) {
