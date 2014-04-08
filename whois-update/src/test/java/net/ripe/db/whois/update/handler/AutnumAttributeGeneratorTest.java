@@ -51,15 +51,12 @@ public class AutnumAttributeGeneratorTest {
 
 
     @Test
-    public void dont_generate_status_on_update() {
+    public void do_generate_status_on_update() {
         final RpslObject originalObject = RpslObject.parse("aut-num: AS3333\nmnt-by: RIPE-NCC-HM-MNT\nsource: RIPE");
         final RpslObject updatedObject = RpslObject.parse("aut-num: AS3333\nremarks: updated\nmnt-by: RIPE-NCC-HM-MNT\nsource: RIPE");
 
         final RpslObject result = autnumAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
 
-        assertThat(result.containsAttribute(AttributeType.STATUS), is(false));
+        assertThat(result.containsAttribute(AttributeType.STATUS), is(true));
     }
-
-
-
 }
