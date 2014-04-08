@@ -7,23 +7,34 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.impl.client.HttpClients;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
@@ -33,6 +44,9 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 class LacnicGrsSource extends GrsSource {
+
+    private static final int TIMEOUT = 10_000;
+
     private final String userId;
     private final String password;
 
@@ -53,27 +67,57 @@ class LacnicGrsSource extends GrsSource {
 
     @Override
     public void acquireDump(final Path path) throws IOException {
-        final String action = "http://lacnic.net" + Jsoup.connect("http://www.lacnic.net/login")
-                .timeout(10000)
-                .get()
-                .select("form")
-                .attr("action");
+        final Document loginPage = parse(get("http://www.lacnic.net/login"));
+        final String loginAction = "http://lacnic.net" + loginPage.select("form").attr("action");
 
-        Jsoup.connect(action)
-                .timeout(10000)
-                .data("handle", userId)
-                .data("passwd", password)
-                .post();
+        post(loginAction);
 
+        final String downloadAction = "http://lacnic.net" + loginAction.replace("stini", "bulkWhoisLoader");
 
-        final String downloadAction = action.replace("stini", "bulkWhoisLoader");
         downloader.downloadTo(logger, new URL(downloadAction), path);
+    }
+
+    private String get(final String url) throws IOException {
+        final HttpClient client = HttpClients
+                .custom()
+                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(TIMEOUT).build())
+                .build();
+        final HttpUriRequest request = RequestBuilder
+                .get()
+                .setUri(url)
+                .setConfig(RequestConfig.custom().setConnectTimeout(TIMEOUT).build())
+                .build();
+        return IOUtils.toString(
+                client.execute(request)
+                        .getEntity()
+                        .getContent());
+    }
+
+    private String post(final String url) throws IOException {
+        final HttpClient client = HttpClients
+                .custom()
+                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(TIMEOUT).build())
+                .build();
+        final HttpUriRequest request = RequestBuilder
+                .post()
+                .addParameter("handle", userId)
+                .addParameter("passwd", password)
+                .setUri(url)
+                .setConfig(RequestConfig.custom().setConnectTimeout(TIMEOUT).build())
+                .build();
+        return IOUtils.toString(
+                client.execute(request)
+                        .getEntity()
+                        .getContent());
+    }
+
+    private static Document parse(final String data) {
+        return Jsoup.parse(data);
     }
 
     @Override
     public void handleObjects(final File file, final ObjectHandler handler) throws IOException {
         FileInputStream is = null;
-
         try {
             is = new FileInputStream(file);
 

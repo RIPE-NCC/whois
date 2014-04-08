@@ -635,6 +635,88 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         autnum =~ /status:         ASSIGNED/
     }
 
+    def "create aut-num object, warn on status removal"() {
+      given:
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        RS-2\n" +
+                "descr:          description\n" +
+                "status:         ASSIGNED\n" +
+                "admin-c:        AP1-TEST\n" +
+                "tech-c:         AP1-TEST\n" +
+                "mnt-by:         RIPE-NCC-HM-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST")
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                            aut-num:        AS102
+                            as-name:        RS-2
+                            descr:          description
+                            admin-c:        AP1-TEST
+                            tech-c:         AP1-TEST
+                            mnt-by:         RIPE-NCC-HM-MNT
+                            changed:        noreply@ripe.net 20120101
+                            source:         TEST
+                            password: hm
+                            password: update
+                            """.stripIndent())
+      then:
+        response =~ /SUCCESS/
+        response =~ /Modify SUCCEEDED: \[aut-num\] AS102/
+        response =~ /Warning: "status" attribute cannot be removed/
+
+      then:
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+        autnum =~ /status:         ASSIGNED/
+        autnum =~ /remarks:        For information on "status:" attribute read/
+    }
+
+    def "create aut-num object, generate remark"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                          aut-num:        AS102
+                          as-name:        RS-2
+                          descr:          description
+                          admin-c:        AP1-TEST
+                          tech-c:         AP1-TEST
+                          mnt-by:         RIPE-NCC-HM-MNT
+                          changed:        noreply@ripe.net 20120101
+                          source:         TEST
+                          password: hm
+                          password: update
+                          """.stripIndent())
+      then:
+        response =~ /SUCCESS/
+      then:
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+        autnum =~ /status:         ASSIGNED/
+        autnum =~ /remarks:        For information on "status:" attribute read/
+    }
+
+    def "create aut-num object, keep remark"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                            aut-num:        AS102
+                            as-name:        RS-2
+                            descr:          description
+                            remarks:        For information on "status:" attribute read
+                            admin-c:        AP1-TEST
+                            tech-c:         AP1-TEST
+                            mnt-by:         RIPE-NCC-HM-MNT
+                            changed:        noreply@ripe.net 20120101
+                            source:         TEST
+                            password: hm
+                            password: update
+                            """.stripIndent())
+      then:
+        response =~ /SUCCESS/
+      then:
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+        autnum =~ /descr:          description
+remarks:        For information on "status:" attribute read http:\/\/www.ripe.net\/xxxx\/as_status_faq.html
+admin-c:        AP1-TEST/
+    }
+
     def "create aut-num object, invalid status"() {
       when:
         def response = syncUpdate new SyncUpdate(data: """\
@@ -1063,22 +1145,20 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "delete autnum with sponsoring-org"() {
       when:
-        def create = syncUpdate(new SyncUpdate(data: """\
-                aut-num:        AS400
-                as-name:        End-User-2
-                status:         OTHER
-                member-of:      AS-TESTSET
-                sponsoring-org: ORG-NCC1-RIPE
-                descr:          other description
-                admin-c:        AP1-TEST
-                tech-c:         AP1-TEST
-                mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
-                source:         TEST
-                override:denis,override1
-                """.stripIndent()))
+        databaseHelper.addObject("" +
+                "aut-num:        AS400\n" +
+                "as-name:        End-User-2\n" +
+                "status:         OTHER\n" +
+                "member-of:      AS-TESTSET\n" +
+                "sponsoring-org: ORG-NCC1-RIPE\n" +
+                "descr:          other description\n" +
+                "admin-c:        AP1-TEST\n" +
+                "tech-c:         AP1-TEST\n" +
+                "mnt-by:         UPD-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST")
       then:
-        create =~ /Create SUCCEEDED/
+        queryObject("AS400", "aut-num", "AS400")
 
       when:
         def delete = syncUpdate(new SyncUpdate(data: """\
