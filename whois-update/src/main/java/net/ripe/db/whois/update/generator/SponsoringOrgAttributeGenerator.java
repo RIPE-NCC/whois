@@ -19,18 +19,18 @@ public class SponsoringOrgAttributeGenerator extends AttributeGenerator {
             case AUT_NUM:
             case INET6NUM:
             case INETNUM:
-                return generateStatus(originalObject, updatedObject, update, updateContext);
+                return generateSponsoringOrg(originalObject, updatedObject, update, updateContext);
             default:
                 return updatedObject;
         }
     }
 
-    private RpslObject generateStatus(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
+    private RpslObject generateSponsoringOrg(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
         final boolean authByRS =  updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
         final boolean isOverride =  updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
 
         if (!(authByRS || isOverride) && sponsoringOrgWasRemoved(originalObject, updatedObject)) {
-            updateContext.addMessage(update, ValidationMessages.attributeValueSticky(AttributeType.SPONSORING_ORG));
+            updateContext.addMessage(update, ValidationMessages.attributeCanBeRemovedOnlyByRipe(AttributeType.SPONSORING_ORG));
             return cleanupAttributeType(update, updateContext, updatedObject, AttributeType.SPONSORING_ORG, originalObject.getValueForAttribute(SPONSORING_ORG));
         }
 
