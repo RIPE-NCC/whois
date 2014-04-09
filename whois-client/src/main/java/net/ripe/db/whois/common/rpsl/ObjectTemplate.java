@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.WordUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -511,8 +512,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         TEMPLATE_MAP = Collections.unmodifiableMap(templateMap);
     }
 
+    @SuppressWarnings("unchecked")
     private class AttributeTypeComparator implements Comparator<RpslAttribute> {
         private EnumMap<AttributeType, Integer> order = new EnumMap(AttributeType.class);
+
         public AttributeTypeComparator(final AttributeTemplate... attributeTemplates) {
             for (int i = 0; i < attributeTemplates.length; i++) {
                 order.put(attributeTemplates[i].getAttributeType(), i);
@@ -673,7 +676,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     }
 
     @Override
-    public int compareTo(final ObjectTemplate o) {
+    public int compareTo(@Nonnull final ObjectTemplate o) {
         return orderPosition - o.orderPosition;
     }
 
@@ -709,8 +712,8 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     }
 
     public void addValidationMessagesForAttributeTemplate(
-                        ObjectMessages objectMessages, AttributeTemplate attributeTemplate,
-                        Map<AttributeType, Integer> attributeCount){
+            ObjectMessages objectMessages, AttributeTemplate attributeTemplate,
+            Map<AttributeType, Integer> attributeCount) {
 
         final AttributeType attributeType = attributeTemplate.getAttributeType();
         final int attributeTypeCount = attributeCount.get(attributeType);
