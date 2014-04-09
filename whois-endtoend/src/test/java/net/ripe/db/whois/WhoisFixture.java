@@ -17,6 +17,8 @@ import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
+import net.ripe.db.whois.common.grs.AuthoritativeResource;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -35,6 +37,8 @@ import net.ripe.db.whois.update.dns.DnsGatewayStub;
 import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.joda.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -47,10 +51,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 public class WhoisFixture {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisFixture.class);
+
     private ClassPathXmlApplicationContext applicationContext;
 
     protected MailSenderStub mailSender;
@@ -76,6 +84,7 @@ public class WhoisFixture {
     protected WhoisServer whoisServer;
     protected RestClient restClient;
     protected TestWhoisLog testWhoisLog;
+    protected AuthoritativeResourceData authoritativeResourceData;
 
     static {
         Slf4JLogConfiguration.init();
@@ -96,6 +105,7 @@ public class WhoisFixture {
 
     public void start() throws Exception {
         applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois-test.xml", WhoisProfile.TEST);
+
         databaseHelper = applicationContext.getBean(DatabaseHelper.class);
         whoisServer = applicationContext.getBean(WhoisServer.class);
         jettyBootstrap = applicationContext.getBean(JettyBootstrap.class);
@@ -119,6 +129,7 @@ public class WhoisFixture {
         indexDao = applicationContext.getBean(IndexDao.class);
         restClient = applicationContext.getBean(RestClient.class);
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
+        authoritativeResourceData = applicationContext.getBean(AuthoritativeResourceData.class);
 
         databaseHelper.setup();
         whoisServer.start();
@@ -306,5 +317,9 @@ public class WhoisFixture {
 
     public MailSenderStub getMailSender() {
         return mailSender;
+    }
+
+    public void setAuthoritativeData(final String source, final String data) {
+        authoritativeResourceData.setAuthoritativeResource(source.toLowerCase(), AuthoritativeResource.loadFromScanner(LOGGER, source, new Scanner(data)));
     }
 }
