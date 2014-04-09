@@ -57,19 +57,19 @@ public class LookupQueryExecutor implements QueryExecutor {
     public void execute(Query query, ResponseHandler responseHandler) {
         Source source = getSource(query);
         ObjectType type = query.getObjectTypes().iterator().next();
+        boolean noResult = true;
 
         try {
             sourceContext.setCurrent(getSource(query));
             final ResponseObject searchResult = rpslObjectDao.getByKey(type, query.getSearchValue());
-            ResponseObject responseObject = rpslResponseDecorator.getResponse(query, Collections.singletonList(searchResult))
-                    .iterator()
-                    .next();
-            responseHandler.handle(responseObject);
-            if (responseObject instanceof MessageObject) {
-                responseHandler.handle(new MessageObject(QueryMessages.noResults(source.getName().toUpperCase())));
+
+            for (ResponseObject responseObject : rpslResponseDecorator.getResponse(query, Collections.singletonList(searchResult))) {
+                responseHandler.handle(responseObject);
+
+                if (!(responseObject instanceof MessageObject)) {
+                    noResult = false;
+                }
             }
-        } catch (IllegalSourceException e) {
-            responseHandler.handle(new MessageObject(QueryMessages.unknownSource(source.getName())));
         } catch (IncorrectResultSizeDataAccessException ex) {
             if (ex.getActualSize() == 0) {
                 responseHandler.handle(new MessageObject(QueryMessages.noResults(source.getName().toUpperCase())));
@@ -80,6 +80,9 @@ public class LookupQueryExecutor implements QueryExecutor {
             }
         } finally {
             sourceContext.removeCurrentSource();
+        }
+        if (noResult) {
+            responseHandler.handle(new MessageObject(QueryMessages.noResults(source.getName().toUpperCase())));
         }
     }
 
