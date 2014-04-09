@@ -86,4 +86,8 @@ public class AuthoritativeResourceData {
 
         return authoritativeResource;
     }
+
+    public void setAuthoritativeResource(final String source, final AuthoritativeResource authoritativeResource) {
+        authoritativeResourceCache.put(source, authoritativeResource);
+    }
 }

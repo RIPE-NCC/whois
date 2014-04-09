@@ -55,10 +55,6 @@ public final class ValidationMessages {
         return new Message(Messages.Type.INFO, "The attribute '%s' can only be removed by RIPE NCC", attributeType.getName());
     }
 
-    public static Message autnumStatusRemark() {
-        return new Message(Messages.Type.INFO, "For information on \"status:\" attribute read http://www.ripe.net/xxxx/as_status_faq.html");   //TODO change xxxx
-    }
-
     public static Message attributeCannotBeRemoved(final AttributeType attributeType) {
         return new Message(Messages.Type.WARNING, "\"%s\" attribute cannot be removed", attributeType.getName().toLowerCase());
     }

@@ -46,7 +46,7 @@ public class SingleUpdateHandler {
     private final AutoKeyResolver autoKeyResolver;
     private final AttributeSanitizer attributeSanitizer;
     private final KeycertAttributeGenerator keycertAttributeGenerator;
-    private final AutnumStatusAttributeGenerator autnumStatusAttributeGenerator;
+    private final AutnumAttributeGenerator autnumStatusAttributeGenerator;
     private final SponsoringOrgAttributeGenerator sponsoringOrgAttributeGenerator;
     private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
@@ -67,7 +67,7 @@ public class SingleUpdateHandler {
     @Autowired
     public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver,
                                final KeycertAttributeGenerator keycertAttributeGenerator,
-                               final AutnumStatusAttributeGenerator autnumStatusAttributeGenerator,
+                               final AutnumAttributeGenerator autnumStatusAttributeGenerator,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final LoggerContext loggerContext,

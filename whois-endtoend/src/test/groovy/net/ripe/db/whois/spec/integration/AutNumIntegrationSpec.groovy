@@ -570,6 +570,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create aut-num object, generate ASSIGNED status"() {
+      given:
+        whoisFixture.setAuthoritativeData("TEST", "test|EU|asn|102|1|19930901|allocated")
       when:
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
@@ -590,11 +592,33 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         autnum =~ /status:         ASSIGNED/
     }
 
-    def "create aut-num object, replace user-specified status"() {
+    def "create aut-num object, generate LEGACY status"() {
+      given:
+        whoisFixture.setAuthoritativeData("TEST", "test|EU|asn|102|1|19930901|allocated")
       when:
         def response = syncUpdate  new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        End-User-2
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: update
+                        """.stripIndent())
+      then:
+        response =~ /SUCCESS/
+      then:
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+        autnum =~ /status:         LEGACY/
+    }
+
+    def "create aut-num object, replace user-specified status"() {
+      when:
+        def response = syncUpdate  new SyncUpdate(data: """\
+                        aut-num:        AS100
+                        as-name:        End-User
                         status:         LEGACY
                         descr:          description
                         admin-c:        AP1-TEST
@@ -608,7 +632,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
         response =~ /SUCCESS/
       then:
-        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
         autnum =~ /status:         OTHER/
     }
 
@@ -738,6 +762,46 @@ admin-c:        AP1-TEST    /
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
         response =~ /SUCCESS/
     }
+
+    def "update autnum, remove status attribute"() {
+      when:
+        def create = syncUpdate new SyncUpdate(data: """\
+                        aut-num:        AS100
+                        as-name:        End-User
+                        status:         OTHER
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: update
+                        """.stripIndent())
+      then:
+        create =~ /Create SUCCEEDED: \[aut-num\] AS100/
+      then:
+        def createdAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
+        createdAutnum =~ /status:         OTHER/
+      when:
+        def update = syncUpdate new SyncUpdate(data: """\
+                        aut-num:        AS100
+                        as-name:        End-User
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: update
+                        """.stripIndent())
+      then:
+        update =~ /Modify SUCCEEDED: \[aut-num\] AS100/
+        update =~ /\*\*\*Warning: "status:" attribute cannot be removed/
+      then:
+        def updatedAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
+        updatedAutnum =~ /status:         OTHER/
+    }
+
 
     def "create autnum without sponsoring-org, with referenced ORG orgtype OTHER, end-mnt"() {
       given:
