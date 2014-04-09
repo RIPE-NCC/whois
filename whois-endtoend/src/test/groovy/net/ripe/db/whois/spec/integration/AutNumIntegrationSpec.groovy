@@ -741,7 +741,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         autnum =~ /descr:          description
 remarks:        For information on "status:" attribute read http:\/\/www.ripe.net\/xxxx\/as_status_faq.html
 remarks:        user remark
-admin-c:        AP1-TEST    /
+admin-c:        AP1-TEST/
     }
 
     def "create aut-num object, invalid status"() {
