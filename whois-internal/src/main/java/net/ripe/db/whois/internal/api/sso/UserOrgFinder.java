@@ -64,6 +64,6 @@ public class UserOrgFinder {
 
     private boolean isOrgMntByRS(final RpslObjectInfo orgId) {
         RpslObject org = JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId.getObjectId());
-        return Sets.intersection(org.getValuesForAttribute(AttributeType.MNT_BY), maintainers.getPowerMaintainers()).size() > 0;
+        return !Sets.intersection(org.getValuesForAttribute(AttributeType.MNT_BY), maintainers.getRsMaintainers()).isEmpty();
     }
 }
