@@ -29,6 +29,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 member-of:      AS-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
@@ -44,6 +45,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 member-of:      AS-TEST
                 member-of:      AS-TEST2
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
@@ -395,6 +397,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 member-of:      AS-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-lower:      owner2-mnt
                 changed:        dbtest@ripe.net 20120101
@@ -551,6 +554,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 member-of:      AS-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
@@ -611,6 +615,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
@@ -670,6 +675,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
@@ -956,6 +962,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 member-of:      AS-TEST
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
@@ -1073,6 +1080,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 member-of:      AS-TEST
                 member-of:      AS-TEST2
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
