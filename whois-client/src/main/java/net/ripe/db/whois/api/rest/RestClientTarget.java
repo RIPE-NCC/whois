@@ -290,7 +290,7 @@ public class RestClientTarget {
             try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
                 final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
                 throw new RestClientException(whoisResources.getErrorMessages());
-            } catch (IllegalArgumentException | StreamingException | IOException e1) {
+            } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
                 throw new RestClientException(e1.getCause());
             }
         }

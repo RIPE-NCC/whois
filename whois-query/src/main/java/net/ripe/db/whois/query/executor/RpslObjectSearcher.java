@@ -115,6 +115,7 @@ class RpslObjectSearcher {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Iterable<ResponseObject> routeLookup(IpTree routeTree, Query query) {
         final String origin = query.getRouteOrigin();
         if (origin != null) {

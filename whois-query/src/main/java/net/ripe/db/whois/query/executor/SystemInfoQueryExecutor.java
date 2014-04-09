@@ -5,7 +5,10 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.domain.*;
+import net.ripe.db.whois.query.domain.MessageObject;
+import net.ripe.db.whois.query.domain.QueryCompletionInfo;
+import net.ripe.db.whois.query.domain.QueryException;
+import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +25,8 @@ public class SystemInfoQueryExecutor implements QueryExecutor {
         Collections.addAll(ORDERED_TYPES, ObjectType.values());
     }
 
-    @Value("${application.version}") private String version;
+    @Value("${application.version}")
+    private String version;
 
     private final SourceContext sourceContext;
 
