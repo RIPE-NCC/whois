@@ -60,15 +60,26 @@ public class AttributeTemplate {
         }
     }
 
+    /** signifies if an attribute order matters or not */
+    public static enum Order {
+        TEMPLATE_ORDER, USER_ORDER;
+    }
+
     private final AttributeType attributeType;
     private final Requirement requirement;
     private final Cardinality cardinality;
     private final Set<Key> keys;
+    private final Order order;
 
     AttributeTemplate(final AttributeType attributeType, final Requirement requirement, final Cardinality cardinality, final Key... keys) {
+        this(attributeType, requirement, cardinality, Order.TEMPLATE_ORDER, keys);
+    }
+
+    AttributeTemplate(final AttributeType attributeType, final Requirement requirement, final Cardinality cardinality, final Order order, final Key... keys) {
         this.attributeType = attributeType;
         this.requirement = requirement;
         this.cardinality = cardinality;
+        this.order = order;
         this.keys = Collections.unmodifiableSet(Sets.newEnumSet(Lists.newArrayList(keys), Key.class));
     }
 
@@ -86,6 +97,10 @@ public class AttributeTemplate {
 
     public Set<Key> getKeys() {
         return keys;
+    }
+
+    public Order getOrder() {
+        return order;
     }
 
     @Override

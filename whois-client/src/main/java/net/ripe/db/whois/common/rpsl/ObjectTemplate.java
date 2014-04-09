@@ -25,6 +25,9 @@ import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.INVERSE_KEY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.LOOKUP_KEY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.PRIMARY_KEY;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.TEMPLATE_ORDER;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.USER_ORDER;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.GENERATED;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.MANDATORY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.OPTIONAL;
@@ -167,14 +170,14 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(AS_NAME, MANDATORY, SINGLE),
                         new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
                         new AttributeTemplate(MEMBER_OF, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(IMPORT_VIA, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(IMPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(MP_IMPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(EXPORT_VIA, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(EXPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(MP_EXPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(DEFAULT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE),
+                        new AttributeTemplate(IMPORT_VIA, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(IMPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(MP_IMPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(EXPORT_VIA, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(EXPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(MP_EXPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(DEFAULT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE, USER_ORDER),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
@@ -517,19 +520,32 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         private EnumMap<AttributeType, Integer> order = new EnumMap(AttributeType.class);
 
         public AttributeTypeComparator(final AttributeTemplate... attributeTemplates) {
-            for (int i = 0; i < attributeTemplates.length; i++) {
-                order.put(attributeTemplates[i].getAttributeType(), i);
+            int i = 0;
+            Order prevOrder = null;
+
+            for (AttributeTemplate attributeTemplate : attributeTemplates) {
+                final Order actOrder = attributeTemplate.getOrder();
+
+                if (prevOrder == USER_ORDER && actOrder == TEMPLATE_ORDER) {
+                    i++;
+                }
+
+                order.put(attributeTemplate.getAttributeType(), i);
+
+                if (actOrder == TEMPLATE_ORDER) {
+                    i++;
+                }
+
+                prevOrder = actOrder;
             }
         }
 
         @Override
         public int compare(final RpslAttribute o1, final RpslAttribute o2) {
-            final Integer o1order = order.get(o1.getType());
-            final Integer o2order = order.get(o2.getType());
-            if (o1order == null || o2order == null) {
+            try {
+                return order.get(o1.getType()) - order.get(o2.getType());
+            } catch (NullPointerException e) {
                 return 0;
-            } else {
-                return o1order.compareTo(o2order);
             }
         }
     }
