@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.handler;
+package net.ripe.db.whois.update.generator;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
