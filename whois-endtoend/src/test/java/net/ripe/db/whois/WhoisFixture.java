@@ -1,5 +1,7 @@
 package net.ripe.db.whois;
 
+import com.google.common.base.Joiner;
+import com.google.common.io.Files;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
@@ -34,6 +36,7 @@ import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.scheduler.task.unref.UnrefCleanup;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
+import net.ripe.db.whois.update.domain.LegacyAutnum;
 import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.joda.time.LocalDateTime;
@@ -45,6 +48,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,6 +56,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.UUID;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
@@ -85,6 +90,7 @@ public class WhoisFixture {
     protected RestClient restClient;
     protected TestWhoisLog testWhoisLog;
     protected AuthoritativeResourceData authoritativeResourceData;
+    protected LegacyAutnum legacyAutnum;
 
     static {
         Slf4JLogConfiguration.init();
@@ -130,6 +136,7 @@ public class WhoisFixture {
         restClient = applicationContext.getBean(RestClient.class);
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
         authoritativeResourceData = applicationContext.getBean(AuthoritativeResourceData.class);
+        legacyAutnum = applicationContext.getBean(LegacyAutnum.class);
 
         databaseHelper.setup();
         whoisServer.start();
@@ -321,5 +328,14 @@ public class WhoisFixture {
 
     public void setAuthoritativeData(final String source, final String data) {
         authoritativeResourceData.setAuthoritativeResource(source.toLowerCase(), AuthoritativeResource.loadFromScanner(LOGGER, source, new Scanner(data)));
+    }
+
+    public void setLegacyAutnums(final String... autnums) throws IOException {
+        final File tempDirectory = Files.createTempDir();
+        final File logFile = new File(tempDirectory, UUID.randomUUID().toString());
+
+        Files.write(Joiner.on('\n').join(autnums).getBytes(), logFile);
+
+        legacyAutnum.importLegacyAutnums(logFile.getPath());
     }
 }
