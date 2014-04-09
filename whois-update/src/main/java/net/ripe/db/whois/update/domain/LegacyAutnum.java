@@ -23,14 +23,19 @@ public class LegacyAutnum {
     }
 
     public List<CIString> getLegacyAutnums() {
-        if (cachedLegacyAutnums == null) {
-            cachedLegacyAutnums = legacyAutnumDao.readLegacyAutnums();
-        }
+        initCache();
         return cachedLegacyAutnums;
     }
 
     public boolean contains(final CIString autnumKey) {
+        initCache();
         return cachedLegacyAutnums.contains(autnumKey);
+    }
+
+    private void initCache() {
+        if (cachedLegacyAutnums == null) {
+            cachedLegacyAutnums = legacyAutnumDao.readLegacyAutnums();
+        }
     }
 
     /**

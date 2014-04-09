@@ -1,8 +1,6 @@
 package net.ripe.db.whois.update.generator;
 
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -12,6 +10,7 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.update.domain.LegacyAutnum;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -28,15 +27,15 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
 
     private static final String STATUS_REMARK =  "For information on \"status:\" attribute read http://www.ripe.net/xxxx/as_status_faq.html";
 
-    private final Maintainers maintainers;
     private final AuthoritativeResourceData authoritativeResourceData;
     private final SourceContext sourceContext;
+    private final LegacyAutnum legacyAutnum;
 
     @Autowired
-    public AutnumAttributeGenerator(final Maintainers maintainers, final AuthoritativeResourceData authoritativeResourceData, final SourceContext sourceContext) {
-        this.maintainers = maintainers;
+    public AutnumAttributeGenerator(final AuthoritativeResourceData authoritativeResourceData, final SourceContext sourceContext, final LegacyAutnum legacyAutnum) {
         this.authoritativeResourceData = authoritativeResourceData;
         this.sourceContext = sourceContext;
+        this.legacyAutnum = legacyAutnum;
     }
 
     @Override
@@ -61,20 +60,13 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
         }
 
         if (isMaintainedByRir(updatedObject)) {
-            if (isMaintainedByRsMaintainer(updatedObject)) {
-                return setAutnumStatus(updatedObject, AutnumStatus.ASSIGNED, update, updateContext);
-            } else {
+            if (legacyAutnum.contains(updatedObject.getKey())) {
                 return setAutnumStatus(updatedObject, AutnumStatus.LEGACY, update, updateContext);
+            } else {
+                return setAutnumStatus(updatedObject, AutnumStatus.ASSIGNED, update, updateContext);
             }
         }
-        else {
-            return setAutnumStatus(updatedObject, AutnumStatus.OTHER, update, updateContext);
-        }
-    }
-
-    private boolean isMaintainedByRsMaintainer(final RpslObject object) {
-        final Set<CIString> mntBy = object.getValuesForAttribute(AttributeType.MNT_BY);
-        return !Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty();
+        return setAutnumStatus(updatedObject, AutnumStatus.OTHER, update, updateContext);
     }
 
     private boolean isMaintainedByRir(final RpslObject object) {

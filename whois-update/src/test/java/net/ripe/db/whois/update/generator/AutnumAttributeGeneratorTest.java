@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.update.domain.LegacyAutnum;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import org.junit.Before;
@@ -33,6 +34,7 @@ public class AutnumAttributeGeneratorTest {
     @Mock AuthoritativeResourceData authoritativeResourceData;
     @Mock AuthoritativeResource authoritativeResource;
     @Mock SourceContext sourceContext;
+    @Mock LegacyAutnum legacyAutnum;
     @InjectMocks AutnumAttributeGenerator autnumStatusAttributeGenerator;
 
     @Before
@@ -41,6 +43,7 @@ public class AutnumAttributeGeneratorTest {
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
         when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
         isMaintainedByRir(false);
+        when(legacyAutnum.contains(any(CIString.class))).thenReturn(Boolean.FALSE);
     }
 
     @Test
@@ -57,6 +60,7 @@ public class AutnumAttributeGeneratorTest {
     public void generate_legacy_status_on_create() {
         final RpslObject autnum  = RpslObject.parse("aut-num: AS3333\nmnt-by: TEST-MNT\nsource: RIPE");
         isMaintainedByRir(true);
+        when(legacyAutnum.contains(any(CIString.class))).thenReturn(Boolean.TRUE);
 
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 

@@ -572,6 +572,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     def "create aut-num object, generate ASSIGNED status"() {
       given:
         whoisFixture.setAuthoritativeData("TEST", "test|EU|asn|102|1|19930901|allocated")
+        whoisFixture.setLegacyAutnums("123");
+
       when:
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
@@ -595,6 +597,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     def "create aut-num object, generate LEGACY status"() {
       given:
         whoisFixture.setAuthoritativeData("TEST", "test|EU|asn|102|1|19930901|allocated")
+        whoisFixture.setLegacyAutnums("102");
       when:
         def response = syncUpdate  new SyncUpdate(data: """\
                         aut-num:        AS102
@@ -687,7 +690,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /SUCCESS/
         response =~ /Modify SUCCEEDED: \[aut-num\] AS102/
-        response =~ /Warning: "status" attribute cannot be removed/
+        response =~ /Warning: "status:" attribute cannot be removed/
 
       then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
@@ -764,6 +767,7 @@ admin-c:        AP1-TEST/
     }
 
     def "update autnum, remove status attribute"() {
+
       when:
         def create = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
@@ -790,6 +794,7 @@ admin-c:        AP1-TEST/
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
+                        remarks:        remarks
                         changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
