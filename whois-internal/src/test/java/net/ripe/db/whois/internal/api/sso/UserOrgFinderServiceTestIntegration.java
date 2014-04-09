@@ -158,6 +158,27 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
     }
 
     @Test
+    public void organisations_w_mnt_by_and_ref_RS_found_via_mnt_ref(){
+        databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO db-test@ripe.net");
+        databaseHelper.addObject("mntner: RIPE-NCC-HM-MNT\nmnt-by:RIPE-NCC-HM-MNT\nauth: SSO person@net.net");
+        final RpslObject organisation = RpslObject.parse("" +
+                "organisation: ORG-TST-TEST\n" +
+                "mnt-ref: TEST-MNT\n" +
+                "mnt-ref: RIPE-NCC-HM-MNT\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "source: TEST");
+        databaseHelper.addObject(organisation);
+
+        final WhoisResources result = RestTest.target(getPort(), "api/user/ed7cd420-6402-11e3-949a-0800200c9a66/organisations", null, apiKey)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+
+        final RpslObject resultOrg = new WhoisObjectClientMapper("test.url").map(result.getWhoisObjects().get(0));
+
+        assertThat(resultOrg, is(organisation));
+    }
+
+    @Test
     public void organisation_only_added_once() {
         databaseHelper.addObject("mntner: TEST-MNT\nmnt-by:TEST-MNT\nauth: SSO person@net.net");
         final RpslObject organisation = RpslObject.parse("" +
