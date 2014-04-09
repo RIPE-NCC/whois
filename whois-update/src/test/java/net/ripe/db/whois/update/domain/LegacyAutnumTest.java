@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -16,7 +17,7 @@ public class LegacyAutnumTest extends AbstractUpdateDaoTest {
 
     @Test
     public void importAndGet() throws IOException {
-        subject.importLegacyAutnums(Paths.get("whois-update/target/test-classes/legacyAutnumImport").toString());
+        subject.importLegacyAutnums(Paths.get(new ClassPathResource("legacyAutnumImport").getURI()).toString());
         assertThat(subject.getLegacyAutnums(), contains(CIString.ciString("AS436"), CIString.ciString("AS870"), CIString.ciString("AS6985")));
     }
 
