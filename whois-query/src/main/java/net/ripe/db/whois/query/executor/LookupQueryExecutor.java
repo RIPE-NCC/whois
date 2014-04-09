@@ -54,7 +54,7 @@ public class LookupQueryExecutor implements QueryExecutor {
     }
 
     @Override
-    public void execute(Query query, ResponseHandler responseHandler) {
+    public void execute(final Query query, final ResponseHandler responseHandler) {
         Source source = getSource(query);
         ObjectType type = query.getObjectTypes().iterator().next();
         boolean noResult = true;
