@@ -18,6 +18,8 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import java.util.NoSuchElementException;
+
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdResponse;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdSession;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdUser;
@@ -27,6 +29,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -139,5 +142,20 @@ public class CrowdClientTest {
         } catch (CrowdClientException expected) {
             assertThat(expected.getMessage(), is("Unknown RIPE NCC Access user: test@ripe.net"));
         }
+    }
+
+    @Test
+    public void get_uuid_no_attribute() {
+        final CrowdResponse crowdResponse = mock(CrowdResponse.class);
+        when(crowdResponse.getUUID()).thenThrow(NoSuchElementException.class);
+        when(builder.get(CrowdResponse.class)).thenReturn(crowdResponse);
+
+        try {
+            subject.getUuid("test@ripe.net");
+            fail();
+        } catch (CrowdClientException expected) {
+            assertThat(expected.getMessage(), is("Cannot find UUID for: test@ripe.net"));
+        }
+
     }
 }
