@@ -2,7 +2,6 @@ package net.ripe.db.whois.internal.api.sso;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.Maintainers;
@@ -18,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.sql.DataSource;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.getObjectById;
+
 @Component
 public class UserOrgFinder {
 
@@ -32,9 +33,9 @@ public class UserOrgFinder {
     }
 
     // auth <- mntner <- org (mnt-by/mnt-ref)
+
     @Transactional
     public Set<RpslObject> findOrganisationsForAuth(final String auth) {
-
         final Set<RpslObject> result = Sets.newHashSet();
         for (RpslObjectInfo mntnerId : IndexStrategies.get(AttributeType.AUTH).findInIndex(jdbcTemplate, auth)) {
             result.addAll(findOrgsByMntner(mntnerId, AttributeType.MNT_BY));
@@ -48,15 +49,15 @@ public class UserOrgFinder {
         final IndexStrategy strategy = IndexStrategies.get(refOrBy);
 
         for (RpslObjectInfo orgId : strategy.findInIndex(jdbcTemplate, mntnerId, ObjectType.ORGANISATION)) {
-            if (refOrBy == AttributeType.MNT_BY || (refOrBy == AttributeType.MNT_REF && isOrgMntByRS(orgId))) {
-                result.add(JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId));
+            if (refOrBy == AttributeType.MNT_BY) {
+                result.add(getObjectById(jdbcTemplate, orgId));
+            } else if (refOrBy == AttributeType.MNT_REF) {
+                RpslObject org = getObjectById(jdbcTemplate, orgId);
+                if (!Sets.intersection(org.getValuesForAttribute(AttributeType.MNT_BY), maintainers.getRsMaintainers()).isEmpty()) {
+                    result.add(org);
+                }
             }
         }
         return result;
-    }
-
-    private boolean isOrgMntByRS(final RpslObjectInfo orgId) {
-        RpslObject org = JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId);
-        return !Sets.intersection(org.getValuesForAttribute(AttributeType.MNT_BY), maintainers.getRsMaintainers()).isEmpty();
     }
 }
