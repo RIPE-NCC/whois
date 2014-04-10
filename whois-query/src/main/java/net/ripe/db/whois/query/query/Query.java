@@ -63,6 +63,7 @@ public class Query {
     private String ssoToken;
     private Origin origin;
     private boolean trusted;
+    // TODO: [AH] we should use -x flag for direct match for all object types instead of this hack
     private boolean matchPrimaryKeyOnly;
 
     private Query(final String query, final Origin origin) {
@@ -577,8 +578,9 @@ public class Query {
         return matchPrimaryKeyOnly;
     }
 
-    public void setMatchPrimaryKeyOnly(boolean matchPrimaryKeyOnly) {
+    public Query setMatchPrimaryKeyOnly(boolean matchPrimaryKeyOnly) {
         this.matchPrimaryKeyOnly = matchPrimaryKeyOnly;
+        return this;
     }
 
     public static enum MatchOperation {
