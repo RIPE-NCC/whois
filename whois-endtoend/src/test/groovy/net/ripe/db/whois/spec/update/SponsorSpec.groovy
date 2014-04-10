@@ -276,6 +276,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 """,
     ]}
 
+    @Ignore
     def "create inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, with RS pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -386,6 +387,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
+    @Ignore
     def "create inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, without sponsoring org, with RS pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -585,6 +587,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
+    @Ignore
     def "create inetnum, inet6num, aut-num, with type OTHER sponsoring org, with RS pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -667,6 +670,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_not_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-OFA10-TEST")
     }
 
+    @Ignore
     def "create inetnum, inet6num, aut-num, with type RIR sponsoring org, with RS pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -833,6 +837,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         queryObjectNotFound("-r -BG -T aut-num AS222", "aut-num", "AS222")
     }
 
+    @Ignore
     def "create inetnum, inet6num, aut-num, with type LIR sponsoring org, with override"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -909,6 +914,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
+    @Ignore
     def "create inetnum, inet6num, aut-num, with type OTHER sponsoring org, with override"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -991,6 +997,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_not_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-OFA10-TEST")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, change to another type LIR sponsoring org, with RS pw"() {
         given:
         syncUpdate(getTransient("ASSPISPON") + "override: denis,override1")
@@ -1091,6 +1098,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA2-TEST")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, change to another type LIR sponsoring org, with LIR pw"() {
         given:
         syncUpdate(getTransient("ASSPISPON") + "override: denis,override1")
@@ -1199,6 +1207,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, remove sponsoring org, with RS pw"() {
         given:
         syncUpdate(getTransient("ASSPISPON") + "override: denis,override1")
@@ -1295,6 +1304,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_not_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, remove sponsoring org, with override"() {
         given:
         syncUpdate(getTransient("ASSPISPON") + "override: denis,override1")
@@ -1394,6 +1404,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_not_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, without sponsoring org, add type LIR sponsoring org, with RS pw"() {
         expect:
         query_object_not_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:")
@@ -1488,6 +1499,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_matches("-r -BG -T aut-num AS333", "aut-num", "AS333", "sponsoring-org:\\s*ORG-LIRA2-TEST")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, without sponsoring org, add type LIR sponsoring org, with override"() {
         expect:
         query_object_not_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:")
@@ -1585,6 +1597,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_matches("-r -BG -T aut-num AS333", "aut-num", "AS333", "sponsoring-org:\\s*ORG-LIRA2-TEST")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, without sponsoring org, add sponsoring org with type LIR, with LIR pw"() {
         expect:
         query_object_not_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:")
@@ -1687,6 +1700,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_not_matches("-r -BG -T aut-num AS333", "aut-num", "AS333", "sponsoring-org:")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, remove sponsoring org, with LIR pw"() {
         given:
         syncUpdate(getTransient("ASSPISPON") + "override: denis,override1")
@@ -1877,6 +1891,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, without sponsoring org, add sponsoring org with type OTHER, with LIR pw"() {
         expect:
         query_object_not_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:")
@@ -1983,6 +1998,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_not_matches("-r -BG -T aut-num AS333", "aut-num", "AS333", "sponsoring-org:")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, without sponsoring org, add sponsoring org with type OTHER, with RS pw"() {
         expect:
         query_object_not_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:")
@@ -2085,6 +2101,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_not_matches("-r -BG -T aut-num AS333", "aut-num", "AS333", "sponsoring-org:")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, without sponsoring org, add sponsoring org with type OTHER, with override"() {
         expect:
         query_object_not_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:")
@@ -2190,6 +2207,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_not_matches("-r -BG -T aut-num AS333", "aut-num", "AS333", "sponsoring-org:")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, change to type OTHER sponsoring org, with LIR pw"() {
         given:
         syncUpdate(getTransient("ASSPISPON") + "override: denis,override1")
@@ -2302,6 +2320,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, change to type OTHER sponsoring org, with RS pw"() {
         given:
         syncUpdate(getTransient("ASSPISPON") + "override: denis,override1")
@@ -2410,6 +2429,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
+    @Ignore
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, change to type OTHER sponsoring org, with override"() {
         given:
         syncUpdate(getTransient("ASSPISPON") + "override: denis,override1")
