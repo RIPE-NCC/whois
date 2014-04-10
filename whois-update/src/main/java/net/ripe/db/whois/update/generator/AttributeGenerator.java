@@ -59,7 +59,7 @@ public abstract class AttributeGenerator {
 
         for (String attributeValue : validAttributeValues) {
             if (!found.contains(attributeValue)) {
-                builder.addAttribute(1, new RpslAttribute(attributeType, attributeValue));
+                builder.addAttributeSorted(new RpslAttribute(attributeType, attributeValue));
             }
         }
     }
