@@ -27,7 +27,6 @@ public class UserOrgFinder {
     @Autowired
     public UserOrgFinder(@Qualifier("whoisReadOnlySlaveDataSource") final DataSource dataSource,
                          final Maintainers maintainers) {
-
         this.maintainers = maintainers;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
@@ -46,19 +45,18 @@ public class UserOrgFinder {
 
     private Set<RpslObject> findOrgsByMntner(final RpslObjectInfo mntnerId, final AttributeType refOrBy) {
         final Set<RpslObject> result = Sets.newHashSet();
-
         final IndexStrategy strategy = IndexStrategies.get(refOrBy);
 
         for (RpslObjectInfo orgId : strategy.findInIndex(jdbcTemplate, mntnerId, ObjectType.ORGANISATION)) {
             if (refOrBy == AttributeType.MNT_BY || (refOrBy == AttributeType.MNT_REF && isOrgMntByRS(orgId))) {
-                result.add(JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId.getObjectId()));
+                result.add(JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId));
             }
         }
         return result;
     }
 
     private boolean isOrgMntByRS(final RpslObjectInfo orgId) {
-        RpslObject org = JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId.getObjectId());
+        RpslObject org = JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId);
         return !Sets.intersection(org.getValuesForAttribute(AttributeType.MNT_BY), maintainers.getRsMaintainers()).isEmpty();
     }
 }
