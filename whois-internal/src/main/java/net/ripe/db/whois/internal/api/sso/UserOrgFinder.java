@@ -49,13 +49,11 @@ public class UserOrgFinder {
     private Set<RpslObject> findOrgsByMntner(final RpslObjectInfo mntnerId, final MntByOrRef refOrBy) {
         final Set<RpslObject> result = Sets.newHashSet();
 
-        final IndexStrategy strategy = (refOrBy == MntByOrRef.MNT_REF) ?
-                IndexStrategies.get(AttributeType.MNT_REF) : IndexStrategies.get(AttributeType.MNT_BY);
+        final IndexStrategy strategy = IndexStrategies.get(refOrBy == MntByOrRef.MNT_REF ?
+                AttributeType.MNT_REF : AttributeType.MNT_BY);
 
         for (RpslObjectInfo orgId : strategy.findInIndex(jdbcTemplate, mntnerId, ObjectType.ORGANISATION)) {
-            if (refOrBy == MntByOrRef.MNT_BY ||
-                    (refOrBy == MntByOrRef.MNT_REF && isOrgMntByRS(orgId))) {
-
+            if (refOrBy == MntByOrRef.MNT_BY || (refOrBy == MntByOrRef.MNT_REF && isOrgMntByRS(orgId))) {
                 result.add(JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId.getObjectId()));
             }
         }
