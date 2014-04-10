@@ -186,6 +186,11 @@ public class RpslObjectBuilder {
         return this;
     }
 
+    public RpslObjectBuilder addAttribute(final int index, final RpslAttribute newAttribute) {
+        attributes.add(index, newAttribute);
+        return this;
+    }
+
     public RpslObjectBuilder replaceAttributes(final Map<RpslAttribute, RpslAttribute> attributesToReplace) {
         if (attributesToReplace.isEmpty()) {
             return this;

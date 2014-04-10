@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.generator;
 
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
@@ -26,12 +25,12 @@ public class SponsoringOrgAttributeGenerator extends AttributeGenerator {
     }
 
     private RpslObject generateSponsoringOrg(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
-        final boolean authByRS =  updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
-        final boolean isOverride =  updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
+        final boolean authByRS = updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
+        final boolean isOverride = updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
 
         if (!(authByRS || isOverride) && sponsoringOrgWasRemoved(originalObject, updatedObject)) {
             updateContext.addMessage(update, ValidationMessages.attributeCanBeRemovedOnlyByRipe(AttributeType.SPONSORING_ORG));
-            return cleanupAttributeType(update, updateContext, updatedObject, AttributeType.SPONSORING_ORG, originalObject.getValueForAttribute(SPONSORING_ORG));
+            return cleanupAttributeType(update, updateContext, updatedObject, AttributeType.SPONSORING_ORG, originalObject.getValueForAttribute(SPONSORING_ORG).toString());
         }
 
         return updatedObject;
@@ -41,9 +40,10 @@ public class SponsoringOrgAttributeGenerator extends AttributeGenerator {
         if (original == null) {
             return false;
         }
-        final CIString refSponsoringOrg = original.getValueOrNullForAttribute(SPONSORING_ORG);
-        final CIString updSponsoringOrg = updated.getValueOrNullForAttribute(SPONSORING_ORG);
 
-        return refSponsoringOrg != null && !refSponsoringOrg.equals("") && updSponsoringOrg == null;
+        return (original.containsAttribute(AttributeType.SPONSORING_ORG)
+                && original.getValueForAttribute(AttributeType.SPONSORING_ORG).length() != 0
+                && !updated.containsAttribute(AttributeType.SPONSORING_ORG));
+
     }
 }
