@@ -714,10 +714,9 @@ CREATE TABLE `organisation_id` (
   `range_end` int(10) unsigned NOT NULL DEFAULT '0',
   `space` char(4) NOT NULL DEFAULT '',
   `source` char(10) NOT NULL DEFAULT '',
-  PRIMARY KEY (`range_id`,`range_end`),
-  KEY `range_end` (`range_end`),
-  KEY `space` (`space`,`source`)
-) ENGINE=InnoDB AUTO_INCREMENT=19153 DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`range_id`),
+  UNIQUE KEY `space` (`space`,`source`)
+) ENGINE=InnoDB AUTO_INCREMENT=22661 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
