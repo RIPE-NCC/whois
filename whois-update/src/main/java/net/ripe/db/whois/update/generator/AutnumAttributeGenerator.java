@@ -1,13 +1,10 @@
 package net.ripe.db.whois.update.generator;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
@@ -20,10 +17,6 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Set;
-
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 public class AutnumAttributeGenerator extends AttributeGenerator {
@@ -84,21 +77,24 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
     private RpslObject setAutnumStatus(final RpslObject object, final AutnumStatus autnumStatus, final Update update, final UpdateContext updateContext) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(object);
         cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, autnumStatus.toString());
-        generateRemarks(object, builder, update, updateContext);
+        generateRemarksBeforeStatus(builder);
         return builder.get();
     }
 
-    private void generateRemarks(final RpslObject object, final RpslObjectBuilder builder, final Update update, final UpdateContext updateContext) {
-        final Set<CIString> remarks = object.getValuesForAttribute(AttributeType.REMARKS);
-        remarks.add(ciString(STATUS_REMARK));
+    private void generateRemarksBeforeStatus(final RpslObjectBuilder builder) {
 
-        final Set<String> remarksAsString = Sets.newHashSet(Iterables.transform(remarks, new Function<CIString, String>() {
-            @Override
-            public String apply(CIString input) {
-                return input.toString();
+        for (RpslAttribute attribute : builder.getAttributes()) {
+            if ((attribute.getType() == AttributeType.REMARKS) && (attribute.getCleanValue().equals(STATUS_REMARK))) {
+                return;
             }
-        }));
+        }
 
-        cleanupAttributeType(update, updateContext, builder, AttributeType.REMARKS, remarksAsString);
+        for (int index = 0; index < builder.size(); index++) {
+            RpslAttribute attribute = builder.get(index);
+            if (attribute.getType() == AttributeType.STATUS) {
+                builder.addAttribute(index, new RpslAttribute(AttributeType.REMARKS, STATUS_REMARK));
+                return;
+            }
+        }
     }
 }
