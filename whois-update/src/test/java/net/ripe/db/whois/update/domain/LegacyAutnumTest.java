@@ -1,24 +1,34 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.update.dao.AbstractUpdateDaoTest;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.update.dao.LegacyAutnumDao;
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.nio.file.Paths;
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+@RunWith(MockitoJUnitRunner.class)
+public class LegacyAutnumTest {
 
-public class LegacyAutnumTest extends AbstractUpdateDaoTest {
-    @Autowired LegacyAutnum subject;
+    @Mock LegacyAutnumDao legacyAutnumDao;
+    @InjectMocks LegacyAutnum subject;
 
-    @Test
-    public void importAndGet() throws IOException {
-        subject.importLegacyAutnums(Paths.get(new ClassPathResource("legacyAutnumImport").getURI()).toString());
-        assertThat(subject.getLegacyAutnums(), contains(CIString.ciString("AS436"), CIString.ciString("AS870"), CIString.ciString("AS6985")));
+    @Before
+    public void setup() {
+        when(legacyAutnumDao.load()).thenReturn(Lists.newArrayList(ciString("AS102")));
+        subject.init();
     }
 
+    @Test
+    public void contains() {
+        assertThat(subject.contains(ciString("AS100")), is(false));
+        assertThat(subject.contains(ciString("AS102")), is(true));
+    }
 }

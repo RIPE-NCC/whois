@@ -23,7 +23,7 @@ public class LegacyAutnumDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public List<CIString> readLegacyAutnums() {
+    public List<CIString> load() {
         return jdbcTemplate.query("SELECT autnum FROM legacy_autnums", new RowMapper<CIString>() {
             @Override
             public CIString mapRow(final ResultSet resultSet, final int i) throws SQLException {
