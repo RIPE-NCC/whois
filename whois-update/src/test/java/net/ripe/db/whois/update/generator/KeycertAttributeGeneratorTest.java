@@ -50,7 +50,7 @@ public class KeycertAttributeGeneratorTest {
                 "key-cert:     X509-1\n" +
                 "certif:       -----BEGIN CERTIFICATE-----\n" +
                 "certif:       MIIC8DCCAlmgAwIBAgICBIQwDQYJKoZIhvcNAQEEBQAwXjELMAkGA1UEBhMCTkwx\n" +
-                "certif:       ETAPBgNVBAoTCFJJUEUgTkNDMR0wGwYDVQQLExRSSVBFIE5DQyBMSVIgTmV0d29y\n" +
+                "certif:       ETAPBgNVBAoTCFJJEUgTkNDMR0wGwYDVQQLExRSSVBFIE5DQyBMSVIgTmV0d29y\n" +
                 "certif:       azEdMBsGA1UEAxMUUklQRSBOQ0MgTElSIFJvb3QgQ0EwHhcNMDQwOTI3MTI1NDAx\n" +
                 "certif:       WhcNMDUwOTI3MTI1NDAxWjBsMQswCQYDVQQGEwJOTDERMA8GA1UEChMIUklQRSBO\n" +
                 "certif:       Q0MxEDAOBgNVBAsTB01lbWJlcnMxGTAXBgNVBAMTEHp6LmV4YW1wbGUuZGVuaXMx\n" +
@@ -269,7 +269,7 @@ public class KeycertAttributeGeneratorTest {
 
         validateAttributeType(updatedObject, AttributeType.METHOD, "PGP");
         validateAttributeType(updatedObject, AttributeType.FINGERPR, "FBFD 0527 454D 5880 3484  413F C722 7EEC EA5F BB94");
-        validateAttributeType(updatedObject, AttributeType.OWNER, "Admin User <admin@ripe.net>", "Hostmaster <hostmaster@ripe.net>");
+        validateAttributeType(updatedObject, AttributeType.OWNER, "Hostmaster <hostmaster@ripe.net>", "Admin User <admin@ripe.net>");
         validateMessages(ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.OWNER));
     }
 
