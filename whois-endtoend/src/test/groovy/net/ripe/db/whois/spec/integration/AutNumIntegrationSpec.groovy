@@ -1,9 +1,7 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
@@ -553,7 +551,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     def "create aut-num object, generate OTHER status"() {
       when:
         def response = syncUpdate  new SyncUpdate(data: """\
-                        aut-num:        AS102
+                        aut-num:        AS100
                         as-name:        End-User-2
                         descr:          description
                         admin-c:        AP1-TEST
@@ -566,13 +564,11 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /SUCCESS/
       then:
-        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
         autnum =~ /status:         OTHER/
     }
 
     def "create aut-num object, generate ASSIGNED status"() {
-      given:
-        whoisFixture.setAuthoritativeData("TEST", "test|EU|asn|102|1|19930901|allocated")
       when:
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
@@ -593,14 +589,11 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         autnum =~ /status:         ASSIGNED/
     }
 
-    @Ignore("TODO: [FV} Test fails, incorrect status. Review by Denis")
     def "create aut-num object, generate LEGACY status"() {
-      given:
-        whoisFixture.setAuthoritativeData("TEST", "test|EU|asn|102|1|19930901|allocated")
       when:
         def response = syncUpdate  new SyncUpdate(data: """\
-                        aut-num:        AS102
-                        as-name:        End-User-2
+                        aut-num:        AS103
+                        as-name:        End-User
                         descr:          description
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
@@ -612,7 +605,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response =~ /SUCCESS/
       then:
-        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS103")
         autnum =~ /status:         LEGACY/
     }
 
