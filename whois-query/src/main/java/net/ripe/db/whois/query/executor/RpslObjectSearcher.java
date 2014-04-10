@@ -33,6 +33,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -89,11 +90,20 @@ class RpslObjectSearcher {
             return indexLookupReverse(query);
         }
 
+        if (query.isMatchPrimaryKeyOnly()) {
+            return indexLookupDirect(query);
+        }
+
         for (final ObjectType objectType : query.getObjectTypes()) {
             result = Iterables.concat(result, executeForObjectType(query, objectType));
         }
 
         return result;
+    }
+
+    private Iterable<? extends ResponseObject> indexLookupDirect(Query query) {
+        ObjectType type = Iterables.getOnlyElement(query.getObjectTypes());
+        return Arrays.asList(rpslObjectDao.getByKey(type, query.getSearchValue()));
     }
 
     private Iterable<ResponseObject> executeForObjectType(final Query query, final ObjectType type) {
@@ -120,7 +130,7 @@ class RpslObjectSearcher {
         if (origin != null) {
             final List newEntries = new ArrayList();
             for (IpEntry ipEntry : ipTreeLookup(routeTree, query.getIpKeyOrNull(), query)) {
-                if (((RouteEntry)ipEntry).getOrigin().equals(origin)) {
+                if (((RouteEntry) ipEntry).getOrigin().equals(origin)) {
                     newEntries.add(ipEntry);
                 }
             }
