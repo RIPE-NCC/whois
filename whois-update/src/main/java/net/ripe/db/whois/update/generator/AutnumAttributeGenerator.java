@@ -1,5 +1,8 @@
 package net.ripe.db.whois.update.generator;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
@@ -25,7 +28,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 @Component
 public class AutnumAttributeGenerator extends AttributeGenerator {
 
-    private static final String STATUS_REMARK =  "For information on \"status:\" attribute read http://www.ripe.net/xxxx/as_status_faq.html";
+    private static final String STATUS_REMARK = "For information on \"status:\" attribute read http://www.ripe.net/xxxx/as_status_faq.html";
 
     private final AuthoritativeResourceData authoritativeResourceData;
     private final SourceContext sourceContext;
@@ -80,7 +83,7 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
 
     private RpslObject setAutnumStatus(final RpslObject object, final AutnumStatus autnumStatus, final Update update, final UpdateContext updateContext) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(object);
-        cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, ciString(autnumStatus.toString()));
+        cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, autnumStatus.toString());
         generateRemarks(object, builder, update, updateContext);
         return builder.get();
     }
@@ -88,6 +91,14 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
     private void generateRemarks(final RpslObject object, final RpslObjectBuilder builder, final Update update, final UpdateContext updateContext) {
         final Set<CIString> remarks = object.getValuesForAttribute(AttributeType.REMARKS);
         remarks.add(ciString(STATUS_REMARK));
-        cleanupAttributeType(update, updateContext, builder, AttributeType.REMARKS, remarks);
+
+        final Set<String> remarksAsString = Sets.newHashSet(Iterables.transform(remarks, new Function<CIString, String>() {
+            @Override
+            public String apply(CIString input) {
+                return input.toString();
+            }
+        }));
+
+        cleanupAttributeType(update, updateContext, builder, AttributeType.REMARKS, remarksAsString);
     }
 }

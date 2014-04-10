@@ -10,9 +10,6 @@ import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static net.ripe.db.whois.common.domain.CIString.ciSet;
-import static net.ripe.db.whois.common.domain.CIString.ciString;
-
 @Component
 public class KeycertAttributeGenerator extends AttributeGenerator {
     private final KeyWrapperFactory keyWrapperFactory;
@@ -44,9 +41,9 @@ public class KeycertAttributeGenerator extends AttributeGenerator {
 
         final RpslObjectBuilder builder = new RpslObjectBuilder(object);
 
-        cleanupAttributeType(update, updateContext, builder, AttributeType.METHOD, ciString(keyWrapper.getMethod()));
-        cleanupAttributeType(update, updateContext, builder, AttributeType.OWNER, ciSet(keyWrapper.getOwners()));
-        cleanupAttributeType(update, updateContext, builder, AttributeType.FINGERPR, ciString(keyWrapper.getFingerprint()));
+        cleanupAttributeType(update, updateContext, builder, AttributeType.METHOD, keyWrapper.getMethod());
+        cleanupAttributeType(update, updateContext, builder, AttributeType.OWNER, keyWrapper.getOwners());
+        cleanupAttributeType(update, updateContext, builder, AttributeType.FINGERPR, keyWrapper.getFingerprint());
 
         return builder.get();
     }
