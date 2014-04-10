@@ -21,6 +21,7 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -91,6 +92,7 @@ public class WhoisFixture {
     protected TestWhoisLog testWhoisLog;
     protected AuthoritativeResourceData authoritativeResourceData;
     protected LegacyAutnum legacyAutnum;
+    protected AuthoritativeResourceImportTask authoritativeResourceImportTask;
 
     static {
         Slf4JLogConfiguration.init();
@@ -106,6 +108,7 @@ public class WhoisFixture {
         System.setProperty("unrefcleanup.enabled", "true");
         System.setProperty("unrefcleanup.deletes", "true");
         System.setProperty("nrtm.enabled", "false");
+        System.setProperty("grs.sources", "TEST-GRS");
     }
 
 
@@ -137,12 +140,15 @@ public class WhoisFixture {
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
         authoritativeResourceData = applicationContext.getBean(AuthoritativeResourceData.class);
         legacyAutnum = applicationContext.getBean(LegacyAutnum.class);
+        authoritativeResourceImportTask = applicationContext.getBean(AuthoritativeResourceImportTask.class);
 
         databaseHelper.setup();
         whoisServer.start();
 
         restClient.setRestApiUrl(String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
 
+        authoritativeResourceImportTask.run();
+        authoritativeResourceData.refreshAuthoritativeResourceCache();
         initData();
     }
 
