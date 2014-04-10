@@ -573,8 +573,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     def "create aut-num object, generate ASSIGNED status"() {
       given:
         whoisFixture.setAuthoritativeData("TEST", "test|EU|asn|102|1|19930901|allocated")
-        whoisFixture.setLegacyAutnums("123");
-
       when:
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
@@ -599,7 +597,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     def "create aut-num object, generate LEGACY status"() {
       given:
         whoisFixture.setAuthoritativeData("TEST", "test|EU|asn|102|1|19930901|allocated")
-        whoisFixture.setLegacyAutnums("102");
       when:
         def response = syncUpdate  new SyncUpdate(data: """\
                         aut-num:        AS102
