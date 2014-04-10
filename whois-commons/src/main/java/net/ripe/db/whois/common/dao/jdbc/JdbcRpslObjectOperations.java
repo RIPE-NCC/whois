@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
@@ -369,6 +370,10 @@ public class JdbcRpslObjectOperations {
                 return new SerialRange(rs.getInt(1), rs.getInt(2));
             }
         });
+    }
+
+    public static RpslObject getObjectById(final JdbcTemplate jdbcTemplate, final Identifiable identifiable) {
+        return getObjectById(jdbcTemplate, identifiable.getObjectId());
     }
 
     public static RpslObject getObjectById(final JdbcTemplate jdbcTemplate, final int objectId) {
