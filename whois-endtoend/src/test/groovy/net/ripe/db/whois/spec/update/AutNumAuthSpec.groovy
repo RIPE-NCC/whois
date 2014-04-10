@@ -1582,11 +1582,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
-                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
                 sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
-                status:         OTHER
+                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1629,11 +1629,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
-                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
                 sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
-                status:         OTHER
+                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1683,11 +1683,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
-                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
                 sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
-                status:         OTHER
+                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1734,11 +1734,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
-                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
                 sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
-                status:         OTHER
+                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
@@ -1785,11 +1785,11 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
                 mp-export:      afi ipv6.unicast to AS1 announce AS2
-                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
                 sponsoring-org: ORG-LIRA-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
-                status:         OTHER
+                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
