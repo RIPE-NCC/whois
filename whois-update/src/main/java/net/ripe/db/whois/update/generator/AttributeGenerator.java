@@ -60,7 +60,7 @@ public abstract class AttributeGenerator {
 
         for (CIString attributeValue : validAttributeValues) {
             if (!found.contains(attributeValue)) {
-                builder.append(new RpslAttribute(attributeType, attributeValue)).sort();
+                builder.append(new RpslAttribute(attributeType, attributeValue));
             }
         }
     }
