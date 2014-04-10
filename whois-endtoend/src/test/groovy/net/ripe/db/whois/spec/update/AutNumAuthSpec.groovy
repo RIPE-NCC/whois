@@ -32,6 +32,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS251
                 as-name:        End-User-1
                 descr:          description
+                status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -49,6 +50,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS445
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -64,6 +66,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS12667
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -750,7 +753,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(7, 0, 0)
+        ack.countErrorWarnInfo(7, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
         ack.errorMessagesFor("Create", "[aut-num] AS250") ==
                 ["Syntax error in to AS1 announce ANY",
@@ -759,6 +762,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                  "Syntax error in from AS1 accept AS2",
                  "Syntax error in afi ipv6.unicast to AS1 announce ANY",
                  "Syntax error in to AS1 accept AS2",
+                 "Syntax error in afi ipv6.unicast to AS1 announce ANY",
                  "Syntax error in afi ipv6.unicast from AS1 accept AS2"]
 
         queryObjectNotFound("-rGBT aut-num AS250", "aut-num", "AS250")
@@ -777,6 +781,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS250
                 as-name:      ASTEST
                 descr:        TEST TELEKOM
+                status:       OTHER
                 import:       from AS1 accept {1.2.3.4/24}
                 export:       to AS2 announce {1.2.3.4/24}
                 mp-import:    afi ipv4.unicast from AS1 accept ANY;
@@ -836,6 +841,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS250
                 as-name:        ASTEST
                 descr:          TEST TELEKOM
+                status:         OTHER
                 remarks:        following import is missing the 'and'
                 remarks:        from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
                 import:         from AS1 accept ANY
@@ -858,7 +864,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
         queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
@@ -920,6 +926,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS94967295
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -966,6 +973,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS4294967295
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
                 sponsoring-org: ORG-LIRA-TEST
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
@@ -1008,6 +1016,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS65535
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -1054,6 +1063,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        As0
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -1100,6 +1110,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS0 - AS1
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1147,6 +1158,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS-1
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1218,7 +1230,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS01" }
         ack.errorMessagesFor("Create", "[aut-num] AS01") ==
                 ["Syntax error in AS01"]
@@ -1265,7 +1277,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS4294967299" }
         ack.errorMessagesFor("Create", "[aut-num] AS4294967299") ==
                 ["Syntax error in AS4294967299"]
@@ -1312,7 +1324,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS2.3" }
         ack.errorMessagesFor("Create", "[aut-num] AS2.3") ==
                 ["Syntax error in AS2.3"]
@@ -1968,7 +1980,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(21, 0, 0)
+        ack.countErrorWarnInfo(21, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] As0" }
         ack.errorMessagesFor("Create", "[aut-num] As0") ==
                 ["Syntax error in from AS01 accept ANY",
@@ -2720,7 +2732,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS702" }
 
         queryObject("-rBG -T aut-num AS702", "aut-num", "AS702")
