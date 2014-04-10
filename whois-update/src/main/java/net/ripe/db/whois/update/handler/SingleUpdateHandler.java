@@ -112,17 +112,18 @@ public class SingleUpdateHandler {
         final Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
-        checkForUnexpectedModification(update);
-
         if (action == Action.NOOP) {
             updatedObject = originalObject;
         }
         PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
         updateContext.setPreparedUpdate(preparedUpdate);
 
+        // up to this point, updatedObject could have structural errors (unknown attributes, etc...)
         if (updateContext.hasErrors(preparedUpdate)) {
             throw new UpdateFailedException();
         }
+
+        checkForUnexpectedModification(update);
 
         if (Action.DELETE.equals(preparedUpdate.getAction()) && !preparedUpdate.hasOriginalObject()) {
             updateContext.addMessage(preparedUpdate, UpdateMessages.objectNotFound(preparedUpdate.getFormattedKey()));
@@ -209,11 +210,18 @@ public class SingleUpdateHandler {
                 updateContext.addMessage(update, UpdateMessages.multipleReasonsSpecified(update.getOperation()));
             }
         } else {
-            updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
-            updatedObject = keycertAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
-            updatedObject = autnumStatusAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+            final ObjectMessages messages = new ObjectMessages();
+            ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
 
-            final ObjectMessages messages = ObjectTemplate.getTemplate(updatedObject.getType()).validate(updatedObject);
+            if (!messages.hasErrors()) {
+                // do not run sophisticated operations on structurally broken objects
+                updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
+                updatedObject = keycertAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+                updatedObject = autnumStatusAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+            }
+
+            ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages);
+
             if (messages.hasMessages()) {
                 updateContext.addMessages(update, messages);
             }
