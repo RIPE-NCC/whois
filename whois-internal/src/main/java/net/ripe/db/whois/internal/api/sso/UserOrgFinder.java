@@ -21,8 +21,6 @@ import java.util.Set;
 @Component
 public class UserOrgFinder {
 
-    private enum MntByOrRef {MNT_BY, MNT_REF}
-
     private final Maintainers maintainers;
     private final JdbcTemplate jdbcTemplate;
 
@@ -40,20 +38,19 @@ public class UserOrgFinder {
 
         final Set<RpslObject> result = Sets.newHashSet();
         for (RpslObjectInfo mntnerId : IndexStrategies.get(AttributeType.AUTH).findInIndex(jdbcTemplate, auth)) {
-            result.addAll(findOrgsByMntner(mntnerId, MntByOrRef.MNT_BY));
-            result.addAll(findOrgsByMntner(mntnerId, MntByOrRef.MNT_REF));
+            result.addAll(findOrgsByMntner(mntnerId, AttributeType.MNT_BY));
+            result.addAll(findOrgsByMntner(mntnerId, AttributeType.MNT_REF));
         }
         return result;
     }
 
-    private Set<RpslObject> findOrgsByMntner(final RpslObjectInfo mntnerId, final MntByOrRef refOrBy) {
+    private Set<RpslObject> findOrgsByMntner(final RpslObjectInfo mntnerId, final AttributeType refOrBy) {
         final Set<RpslObject> result = Sets.newHashSet();
 
-        final IndexStrategy strategy = IndexStrategies.get(refOrBy == MntByOrRef.MNT_REF ?
-                AttributeType.MNT_REF : AttributeType.MNT_BY);
+        final IndexStrategy strategy = IndexStrategies.get(refOrBy);
 
         for (RpslObjectInfo orgId : strategy.findInIndex(jdbcTemplate, mntnerId, ObjectType.ORGANISATION)) {
-            if (refOrBy == MntByOrRef.MNT_BY || (refOrBy == MntByOrRef.MNT_REF && isOrgMntByRS(orgId))) {
+            if (refOrBy == AttributeType.MNT_BY || (refOrBy == AttributeType.MNT_REF && isOrgMntByRS(orgId))) {
                 result.add(JdbcRpslObjectOperations.getObjectById(jdbcTemplate, orgId.getObjectId()));
             }
         }
