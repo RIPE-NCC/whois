@@ -12,7 +12,6 @@ import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.generator.KeycertAttributeGenerator;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
 import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
