@@ -54,6 +54,7 @@ public class AutnumAttributeGeneratorTest {
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
         assertThat(result.getValueForAttribute(AttributeType.STATUS), is(CIString.ciString("ASSIGNED")));
+        assertThat(result.getAttributes().get(2).getType(), is(AttributeType.STATUS));
     }
 
     @Test
