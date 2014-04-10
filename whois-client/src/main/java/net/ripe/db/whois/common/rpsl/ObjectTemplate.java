@@ -696,8 +696,21 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         return orderPosition - o.orderPosition;
     }
 
-    public ObjectMessages validate(final RpslObject rpslObject) {
-        final ObjectMessages objectMessages = new ObjectMessages();
+    public void validateStructure(final RpslObject rpslObject, ObjectMessages objectMessages) {
+        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
+            final AttributeType attributeType = attribute.getType();
+            if (attributeType == null) {
+                objectMessages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
+            } else {
+                final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
+                if (attributeTemplate == null) {
+                    objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
+                }
+            }
+        }
+    }
+
+    public void validateSyntax(final RpslObject rpslObject, ObjectMessages objectMessages) {
         final ObjectType rpslObjectType = rpslObject.getType();
 
         final Map<AttributeType, Integer> attributeCount = Maps.newEnumMap(AttributeType.class);
@@ -707,40 +720,32 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             final AttributeType attributeType = attribute.getType();
-            if (attributeType == null) {
-                objectMessages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
-            } else {
-                final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
-                if (attributeTemplate == null) {
-                    objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
-                } else {
-                    attribute.validateSyntax(rpslObjectType, objectMessages);
-                    attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
-                }
+
+            if (attributeType != null && attributeTemplateMap.get(attributeType) != null) {
+                attribute.validateSyntax(rpslObjectType, objectMessages);
+                attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
             }
         }
 
         for (final AttributeTemplate attributeTemplate : attributeTemplates) {
-            addValidationMessagesForAttributeTemplate(objectMessages, attributeTemplate, attributeCount);
-        }
+            final AttributeType attributeType = attributeTemplate.getAttributeType();
+            final int attributeTypeCount = attributeCount.get(attributeType);
 
-        return objectMessages;
+            if (attributeTemplate.getRequirement() == MANDATORY && attributeTypeCount == 0) {
+                objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
+            }
+
+            if ((attributeTemplate.getCardinality() == SINGLE || attributeTemplate.getRequirement() == GENERATED) && attributeTypeCount > 1) {
+                objectMessages.addMessage(ValidationMessages.tooManyAttributesOfType(attributeType));
+            }
+        }
     }
 
-    public void addValidationMessagesForAttributeTemplate(
-            ObjectMessages objectMessages, AttributeTemplate attributeTemplate,
-            Map<AttributeType, Integer> attributeCount) {
-
-        final AttributeType attributeType = attributeTemplate.getAttributeType();
-        final int attributeTypeCount = attributeCount.get(attributeType);
-
-        if (attributeTemplate.getRequirement() == MANDATORY && attributeTypeCount == 0) {
-            objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
-        }
-
-        if ((attributeTemplate.getCardinality() == SINGLE || attributeTemplate.getRequirement() == GENERATED) && attributeTypeCount > 1) {
-            objectMessages.addMessage(ValidationMessages.tooManyAttributesOfType(attributeType));
-        }
+    public ObjectMessages validate(final RpslObject rpslObject) {
+        final ObjectMessages objectMessages = new ObjectMessages();
+        validateStructure(rpslObject, objectMessages);
+        validateSyntax(rpslObject, objectMessages);
+        return objectMessages;
     }
 
     @Override
