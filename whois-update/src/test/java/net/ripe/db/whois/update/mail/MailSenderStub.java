@@ -74,10 +74,12 @@ public class MailSenderStub extends MailSenderBase implements Stub {
 
         @Override
         public Boolean call() throws Exception {
-            for (MimeMessage message : messages) {
-                if (message.getRecipients(Message.RecipientType.TO)[0].toString().equalsIgnoreCase(to)) {
-                    this.message = message;
-                    return true;
+            synchronized (messages) {
+                for (MimeMessage message : messages) {
+                    if (message.getRecipients(Message.RecipientType.TO)[0].toString().equalsIgnoreCase(to)) {
+                        this.message = message;
+                        return true;
+                    }
                 }
             }
 
@@ -87,6 +89,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         public MimeMessage getMessage() {
             return message;
         }
+
     }
 
     public boolean anyMoreMessages() {
