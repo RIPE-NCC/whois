@@ -33,20 +33,19 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.CheckForNull;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -212,22 +211,23 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     private RpslObject getByKeyFromIndex(final ObjectType type, final CIString key) {
-        return getById(findUniqueByKeyInIndex(type, key).getObjectId());
+        return getById(findByKey(type, key).getObjectId());
     }
 
     @Override
     @CheckForNull
     public RpslObject findAsBlock(final long begin, final long end) {
         final List<RpslObject> asBlock = jdbcTemplate.query("" +
-                "SELECT l.object_id, l.object " +
-                "FROM last l " +
-                "JOIN as_block a ON l.object_id = a.object_id " +
-                "WHERE ? >= a.begin_as " +
-                "AND ? <= a.end_as " +
-                "AND l.sequence_id != 0",
+                        "SELECT l.object_id, l.object " +
+                        "FROM last l " +
+                        "JOIN as_block a ON l.object_id = a.object_id " +
+                        "WHERE ? >= a.begin_as " +
+                        "AND ? <= a.end_as " +
+                        "AND l.sequence_id != 0",
                 new RpslObjectRowMapper(),
                 begin,
-                end);
+                end
+        );
 
         return asBlock.isEmpty() ? null : asBlock.get(0);
     }
@@ -252,61 +252,34 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     @Override
-    public RpslObjectInfo findByKey(final ObjectType type, final String searchKey) {
-        // TODO: [AH] skip slow lookup on last, use findUniqueByKeyInIndex right away
-        try {
-            return jdbcTemplate.queryForObject("" +
-                    "SELECT object_id, pkey " +
-                    "  FROM last " +
-                    "  WHERE object_type = ? and pkey = ? and sequence_id != 0 ",
-                    new RowMapper<RpslObjectInfo>() {
-                        @Override
-                        public RpslObjectInfo mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-                            return new RpslObjectInfo(rs.getInt(1), type, rs.getString(2));
-                        }
-                    },
-                    ObjectTypeIds.getId(type),
-                    searchKey);
-        } catch (EmptyResultDataAccessException e) {
-            return findUniqueByKeyInIndex(type, ciString(searchKey));
-        }
+    public RpslObjectInfo findByKey(final ObjectType type, final CIString searchKey) {
+        return findByKey(type, searchKey.toString());
     }
 
-    private RpslObjectInfo findUniqueByKeyInIndex(final ObjectType type, final CIString key) {
-        final Set<RpslObjectInfo> objectInfos = findByKeyInIndex(type, key);
+    @Override
+    public RpslObjectInfo findByKey(final ObjectType type, final String searchKey) {
+        final List<RpslObjectInfo> objectInfos = findByKeyInIndex(type, searchKey);
 
         switch (objectInfos.size()) {
             case 0:
                 throw new EmptyResultDataAccessException(1);
             case 1:
-                return objectInfos.iterator().next();
+                return objectInfos.get(0);
             default:
-                throw new IncorrectResultSizeDataAccessException(String.format("Multiple objects found in key index for object [%s] %s", type, key), 1, objectInfos.size());
+                throw new IncorrectResultSizeDataAccessException(String.format("Multiple objects found in key index for object [%s] %s", type, searchKey), 1, objectInfos.size());
         }
     }
 
-    private Set<RpslObjectInfo> findByKeyInIndex(final ObjectType type, final CIString key) {
-        final Set<RpslObjectInfo> objectInfos = Sets.newHashSetWithExpectedSize(1);
-        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(type);
-
-        // FIXME: [AH] this would erroneously try to match the individual key of route(6) object, instead of matching against the combined key
-        for (final AttributeType attributeType : objectTemplate.getKeyAttributes()) {
-            final List<RpslObjectInfo> rpslObjectInfos = IndexStrategies.get(attributeType).findInIndex(jdbcTemplate, key);
-            for (final RpslObjectInfo rpslObjectInfo : rpslObjectInfos) {
-
-                // Make sure the object type actually matches the requested type, can otherwise fail e.g. when looking up person/role
-                if (rpslObjectInfo.getObjectType().equals(type)) {
-                    objectInfos.add(rpslObjectInfo);
-                }
-            }
-        }
-
-        return objectInfos;
+    private List<RpslObjectInfo> findByKeyInIndex(final ObjectType type, final String key) {
+        final AttributeType keyLookupAttribute = ObjectTemplate.getTemplate(type).getKeyLookupAttribute();
+        final IndexStrategy indexStrategy = IndexStrategies.get(keyLookupAttribute);
+        return indexStrategy.findInIndex(jdbcTemplate, key, type);
     }
 
     @Override
     public List<RpslObjectInfo> findByAttribute(final AttributeType attributeType, final String attributeValue) {
-        return IndexStrategies.get(attributeType).findInIndex(jdbcTemplate, attributeValue);
+        final IndexStrategy indexStrategy = IndexStrategies.get(attributeType);
+        return indexStrategy.findInIndex(jdbcTemplate, attributeValue);
     }
 
     @Override
@@ -332,26 +305,25 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     @Override
-    public List<RpslObjectInfo> relatedTo(final RpslObject identifiable, final Set<ObjectType> excludeObjectTypes) {
-        final Set<RpslObjectInfo> result = Sets.newLinkedHashSet();
+    public Collection<RpslObjectInfo> relatedTo(final RpslObject identifiable, final Set<ObjectType> excludeObjectTypes) {
+        final LinkedHashSet<RpslObjectInfo> result = Sets.newLinkedHashSet();
 
-        final List<RpslAttribute> attributes = identifiable.findAttributes(RELATED_TO_ATTRIBUTES);
-        for (final RpslAttribute attribute : attributes) {
+        for (final RpslAttribute attribute : identifiable.findAttributes(RELATED_TO_ATTRIBUTES)) {
             for (final CIString referenceValue : attribute.getReferenceValues()) {
                 for (final ObjectType objectType : attribute.getType().getReferences(referenceValue)) {
                     if (excludeObjectTypes.contains(objectType)) {
                         continue;
                     }
 
-                    for (final RpslObjectInfo objectInfo : findByKeyInIndex(objectType, referenceValue)) {
-                        if (objectInfo.getObjectId() != identifiable.getObjectId()) {
-                            result.add(objectInfo);
+                    for (RpslObjectInfo rpslObjectInfo : findByKeyInIndex(objectType, referenceValue.toString())) {
+                        if (rpslObjectInfo.getObjectId() != identifiable.getObjectId()) {
+                            result.add(rpslObjectInfo);
                         }
                     }
                 }
             }
         }
 
-        return Lists.newArrayList(result);
+        return result;
     }
 }

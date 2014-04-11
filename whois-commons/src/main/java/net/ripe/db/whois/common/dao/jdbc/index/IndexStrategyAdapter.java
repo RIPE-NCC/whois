@@ -45,6 +45,16 @@ abstract class IndexStrategyAdapter implements IndexStrategy {
     }
 
     @Override
+    public final List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final CIString value, final ObjectType type) {
+        return findInIndex(jdbcTemplate, value.toString(), type);
+    }
+
+    @Override
+    public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final String value, final ObjectType type) {
+        return findInIndex(jdbcTemplate, value);
+    }
+
+    @Override
     public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo value) {
         return Collections.emptyList();
     }

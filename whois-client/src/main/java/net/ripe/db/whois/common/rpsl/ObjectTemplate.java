@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.WordUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +25,9 @@ import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.INVERSE_KEY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.LOOKUP_KEY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.PRIMARY_KEY;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.TEMPLATE_ORDER;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.USER_ORDER;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.GENERATED;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.MANDATORY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.OPTIONAL;
@@ -166,14 +170,14 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(AS_NAME, MANDATORY, SINGLE),
                         new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
                         new AttributeTemplate(MEMBER_OF, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(IMPORT_VIA, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(IMPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(MP_IMPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(EXPORT_VIA, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(EXPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(MP_EXPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(DEFAULT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE),
+                        new AttributeTemplate(IMPORT_VIA, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(IMPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(MP_IMPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(EXPORT_VIA, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(EXPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(MP_EXPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(DEFAULT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE, USER_ORDER),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
@@ -511,22 +515,37 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         TEMPLATE_MAP = Collections.unmodifiableMap(templateMap);
     }
 
+    @SuppressWarnings("unchecked")
     private class AttributeTypeComparator implements Comparator<RpslAttribute> {
         private EnumMap<AttributeType, Integer> order = new EnumMap(AttributeType.class);
+
         public AttributeTypeComparator(final AttributeTemplate... attributeTemplates) {
-            for (int i = 0; i < attributeTemplates.length; i++) {
-                order.put(attributeTemplates[i].getAttributeType(), i);
+            int i = 0;
+            Order prevOrder = null;
+
+            for (AttributeTemplate attributeTemplate : attributeTemplates) {
+                final Order actOrder = attributeTemplate.getOrder();
+
+                if (prevOrder == USER_ORDER && actOrder == TEMPLATE_ORDER) {
+                    i++;
+                }
+
+                order.put(attributeTemplate.getAttributeType(), i);
+
+                if (actOrder == TEMPLATE_ORDER) {
+                    i++;
+                }
+
+                prevOrder = actOrder;
             }
         }
 
         @Override
         public int compare(final RpslAttribute o1, final RpslAttribute o2) {
-            final Integer o1order = order.get(o1.getType());
-            final Integer o2order = order.get(o2.getType());
-            if (o1order == null || o2order == null) {
+            try {
+                return order.get(o1.getType()) - order.get(o2.getType());
+            } catch (NullPointerException e) {
                 return 0;
-            } else {
-                return o1order.compareTo(o2order);
             }
         }
     }
@@ -538,6 +557,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     private final Set<AttributeType> allAttributeTypes;
     private final Set<AttributeType> keyAttributes;
     private final Set<AttributeType> lookupAttributes;
+    private final AttributeType keyLookupAttribute;
     private final Set<AttributeType> inverseLookupAttributes;
     private final Set<AttributeType> mandatoryAttributes;
     private final Set<AttributeType> multipleAttributes;
@@ -566,6 +586,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         inverseLookupAttributes = getAttributes(attributeTemplates, INVERSE_KEY);
         mandatoryAttributes = getAttributes(attributeTemplates, MANDATORY);
         multipleAttributes = getAttributes(attributeTemplates, MULTIPLE);
+        keyLookupAttribute = Iterables.getOnlyElement(Sets.intersection(keyAttributes, lookupAttributes));
 
         comparator = new AttributeTypeComparator(attributeTemplates);
     }
@@ -636,6 +657,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         return lookupAttributes;
     }
 
+    public AttributeType getKeyLookupAttribute() {
+        return keyLookupAttribute;
+    }
+
     public Set<AttributeType> getMandatoryAttributes() {
         return mandatoryAttributes;
     }
@@ -667,12 +692,25 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     }
 
     @Override
-    public int compareTo(final ObjectTemplate o) {
+    public int compareTo(@Nonnull final ObjectTemplate o) {
         return orderPosition - o.orderPosition;
     }
 
-    public ObjectMessages validate(final RpslObject rpslObject) {
-        final ObjectMessages objectMessages = new ObjectMessages();
+    public void validateStructure(final RpslObject rpslObject, ObjectMessages objectMessages) {
+        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
+            final AttributeType attributeType = attribute.getType();
+            if (attributeType == null) {
+                objectMessages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
+            } else {
+                final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
+                if (attributeTemplate == null) {
+                    objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
+                }
+            }
+        }
+    }
+
+    public void validateSyntax(final RpslObject rpslObject, ObjectMessages objectMessages) {
         final ObjectType rpslObjectType = rpslObject.getType();
 
         final Map<AttributeType, Integer> attributeCount = Maps.newEnumMap(AttributeType.class);
@@ -682,40 +720,32 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             final AttributeType attributeType = attribute.getType();
-            if (attributeType == null) {
-                objectMessages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
-            } else {
-                final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
-                if (attributeTemplate == null) {
-                    objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
-                } else {
-                    attribute.validateSyntax(rpslObjectType, objectMessages);
-                    attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
-                }
+
+            if (attributeType != null && attributeTemplateMap.get(attributeType) != null) {
+                attribute.validateSyntax(rpslObjectType, objectMessages);
+                attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
             }
         }
 
         for (final AttributeTemplate attributeTemplate : attributeTemplates) {
-            addValidationMessagesForAttributeTemplate(objectMessages, attributeTemplate, attributeCount);
-        }
+            final AttributeType attributeType = attributeTemplate.getAttributeType();
+            final int attributeTypeCount = attributeCount.get(attributeType);
 
-        return objectMessages;
+            if (attributeTemplate.getRequirement() == MANDATORY && attributeTypeCount == 0) {
+                objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
+            }
+
+            if ((attributeTemplate.getCardinality() == SINGLE || attributeTemplate.getRequirement() == GENERATED) && attributeTypeCount > 1) {
+                objectMessages.addMessage(ValidationMessages.tooManyAttributesOfType(attributeType));
+            }
+        }
     }
 
-    public void addValidationMessagesForAttributeTemplate(
-                        ObjectMessages objectMessages, AttributeTemplate attributeTemplate,
-                        Map<AttributeType, Integer> attributeCount){
-
-        final AttributeType attributeType = attributeTemplate.getAttributeType();
-        final int attributeTypeCount = attributeCount.get(attributeType);
-
-        if (attributeTemplate.getRequirement() == MANDATORY && attributeTypeCount == 0) {
-            objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
-        }
-
-        if ((attributeTemplate.getCardinality() == SINGLE || attributeTemplate.getRequirement() == GENERATED) && attributeTypeCount > 1) {
-            objectMessages.addMessage(ValidationMessages.tooManyAttributesOfType(attributeType));
-        }
+    public ObjectMessages validate(final RpslObject rpslObject) {
+        final ObjectMessages objectMessages = new ObjectMessages();
+        validateStructure(rpslObject, objectMessages);
+        validateSyntax(rpslObject, objectMessages);
+        return objectMessages;
     }
 
     @Override

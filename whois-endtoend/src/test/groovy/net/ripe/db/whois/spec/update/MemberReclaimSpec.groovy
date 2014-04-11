@@ -1620,6 +1620,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
 
                 aut-num:     AS20000
                 as-name:     TEST-AS
+                remarks:     For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
                 status:      OTHER
                 descr:       Testing Authorisation code
                 admin-c:     TP1-TEST

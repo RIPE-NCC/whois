@@ -11,24 +11,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+// these should return Collection<> instead of List<> to allow for greater flexibility in implementation
 public interface RpslObjectDao extends ProxyLoader<Identifiable, RpslObject> {
     RpslObject getById(int objectId);
-
+    RpslObject getByKey(ObjectType type, CIString key);
     RpslObject getByKey(ObjectType type, String searchKey);
-
     List<RpslObject> getByKeys(ObjectType type, Collection<CIString> searchKeys);
 
     RpslObject findAsBlock(long begin, long end);
-
     List<RpslObject> findAsBlockIntersections(long begin, long end);
 
     RpslObjectInfo findByKey(ObjectType type, String searchKey);
-
+    RpslObjectInfo findByKey(ObjectType type, CIString searchKey);
     List<RpslObjectInfo> findByAttribute(AttributeType attributeType, String attributeValue);
-
     List<RpslObjectInfo> findMemberOfByObjectTypeWithoutMbrsByRef(ObjectType objectType, String attributeValue);
-
-    List<RpslObjectInfo> relatedTo(RpslObject identifiable, Set<ObjectType> excludeObjectTypes);
-
-    RpslObject getByKey(ObjectType type, CIString key);
+    Collection<RpslObjectInfo> relatedTo(RpslObject identifiable, Set<ObjectType> excludeObjectTypes);
 }

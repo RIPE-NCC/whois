@@ -25,6 +25,9 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
+import net.ripe.db.whois.update.generator.AutnumAttributeGenerator;
+import net.ripe.db.whois.update.generator.KeycertAttributeGenerator;
+import net.ripe.db.whois.update.generator.SponsoringOrgAttributeGenerator;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +49,7 @@ public class SingleUpdateHandler {
     private final AutoKeyResolver autoKeyResolver;
     private final AttributeSanitizer attributeSanitizer;
     private final KeycertAttributeGenerator keycertAttributeGenerator;
-    private final AutnumAttributeGenerator autnumAttributeGenerator;
+    private final AutnumAttributeGenerator autnumStatusAttributeGenerator;
     private final SponsoringOrgAttributeGenerator sponsoringOrgAttributeGenerator;
     private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
@@ -67,7 +70,7 @@ public class SingleUpdateHandler {
     @Autowired
     public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver,
                                final KeycertAttributeGenerator keycertAttributeGenerator,
-                               final AutnumAttributeGenerator autnumAttributeGenerator,
+                               final AutnumAttributeGenerator autnumStatusAttributeGenerator,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final LoggerContext loggerContext,
@@ -80,7 +83,7 @@ public class SingleUpdateHandler {
                                final SsoTranslator ssoTranslator) {
         this.autoKeyResolver = autoKeyResolver;
         this.keycertAttributeGenerator = keycertAttributeGenerator;
-        this.autnumAttributeGenerator = autnumAttributeGenerator;
+        this.autnumStatusAttributeGenerator = autnumStatusAttributeGenerator;
         this.sponsoringOrgAttributeGenerator = new SponsoringOrgAttributeGenerator();
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
@@ -109,17 +112,18 @@ public class SingleUpdateHandler {
         final Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
-        checkForUnexpectedModification(update);
-
         if (action == Action.NOOP) {
             updatedObject = originalObject;
         }
         PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
         updateContext.setPreparedUpdate(preparedUpdate);
 
+        // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...)
         if (updateContext.hasErrors(preparedUpdate)) {
             throw new UpdateFailedException();
         }
+
+        checkForUnexpectedModification(update);
 
         if (Action.DELETE.equals(preparedUpdate.getAction()) && !preparedUpdate.hasOriginalObject()) {
             updateContext.addMessage(preparedUpdate, UpdateMessages.objectNotFound(preparedUpdate.getFormattedKey()));
@@ -132,6 +136,7 @@ public class SingleUpdateHandler {
 
         loggerContext.logPreparedUpdate(preparedUpdate);
         authenticator.authenticate(origin, preparedUpdate, updateContext);
+
         preparedUpdate = new PreparedUpdate(update, originalObject, sponsoringOrgAttributeGenerator.generateAttributes(originalObject, objectWithResolvedKeys, update, updateContext), action, overrideOptions);
 
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
@@ -206,11 +211,18 @@ public class SingleUpdateHandler {
                 updateContext.addMessage(update, UpdateMessages.multipleReasonsSpecified(update.getOperation()));
             }
         } else {
-            updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
-            updatedObject = keycertAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
-            updatedObject = autnumAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+            final ObjectMessages messages = new ObjectMessages();
+            ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
 
-            final ObjectMessages messages = ObjectTemplate.getTemplate(updatedObject.getType()).validate(updatedObject);
+            if (!messages.hasErrors()) {
+                // do not run sophisticated operations on structurally broken objects
+                updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
+                updatedObject = keycertAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+                updatedObject = autnumStatusAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+            }
+
+            ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages);
+
             if (messages.hasMessages()) {
                 updateContext.addMessages(update, messages);
             }

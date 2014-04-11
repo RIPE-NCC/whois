@@ -14,15 +14,13 @@ public interface IndexStrategy {
     AttributeType getAttributeType();
 
     int addToIndex(JdbcTemplate jdbcTemplate, RpslObjectInfo objectInfo, RpslObject object, CIString value);
-
     int addToIndex(JdbcTemplate jdbcTemplate, RpslObjectInfo objectInfo, RpslObject object, String value);
 
     List<RpslObjectInfo> findInIndex(JdbcTemplate jdbcTemplate, String value);
-
+    List<RpslObjectInfo> findInIndex(JdbcTemplate jdbcTemplate, String value, final ObjectType type);
     List<RpslObjectInfo> findInIndex(JdbcTemplate jdbcTemplate, CIString value);
-
+    List<RpslObjectInfo> findInIndex(JdbcTemplate jdbcTemplate, CIString value, final ObjectType type);
     List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo value);
-
     List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo value, final ObjectType type);
 
     void removeFromIndex(JdbcTemplate jdbcTemplate, RpslObjectInfo objectInfo);

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -56,7 +55,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-            "ERX-ALLOC-PA": """\
+            "USER-ALLOC-PA": """\
                 inetnum:      192.0.0.0 - 192.255.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -116,7 +115,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-            "ERX-ALLOC-PI": """\
+            "USER-ALLOC-PI": """\
                 inetnum:      192.0.0.0 - 192.255.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -125,7 +124,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PI
-                mnt-by:       LIR-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
                 changed:      dbtest@ripe.net 20020101
@@ -181,20 +180,6 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-            "EARLY-ASSPI": """\
-                inetnum:      192.168.200.0 - 192.168.200.255
-                netname:      RIPE-NET1
-                descr:        /24 assigned
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                mnt-by:       LIR-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                """,
             "ASSPI": """\
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
@@ -222,30 +207,30 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-            "EARLY": """\
+            "LEGACYROOT": """\
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      RIPE-NET1
                 descr:        /16 ERX
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                """,
-            "EARLY-ALLOC": """\
-                inetnum:      192.0.0.0 - 192.255.255.255
-                netname:      RIPE-NET1
-                descr:        /8 ERX
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                """
+                """,
+            "LEGACY": """\
+                inetnum:      192.168.100.0 - 192.168.100.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
     ]}
 
     def "create between ALLOCATED UNSPECIFIED and ALLOCATED UNSPECIFIED, with status ALLOCATED UNSPECIFIED"() {
@@ -675,20 +660,18 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and ALLOCATED UNSPECIFIED, with status EARLY-REGISTRATION"() {
+    def "create between ALLOCATED UNSPECIFIED and ALLOCATED UNSPECIFIED, with status LEGACY"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("ALLOC-UNS2") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -696,8 +679,8 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       RIPE-NCC-HM-MNT
+                status:       LEGACY
+                mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
@@ -709,7 +692,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -718,7 +701,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status EARLY-REGISTRATION not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
+                ["Status LEGACY not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
@@ -1199,20 +1182,18 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and ALLOCATED PA, with status EARLY-REGISTRATION"() {
+    def "create between ALLOCATED UNSPECIFIED and ALLOCATED PA, with status LEGACY"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -1220,8 +1201,8 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       RIPE-NCC-HM-MNT
+                status:       LEGACY
+                mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
@@ -1233,7 +1214,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1242,7 +1223,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status EARLY-REGISTRATION not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
+                ["Status LEGACY not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
@@ -1723,20 +1704,18 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and ALLOCATED PI, with status EARLY-REGISTRATION"() {
+    def "create between ALLOCATED UNSPECIFIED and ALLOCATED PI, with status LEGACY"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("ALLOC-PI") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -1744,8 +1723,8 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       RIPE-NCC-HM-MNT
+                status:       LEGACY
+                mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
@@ -1757,7 +1736,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1766,7 +1745,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status EARLY-REGISTRATION not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PI"]
+                ["Status LEGACY not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PI"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
@@ -2284,20 +2263,19 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
+    @Ignore
     def "create between user ALLOCATED PA and ASSIGNED PA, with status ASSIGNED PA"() {
       given:
-        syncUpdate(getTransient("ERX-ALLOC-PA") + "password: owner3\npassword: hm\npassword: lir")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        syncUpdate(getTransient("USER-ALLOC-PA") + "password: owner3\npassword: hm\npassword: lir")
         syncUpdate(getTransient("ASS-END") + "password: owner3\npassword: end\npassword: lir")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -2317,16 +2295,18 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
+                ["Status ASSIGNED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED PA"]
 
-        queryObject("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
+        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
     // Create object between objects with status values ALLOCATED PI and ASSIGNED PI tests
@@ -2334,17 +2314,15 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
     def "create between ALLOCATED PI and ASSIGNED PI, with status LIR-PARTITIONED PI"() {
       given:
         syncUpdate(getTransient("ALLOC-PI2") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY-ASSPI") + "password: owner3\npassword: hm\npassword: lir")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        syncUpdate(getTransient("ASSPI") + "password: owner3\npassword: hm\npassword: lir")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -2364,16 +2342,18 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
+                ["Status LIR-PARTITIONED PI not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED PI"]
 
-        queryObject("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
+        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
     def "create between ALLOCATED PI and ASSIGNED PI, with status ASSIGNED PI"() {
@@ -2427,18 +2407,16 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
 
     def "create between user ALLOCATED PI and RS ASSIGNED PI, with status ASSIGNED PI"() {
       given:
-        syncUpdate(getTransient("ERX-ALLOC-PI") + "password: owner3\npassword: hm\npassword: lir")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        syncUpdate(getTransient("USER-ALLOC-PI") + "password: owner3\npassword: hm\npassword: lir")
         syncUpdate(getTransient("ASSPI") + "password: owner3\npassword: hm\npassword: lir")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -2458,7 +2436,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -2470,51 +2448,6 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 ["Status ASSIGNED PI not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED PI"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-    }
-
-    def "create between user ALLOCATED PI and user ASSIGNED PI, with status ASSIGNED PI"() {
-      given:
-        syncUpdate(getTransient("ERX-ALLOC-PI") + "password: owner3\npassword: hm\npassword: lir")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY-ASSPI") + "password: owner3\npassword: hm\npassword: lir")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.100.0.0 - 192.200.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: owner3
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
-
-        queryObject("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
     // Create object between objects with status values ALLOCATED UNSPECIFIED and ASSIGNED ANYCAST tests
@@ -2944,14 +2877,14 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and ASSIGNED ANYCAST, with status EARLY-REGISTRATION"() {
+    def "create between ALLOCATED UNSPECIFIED and ASSIGNED ANYCAST, with status LEGACY"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("ASSANY") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
@@ -2965,8 +2898,8 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       RIPE-NCC-HM-MNT
+                status:       LEGACY
+                mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
@@ -2987,27 +2920,25 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status EARLY-REGISTRATION not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED ANYCAST"]
+                ["Status LEGACY not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED ANYCAST"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    // Create object between objects with status values ALLOCATED UNSPECIFIED and EARLY-REGISTRATION tests
+    // Create object between objects with status values ALLOCATED UNSPECIFIED and LEGACY tests
 
-    def "create between ALLOCATED UNSPECIFIED and EARLY-REGISTRATION, with status ALLOCATED UNSPECIFIED"() {
+    def "create between ALLOCATED UNSPECIFIED and LEGACY, with status ALLOCATED UNSPECIFIED"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -3027,7 +2958,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3039,20 +2970,18 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and EARLY-REGISTRATION, with status ALLOCATED PA"() {
+    def "create between ALLOCATED UNSPECIFIED and LEGACY, with status ALLOCATED PA"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -3073,7 +3002,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -3082,25 +3011,23 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status ALLOCATED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status EARLY-REGISTRATION"]
+                ["Status ALLOCATED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
 
         queryObjectNotFound("-rGBT inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and EARLY-REGISTRATION, with status ALLOCATED PI"() {
+    def "create between ALLOCATED UNSPECIFIED and LEGACY, with status ALLOCATED PI"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -3121,7 +3048,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -3130,25 +3057,23 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status ALLOCATED PI not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status EARLY-REGISTRATION"]
+                ["Status ALLOCATED PI not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and EARLY-REGISTRATION, with status LIR-PARTITIONED PA"() {
+    def "create between ALLOCATED UNSPECIFIED and LEGACY, with status LIR-PARTITIONED PA"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -3157,7 +3082,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       LIR-PARTITIONED PA
-                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       liR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
@@ -3169,7 +3094,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -3178,25 +3103,23 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status LIR-PARTITIONED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status EARLY-REGISTRATION"]
+                ["Status LIR-PARTITIONED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and EARLY-REGISTRATION, with status LIR-PARTITIONED PI"() {
+    def "create between ALLOCATED UNSPECIFIED and LEGACY, with status LIR-PARTITIONED PI"() {
       given:
-        syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("ALLOC-UNS") + "override: denis,override1")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -3217,7 +3140,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -3226,25 +3149,23 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status LIR-PARTITIONED PI not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status EARLY-REGISTRATION"]
+                ["Status LIR-PARTITIONED PI not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and EARLY-REGISTRATION, with status ASSIGNED PA"() {
+    def "create between ALLOCATED UNSPECIFIED and LEGACY, with status ASSIGNED PA"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -3253,19 +3174,19 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
-                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       lIr-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
                 password: owner3
-                password: end
+                password: lir
                 """.stripIndent()
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -3274,25 +3195,23 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status EARLY-REGISTRATION"]
+                ["Status ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and EARLY-REGISTRATION, with status ASSIGNED PI"() {
+    def "create between ALLOCATED UNSPECIFIED and LEGACY, with status ASSIGNED PI"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -3302,6 +3221,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
@@ -3312,7 +3232,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -3321,25 +3241,23 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status ASSIGNED PI not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status EARLY-REGISTRATION"]
+                ["Status ASSIGNED PI not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and EARLY-REGISTRATION, with status ASSIGNED ANYCAST"() {
+    def "create between ALLOCATED UNSPECIFIED and LEGACY, with status ASSIGNED ANYCAST"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -3359,7 +3277,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+        def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -3368,25 +3286,23 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status ASSIGNED ANYCAST not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status EARLY-REGISTRATION"]
+                ["Status ASSIGNED ANYCAST not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
 
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    def "create between ALLOCATED UNSPECIFIED and EARLY-REGISTRATION, with status EARLY-REGISTRATION"() {
+    def "create between ALLOCATED UNSPECIFIED and LEGACY, with status LEGACY"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.100.0.0 - 192.200.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -3394,8 +3310,8 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       RIPE-NCC-HM-MNT
+                status:       LEGACY
+                mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
@@ -3407,7 +3323,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3419,162 +3335,21 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
     }
 
-    // Create object between objects with status values EARLY-REGISTRATION and LIR-PARTITIONED PI tests
+    // Create object between objects with status values LEGACY and LEGACY tests
 
-    def "create between EARLY-REGISTRATION and LIR-PARTITIONED PI, with status LIR-PARTITIONED PA"() {
-      given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("PART-PI") + "password: owner3\npassword: lir")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+    def "create between LEGACY and LEGACY, with status ASSIGNED PA"() {
+        given:
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
+        syncUpdate(getTransient("LEGACY") + "override: denis,override1")
 
       expect:
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.100.0.0 - 192.200.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       LIR-PARTITIONED PA
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: owner3
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status LIR-PARTITIONED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LIR-PARTITIONED PI"]
-
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-    }
-
-    def "create between EARLY-REGISTRATION and LIR-PARTITIONED PI, with status LIR-PARTITIONED PI"() {
-      given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("PART-PI") + "password: owner3\npassword: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.100.0.0 - 192.200.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       LIR-PARTITIONED PI
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: owner3
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
-
-        queryObject("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-    }
-
-    def "create between EARLY-REGISTRATION and LIR-PARTITIONED PI, with status SUB-ALLOCATED PA"() {
-      given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("PART-PI") + "password: owner3\npassword: lir")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
+        queryObject("-r -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255")
+        queryObjectNotFound("-r -T inetnum 192.168.100.0 - 192.168.200.255", "inetnum", "192.168.100.0 - 192.168.200.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.100.0.0 - 192.200.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       SUB-ALLOCATED PA
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: owner3
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status SUB-ALLOCATED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LIR-PARTITIONED PI"]
-
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-    }
-
-    def "create between EARLY-REGISTRATION and LIR-PARTITIONED PI, with status ASSIGNED PA"() {
-      given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("PART-PI") + "password: owner3\npassword: lir")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.100.0.0 - 192.200.255.255
+      def message = syncUpdate("""
+                inetnum:      192.168.100.0 - 192.168.200.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
@@ -3593,165 +3368,21 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LIR-PARTITIONED PI"]
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.100.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.100.0 - 192.168.200.255") ==
+                ["Status ASSIGNED PA not allowed when more specific object '192.168.100.0 - 192.168.100.255' has status LEGACY"]
 
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
+        queryObjectNotFound("-r -T inetnum 192.168.100.0 - 192.168.200.255", "inetnum", "192.168.100.0 - 192.168.200.255")
     }
 
-    def "create between EARLY-REGISTRATION and LIR-PARTITIONED PI, with status ASSIGNED PI"() {
-      given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("PART-PI") + "password: owner3\npassword: lir")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.100.0.0 - 192.200.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: owner3
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status ASSIGNED PI not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LIR-PARTITIONED PI"]
-
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-    }
-
-    // Create object between objects with status values EARLY-REGISTRATION and SUB-ALLOCATED PA tests
-
-    def "create between EARLY-REGISTRATION and SUB-ALLOCATED PA, with status LIR-PARTITIONED PI"() {
-      given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.100.0.0 - 192.200.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       LIR-PARTITIONED PI
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: hm
-                password: owner3
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status LIR-PARTITIONED PI not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status SUB-ALLOCATED PA"]
-
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-    }
-
-    def "create between EARLY-REGISTRATION and SUB-ALLOCATED PA, with status ASSIGNED PI"() {
-      given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("SUB-ALLOC-PA") + "password: owner3\npassword: lir")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.100.0.0 - 192.200.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: hm
-                password: owner3
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
-                ["Status ASSIGNED PI not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status SUB-ALLOCATED PA"]
-
-        queryObjectNotFound("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
-    }
-
+    // misc tests
     @Ignore
     def "create between ALLOCATED UNSPECIFIED and ASSIGNED PA, with status ASSIGNED PA"() {
         given:

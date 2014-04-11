@@ -19,6 +19,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 // NB: we can't use the atlassian crowd-rest-client as uuid is a ripe-specific crowd plug-in
 @Component
@@ -93,6 +94,8 @@ public class CrowdClient {
                     .request()
                     .get(CrowdResponse.class)
                     .getUUID();
+        } catch (NoSuchElementException e) {
+            throw new CrowdClientException("Cannot find UUID for: " + username);
         } catch (NotFoundException e) {
             throw new CrowdClientException("Unknown RIPE NCC Access user: " + username);
         } catch (WebApplicationException | ProcessingException e) {
@@ -151,14 +154,14 @@ public class CrowdClient {
         }
 
         public String getUUID() {
-            final CrowdAttribute attributeElement = Iterables.find(attributes, new Predicate<CrowdAttribute>() {
+            final CrowdAttribute uuid = Iterables.find(attributes, new Predicate<CrowdAttribute>() {
                 @Override
                 public boolean apply(final CrowdAttribute input) {
                     return input.getName().equals("uuid");
                 }
             });
 
-            return attributeElement.getValues().get(0).getValue();
+            return uuid.getValues().get(0).getValue();
         }
     }
 

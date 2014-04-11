@@ -303,6 +303,7 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     """.stripIndent()
 
         def keycertCreate = syncUpdate(new SyncUpdate(data: keycert + "password: update"))
+        println "--->" + query("PGPKEY-28F6CD6C")
 
         def create = syncUpdate(new SyncUpdate(data: """\
                 irt: irt-IRT1
