@@ -11,7 +11,6 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -381,7 +380,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         // return nothing on partial primary key
         try {
-            final RpslObject responseNoOrgin = restClient.request().lookup(ObjectType.ROUTE, "193.0.0.0/21");
+            final RpslObject responseNoOrigin = restClient.request().lookup(ObjectType.ROUTE, "193.0.0.0/21");
             fail("no result on partial primary key");
         } catch (RestClientException e){
             assertThat(e.getErrorMessages().get(0).toString(), is("ERROR:101: no entries found\n\nNo entries found in source TEST.\n"));

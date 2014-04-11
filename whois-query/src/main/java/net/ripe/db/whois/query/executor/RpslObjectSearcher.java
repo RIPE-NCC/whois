@@ -102,8 +102,12 @@ class RpslObjectSearcher {
     }
 
     private Iterable<? extends ResponseObject> indexLookupDirect(Query query) {
-        ObjectType type = Iterables.getOnlyElement(query.getObjectTypes());
-        return Arrays.asList(rpslObjectDao.getByKey(type, query.getSearchValue()));
+        try {
+            ObjectType type = Iterables.getOnlyElement(query.getObjectTypes());
+            return Arrays.asList(rpslObjectDao.getByKey(type, query.getSearchValue()));
+        } catch (EmptyResultDataAccessException e) {
+            return Collections.emptyList();
+        }
     }
 
     private Iterable<ResponseObject> executeForObjectType(final Query query, final ObjectType type) {
