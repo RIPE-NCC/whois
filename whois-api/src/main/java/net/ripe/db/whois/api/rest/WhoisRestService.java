@@ -311,8 +311,7 @@ public class WhoisRestService {
             queryBuilder.addFlag(QueryFlag.NO_FILTERING);
         }
 
-        final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords);
-
+        final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords).setMatchPrimaryKeyOnly(true);
         return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
     }
 
@@ -760,6 +759,7 @@ public class WhoisRestService {
         }
     }
 
+    // TODO: QueryBuilder.get() should return a Query object, constructed optimally (i.e., not by Query.parse())
     public static final class QueryBuilder {
         private static final Joiner COMMA_JOINER = Joiner.on(',');
         private final StringBuilder query = new StringBuilder(128);
