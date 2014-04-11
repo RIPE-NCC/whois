@@ -18,10 +18,13 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class AutnumAttributeGenerator extends AttributeGenerator {
 
-    private static final String STATUS_REMARK = "For information on \"status:\" attribute read http://www.ripe.net/xxxx/as_status_faq.html";
+    static final String REMARKS_TEXT = "For information on \"status:\" attribute read http://www.ripe.net/xxxx/as_status_faq.html";
+    static final RpslAttribute STATUS_REMARK = new RpslAttribute(AttributeType.REMARKS, REMARKS_TEXT);
 
     private final AuthoritativeResourceData authoritativeResourceData;
     private final SourceContext sourceContext;
@@ -77,23 +80,30 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
     private RpslObject setAutnumStatus(final RpslObject object, final AutnumStatus autnumStatus, final Update update, final UpdateContext updateContext) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(object);
         cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, autnumStatus.toString());
-        generateRemarksBeforeStatus(builder);
+        enforceRemarksRightBeforeStatus(builder);
         return builder.get();
     }
 
-    private void generateRemarksBeforeStatus(final RpslObjectBuilder builder) {
+    private void enforceRemarksRightBeforeStatus(final RpslObjectBuilder builder) {
+        boolean found = false;
+        final List<RpslAttribute> attributes = builder.getAttributes();
 
-        for (RpslAttribute attribute : builder.getAttributes()) {
-            if ((attribute.getType() == AttributeType.REMARKS) && (attribute.getCleanValue().equals(STATUS_REMARK))) {
-                return;
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributes.get(i).equals(STATUS_REMARK)) {
+                if (i + 1 < attributes.size() && attributes.get(i+1).getType().equals(AttributeType.STATUS)) {
+                    found = true;
+                } else {
+                    attributes.remove(i--);
+                }
             }
         }
 
-        for (int index = 0; index < builder.size(); index++) {
-            RpslAttribute attribute = builder.get(index);
-            if (attribute.getType() == AttributeType.STATUS) {
-                builder.addAttribute(index, new RpslAttribute(AttributeType.REMARKS, STATUS_REMARK));
-                return;
+        if (!found) {
+            for (int i = 0; i < attributes.size(); i++) {
+                if (attributes.get(i).getType() == AttributeType.STATUS) {
+                    builder.addAttribute(i, STATUS_REMARK);
+                    break;
+                }
             }
         }
     }
