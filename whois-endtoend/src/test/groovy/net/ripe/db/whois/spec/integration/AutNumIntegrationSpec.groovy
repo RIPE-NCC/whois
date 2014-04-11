@@ -916,6 +916,40 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         """.stripIndent()))
     }
 
+    def "create aut-num object, user maintainer, duplicate status"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                        aut-num:        AS100
+                        as-name:        End-User
+                        status:         OTHER
+                        status:         OTHER
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: update
+                        """.stripIndent())
+      then:
+        response =~ /SUCCESS/
+      then:
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
+        println autnum
+        autnum.equals(RpslObject.parse("""\
+                        aut-num:        AS100
+                        as-name:        End-User
+                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        status:         OTHER
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        """.stripIndent()))
+    }
+
     // sponsoring org
 
     def "create autnum without sponsoring-org, with referenced ORG orgtype OTHER, end-mnt"() {
