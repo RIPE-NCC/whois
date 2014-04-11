@@ -60,7 +60,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
                 LOGGER.warn("Got message for: {}", message.getRecipients(Message.RecipientType.TO)[0].toString());
             }
 
-            throw new AssertionError("Unable to get message for: " + to + ": " + e.getMessage());
+            throw new AssertionError("Unable to get message for: " + to, e);
         }
     }
 
