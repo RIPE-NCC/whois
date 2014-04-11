@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
@@ -46,6 +47,10 @@ public final class CIString implements Comparable<CIString>, CharSequence {
             builder.add(ciString(value));
         }
         return builder.build();
+    }
+
+    public static boolean isBlank(CIString ciString) {
+        return ciString == null || StringUtils.isBlank(ciString.value);
     }
 
     private CIString(final String value) {

@@ -19,10 +19,10 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_TYPE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.SPONSORING_ORG;
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
@@ -61,36 +61,29 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final CIString refSponsoringOrg = update.getReferenceObject().getValueOrNullForAttribute(SPONSORING_ORG);
         final CIString updSponsoringOrg = update.getUpdatedObject().getValueOrNullForAttribute(SPONSORING_ORG);
+
         final Action action = update.getAction();
-
-
         final RpslObject updatedObject = update.getUpdatedObject();
 
-        if (action == Action.CREATE && !updatedObject.containsAttribute(SPONSORING_ORG) && updatedObject.containsAttribute(AttributeType.ORG) && hasEndUserMntner(updatedObject)) {
-            final List<RpslObject> organisations = objectDao.getByKeys(ObjectType.ORGANISATION, Collections.singleton(updatedObject.getValueForAttribute(AttributeType.ORG)));
-            if (!organisations.isEmpty()) {
-                if (OrgType.OTHER == OrgType.getFor(organisations.get(0).getValueForAttribute(AttributeType.ORG_TYPE))) {
-                    updateContext.addMessage(update, UpdateMessages.sponsoringOrgMustBePresent());
-                    return;
-                }
-            }
-        }
-
-        final boolean sponsoringOrgHasChanged = sponsoringOrgHasChangedAtAll(refSponsoringOrg, updSponsoringOrg, action);
-        if (!sponsoringOrgHasChanged) {
+        if (sponsoringOrgMustBePresent(action, updatedObject)) {
+            updateContext.addMessage(update, UpdateMessages.sponsoringOrgMustBePresent());
             return;
         }
 
-        if (updatedObject.containsAttribute(SPONSORING_ORG)) {
-            final List<RpslObject> sponsoringOrganisations = objectDao.getByKeys(ORGANISATION, Collections.singletonList(updatedObject.getValueOrNullForAttribute(SPONSORING_ORG)));
+        if (!sponsoringOrgHasChangedAtAll(refSponsoringOrg, updSponsoringOrg, action)) {
+            return;
+        }
 
-            if (sponsoringOrganisations.isEmpty() || !sponsoringOrganisations.get(0).getValueForAttribute(ORG_TYPE).equals("LIR")) {
+        if (updSponsoringOrg != null) {
+            final RpslObject sponsoringOrganisation = objectDao.getByKey(ORGANISATION, updSponsoringOrg);
+
+            if (sponsoringOrganisation == null || !sponsoringOrganisation.getValueForAttribute(ORG_TYPE).equals("LIR")) {
                 updateContext.addMessage(update, sponsoringOrgNotLIR());
             }
         }
 
-        final boolean authByRS =  updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
-        final boolean isOverride =  updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
+        final boolean authByRS = updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
+        final boolean isOverride = updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
 
         if (!authByRS && !isOverride) {
             if (sponsoringOrgAdded(refSponsoringOrg, updSponsoringOrg, action)) {
@@ -103,24 +96,33 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         }
     }
 
-    private boolean sponsoringOrgHasChangedAtAll(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
-        final boolean presentOnCreate = action == CREATE && (referencedSponsoringOrg != null && !referencedSponsoringOrg.equals(""));
-        return presentOnCreate || (action == MODIFY && !Objects.equal(referencedSponsoringOrg, updatedSponsoringOrg));
+    private boolean sponsoringOrgMustBePresent(final Action action, final RpslObject updatedObject) {
+        if (action == CREATE && updatedObject.containsAttribute(SPONSORING_ORG) && updatedObject.containsAttribute(ORG) && hasEndUserMntner(updatedObject)) {
+            final RpslObject organisation = objectDao.getByKeyOrNull(ObjectType.ORGANISATION, updatedObject.getValueForAttribute(ORG));
+            if (organisation != null && OrgType.OTHER == OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean sponsoringOrgHasChangedAtAll(final CIString referenceSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
+        return action == CREATE && !CIString.isBlank(referenceSponsoringOrg)
+                || (action == MODIFY && !Objects.equal(referenceSponsoringOrg, updatedSponsoringOrg));
     }
 
     private boolean sponsoringOrgAdded(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
-        final boolean hasReferenced = referencedSponsoringOrg != null && !referencedSponsoringOrg.equals("");
-        return action == CREATE && hasReferenced || (action == MODIFY && (!hasReferenced && updatedSponsoringOrg != null && !updatedSponsoringOrg.equals("")));
+        return !CIString.isBlank(referencedSponsoringOrg)
+                && (action == CREATE || (action == MODIFY && !CIString.isBlank(updatedSponsoringOrg)));
     }
 
     private boolean sponsoringOrgRemoved(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
-        return action == MODIFY && (referencedSponsoringOrg != null && !referencedSponsoringOrg.equals("") && updatedSponsoringOrg == null);
+        return action == MODIFY && !CIString.isBlank(referencedSponsoringOrg) && updatedSponsoringOrg == null;
     }
 
     private boolean sponsoringOrgChanged(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
-        final boolean referencedPresent = referencedSponsoringOrg != null && !referencedSponsoringOrg.equals("");
-        final boolean updatedPresent = updatedSponsoringOrg != null && !updatedSponsoringOrg.equals("");
-        return action == MODIFY && referencedPresent && updatedPresent && !Objects.equal(referencedSponsoringOrg, updatedSponsoringOrg);
+        return action == MODIFY && !CIString.isBlank(referencedSponsoringOrg) && !CIString.isBlank(updatedSponsoringOrg)
+                && !Objects.equal(referencedSponsoringOrg, updatedSponsoringOrg);
     }
 
     private boolean hasEndUserMntner(final RpslObject object) {
