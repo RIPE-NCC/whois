@@ -63,6 +63,8 @@ public class Query {
     private String ssoToken;
     private Origin origin;
     private boolean trusted;
+    // TODO: [AH] we should use -x flag for direct match for all object types instead of this hack
+    private boolean matchPrimaryKeyOnly;
 
     private Query(final String query, final Origin origin) {
         try {
@@ -570,6 +572,15 @@ public class Query {
 
     public boolean matchesObjectTypeAndAttribute(final ObjectType objectType, final AttributeType attributeType) {
         return ObjectTemplate.getTemplate(objectType).getLookupAttributes().contains(attributeType) && AttributeMatcher.fetchableBy(attributeType, this);
+    }
+
+    public boolean isMatchPrimaryKeyOnly() {
+        return matchPrimaryKeyOnly;
+    }
+
+    public Query setMatchPrimaryKeyOnly(boolean matchPrimaryKeyOnly) {
+        this.matchPrimaryKeyOnly = matchPrimaryKeyOnly;
+        return this;
     }
 
     public static enum MatchOperation {
