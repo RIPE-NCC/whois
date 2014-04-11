@@ -17,9 +17,6 @@ import net.ripe.db.whois.common.dao.jdbc.IndexDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
-import net.ripe.db.whois.common.grs.AuthoritativeResource;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -52,7 +49,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
@@ -85,8 +81,6 @@ public class WhoisFixture {
     protected WhoisServer whoisServer;
     protected RestClient restClient;
     protected TestWhoisLog testWhoisLog;
-    protected AuthoritativeResourceData authoritativeResourceData;
-    protected AuthoritativeResourceImportTask authoritativeResourceImportTask;
 
     static {
         Slf4JLogConfiguration.init();
@@ -104,7 +98,6 @@ public class WhoisFixture {
         System.setProperty("nrtm.enabled", "false");
         System.setProperty("grs.sources", "TEST-GRS");
     }
-
 
     public void start() throws Exception {
         applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois-test.xml", WhoisProfile.TEST);
@@ -132,16 +125,11 @@ public class WhoisFixture {
         indexDao = applicationContext.getBean(IndexDao.class);
         restClient = applicationContext.getBean(RestClient.class);
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
-        authoritativeResourceData = applicationContext.getBean(AuthoritativeResourceData.class);
-        authoritativeResourceImportTask = applicationContext.getBean(AuthoritativeResourceImportTask.class);
 
         databaseHelper.setup();
         whoisServer.start();
 
         restClient.setRestApiUrl(String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
-
-        authoritativeResourceImportTask.run();
-        authoritativeResourceData.refreshAuthoritativeResourceCache();
 
         initData();
     }
@@ -324,9 +312,5 @@ public class WhoisFixture {
 
     public MailSenderStub getMailSender() {
         return mailSender;
-    }
-
-    public void setAuthoritativeData(final String source, final String data) {
-        authoritativeResourceData.setAuthoritativeResource(source.toLowerCase(), AuthoritativeResource.loadFromScanner(LOGGER, source, new Scanner(data)));
     }
 }

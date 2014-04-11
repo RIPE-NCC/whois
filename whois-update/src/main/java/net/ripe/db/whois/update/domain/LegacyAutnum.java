@@ -23,7 +23,7 @@ public class LegacyAutnum {
         cachedLegacyAutnums = legacyAutnumDao.load();
     }
 
-    public boolean contains(final CIString autnumKey) {
-        return cachedLegacyAutnums.contains(autnumKey);
+    public boolean contains(final CIString autnum) {
+        return cachedLegacyAutnums.contains(autnum);
     }
 }
