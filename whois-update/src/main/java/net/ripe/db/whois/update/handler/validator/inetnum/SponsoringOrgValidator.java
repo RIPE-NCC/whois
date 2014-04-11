@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -9,6 +10,9 @@ import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
@@ -37,6 +41,7 @@ import static net.ripe.db.whois.update.domain.UpdateMessages.sponsoringOrgNotLIR
 public class SponsoringOrgValidator implements BusinessRuleValidator {
     private static final List<Action> ACTIONS = ImmutableList.of(CREATE, MODIFY);
     private static final List<ObjectType> OBJECT_TYPES = ImmutableList.of(INETNUM, INET6NUM, AUT_NUM);
+    private static final Set<? extends InetStatus> ALLOWED_STATUSES = ImmutableSet.of(InetnumStatus.ASSIGNED_PI, InetnumStatus.ASSIGNED_ANYCAST, Inet6numStatus.ASSIGNED_PI);
 
     private final RpslObjectDao objectDao;
     private final Maintainers maintainers;
@@ -65,6 +70,11 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         final Action action = update.getAction();
         final RpslObject updatedObject = update.getUpdatedObject();
 
+        if (sponsoringOrgStatusCheck(updatedObject)) {
+            updateContext.addMessage(update, UpdateMessages.sponsoringOrgNotAllowedWithStatus(updatedObject.getValueForAttribute(AttributeType.STATUS)));
+            return;
+        }
+
         if (sponsoringOrgMustBePresent(action, updatedObject)) {
             updateContext.addMessage(update, UpdateMessages.sponsoringOrgMustBePresent());
             return;
@@ -77,8 +87,8 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         if (updSponsoringOrg != null) {
             final RpslObject sponsoringOrganisation = objectDao.getByKeyOrNull(ORGANISATION, updSponsoringOrg);
 
-            if (sponsoringOrganisation != null || !sponsoringOrganisation.getValueForAttribute(ORG_TYPE).equals("LIR")) {
-                updateContext.addMessage(update, sponsoringOrgNotLIR());
+            if (sponsoringOrganisation != null && !sponsoringOrganisation.getValueForAttribute(ORG_TYPE).equals("LIR")) {
+                updateContext.addMessage(update, updatedObject.findAttribute(AttributeType.SPONSORING_ORG), sponsoringOrgNotLIR());
             }
         }
 
@@ -94,6 +104,30 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
                 updateContext.addMessage(update, UpdateMessages.sponsoringOrgChanged());
             }
         }
+    }
+
+    private boolean sponsoringOrgStatusCheck(RpslObject updatedObject) {
+        final CIString statusString = updatedObject.getValueForAttribute(AttributeType.STATUS);
+        InetStatus status;
+
+        try {
+            switch (updatedObject.getType()) {
+                case INETNUM:
+                    status = InetnumStatus.getStatusFor(statusString);
+                    break;
+
+                case INET6NUM:
+                    status = Inet6numStatus.getStatusFor(statusString);
+                    break;
+
+                default:
+                    return false;
+            }
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+
+        return !ALLOWED_STATUSES.contains(status);
     }
 
     private boolean sponsoringOrgMustBePresent(final Action action, final RpslObject updatedObject) {

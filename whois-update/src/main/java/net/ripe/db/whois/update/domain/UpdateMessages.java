@@ -570,7 +570,7 @@ public final class UpdateMessages {
     }
 
     public static Message sponsoringOrgChanged() {
-        return new Message(Type.ERROR, "Referenced sponsoring-org can only be changed by the RIPE NCC");
+        return new Message(Type.ERROR, "The sponsoring-org can only be changed by the RIPE NCC");
     }
 
     public static Message sponsoringOrgAdded() {
@@ -582,7 +582,11 @@ public final class UpdateMessages {
     }
 
     public static Message sponsoringOrgNotLIR() {
-        return new Message(Type.ERROR, "Referenced sponsoring-org must have org-type: LIR");
+        return new Message(Type.ERROR, "Referenced organisation must have org-type: LIR");
+    }
+
+    public static Message sponsoringOrgNotAllowedWithStatus(final CharSequence status) {
+        return new Message(Type.ERROR, "The \"sponsoring-org:\" attribute is not allowed with status value \"%s\"", status);
     }
 
     public static Message sponsoringOrgMustBePresent() {
