@@ -694,8 +694,8 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec{
                 certif:         AJsEYkdtXwMM69Nd+JWsiEk+48ns3w==
                 certif:         =3+2Y
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
-                mnt-by:         TST-MNT
                 changed:        dbtest@ripe.net 20020101
+                mnt-by:         TST-MNT
                 source:         TEST
                 delete: test delete
 
