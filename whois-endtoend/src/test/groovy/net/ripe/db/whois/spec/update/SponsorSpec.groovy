@@ -5,13 +5,6 @@ import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import spock.lang.Ignore
 
-/**
- * Created with IntelliJ IDEA.
- * User: denis
- * Date: 27/03/2014
- * Time: 14:37
- * To change this template use File | Settings | File Templates.
- */
 @org.junit.experimental.categories.Category(EndToEndTest.class)
 class SponsorSpec extends BaseQueryUpdateSpec  {
 
@@ -751,8 +744,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         queryObjectNotFound("-r -BG -T aut-num AS222", "aut-num", "AS222")
     }
 
-    @Ignore
-    // auth issues, password for parent RS MNTNER but not this mnt-by RS MNTNER
+    @Ignore("auth issues, password for parent RS MNTNER but not this mnt-by RS MNTNER")
     def "create inetnum, inet6num, aut-num, with type LIR sponsoring org, with LIR pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2540,7 +2532,6 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
-    @Ignore
     def "create inetnum with status ASSIGNED PA, with type LIR sponsoring org, with RS pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2576,12 +2567,11 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The \"sponsoring-org:\" attribute is not allowed with this status value"]
+                ["Referenced sponsoring-org must have org-type: LIR"]
 
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
-    @Ignore
     def "create inet6num with status ASSIGNED, with type LIR sponsoring org, with RS pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inet6num 12001:600::/64", "inet6num", "2001:600::/64")
@@ -2618,7 +2608,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
-                ["The \"sponsoring-org:\" attribute is not allowed with this status value"]
+                ["Referenced sponsoring-org must have org-type: LIR"]
 
         queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
     }
