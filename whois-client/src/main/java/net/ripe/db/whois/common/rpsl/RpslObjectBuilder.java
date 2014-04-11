@@ -7,6 +7,7 @@ import org.apache.commons.lang.Validate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -149,20 +150,24 @@ public class RpslObjectBuilder {
         return this;
     }
 
-    /** determine type by first type attribute present in object, then sort attributes according to attribute order in template.
-     * This sort is guaranteed to be <i>stable</i>:  equal elements will not be reordered as a result of the sort.*/
-    public RpslObjectBuilder sort() {
+    /** determines object type based on first type attribute it finds */
+    public ObjectType getType() {
         for (RpslAttribute attribute : attributes) {
             final ObjectType objectType = ObjectType.getByNameOrNull(attribute.getKey());
-            if (objectType == null) {
-                continue;
+            if (objectType != null) {
+                return objectType;
             }
-
-            Collections.sort(attributes, ObjectTemplate.getTemplate(objectType).getAttributeTypeComparator());
-            return this;
         }
 
         throw new IllegalStateException("No type attribute found");
+    }
+
+    /** determine type by first type attribute present in object, then sort attributes according to attribute order in template.
+     * This sort is guaranteed to be <i>stable</i>:  equal elements will not be reordered as a result of the sort.*/
+    public RpslObjectBuilder sort() {
+        final ObjectType objectType = getType();
+        Collections.sort(attributes, ObjectTemplate.getTemplate(objectType).getAttributeTypeComparator());
+        return this;
     }
 
     public AttributeType getTypeAttributeOrNull() {
@@ -183,6 +188,45 @@ public class RpslObjectBuilder {
 
     public RpslObjectBuilder addAttributes(final int index, final Collection<RpslAttribute> newAttributes) {
         attributes.addAll(index, newAttributes);
+        return this;
+    }
+
+    public RpslObjectBuilder addAttribute(final int index, final RpslAttribute newAttribute) {
+        attributes.add(index, newAttribute);
+        return this;
+    }
+
+    // TODO: [AH] this should be pre-initialized in ObjectTemplate
+    private EnumSet<AttributeType> getAttributeTypesAfter(ObjectTemplate objectTemplate, AttributeType attributeType) {
+        final EnumSet<AttributeType> beforeAttributes = EnumSet.noneOf(AttributeType.class);
+        final List<AttributeTemplate> attributeTemplates = objectTemplate.getAttributeTemplates();
+
+        for (int i = 0; i < attributeTemplates.size(); i++) {
+            final AttributeType templateType = attributeTemplates.get(i).getAttributeType();
+
+            if (templateType == attributeType) {
+                for (; i < attributeTemplates.size(); i++) {
+                    beforeAttributes.add(attributeTemplates.get(i).getAttributeType());
+                }
+            }
+        }
+        return beforeAttributes;
+    }
+
+    /** determine type by first type attribute present in object, then add attribute according to attribute order in template. */
+    public RpslObjectBuilder addAttributeSorted(final RpslAttribute newAttribute) {
+        final ObjectType objectType = getType();
+        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
+        final EnumSet<AttributeType> attributesAfter = getAttributeTypesAfter(objectTemplate, newAttribute.getType());
+
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributesAfter.contains(attributes.get(i).getType())) {
+                attributes.add(i, newAttribute);
+                return this;
+            }
+        }
+
+        attributes.add(newAttribute);
         return this;
     }
 

@@ -35,6 +35,8 @@ import net.ripe.db.whois.update.dns.DnsGatewayStub;
 import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.joda.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -51,6 +53,9 @@ import java.util.Map;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 public class WhoisFixture {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisFixture.class);
+
     private ClassPathXmlApplicationContext applicationContext;
 
     protected MailSenderStub mailSender;
@@ -91,11 +96,12 @@ public class WhoisFixture {
         System.setProperty("unrefcleanup.enabled", "true");
         System.setProperty("unrefcleanup.deletes", "true");
         System.setProperty("nrtm.enabled", "false");
+        System.setProperty("grs.sources", "TEST-GRS");
     }
-
 
     public void start() throws Exception {
         applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois-test.xml", WhoisProfile.TEST);
+
         databaseHelper = applicationContext.getBean(DatabaseHelper.class);
         whoisServer = applicationContext.getBean(WhoisServer.class);
         jettyBootstrap = applicationContext.getBean(JettyBootstrap.class);

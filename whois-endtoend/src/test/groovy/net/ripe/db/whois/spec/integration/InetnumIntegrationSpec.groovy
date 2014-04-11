@@ -922,6 +922,40 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       insertResponse =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
+  def "create status LEGACY, parent not legacy or allocated unspecified, RS"() {
+    given:
+      databaseHelper.addObject("" +
+              "inetnum: 192.0.0.0 - 192.0.255.255\n" +
+              "netname: RIPE-NCC\n" +
+              "descr: description\n" +
+              "country: DK\n" +
+              "admin-c: TEST-PN\n" +
+              "tech-c: TEST-PN\n" +
+              "status: OTHER\n" +
+              "mnt-by: TEST-MNT\n" +
+              "changed: ripe@test.net 20120505\n" +
+              "source: TEST")
+    when:
+      def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0 - 192.0.0.255
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: LEGACY
+                    mnt-by: TEST-MNT
+                    mnt-by: RIPE-NCC-HM-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    password:hm
+                    password:update
+                """.stripIndent()))
+    then:
+      insertResponse =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      insertResponse =~ /Error:   Parent 192.0.0.0 - 192.0.255.255 has invalid status: OTHER/
+  }
+
   def "delete status LEGACY, parent not LEGACY, not RS or override"() {
     given:
       databaseHelper.addObject("" +

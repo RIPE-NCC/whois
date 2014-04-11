@@ -77,37 +77,44 @@ public class ObjectLoader {
         }
     }
 
+    // NB: `synchronized` is mandatory here as normally IDs are claimed under the hood of the global update lock
     public void claimIds(RpslObject rpslObject) throws Exception {
         final String key = rpslObject.getKey().toString();
 
         switch (rpslObject.getType()) {
             case PERSON:
             case ROLE:
-                nicHandleFactory.claim(key);
+                synchronized (nicHandleFactory) {
+                    nicHandleFactory.claim(key);
+                }
                 break;
 
             case ORGANISATION:
                 // organisations would normally take AUTO-* keys only and generate a name, so we have to implement a manual claiming here
-                Matcher orgMatcher = ORGID_PATTERN.matcher(key);
-                if (!orgMatcher.matches()) {
-                    throw new IllegalArgumentException("Organisation key '" + key + "' is invalid");
+                synchronized (organisationIdRepository) {
+                    Matcher orgMatcher = ORGID_PATTERN.matcher(key);
+                    if (!orgMatcher.matches()) {
+                        throw new IllegalArgumentException("Organisation key '" + key + "' is invalid");
+                    }
+
+                    final String space = orgMatcher.group(1);
+                    final int index = orgMatcher.group(2).length() > 0 ? Integer.parseInt(orgMatcher.group(2)) : 0;
+                    final String suffix = orgMatcher.group(3);
+
+                    OrganisationId organisationId = new OrganisationId(space, index, suffix);
+                    organisationIdRepository.claimSpecified(organisationId);
                 }
-
-                final String space = orgMatcher.group(1);
-                final int index = orgMatcher.group(2).length() > 0 ? Integer.parseInt(orgMatcher.group(2)) : 0;
-                final String suffix = orgMatcher.group(3);
-
-                OrganisationId organisationId = new OrganisationId(space, index, suffix);
-                organisationIdRepository.claimSpecified(organisationId);
                 break;
 
             case KEY_CERT:
-                Matcher keycertMatcher = X509_PATTERN.matcher(key);
-                if (!keycertMatcher.matches()) {
-                    break;  // could be pgp
+                synchronized (x509Repository) {
+                    Matcher keycertMatcher = X509_PATTERN.matcher(key);
+                    if (!keycertMatcher.matches()) {
+                        break;  // could be pgp
+                    }
+                    final X509KeycertId autoKey = new X509KeycertId(null, Integer.parseInt(keycertMatcher.group(1)), null);
+                    x509Repository.claimSpecified(autoKey);
                 }
-                final X509KeycertId autoKey = new X509KeycertId(null, Integer.parseInt(keycertMatcher.group(1)), null);
-                x509Repository.claimSpecified(autoKey);
                 break;
         }
     }

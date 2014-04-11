@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.handler;
+package net.ripe.db.whois.update.generator;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -268,7 +268,7 @@ public class KeycertAttributeGeneratorTest {
 
         validateAttributeType(updatedObject, AttributeType.METHOD, "PGP");
         validateAttributeType(updatedObject, AttributeType.FINGERPR, "FBFD 0527 454D 5880 3484  413F C722 7EEC EA5F BB94");
-        validateAttributeType(updatedObject, AttributeType.OWNER, "Admin User <admin@ripe.net>", "Hostmaster <hostmaster@ripe.net>");
+        validateAttributeType(updatedObject, AttributeType.OWNER, "Hostmaster <hostmaster@ripe.net>", "Admin User <admin@ripe.net>");
         validateMessages(ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.OWNER));
     }
 

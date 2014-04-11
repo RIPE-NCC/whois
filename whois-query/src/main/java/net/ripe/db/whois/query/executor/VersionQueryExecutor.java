@@ -7,17 +7,17 @@ import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
@@ -163,7 +163,8 @@ public class VersionQueryExecutor implements QueryExecutor {
                         rpslObject.getKey(),
                         info.getOperation() == Operation.UPDATE ? "UPDATE" : "DELETE",   // TODO: [AH] Operation is overloaded/abused (DAO + different interpretations per module)
                         info.getTimestamp())),
-                rpslObject);
+                rpslObject
+        );
     }
 
     private Iterable<? extends ResponseObject> getVersionDiffs(final VersionLookupResult res, final int[] versions) {

@@ -43,7 +43,8 @@ public class AttributeSanitizer {
         SANITIZER_MAP.put(AttributeType.ALIAS, new AliasSanitizer());
         SANITIZER_MAP.put(AttributeType.CHANGED, new ChangedSanitizer());
         SANITIZER_MAP.put(AttributeType.DS_RDATA, new DsRdataSanitizer());
-        SANITIZER_MAP.put(AttributeType.SOURCE, new SourceSanitizer());
+        SANITIZER_MAP.put(AttributeType.SOURCE, new UppercaseSanitizer());
+        SANITIZER_MAP.put(AttributeType.STATUS, new UppercaseSanitizer());
 
         // add the default sanitizer for keys and primary attributes
         for (ObjectTemplate objectTemplate : ObjectTemplate.getTemplates()) {
@@ -238,7 +239,7 @@ public class AttributeSanitizer {
         }
     }
 
-    private class SourceSanitizer extends Sanitizer {
+    private class UppercaseSanitizer extends Sanitizer {
         @Override
         public String sanitize(final RpslObject object, final RpslAttribute attribute) {
             return attribute.getCleanValue().toUpperCase();
