@@ -75,9 +75,9 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         }
 
         if (updSponsoringOrg != null) {
-            final RpslObject sponsoringOrganisation = objectDao.getByKey(ORGANISATION, updSponsoringOrg);
+            final RpslObject sponsoringOrganisation = objectDao.getByKeyOrNull(ORGANISATION, updSponsoringOrg);
 
-            if (sponsoringOrganisation == null || !sponsoringOrganisation.getValueForAttribute(ORG_TYPE).equals("LIR")) {
+            if (sponsoringOrganisation != null || !sponsoringOrganisation.getValueForAttribute(ORG_TYPE).equals("LIR")) {
                 updateContext.addMessage(update, sponsoringOrgNotLIR());
             }
         }
@@ -97,7 +97,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     }
 
     private boolean sponsoringOrgMustBePresent(final Action action, final RpslObject updatedObject) {
-        if (action == CREATE && updatedObject.containsAttribute(SPONSORING_ORG) && updatedObject.containsAttribute(ORG) && hasEndUserMntner(updatedObject)) {
+        if (action == CREATE && !updatedObject.containsAttribute(SPONSORING_ORG) && updatedObject.containsAttribute(ORG) && hasEndUserMntner(updatedObject)) {
             final RpslObject organisation = objectDao.getByKeyOrNull(ObjectType.ORGANISATION, updatedObject.getValueForAttribute(ORG));
             if (organisation != null && OrgType.OTHER == OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE))) {
                 return true;
@@ -112,12 +112,13 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     }
 
     private boolean sponsoringOrgAdded(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
-        return !CIString.isBlank(referencedSponsoringOrg)
-                && (action == CREATE || (action == MODIFY && !CIString.isBlank(updatedSponsoringOrg)));
+        final boolean existingSponsoringOrg = CIString.isBlank(referencedSponsoringOrg);
+        return (action == CREATE && !existingSponsoringOrg)
+                || (action == MODIFY && existingSponsoringOrg && !CIString.isBlank(updatedSponsoringOrg));
     }
 
     private boolean sponsoringOrgRemoved(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {
-        return action == MODIFY && !CIString.isBlank(referencedSponsoringOrg) && updatedSponsoringOrg == null;
+        return action == MODIFY && !CIString.isBlank(referencedSponsoringOrg) && CIString.isBlank(updatedSponsoringOrg);
     }
 
     private boolean sponsoringOrgChanged(final CIString referencedSponsoringOrg, final CIString updatedSponsoringOrg, final Action action) {

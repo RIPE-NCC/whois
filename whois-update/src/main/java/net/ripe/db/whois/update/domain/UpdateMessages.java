@@ -582,7 +582,7 @@ public final class UpdateMessages {
     }
 
     public static Message sponsoringOrgNotLIR() {
-        return new Message(Type.ERROR, "Referenced object must have org-type LIR");
+        return new Message(Type.ERROR, "Referenced sponsoring-org must have org-type: LIR");
     }
 
     public static Message sponsoringOrgMustBePresent() {
