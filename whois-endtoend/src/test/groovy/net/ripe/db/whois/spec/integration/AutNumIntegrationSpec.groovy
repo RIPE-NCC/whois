@@ -734,9 +734,12 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
         println(autnum)
         autnum =~ /descr:          description
-remarks:        For information on "status:" attribute read http:\/\/www.ripe.net\/xxxx\/as_status_faq.html
 remarks:        user remark
-admin-c:        AP1-TEST/
+admin-c:        AP1-TEST
+tech-c:         AP1-TEST
+remarks:        For information on "status:" attribute read http:\/\/www.ripe.net\/xxxx\/as_status_faq.html
+status:         ASSIGNED
+mnt-by:         RIPE-NCC-HM-MNT/
     }
 
     def "create aut-num object, invalid status"() {
