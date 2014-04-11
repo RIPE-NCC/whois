@@ -8,7 +8,6 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
@@ -49,8 +48,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)
@@ -177,23 +174,26 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public RpslObject getByKey(final ObjectType type, final String key) {
-        return getByKey(type, ciString(key));
+        return getById(findByKey(type, key).getObjectId());
+    }
+
+    @Override
+    public RpslObject getByKeyOrNull(final ObjectType type, final String key) {
+        final RpslObjectInfo rpslObjectInfo = findByKeyOrNull(type, key);
+        if (rpslObjectInfo == null) {
+            return null;
+        }
+        return getById(rpslObjectInfo.getObjectId());
     }
 
     @Override
     public RpslObject getByKey(final ObjectType type, final CIString key) {
-        // TODO: [AH] skip slow lookup on last, use getByKeyFromIndex right away
-        try {
-            return jdbcTemplate.queryForObject("" +
-                    "SELECT object_id, object " +
-                    "  FROM last " +
-                    "  WHERE object_type = ? and pkey = ? and sequence_id != 0 ",
-                    new RpslObjectRowMapper(),
-                    ObjectTypeIds.getId(type),
-                    key.toString());
-        } catch (EmptyResultDataAccessException e) {
-            return getByKeyFromIndex(type, key);
-        }
+        return getByKey(type, key.toString());
+    }
+
+    @Override
+    public RpslObject getByKeyOrNull(final ObjectType type, final CIString key) {
+        return getByKey(type, key.toString());
     }
 
     @Override
@@ -208,10 +208,6 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
         }
 
         return result;
-    }
-
-    private RpslObject getByKeyFromIndex(final ObjectType type, final CIString key) {
-        return getById(findByKey(type, key).getObjectId());
     }
 
     @Override
@@ -257,12 +253,27 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     @Override
+    public RpslObjectInfo findByKeyOrNull(final ObjectType type, final CIString searchKey) {
+        return findByKeyOrNull(type, searchKey.toString());
+    }
+
+    @Override
     public RpslObjectInfo findByKey(final ObjectType type, final String searchKey) {
+        RpslObjectInfo result = findByKeyOrNull(type, searchKey);
+        if (result == null) {
+            throw new EmptyResultDataAccessException(1);
+        } else {
+            return result;
+        }
+    }
+
+    @Override
+    public RpslObjectInfo findByKeyOrNull(final ObjectType type, final String searchKey) {
         final List<RpslObjectInfo> objectInfos = findByKeyInIndex(type, searchKey);
 
         switch (objectInfos.size()) {
             case 0:
-                throw new EmptyResultDataAccessException(1);
+                return null;
             case 1:
                 return objectInfos.get(0);
             default:
