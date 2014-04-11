@@ -118,7 +118,7 @@ public class SingleUpdateHandler {
         PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
         updateContext.setPreparedUpdate(preparedUpdate);
 
-        // up to this point, updatedObject could have structural errors (unknown attributes, etc...)
+        // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...)
         if (updateContext.hasErrors(preparedUpdate)) {
             throw new UpdateFailedException();
         }
