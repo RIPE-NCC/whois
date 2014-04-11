@@ -16,6 +16,8 @@ public interface RpslObjectDao extends ProxyLoader<Identifiable, RpslObject> {
     RpslObject getById(int objectId);
     RpslObject getByKey(ObjectType type, CIString key);
     RpslObject getByKey(ObjectType type, String searchKey);
+    RpslObject getByKeyOrNull(ObjectType type, CIString key);
+    RpslObject getByKeyOrNull(ObjectType type, String searchKey);
     List<RpslObject> getByKeys(ObjectType type, Collection<CIString> searchKeys);
 
     RpslObject findAsBlock(long begin, long end);
@@ -23,6 +25,8 @@ public interface RpslObjectDao extends ProxyLoader<Identifiable, RpslObject> {
 
     RpslObjectInfo findByKey(ObjectType type, String searchKey);
     RpslObjectInfo findByKey(ObjectType type, CIString searchKey);
+    RpslObjectInfo findByKeyOrNull(ObjectType type, String searchKey);
+    RpslObjectInfo findByKeyOrNull(ObjectType type, CIString searchKey);
     List<RpslObjectInfo> findByAttribute(AttributeType attributeType, String attributeValue);
     List<RpslObjectInfo> findMemberOfByObjectTypeWithoutMbrsByRef(ObjectType objectType, String attributeValue);
     Collection<RpslObjectInfo> relatedTo(RpslObject identifiable, Set<ObjectType> excludeObjectTypes);
