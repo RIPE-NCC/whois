@@ -37,13 +37,8 @@ public class SponsoringOrgAttributeGenerator extends AttributeGenerator {
     }
 
     private boolean sponsoringOrgWasRemoved(final RpslObject original, final RpslObject updated) {
-        if (original == null) {
-            return false;
-        }
-
-        return (original.containsAttribute(AttributeType.SPONSORING_ORG)
-                && original.getValueForAttribute(AttributeType.SPONSORING_ORG).length() != 0
-                && !updated.containsAttribute(AttributeType.SPONSORING_ORG));
-
+        return original != null
+                && original.containsAttribute(AttributeType.SPONSORING_ORG)
+                && !updated.containsAttribute(AttributeType.SPONSORING_ORG);
     }
 }

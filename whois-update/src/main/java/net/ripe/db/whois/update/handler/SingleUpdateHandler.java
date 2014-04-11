@@ -136,6 +136,7 @@ public class SingleUpdateHandler {
 
         loggerContext.logPreparedUpdate(preparedUpdate);
         authenticator.authenticate(origin, preparedUpdate, updateContext);
+
         preparedUpdate = new PreparedUpdate(update, originalObject, sponsoringOrgAttributeGenerator.generateAttributes(originalObject, objectWithResolvedKeys, update, updateContext), action, overrideOptions);
 
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);

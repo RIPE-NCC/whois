@@ -90,7 +90,7 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
 
         for (int i = 0; i < attributes.size(); i++) {
             if (attributes.get(i).equals(STATUS_REMARK)) {
-                if (i + 1 < attributes.size() && attributes.get(i+1).getType().equals(AttributeType.STATUS)) {
+                if (i + 1 < attributes.size() && attributes.get(i + 1).getType().equals(AttributeType.STATUS)) {
                     found = true;
                 } else {
                     attributes.remove(i--);
@@ -98,12 +98,12 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
             }
         }
 
-        if (!found) {
-            for (int i = 0; i < attributes.size(); i++) {
-                if (attributes.get(i).getType() == AttributeType.STATUS) {
-                    builder.addAttribute(i, STATUS_REMARK);
-                    break;
-                }
+        if (found) return;
+
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributes.get(i).getType() == AttributeType.STATUS) {
+                builder.addAttribute(i, STATUS_REMARK);
+                break;
             }
         }
     }
