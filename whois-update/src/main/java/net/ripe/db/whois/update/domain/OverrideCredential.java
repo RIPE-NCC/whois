@@ -13,7 +13,7 @@ import java.util.Set;
 // TODO: [AH] remove default users once phased out legacy overrides
 @Immutable
 public final class OverrideCredential implements Credential {
-    private static final Splitter OVERRIDE_SPLITTER = Splitter.on(',').limit(3);
+    private static final Splitter OVERRIDE_SPLITTER = Splitter.on(',').trimResults().limit(3);
 
     private final String value;
     private final Set<UsernamePassword> possibleCredentials;

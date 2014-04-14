@@ -1,8 +1,8 @@
 package net.ripe.db.whois.spec.integration
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
@@ -191,10 +191,9 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
         result.contains("Modify FAILED: [organisation] ORG-TOL1-TEST");
     }
 
-    @Ignore("TODO: override with spaces fails")
     def "override with spaces"() {
       given:
-        def data = fixtures["ORG1"].stripIndent() + "override: dbase1, override1, NCC#1234567890"
+        def data = fixtures["ORG1"].stripIndent() + "override: denis, override1"
         data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
 
         def update = new SyncUpdate(data: data)
