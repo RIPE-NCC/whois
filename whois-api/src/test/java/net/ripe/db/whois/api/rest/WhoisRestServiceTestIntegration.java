@@ -1368,20 +1368,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             "}", MediaType.APPLICATION_JSON), String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("" +
+            assertThat(e.getResponse().readEntity(String.class), containsString("" +
                     "{\n" +
                     "  \"errormessages\" : {\n" +
                     "    \"errormessage\" : [ {\n" +
                     "      \"severity\" : \"Error\",\n" +
-                    "      \"text\" : \"Unexpected character ('}' (code 125)): was expecting a colon to separate field name and value\\n at [Source: org.glassfish.jersey.message.internal.EntityInputStream@5a2270da; line: 10, column: 22] (through reference chain: net.ripe.db.whois.api.rest.domain.WhoisResources[\\\"objects\\\"]->net.ripe.db.whois.api.rest.domain.WhoisObjects[\\\"object\\\"]->net.ripe.db.whois.api.rest.domain.WhoisObject[\\\"primary-key\\\"]->net.ripe.db.whois.api.rest.domain.PrimaryKey[\\\"attribute\\\"])\",\n" +
-                    "      \"args\" : [ ]\n" +
-                    "    } ]\n" +
-                    "  },\n" +
-                    "  \"terms-and-conditions\" : {\n" +
-                    "    \"type\" : \"locator\",\n" +
-                    "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                    "  }\n" +
-                    "}"));
+                    "      \"text\" : \"Unexpected character ('}' (code 125)): was expecting a colon to separate field name and value\\n "
+                    ));
         }
     }
 
