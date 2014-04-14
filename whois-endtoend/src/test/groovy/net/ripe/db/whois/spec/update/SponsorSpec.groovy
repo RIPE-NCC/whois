@@ -320,21 +320,6 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
-                inet6num:     2001:601::/64
-                netname:      EU-ZZ-2001-600
-                descr:        European Regional Registry
-                country:      EU
-                org:          ORG-OFA10-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                mnt-by:       RIPE-NCC-END-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
-                status:       ASSIGNED ANYCAST
-                sponsoring-org: ORG-LIRA-TEST
-                changed:      dbtest@ripe.net 20130101
-                source:       TEST
-
                 aut-num:        AS222
                 as-name:        ASTEST
                 descr:          description
@@ -361,21 +346,19 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         then:
         def ack = new AckResponse("", message)
 
-        ack.summary.nrFound == 5
-        ack.summary.assertSuccess(5, 5, 0, 0, 0)
+        ack.summary.nrFound == 4
+        ack.summary.assertSuccess(4, 4, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
         ack.successes.any {it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255"}
         ack.successes.any {it.operation == "Create" && it.key == "[inet6num] 2001:600::/64"}
-        ack.successes.any {it.operation == "Create" && it.key == "[inet6num] 2001:601::/64"}
         ack.successes.any {it.operation == "Create" && it.key == "[aut-num] AS222"}
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "sponsoring-org:\\s*ORG-LIRA-TEST")
-        query_object_matches("-r -BG -T inet6num 2001:601::/64", "inet6num", "2001:601::/64", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
