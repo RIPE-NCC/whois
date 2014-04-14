@@ -70,12 +70,13 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         final Action action = update.getAction();
         final RpslObject updatedObject = update.getUpdatedObject();
 
-        // FIXME: [AH] this code is fragile and hard to follow, possibly affecting functionality outside its scope
+        // Sponsoring-org has to be there on creating an end-user resource
         if (sponsoringOrgMustBePresent(action, updatedObject)) {
             updateContext.addMessage(update, UpdateMessages.sponsoringOrgMustBePresent());
             return;
         }
 
+        // otherwise, if no change, bail out
         if (!sponsoringOrgHasChangedAtAll(refSponsoringOrg, updSponsoringOrg, action)) {
             return;
         }
