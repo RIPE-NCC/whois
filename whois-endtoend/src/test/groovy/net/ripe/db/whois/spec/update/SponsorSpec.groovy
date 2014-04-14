@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.EndToEndTest
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import spock.lang.Ignore
 
-@org.junit.experimental.categories.Category(EndToEndTest.class)
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class SponsorSpec extends BaseQueryUpdateSpec  {
 
     @Override

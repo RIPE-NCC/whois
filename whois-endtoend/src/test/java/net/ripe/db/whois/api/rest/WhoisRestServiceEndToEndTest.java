@@ -45,7 +45,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-// TODO: [ES] dependency on testlab properties in main whois.properties (should be separated into environment specific file)
+// TODO: [AH] switch this to IntegrationTest once we got the crowd server dummy instead of the real thing in testlab/prepdev
 @ActiveProfiles(profiles = WhoisProfile.ENDTOEND, inheritProfiles = false)
 @Category(EndToEndTest.class)
 public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
