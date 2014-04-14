@@ -2075,16 +2075,16 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.countErrorWarnInfo(4, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
-                ["Referenced object must have org-type LIR"]
+                ["Referenced organisation must have org-type: LIR"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.101.0 - 192.168.101.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
-                ["Referenced object must have org-type LIR"]
+                ["Referenced organisation must have org-type: LIR"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:100::/64" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:100::/64") ==
-                ["Referenced object must have org-type LIR"]
+                ["Referenced organisation must have org-type: LIR"]
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS333" }
         ack.errorMessagesFor("Modify", "[aut-num] AS333") ==
-                ["Referenced object must have org-type LIR"]
+                ["Referenced organisation must have org-type: LIR"]
 
         query_object_not_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:")
         query_object_not_matches("-r -BG -T inetnum 192.168.101.0 - 192.168.101.255", "inetnum", "192.168.101.0 - 192.168.101.255", "sponsoring-org:")
