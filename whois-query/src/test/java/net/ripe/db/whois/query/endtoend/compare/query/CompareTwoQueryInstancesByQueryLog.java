@@ -15,7 +15,6 @@ import java.io.File;
 public class CompareTwoQueryInstancesByQueryLog {
 
     @Test
-    @Ignore
     public void test_deployed_versions() throws Exception {
         new CompareQueryResults(
                 QueryExecutorConfiguration.PRE1,
