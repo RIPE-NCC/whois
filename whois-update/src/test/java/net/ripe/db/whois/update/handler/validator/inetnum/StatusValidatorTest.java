@@ -36,6 +36,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -472,6 +473,109 @@ public class StatusValidatorTest {
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.statusRequiresAuthorization("EARLY-REGISTRATION"));
     }
+
+    @Test
+    public void create_inetnum_w_legacy_allowed_under_legacy_w_non_rs_maintainer() {
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
+        when(objectDao.getById(1)).thenReturn(RpslObject.parse("" +
+                "inetnum: 0.0.0.0 - 255.255.255.255\n" +
+                "status: LEGACY"));
+
+        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "inetnum: 192.0/24\n" +
+                "status: LEGACY\n" +
+                "mnt-by: TEST-MNT\n" +
+                "password: update"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, never()).addMessage(update, UpdateMessages.inetnumStatusLegacy());
+    }
+
+    @Test
+    public void create_inetnum_w_legacy_not_allowed_under_unspecified_w_non_rs_maintainer() {
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
+        when(objectDao.getById(1)).thenReturn(RpslObject.parse("" +
+                "inetnum: 0.0.0.0 - 255.255.255.255\n" +
+                "status: ALLOCATED UNSPECIFIED"));
+
+        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "inetnum: 192.0/24\n" +
+                "status: LEGACY\n" +
+                "mnt-by: TEST-MNT\n" +
+                "password: update"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, times(1)).addMessage(update, UpdateMessages.inetnumStatusLegacy());
+    }
+
+    @Test
+    public void create_inetnum_w_legacy_allowed_under_unspecified_w_rs_maintainer() {
+        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
+
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
+        when(objectDao.getById(1)).thenReturn(RpslObject.parse("" +
+                "inetnum: 0.0.0.0 - 255.255.255.255\n" +
+                "status: ALLOCATED UNSPECIFIED"));
+
+        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "inetnum: 192.0/24\n" +
+                "status: LEGACY\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "password: update"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, never()).addMessage(update, UpdateMessages.inetnumStatusLegacy());
+    }
+
+    @Test
+    public void create_inetnum_w_legacy_not_allowed_under_wrong_status_w_rs_maintainer() {
+        when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
+
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
+        when(objectDao.getById(1)).thenReturn(RpslObject.parse("" +
+                "inetnum: 0.0.0.0 - 255.255.255.255\n" +
+                "status: LIR-PARTITIONED PA"));
+
+        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "inetnum: 192.0/24\n" +
+                "status: LEGACY\n" +
+                "mnt-by: RIPE-NCC-HM-MNT\n" +
+                "password: update"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, never()).addMessage(update, UpdateMessages.inetnumStatusLegacy());
+        verify(updateContext, times(1)).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INETNUM, "LIR-PARTITIONED PA"));
+    }
+
+    @Test
+    public void delete_inetnum_w_legacy_not_allowed_under_unspecified_w_non_rs_maintainer() {
+        when(update.getAction()).thenReturn(Action.DELETE);
+
+        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
+        when(objectDao.getById(1)).thenReturn(RpslObject.parse("" +
+                "inetnum: 0.0.0.0 - 255.255.255.255\n" +
+                "status: ALLOCATED UNSPECIFIED"));
+
+        when(update.getType()).thenReturn(ObjectType.INETNUM);
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "inetnum: 192.0/24\n" +
+                "status: LEGACY\n" +
+                "mnt-by: TEST-MNT\n" +
+                "password: update"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, times(1)).addMessage(update, UpdateMessages.inetnumStatusLegacy());
+    }
+
 
     @Test
     public void delete_inetnum_with_early_registration_not_allowed_without_an_rs_maintainer() {
