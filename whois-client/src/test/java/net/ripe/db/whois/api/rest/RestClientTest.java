@@ -15,7 +15,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryFlag;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -50,7 +49,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 // FIXME: [AH] this should be an integration tests; it's unmaintainable as is
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class RestClientTest {
 
