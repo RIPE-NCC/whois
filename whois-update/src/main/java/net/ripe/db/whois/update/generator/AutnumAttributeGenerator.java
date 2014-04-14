@@ -23,7 +23,7 @@ import java.util.List;
 @Component
 public class AutnumAttributeGenerator extends AttributeGenerator {
 
-    static final String REMARKS_TEXT = "For information on \"status:\" attribute read http://www.ripe.net/xxxx/as_status_faq.html";
+    static final String REMARKS_TEXT = "For information on \"status:\" attribute read http://www.ripe.net/xxxx/as_status_faq.html";     // TODO: [ES] replace with final URL
     static final RpslAttribute STATUS_REMARK = new RpslAttribute(AttributeType.REMARKS, REMARKS_TEXT);
 
     private final AuthoritativeResourceData authoritativeResourceData;
