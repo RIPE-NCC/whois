@@ -965,7 +965,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "country: DK\n" +
               "admin-c: TEST-PN\n" +
               "tech-c: TEST-PN\n" +
-              "status: OTHER\n" +
+              "status: ALLOCATED UNSPECIFIED\n" +
               "mnt-by: TEST-MNT\n" +
               "changed: ripe@test.net 20120505\n" +
               "source: TEST")
@@ -1088,7 +1088,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password:hm
                 """.stripIndent()))
     then:
-      delete =~ /SUCC/
+      delete =~ /SUCCEEDED/
   }
 
   def "modify other attribute than status LEGACY, parent LEGACY, not RS or override"() {
