@@ -177,6 +177,8 @@ help
 -i am abuse@ripe.net
 
 -i auth PGpkeY-03BB9E7B
+-i auth sso bitbucket@ripe.net
+-i auth MD5-Pw $1$SaltSalt$ninjaninja
 -i at x509-1
 -i ds-rdata 11850 5 1 A95AFB27588FB9939CD75495304FFED9607B092E
 -i ds 2240 7 2 3061b1d704ce9101a8a86712839e57c1a88698ba095f2afe93b1adb1 b16ab723
