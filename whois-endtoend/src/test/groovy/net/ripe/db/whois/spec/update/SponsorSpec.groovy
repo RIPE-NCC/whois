@@ -6,12 +6,12 @@ import net.ripe.db.whois.spec.domain.AckResponse
 import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class SponsorSpec extends BaseQueryUpdateSpec  {
+class SponsorSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getFixtures() {
         [
-                "ALLOC-UNS": """\
+                "ALLOC-UNS"    : """\
                 inetnum:      192.0.0.0 - 192.255.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -25,7 +25,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-                "RIR-ALLOC-20": """\
+                "RIR-ALLOC-20" : """\
                 inet6num:     2001::/20
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -47,7 +47,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:        dbtest@ripe.net
                 source:         TEST
                 """,
-                "ROLE-A": """\
+                "ROLE-A"       : """\
                 role:         Abuse Handler
                 address:      St James Street
                 address:      Burnley
@@ -61,7 +61,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      dbtest@ripe.net 20121016
                 source:       TEST
                 """,
-                "ORGLIR-A": """\
+                "ORGLIR-A"     : """\
                 organisation: ORG-LIRA-TEST
                 org-type:     LIR
                 org-name:     Local Internet Registry Abuse
@@ -76,7 +76,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      denis@ripe.net 20121016
                 source:       TEST
                 """,
-                "ORG-OTH-A": """\
+                "ORG-OTH-A"    : """\
                 organisation: ORG-OFA10-TEST
                 org-type:     OTHER
                 org-name:     Organisation for Abuse
@@ -91,7 +91,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      denis@ripe.net 20121016
                 source:       TEST
                 """,
-                "ORGRIR": """\
+                "ORGRIR"       : """\
                 organisation:    ORG-RIR-TEST
                 org-type:        RIR
                 org-name:        Regional Internet Registry
@@ -103,7 +103,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:         denis@ripe.net 20121016
                 source:          TEST
                 """,
-                "ORGLIR-A2": """\
+                "ORGLIR-A2"    : """\
                 organisation: ORG-LIRA2-TEST
                 org-type:     LIR
                 org-name:     Local Internet Registry Abuse
@@ -118,7 +118,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      denis@ripe.net 20121016
                 source:       TEST
                 """,
-                "ASSPI": """\
+                "ASSPI"        : """\
                 inetnum:      192.168.100.0 - 192.168.100.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -133,7 +133,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-                "ASSANY": """\
+                "ASSANY"       : """\
                 inetnum:      192.168.101.0 - 192.168.101.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -148,7 +148,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-                "ASSPI-64": """\
+                "ASSPI-64"     : """\
                 inet6num:     2001:100::/64
                 netname:      EU-ZZ-2001-600
                 descr:        European Regional Registry
@@ -163,7 +163,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-                "ASSANY-64": """\
+                "ASSANY-64"    : """\
                 inet6num:     2001:101::/64
                 netname:      EU-ZZ-2001-600
                 descr:        European Regional Registry
@@ -178,7 +178,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-                "AS333": """\
+                "AS333"        : """\
                 aut-num:        AS333
                 as-name:        ASTEST
                 descr:          description
@@ -201,7 +201,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
     @Override
     Map<String, String> getTransients() {
         [
-                "ASSPISPON": """\
+                "ASSPISPON"   : """\
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -217,7 +217,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-                "ASSANYSPON": """\
+                "ASSANYSPON"  : """\
                 inetnum:      192.168.201.0 - 192.168.201.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -249,7 +249,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
-                "AS222SPON": """
+                "AS222SPON"   : """
                 aut-num:        AS222
                 as-name:        ASTEST
                 descr:          description
@@ -267,7 +267,8 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
-    ]}
+        ]
+    }
 
     def "create inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, with RS pw"() {
         expect:
@@ -351,10 +352,10 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
-        ack.successes.any {it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255"}
-        ack.successes.any {it.operation == "Create" && it.key == "[inet6num] 2001:600::/64"}
-        ack.successes.any {it.operation == "Create" && it.key == "[aut-num] AS222"}
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS222" }
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
@@ -440,16 +441,16 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertErrors(4, 4, 0, 0)
 
         ack.countErrorWarnInfo(4, 0, 0)
-        ack.errors.any {it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["This resource object must be created with a sponsoring-org attribute"]
-        ack.errors.any {it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255"}
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.201.0 - 192.168.201.255") ==
                 ["This resource object must be created with a sponsoring-org attribute"]
-        ack.errors.any {it.operation == "Create" && it.key == "[inet6num] 2001:600::/64"}
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
                 ["This resource object must be created with a sponsoring-org attribute"]
-        ack.errors.any {it.operation == "Create" && it.key == "[aut-num] AS222"}
+        ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS222" }
         ack.errorMessagesFor("Create", "[aut-num] AS222") ==
                 ["This resource object must be created with a sponsoring-org attribute"]
 
@@ -860,9 +861,9 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 3)
-        ack.successes.any {it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
-        ack.successes.any {it.operation == "Create" && it.key == "[inet6num] 2001:600::/64"}
-        ack.successes.any {it.operation == "Create" && it.key == "[aut-num] AS222"}
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS222" }
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "sponsoring-org:\\s*ORG-LIRA-TEST")
@@ -950,6 +951,112 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         query_object_not_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-OFA10-TEST")
         query_object_not_matches("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "sponsoring-org:\\s*ORG-OFA10-TEST")
         query_object_not_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-OFA10-TEST")
+    }
+
+
+    def "create inetnum with disallowed statuses, with sponsoring org, with override"() {
+        given:
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        def message = syncUpdate(sprintf("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                org:          ORG-OFA10-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       %s
+                sponsoring-org: ORG-OFA10-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override:     denis,override1
+
+                """.stripIndent(), status));
+
+        expect:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["The \"sponsoring-org:\" attribute is not allowed with status value \"" + status + "\""]
+        ack.infoMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Authorisation override used"]
+
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        where:
+        status << [
+                "ALLOCATED PA",
+                "ALLOCATED PI",
+                "ALLOCATED UNSPECIFIED",
+                "LIR-PARTITIONED PA",
+                "LIR-PARTITIONED PI",
+                "SUB-ALLOCATED PA",
+                "ASSIGNED PA",
+                "EARLY-REGISTRATION",
+                "NOT-SET",
+                "LEGACY"
+        ]
+    }
+
+
+    def "create inet6num with disallowed statuses, with sponsoring org, with override"() {
+        given:
+        queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+
+        def message = syncUpdate(sprintf("""\
+                inet6num:     2001:600::/64
+                netname:      EU-ZZ-2001-600
+                descr:        European Regional Registry
+                country:      EU
+                org:          ORG-OFA10-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                status:       %s%s
+                sponsoring-org: ORG-OFA10-TEST
+                changed:      dbtest@ripe.net 20130101
+                source:       TEST
+                override:     denis,override1
+
+                """.stripIndent(), status, extra));
+
+        expect:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
+                ["The \"sponsoring-org:\" attribute is not allowed with status value \"" + status + "\""]
+        ack.infoMessagesFor("Create", "[inet6num] 2001:600::/64") ==
+                ["Authorisation override used"]
+
+        queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+
+        where:
+        status | extra
+        "ALLOCATED-BY-RIR" | ""
+        "ALLOCATED-BY-LIR" | ""
+        "AGGREGATED-BY-LIR" | "\nassignment-size: 96"
+        "ASSIGNED" | ""
+        "ASSIGNED ANYCAST" | ""
     }
 
 
@@ -1042,10 +1149,10 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS222"}
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA2-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA2-TEST")
@@ -1248,10 +1355,10 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS222"}
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
 
         query_object_not_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:")
         query_object_not_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:")
@@ -1348,10 +1455,10 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 4)
-        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS222"}
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
 
         query_object_not_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:")
         query_object_not_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:")
@@ -1443,10 +1550,10 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.101.0 - 192.168.101.255"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[inet6num] 2001:100::/64"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS333"}
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.101.0 - 192.168.101.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:100::/64" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS333" }
 
         query_object_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:\\s*ORG-LIRA2-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.101.0 - 192.168.101.255", "inetnum", "192.168.101.0 - 192.168.101.255", "sponsoring-org:\\s*ORG-LIRA2-TEST")
@@ -1541,10 +1648,10 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 4)
-        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.101.0 - 192.168.101.255"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[inet6num] 2001:100::/64"}
-        ack.successes.any {it.operation == "Modify" && it.key == "[aut-num] AS333"}
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.101.0 - 192.168.101.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:100::/64" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS333" }
 
         query_object_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:\\s*ORG-LIRA2-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.101.0 - 192.168.101.255", "inetnum", "192.168.101.0 - 192.168.101.255", "sponsoring-org:\\s*ORG-LIRA2-TEST")
@@ -1841,7 +1948,7 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
+        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
@@ -1933,26 +2040,25 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
                 ["Referenced organisation must have org-type: LIR",
-                        "The sponsoring-org can only be added by the RIPE NCC"]
+                 "The sponsoring-org can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.101.0 - 192.168.101.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
                 ["Referenced organisation must have org-type: LIR",
-                        "The sponsoring-org can only be added by the RIPE NCC"]
+                 "The sponsoring-org can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:100::/64" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:100::/64") ==
                 ["Referenced organisation must have org-type: LIR",
-                        "The sponsoring-org can only be added by the RIPE NCC"]
+                 "The sponsoring-org can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS333" }
         ack.errorMessagesFor("Modify", "[aut-num] AS333") ==
                 ["Referenced organisation must have org-type: LIR",
-                        "The sponsoring-org can only be added by the RIPE NCC"]
+                 "The sponsoring-org can only be added by the RIPE NCC"]
 
         query_object_not_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:")
         query_object_not_matches("-r -BG -T inetnum 192.168.101.0 - 192.168.101.255", "inetnum", "192.168.101.0 - 192.168.101.255", "sponsoring-org:")
         query_object_not_matches("-r -BG -T inet6num 2001:100::/64", "inet6num", "2001:100::/64", "sponsoring-org:")
         query_object_not_matches("-r -BG -T aut-num AS333", "aut-num", "AS333", "sponsoring-org:")
     }
-
 
 
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, without sponsoring org, add sponsoring org with type OTHER, with RS pw"() {
@@ -2256,19 +2362,19 @@ class SponsorSpec extends BaseQueryUpdateSpec  {
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Referenced organisation must have org-type: LIR",
-                        "The sponsoring-org can only be changed by the RIPE NCC"]
+                 "The sponsoring-org can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Referenced organisation must have org-type: LIR",
-                        "The sponsoring-org can only be changed by the RIPE NCC"]
+                 "The sponsoring-org can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
                 ["Referenced organisation must have org-type: LIR",
-                        "The sponsoring-org can only be changed by the RIPE NCC"]
+                 "The sponsoring-org can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
         ack.errorMessagesFor("Modify", "[aut-num] AS222") ==
                 ["Referenced organisation must have org-type: LIR",
-                        "The sponsoring-org can only be changed by the RIPE NCC"]
+                 "The sponsoring-org can only be changed by the RIPE NCC"]
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
