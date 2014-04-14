@@ -1,32 +1,45 @@
 package net.ripe.db.whois.api.log;
 
 import com.google.common.net.HttpHeaders;
+import com.jayway.awaitility.Awaitility;
+import com.jayway.awaitility.Duration;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.RestClient;
 import net.ripe.db.whois.api.rest.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.FileHelper;
+import net.ripe.db.whois.update.mail.MailSenderStub;
 import net.ripe.db.whois.update.support.TestUpdateLog;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
@@ -57,6 +70,8 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
 
     @Autowired TestUpdateLog updateLog;
     @Autowired CrowdClient crowdClient;
+    @Autowired MailUpdatesTestSupport mailUpdatesTestSupport;
+    @Autowired MailSenderStub mailSenderStub;
 
     private RestClient restClient;
 
@@ -183,10 +198,39 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - SyncUpdate(10.20.30.40)"));
     }
 
-    @Ignore("to be implemented")
     @Test
     public void mailupdate_gets_logged() throws Exception {
-        // TODO: test mailupdate gets logged
+        final String response = mailUpdatesTestSupport.insert("NEW", buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST").toString() + "\npassword: test");
+
+        final MimeMessage message = mailSenderStub.getMessage(response);
+
+        assertThat(message.getContent().toString(), containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+
+        final String logDirectory = String.format("%s/20010204/130000.%s/", auditLog, getUpdateMessageId(message));
+
+        waitForFileToBeWritten(new File(logDirectory + "000.audit.xml.gz"));
+
+        final String audit = FileHelper.fetchGzip(new File(logDirectory + "000.audit.xml.gz"));
+        assertThat(audit, containsString("<query"));
+        assertThat(audit, containsString("<sql"));
+        assertThat(audit, containsString("Test Person"));
+
+        final String msgIn = FileHelper.fetchGzip(new File(logDirectory + "001.msg-in.txt.gz"));
+        assertThat(msgIn, containsString("Subject: NEW"));
+        assertThat(msgIn, containsString("Test Person"));
+        assertThat(msgIn, containsString("password: test"));
+
+        final String ack = FileHelper.fetchGzip(new File(logDirectory + "002.ack.txt.gz"));
+        assertThat(ack, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+
+        final String msgOut = FileHelper.fetchGzip(new File(logDirectory + "003.msg-out.txt.gz"));
+        assertThat(msgOut, containsString("SUMMARY OF UPDATE:"));
+        assertThat(msgOut, containsString("DETAILED EXPLANATION:"));
+        assertThat(msgOut, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - Mail"));
     }
 
     // helper methods
@@ -201,4 +245,22 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    private String getUpdateMessageId(final MimeMessage message) throws IOException, MessagingException {
+        final Pattern pattern = Pattern.compile("(?im)^>  Message-ID: <(.+?)(@.*)?>$");
+        final Matcher matcher = pattern.matcher(message.getContent().toString());
+        if (!matcher.find()) {
+            throw new IllegalArgumentException("No Message-ID found in content?");
+        } else {
+            return matcher.group(1);
+        }
+    }
+
+    private void waitForFileToBeWritten(final File file) {
+        Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(new Callable<Long>() {
+            @Override
+            public Long call() throws Exception {
+                return Long.valueOf(file.length());
+            }
+        }, is(not(0L)));
+    }
 }
