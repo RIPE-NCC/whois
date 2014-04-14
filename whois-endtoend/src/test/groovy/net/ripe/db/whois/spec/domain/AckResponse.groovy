@@ -67,6 +67,7 @@ class AckResponse extends Response {
 
     def removeNewLines = { it[1].toString().replaceAll("[\\n ]+", " ") }
 
+    // TODO: [AH] no method for testing if an error is per-attribute (i.e., tied to a specific attribute)
     String[] errorMessagesFor(String operation, String key) {
         def error = getErrors().find { it.operation == operation && it.key.startsWith(key) }
         error == null ? [] : error.errors
