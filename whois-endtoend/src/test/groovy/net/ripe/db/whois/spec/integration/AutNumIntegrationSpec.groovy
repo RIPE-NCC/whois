@@ -1113,28 +1113,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         create =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
     }
 
-    def "create autnum with sponsoring-org, org not LIR"() {
-      when:
-        def update = syncUpdate(new SyncUpdate(data: """\
-                aut-num:        AS400
-                as-name:        End-User-2
-                member-of:      AS-TESTSET
-                sponsoring-org: ORG-OTO1-TEST
-                descr:          other description
-                admin-c:        AP1-TEST
-                tech-c:         AP1-TEST
-                mnt-by:         RIPE-NCC-HM-MNT
-                changed:        noreply@ripe.net 20120101
-                source:         TEST
-                password: emptypassword
-                password: update
-                password: hm
-                """.stripIndent()))
-
-      then:
-        update =~ /Error:   Referenced object must have org-type LIR/
-    }
-
     def "create autnum with sponsoring-org succeeds"() {
       when:
         def update = syncUpdate(new SyncUpdate(data: """\
@@ -1313,50 +1291,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
         update =~ /Info:    The attribute 'sponsoring-org' can only be removed by RIPE NCC/
         queryObject("-rBG AS400", "sponsoring-org", "ORG-NCC1-RIPE")
-    }
-
-    def "modify autnum change sponsoring-org, no RS mntner"() {
-      given:
-        databaseHelper.addObject("""\
-                aut-num:        AS400
-                as-name:        End-User-2
-                status:         OTHER
-                member-of:      AS-TESTSET
-                descr:          other description
-                sponsoring-org: ORG-NCC1-RIPE
-                admin-c:        AP1-TEST
-                tech-c:         AP1-TEST
-                mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
-                source:         TEST
-                """.stripIndent())
-        databaseHelper.addObject("""\
-                organisation:   ORG-PK1-TEST
-                org-name:       Other Organisation
-                org-type:       LIR
-                mnt-by:         UPD-MNT
-                changed:        test@ripe.net
-                source:         TEST
-                """.stripIndent())
-
-      when:
-        def update = syncUpdate(new SyncUpdate(data: """\
-                aut-num:        AS400
-                as-name:        End-User-2
-                status:         OTHER
-                member-of:      AS-TESTSET
-                descr:          changed description
-                sponsoring-org: ORG-PK1-TEST
-                admin-c:        AP1-TEST
-                tech-c:         AP1-TEST
-                mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
-                source:         TEST
-                password: update
-                """.stripIndent()))
-      then:
-        update =~ /Modify FAILED: \[aut-num\] AS400/
-        update =~ /Error:   Referenced sponsoring-org can only be changed by the RIPE NCC/
     }
 
     def "delete autnum with sponsoring-org"() {
