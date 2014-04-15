@@ -2,7 +2,6 @@ package net.ripe.db.whois.internal.api.acl;
 
 import net.ripe.db.whois.common.domain.IpResourceTree;
 import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -132,9 +131,9 @@ public class AclLimitService {
 
     private boolean isRootInterval(IpInterval<?> ipInterval) {
         if (ipInterval instanceof Ipv6Resource) {
-            return ipInterval.equals(Ipv6Resource.parse("::0/0"));
+            return ipInterval.getPrefixLength() == 128;
         } else {
-            return ipInterval.equals(Ipv4Resource.parse("0/0"));
+            return ipInterval.getPrefixLength() == 32;
         }
     }
 
