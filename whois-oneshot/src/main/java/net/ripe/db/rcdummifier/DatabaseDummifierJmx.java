@@ -6,6 +6,7 @@ import net.ripe.db.LogUtil;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
+import net.ripe.db.whois.common.jmx.JmxBase;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -19,6 +20,11 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -33,8 +39,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RcDatabaseDummifier {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RcDatabaseDummifier.class);
+@Component
+@ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "Dummifier", description = "Whois data dummifier")
+public class DatabaseDummifierJmx extends JmxBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseDummifierJmx.class);
 
     private static final String ARG_JDBCURL = "jdbc-url";
     private static final String ARG_USER = "user";
@@ -56,6 +64,20 @@ public class RcDatabaseDummifier {
         final String user = options.valueOf(ARG_USER).toString();
         final String pass = options.valueOf(ARG_PASS).toString();
 
+        new DatabaseDummifierJmx().dummify(jdbcUrl, user, pass);
+    }
+
+    public DatabaseDummifierJmx() {
+        super(LOGGER);
+    }
+
+    @ManagedOperation(description = "Dummify")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "jdbcUrl", description = "jdbc url"),
+            @ManagedOperationParameter(name = "user", description = "jdbc username"),
+            @ManagedOperationParameter(name = "pass", description = "jdbc password")
+    })
+    public String dummify(final String jdbcUrl, final String user, final String pass) {
         final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
         final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
         jdbcTemplate = new JdbcTemplate(dataSource);
@@ -81,9 +103,11 @@ public class RcDatabaseDummifier {
         } catch (InterruptedException e) {
             LOGGER.error("shutdown", e);
         }
+        return "Database dummified";
     }
 
-    private static void addWork(final String table, final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
+
+    private void addWork(final String table, final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
         LOGGER.info("Dummifying " + table);
         transactionTemplate.execute(new TransactionCallback<Object>() {
             @Override
@@ -143,7 +167,7 @@ public class RcDatabaseDummifier {
             });
         }
 
-        static final RpslObject replaceWithMntnerNamePassword(RpslObject rpslObject) {
+        final RpslObject replaceWithMntnerNamePassword(RpslObject rpslObject) {
             boolean foundPassword = false;
             RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
             for (int i = 0; i < builder.size(); i++) {
@@ -165,7 +189,7 @@ public class RcDatabaseDummifier {
             return builder.get();
         }
 
-        static final boolean hasPassword(RpslObject rpslObject) {
+        final boolean hasPassword(RpslObject rpslObject) {
             for (CIString auth : rpslObject.getValuesForAttribute(AttributeType.AUTH)) {
                 if (auth.startsWith("md5-pw")) {
                     return true;

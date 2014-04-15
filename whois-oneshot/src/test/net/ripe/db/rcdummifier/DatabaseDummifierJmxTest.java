@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class RcDatabaseDummifierTest {
+public class DatabaseDummifierJmxTest {
     final RpslObject mntnerWithPgp = RpslObject.parse("mntner: NINJA\n" +
             "auth: PGP-111\n" +
             "source: test");
@@ -20,19 +20,19 @@ public class RcDatabaseDummifierTest {
 
     @Test
     public void hasPasswordTest() {
-        assertThat(RcDatabaseDummifier.DatabaseObjectProcessor.hasPassword(mntnerAfterDummy), is(true));
-        assertThat(RcDatabaseDummifier.DatabaseObjectProcessor.hasPassword(mntnerWithPgp), is(false));
+        assertThat(DatabaseDummifierJmx.DatabaseObjectProcessor.hasPassword(mntnerAfterDummy), is(true));
+        assertThat(DatabaseDummifierJmx.DatabaseObjectProcessor.hasPassword(mntnerWithPgp), is(false));
     }
 
     @Test
     public void replacePasswordTest() {
-        RpslObject rpslObject = RcDatabaseDummifier.DatabaseObjectProcessor.replaceWithMntnerNamePassword(mntnerAfterDummy);
+        RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceWithMntnerNamePassword(mntnerAfterDummy);
         RpslAttribute authAttr = rpslObject.findAttribute(AttributeType.AUTH);
         assertThat(PasswordHelper.authenticateMd5Passwords(authAttr.getCleanValue().toString(), "NINJA"), is(true));
     }
 
     @Test(expected = IllegalStateException.class)
     public void replacePgpPasswordTest() {
-        RcDatabaseDummifier.DatabaseObjectProcessor.replaceWithMntnerNamePassword(mntnerWithPgp);
+        DatabaseDummifierJmx.DatabaseObjectProcessor.replaceWithMntnerNamePassword(mntnerWithPgp);
     }
 }
