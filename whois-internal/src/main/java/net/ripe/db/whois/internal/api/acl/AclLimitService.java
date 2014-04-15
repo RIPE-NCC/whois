@@ -114,7 +114,7 @@ public class AclLimitService {
 
         final IpInterval<?> ipInterval = IpInterval.parse(decode(prefix));
 
-        if (isRootInterval(ipInterval)) {
+        if (ipInterval.getPrefixLength() == 0) {
             return Response.status(Response.Status.FORBIDDEN).entity("Deleting the root object is not allowed").build();
         }
 
@@ -128,15 +128,6 @@ public class AclLimitService {
 
         return Response.status(Response.Status.NOT_FOUND).build();
     }
-
-    private boolean isRootInterval(IpInterval<?> ipInterval) {
-        if (ipInterval instanceof Ipv6Resource) {
-            return ipInterval.getPrefixLength() == 128;
-        } else {
-            return ipInterval.getPrefixLength() == 32;
-        }
-    }
-
 
     private void validate(final IpInterval<?> ipInterval) {
         if (ipInterval instanceof Ipv6Resource && ipInterval.getPrefixLength() > 64) {
