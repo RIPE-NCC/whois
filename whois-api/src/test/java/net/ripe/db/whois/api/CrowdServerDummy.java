@@ -109,6 +109,7 @@ public class CrowdServerDummy implements Stub {
                         "<user name=\"%s\">" +
                             "<active>%s</active>" +
                         "</user>" +
+                        "<expiry-date>2033-01-30T16:38:27.369+11:00</expiry-date>" +
                     "</session>", userSession.getUsername(), userSession.isActive());
         }
 
