@@ -68,7 +68,7 @@ public class SyncUpdatesServiceTest {
         when(request.getCookies()).thenReturn(new Cookie[]{});
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
-        when(ssoTokenTranslator.translateSsoToken("valid-token")).thenReturn(new UserSession("test@ripe.net", true));
+        when(ssoTokenTranslator.translateSsoToken("valid-token")).thenReturn(new UserSession("test@ripe.net", true, "2033-01-30T16:38:27.369+11:00"));
         when(ssoTokenTranslator.translateSsoToken("invalid-token")).thenThrow(new CrowdClientException("Unknown RIPE NCC Access token: invalid-token"));
     }
 

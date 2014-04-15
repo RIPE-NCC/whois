@@ -140,7 +140,7 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_sso_different_uuid_filtered() {
-        final UserSession userSession = new UserSession("noreply@ripe.net", true);
+        final UserSession userSession = new UserSession("noreply@ripe.net", true, "2033-01-30T16:38:27.369+11:00");
         userSession.setUuid("76cab38b73eb-ac91-4336-94f3-d06e5500");
         when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
         when(crowdClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenReturn("user@host.org");
@@ -161,7 +161,7 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_sso_unfiltered() {
-        final UserSession userSession = new UserSession("user@host.org", true);
+        final UserSession userSession = new UserSession("user@host.org", true, "2033-01-30T16:38:27.369+11:00");
         userSession.setUuid("d06e5500-ac91-4336-94f3-76cab38b73eb");
         when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
         when(crowdClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenReturn("user@host.org");
@@ -182,7 +182,7 @@ public class FilterAuthFunctionTest {
 
     @Test(expected = CrowdClientException.class)
     public void crowd_client_exception() throws Exception {
-        final UserSession userSession = new UserSession("user@host.org", true);
+        final UserSession userSession = new UserSession("user@host.org", true, "2033-01-30T16:38:27.369+11:00");
         userSession.setUuid("d06e5500-ac91-4336-94f3-76cab38b73eb");
 
         when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
@@ -197,7 +197,7 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void crowd_client_exception_server_down() throws Exception {
-        final UserSession userSession = new UserSession("user@host.org", true);
+        final UserSession userSession = new UserSession("user@host.org", true, "2033-01-30T16:38:27.369+11:00");
         userSession.setUuid("T2hOz8tlmka5lxoZQxzC1Q00");
 
         when(ssoTokenTranslator.translateSsoToken("token")).thenThrow(CrowdClientException.class);

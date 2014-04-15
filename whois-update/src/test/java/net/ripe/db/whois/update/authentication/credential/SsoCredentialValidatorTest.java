@@ -38,7 +38,7 @@ public class SsoCredentialValidatorTest {
 
     @Test
     public void hasValidCredential() {
-        final UserSession offered = new UserSession("test@ripe.net", true);
+        final UserSession offered = new UserSession("test@ripe.net", true, "2033-01-30T16:38:27.369+11:00");
         offered.setUuid("testuuid");
 
         final SsoCredential offeredCredential = (SsoCredential)SsoCredential.createOfferedCredential(offered);
@@ -55,7 +55,7 @@ public class SsoCredentialValidatorTest {
 
     @Test
     public void hasNoOfferedCredentials() {
-        final UserSession offered = new UserSession("test@ripe.net", true);
+        final UserSession offered = new UserSession("test@ripe.net", true, "2033-01-30T16:38:27.369+11:00");
         offered.setUuid("testuuid");
 
         final SsoCredential knownCredential = SsoCredential.createKnownCredential("testuuid");
@@ -71,7 +71,7 @@ public class SsoCredentialValidatorTest {
 
     @Test
     public void noCheckForUserInactivity() {
-        final UserSession offered = new UserSession("test@ripe.net", false);
+        final UserSession offered = new UserSession("test@ripe.net", false, "2033-01-30T16:38:27.369+11:00");
         offered.setUuid("testuuid");
 
         final SsoCredential offeredCredential = (SsoCredential)SsoCredential.createOfferedCredential(offered);
@@ -88,7 +88,7 @@ public class SsoCredentialValidatorTest {
 
     @Test
     public void noCorrectCredential() {
-        final UserSession offered = new UserSession("test@ripe.net", false);
+        final UserSession offered = new UserSession("test@ripe.net", false, "2033-01-30T16:38:27.369+11:00");
         offered.setUuid("offereduuid");
 
         final SsoCredential offeredCredential = (SsoCredential)SsoCredential.createOfferedCredential(offered);

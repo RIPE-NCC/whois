@@ -248,9 +248,10 @@ public class CrowdClient {
             // required no-arg constructor
         }
 
-        public CrowdSession(final CrowdUser user, final String token) {
+        public CrowdSession(final CrowdUser user, final String token, final String expiryDate) {
             this.user = user;
             this.token = token;
+            this.expiryDate = expiryDate;
         }
 
         public CrowdUser getUser() {

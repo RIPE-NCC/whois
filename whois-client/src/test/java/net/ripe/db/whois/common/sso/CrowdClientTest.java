@@ -56,7 +56,7 @@ public class CrowdClientTest {
     @Test
     public void login_success() {
         final String token = "xyz";
-        when(builder.post(any(Entity.class), any(Class.class))).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", true), token));
+        when(builder.post(any(Entity.class), any(Class.class))).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", true), token, "2033-01-30T16:38:27.369+11:00"));
 
         assertThat(subject.login("test@ripe.net", "password"), is(token));
     }
@@ -83,7 +83,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_user_session_success() throws Exception {
-        when(builder.get(CrowdSession.class)).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", true), null));
+        when(builder.get(CrowdSession.class)).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", true), null, "2033-01-30T16:38:27.369+11:00"));
 
         final UserSession session = subject.getUserSession("token");
 
