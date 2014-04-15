@@ -120,13 +120,15 @@ public class CrowdClient {
 
     public UserSession getUserSession(final String token) throws CrowdClientException {
         try {
-            CrowdUser user = client.target(restUrl)
+            final CrowdSession crowdSession = client.target(restUrl)
                     .path(CROWD_SESSION_PATH)
                     .path(token)
                     .request()
-                    .get(CrowdSession.class)
-                    .getUser();
-            return new UserSession(user.getName(), user.getActive());
+                    .get(CrowdSession.class);
+
+            CrowdUser user = crowdSession.getUser();
+
+            return new UserSession(user.getName(), user.getActive(), crowdSession.getExpiryDate());
         } catch (BadRequestException e) {
             throw new CrowdClientException("Unknown RIPE NCC Access token: " + token);
         } catch (WebApplicationException | ProcessingException e) {
@@ -239,6 +241,8 @@ public class CrowdClient {
         private CrowdUser user;
         @XmlElement(name = "token")
         private String token;
+        @XmlElement(name = "expiry-date")
+        private String expiryDate;
 
         public CrowdSession() {
             // required no-arg constructor
@@ -255,6 +259,10 @@ public class CrowdClient {
 
         public String getToken() {
             return token;
+        }
+
+        public String getExpiryDate() {
+            return expiryDate;
         }
     }
 
