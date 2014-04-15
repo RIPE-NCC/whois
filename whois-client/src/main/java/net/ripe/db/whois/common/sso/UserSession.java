@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.sso;
 
 import org.joda.time.LocalDateTime;
+import org.joda.time.format.ISODateTimeFormat;
 
 public class UserSession {
     final private String username;
@@ -11,7 +12,7 @@ public class UserSession {
     public UserSession(String username, boolean isActive, String expiryDate) {
         this.username = username;
         this.isActive = isActive;
-        this.expiryDate = LocalDateTime.parse(expiryDate);
+        this.expiryDate = LocalDateTime.parse(expiryDate, ISODateTimeFormat.dateTimeParser());
     }
 
     public String getUsername() {
