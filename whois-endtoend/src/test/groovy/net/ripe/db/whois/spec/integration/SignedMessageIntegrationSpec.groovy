@@ -1,18 +1,17 @@
 package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
-import org.joda.time.LocalDateTime
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import spock.lang.Ignore;
+import org.joda.time.LocalDateTime
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
-    @Override
-    Map<String, String> getFixtures() {
-        return [
-                "TEST-PN": """\
+  @Override
+  Map<String, String> getFixtures() {
+    return [
+            "TEST-PN"             : """\
                 person:  Test Person
                 address: St James Street
                 address: Burnley
@@ -23,7 +22,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
-                "ROOT4": """\
+            "ROOT4"               : """\
                 inetnum: 0.0.0.0 - 255.255.255.255
                 netname: IANA-BLK
                 descr: The whole IPv4 address space
@@ -36,7 +35,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 changed: ripe@test.net 20120505
                 source: TEST
                 """,
-                "ORGHR": """\
+            "ORGHR"               : """\
                 organisation:    ORG-HR1-TEST
                 org-type:        LIR
                 org-name:        Regional Internet Registry
@@ -48,7 +47,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
-                "RIPE-NCC-HM-MNT": """\
+            "RIPE-NCC-HM-MNT"     : """\
                 mntner:      RIPE-NCC-HM-MNT
                 descr:       hostmaster MNTNER
                 admin-c:     TP1-TEST
@@ -61,7 +60,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
-                "OWNER-MNT": """\
+            "OWNER-MNT"           : """\
                 mntner:      OWNER-MNT
                 descr:       used to maintain other MNTNERs
                 admin-c:     TP1-TEST
@@ -72,7 +71,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
-                "INVALID-PGP-KEYCERT": """\
+            "INVALID-PGP-KEYCERT" : """\
                 key-cert:       PGPKEY-57639544
                 method:         PGP
                 certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -82,7 +81,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 changed:        noreply@ripe.net 20010101
                 source:         TEST
                 """,
-                "INVALID-X509-KEYCERT": """\
+            "INVALID-X509-KEYCERT": """\
                 key-cert:       X509-111
                 method:         X509
                 certif:         -----BEGIN CERTIFICATE-----
@@ -91,12 +90,12 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 changed:        noreply@ripe.net 20010101
                 source:         TEST
                 """
-        ]
-    }
+    ]
+  }
 
-    def "inline pgp signed mailupdate"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline pgp signed mailupdate"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-AAAAAAAA       # primary key doesn't match public key id
                 method:         PGP
                 owner:          noreply@ripe.net <noreply@ripe.net>
@@ -138,15 +137,15 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-AAAAAAAA\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send new Message(
-                subject: "",
-                body: """\
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-AAAAAAAA\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
 
@@ -172,21 +171,21 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =it26
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.contents =~ "Warning: Message was signed more than one week ago"
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Warning: Message was signed more than one week ago"
+  }
 
-    def "inline pgp signed mailupdate with DSA key and RIPEMD160 Hash"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline pgp signed mailupdate with DSA key and RIPEMD160 Hash"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-E5F13570
                 method:         PGP
                 owner:          DSA Key <dsa@ripe.net>
@@ -213,15 +212,15 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-E5F13570\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send new Message(
-                subject: "",
-                body: """\
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-E5F13570\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: RIPEMD160
 
@@ -243,23 +242,23 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =xdK1
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+  }
 
-    def "inline pgp signed syncupdate with invalid existing key"() {
-      when:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().replaceAll("source:\\s*TEST", "auth: PGPKEY-57639544\nsource: TEST") + "password: owner")
+  def "inline pgp signed syncupdate with invalid existing key"() {
+    when:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().replaceAll("source:\\s*TEST", "auth: PGPKEY-57639544\nsource: TEST") + "password: owner")
 
-        def ack = syncUpdate new SyncUpdate(data: """
+      def ack = syncUpdate new SyncUpdate(data: """
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
 
@@ -285,22 +284,22 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =it26
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
-      then:
-        ack.contains("Create FAILED: [person] FP1-TEST   First Person")
+    then:
+      ack.contains("Create FAILED: [person] FP1-TEST   First Person")
 
-        ack.contains("" +
-                "***Error:   Authorisation for [person] FP1-TEST failed\n" +
-                "            using \"mnt-by:\"\n" +
-                "            not authenticated by: OWNER-MNT")
+      ack.contains("" +
+              "***Error:   Authorisation for [person] FP1-TEST failed\n" +
+              "            using \"mnt-by:\"\n" +
+              "            not authenticated by: OWNER-MNT")
 
-        ack.contains("" +
-                "***Warning: The public key data held in the key-cert object PGPKEY-57639544 has\n" +
-                "            syntax errors")
-    }
+      ack.contains("" +
+              "***Warning: The public key data held in the key-cert object PGPKEY-57639544 has\n" +
+              "            syntax errors")
+  }
 
-    def "inline pgp signed syncupdate"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline pgp signed syncupdate"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-AAAAAAAA       # primary key doesn't match public key id
                 method:         PGP
                 owner:          noreply@ripe.net <noreply@ripe.net>
@@ -342,13 +341,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-AAAAAAAA\nsource: TEST")
-                        + "password: owner")
-      then:
-        def ack = syncUpdate new SyncUpdate(data: """
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-AAAAAAAA\nsource: TEST")
+                      + "password: owner")
+    then:
+      def ack = syncUpdate new SyncUpdate(data: """
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
 
@@ -374,13 +373,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =it26
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
-      then:
-        ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
-    }
+    then:
+      ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
+  }
 
-    def "inline pgp signed syncupdate including spaces and extra header lines"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline pgp signed syncupdate including spaces and extra header lines"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-5763950D
                 method:         PGP
                 owner:          noreply@ripe.net <noreply@ripe.net>
@@ -422,13 +421,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
-                        + "password: owner")
-      then:
-        def ack = syncUpdate new SyncUpdate(data: """\
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: owner")
+    then:
+      def ack = syncUpdate new SyncUpdate(data: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
                 Comment: another header
@@ -455,13 +454,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =it26
                 -----END PGP SIGNATURE-----
             """.stripIndent().replaceAll("\n\n", "\n  \t  \n"))
-      then:
-        ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
-    }
+    then:
+      ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
+  }
 
-    def "inline pgp signed mailupdate with extra empty lines in content"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline pgp signed mailupdate with extra empty lines in content"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                     key-cert:       PGPKEY-5763950D
                     method:         PGP
                     owner:          noreply@ripe.net <noreply@ripe.net>
@@ -503,15 +502,15 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                     source:         TEST
                     password:       owner
                  """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send new Message(
-                subject: "",
-                body: """\
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
                     -----BEGIN PGP SIGNED MESSAGE-----
                     Hash: SHA1
 
@@ -544,28 +543,28 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                     =b6oY
                     -----END PGP SIGNATURE-----
                     """.stripIndent())
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        //ack.contents =~ "Warning: Message was signed more than one week ago"
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      //ack.contents =~ "Warning: Message was signed more than one week ago"
+  }
 
-    def "inline pgp signed mailupdate with invalid keycert referenced by mntner"() {
-      when:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-57639544\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send new Message(
-                subject: "",
-                body: """\
+  def "inline pgp signed mailupdate with invalid keycert referenced by mntner"() {
+    when:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-57639544\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
 
@@ -591,22 +590,22 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =it26
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.failed
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+      ack.failed
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(0, 0, 0, 0, 0)
+      ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-                "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
-    }
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+  }
 
-    def "inline pgp signed syncupdate with SHA512 hash"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline pgp signed syncupdate with SHA512 hash"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-5763950D
                 method:         PGP
                 owner:          noreply@ripe.net <noreply@ripe.net>
@@ -648,13 +647,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
-                        + "password: owner")
-      then:
-        def ack = syncUpdate new SyncUpdate(data: """\
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: owner")
+    then:
+      def ack = syncUpdate new SyncUpdate(data: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA512
 
@@ -680,13 +679,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =wUOr
                 -----END PGP SIGNATURE-----
             """.stripIndent())
-      then:
-        ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
-    }
+    then:
+      ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
+  }
 
-    def "inline pgp signed syncupdate with 4096 bit public key"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline pgp signed syncupdate with 4096 bit public key"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-E7220D0A
                 method:         PGP
                 owner:          Testing 4096 bit key <long-key@ripe.net>
@@ -750,13 +749,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-E7220D0A\nsource: TEST")
-                        + "password: owner")
-      then:
-        def ack = syncUpdate new SyncUpdate(data: """\
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-E7220D0A\nsource: TEST")
+                      + "password: owner")
+    then:
+      def ack = syncUpdate new SyncUpdate(data: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
 
@@ -788,15 +787,15 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =aWZF
                 -----END PGP SIGNATURE-----
             """.stripIndent())
-      then:
-        ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
-    }
+    then:
+      ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
+  }
 
-    // keycert contains 1 master key (28F6CD6C) and 2 subkeys (413AEB52 and 80274330), message is signed by second subkey
-    def "inline pgp signed mailupdate signed by second subkey"() {
-      when:
-        setTime(new LocalDateTime(2013, 1, 11, 13, 0))
-        syncUpdate new SyncUpdate(data: """
+  // keycert contains 1 master key (28F6CD6C) and 2 subkeys (413AEB52 and 80274330), message is signed by second subkey
+  def "inline pgp signed mailupdate signed by second subkey"() {
+    when:
+      setTime(new LocalDateTime(2013, 1, 11, 13, 0))
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-28F6CD6C
                 method:         PGP
                 owner:          Ed Shryane <eshryane@ripe.net>
@@ -862,15 +861,15 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send new Message(
-                subject: "",
-                body: """\
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA256
 
@@ -892,22 +891,22 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =k+x0
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+  }
 
-    def "inline pgp signed mailupdate with missing keycert"() {
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+  def "inline pgp signed mailupdate with missing keycert"() {
+    when:
+      def message = send new Message(
+              subject: "",
+              body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
 
@@ -933,22 +932,22 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =it26
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.failed
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+      ack.failed
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(0, 0, 0, 0, 0)
+      ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-                "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
-    }
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+  }
 
-    def "inline pgp signed mailupdate when maintainer only has x509 keycert"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline pgp signed mailupdate when maintainer only has x509 keycert"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       AUTO-1
                 method:         X509
                 owner:          /C=NL/ST=Noord-Holland/O=RIPE NCC/OU=DB/CN=Edward Shryane/EMAILADDRESS=eshryane@ripe.net
@@ -980,15 +979,15 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send new Message(
-                subject: "",
-                body: """\
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
 
@@ -1014,17 +1013,17 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =it26
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-                "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
-    }
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+  }
 
-    def "inline pgp signed mailupdate but maintainer doesnt reference keycert"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline pgp signed mailupdate but maintainer doesnt reference keycert"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-5763950D
                 method:         PGP
                 owner:          noreply@ripe.net <noreply@ripe.net>
@@ -1066,10 +1065,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        def message = send new Message(
-                subject: "",
-                body: """\
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
 
@@ -1095,91 +1094,91 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =it26
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.failed
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+      ack.failed
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(0, 0, 0, 0, 0)
+      ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-                "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
-    }
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+  }
 
-    def "inline pgp signed mailupdate with invalid signature format"() {
-      when:
-        def message = send "From: noreply@ripe.net\n" +
-                "Content-Type: text/plain; charset=us-ascii\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Subject: NEW\n" +
-                "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
-                "Message-Id: <90563E66-2415-4A49-B8DF-3BD1CBB8868C@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
-                "Hash: SHA1\n" +                     // no empty line between header and content
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "Comment: GPGTools - http://gpgtools.org\n" +   // no empty line after headers
-                "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+\n" +
-                "fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx\n" +
-                "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
-                "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux\n" +
-                "4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
-                "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
-                "=it26\n" +
-                "-----END PGP SIGNATURE-----"
-      then:
-        def ack = ackFor message
+  def "inline pgp signed mailupdate with invalid signature format"() {
+    when:
+      def message = send "From: noreply@ripe.net\n" +
+              "Content-Type: text/plain; charset=us-ascii\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Subject: NEW\n" +
+              "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
+              "Message-Id: <90563E66-2415-4A49-B8DF-3BD1CBB8868C@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+              "Hash: SHA1\n" +                     // no empty line between header and content
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "Comment: GPGTools - http://gpgtools.org\n" +   // no empty line after headers
+              "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+\n" +
+              "fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx\n" +
+              "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
+              "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux\n" +
+              "4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
+              "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
+              "=it26\n" +
+              "-----END PGP SIGNATURE-----"
+    then:
+      def ack = ackFor message
 
-        ack.summary.nrFound == 0
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.summary.nrFound == 0
+      ack.summary.assertSuccess(0, 0, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.subject == "FAILED: NEW"
+      ack.subject == "FAILED: NEW"
 
-        ack.contents =~ "(?s)~~~~\nThe following paragraph\\(s\\) do not look like objects\n" +
-                "and were NOT PROCESSED:\n\n" +
-                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
-                "Hash: SHA1\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   \\+44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n"
-        "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 \\(Darwin\\)\n" +
-                "Comment: GPGTools \\- http://gpgtools.org\n" +
-                "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK\\+\n" +
-                "fVpmdXnI6IfzGiRrbOJWCpiu\\+vFT0QzKU22nH/JY7zDH77pjBlOQ5\\+WLG5/R2XYx\n" +
-                "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
-                "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1\\+LHs4kfqyvJux\n" +
-                "4xsP\\+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
-                "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
-                "=it26\n" +
-                "-----END PGP SIGNATURE-----" +
-                "\n\n.+?~+~~~~\n"
-    }
+      ack.contents =~ "(?s)~~~~\nThe following paragraph\\(s\\) do not look like objects\n" +
+              "and were NOT PROCESSED:\n\n" +
+              "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+              "Hash: SHA1\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   \\+44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n"
+      "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 \\(Darwin\\)\n" +
+              "Comment: GPGTools \\- http://gpgtools.org\n" +
+              "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK\\+\n" +
+              "fVpmdXnI6IfzGiRrbOJWCpiu\\+vFT0QzKU22nH/JY7zDH77pjBlOQ5\\+WLG5/R2XYx\n" +
+              "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
+              "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1\\+LHs4kfqyvJux\n" +
+              "4xsP\\+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
+              "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
+              "=it26\n" +
+              "-----END PGP SIGNATURE-----" +
+              "\n\n.+?~+~~~~\n"
+  }
 
-    def "inline pgp signed mailupdate when maintainer has multiple pgp auth lines"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline pgp signed mailupdate when maintainer has multiple pgp auth lines"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-AAAAAAAA       # primary key doesn't match public key id 5763950D
                 method:         PGP
                 owner:          noreply@ripe.net <noreply@ripe.net>
@@ -1222,8 +1221,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 password:       owner
                 """.stripIndent())
 
-      and:
-        syncUpdate new SyncUpdate(data: """
+    and:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-BBBBBBBB             # public key id 81CCF97D
                 method:         PGP
                 owner:          Unknown <unread@ripe.net>
@@ -1265,14 +1264,14 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
                 """.stripIndent())
-      and:
-        syncUpdate new SyncUpdate(data: (getFixtures().get("OWNER-MNT").stripIndent().
-                replaceAll("source:\\s*TEST", "auth: PGPKEY-AAAAAAAA\nauth: PGPKEY-BBBBBBBB\nsource: TEST")
-                + "password: owner"))
-      and:
-        def message = send new Message(
-                subject: "",
-                body: """\
+    and:
+      syncUpdate new SyncUpdate(data: (getFixtures().get("OWNER-MNT").stripIndent().
+              replaceAll("source:\\s*TEST", "auth: PGPKEY-AAAAAAAA\nauth: PGPKEY-BBBBBBBB\nsource: TEST")
+              + "password: owner"))
+    and:
+      def message = send new Message(
+              subject: "",
+              body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
 
@@ -1298,23 +1297,23 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =cxl7
                 -----END PGP SIGNATURE-----
                 """.stripIndent()
-        )
+      )
 
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.contents =~ "Warning: Message was signed more than one week ago"
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Warning: Message was signed more than one week ago"
+  }
 
-    def "inline pgp signed mailupdate with double pgp signed update"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline pgp signed mailupdate with double pgp signed update"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-5763950D
                 method:         PGP
                 owner:          noreply@ripe.net <noreply@ripe.net>
@@ -1356,8 +1355,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
                 """.stripIndent())
-      and:
-        syncUpdate new SyncUpdate(data: """
+    and:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-81CCF97D
                 method:         PGP
                 owner:          Unknown <unread@ripe.net>
@@ -1399,14 +1398,14 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
                 """.stripIndent())
-      and:
-        syncUpdate new SyncUpdate(data: (getFixtures().get("OWNER-MNT").stripIndent().
-                replaceAll("source:\\s*TEST", "auth: PGPKEY-81CCF97D\nsource: TEST")
-                + "password: owner"))
-      and:
-        def message = send new Message(
-                subject: "",
-                body: """\
+    and:
+      syncUpdate new SyncUpdate(data: (getFixtures().get("OWNER-MNT").stripIndent().
+              replaceAll("source:\\s*TEST", "auth: PGPKEY-81CCF97D\nsource: TEST")
+              + "password: owner"))
+    and:
+      def message = send new Message(
+              subject: "",
+              body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
 
@@ -1447,23 +1446,23 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 =OBVH
                 -----END PGP SIGNATURE-----
                 """.stripIndent()
-        )
+      )
 
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.contents =~ "Warning: Message was signed more than one week ago"
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Warning: Message was signed more than one week ago"
+  }
 
-    def "mutipart  pgp signed message with crlf stripped from content"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "mutipart  pgp signed message with crlf stripped from content"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-28F6CD6C
                 method:         PGP
                 owner:          Ed Shryane <eshryane@ripe.net>
@@ -1516,69 +1515,69 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: noreply@ripe.net\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Subject: NEW\n" +
-                "Message-ID: <1361277612.10298.12.camel@galileo.millnert.se>\n" +
-                "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
-                "Content-Type: multipart/signed; micalg=\"pgp-sha1\"; protocol=\"application/pgp-signature\";\n" +
-                "\tboundary=\"=-8YSQO2TBX+Ao8EuQQc6k\"\n" +
-                "Mime-Version: 1.0\n" +
-                "\n" +
-                "--=-8YSQO2TBX+Ao8EuQQc6k\n" +
-                "Content-Type: text/plain; charset=\"UTF-8\"\n" +
-                "Content-Transfer-Encoding: quoted-printable\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source: TEST\n" +
-                "--=-8YSQO2TBX+Ao8EuQQc6k\n" +
-                "Content-Type: application/pgp-signature; name=\"signature.asc\"\n" +
-                "Content-Description: This is a digitally signed message part\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "Comment: GPGTools - http://gpgtools.org\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "Comment: GPGTools - http://gpgtools.org\n" +
-                "\n" +
-                "iQEcBAEBAgAGBQJRJiUQAAoJEO6ZHuIo9s1sRUwIAKPZTXKmubl/lpWSdUdF5/wj\n" +
-                "JtaeUI5ag/2kHY7KoMMhy7qUnmMJY+INWXsfXQLLev6envjzxzlLUPDC+H5nBXHz\n" +
-                "sW/FfzzJPKLYzmZuJcGqPJDJRzWTmqt2I3/QMuxg3jyS7kneVfM3/WQ8fKP6pCgF\n" +
-                "Z9BeapgwjZGgRx4JCW22oHmsR8X6i9qTnZyTm9zHsYZCK8hAhHQaWGfgx55/x1iR\n" +
-                "RPA5nanT93lZSmnYdoHfFkHv/7ugylV74ubpd3eftL8hrlvyGLnj54R1dkBdjJ0f\n" +
-                "Uef0jxzAqSU60cgAL5V2X3WaGBm7yf+gDxxjRsLMsH+M/y4EdbjDpqoDEJIBeVU=\n" +
-                "=jvFg\n" +
-                "-----END PGP SIGNATURE-----\n" +
-                "\n" +
-                "--=-8YSQO2TBX+Ao8EuQQc6k--\n\n"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: noreply@ripe.net\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Subject: NEW\n" +
+              "Message-ID: <1361277612.10298.12.camel@galileo.millnert.se>\n" +
+              "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
+              "Content-Type: multipart/signed; micalg=\"pgp-sha1\"; protocol=\"application/pgp-signature\";\n" +
+              "\tboundary=\"=-8YSQO2TBX+Ao8EuQQc6k\"\n" +
+              "Mime-Version: 1.0\n" +
+              "\n" +
+              "--=-8YSQO2TBX+Ao8EuQQc6k\n" +
+              "Content-Type: text/plain; charset=\"UTF-8\"\n" +
+              "Content-Transfer-Encoding: quoted-printable\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source: TEST\n" +
+              "--=-8YSQO2TBX+Ao8EuQQc6k\n" +
+              "Content-Type: application/pgp-signature; name=\"signature.asc\"\n" +
+              "Content-Description: This is a digitally signed message part\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "Comment: GPGTools - http://gpgtools.org\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "Comment: GPGTools - http://gpgtools.org\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJRJiUQAAoJEO6ZHuIo9s1sRUwIAKPZTXKmubl/lpWSdUdF5/wj\n" +
+              "JtaeUI5ag/2kHY7KoMMhy7qUnmMJY+INWXsfXQLLev6envjzxzlLUPDC+H5nBXHz\n" +
+              "sW/FfzzJPKLYzmZuJcGqPJDJRzWTmqt2I3/QMuxg3jyS7kneVfM3/WQ8fKP6pCgF\n" +
+              "Z9BeapgwjZGgRx4JCW22oHmsR8X6i9qTnZyTm9zHsYZCK8hAhHQaWGfgx55/x1iR\n" +
+              "RPA5nanT93lZSmnYdoHfFkHv/7ugylV74ubpd3eftL8hrlvyGLnj54R1dkBdjJ0f\n" +
+              "Uef0jxzAqSU60cgAL5V2X3WaGBm7yf+gDxxjRsLMsH+M/y4EdbjDpqoDEJIBeVU=\n" +
+              "=jvFg\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--=-8YSQO2TBX+Ao8EuQQc6k--\n\n"
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-    }
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
+  }
 
-    def "multipart alternative pgp signed message"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart alternative pgp signed message"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-28F6CD6C
                 method:         PGP
                 owner:          Ed Shryane <eshryane@ripe.net>
@@ -1631,95 +1630,95 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: noreply@ripe.net\n" +
-                "Content-Type: multipart/signed;\n" +
-                "\tboundary=\"Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205\";\n" +
-                "\tprotocol=\"application/pgp-signature\";\n" +
-                "\tmicalg=pgp-sha1\n" +
-                "Subject: NEW\n" +
-                "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
-                "Message-Id: <220284EA-D739-4453-BBD2-807C87666F23@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205\n" +
-                "Content-Type: multipart/alternative;\n" +
-                "\tboundary=\"Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA\"\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/html;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "<html><head></head><body style=\"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;" +
-                " \"><div style=\"font-size: 13px; \"><b>person: &nbsp;First Person</b></div><div style=\"font-size: 13px; \"><b>" +
-                "address: St James Street</b></div><div style=\"font-size: 13px; \"><b>address: Burnley</b></div><div style=\"font-size: 13px; \">" +
-                "<b>address: UK</b></div><div style=\"font-size: 13px; \"><b>phone: &nbsp; +44 282 420469</b></div><div style=\"font-size: 13px; \">" +
-                "<b>nic-hdl: FP1-TEST</b></div><div style=\"font-size: 13px; \"><b>mnt-by: &nbsp;OWNER-MNT</b></div><div style=\"font-size: 13px; \">" +
-                "<b>changed: <a href=\"mailto:denis@ripe.net\">denis@ripe.net</a> 20121016</b></div><div style=\"font-size: 13px; \">" +
-                "<b>source: &nbsp;TEST</b></div><div><br></div></body></html>\n" +
-                "--Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA--\n" +
-                "\n" +
-                "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=signature.asc\n" +
-                "Content-Type: application/pgp-signature;\n" +
-                "\tname=signature.asc\n" +
-                "Content-Description: Message signed with OpenPGP using GPGMail\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "\n" +
-                "iQEcBAEBAgAGBQJQ5Ff1AAoJEO6ZHuIo9s1sQxoIAJYdnvbYjCwRyKgz7sB6/Lmh\n" +
-                "Ca7A9FrKuRFXHH2IUM6FIlC8hvFpAlXfkSWtJ03PL4If3od0jL9pwge8hov75+nL\n" +
-                "FnhCG2ktb6CfzjoaeumTvzbt5oSbq2itgvaQ15V6Rpb2LIh7yfAcoJ7UgK5X1XEI\n" +
-                "OhZvuGy9M49unziI3oF0WwHl4b2bAt/r7/7DNgxlT00pMFqrcI3n00TXEAJphpzH\n" +
-                "7Ym5+7PYvTtanxb5x8pMCmgtsKgF5RoHQv4ZBaSS0z00WVivk3cuCugziyTrwI2+\n" +
-                "4IkFu75GfD+xKAldd2of09SrFEaOJfXNslq+BZoqc3hGOV+b7vpNARp0s7zsq4E=\n" +
-                "=O7qu\n" +
-                "-----END PGP SIGNATURE-----\n" +
-                "\n" +
-                "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: noreply@ripe.net\n" +
+              "Content-Type: multipart/signed;\n" +
+              "\tboundary=\"Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205\";\n" +
+              "\tprotocol=\"application/pgp-signature\";\n" +
+              "\tmicalg=pgp-sha1\n" +
+              "Subject: NEW\n" +
+              "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
+              "Message-Id: <220284EA-D739-4453-BBD2-807C87666F23@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205\n" +
+              "Content-Type: multipart/alternative;\n" +
+              "\tboundary=\"Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA\"\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/html;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "<html><head></head><body style=\"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;" +
+              " \"><div style=\"font-size: 13px; \"><b>person: &nbsp;First Person</b></div><div style=\"font-size: 13px; \"><b>" +
+              "address: St James Street</b></div><div style=\"font-size: 13px; \"><b>address: Burnley</b></div><div style=\"font-size: 13px; \">" +
+              "<b>address: UK</b></div><div style=\"font-size: 13px; \"><b>phone: &nbsp; +44 282 420469</b></div><div style=\"font-size: 13px; \">" +
+              "<b>nic-hdl: FP1-TEST</b></div><div style=\"font-size: 13px; \"><b>mnt-by: &nbsp;OWNER-MNT</b></div><div style=\"font-size: 13px; \">" +
+              "<b>changed: <a href=\"mailto:denis@ripe.net\">denis@ripe.net</a> 20121016</b></div><div style=\"font-size: 13px; \">" +
+              "<b>source: &nbsp;TEST</b></div><div><br></div></body></html>\n" +
+              "--Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA--\n" +
+              "\n" +
+              "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=signature.asc\n" +
+              "Content-Type: application/pgp-signature;\n" +
+              "\tname=signature.asc\n" +
+              "Content-Description: Message signed with OpenPGP using GPGMail\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJQ5Ff1AAoJEO6ZHuIo9s1sQxoIAJYdnvbYjCwRyKgz7sB6/Lmh\n" +
+              "Ca7A9FrKuRFXHH2IUM6FIlC8hvFpAlXfkSWtJ03PL4If3od0jL9pwge8hov75+nL\n" +
+              "FnhCG2ktb6CfzjoaeumTvzbt5oSbq2itgvaQ15V6Rpb2LIh7yfAcoJ7UgK5X1XEI\n" +
+              "OhZvuGy9M49unziI3oF0WwHl4b2bAt/r7/7DNgxlT00pMFqrcI3n00TXEAJphpzH\n" +
+              "7Ym5+7PYvTtanxb5x8pMCmgtsKgF5RoHQv4ZBaSS0z00WVivk3cuCugziyTrwI2+\n" +
+              "4IkFu75GfD+xKAldd2of09SrFEaOJfXNslq+BZoqc3hGOV+b7vpNARp0s7zsq4E=\n" +
+              "=O7qu\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205--"
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.contents =~ "Warning: Message was signed more than one week ago"
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Warning: Message was signed more than one week ago"
+  }
 
-    def "multipart plaintext pgp signed message"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext pgp signed message"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-28F6CD6C
                 method:         PGP
                 owner:          Ed Shryane <eshryane@ripe.net>
@@ -1772,76 +1771,76 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: noreply@ripe.net\n" +
-                "Content-Type: multipart/signed;\n" +
-                "\tboundary=\"Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\";\n" +
-                "\tprotocol=\"application/pgp-signature\";\n" +
-                "\tmicalg=pgp-sha1\n" +
-                "Subject: NEW\n" +
-                "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
-                "Message-Id: <6DBC05F5-9DFF-4FAA-BFAE-223F456A1AA5@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=signature.asc\n" +
-                "Content-Type: application/pgp-signature;\n" +
-                "\tname=signature.asc\n" +
-                "Content-Description: Message signed with OpenPGP using GPGMail\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "\n" +
-                "iQEcBAEBAgAGBQJQ5T6ZAAoJEO6ZHuIo9s1sBSgH/24dCeqOG3eQDHx4FUAvzvjB\n" +
-                "qiaKG6yV9/VBeuR1ZeeKsdsRNfBD8XxQp5BFR/W4WdmFDqP+ZubjOECcoPQ76+kG\n" +
-                "l8dduuv9q43PvnGlBClavJKVyAEZlw6CY8AVTa/mYQnRNU/vju4fCuWm/TNXLsfm\n" +
-                "uZOade0+AViAD0uCxsh8oF3fix2oQZ7RfTEhEvSTtVsN+mJ5yhCC9jn4HJtrJoLS\n" +
-                "O0Vc26WPlcoaq/ye3BVlx77yWqCDkljE83uhIfens+gR8nJEek9UGVj6nXACNA7d\n" +
-                "KwyBsVF9yz2oZUWObuA774yJLh8xa5DaFhcyBP0wZE4T1oGMvnqJKCtVeEzhyqo=\n" +
-                "=Ftin\n" +
-                "-----END PGP SIGNATURE-----\n" +
-                "\n" +
-                "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: noreply@ripe.net\n" +
+              "Content-Type: multipart/signed;\n" +
+              "\tboundary=\"Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\";\n" +
+              "\tprotocol=\"application/pgp-signature\";\n" +
+              "\tmicalg=pgp-sha1\n" +
+              "Subject: NEW\n" +
+              "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
+              "Message-Id: <6DBC05F5-9DFF-4FAA-BFAE-223F456A1AA5@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=signature.asc\n" +
+              "Content-Type: application/pgp-signature;\n" +
+              "\tname=signature.asc\n" +
+              "Content-Description: Message signed with OpenPGP using GPGMail\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJQ5T6ZAAoJEO6ZHuIo9s1sBSgH/24dCeqOG3eQDHx4FUAvzvjB\n" +
+              "qiaKG6yV9/VBeuR1ZeeKsdsRNfBD8XxQp5BFR/W4WdmFDqP+ZubjOECcoPQ76+kG\n" +
+              "l8dduuv9q43PvnGlBClavJKVyAEZlw6CY8AVTa/mYQnRNU/vju4fCuWm/TNXLsfm\n" +
+              "uZOade0+AViAD0uCxsh8oF3fix2oQZ7RfTEhEvSTtVsN+mJ5yhCC9jn4HJtrJoLS\n" +
+              "O0Vc26WPlcoaq/ye3BVlx77yWqCDkljE83uhIfens+gR8nJEek9UGVj6nXACNA7d\n" +
+              "KwyBsVF9yz2oZUWObuA774yJLh8xa5DaFhcyBP0wZE4T1oGMvnqJKCtVeEzhyqo=\n" +
+              "=Ftin\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35--"
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.contents =~ "Warning: Message was signed more than one week ago"
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Warning: Message was signed more than one week ago"
+  }
 
-    def "multipart plaintext pgp signed message with unknown encoding"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext pgp signed message with unknown encoding"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-28F6CD6C
                 method:         PGP
                 owner:          Ed Shryane <eshryane@ripe.net>
@@ -1894,68 +1893,68 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: noreply@ripe.net\n" +
-                "Content-Type: multipart/signed; micalg=pgp-md5;\n" +
-                "\tprotocol=\"application/pgp-signature\"; boundary=\"vkogqOf2sHV7VnPd\"\n" +
-                "Content-Disposition: inline\n" +
-                "Subject: NEW\n" +
-                "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
-                "Message-Id: <6DBC05F5-9DFF-4FAA-BFAE-223F456A1AA5@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--vkogqOf2sHV7VnPd\n" +
-                "Content-Type: text/plain; charset=unknown-8bit\n" +
-                "Content-Disposition: inline\n" +
-                "Content-Transfer-Encoding: quoted-printable\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "--vkogqOf2sHV7VnPd\n" +
-                "Content-Type: application/pgp-signature\n" +
-                "Content-Disposition: inline\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "\n" +
-                "iQEcBAEBAgAGBQJQ7CeRAAoJEO6ZHuIo9s1sFLoH/jpT0lzGqjeoPwZIVNlxt2S/\n" +
-                "y5t7w5RdRvsBub6yiQhb0ZJGGzna2xlB3IBjt23iEZYwYQ6EOBwCn5JN+VTfhGyM\n" +
-                "zXLE+eSmW+LQEuUDPerxRPrdxbBIbX89mCsIFtPC0QxaybOKAAnAw/nEJ27nWPvs\n" +
-                "JQORsMPtGF1DXmdz3XWWh1nAhtKYycbLDvTYnICaeSwLSaKJxInRoGc0fSkut1m+\n" +
-                "aGTaYPJSNMOOoS74tmYB4Fh+e/SvX9d8PqDOpl6ZQL+ROkL1J9VtEv2RMcqucOGN\n" +
-                "7w88Iobba2WhADvBJ7HP7SjS0Go9mmu6r5byD11cWoIHZUYziejpXFNdNn5c200=\n" +
-                "=s6S9\n" +
-                "-----END PGP SIGNATURE-----\n" +
-                "\n" +
-                "--vkogqOf2sHV7VnPd--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: noreply@ripe.net\n" +
+              "Content-Type: multipart/signed; micalg=pgp-md5;\n" +
+              "\tprotocol=\"application/pgp-signature\"; boundary=\"vkogqOf2sHV7VnPd\"\n" +
+              "Content-Disposition: inline\n" +
+              "Subject: NEW\n" +
+              "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
+              "Message-Id: <6DBC05F5-9DFF-4FAA-BFAE-223F456A1AA5@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--vkogqOf2sHV7VnPd\n" +
+              "Content-Type: text/plain; charset=unknown-8bit\n" +
+              "Content-Disposition: inline\n" +
+              "Content-Transfer-Encoding: quoted-printable\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "--vkogqOf2sHV7VnPd\n" +
+              "Content-Type: application/pgp-signature\n" +
+              "Content-Disposition: inline\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJQ7CeRAAoJEO6ZHuIo9s1sFLoH/jpT0lzGqjeoPwZIVNlxt2S/\n" +
+              "y5t7w5RdRvsBub6yiQhb0ZJGGzna2xlB3IBjt23iEZYwYQ6EOBwCn5JN+VTfhGyM\n" +
+              "zXLE+eSmW+LQEuUDPerxRPrdxbBIbX89mCsIFtPC0QxaybOKAAnAw/nEJ27nWPvs\n" +
+              "JQORsMPtGF1DXmdz3XWWh1nAhtKYycbLDvTYnICaeSwLSaKJxInRoGc0fSkut1m+\n" +
+              "aGTaYPJSNMOOoS74tmYB4Fh+e/SvX9d8PqDOpl6ZQL+ROkL1J9VtEv2RMcqucOGN\n" +
+              "7w88Iobba2WhADvBJ7HP7SjS0Go9mmu6r5byD11cWoIHZUYziejpXFNdNn5c200=\n" +
+              "=s6S9\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--vkogqOf2sHV7VnPd--"
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+  }
 
-    def "multipart plaintext pgp signed message and not authorised"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext pgp signed message and not authorised"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-28F6CD6C
                 method:         PGP
                 owner:          Ed Shryane <eshryane@ripe.net>
@@ -2008,136 +2007,136 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        def message = send "From: noreply@ripe.net\n" +
-                "Content-Type: multipart/signed;\n" +
-                "\tboundary=\"Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\";\n" +
-                "\tprotocol=\"application/pgp-signature\";\n" +
-                "\tmicalg=pgp-sha1\n" +
-                "Subject: NEW\n" +
-                "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
-                "Message-Id: <6DBC05F5-9DFF-4FAA-BFAE-223F456A1AA5@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=signature.asc\n" +
-                "Content-Type: application/pgp-signature;\n" +
-                "\tname=signature.asc\n" +
-                "Content-Description: Message signed with OpenPGP using GPGMail\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "\n" +
-                "iQEcBAEBAgAGBQJQ5T6ZAAoJEO6ZHuIo9s1sBSgH/24dCeqOG3eQDHx4FUAvzvjB\n" +
-                "qiaKG6yV9/VBeuR1ZeeKsdsRNfBD8XxQp5BFR/W4WdmFDqP+ZubjOECcoPQ76+kG\n" +
-                "l8dduuv9q43PvnGlBClavJKVyAEZlw6CY8AVTa/mYQnRNU/vju4fCuWm/TNXLsfm\n" +
-                "uZOade0+AViAD0uCxsh8oF3fix2oQZ7RfTEhEvSTtVsN+mJ5yhCC9jn4HJtrJoLS\n" +
-                "O0Vc26WPlcoaq/ye3BVlx77yWqCDkljE83uhIfens+gR8nJEek9UGVj6nXACNA7d\n" +
-                "KwyBsVF9yz2oZUWObuA774yJLh8xa5DaFhcyBP0wZE4T1oGMvnqJKCtVeEzhyqo=\n" +
-                "=Ftin\n" +
-                "-----END PGP SIGNATURE-----\n" +
-                "\n" +
-                "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35--"
-      then:
-        def ack = ackFor message
+    then:
+      def message = send "From: noreply@ripe.net\n" +
+              "Content-Type: multipart/signed;\n" +
+              "\tboundary=\"Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\";\n" +
+              "\tprotocol=\"application/pgp-signature\";\n" +
+              "\tmicalg=pgp-sha1\n" +
+              "Subject: NEW\n" +
+              "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
+              "Message-Id: <6DBC05F5-9DFF-4FAA-BFAE-223F456A1AA5@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=signature.asc\n" +
+              "Content-Type: application/pgp-signature;\n" +
+              "\tname=signature.asc\n" +
+              "Content-Description: Message signed with OpenPGP using GPGMail\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJQ5T6ZAAoJEO6ZHuIo9s1sBSgH/24dCeqOG3eQDHx4FUAvzvjB\n" +
+              "qiaKG6yV9/VBeuR1ZeeKsdsRNfBD8XxQp5BFR/W4WdmFDqP+ZubjOECcoPQ76+kG\n" +
+              "l8dduuv9q43PvnGlBClavJKVyAEZlw6CY8AVTa/mYQnRNU/vju4fCuWm/TNXLsfm\n" +
+              "uZOade0+AViAD0uCxsh8oF3fix2oQZ7RfTEhEvSTtVsN+mJ5yhCC9jn4HJtrJoLS\n" +
+              "O0Vc26WPlcoaq/ye3BVlx77yWqCDkljE83uhIfens+gR8nJEek9UGVj6nXACNA7d\n" +
+              "KwyBsVF9yz2oZUWObuA774yJLh8xa5DaFhcyBP0wZE4T1oGMvnqJKCtVeEzhyqo=\n" +
+              "=Ftin\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35--"
+    then:
+      def ack = ackFor message
 
-        ack.failed
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+      ack.failed
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(0, 0, 0, 0, 0)
+      ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-                "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
-    }
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+  }
 
-    def "multipart plaintext pgp signed message when keycert is missing and is not authorised"() {
-      when:
-        def message = send "From: noreply@ripe.net\n" +
-                "Content-Type: multipart/signed;\n" +
-                "\tboundary=\"Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\";\n" +
-                "\tprotocol=\"application/pgp-signature\";\n" +
-                "\tmicalg=pgp-sha1\n" +
-                "Subject: NEW\n" +
-                "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
-                "Message-Id: <6DBC05F5-9DFF-4FAA-BFAE-223F456A1AA5@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=signature.asc\n" +
-                "Content-Type: application/pgp-signature;\n" +
-                "\tname=signature.asc\n" +
-                "Content-Description: Message signed with OpenPGP using GPGMail\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "\n" +
-                "iQEcBAEBAgAGBQJQ5T6ZAAoJEO6ZHuIo9s1sBSgH/24dCeqOG3eQDHx4FUAvzvjB\n" +
-                "qiaKG6yV9/VBeuR1ZeeKsdsRNfBD8XxQp5BFR/W4WdmFDqP+ZubjOECcoPQ76+kG\n" +
-                "l8dduuv9q43PvnGlBClavJKVyAEZlw6CY8AVTa/mYQnRNU/vju4fCuWm/TNXLsfm\n" +
-                "uZOade0+AViAD0uCxsh8oF3fix2oQZ7RfTEhEvSTtVsN+mJ5yhCC9jn4HJtrJoLS\n" +
-                "O0Vc26WPlcoaq/ye3BVlx77yWqCDkljE83uhIfens+gR8nJEek9UGVj6nXACNA7d\n" +
-                "KwyBsVF9yz2oZUWObuA774yJLh8xa5DaFhcyBP0wZE4T1oGMvnqJKCtVeEzhyqo=\n" +
-                "=Ftin\n" +
-                "-----END PGP SIGNATURE-----\n" +
-                "\n" +
-                "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35--"
-      then:
-        def ack = ackFor message
+  def "multipart plaintext pgp signed message when keycert is missing and is not authorised"() {
+    when:
+      def message = send "From: noreply@ripe.net\n" +
+              "Content-Type: multipart/signed;\n" +
+              "\tboundary=\"Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\";\n" +
+              "\tprotocol=\"application/pgp-signature\";\n" +
+              "\tmicalg=pgp-sha1\n" +
+              "Subject: NEW\n" +
+              "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
+              "Message-Id: <6DBC05F5-9DFF-4FAA-BFAE-223F456A1AA5@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=signature.asc\n" +
+              "Content-Type: application/pgp-signature;\n" +
+              "\tname=signature.asc\n" +
+              "Content-Description: Message signed with OpenPGP using GPGMail\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJQ5T6ZAAoJEO6ZHuIo9s1sBSgH/24dCeqOG3eQDHx4FUAvzvjB\n" +
+              "qiaKG6yV9/VBeuR1ZeeKsdsRNfBD8XxQp5BFR/W4WdmFDqP+ZubjOECcoPQ76+kG\n" +
+              "l8dduuv9q43PvnGlBClavJKVyAEZlw6CY8AVTa/mYQnRNU/vju4fCuWm/TNXLsfm\n" +
+              "uZOade0+AViAD0uCxsh8oF3fix2oQZ7RfTEhEvSTtVsN+mJ5yhCC9jn4HJtrJoLS\n" +
+              "O0Vc26WPlcoaq/ye3BVlx77yWqCDkljE83uhIfens+gR8nJEek9UGVj6nXACNA7d\n" +
+              "KwyBsVF9yz2oZUWObuA774yJLh8xa5DaFhcyBP0wZE4T1oGMvnqJKCtVeEzhyqo=\n" +
+              "=Ftin\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35--"
+    then:
+      def ack = ackFor message
 
-        ack.failed
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+      ack.failed
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(0, 0, 0, 0, 0)
+      ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-                "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
-    }
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+  }
 
-    def "multipart alternative X509 signed message"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart alternative X509 signed message"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       AUTO-1
                 method:         X509
                 owner:          /C=NL/ST=Noord-Holland/O=RIPE NCC/OU=DB/CN=Edward Shryane/EMAILADDRESS=eshryane@ripe.net
@@ -2169,114 +2168,114 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: noreply@ripe.net\n" +
-                "Content-Type: multipart/signed;\n" +
-                "\tboundary=\"Apple-Mail=_98BF68D9-C4D6-4B86-8375-38E333B918EF\";\n" +
-                "\tprotocol=\"application/pkcs7-signature\";\n" +
-                "\tmicalg=sha1\n" +
-                "X-Smtp-Server: mailhost.ripe.net\n" +
-                "Subject: NEW\n" +
-                "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
-                "Message-Id: <2067A1C5-50F3-46D1-9EA8-A6C260C259A4@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_98BF68D9-C4D6-4B86-8375-38E333B918EF\n" +
-                "Content-Type: multipart/alternative;\n" +
-                "\tboundary=\"Apple-Mail=_C45B4ECE-1DB6-4DDE-8B6D-4DB0BB0CDC8E\"\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_C45B4ECE-1DB6-4DDE-8B6D-4DB0BB0CDC8E\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_C45B4ECE-1DB6-4DDE-8B6D-4DB0BB0CDC8E\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/html;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "<html><head></head><body style=\"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space; \">" +
-                "<div style=\"font-size: 13px; \">person: &nbsp;First Person</div><div style=\"font-size: 13px; \">address: St James Street</div>" +
-                "<div style=\"font-size: 13px; \">address: Burnley</div><div style=\"font-size: 13px; \">address: UK</div><div style=\"font-size: 13px; \">" +
-                "phone: &nbsp; +44 282 420469</div><div style=\"font-size: 13px; \">nic-hdl: FP1-TEST</div><div style=\"font-size: 13px; \">" +
-                "mnt-by: &nbsp;OWNER-MNT</div><div style=\"font-size: 13px; \">changed: <a href=\"mailto:denis@ripe.net\">denis@ripe.net</a> 20121016</div>" +
-                "<div style=\"font-size: 13px; \">source: &nbsp;TEST</div><div><br></div></body></html>\n" +
-                "--Apple-Mail=_C45B4ECE-1DB6-4DDE-8B6D-4DB0BB0CDC8E--\n" +
-                "\n" +
-                "--Apple-Mail=_98BF68D9-C4D6-4B86-8375-38E333B918EF\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=smime.p7s\n" +
-                "Content-Type: application/pkcs7-signature;\n" +
-                "\tname=smime.p7s\n" +
-                "Content-Transfer-Encoding: base64\n" +
-                "\n" +
-                "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
-                "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
-                "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
-                "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
-                "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
-                "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
-                "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
-                "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
-                "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
-                "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
-                "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
-                "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
-                "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
-                "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
-                "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
-                "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
-                "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
-                "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
-                "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
-                "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
-                "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
-                "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzIwMVowIwYJKoZIhvcNAQkEMRYEFD4JhAipdRLJoj18\n" +
-                "lGrkGzK74L00MIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
-                "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
-                "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
-                "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
-                "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
-                "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
-                "AQEFAASBgGlxIaAcSIDw5PUw7JscCO7waLRubOusGlg7KaQOodLNAItiqU1xE8jTDmHXt97RTbRG\n" +
-                "AXWPFW9ByXburQmxCSSxxOnIey5ta8qlP8wXQrp86aKVYO9iUWDRH8B7C1R/ApHWhRsIHadscpDn\n" +
-                "0dZdWzSqRcNJzOJjna7eHLz8SEDFAAAAAAAA\n" +
-                "\n" +
-                "--Apple-Mail=_98BF68D9-C4D6-4B86-8375-38E333B918EF--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: noreply@ripe.net\n" +
+              "Content-Type: multipart/signed;\n" +
+              "\tboundary=\"Apple-Mail=_98BF68D9-C4D6-4B86-8375-38E333B918EF\";\n" +
+              "\tprotocol=\"application/pkcs7-signature\";\n" +
+              "\tmicalg=sha1\n" +
+              "X-Smtp-Server: mailhost.ripe.net\n" +
+              "Subject: NEW\n" +
+              "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
+              "Message-Id: <2067A1C5-50F3-46D1-9EA8-A6C260C259A4@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_98BF68D9-C4D6-4B86-8375-38E333B918EF\n" +
+              "Content-Type: multipart/alternative;\n" +
+              "\tboundary=\"Apple-Mail=_C45B4ECE-1DB6-4DDE-8B6D-4DB0BB0CDC8E\"\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_C45B4ECE-1DB6-4DDE-8B6D-4DB0BB0CDC8E\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_C45B4ECE-1DB6-4DDE-8B6D-4DB0BB0CDC8E\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/html;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "<html><head></head><body style=\"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space; \">" +
+              "<div style=\"font-size: 13px; \">person: &nbsp;First Person</div><div style=\"font-size: 13px; \">address: St James Street</div>" +
+              "<div style=\"font-size: 13px; \">address: Burnley</div><div style=\"font-size: 13px; \">address: UK</div><div style=\"font-size: 13px; \">" +
+              "phone: &nbsp; +44 282 420469</div><div style=\"font-size: 13px; \">nic-hdl: FP1-TEST</div><div style=\"font-size: 13px; \">" +
+              "mnt-by: &nbsp;OWNER-MNT</div><div style=\"font-size: 13px; \">changed: <a href=\"mailto:denis@ripe.net\">denis@ripe.net</a> 20121016</div>" +
+              "<div style=\"font-size: 13px; \">source: &nbsp;TEST</div><div><br></div></body></html>\n" +
+              "--Apple-Mail=_C45B4ECE-1DB6-4DDE-8B6D-4DB0BB0CDC8E--\n" +
+              "\n" +
+              "--Apple-Mail=_98BF68D9-C4D6-4B86-8375-38E333B918EF\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=smime.p7s\n" +
+              "Content-Type: application/pkcs7-signature;\n" +
+              "\tname=smime.p7s\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "\n" +
+              "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
+              "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
+              "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
+              "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
+              "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
+              "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
+              "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
+              "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
+              "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
+              "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
+              "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
+              "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
+              "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
+              "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
+              "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
+              "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
+              "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
+              "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
+              "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
+              "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
+              "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
+              "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzIwMVowIwYJKoZIhvcNAQkEMRYEFD4JhAipdRLJoj18\n" +
+              "lGrkGzK74L00MIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
+              "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
+              "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
+              "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
+              "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
+              "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
+              "AQEFAASBgGlxIaAcSIDw5PUw7JscCO7waLRubOusGlg7KaQOodLNAItiqU1xE8jTDmHXt97RTbRG\n" +
+              "AXWPFW9ByXburQmxCSSxxOnIey5ta8qlP8wXQrp86aKVYO9iUWDRH8B7C1R/ApHWhRsIHadscpDn\n" +
+              "0dZdWzSqRcNJzOJjna7eHLz8SEDFAAAAAAAA\n" +
+              "\n" +
+              "--Apple-Mail=_98BF68D9-C4D6-4B86-8375-38E333B918EF--"
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.contents =~ "Warning: Message was signed more than one week ago"
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Warning: Message was signed more than one week ago"
+  }
 
-    def "multipart plaintext X509 signed message"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext X509 signed message"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       AUTO-1
                 method:         X509
                 owner:          /C=NL/ST=Noord-Holland/O=RIPE NCC/OU=DB/CN=Edward Shryane/EMAILADDRESS=eshryane@ripe.net
@@ -2308,97 +2307,97 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
-                "Content-Type: multipart/signed;\n" +
-                "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
-                "\tprotocol=\"application/pkcs7-signature\";\n" +
-                "\tmicalg=sha1\n" +
-                "X-Smtp-Server: mailhost.ripe.net\n" +
-                "Subject: NEW\n" +
-                "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
-                "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
-                "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
-                "To: Edward Shryane <eshryane@ripe.net>\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=smime.p7s\n" +
-                "Content-Type: application/pkcs7-signature;\n" +
-                "\tname=smime.p7s\n" +
-                "Content-Transfer-Encoding: base64\n" +
-                "\n" +
-                "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
-                "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
-                "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
-                "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
-                "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
-                "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
-                "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
-                "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
-                "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
-                "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
-                "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
-                "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
-                "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
-                "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
-                "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
-                "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
-                "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
-                "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
-                "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
-                "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
-                "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
-                "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
-                "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
-                "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
-                "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
-                "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
-                "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
-                "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
-                "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
-                "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
-                "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
+              "Content-Type: multipart/signed;\n" +
+              "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
+              "\tprotocol=\"application/pkcs7-signature\";\n" +
+              "\tmicalg=sha1\n" +
+              "X-Smtp-Server: mailhost.ripe.net\n" +
+              "Subject: NEW\n" +
+              "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
+              "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
+              "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
+              "To: Edward Shryane <eshryane@ripe.net>\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=smime.p7s\n" +
+              "Content-Type: application/pkcs7-signature;\n" +
+              "\tname=smime.p7s\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "\n" +
+              "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
+              "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
+              "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
+              "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
+              "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
+              "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
+              "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
+              "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
+              "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
+              "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
+              "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
+              "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
+              "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
+              "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
+              "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
+              "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
+              "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
+              "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
+              "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
+              "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
+              "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
+              "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
+              "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
+              "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
+              "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
+              "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
+              "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
+              "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
+              "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
+              "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
+              "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.contents =~ "Warning: Message was signed more than one week ago"
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Warning: Message was signed more than one week ago"
+  }
 
-    def "multipart plaintext X509 signed message when maintainer only has pgp keycert"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext X509 signed message when maintainer only has pgp keycert"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-5763950D
                 method:         PGP
                 owner:          noreply@ripe.net <noreply@ripe.net>
@@ -2440,183 +2439,183 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
-                "Content-Type: multipart/signed;\n" +
-                "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
-                "\tprotocol=\"application/pkcs7-signature\";\n" +
-                "\tmicalg=sha1\n" +
-                "X-Smtp-Server: mailhost.ripe.net\n" +
-                "Subject: NEW\n" +
-                "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
-                "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
-                "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
-                "To: Edward Shryane <eshryane@ripe.net>\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=smime.p7s\n" +
-                "Content-Type: application/pkcs7-signature;\n" +
-                "\tname=smime.p7s\n" +
-                "Content-Transfer-Encoding: base64\n" +
-                "\n" +
-                "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
-                "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
-                "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
-                "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
-                "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
-                "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
-                "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
-                "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
-                "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
-                "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
-                "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
-                "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
-                "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
-                "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
-                "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
-                "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
-                "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
-                "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
-                "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
-                "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
-                "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
-                "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
-                "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
-                "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
-                "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
-                "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
-                "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
-                "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
-                "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
-                "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
-                "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
+              "Content-Type: multipart/signed;\n" +
+              "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
+              "\tprotocol=\"application/pkcs7-signature\";\n" +
+              "\tmicalg=sha1\n" +
+              "X-Smtp-Server: mailhost.ripe.net\n" +
+              "Subject: NEW\n" +
+              "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
+              "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
+              "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
+              "To: Edward Shryane <eshryane@ripe.net>\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=smime.p7s\n" +
+              "Content-Type: application/pkcs7-signature;\n" +
+              "\tname=smime.p7s\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "\n" +
+              "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
+              "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
+              "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
+              "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
+              "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
+              "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
+              "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
+              "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
+              "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
+              "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
+              "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
+              "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
+              "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
+              "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
+              "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
+              "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
+              "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
+              "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
+              "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
+              "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
+              "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
+              "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
+              "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
+              "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
+              "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
+              "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
+              "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
+              "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
+              "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
+              "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
+              "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
+    then:
+      def ack = ackFor message
 
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-                "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
-    }
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+  }
 
-    def "multipart plaintext X509 signed message with invalid keycert"() {
-      when:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: X509-111\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
-                "Content-Type: multipart/signed;\n" +
-                "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
-                "\tprotocol=\"application/pkcs7-signature\";\n" +
-                "\tmicalg=sha1\n" +
-                "X-Smtp-Server: mailhost.ripe.net\n" +
-                "Subject: NEW\n" +
-                "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
-                "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
-                "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
-                "To: Edward Shryane <eshryane@ripe.net>\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=smime.p7s\n" +
-                "Content-Type: application/pkcs7-signature;\n" +
-                "\tname=smime.p7s\n" +
-                "Content-Transfer-Encoding: base64\n" +
-                "\n" +
-                "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
-                "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
-                "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
-                "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
-                "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
-                "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
-                "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
-                "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
-                "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
-                "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
-                "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
-                "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
-                "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
-                "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
-                "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
-                "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
-                "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
-                "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
-                "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
-                "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
-                "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
-                "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
-                "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
-                "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
-                "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
-                "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
-                "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
-                "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
-                "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
-                "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
-                "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
-      then:
-        def ack = ackFor message
+  def "multipart plaintext X509 signed message with invalid keycert"() {
+    when:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: X509-111\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
+              "Content-Type: multipart/signed;\n" +
+              "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
+              "\tprotocol=\"application/pkcs7-signature\";\n" +
+              "\tmicalg=sha1\n" +
+              "X-Smtp-Server: mailhost.ripe.net\n" +
+              "Subject: NEW\n" +
+              "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
+              "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
+              "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
+              "To: Edward Shryane <eshryane@ripe.net>\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=smime.p7s\n" +
+              "Content-Type: application/pkcs7-signature;\n" +
+              "\tname=smime.p7s\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "\n" +
+              "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
+              "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
+              "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
+              "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
+              "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
+              "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
+              "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
+              "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
+              "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
+              "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
+              "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
+              "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
+              "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
+              "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
+              "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
+              "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
+              "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
+              "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
+              "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
+              "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
+              "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
+              "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
+              "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
+              "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
+              "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
+              "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
+              "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
+              "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
+              "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
+              "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
+              "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
+    then:
+      def ack = ackFor message
 
-        ack.failed
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+      ack.failed
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(0, 0, 0, 0, 0)
+      ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-                "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
-    }
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+  }
 
-    def "multipart plaintext x509 signed message not signed by keycert and keycert certificate has expired"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext x509 signed message not signed by keycert and keycert certificate has expired"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:     AUTO-1
                 method:       X509
                 owner:        /C=NL/O=RIPE NCC/OU=Members/CN=zz.example.denis/Email=denis@ripe.net
@@ -2644,184 +2643,184 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:       TEST
                 password:     owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
-                "Content-Type: multipart/signed;\n" +
-                "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
-                "\tprotocol=\"application/pkcs7-signature\";\n" +
-                "\tmicalg=sha1\n" +
-                "X-Smtp-Server: mailhost.ripe.net\n" +
-                "Subject: NEW\n" +
-                "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
-                "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
-                "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
-                "To: Edward Shryane <eshryane@ripe.net>\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=smime.p7s\n" +
-                "Content-Type: application/pkcs7-signature;\n" +
-                "\tname=smime.p7s\n" +
-                "Content-Transfer-Encoding: base64\n" +
-                "\n" +
-                "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
-                "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
-                "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
-                "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
-                "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
-                "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
-                "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
-                "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
-                "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
-                "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
-                "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
-                "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
-                "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
-                "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
-                "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
-                "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
-                "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
-                "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
-                "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
-                "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
-                "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
-                "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
-                "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
-                "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
-                "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
-                "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
-                "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
-                "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
-                "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
-                "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
-                "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
+              "Content-Type: multipart/signed;\n" +
+              "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
+              "\tprotocol=\"application/pkcs7-signature\";\n" +
+              "\tmicalg=sha1\n" +
+              "X-Smtp-Server: mailhost.ripe.net\n" +
+              "Subject: NEW\n" +
+              "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
+              "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
+              "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
+              "To: Edward Shryane <eshryane@ripe.net>\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=smime.p7s\n" +
+              "Content-Type: application/pkcs7-signature;\n" +
+              "\tname=smime.p7s\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "\n" +
+              "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
+              "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
+              "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
+              "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
+              "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
+              "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
+              "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
+              "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
+              "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
+              "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
+              "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
+              "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
+              "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
+              "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
+              "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
+              "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
+              "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
+              "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
+              "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
+              "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
+              "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
+              "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
+              "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
+              "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
+              "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
+              "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
+              "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
+              "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
+              "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
+              "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
+              "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
+    then:
+      def ack = ackFor message
 
-        ack.failed
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+      ack.failed
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(0, 0, 0, 0, 0)
+      ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
-        // warning on certificate expired should NOT appear if the keycert doesn't authorise the update
-        !(ack.contents =~ "Warning: Certificate in keycert X509-1 has expired")
-    }
+      // warning on certificate expired should NOT appear if the keycert doesn't authorise the update
+      !(ack.contents =~ "Warning: Certificate in keycert X509-1 has expired")
+  }
 
-    def "multipart plaintext x509 signed message update fails when keycert is missing"() {
-      when:
-        def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
-                "Content-Type: multipart/signed;\n" +
-                "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
-                "\tprotocol=\"application/pkcs7-signature\";\n" +
-                "\tmicalg=sha1\n" +
-                "X-Smtp-Server: mailhost.ripe.net\n" +
-                "Subject: NEW\n" +
-                "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
-                "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
-                "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
-                "To: Edward Shryane <eshryane@ripe.net>\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=smime.p7s\n" +
-                "Content-Type: application/pkcs7-signature;\n" +
-                "\tname=smime.p7s\n" +
-                "Content-Transfer-Encoding: base64\n" +
-                "\n" +
-                "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
-                "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
-                "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
-                "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
-                "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
-                "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
-                "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
-                "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
-                "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
-                "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
-                "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
-                "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
-                "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
-                "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
-                "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
-                "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
-                "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
-                "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
-                "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
-                "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
-                "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
-                "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
-                "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
-                "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
-                "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
-                "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
-                "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
-                "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
-                "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
-                "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
-                "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
-      then:
-        def ack = ackFor message
+  def "multipart plaintext x509 signed message update fails when keycert is missing"() {
+    when:
+      def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
+              "Content-Type: multipart/signed;\n" +
+              "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
+              "\tprotocol=\"application/pkcs7-signature\";\n" +
+              "\tmicalg=sha1\n" +
+              "X-Smtp-Server: mailhost.ripe.net\n" +
+              "Subject: NEW\n" +
+              "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
+              "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
+              "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
+              "To: Edward Shryane <eshryane@ripe.net>\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=smime.p7s\n" +
+              "Content-Type: application/pkcs7-signature;\n" +
+              "\tname=smime.p7s\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "\n" +
+              "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
+              "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
+              "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
+              "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
+              "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
+              "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
+              "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
+              "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
+              "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
+              "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
+              "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
+              "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
+              "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
+              "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
+              "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
+              "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
+              "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
+              "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
+              "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
+              "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
+              "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
+              "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
+              "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
+              "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
+              "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
+              "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
+              "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
+              "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
+              "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
+              "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
+              "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
+    then:
+      def ack = ackFor message
 
-        ack.failed
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+      ack.failed
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(0, 0, 0, 0, 0)
+      ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-                "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
-    }
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+  }
 
-    def "multipart plaintext x509 signed message and is not authorised"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext x509 signed message and is not authorised"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       AUTO-1
                 method:         X509
                 owner:          /C=NL/ST=Noord-Holland/O=RIPE NCC/OU=DB/CN=Edward Shryane/EMAILADDRESS=eshryane@ripe.net
@@ -2853,93 +2852,93 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
-                "Content-Type: multipart/signed;\n" +
-                "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
-                "\tprotocol=\"application/pkcs7-signature\";\n" +
-                "\tmicalg=sha1\n" +
-                "X-Smtp-Server: mailhost.ripe.net\n" +
-                "Subject: NEW\n" +
-                "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
-                "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
-                "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
-                "To: Edward Shryane <eshryane@ripe.net>\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=smime.p7s\n" +
-                "Content-Type: application/pkcs7-signature;\n" +
-                "\tname=smime.p7s\n" +
-                "Content-Transfer-Encoding: base64\n" +
-                "\n" +
-                "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
-                "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
-                "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
-                "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
-                "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
-                "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
-                "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
-                "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
-                "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
-                "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
-                "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
-                "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
-                "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
-                "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
-                "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
-                "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
-                "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
-                "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
-                "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
-                "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
-                "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
-                "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
-                "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
-                "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
-                "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
-                "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
-                "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
-                "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
-                "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
-                "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
-                "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
-                "\n" +
-                "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
-      then:
-        def ack = ackFor message
+    then:
+      def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
+              "Content-Type: multipart/signed;\n" +
+              "\tboundary=\"Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\";\n" +
+              "\tprotocol=\"application/pkcs7-signature\";\n" +
+              "\tmicalg=sha1\n" +
+              "X-Smtp-Server: mailhost.ripe.net\n" +
+              "Subject: NEW\n" +
+              "X-Universally-Unique-Identifier: 656e8d4c-e258-4fcd-a830-6a7d39584a7a\n" +
+              "Date: Thu, 3 Jan 2013 09:33:44 +0100\n" +
+              "Message-Id: <321C9378-C9AC-4ED9-B3D0-C97A79FB6CBA@ripe.net>\n" +
+              "To: Edward Shryane <eshryane@ripe.net>\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=smime.p7s\n" +
+              "Content-Type: application/pkcs7-signature;\n" +
+              "\tname=smime.p7s\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "\n" +
+              "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
+              "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
+              "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
+              "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
+              "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
+              "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
+              "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
+              "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
+              "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
+              "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
+              "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
+              "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
+              "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
+              "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
+              "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
+              "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
+              "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
+              "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
+              "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
+              "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
+              "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
+              "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwMzA4MzM0NFowIwYJKoZIhvcNAQkEMRYEFF8/6nTWJD4Fl2J0\n" +
+              "sgOOpFsmJg/DMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
+              "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
+              "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
+              "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
+              "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
+              "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
+              "AQEFAASBgJOTl3PkpLoOo5MRWaPs/2OHXOzg+Oj9OsNEB326bvl0e7ULuWq2SqVY44LKb6JM5nm9\n" +
+              "6lHk5PJqv6xZq+m1pUYlCqJKFQTPsbnoA3zjrRCDghWc8CZdsK2F7OajTZ6WV98gPeoCdRhvgiU3\n" +
+              "1jpwXyycrnAxekeLNqiX0/hldjkhAAAAAAAA\n" +
+              "\n" +
+              "--Apple-Mail=_8FA167DD-A449-4501-AD62-60D012085607--"
+    then:
+      def ack = ackFor message
 
-        ack.failed
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+      ack.failed
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(0, 0, 0, 0, 0)
+      ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-                "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
-    }
+      ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
+              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+  }
 
-    def "multipart plaintext x509 signed message keycert is expired"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext x509 signed message keycert is expired"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:     AUTO-1
                 method:       X509
                 owner:        /CN=localhost
@@ -2960,70 +2959,70 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:       TEST
                 password:     owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: testing@ripe.net\n" +
-                "Content-Type: multipart/signed; protocol=\"application/x-pkcs7-signature\"; micalg=\"sha1\"; boundary=\"----505692B81E452CF4C7D142C86D23FE2A\"\n" +
-                "Subject: NEW\n" +
-                "Date: Mon, 7 Jan 2013 10:48:20 +0100\n" +
-                "Message-Id: <78AA6582-CFC9-49EF-AEFF-59F454E9B76C@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0\n" +
-                "\n" +
-                "This is an S/MIME signed message\n" +
-                "\n" +
-                "------505692B81E452CF4C7D142C86D23FE2A\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "------505692B81E452CF4C7D142C86D23FE2A\n" +
-                "Content-Type: application/x-pkcs7-signature; name=\"smime.p7s\"\n" +
-                "Content-Transfer-Encoding: base64\n" +
-                "Content-Disposition: attachment; filename=\"smime.p7s\"\n" +
-                "\n" +
-                "MIIDdAYJKoZIhvcNAQcCoIIDZTCCA2ECAQExCzAJBgUrDgMCGgUAMAsGCSqGSIb3\n" +
-                "DQEHAaCCAaEwggGdMIIBBqADAgECAgLx8DANBgkqhkiG9w0BAQUFADAUMRIwEAYD\n" +
-                "VQQDEwlsb2NhbGhvc3QwHhcNNjkxMjMxMjMwMDAwWhcNNzAxMjMxMjMwMDAwWjAU\n" +
-                "MRIwEAYDVQQDEwlsb2NhbGhvc3QwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGB\n" +
-                "AMckVHm7SuNClx4f238ZkEEJlXKZpQIOg80Oz2j/9JHWNT6tlihhWdGB8y4Stk0j\n" +
-                "wiYFx2GxF2g/9y/LvBmtbtM5/N5asZZ7Kftrc1THrxpWi3KatPQg71JrT3FzY0m4\n" +
-                "AI0iw5fAD8nFgqNx2IJMkCo5KMnSsmafEn6RFGi/JUJfAgMBAAEwDQYJKoZIhvcN\n" +
-                "AQEFBQADgYEAQMS4hot+1lWJL51sy8Av0MWFE2JAOwFIvXFkbtwnsJI+uRe9QYrt\n" +
-                "vgY6WuFXRejdo421QSS9nKEPpXxHkbgBqPQmkMVdQC6NNuXZ5pb8EtXamPtbLkra\n" +
-                "hSLJBiAd0+ANRMZXeGC5Xd46uhRZKGH6jtLqHPBs2xS97f7M/KFJ/nQxggGbMIIB\n" +
-                "lwIBATAaMBQxEjAQBgNVBAMTCWxvY2FsaG9zdAIC8fAwCQYFKw4DAhoFAKCB2DAY\n" +
-                "BgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMzAxMTEx\n" +
-                "MzI3MDlaMCMGCSqGSIb3DQEJBDEWBBRlZib9QZab2LET+heP/XM0aAY7kzB5Bgkq\n" +
-                "hkiG9w0BCQ8xbDBqMAsGCWCGSAFlAwQBKjALBglghkgBZQMEARYwCwYJYIZIAWUD\n" +
-                "BAECMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAH\n" +
-                "BgUrDgMCBzANBggqhkiG9w0DAgIBKDANBgkqhkiG9w0BAQEFAASBgFCNAw2Kyw5h\n" +
-                "a6TGZgNSgD65b0bTcVumIXlMjERqQayrrH/oKRqRwCUgdraChyCE7JuJC2Oiqz0g\n" +
-                "0WKryhHeC2cRRz3KMvtrftjwpDxfHWMi1ez7etFpxqdeg66aYqcJGwgqcMklgWVm\n" +
-                "7SJUB29nMQ5tybCrsuzIJcMDB9FEkRg0\n" +
-                "\n" +
-                "------505692B81E452CF4C7D142C86D23FE2A--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: testing@ripe.net\n" +
+              "Content-Type: multipart/signed; protocol=\"application/x-pkcs7-signature\"; micalg=\"sha1\"; boundary=\"----505692B81E452CF4C7D142C86D23FE2A\"\n" +
+              "Subject: NEW\n" +
+              "Date: Mon, 7 Jan 2013 10:48:20 +0100\n" +
+              "Message-Id: <78AA6582-CFC9-49EF-AEFF-59F454E9B76C@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0\n" +
+              "\n" +
+              "This is an S/MIME signed message\n" +
+              "\n" +
+              "------505692B81E452CF4C7D142C86D23FE2A\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "------505692B81E452CF4C7D142C86D23FE2A\n" +
+              "Content-Type: application/x-pkcs7-signature; name=\"smime.p7s\"\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "Content-Disposition: attachment; filename=\"smime.p7s\"\n" +
+              "\n" +
+              "MIIDdAYJKoZIhvcNAQcCoIIDZTCCA2ECAQExCzAJBgUrDgMCGgUAMAsGCSqGSIb3\n" +
+              "DQEHAaCCAaEwggGdMIIBBqADAgECAgLx8DANBgkqhkiG9w0BAQUFADAUMRIwEAYD\n" +
+              "VQQDEwlsb2NhbGhvc3QwHhcNNjkxMjMxMjMwMDAwWhcNNzAxMjMxMjMwMDAwWjAU\n" +
+              "MRIwEAYDVQQDEwlsb2NhbGhvc3QwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGB\n" +
+              "AMckVHm7SuNClx4f238ZkEEJlXKZpQIOg80Oz2j/9JHWNT6tlihhWdGB8y4Stk0j\n" +
+              "wiYFx2GxF2g/9y/LvBmtbtM5/N5asZZ7Kftrc1THrxpWi3KatPQg71JrT3FzY0m4\n" +
+              "AI0iw5fAD8nFgqNx2IJMkCo5KMnSsmafEn6RFGi/JUJfAgMBAAEwDQYJKoZIhvcN\n" +
+              "AQEFBQADgYEAQMS4hot+1lWJL51sy8Av0MWFE2JAOwFIvXFkbtwnsJI+uRe9QYrt\n" +
+              "vgY6WuFXRejdo421QSS9nKEPpXxHkbgBqPQmkMVdQC6NNuXZ5pb8EtXamPtbLkra\n" +
+              "hSLJBiAd0+ANRMZXeGC5Xd46uhRZKGH6jtLqHPBs2xS97f7M/KFJ/nQxggGbMIIB\n" +
+              "lwIBATAaMBQxEjAQBgNVBAMTCWxvY2FsaG9zdAIC8fAwCQYFKw4DAhoFAKCB2DAY\n" +
+              "BgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMzAxMTEx\n" +
+              "MzI3MDlaMCMGCSqGSIb3DQEJBDEWBBRlZib9QZab2LET+heP/XM0aAY7kzB5Bgkq\n" +
+              "hkiG9w0BCQ8xbDBqMAsGCWCGSAFlAwQBKjALBglghkgBZQMEARYwCwYJYIZIAWUD\n" +
+              "BAECMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAH\n" +
+              "BgUrDgMCBzANBggqhkiG9w0DAgIBKDANBgkqhkiG9w0BAQEFAASBgFCNAw2Kyw5h\n" +
+              "a6TGZgNSgD65b0bTcVumIXlMjERqQayrrH/oKRqRwCUgdraChyCE7JuJC2Oiqz0g\n" +
+              "0WKryhHeC2cRRz3KMvtrftjwpDxfHWMi1ez7etFpxqdeg66aYqcJGwgqcMklgWVm\n" +
+              "7SJUB29nMQ5tybCrsuzIJcMDB9FEkRg0\n" +
+              "\n" +
+              "------505692B81E452CF4C7D142C86D23FE2A--"
+    then:
+      def ack = ackFor message
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.contents =~ "Warning: Certificate in keycert X509-1 has expired"
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Warning: Certificate in keycert X509-1 has expired"
+  }
 
-    def "multipart plaintext x509 signed message keycert is not yet valid"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext x509 signed message keycert is not yet valid"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:     AUTO-1
                 method:       X509
                 owner:        /CN=localhost
@@ -3044,71 +3043,71 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:       TEST
                 password:     owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: testing@ripe.net\n" +
-                "Content-Type: multipart/signed; protocol=\"application/x-pkcs7-signature\"; micalg=\"sha1\"; boundary=\"----ADB5359C8B6D785530E972C7D18D375B\"\n" +
-                "Subject: NEW\n" +
-                "Date: Mon, 7 Jan 2013 10:48:20 +0100\n" +
-                "Message-Id: <78AA6582-CFC9-49EF-AEFF-59F454E9B76C@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0\n" +
-                "\n" +
-                "This is an S/MIME signed message\n" +
-                "\n" +
-                "------ADB5359C8B6D785530E972C7D18D375B\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "------ADB5359C8B6D785530E972C7D18D375B\n" +
-                "Content-Type: application/x-pkcs7-signature; name=\"smime.p7s\"\n" +
-                "Content-Transfer-Encoding: base64\n" +
-                "Content-Disposition: attachment; filename=\"smime.p7s\"\n" +
-                "\n" +
-                "MIIDfAYJKoZIhvcNAQcCoIIDbTCCA2kCAQExCzAJBgUrDgMCGgUAMAsGCSqGSIb3\n" +
-                "DQEHAaCCAacwggGjMIIBDKADAgECAgT0hkjwMA0GCSqGSIb3DQEBBQUAMBQxEjAQ\n" +
-                "BgNVBAMTCWxvY2FsaG9zdDAiGA8yMDk5MTIzMTIzMDAwMFoYDzIxODkwOTE3MjMw\n" +
-                "MDAwWjAUMRIwEAYDVQQDEwlsb2NhbGhvc3QwgZ8wDQYJKoZIhvcNAQEBBQADgY0A\n" +
-                "MIGJAoGBAMuHwOs0qYKr+WvZZa3oTP5hzB09hrFfNI7l7Bx4NStF8CbVgF5wdo6F\n" +
-                "OE0VbUUviia0w5XKUcSbm8+9UPBoK9q3bK+2XttN1Lg5qj2Pl6lSotiH1QWixhUx\n" +
-                "hduZjTW0QSbx8K9vPqMkDcpGCoEyO9S5oxZQut4Jqg7z4XMhNAYJAgMBAAEwDQYJ\n" +
-                "KoZIhvcNAQEFBQADgYEAolhHahSp+gE2ZF5YXFEX67e3/zgAYSFUkuXPwnCJLEGM\n" +
-                "oFZCLvcW4+II87nJplywjVdXvuvTRFL6EGyIklpaT7CAMn5n37UV7UwsGEC2dsUB\n" +
-                "Jubo/Ari5G7obUfpwXQph2aR84sr1dFJJl0Xy9jFovvuoC8dSp6sajYfcrrrQYUx\n" +
-                "ggGdMIIBmQIBATAcMBQxEjAQBgNVBAMTCWxvY2FsaG9zdAIE9IZI8DAJBgUrDgMC\n" +
-                "GgUAoIHYMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8X\n" +
-                "DTEzMDExMTExNDA0NFowIwYJKoZIhvcNAQkEMRYEFGVmJv1BlpvYsRP6F4/9czRo\n" +
-                "BjuTMHkGCSqGSIb3DQEJDzFsMGowCwYJYIZIAWUDBAEqMAsGCWCGSAFlAwQBFjAL\n" +
-                "BglghkgBZQMEAQIwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3\n" +
-                "DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMA0GCSqGSIb3DQEBAQUABIGA\n" +
-                "ntPMEumC30sv/4cT7xpLfZUSu99qXHn9owz+Bjtb7rqSjeQwvUTt7rqqhMqhV0Od\n" +
-                "0WZZ0YlqhNO8JsZVfUHm6Cn3qaRtPb2TFrcGKzBMyhxsuPTAd4hGYLu+gKMhq8CE\n" +
-                "qA6WlAMvLqDyAU4BKJvlT45CWZI+utwKSCrgtFlrhyE=\n" +
-                "\n" +
-                "------ADB5359C8B6D785530E972C7D18D375B--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: testing@ripe.net\n" +
+              "Content-Type: multipart/signed; protocol=\"application/x-pkcs7-signature\"; micalg=\"sha1\"; boundary=\"----ADB5359C8B6D785530E972C7D18D375B\"\n" +
+              "Subject: NEW\n" +
+              "Date: Mon, 7 Jan 2013 10:48:20 +0100\n" +
+              "Message-Id: <78AA6582-CFC9-49EF-AEFF-59F454E9B76C@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0\n" +
+              "\n" +
+              "This is an S/MIME signed message\n" +
+              "\n" +
+              "------ADB5359C8B6D785530E972C7D18D375B\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "------ADB5359C8B6D785530E972C7D18D375B\n" +
+              "Content-Type: application/x-pkcs7-signature; name=\"smime.p7s\"\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "Content-Disposition: attachment; filename=\"smime.p7s\"\n" +
+              "\n" +
+              "MIIDfAYJKoZIhvcNAQcCoIIDbTCCA2kCAQExCzAJBgUrDgMCGgUAMAsGCSqGSIb3\n" +
+              "DQEHAaCCAacwggGjMIIBDKADAgECAgT0hkjwMA0GCSqGSIb3DQEBBQUAMBQxEjAQ\n" +
+              "BgNVBAMTCWxvY2FsaG9zdDAiGA8yMDk5MTIzMTIzMDAwMFoYDzIxODkwOTE3MjMw\n" +
+              "MDAwWjAUMRIwEAYDVQQDEwlsb2NhbGhvc3QwgZ8wDQYJKoZIhvcNAQEBBQADgY0A\n" +
+              "MIGJAoGBAMuHwOs0qYKr+WvZZa3oTP5hzB09hrFfNI7l7Bx4NStF8CbVgF5wdo6F\n" +
+              "OE0VbUUviia0w5XKUcSbm8+9UPBoK9q3bK+2XttN1Lg5qj2Pl6lSotiH1QWixhUx\n" +
+              "hduZjTW0QSbx8K9vPqMkDcpGCoEyO9S5oxZQut4Jqg7z4XMhNAYJAgMBAAEwDQYJ\n" +
+              "KoZIhvcNAQEFBQADgYEAolhHahSp+gE2ZF5YXFEX67e3/zgAYSFUkuXPwnCJLEGM\n" +
+              "oFZCLvcW4+II87nJplywjVdXvuvTRFL6EGyIklpaT7CAMn5n37UV7UwsGEC2dsUB\n" +
+              "Jubo/Ari5G7obUfpwXQph2aR84sr1dFJJl0Xy9jFovvuoC8dSp6sajYfcrrrQYUx\n" +
+              "ggGdMIIBmQIBATAcMBQxEjAQBgNVBAMTCWxvY2FsaG9zdAIE9IZI8DAJBgUrDgMC\n" +
+              "GgUAoIHYMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8X\n" +
+              "DTEzMDExMTExNDA0NFowIwYJKoZIhvcNAQkEMRYEFGVmJv1BlpvYsRP6F4/9czRo\n" +
+              "BjuTMHkGCSqGSIb3DQEJDzFsMGowCwYJYIZIAWUDBAEqMAsGCWCGSAFlAwQBFjAL\n" +
+              "BglghkgBZQMEAQIwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3\n" +
+              "DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMA0GCSqGSIb3DQEBAQUABIGA\n" +
+              "ntPMEumC30sv/4cT7xpLfZUSu99qXHn9owz+Bjtb7rqSjeQwvUTt7rqqhMqhV0Od\n" +
+              "0WZZ0YlqhNO8JsZVfUHm6Cn3qaRtPb2TFrcGKzBMyhxsuPTAd4hGYLu+gKMhq8CE\n" +
+              "qA6WlAMvLqDyAU4BKJvlT45CWZI+utwKSCrgtFlrhyE=\n" +
+              "\n" +
+              "------ADB5359C8B6D785530E972C7D18D375B--"
+    then:
+      def ack = ackFor message
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.contents =~ "Warning: Certificate in keycert X509-1 is not yet valid"
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Warning: Certificate in keycert X509-1 is not yet valid"
+  }
 
-    def "multipart plaintext X509 signed message with hierarchical authentication"() {
-      when:
-        setTime(new LocalDateTime(2013, 1, 11, 13, 0))
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext X509 signed message with hierarchical authentication"() {
+    when:
+      setTime(new LocalDateTime(2013, 1, 11, 13, 0))
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       AUTO-1
                 method:         X509
                 owner:          /C=NL/ST=Noord-Holland/O=RIPE NCC/OU=DB/CN=Edward Shryane/EMAILADDRESS=eshryane@ripe.net
@@ -3140,101 +3139,101 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
-                        + "password: owner")
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
-                        + "password: hm")
-      then:
-        def message = send "From: noreply@ripe.net\n" +
-                "Content-Type: multipart/signed; boundary=\"Apple-Mail=_93B09F74-BFD6-4EDB-9C10-C12CBBB1B61A\"; " +
-                "protocol=\"application/pkcs7-signature\"; micalg=sha1\n" +
-                "Subject: NEW\n" +
-                "Date: Mon, 7 Jan 2013 10:44:26 +0100\n" +
-                "Message-Id: <1B28B20A-E47B-476F-ACEF-68504C8C40CC@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "X-Mailer: Apple Mail (2.1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_93B09F74-BFD6-4EDB-9C10-C12CBBB1B61A\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "inetnum: 193.0.0.0 - 193.0.0.255\n" +
-                "netname: RIPE-NCC\n" +
-                "descr: description\n" +
-                "country: NL\n" +
-                "org: ORG-HR1-TEST\n" +
-                "admin-c: TP1-TEST\n" +
-                "tech-c: TP1-TEST\n" +
-                "status: ASSIGNED PA\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "changed: ripe@test.net 20120505\n" +
-                "source: TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_93B09F74-BFD6-4EDB-9C10-C12CBBB1B61A\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=smime.p7s\n" +
-                "Content-Type: application/pkcs7-signature;\n" +
-                "\tname=smime.p7s\n" +
-                "Content-Transfer-Encoding: base64\n" +
-                "\n" +
-                "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
-                "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
-                "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
-                "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
-                "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
-                "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
-                "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
-                "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
-                "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
-                "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
-                "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
-                "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
-                "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
-                "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
-                "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
-                "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
-                "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
-                "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
-                "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
-                "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
-                "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
-                "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwNzA5NDQyN1owIwYJKoZIhvcNAQkEMRYEFFP5sA8UIg1bjKVv\n" +
-                "GVjlFBi3ZwKeMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
-                "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
-                "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
-                "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
-                "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
-                "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
-                "AQEFAASBgJZtbjfmMMFYBGBVNskAzCmddmLIvgPy3y4E3IxlUGIKrX47HUPw2oD9m07eqgpfrW4T\n" +
-                "Ex2waz+gLO7uzL8Um+LByfwBlSFk5gUJRAGpkbR7yys9iSQAUqLGmBtym5DGHbrHrZeVXkf6WKIp\n" +
-                "F3tPjx4hbd3QC5mYCRm6eR4UbIf4AAAAAAAA\n" +
-                "\n" +
-                "--Apple-Mail=_93B09F74-BFD6-4EDB-9C10-C12CBBB1B61A--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
+                      + "password: owner")
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
+                      + "password: hm")
+    then:
+      def message = send "From: noreply@ripe.net\n" +
+              "Content-Type: multipart/signed; boundary=\"Apple-Mail=_93B09F74-BFD6-4EDB-9C10-C12CBBB1B61A\"; " +
+              "protocol=\"application/pkcs7-signature\"; micalg=sha1\n" +
+              "Subject: NEW\n" +
+              "Date: Mon, 7 Jan 2013 10:44:26 +0100\n" +
+              "Message-Id: <1B28B20A-E47B-476F-ACEF-68504C8C40CC@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "X-Mailer: Apple Mail (2.1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_93B09F74-BFD6-4EDB-9C10-C12CBBB1B61A\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "inetnum: 193.0.0.0 - 193.0.0.255\n" +
+              "netname: RIPE-NCC\n" +
+              "descr: description\n" +
+              "country: NL\n" +
+              "org: ORG-HR1-TEST\n" +
+              "admin-c: TP1-TEST\n" +
+              "tech-c: TP1-TEST\n" +
+              "status: ASSIGNED PA\n" +
+              "mnt-by: OWNER-MNT\n" +
+              "changed: ripe@test.net 20120505\n" +
+              "source: TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_93B09F74-BFD6-4EDB-9C10-C12CBBB1B61A\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=smime.p7s\n" +
+              "Content-Type: application/pkcs7-signature;\n" +
+              "\tname=smime.p7s\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "\n" +
+              "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIDtTCCA7Ew\n" +
+              "ggMaoAMCAQICAgF8MA0GCSqGSIb3DQEBBAUAMIGFMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9v\n" +
+              "cmQtSG9sbGFuZDESMBAGA1UEBxMJQW1zdGVyZGFtMREwDwYDVQQKEwhSSVBFIE5DQzEMMAoGA1UE\n" +
+              "CxMDT1BTMQwwCgYDVQQDEwNDQTIxGzAZBgkqhkiG9w0BCQEWDG9wc0ByaXBlLm5ldDAeFw0xMTEy\n" +
+              "MDExMjM3MjNaFw0yMTExMjgxMjM3MjNaMIGAMQswCQYDVQQGEwJOTDEWMBQGA1UECBMNTm9vcmQt\n" +
+              "SG9sbGFuZDERMA8GA1UEChMIUklQRSBOQ0MxCzAJBgNVBAsTAkRCMRcwFQYDVQQDEw5FZHdhcmQg\n" +
+              "U2hyeWFuZTEgMB4GCSqGSIb3DQEJARYRZXNocnlhbmVAcmlwZS5uZXQwgZ8wDQYJKoZIhvcNAQEB\n" +
+              "BQADgY0AMIGJAoGBAMNs8uEHIiGdYms93PWA4bysV3IUwsabb+fwP6ACS9Jc8OaRQkT+1oK1sfw+\n" +
+              "yX0YloCwJXtnAYDeKHoaPNiJ+dro3GN6BiijjV72KyKThHxWmZwXeqOKVCReREVNNlkuJTvziani\n" +
+              "cZhlr9+bxhwRho1mkEvBmxEzPZTYKl0vQpd1AgMBAAGjggExMIIBLTAJBgNVHRMEAjAAMCwGCWCG\n" +
+              "SAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUwSiXle3q\n" +
+              "9cufhKDVUCxrEPhj/9cwgbIGA1UdIwSBqjCBp4AUviRV1EFXFxVsA8ildF9OwyDKY9ihgYukgYgw\n" +
+              "gYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJk\n" +
+              "YW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqG\n" +
+              "SIb3DQEJARYMb3BzQHJpcGUubmV0ggEAMB4GA1UdEQQXMBWCE2UzLTIuc2luZ3cucmlwZS5uZXQw\n" +
+              "DQYJKoZIhvcNAQEEBQADgYEAU5D2f5WK8AO5keVVf1/kj+wY/mRis9C7nXyhmQgrNcxzxqq+0Q7Q\n" +
+              "mAYsNWMKDLZRemks4FfTGTmVT2SosQntXQBUoR1FGD3LQYLDZ2p1d7A6falUNu0PR8yAqJpT2Q2E\n" +
+              "acKOic/UwHXhVorC1gbKZ5fN0dbUHqSk1zm41VQpobAxggLWMIIC0gIBATCBjDCBhTELMAkGA1UE\n" +
+              "BhMCTkwxFjAUBgNVBAgTDU5vb3JkLUhvbGxhbmQxEjAQBgNVBAcTCUFtc3RlcmRhbTERMA8GA1UE\n" +
+              "ChMIUklQRSBOQ0MxDDAKBgNVBAsTA09QUzEMMAoGA1UEAxMDQ0EyMRswGQYJKoZIhvcNAQkBFgxv\n" +
+              "cHNAcmlwZS5uZXQCAgF8MAkGBSsOAwIaBQCgggGfMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw\n" +
+              "HAYJKoZIhvcNAQkFMQ8XDTEzMDEwNzA5NDQyN1owIwYJKoZIhvcNAQkEMRYEFFP5sA8UIg1bjKVv\n" +
+              "GVjlFBi3ZwKeMIGdBgkrBgEEAYI3EAQxgY8wgYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1O\n" +
+              "b29yZC1Ib2xsYW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYD\n" +
+              "VQQLEwNPUFMxDDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDCB\n" +
+              "nwYLKoZIhvcNAQkQAgsxgY+ggYwwgYUxCzAJBgNVBAYTAk5MMRYwFAYDVQQIEw1Ob29yZC1Ib2xs\n" +
+              "YW5kMRIwEAYDVQQHEwlBbXN0ZXJkYW0xETAPBgNVBAoTCFJJUEUgTkNDMQwwCgYDVQQLEwNPUFMx\n" +
+              "DDAKBgNVBAMTA0NBMjEbMBkGCSqGSIb3DQEJARYMb3BzQHJpcGUubmV0AgIBfDANBgkqhkiG9w0B\n" +
+              "AQEFAASBgJZtbjfmMMFYBGBVNskAzCmddmLIvgPy3y4E3IxlUGIKrX47HUPw2oD9m07eqgpfrW4T\n" +
+              "Ex2waz+gLO7uzL8Um+LByfwBlSFk5gUJRAGpkbR7yys9iSQAUqLGmBtym5DGHbrHrZeVXkf6WKIp\n" +
+              "F3tPjx4hbd3QC5mYCRm6eR4UbIf4AAAAAAAA\n" +
+              "\n" +
+              "--Apple-Mail=_93B09F74-BFD6-4EDB-9C10-C12CBBB1B61A--"
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 193.0.0.0 - 193.0.0.255" }
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 193.0.0.0 - 193.0.0.255" }
+  }
 
-    def "multipart plaintext PGP signed message with hierarchical authentication"() {
-      when:
-        setTime(new LocalDateTime(2013, 1, 11, 13, 0))
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext PGP signed message with hierarchical authentication"() {
+    when:
+      setTime(new LocalDateTime(2013, 1, 11, 13, 0))
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-28F6CD6C
                 method:         PGP
                 owner:          Ed Shryane <eshryane@ripe.net>
@@ -3287,81 +3286,81 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
-                        + "password: owner")
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
-                        + "password: hm")
-      then:
-        def message = send "From: noreply@ripe.net\n" +
-                "Content-Type: multipart/signed; boundary=\"Apple-Mail=_5C37A745-48FA-47C6-8B90-EB93253082EB\"; " +
-                "protocol=\"application/pgp-signature\"; micalg=pgp-sha1\n" +
-                "Subject: NEW\n" +
-                "Date: Mon, 7 Jan 2013 10:48:20 +0100\n" +
-                "Message-Id: <D60E6BB3-15F8-438B-AEB0-70B9817E5ED5@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_5C37A745-48FA-47C6-8B90-EB93253082EB\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "inetnum: 193.0.0.0 - 193.0.0.255\n" +
-                "netname: RIPE-NCC\n" +
-                "descr: description\n" +
-                "country: NL\n" +
-                "org: ORG-HR1-TEST\n" +
-                "admin-c: TP1-TEST\n" +
-                "tech-c: TP1-TEST\n" +
-                "status: ASSIGNED PA\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "changed: ripe@test.net 20120505\n" +
-                "source: TEST\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_5C37A745-48FA-47C6-8B90-EB93253082EB\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=signature.asc\n" +
-                "Content-Type: application/pgp-signature;\n" +
-                "\tname=signature.asc\n" +
-                "Content-Description: Message signed with OpenPGP using GPGMail\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "\n" +
-                "iQEcBAEBAgAGBQJQ6pnkAAoJEO6ZHuIo9s1s5lEH/RNr6UWbKz/UkJ1PbfJYwed0\n" +
-                "xJcLk4pEih2B/gd2FZ3RD8TEg0AZ2jdJF4uOwi7+d+w+vLu8YNc20e5UAdhIKD7v\n" +
-                "mj+r1q7N9/xEvOq+GzsL+vOJP+DAvbLOgzRHO84p5xyuo5r0y4tpPq0C8hHkAm/T\n" +
-                "MKwXt45Yif3A4DlMud4ii9uWSEAuAOPFCcSRnYUUC++mFxb7YVWMZbL+URh2X3eR\n" +
-                "V2hKkomlvnuQhpJyuhZuO7DNKTYMClF72wxH4MZkwAb3GTvbEQEe6YGDmV4UF9BO\n" +
-                "vcqRB0IOcOII39zpva372rPy3yeorUcyKeTyO8tQHDwU20G0qL4aeNUOnVeYx7o=\n" +
-                "=0qC6\n" +
-                "-----END PGP SIGNATURE-----\n" +
-                "\n" +
-                "--Apple-Mail=_5C37A745-48FA-47C6-8B90-EB93253082EB--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      + "password: owner")
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      + "password: hm")
+    then:
+      def message = send "From: noreply@ripe.net\n" +
+              "Content-Type: multipart/signed; boundary=\"Apple-Mail=_5C37A745-48FA-47C6-8B90-EB93253082EB\"; " +
+              "protocol=\"application/pgp-signature\"; micalg=pgp-sha1\n" +
+              "Subject: NEW\n" +
+              "Date: Mon, 7 Jan 2013 10:48:20 +0100\n" +
+              "Message-Id: <D60E6BB3-15F8-438B-AEB0-70B9817E5ED5@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_5C37A745-48FA-47C6-8B90-EB93253082EB\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "inetnum: 193.0.0.0 - 193.0.0.255\n" +
+              "netname: RIPE-NCC\n" +
+              "descr: description\n" +
+              "country: NL\n" +
+              "org: ORG-HR1-TEST\n" +
+              "admin-c: TP1-TEST\n" +
+              "tech-c: TP1-TEST\n" +
+              "status: ASSIGNED PA\n" +
+              "mnt-by: OWNER-MNT\n" +
+              "changed: ripe@test.net 20120505\n" +
+              "source: TEST\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_5C37A745-48FA-47C6-8B90-EB93253082EB\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=signature.asc\n" +
+              "Content-Type: application/pgp-signature;\n" +
+              "\tname=signature.asc\n" +
+              "Content-Description: Message signed with OpenPGP using GPGMail\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJQ6pnkAAoJEO6ZHuIo9s1s5lEH/RNr6UWbKz/UkJ1PbfJYwed0\n" +
+              "xJcLk4pEih2B/gd2FZ3RD8TEg0AZ2jdJF4uOwi7+d+w+vLu8YNc20e5UAdhIKD7v\n" +
+              "mj+r1q7N9/xEvOq+GzsL+vOJP+DAvbLOgzRHO84p5xyuo5r0y4tpPq0C8hHkAm/T\n" +
+              "MKwXt45Yif3A4DlMud4ii9uWSEAuAOPFCcSRnYUUC++mFxb7YVWMZbL+URh2X3eR\n" +
+              "V2hKkomlvnuQhpJyuhZuO7DNKTYMClF72wxH4MZkwAb3GTvbEQEe6YGDmV4UF9BO\n" +
+              "vcqRB0IOcOII39zpva372rPy3yeorUcyKeTyO8tQHDwU20G0qL4aeNUOnVeYx7o=\n" +
+              "=0qC6\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--Apple-Mail=_5C37A745-48FA-47C6-8B90-EB93253082EB--"
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 193.0.0.0 - 193.0.0.255" }
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 193.0.0.0 - 193.0.0.255" }
+  }
 
-    def "multipart plaintext PGP signed syncupdate with hierarchical authentication"() {
-      when:
-        setTime(new LocalDateTime(2013, 1, 11, 13, 0))
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext PGP signed syncupdate with hierarchical authentication"() {
+    when:
+      setTime(new LocalDateTime(2013, 1, 11, 13, 0))
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-E06D7E01
                 method:         PGP
                 owner:          No Reply <noreply@ripe.net>
@@ -3391,19 +3390,19 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-E06D7E01\nsource: TEST")
-                        + "password: owner")
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-E06D7E01\nsource: TEST")
-                        + "password: hm")
-      then:
-        def message = syncUpdate new SyncUpdate(data:
-                """\
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-E06D7E01\nsource: TEST")
+                      + "password: owner")
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-E06D7E01\nsource: TEST")
+                      + "password: hm")
+    then:
+      def message = syncUpdate new SyncUpdate(data:
+              """\
                 -----BEGIN PGP SIGNED MESSAGE-----
                 Hash: SHA1
 
@@ -3430,13 +3429,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
 
-      then:
-        message.contains("Create SUCCEEDED: [inetnum] 193.0.0.0 - 193.0.0.255")
-    }
+    then:
+      message.contains("Create SUCCEEDED: [inetnum] 193.0.0.0 - 193.0.0.255")
+  }
 
-    def "multipart plaintext PGP signed message with hierarchical authentication and different signers"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "multipart plaintext PGP signed message with hierarchical authentication and different signers"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-28F6CD6C
                 method:         PGP
                 owner:          Ed Shryane <eshryane@ripe.net>
@@ -3489,13 +3488,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
-                        + "password: owner")
-      then:
-        syncUpdate new SyncUpdate(data: """
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      + "password: owner")
+    then:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-5763950D
                 method:         PGP
                 owner:          noreply@ripe.net <noreply@ripe.net>
@@ -3537,88 +3536,88 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       hm
              """.stripIndent())
-      then:
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
-                        + "password: hm")
-      then:
-        def message = send "From: inetnum@ripe.net\n" +
-                "Content-Type: multipart/signed; boundary=\"Apple-Mail=_02EDC824-733F-459F-93D6-8E066E37EFC8\"; " +
-                "protocol=\"application/pgp-signature\"; micalg=pgp-sha1\n" +
-                "Subject: NEW\n" +
-                "Date: Mon, 7 Jan 2013 10:48:20 +0100\n" +
-                "Message-Id: <78AA6582-CFC9-49EF-AEFF-59F454E9B76C@ripe.net>\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Mime-Version: 1.0\n" +
-                "\n" +
-                "\n" +
-                "--Apple-Mail=_02EDC824-733F-459F-93D6-8E066E37EFC8\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Type: text/plain;\n" +
-                "\tcharset=us-ascii\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
-                "Hash: SHA1\n" +
-                "\n" +
-                "inetnum: 193.0.0.0 - 193.0.0.255\n" +
-                "netname: RIPE-NCC\n" +
-                "descr: description\n" +
-                "country: NL\n" +
-                "org: ORG-HR1-TEST\n" +
-                "admin-c: TP1-TEST\n" +
-                "tech-c: TP1-TEST\n" +
-                "status: ASSIGNED PA\n" +
-                "mnt-by: OWNER-MNT\n" +
-                "changed: ripe@test.net 20120505\n" +
-                "source: TEST\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "Comment: GPGTools - http://gpgtools.org\n" +
-                "\n" +
-                "iQEcBAEBAgAGBQJQ7DaSAAoJELvMuy1XY5UNStgH/Rc0SKMmn2QPE23d/E2bLRAr\n" +
-                "bYi6BmrfQ4cZH+5MaDJ7/NLdGTXk+Nf/7PBz2vA9kC2O9g8nD89lgKj/H7WEVSkI\n" +
-                "dkq+M1LlOZgxcPOo8iuLkme2N4pTKsnVeoeJuLecrl3mH5nxPw4oEQ03hzQ7bq1N\n" +
-                "xa3yw/rdWYA+BdvWQJM7TsfC2H5HyokeFDJZGG5GvE6EaFjQEN4JlEplONZ/jkWJ\n" +
-                "PYfWydSQPXU+xbGnptFmRGPGo4KMfJxaJEHVuHZeGxC+dvTs26WG2KuvhNTQS/4g\n" +
-                "qimC9COWPgwV4c83hOlRfX/6XZMrM3XFVMxIO8b7POXtdJb9z1NY9P2JWSxl5Ac=\n" +
-                "=FPqF\n" +
-                "-----END PGP SIGNATURE-----\n" +
-                "--Apple-Mail=_02EDC824-733F-459F-93D6-8E066E37EFC8\n" +
-                "Content-Transfer-Encoding: 7bit\n" +
-                "Content-Disposition: attachment;\n" +
-                "\tfilename=signature.asc\n" +
-                "Content-Type: application/pgp-signature;\n" +
-                "\tname=signature.asc\n" +
-                "Content-Description: Message signed with OpenPGP using GPGMail\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "\n" +
-                "iQEcBAEBAgAGBQJQ7Da6AAoJEO6ZHuIo9s1sA5sIALd4RobeYcdftxReJEt+TprK\n" +
-                "ufTUMpj4PggvUt1akK48NpD+WNXKT9C9eqJPXpcNauMJklYJ2OlIWxcaYYZWUo6B\n" +
-                "TezSptlPLL8ETZsnyJJBUdBErbRwtN+XVRv4glG1yFvQ0icfnum0sJkzZzFLWsVO\n" +
-                "kjixHjo7VlDEDv7xhqdGTCFnRgzll/CpDrldJans/Mf+5STzC31AlUpxStutIma0\n" +
-                "DQdNy0QKAWneyJRjv9KYpvJWWjQKSN9h6ODd6V0BWHf+MYu/AUZw4Z3DsKZQurJC\n" +
-                "YqORgqdUYpJeUO92JXSSdQ9uZg6olt49nPJpF1i98JgHHcQGwrlLL+kD169a9TU=\n" +
-                "=GmBR\n" +
-                "-----END PGP SIGNATURE-----\n" +
-                "\n" +
-                "--Apple-Mail=_02EDC824-733F-459F-93D6-8E066E37EFC8--"
-      then:
-        def ack = ackFor message
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: hm")
+    then:
+      def message = send "From: inetnum@ripe.net\n" +
+              "Content-Type: multipart/signed; boundary=\"Apple-Mail=_02EDC824-733F-459F-93D6-8E066E37EFC8\"; " +
+              "protocol=\"application/pgp-signature\"; micalg=pgp-sha1\n" +
+              "Subject: NEW\n" +
+              "Date: Mon, 7 Jan 2013 10:48:20 +0100\n" +
+              "Message-Id: <78AA6582-CFC9-49EF-AEFF-59F454E9B76C@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Mime-Version: 1.0\n" +
+              "\n" +
+              "\n" +
+              "--Apple-Mail=_02EDC824-733F-459F-93D6-8E066E37EFC8\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Type: text/plain;\n" +
+              "\tcharset=us-ascii\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+              "Hash: SHA1\n" +
+              "\n" +
+              "inetnum: 193.0.0.0 - 193.0.0.255\n" +
+              "netname: RIPE-NCC\n" +
+              "descr: description\n" +
+              "country: NL\n" +
+              "org: ORG-HR1-TEST\n" +
+              "admin-c: TP1-TEST\n" +
+              "tech-c: TP1-TEST\n" +
+              "status: ASSIGNED PA\n" +
+              "mnt-by: OWNER-MNT\n" +
+              "changed: ripe@test.net 20120505\n" +
+              "source: TEST\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "Comment: GPGTools - http://gpgtools.org\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJQ7DaSAAoJELvMuy1XY5UNStgH/Rc0SKMmn2QPE23d/E2bLRAr\n" +
+              "bYi6BmrfQ4cZH+5MaDJ7/NLdGTXk+Nf/7PBz2vA9kC2O9g8nD89lgKj/H7WEVSkI\n" +
+              "dkq+M1LlOZgxcPOo8iuLkme2N4pTKsnVeoeJuLecrl3mH5nxPw4oEQ03hzQ7bq1N\n" +
+              "xa3yw/rdWYA+BdvWQJM7TsfC2H5HyokeFDJZGG5GvE6EaFjQEN4JlEplONZ/jkWJ\n" +
+              "PYfWydSQPXU+xbGnptFmRGPGo4KMfJxaJEHVuHZeGxC+dvTs26WG2KuvhNTQS/4g\n" +
+              "qimC9COWPgwV4c83hOlRfX/6XZMrM3XFVMxIO8b7POXtdJb9z1NY9P2JWSxl5Ac=\n" +
+              "=FPqF\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "--Apple-Mail=_02EDC824-733F-459F-93D6-8E066E37EFC8\n" +
+              "Content-Transfer-Encoding: 7bit\n" +
+              "Content-Disposition: attachment;\n" +
+              "\tfilename=signature.asc\n" +
+              "Content-Type: application/pgp-signature;\n" +
+              "\tname=signature.asc\n" +
+              "Content-Description: Message signed with OpenPGP using GPGMail\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJQ7Da6AAoJEO6ZHuIo9s1sA5sIALd4RobeYcdftxReJEt+TprK\n" +
+              "ufTUMpj4PggvUt1akK48NpD+WNXKT9C9eqJPXpcNauMJklYJ2OlIWxcaYYZWUo6B\n" +
+              "TezSptlPLL8ETZsnyJJBUdBErbRwtN+XVRv4glG1yFvQ0icfnum0sJkzZzFLWsVO\n" +
+              "kjixHjo7VlDEDv7xhqdGTCFnRgzll/CpDrldJans/Mf+5STzC31AlUpxStutIma0\n" +
+              "DQdNy0QKAWneyJRjv9KYpvJWWjQKSN9h6ODd6V0BWHf+MYu/AUZw4Z3DsKZQurJC\n" +
+              "YqORgqdUYpJeUO92JXSSdQ9uZg6olt49nPJpF1i98JgHHcQGwrlLL+kD169a9TU=\n" +
+              "=GmBR\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--Apple-Mail=_02EDC824-733F-459F-93D6-8E066E37EFC8--"
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 193.0.0.0 - 193.0.0.255" }
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 193.0.0.0 - 193.0.0.255" }
+  }
 
-    def "inline plaintext PGP signed message with obsolete application/pgp content-type"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "inline plaintext PGP signed message with obsolete application/pgp content-type"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-5763950D
                 method:         PGP
                 owner:          noreply@ripe.net <noreply@ripe.net>
@@ -3660,60 +3659,59 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: personupdatex@ripe.net\n" +
-                "Content-Type: application/pgp; x-action=sign; format=text\n" +
-                "To: auto-dbm@ripe.net\n" +
-                "Subject: NEW\n" +
-                "Message-ID: <20121204141256.GM1426@f17.dmitry.net>\n" +
-                "Mime-Version: 1.0\n" +
-                "Content-Type: application/pgp; x-action=sign; format=text\n" +
-                "Content-Disposition: inline; filename=\"msg.pgp\"\n" +
-                "User-Agent: Mutt/1.4.2.3i\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
-                "Hash: SHA1\n\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
-                "Comment: GPGTools - http://gpgtools.org\n\n" +
-                "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+\n" +
-                "fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx\n" +
-                "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
-                "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux\n" +
-                "4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
-                "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
-                "=it26\n" +
-                "-----END PGP SIGNATURE-----"
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: personupdatex@ripe.net\n" +
+              "Content-Type: application/pgp; x-action=sign; format=text\n" +
+              "To: auto-dbm@ripe.net\n" +
+              "Subject: NEW\n" +
+              "Message-ID: <20121204141256.GM1426@f17.dmitry.net>\n" +
+              "Mime-Version: 1.0\n" +
+              "Content-Type: application/pgp; x-action=sign; format=text\n" +
+              "Content-Disposition: inline; filename=\"msg.pgp\"\n" +
+              "User-Agent: Mutt/1.4.2.3i\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+              "Hash: SHA1\n\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1.4.12 (Darwin)\n" +
+              "Comment: GPGTools - http://gpgtools.org\n\n" +
+              "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+\n" +
+              "fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx\n" +
+              "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
+              "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux\n" +
+              "4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
+              "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
+              "=it26\n" +
+              "-----END PGP SIGNATURE-----"
 
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+      ack.success
+      ack.summary.nrFound == 1
+      ack.summary.assertSuccess(1, 1, 0, 0, 0)
+      ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.contents =~ "Warning: Message was signed more than one week ago"
-    }
+      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+      ack.contents =~ "Warning: Message was signed more than one week ago"
+  }
 
-    @Ignore("TODO: [ES] not supported")
-    def "pgp signed message with public key attached"() {
-      when:
-        syncUpdate new SyncUpdate(data: """
+  def "pgp signed message with public key attached is not supported"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-5763950D
                 method:         PGP
                 owner:          noreply@ripe.net <noreply@ripe.net>
@@ -3755,111 +3753,110 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-        syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent().
-                        replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
-                        + "password: owner")
-      then:
-        def message = send "From: personupdatex@ripe.net\n" +
-                "To: auto-dbm@ripe.net\n" +
-                "Subject: NEW\n" +
-                "Message-ID: <20121204141256.GM1426@f17.test.net>\n" +
-                "Mime-Version: 1.0\n" +
-                "Content-Type: multipart/signed; micalg=pgp-sha1;\n" +
-                " protocol=\"application/pgp-signature\";\n" +
-                " boundary=\"oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG\"\n"
-                "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:24.0) Gecko/20100101 Thunderbird/24.4.0\n" +
-                "X-Enigmail-Version: 1.6\n" +
-                "\n" +
-                "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
-                "--oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG\n" +
-                "Content-Type: multipart/mixed;\n" +
-                " boundary=\"------------070902000202090608000102\"\n" +
-                "\n" +
-                "This is a multi-part message in MIME format.\n" +
-                "--------------070902000202090608000102\n" +
-                "Content-Type: text/plain; charset=ISO-8859-1\n" +
-                "Content-Transfer-Encoding: quoted-printable\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "\n" +
-                "--------------070902000202090608000102\n" +
-                "Content-Type: application/pgp-keys;\n" +
-                " name=\"0x5763950D.asc\"\n" +
-                "Content-Transfer-Encoding: quoted-printable\n" +
-                "Content-Disposition: attachment;\n" +
-                " filename=\"0x5763950D.asc\"\n" +
-                "\n" +
-                "-----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
-                "Version: GnuPG v1\n" +
-                "Comment: GPGTools - http://gpgtools.org\n" +
-                "\n" +
-                "mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+\n" +
-                "yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH\n" +
-                "2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN\n" +
-                "E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L\n" +
-                "A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd\n" +
-                "YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u\n" +
-                "ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV\n" +
-                "CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF\n" +
-                "Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB\n" +
-                "0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe\n" +
-                "xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt\n" +
-                "0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z\n" +
-                "xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA\n" +
-                "uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv\n" +
-                "eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12\n" +
-                "pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck\n" +
-                "xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec\n" +
-                "YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4\n" +
-                "dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC\n" +
-                "GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4\n" +
-                "HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3\n" +
-                "eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y\n" +
-                "6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC\n" +
-                "RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip\n" +
-                "a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ=3D=3D\n" +
-                "=3DHQmg\n" +
-                "-----END PGP PUBLIC KEY BLOCK-----\n" +
-                "\n" +
-                "--------------070902000202090608000102--\n" +
-                "\n" +
-                "--oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG\n" +
-                "Content-Type: application/pgp-signature; name=\"signature.asc\"\n" +
-                "Content-Description: OpenPGP digital signature\n" +
-                "Content-Disposition: attachment; filename=\"signature.asc\"\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1\n" +
-                "Comment: GPGTools - http://gpgtools.org\n" +
-                "Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/\n" +
-                "\n" +
-                "iQEcBAEBAgAGBQJTKyb0AAoJELvMuy1XY5UNvRYH/1D3Kj7pwM6flT/h+KqJ0JOd\n" +
-                "NOma/qNvc33u/wYstFPIhCj2qzdpQ1Pwat6kzVQmwiqkUMeB0V7asGe0Wi2KXt13\n" +
-                "uqScGR9BTVWLzpcq/axykxJ8ThGu1kE7weA4LrZSvn2hn4Mjfu3epddRdlLcFcDo\n" +
-                "2/DQFMOfbwirLmobYaq+H74OBQ4hFRb3z7H0TNDkYr5pIp+EmcZ29wznKRQWk6+C\n" +
-                "9GYpzxqUb8Vc5WHtreW5WYlxkme5f1B/G0NnbZHi9y3uwvgtdUp+7JXuw1dBGpOF\n" +
-                "v0hAfHFkttdiCCYcI8dUzQZjsNthjV/27EMwjvvZ46Iq6P8LhgTo3nH1pqBLRNw=\n" +
-                "=APKb\n" +
-                "-----END PGP SIGNATURE-----\n" +
-                "\n" +
-                "--oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG--";
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: personupdatex@ripe.net\n" +
+              "To: auto-dbm@ripe.net\n" +
+              "Subject: NEW\n" +
+              "Message-ID: <20121204141256.GM1426@f17.test.net>\n" +
+              "Mime-Version: 1.0\n" +
+              "Content-Type: multipart/signed; micalg=pgp-sha1;\n" +
+              " protocol=\"application/pgp-signature\";\n" +
+              " boundary=\"oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG\"\n"
+      "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:24.0) Gecko/20100101 Thunderbird/24.4.0\n" +
+              "X-Enigmail-Version: 1.6\n" +
+              "\n" +
+              "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+              "--oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG\n" +
+              "Content-Type: multipart/mixed;\n" +
+              " boundary=\"------------070902000202090608000102\"\n" +
+              "\n" +
+              "This is a multi-part message in MIME format.\n" +
+              "--------------070902000202090608000102\n" +
+              "Content-Type: text/plain; charset=ISO-8859-1\n" +
+              "Content-Transfer-Encoding: quoted-printable\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone:   +44 282 420469\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: denis@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "\n" +
+              "\n" +
+              "--------------070902000202090608000102\n" +
+              "Content-Type: application/pgp-keys;\n" +
+              " name=\"0x5763950D.asc\"\n" +
+              "Content-Transfer-Encoding: quoted-printable\n" +
+              "Content-Disposition: attachment;\n" +
+              " filename=\"0x5763950D.asc\"\n" +
+              "\n" +
+              "-----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
+              "Version: GnuPG v1\n" +
+              "Comment: GPGTools - http://gpgtools.org\n" +
+              "\n" +
+              "mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+\n" +
+              "yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH\n" +
+              "2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN\n" +
+              "E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L\n" +
+              "A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd\n" +
+              "YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u\n" +
+              "ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV\n" +
+              "CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF\n" +
+              "Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB\n" +
+              "0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe\n" +
+              "xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt\n" +
+              "0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z\n" +
+              "xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA\n" +
+              "uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv\n" +
+              "eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12\n" +
+              "pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck\n" +
+              "xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec\n" +
+              "YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4\n" +
+              "dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC\n" +
+              "GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4\n" +
+              "HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3\n" +
+              "eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y\n" +
+              "6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC\n" +
+              "RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip\n" +
+              "a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ=3D=3D\n" +
+              "=3DHQmg\n" +
+              "-----END PGP PUBLIC KEY BLOCK-----\n" +
+              "\n" +
+              "--------------070902000202090608000102--\n" +
+              "\n" +
+              "--oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG\n" +
+              "Content-Type: application/pgp-signature; name=\"signature.asc\"\n" +
+              "Content-Description: OpenPGP digital signature\n" +
+              "Content-Disposition: attachment; filename=\"signature.asc\"\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1\n" +
+              "Comment: GPGTools - http://gpgtools.org\n" +
+              "Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJTKyb0AAoJELvMuy1XY5UNvRYH/1D3Kj7pwM6flT/h+KqJ0JOd\n" +
+              "NOma/qNvc33u/wYstFPIhCj2qzdpQ1Pwat6kzVQmwiqkUMeB0V7asGe0Wi2KXt13\n" +
+              "uqScGR9BTVWLzpcq/axykxJ8ThGu1kE7weA4LrZSvn2hn4Mjfu3epddRdlLcFcDo\n" +
+              "2/DQFMOfbwirLmobYaq+H74OBQ4hFRb3z7H0TNDkYr5pIp+EmcZ29wznKRQWk6+C\n" +
+              "9GYpzxqUb8Vc5WHtreW5WYlxkme5f1B/G0NnbZHi9y3uwvgtdUp+7JXuw1dBGpOF\n" +
+              "v0hAfHFkttdiCCYcI8dUzQZjsNthjV/27EMwjvvZ46Iq6P8LhgTo3nH1pqBLRNw=\n" +
+              "=APKb\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--oDBhsOJvnMW4uj7OE4r7Skx6vtnqGcFMG--";
 
-      then:
-        def ack = ackFor message
+    then:
+      def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-    }
+      ack.failed
+      ack.summary.nrFound == 0
+      ack =~ /\*\*\*Error:   No valid update found/
+  }
 }

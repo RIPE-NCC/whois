@@ -37,7 +37,6 @@ import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.LoggerFactory;
@@ -1307,7 +1306,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("TODO: [ES] response is plaintext 'The validated collection is empty'")
     @Test
     public void create_invalid_format_no_attributes() {
         try {
@@ -1331,11 +1329,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             "}", MediaType.APPLICATION_JSON), String.class);
             fail();
         } catch (BadRequestException e) {
-            System.out.println(e.getResponse().readEntity(String.class));
+            assertThat(e.getResponse().readEntity(String.class), is("" +
+                    "{\n" +
+                    "  \"errormessages\" : {\n" +
+                    "    \"errormessage\" : [ {\n" +
+                    "      \"severity\" : \"Error\",\n" +
+                    "      \"text\" : \"The validated collection is empty\",\n" +
+                    "      \"args\" : [ ]\n" +
+                    "    } ]\n" +
+                    "  },\n" +
+                    "  \"terms-and-conditions\" : {\n" +
+                    "    \"type\" : \"locator\",\n" +
+                    "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                    "  }\n" +
+                    "}"));
         }
     }
 
-    @Ignore("TODO: [ES] response is plaintext 'Unexpected character'")
     @Test
     public void create_invalid_json_format_empty_string() {
         try {
@@ -1358,7 +1368,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             "}", MediaType.APPLICATION_JSON), String.class);
             fail();
         } catch (BadRequestException e) {
-            System.out.println(e.getResponse().readEntity(String.class));
+            assertThat(e.getResponse().readEntity(String.class), containsString("" +
+                    "{\n" +
+                    "  \"errormessages\" : {\n" +
+                    "    \"errormessage\" : [ {\n" +
+                    "      \"severity\" : \"Error\",\n" +
+                    "      \"text\" : \"Unexpected character ('}' (code 125)): was expecting a colon to separate field name and value\\n "
+                    ));
         }
     }
 
@@ -3232,7 +3248,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         ));
     }
 
-    @Ignore("TODO: error on parsing query is not handled -> response is plaintext error, not xml")
     @Test
     public void search_invalid_query_flags() {
         try {
@@ -3243,6 +3258,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final WhoisResources response = RestTest.mapClientException(e);
 
             assertThat(response.getErrorMessages(), hasSize(1));
+            assertThat(response.getErrorMessages().get(0).getText(), is("ERROR:115: invalid search key\n" +
+                    "\n" +
+                    "Search key entered is not valid for the specified object type(s)\n"));
         }
     }
 
