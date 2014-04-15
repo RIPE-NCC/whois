@@ -2,6 +2,7 @@ package net.ripe.db.whois.internal.api.acl;
 
 import net.ripe.db.whois.common.domain.IpResourceTree;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -114,6 +115,10 @@ public class AclLimitService {
 
         final IpInterval<?> ipInterval = IpInterval.parse(decode(prefix));
 
+        if (isRootInterval(ipInterval)) {
+            return Response.status(Response.Status.FORBIDDEN).entity("Deleting the root object is not allowed").build();
+        }
+
         for (final Limit limit : aclServiceDao.getLimits()) {
             final IpInterval<?> existingIpInterval = IpInterval.parse(limit.getPrefix());
             if (ipInterval.equals(existingIpInterval)) {
@@ -124,6 +129,15 @@ public class AclLimitService {
 
         return Response.status(Response.Status.NOT_FOUND).build();
     }
+
+    private boolean isRootInterval(IpInterval<?> ipInterval) {
+        if (ipInterval instanceof Ipv6Resource) {
+            return ipInterval.equals(Ipv6Resource.parse("::0/0"));
+        } else {
+            return ipInterval.equals(Ipv4Resource.parse("0/0"));
+        }
+    }
+
 
     private void validate(final IpInterval<?> ipInterval) {
         if (ipInterval instanceof Ipv6Resource && ipInterval.getPrefixLength() > 64) {
