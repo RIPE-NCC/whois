@@ -114,9 +114,9 @@ public class AclLimitServiceTest {
         when(aclServiceDao.getLimits()).thenReturn(limits);
 
         final Response response = subject.deleteLimit("0/0");
-        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+        assertThat(response.getStatus(), is(Response.Status.FORBIDDEN.getStatusCode()));
 
-        verify(aclServiceDao).deleteLimit(any(IpInterval.class));
+        verifyZeroInteractions(aclServiceDao);
     }
 
     @Test
@@ -125,9 +125,9 @@ public class AclLimitServiceTest {
         when(aclServiceDao.getLimits()).thenReturn(limits);
 
         final Response response = subject.deleteLimit("::0/0");
-        assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
+        assertThat(response.getStatus(), is(Response.Status.FORBIDDEN.getStatusCode()));
 
-        verify(aclServiceDao).deleteLimit(any(IpInterval.class));
+        verifyZeroInteractions(aclServiceDao);
     }
 
     @Test
