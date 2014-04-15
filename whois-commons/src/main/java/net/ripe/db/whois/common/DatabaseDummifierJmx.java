@@ -1,8 +1,5 @@
-package net.ripe.db.rcdummifier;
+package net.ripe.db.whois.common;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import net.ripe.db.LogUtil;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
@@ -44,10 +41,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DatabaseDummifierJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseDummifierJmx.class);
 
-    private static final String ARG_JDBCURL = "jdbc-url";
-    private static final String ARG_USER = "user";
-    private static final String ARG_PASS = "pass";
-
     private static TransactionTemplate transactionTemplate;
     private static JdbcTemplate jdbcTemplate;
 
@@ -55,17 +48,6 @@ public class DatabaseDummifierJmx extends JmxBase {
 
     private static final AtomicInteger jobsAdded = new AtomicInteger();
     private static final AtomicInteger jobsDone = new AtomicInteger();
-
-    public static void main(final String[] argv) throws Exception {
-        LogUtil.initLogger();
-
-        final OptionSet options = setupOptionParser().parse(argv);
-        final String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
-        final String user = options.valueOf(ARG_USER).toString();
-        final String pass = options.valueOf(ARG_PASS).toString();
-
-        new DatabaseDummifierJmx().dummify(jdbcUrl, user, pass);
-    }
 
     public DatabaseDummifierJmx() {
         super(LOGGER);
@@ -77,7 +59,9 @@ public class DatabaseDummifierJmx extends JmxBase {
             @ManagedOperationParameter(name = "user", description = "jdbc username"),
             @ManagedOperationParameter(name = "pass", description = "jdbc password")
     })
+
     public String dummify(final String jdbcUrl, final String user, final String pass) {
+        validateJdbcUrl(user, pass);
         final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
         final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
         jdbcTemplate = new JdbcTemplate(dataSource);
@@ -106,6 +90,11 @@ public class DatabaseDummifierJmx extends JmxBase {
         return "Database dummified";
     }
 
+    private void validateJdbcUrl(final String user, final String password) {
+        if (!user.equals(password)) {
+            throw new IllegalArgumentException("dummifier runs on non-production environments only (user==password)");
+        }
+    }
 
     private void addWork(final String table, final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
         LOGGER.info("Dummifying " + table);
@@ -167,7 +156,7 @@ public class DatabaseDummifierJmx extends JmxBase {
             });
         }
 
-        final RpslObject replaceWithMntnerNamePassword(RpslObject rpslObject) {
+        static RpslObject replaceWithMntnerNamePassword(RpslObject rpslObject) {
             boolean foundPassword = false;
             RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
             for (int i = 0; i < builder.size(); i++) {
@@ -189,7 +178,7 @@ public class DatabaseDummifierJmx extends JmxBase {
             return builder.get();
         }
 
-        final boolean hasPassword(RpslObject rpslObject) {
+        static boolean hasPassword(RpslObject rpslObject) {
             for (CIString auth : rpslObject.getValuesForAttribute(AttributeType.AUTH)) {
                 if (auth.startsWith("md5-pw")) {
                     return true;
@@ -197,13 +186,5 @@ public class DatabaseDummifierJmx extends JmxBase {
             }
             return false;
         }
-    }
-
-    private static OptionParser setupOptionParser() {
-        final OptionParser parser = new OptionParser();
-        parser.accepts(ARG_JDBCURL).withRequiredArg().required();
-        parser.accepts(ARG_USER).withRequiredArg().required();
-        parser.accepts(ARG_PASS).withRequiredArg().required();
-        return parser;
     }
 }
