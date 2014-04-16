@@ -816,6 +816,52 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /\*\*\*Warning: Submitted object identical to database object/
     }
 
+    def "update autnum object, removing status and remarks is noop"() {
+      when:
+        def create = syncUpdate new SyncUpdate(data: """\
+                        aut-num:        AS100
+                        as-name:        End-User
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: update
+                        """.stripIndent())
+      then:
+        create =~ /Create SUCCEEDED: \[aut-num\] AS100/
+      then:
+        def update = syncUpdate new SyncUpdate(data: """\
+                        aut-num:        AS100
+                        as-name:        End-User
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        password: update
+                        """.stripIndent())
+      then:
+        update =~ /No operation: \[aut-num\] AS100/
+        update =~ /\*\*\*Warning: Submitted object identical to database object/
+      then:
+        def updatedAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
+        updatedAutnum.equals(RpslObject.parse("""\
+                        aut-num:        AS100
+                        as-name:        End-User
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        status:         OTHER
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        """.stripIndent()))
+    }
+
     def "create aut-num object, rs maintainer, generate ASSIGNED status, generate remark"() {
       when:
         def response = syncUpdate new SyncUpdate(data: """\
