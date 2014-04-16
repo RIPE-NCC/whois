@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 
 public class CrowdClientException extends RuntimeException {
@@ -20,9 +21,16 @@ public class CrowdClientException extends RuntimeException {
 
     private static String getMessage(final Exception e) {
         if (e instanceof ClientErrorException) {
-            final CrowdClient.CrowdError crowdError = ((ClientErrorException)e).getResponse().readEntity(CrowdClient.CrowdError.class);
-            LOGGER.info("{} : {} ({})", e.getClass().getName(), crowdError.getMessage(), crowdError.getReason());
-            return crowdError.getMessage();
+            try {
+                final CrowdClient.CrowdError crowdError = ((ClientErrorException)e).getResponse().readEntity(CrowdClient.CrowdError.class);
+                LOGGER.info("{}: {} ({})", e.getClass().getName(), crowdError.getMessage(), crowdError.getReason());
+                return crowdError.getMessage();
+            } catch (ProcessingException pe) {
+                // crowd returned content-type: text/plain
+                final String error = ((ClientErrorException)e).getResponse().readEntity(String.class);
+                LOGGER.warn("{}: {}", e.getClass().getName(), error);
+                return error;
+            }
         } else {
             if (e instanceof WebApplicationException) {
                 final String cause = String.format("%s (%s)", e.getClass().getName(), ((WebApplicationException)e).getResponse().readEntity(String.class));
