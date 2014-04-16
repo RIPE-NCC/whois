@@ -1587,7 +1587,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1634,7 +1634,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1686,7 +1686,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1736,7 +1736,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1786,7 +1786,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
-                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 status:         ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
@@ -1952,7 +1952,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS17777777234:As-otherset)
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS777.234:As-otherset)
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS077234:As-otherset)
-                remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST

@@ -666,7 +666,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         RIPE-NCC-HM-MNT
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         ASSIGNED
                         changed:        noreply@ripe.net 20120101
                         source:         TEST
@@ -697,7 +697,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         descr:          description
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         ASSIGNED
                         mnt-by:         RIPE-NCC-HM-MNT
                         changed:        noreply@ripe.net 20120101
@@ -728,7 +728,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         descr:          description
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         OTHER
                         mnt-by:         UPD-MNT
                         changed:        noreply@ripe.net 20120101
@@ -759,7 +759,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         remarks:        remarks
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         OTHER
                         mnt-by:         UPD-MNT
                         changed:        noreply@ripe.net 20120101
@@ -791,7 +791,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         descr:          description
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         OTHER
                         mnt-by:         UPD-MNT
                         changed:        noreply@ripe.net 20120101
@@ -800,7 +800,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
       when:
         def update = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         as-name:        End-User
                         descr:          description
                         admin-c:        AP1-TEST
@@ -854,7 +854,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         descr:          description
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         OTHER
                         mnt-by:         UPD-MNT
                         changed:        noreply@ripe.net 20120101
@@ -886,7 +886,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         descr:          description
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         ASSIGNED
                         mnt-by:         RIPE-NCC-HM-MNT
                         changed:        noreply@ripe.net 20120101
@@ -900,7 +900,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         aut-num:        AS102
                         as-name:        RS-2
                         descr:          description
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         remarks:        user remark
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
@@ -921,7 +921,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         remarks:        user remark
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         ASSIGNED
                         mnt-by:         RIPE-NCC-HM-MNT
                         changed:        noreply@ripe.net 20120101
@@ -954,7 +954,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         descr:          description
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         OTHER
                         mnt-by:         UPD-MNT
                         changed:        noreply@ripe.net 20120101
@@ -985,7 +985,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         autnum.equals(RpslObject.parse("""\
                         aut-num:        AS100
                         as-name:        End-User
-                        remarks:        For information on "status:" attribute read http://www.ripe.net/xxxx/as_status_faq.html
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         OTHER
                         descr:          description
                         admin-c:        AP1-TEST
