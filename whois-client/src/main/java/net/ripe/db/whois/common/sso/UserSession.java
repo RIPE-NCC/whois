@@ -12,7 +12,7 @@ public class UserSession {
     public UserSession(String username, boolean isActive, String expiryDate) {
         this.username = username;
         this.isActive = isActive;
-        this.expiryDate = LocalDateTime.parse(expiryDate, ISODateTimeFormat.dateTimeParser());
+        this.expiryDate = expiryDate == null ? LocalDateTime.now().plusHours(1) : LocalDateTime.parse(expiryDate, ISODateTimeFormat.dateTimeParser());
     }
 
     public String getUsername() {
