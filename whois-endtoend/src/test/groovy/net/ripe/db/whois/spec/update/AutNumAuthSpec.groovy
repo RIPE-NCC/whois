@@ -2777,7 +2777,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
-        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read http:")
+        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, no status, RS pw, not on legacy list"() {
@@ -2874,7 +2874,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 ["Supplied attribute 'status' has been replaced with a generated value"]
 
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
-        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read http:")
+        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
     
@@ -3010,7 +3010,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS12666" }
 
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
-        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read http:")
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
     
@@ -3053,7 +3053,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS12666" }
 
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
-        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read http:")
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
     
