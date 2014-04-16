@@ -1847,18 +1847,18 @@ class SponsorSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 0, 4, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 4)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-        ack.infoSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+        ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["The attribute 'sponsoring-org' can only be removed by RIPE NCC"]
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
-        ack.infoSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+        ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["The attribute 'sponsoring-org' can only be removed by RIPE NCC"]
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
-        ack.infoSuccessMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
+        ack.warningSuccessMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
                 ["The attribute 'sponsoring-org' can only be removed by RIPE NCC"]
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
-        ack.infoSuccessMessagesFor("Modify", "[aut-num] AS222") ==
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS222") ==
                 ["The attribute 'sponsoring-org' can only be removed by RIPE NCC"]
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
