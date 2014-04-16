@@ -223,20 +223,39 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "source:         TEST")));
     }
 
-    @Test(expected = NotFoundException.class)
-    public void lookup_inet6num_without_prefix_length() {
-        databaseHelper.addObject(
+    @Test
+    public void lookup_inet6num_without_prefix_length() throws InterruptedException {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-OTL17-TEST\n" +
+                "org-name:      Organisation Type Lir\n" +
+                "org-type:      LIR\n" +
+                "address:       Singel 258, 1016 AB Amsterdam\n" +
+                "phone:         +31205354444\n" +
+                "fax-no:        +31205354444\n" +
+                "e-mail:        training@example.org\n" +
+                "ref-nfy:       test@test.net\n" +
+                "notify:        test@test.net\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       test@test.net 20140404\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
                 "inet6num:       2001:2002:2003::/48\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          Private Network\n" +
-                        "country:        NL\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "mnt-lower:      OWNER-MNT\n" +
-                        "source:         TEST");
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "admin-c:       TP1-TEST\n" +
+                "sponsoring-org: ORG-OTL17-TEST\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "changed:       test@test.net 20140404\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
 
+
+        Thread.sleep(Long.MAX_VALUE);
         RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::").request().get(WhoisResources.class);
     }
 
