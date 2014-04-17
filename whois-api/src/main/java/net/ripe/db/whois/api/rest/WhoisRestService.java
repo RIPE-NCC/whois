@@ -311,8 +311,12 @@ public class WhoisRestService {
             queryBuilder.addFlag(QueryFlag.NO_FILTERING);
         }
 
-        final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords).setMatchPrimaryKeyOnly(true);
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
+        try {
+            final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords).setMatchPrimaryKeyOnly(true);
+            return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
+        } catch (QueryException e) {
+            throw getWebApplicationException(e, request, Lists.<Message>newArrayList());
+        }
     }
 
     @GET
@@ -597,6 +601,31 @@ public class WhoisRestService {
         return Response.ok(new RpslObjectStreamer(request, query, remoteAddress, parameters, service)).build();
     }
 
+    private WebApplicationException getWebApplicationException(final RuntimeException exception, final HttpServletRequest request, final List<Message> messages) {
+        final Response.ResponseBuilder responseBuilder;
+
+        if (exception instanceof QueryException) {
+            final QueryException queryException = (QueryException) exception;
+            if (queryException.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
+                responseBuilder = Response.status(STATUS_TOO_MANY_REQUESTS);
+            } else {
+                responseBuilder = Response.status(Response.Status.BAD_REQUEST);
+            }
+            messages.addAll(queryException.getMessages());
+
+        } else {
+            LOGGER.error(exception.getMessage(), exception);
+            responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
+
+            messages.add(QueryMessages.internalErroroccurred());
+        }
+
+        if (!messages.isEmpty()) {
+            responseBuilder.entity(createErrorEntity(request, messages));
+        }
+        return new WebApplicationException(responseBuilder.build());
+    }
+
     private class RpslObjectStreamer implements StreamingOutput {
         private final HttpServletRequest request;
         private final Query query;
@@ -636,32 +665,9 @@ public class WhoisRestService {
         private WebApplicationException createWebApplicationException(final RuntimeException exception, final SearchResponseHandler responseHandler) {
             if (exception instanceof WebApplicationException) {
                 return (WebApplicationException) exception;
-            } else if (exception instanceof QueryException) {
-                final Response.ResponseBuilder responseBuilder;
-                if (((QueryException) exception).getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                    responseBuilder = Response.status(STATUS_TOO_MANY_REQUESTS);
-                } else {
-                    responseBuilder = Response.status(Response.Status.BAD_REQUEST);
-                }
-
-                final List<Message> messages = responseHandler.flushAndGetErrors();
-                messages.addAll(((QueryException) exception).getMessages());
-
-                if (!messages.isEmpty()) {
-                    responseBuilder.entity(createErrorEntity(request, messages));
-                }
-
-                return new WebApplicationException(responseBuilder.build());
-
             } else {
-                LOGGER.error(exception.getMessage(), exception);
-
-                final Response.ResponseBuilder responseBuilder = Response.status(Response.Status.INTERNAL_SERVER_ERROR);
                 final List<Message> messages = responseHandler.flushAndGetErrors();
-                messages.add(QueryMessages.internalErroroccurred());
-                responseBuilder.entity(createErrorEntity(request, messages));
-
-                return new WebApplicationException(responseBuilder.build());
+                return getWebApplicationException(exception, request, messages);
             }
         }
 
