@@ -3,7 +3,6 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class DomainAuthSpec extends BaseQueryUpdateSpec {
@@ -1725,49 +1724,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 1, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Delete" && it.key == "[domain] 0.0.193.in-addr.arpa" }
-
-        queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
-    }
-
-    @Ignore("TODO: [ES] failing test, ignore for now")
-    def "delete reverse domain, using exact match mnt-by"() {
-        given:
-        syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
-        syncUpdate(getTransient("ASSIGN-PA-LOW-DOM") + "override: denis,override1")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
-
-        expect:
-        queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        queryObject("-r -T inetnum 193.0.0.0 - 193.0.0.255", "inetnum", "193.0.0.0 - 193.0.0.255")
-        queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
-        queryObject("-r -L -T inetnum 193.0.0.0 - 193.0.0.255", "inetnum", "193.0.0.0 - 193.0.0.255")
-
-        when:
-        def message = syncUpdate("""\
-                domain:         0.0.193.in-addr.arpa
-                descr:          reverse domain
-                admin-c:        TP1-TEST
-                tech-c:         TP1-TEST
-                zone-c:         TP1-TEST
-                nserver:        pri.authdns.ripe.net
-                nserver:        ns3.nic.fr
-                mnt-by:         DOMAIN-MNT
-                changed:        noreply@ripe.net 20120101
-                source:         TEST
-                delete:  testing delete
-
-                password:   owner
-                """.stripIndent()
-        )
-
-        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
