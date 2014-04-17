@@ -1,6 +1,7 @@
 ###
 ### Objects inherited from legacy (pre-whois-cluster) test DB; simply a standard set of objects that seem to be useful
-###
+### Attention: This file does not have the same content as the /export/services/<service>/TEST.db files
+###            that are used to reload the TEST database.
 
 person:         John Smith
 address:        Example LTD
