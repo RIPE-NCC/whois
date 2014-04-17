@@ -79,7 +79,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-@Ignore("TODO: ES - disabled for now as it's hanging in Jenkins")
 @Category(IntegrationTest.class)
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
@@ -226,6 +225,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    @Ignore("TODO: ES - disabled for now as it's hanging in Jenkins")
     public void lookup_inet6num_without_prefix_length() throws InterruptedException {
         databaseHelper.addObject("" +
                 "organisation:  ORG-OTL17-TEST\n" +
@@ -1249,6 +1249,25 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources, containsString("<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">"));
         assertThat(whoisResources, containsString("<object type=\"aut-num\" version=\"1\">"));
         assertThat(whoisResources, containsString("<objects>"));
+    }
+
+    @Test
+    public void lookup_invalid_suffix_should_not_return_plaintext() {
+        try {
+            RestTest.target(getPort(), "whois/test/aut-num/AS44217.html")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("" +
+                    "  \"errormessages\" : {\n" +
+                    "    \"errormessage\" : [ {\n" +
+                    "      \"severity\" : \"Error\",\n" +
+                    "      \"text\" : \"ERROR:115: invalid search key\\n\\nSearch key entered is not valid for the specified object type(s)\\n\",\n" +
+                    "      \"args\" : [ ]\n" +
+                    "    } ]\n" +
+                    "  },"));
+        }
     }
 
     // create
