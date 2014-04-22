@@ -117,35 +117,33 @@ public class SingleUpdateHandler {
         }
 
         // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...), bail out if so
+        PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
+        updateContext.setPreparedUpdate(preparedUpdate);
         if (updateContext.hasErrors(update)) {
-            PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
-            updateContext.setPreparedUpdate(preparedUpdate);
-
             throw new UpdateFailedException();
         }
 
         // resolve AUTO- keys
-        updatedObject = autoKeyResolver.resolveAutoKeys(updatedObject, update, updateContext, action);
-        PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
-        updateContext.setPreparedUpdate(preparedUpdate);
+        RpslObject updatedObjectWithAutoKeys = autoKeyResolver.resolveAutoKeys(updatedObject, update, updateContext, action);
+        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
         // add authentication to context
         authenticator.authenticate(origin, preparedUpdate, updateContext);
 
         // attributegenerators rely on authentication info
         for (AttributeGenerator attributeGenerator : attributeGenerators) {
-            updatedObject = attributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+            updatedObjectWithAutoKeys = attributeGenerator.generateAttributes(originalObject, updatedObjectWithAutoKeys, update, updateContext);
         }
 
         // need to recalculate action after attributegenerators
-        action = getAction(originalObject, updatedObject, update, updateContext, keyword);
+        action = getAction(originalObject, updatedObjectWithAutoKeys, update, updateContext, keyword);
         updateContext.setAction(update, action);
         if (action == Action.NOOP) {
-            updatedObject = originalObject;
+            updatedObjectWithAutoKeys = originalObject;
         }
 
-        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
-        updateContext.setPreparedUpdate(preparedUpdate);
+        // re-generate preparedUpdate
+        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
@@ -155,6 +153,10 @@ public class SingleUpdateHandler {
         if ((pendingAuthentication && !businessRulesOk) || (!pendingAuthentication && updateContext.hasErrors(update))) {
             throw new UpdateFailedException();
         }
+
+        // defer setting prepared update so that on failure, we report back with the object without resolved auto keys
+        // FIXME: [AH] per-attribute error messages generated up to this point will not get reported in ACK if they have been changed (by attributeGenerator or AUTO-key generator), as the report goes for the pre-auto-key-generated version of the object, in which the newly generated attributes are not present
+        updateContext.setPreparedUpdate(preparedUpdate);
 
         if (updateContext.isDryRun()) {
             throw new UpdateAbortedException();
