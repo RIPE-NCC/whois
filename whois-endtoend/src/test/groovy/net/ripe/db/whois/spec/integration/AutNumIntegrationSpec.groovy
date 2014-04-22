@@ -1,4 +1,5 @@
 package net.ripe.db.whois.spec.integration
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
@@ -10,7 +11,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     @Override
     Map<String, String> getFixtures() {
         return [
-                "UPD-MNT": """\
+                "UPD-MNT"      : """\
             mntner: UPD-MNT
             descr: description
             admin-c: AP1-TEST
@@ -21,7 +22,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             changed: dbtest@ripe.net 20120707
             source: TEST
             """,
-                "OTHER-MNT": """\
+                "OTHER-MNT"    : """\
             mntner: OTHER-MNT
             descr: description
             admin-c: AP1-TEST
@@ -31,7 +32,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             changed: dbtest@ripe.net 20120707
             source: TEST
             """,
-                "PWR-MNT": """\
+                "PWR-MNT"      : """\
             mntner:  RIPE-NCC-HM-MNT
             descr:   description
             admin-c: AP1-TEST
@@ -42,7 +43,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
-                "AP1-PN": """\
+                "AP1-PN"       : """\
             person:  Admin Person
             address: Admin Road
             address: Town
@@ -64,7 +65,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             changed:      noreply@ripe.net 20120505
             source:       TEST
             """,
-                "AUTNUM101": """\
+                "AUTNUM101"    : """\
             aut-num:        AS101
             as-name:        End-User-1
             descr:          description
@@ -85,7 +86,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             changed:        noreply@ripe.net 20120101
             source:         TEST
             """,
-                "AS-SET1": """\
+                "AS-SET1"      : """\
             as-set:       AS-TESTSET
             descr:        Test Set
             members:      AS1
@@ -98,7 +99,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             changed:      noreply@ripe.net 20120101
             source:       TEST
             """,
-                "AS-BLOCK1": """\
+                "AS-BLOCK1"    : """\
             as-block:       AS100 - AS300
             descr:          RIPE NCC ASN block
             org:            ORG-NCC1-RIPE
@@ -108,7 +109,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             mbrs-by-ref:    UPD-MNT
             source:         TEST
             """,
-                "AS-BLOCK2": """\
+                "AS-BLOCK2"    : """\
             as-block:       AS300 - AS500
             descr:          RIPE NCC ASN block
             org:            ORG-NCC1-RIPE
@@ -145,15 +146,15 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password:       update
                         delete:         reason
                         """.stripIndent())
-      when:
+        when:
         def response = syncUpdate update
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create aut-num object"() {
-      given:
+        given:
         def update = new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        End-User-2
@@ -180,15 +181,15 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: update
                         """.stripIndent())
 
-      when:
+        when:
         def response = syncUpdate update
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create aut-num object with no parent AS-BLOCK object"() {
-      given:
+        given:
         def update = new SyncUpdate(data: """\
                         aut-num:        AS1000
                         as-name:        End-User-2
@@ -215,15 +216,15 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password:       update
                         """.stripIndent())
 
-      when:
+        when:
         def response = syncUpdate update
 
-      then:
+        then:
         response.contains("***Error:   No parent as-block found for AS1000")
     }
 
     def "create, member-of reference not found"() {
-      given:
+        given:
         def update = new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        End-User-2
@@ -239,16 +240,16 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      when:
+        when:
         def response = syncUpdate(update);
 
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Error:   Unknown object referenced AS-NONEXISTING/
     }
 
     def "create, authentication against asblock's mnt-lower fail"() {
-      given:
+        given:
         def update = new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -263,10 +264,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      when:
+        when:
         def response = syncUpdate(update);
 
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Error:   Authorisation for \[as-block\] AS300 - AS500 failed/
         response =~ /using "mnt-lower:"/
@@ -274,7 +275,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create, authentication against asblock's mnt-lower succeed"() {
-      given:
+        given:
         def update = new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -290,15 +291,15 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: update
                         password: emptypassword
                         """.stripIndent())
-      when:
+        when:
         def response = syncUpdate(update);
 
-      then:
+        then:
         response =~ /SUCCESS/
     }
 
     def "create, authentication against asblock's mnt-by and local mnt-by fail"() {
-      given:
+        given:
         def update = new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -313,10 +314,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: alban
                         """.stripIndent())
-      when:
+        when:
         def response = syncUpdate(update);
 
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Error:   Authorisation for \[as-block\] AS300 - AS500 failed/
         response =~ /using "mnt-by:"/
@@ -328,7 +329,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create, authentication against asblock's mnt-by succeeds, fails on local mnt-by"() {
-      given:
+        given:
         def update = new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -343,10 +344,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         """.stripIndent())
-      when:
+        when:
         def response = syncUpdate(update);
 
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Error:   Authorisation for \[aut-num\] AS400 failed/
         response =~ /using "mnt-by:"/
@@ -354,7 +355,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "modify, only description changed"() {
-      given:
+        given:
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -371,10 +372,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: emptypassword
                         password: update
                         """.stripIndent()));
-      expect:
+        expect:
         insertResponse =~ /SUCCESS/
 
-      when:
+        when:
         def updateResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -392,12 +393,12 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: update
                         """.stripIndent()));
 
-      then:
+        then:
         updateResponse =~ /SUCCESS/
     }
 
     def "modify, added member-of validation fail"() {
-      given:
+        given:
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -410,10 +411,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: emptypassword
                         password: update
                         """.stripIndent()));
-      expect:
+        expect:
         insertResponse =~ /SUCCESS/
 
-      when:
+        when:
         def updateResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -428,15 +429,15 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: update
                         """.stripIndent()));
 
-      then:
+        then:
         updateResponse =~ /FAIL/
         updateResponse.contains(
                 "***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
-                "            referenced set [AS-TESTSET]")
+                        "            referenced set [AS-TESTSET]")
     }
 
     def "modify, added member-of value does not exist"() {
-      given:
+        given:
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -449,10 +450,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: emptypassword
                         password: update
                         """.stripIndent()));
-      expect:
+        expect:
         insertResponse =~ /SUCCESS/
 
-      when:
+        when:
         def updateResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -467,13 +468,13 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: update
                         """.stripIndent()));
 
-      then:
+        then:
         updateResponse =~ /FAIL/
         updateResponse =~ /Unknown object referenced AS-BLAGUE/
     }
 
     def "modify, added member-of validation succeeds"() {
-      given:
+        given:
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -487,10 +488,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: emptypassword
                         password: update
                         """.stripIndent()));
-      expect:
+        expect:
         insertResponse =~ /SUCCESS/
 
-      when:
+        when:
         def updateResponse = syncUpdate(new SyncUpdate(data: """\
                         aut-num:        AS400
                         as-name:        End-User-2
@@ -506,12 +507,12 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: update
                         """.stripIndent()));
 
-      then:
+        then:
         updateResponse =~ /SUCCESS/
     }
 
     def "create, syntax errors"() {
-      given:
+        given:
         def update = new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        End-User-2
@@ -538,10 +539,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: update
                         """.stripIndent())
 
-      when:
+        when:
         def response = syncUpdate update
 
-      then:
+        then:
         response =~ /FAIL/
         response =~ /Syntax error in from AS1 accept/
         response =~ /Syntax error in ato AS1 announce 192.0.0.1/
@@ -552,8 +553,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     // autnum status tests
 
     def "create aut-num object, generate OTHER status"() {
-      when:
-        def response = syncUpdate  new SyncUpdate(data: """\
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User-2
                         descr:          description
@@ -564,15 +565,15 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /SUCCESS/
-      then:
+        then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
         autnum =~ /status:         OTHER/
     }
 
     def "create aut-num object, generate ASSIGNED status"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -585,16 +586,16 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: hm
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /SUCCESS/
-      then:
+        then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
         autnum =~ /status:         ASSIGNED/
     }
 
     def "create aut-num object, generate LEGACY status"() {
-      when:
-        def response = syncUpdate  new SyncUpdate(data: """\
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS103
                         as-name:        End-User
                         descr:          description
@@ -605,16 +606,16 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /SUCCESS/
-      then:
+        then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS103")
         autnum =~ /status:         LEGACY/
     }
 
     def "create aut-num object, user maintainer, replace incorrect status"() {
-      when:
-        def response = syncUpdate  new SyncUpdate(data: """\
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
                         status:         LEGACY
@@ -626,16 +627,16 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
         response =~ /SUCCESS/
-      then:
+        then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
         autnum =~ /status:         OTHER/
     }
 
     def "create aut-num object, rs maintainer, replace incorrect status"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -649,16 +650,16 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: hm
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /SUCCESS/
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
-      then:
+        then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
         autnum =~ /status:         ASSIGNED/
     }
 
     def "update aut-num object, rs maintainer, status cannot be removed"() {
-      given:
+        given:
         syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -673,7 +674,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: hm
                         password: update
                         """.stripIndent())
-      when:
+        when:
         def update = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -686,10 +687,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: hm
                         password: update
                         """.stripIndent())
-      then:
+        then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS102/
         update =~ /Warning: "status:" attribute cannot be removed/
-      then:
+        then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
         autnum.equals(RpslObject.parse("""\
                         aut-num:        AS102
@@ -706,7 +707,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "update autnum object, user maintainer, status cannot be removed"() {
-      when:
+        when:
         def create = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -718,9 +719,9 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS100/
-      then:
+        then:
         def createdAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
         createdAutnum.equals(RpslObject.parse("""\
                         aut-num:        AS100
@@ -734,7 +735,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         changed:        noreply@ripe.net 20120101
                         source:         TEST
                         """.stripIndent()))
-      when:
+        when:
         def update = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -747,10 +748,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS100/
         update =~ /\*\*\*Warning: "status:" attribute cannot be removed/
-      then:
+        then:
         def updatedAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
         updatedAutnum.equals(RpslObject.parse("""\
                         aut-num:        AS100
@@ -769,7 +770,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
 
     def "update autnum object, user maintainer, moving remark is noop"() {
-      when:
+        when:
         def create = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -781,9 +782,9 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS100/
-      then:
+        then:
         def createdAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
         createdAutnum.equals(RpslObject.parse("""\
                         aut-num:        AS100
@@ -797,7 +798,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         changed:        noreply@ripe.net 20120101
                         source:         TEST
                         """.stripIndent()))
-      when:
+        when:
         def update = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
@@ -811,13 +812,13 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         update =~ /No operation: \[aut-num\] AS100/
         update =~ /\*\*\*Warning: Submitted object identical to database object/
     }
 
     def "update autnum object, removing status and remarks is noop"() {
-      when:
+        when:
         def create = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -829,9 +830,9 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS100/
-      then:
+        then:
         def update = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -843,10 +844,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         update =~ /No operation: \[aut-num\] AS100/
         update =~ /\*\*\*Warning: Submitted object identical to database object/
-      then:
+        then:
         def updatedAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
         updatedAutnum.equals(RpslObject.parse("""\
                         aut-num:        AS100
@@ -863,7 +864,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create aut-num object, rs maintainer, generate ASSIGNED status, generate remark"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -876,9 +877,9 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: hm
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /SUCCESS/
-      then:
+        then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
         autnum.equals(RpslObject.parse("""\
                         aut-num:        AS102
@@ -895,7 +896,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create aut-num object, rs maintainer, generate ASSIGNED status, user-specified remark is moved beside status"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -910,9 +911,9 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: hm
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /SUCCESS/
-      then:
+        then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
         autnum.equals(RpslObject.parse("""\
                         aut-num:        AS102
@@ -930,7 +931,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create aut-num object, user maintainer, replace invalid status"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -943,10 +944,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
         response =~ /SUCCESS/
-      then:
+        then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
         autnum.equals(RpslObject.parse("""\
                         aut-num:        AS100
@@ -963,7 +964,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create aut-num object, user maintainer, duplicate status"() {
-      when:
+        when:
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -977,9 +978,9 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
-      then:
+        then:
         response =~ /SUCCESS/
-      then:
+        then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
         println autnum
         autnum.equals(RpslObject.parse("""\
@@ -999,7 +1000,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     // sponsoring org
 
     def "create autnum without sponsoring-org, with referenced ORG orgtype OTHER, end-mnt"() {
-      given:
+        given:
         databaseHelper.addObject("" +
                 "mntner: RIPE-NCC-END-MNT\n" +
                 "auth: MD5-PW \$1\$UfJlEnmZ\$2.e732Z780Y9Y1GB2rOtg/ # ende\n" +
@@ -1016,7 +1017,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-ref:          upd-mnt\n" +
                 "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST")
-      when:
+        when:
         def create = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1032,30 +1033,30 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent()))
 
-      then:
+        then:
         create =~ /Create FAILED: \[aut-num\] AS400/
         create =~ /Error:   This resource object must be created with a sponsoring-org attribute/
     }
 
     def "create autnum with sponsoring-org, with referenced ORG orgtype OTHER, end-mnt"() {
-      given:
+        given:
         databaseHelper.addObject("" +
-              "mntner: RIPE-NCC-END-MNT\n" +
-              "auth: MD5-PW \$1\$UfJlEnmZ\$2.e732Z780Y9Y1GB2rOtg/ # ende\n" +
-              "mnt-by: RIPE-NCC-END-MNT\n" +
-              "source: TEST")
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$UfJlEnmZ\$2.e732Z780Y9Y1GB2rOtg/ # ende\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "source: TEST")
         databaseHelper.addObject("" +
-              "organisation:    ORG-OTO1-TEST\n" +
-              "org-type:        other\n" +
-              "org-name:        Other Test org\n" +
-              "address:         RIPE NCC\n" +
-              "e-mail:          dbtest@ripe.net\n" +
-              "ref-nfy:         dbtest-org@ripe.net\n" +
-              "mnt-by:          upd-mnt\n" +
-              "mnt-ref:          upd-mnt\n" +
-              "changed: denis@ripe.net 20121016\n" +
-              "source:  TEST")
-      when:
+                "organisation:    ORG-OTO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        Other Test org\n" +
+                "address:         RIPE NCC\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "ref-nfy:         dbtest-org@ripe.net\n" +
+                "mnt-by:          upd-mnt\n" +
+                "mnt-ref:          upd-mnt\n" +
+                "changed: denis@ripe.net 20121016\n" +
+                "source:  TEST")
+        when:
         def create = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1071,18 +1072,18 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 password: update
                 """.stripIndent()))
-      then:
+        then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS400/
     }
 
     def "create autnum without sponsoring-org, with referenced ORG orgtype LIR, end-mnt"() {
-      given:
+        given:
         databaseHelper.addObject("" +
-              "mntner: RIPE-NCC-END-MNT\n" +
-              "auth: MD5-PW \$1\$UfJlEnmZ\$2.e732Z780Y9Y1GB2rOtg/ # ende\n" +
-              "mnt-by: RIPE-NCC-END-MNT\n" +
-              "source: TEST")
-      when:
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$UfJlEnmZ\$2.e732Z780Y9Y1GB2rOtg/ # ende\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "source: TEST")
+        when:
         def create = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1097,29 +1098,29 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 password: update
                 """.stripIndent()))
-      then:
+        then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS400/
     }
 
     def "create autnum without sponsoring-org, with referenced ORG orgtype OTHER, not end-mnt"() {
-      given:
+        given:
         databaseHelper.addObject("" +
-              "mntner: RIPE-NCC-END-MNT\n" +
-              "auth: MD5-PW \$1\$UfJlEnmZ\$2.e732Z780Y9Y1GB2rOtg/ # ende\n" +
-              "mnt-by: RIPE-NCC-END-MNT\n" +
-              "source: TEST")
+                "mntner: RIPE-NCC-END-MNT\n" +
+                "auth: MD5-PW \$1\$UfJlEnmZ\$2.e732Z780Y9Y1GB2rOtg/ # ende\n" +
+                "mnt-by: RIPE-NCC-END-MNT\n" +
+                "source: TEST")
         databaseHelper.addObject("" +
-              "organisation:    ORG-OTO1-TEST\n" +
-              "org-type:        other\n" +
-              "org-name:        Other Test org\n" +
-              "address:         RIPE NCC\n" +
-              "e-mail:          dbtest@ripe.net\n" +
-              "ref-nfy:         dbtest-org@ripe.net\n" +
-              "mnt-by:          upd-mnt\n" +
-              "mnt-ref:          upd-mnt\n" +
-              "changed: denis@ripe.net 20121016\n" +
-              "source:  TEST")
-      when:
+                "organisation:    ORG-OTO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        Other Test org\n" +
+                "address:         RIPE NCC\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "ref-nfy:         dbtest-org@ripe.net\n" +
+                "mnt-by:          upd-mnt\n" +
+                "mnt-ref:          upd-mnt\n" +
+                "changed: denis@ripe.net 20121016\n" +
+                "source:  TEST")
+        when:
         def create = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1134,12 +1135,12 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: hm
                 password: update
                 """.stripIndent()))
-      then:
+        then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS400/
     }
 
     def "create autnum with sponsoring-org, no RS mntner"() {
-      when:
+        when:
         def create = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1155,12 +1156,12 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent()))
 
-      then:
+        then:
         create =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
     }
 
     def "create autnum with sponsoring-org succeeds"() {
-      when:
+        when:
         def update = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1178,12 +1179,12 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: hm
                 """.stripIndent()))
 
-      then:
+        then:
         update =~ /Create SUCCEEDED: \[aut-num\] AS400/
     }
 
     def "modify autnum add sponsoring-org, no RS mntner"() {
-      when:
+        when:
         def create = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1197,10 +1198,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 password: update
                 """.stripIndent()))
-      then:
+        then:
         create =~ /Create SUCCEEDED/
 
-      when:
+        when:
         def update = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1216,12 +1217,12 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent()))
 
-      then:
+        then:
         update =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
     }
 
     def "modify autnum add sponsoring-org succeeds"() {
-      when:
+        when:
         def create = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1238,10 +1239,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 password: hm
                 """.stripIndent()))
-      then:
+        then:
         create =~ /Create SUCCEEDED/
 
-      when:
+        when:
         def update = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1260,49 +1261,12 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: hm
                 """.stripIndent()))
 
-      then:
+        then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
     }
 
     def "modify autnum change other attribute than sponsoring-org, no RS mntner"() {
         given:
-      databaseHelper.addObject("""\
-                aut-num:        AS400
-                as-name:        End-User-2
-                status:         OTHER
-                member-of:      AS-TESTSET
-                descr:          other description
-                sponsoring-org: ORG-NCC1-RIPE
-                admin-c:        AP1-TEST
-                tech-c:         AP1-TEST
-                mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
-                source:         TEST
-                override:       denis,override1
-                """.stripIndent())
-
-        when:
-      def update = syncUpdate(new SyncUpdate(data: """\
-                aut-num:        AS400
-                as-name:        End-User-2
-                status:         OTHER
-                member-of:      AS-TESTSET
-                descr:          changed description
-                sponsoring-org: ORG-NCC1-RIPE
-                admin-c:        AP1-TEST
-                tech-c:         AP1-TEST
-                mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
-                source:         TEST
-                password: update
-                """.stripIndent()))
-
-        then:
-      update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
-    }
-
-    def "modify autnum remove sponsoring-org, no RS mntner"() {
-      given:
         databaseHelper.addObject("""\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1318,7 +1282,44 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 override:       denis,override1
                 """.stripIndent())
 
-      when:
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                status:         OTHER
+                member-of:      AS-TESTSET
+                descr:          changed description
+                sponsoring-org: ORG-NCC1-RIPE
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: update
+                """.stripIndent()))
+
+        then:
+        update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
+    }
+
+    def "modify autnum remove sponsoring-org, no RS mntner"() {
+        given:
+        databaseHelper.addObject("""\
+                aut-num:        AS400
+                as-name:        End-User-2
+                status:         OTHER
+                member-of:      AS-TESTSET
+                descr:          other description
+                sponsoring-org: ORG-NCC1-RIPE
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:       denis,override1
+                """.stripIndent())
+
+        when:
         def update = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1333,14 +1334,14 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent()))
 
-      then:
+        then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
-        update =~ /Info:    The attribute 'sponsoring-org' can only be removed by RIPE NCC/
+        update =~ /Warning: The attribute 'sponsoring-org' can only be removed by RIPE NCC/
         queryObject("-rBG AS400", "sponsoring-org", "ORG-NCC1-RIPE")
     }
 
     def "delete autnum with sponsoring-org"() {
-      when:
+        when:
         databaseHelper.addObject("" +
                 "aut-num:        AS400\n" +
                 "as-name:        End-User-2\n" +
@@ -1353,10 +1354,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:         UPD-MNT\n" +
                 "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST")
-      then:
+        then:
         queryObject("AS400", "aut-num", "AS400")
 
-      when:
+        when:
         def delete = syncUpdate(new SyncUpdate(data: """\
                 aut-num:        AS400
                 as-name:        End-User-2
@@ -1374,7 +1375,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 """.stripIndent()))
 
-      then:
+        then:
         delete =~ /Delete SUCCEEDED: \[aut-num\] AS400/
     }
 }
