@@ -278,7 +278,7 @@ public class WhoisRestService {
         }
     }
 
-    private void checkForMainSource(HttpServletRequest request, String source) {
+    private void checkForMainSource(final HttpServletRequest request, final String source) {
         if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.invalidSource(source))).build());
         }
@@ -467,7 +467,7 @@ public class WhoisRestService {
         return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);
     }
 
-    private void validateSearchKey(final HttpServletRequest request, String searchKey) {
+    private void validateSearchKey(final HttpServletRequest request, final String searchKey) {
         if (StringUtils.isBlank(searchKey)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.queryStringEmpty())).build());
         }
@@ -519,7 +519,7 @@ public class WhoisRestService {
         }
     }
 
-    private List<ErrorMessage> createErrorMessages(List<Message> messages) {
+    private List<ErrorMessage> createErrorMessages(final List<Message> messages) {
         List<ErrorMessage> errorMessages = Lists.newArrayList();
         for (Message message : messages) {
             errorMessages.add(new ErrorMessage(message));
@@ -527,11 +527,11 @@ public class WhoisRestService {
         return errorMessages;
     }
 
-    private WhoisResources createErrorEntity(final HttpServletRequest request, Message... errorMessage) {
+    private WhoisResources createErrorEntity(final HttpServletRequest request, final Message... errorMessage) {
         return createErrorEntity(request, Arrays.asList(errorMessage));
     }
 
-    private WhoisResources createErrorEntity(final HttpServletRequest request, List<Message> errorMessages) {
+    private WhoisResources createErrorEntity(final HttpServletRequest request, final List<Message> errorMessages) {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setErrorMessages(createErrorMessages(errorMessages));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
@@ -803,11 +803,11 @@ public class WhoisRestService {
             return query.append(searchKey).toString();
         }
 
-        public static boolean checkForNoParam(String... params) {
+        public static boolean checkForNoParam(final String... params) {
             return checkForNoParam(Arrays.asList(params));
         }
 
-        public static boolean checkForNoParam(Collection<String> params) {
+        public static boolean checkForNoParam(final Collection<String> params) {
             for (final String param : params) {
                 for (final String searchparam : WHITESPACE_SPLITTER.split(param)) {
                     if (searchparam.length() > 1 && searchparam.charAt(0) == '-') {
