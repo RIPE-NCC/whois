@@ -394,16 +394,14 @@ class OrgSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T organisation ORG-XA1-TEST", "organisation", "ORG-XA1-TEST")
     }
 
-    def "create organisation org-type LIR no power mntner"() {
-      expect:
+    def "create organisation disallowed org-type no power mntner"() {
+      given:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-      when:
         def message = send new Message(
                 subject: "",
-                body: """\
+                body: sprintf("""\
                 organisation:    auto-1
-                org-type:        LIR
+                org-type:        %s
                 org-name:        First Org
                 address:         Amsterdam
                 e-mail:          dbtest@ripe.net
@@ -413,47 +411,10 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(), orgtype)
         )
 
-      then:
-        def ack = ackFor message
-        ack.failed
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "\"org-type:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
-
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-    }
-
-    def "create organisation org-type IANA no power mntner"() {
       expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                organisation:    auto-1
-                org-type:        IANA
-                org-name:        First Org
-                address:         Amsterdam
-                e-mail:          dbtest@ripe.net
-                mnt-ref:         owner3-mnt
-                mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
-                source:          TEST
-
-                password: owner2
-                """.stripIndent()
-        )
-
-      then:
         def ack = ackFor message
         ack.failed
 
@@ -463,120 +424,18 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "\"org-type:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
+                "Value '"+orgtype+"' can only be set by the RIPE NCC for this organisation."]
 
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-    }
 
-    def "create organisation org-type RIR no power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                organisation:    auto-1
-                org-type:        RIR
-                org-name:        First Org
-                address:         Amsterdam
-                e-mail:          dbtest@ripe.net
-                mnt-ref:         owner3-mnt
-                mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
-                source:          TEST
-
-                password: owner2
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-        ack.failed
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "\"org-type:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
-
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-    }
-
-    def "create organisation org-type WHITEPAGES no power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                organisation:    auto-1
-                org-type:        WHITEPAGES
-                org-name:        First Org
-                address:         Amsterdam
-                e-mail:          dbtest@ripe.net
-                mnt-ref:         owner3-mnt
-                mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
-                source:          TEST
-
-                password: owner2
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-        ack.failed
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "\"org-type:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
-
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-    }
-
-    def "create organisation org-type DIRECT_ASSIGNMENT no power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                organisation:    auto-1
-                org-type:        DIRECT_ASSIGNMENT
-                org-name:        First Org
-                address:         Amsterdam
-                e-mail:          dbtest@ripe.net
-                mnt-ref:         owner3-mnt
-                mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
-                source:          TEST
-
-                password: owner2
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-        ack.failed
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "\"org-type:\" value can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
-
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+        where:
+        orgtype << [
+                "LIR",
+                "IANA",
+                "RIR",
+                "WHITEPAGES",
+                "DIRECT_ASSIGNMENT"
+        ]
     }
 
     def "create organisation org-type LIR with power mntner"() {
