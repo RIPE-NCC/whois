@@ -1075,10 +1075,10 @@ class SponsorSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
-        ack.infoSuccessMessagesFor("Modify", "[aut-num] AS222") ==
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS222") ==
                 ["The attribute 'sponsoring-org' can only be removed by RIPE NCC"]
     }
 
