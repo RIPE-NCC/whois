@@ -189,8 +189,8 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Enforced new keyword specified, but the object already exists in the database");
     }
 
-    public static Message invalidMaintainerForOrganisationType() {
-        return new Message(Type.ERROR, "Value 'LIR' can only be set by the RIPE NCC for this organisation.");
+    public static Message invalidMaintainerForOrganisationType(CharSequence orgType) {
+        return new Message(Type.ERROR, "Value '%s' can only be set by the RIPE NCC for this organisation.", orgType);
     }
 
     public static Message cantChangeOrgAttribute() {
