@@ -134,7 +134,7 @@ class AuditLogger {
 
     public void logPreparedUpdate(final PreparedUpdate preparedUpdate) {
         final Element updateElement = createOrGetUpdateElement(preparedUpdate.getUpdate());
-        updateElement.appendChild(keyValue("updateObject", preparedUpdate.getUpdatedObject()));
+        updateElement.appendChild(keyValue("updatedObject", preparedUpdate.getUpdatedObject()));
     }
 
     public void logException(final Update update, final Throwable throwable) {

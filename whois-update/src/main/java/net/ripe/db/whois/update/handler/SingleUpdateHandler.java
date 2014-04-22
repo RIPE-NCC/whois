@@ -25,9 +25,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
-import net.ripe.db.whois.update.generator.AutnumAttributeGenerator;
-import net.ripe.db.whois.update.generator.KeycertAttributeGenerator;
-import net.ripe.db.whois.update.generator.SponsoringOrgAttributeGenerator;
+import net.ripe.db.whois.update.generator.AttributeGenerator;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +46,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 public class SingleUpdateHandler {
     private final AutoKeyResolver autoKeyResolver;
     private final AttributeSanitizer attributeSanitizer;
-    private final KeycertAttributeGenerator keycertAttributeGenerator;
-    private final AutnumAttributeGenerator autnumStatusAttributeGenerator;
-    private final SponsoringOrgAttributeGenerator sponsoringOrgAttributeGenerator;
+    private final AttributeGenerator[] attributeGenerators;
     private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final UpdateLockDao updateLockDao;
@@ -69,8 +65,7 @@ public class SingleUpdateHandler {
 
     @Autowired
     public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver,
-                               final KeycertAttributeGenerator keycertAttributeGenerator,
-                               final AutnumAttributeGenerator autnumStatusAttributeGenerator,
+                               final AttributeGenerator[] attributeGenerators,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final LoggerContext loggerContext,
@@ -82,9 +77,7 @@ public class SingleUpdateHandler {
                                final PendingUpdateHandler pendingUpdateHandler,
                                final SsoTranslator ssoTranslator) {
         this.autoKeyResolver = autoKeyResolver;
-        this.keycertAttributeGenerator = keycertAttributeGenerator;
-        this.autnumStatusAttributeGenerator = autnumStatusAttributeGenerator;
-        this.sponsoringOrgAttributeGenerator = new SponsoringOrgAttributeGenerator();
+        this.attributeGenerators = attributeGenerators;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
@@ -102,6 +95,9 @@ public class SingleUpdateHandler {
         updateLockDao.setUpdateLock();
         ipTreeUpdater.updateCurrent();
 
+        // FIXME: [AH] ATM nothing is setting submittedobjectinfo, rendering this call surplus
+        checkForUnexpectedModification(update);
+
         if (updateContext.isDryRun()) {
             updateContext.addMessage(update, UpdateMessages.dryRunNotice());
         }
@@ -109,44 +105,56 @@ public class SingleUpdateHandler {
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
         RpslObject updatedObject = getUpdatedObject(originalObject, update, updateContext, keyword);
-        final Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
+        Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
         if (action == Action.NOOP) {
             updatedObject = originalObject;
         }
+
+        if (action == Action.DELETE && originalObject == null) {
+            updateContext.addMessage(update, UpdateMessages.objectNotFound(updatedObject.getFormattedKey()));
+        }
+
+        // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...), bail out if so
+        if (updateContext.hasErrors(update)) {
+            PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
+            updateContext.setPreparedUpdate(preparedUpdate);
+
+            throw new UpdateFailedException();
+        }
+
+        // resolve AUTO- keys
+        updatedObject = autoKeyResolver.resolveAutoKeys(updatedObject, update, updateContext, action);
         PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
         updateContext.setPreparedUpdate(preparedUpdate);
 
-        // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...)
-        if (updateContext.hasErrors(preparedUpdate)) {
-            throw new UpdateFailedException();
-        }
-
-        checkForUnexpectedModification(update);
-
-        if (Action.DELETE.equals(preparedUpdate.getAction()) && !preparedUpdate.hasOriginalObject()) {
-            updateContext.addMessage(preparedUpdate, UpdateMessages.objectNotFound(preparedUpdate.getFormattedKey()));
-            throw new UpdateFailedException();
-        }
-
-        // TODO: [AH] Hard to follow code from here. Refactor on next change.
-        final RpslObject objectWithResolvedKeys = autoKeyResolver.resolveAutoKeys(updatedObject, update, updateContext, action);
-        preparedUpdate = new PreparedUpdate(update, originalObject, objectWithResolvedKeys, action, overrideOptions);
-
-        loggerContext.logPreparedUpdate(preparedUpdate);
+        // add authentication to context
         authenticator.authenticate(origin, preparedUpdate, updateContext);
 
-        preparedUpdate = new PreparedUpdate(update, originalObject, sponsoringOrgAttributeGenerator.generateAttributes(originalObject, objectWithResolvedKeys, update, updateContext), action, overrideOptions);
+        // attributegenerators rely on authentication info
+        for (AttributeGenerator attributeGenerator : attributeGenerators) {
+            updatedObject = attributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
+        }
 
+        // need to recalculate action after attributegenerators
+        action = getAction(originalObject, updatedObject, update, updateContext, keyword);
+        updateContext.setAction(update, action);
+        if (action == Action.NOOP) {
+            updatedObject = originalObject;
+        }
+
+        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
+        updateContext.setPreparedUpdate(preparedUpdate);
+
+        // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
+        // TODO: [AH] pending updates is scattered across the code
         final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
 
         if ((pendingAuthentication && !businessRulesOk) || (!pendingAuthentication && updateContext.hasErrors(update))) {
             throw new UpdateFailedException();
         }
-
-        updateContext.setPreparedUpdate(preparedUpdate);
 
         if (updateContext.isDryRun()) {
             throw new UpdateAbortedException();
@@ -211,21 +219,11 @@ public class SingleUpdateHandler {
                 updateContext.addMessage(update, UpdateMessages.multipleReasonsSpecified(update.getOperation()));
             }
         } else {
-            final ObjectMessages messages = new ObjectMessages();
+            final ObjectMessages messages = updateContext.getMessages(update);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
+            ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
 
-            if (!messages.hasErrors()) {
-                // do not run sophisticated operations on structurally broken objects
-                updatedObject = attributeSanitizer.sanitize(updatedObject, updateContext.getMessages(update));
-                updatedObject = keycertAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
-                updatedObject = autnumStatusAttributeGenerator.generateAttributes(originalObject, updatedObject, update, updateContext);
-            }
-
-            ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages);
-
-            if (messages.hasMessages()) {
-                updateContext.addMessages(update, messages);
-            }
+            updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
         }
 
         return updatedObject;
