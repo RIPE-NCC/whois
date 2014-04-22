@@ -190,17 +190,21 @@ public final class UpdateMessages {
     }
 
     public static Message invalidMaintainerForOrganisationType() {
-        return new Message(Type.ERROR, "\"org-type:\" value can only be changed by the RIPE NCC for this organisation.\n" +
-                "Please contact \"ncc@ripe.net\" to change the name.");
+        return new Message(Type.ERROR, "Value 'LIR' can only be set by the RIPE NCC for this organisation.");
     }
 
     public static Message cantChangeOrgAttribute() {
-        return new Message(Type.ERROR, "\"org:\" value can only be changed by the RIPE NCC for this organisation.\n" +
-                "Please contact \"ncc@ripe.net\" to change the name.");
+        return new Message(Type.ERROR, "Referenced organisation can only be changed by the RIPE NCC for this resource.\n" +
+                "Please contact \"ncc@ripe.net\" to change this reference.");
+    }
+
+    public static Message cantRemoveOrgAttribute() {
+        return new Message(Type.ERROR, "Referenced organisation can only be removed by the RIPE NCC for this resource.\n" +
+                "Please contact \"ncc@ripe.net\" to remove this reference.");
     }
 
     public static Message cantChangeOrgName() {
-        return new Message(Type.ERROR, "\"org-name:\" value can only be changed by the RIPE NCC for this organisation.\n" +
+        return new Message(Type.ERROR, "Organisation name can only be changed by the RIPE NCC for this organisation.\n" +
                 "Please contact \"ncc@ripe.net\" to change the name.");
     }
 

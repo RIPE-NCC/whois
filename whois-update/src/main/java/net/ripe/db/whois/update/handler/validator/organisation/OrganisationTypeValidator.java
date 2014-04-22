@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -40,10 +41,11 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
             return;
         }
 
-        final CIString orgType = update.getUpdatedObject().getValueForAttribute(AttributeType.ORG_TYPE);
+        final RpslAttribute attribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
+        final CIString orgType = attribute.getCleanValue();
 
         if (!OTHER.equals(orgType) && orgTypeHasChanged(update, orgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
-            updateContext.addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+            updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType());
         }
     }
 
