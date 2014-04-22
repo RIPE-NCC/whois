@@ -222,10 +222,9 @@ public class SingleUpdateHandler {
             }
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
+            updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
-
-            updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
         }
 
         return updatedObject;
