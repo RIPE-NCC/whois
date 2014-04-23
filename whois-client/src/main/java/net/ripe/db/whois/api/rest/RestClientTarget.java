@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
@@ -301,7 +300,7 @@ public class RestClientTarget {
     private WebTarget setParams(final WebTarget webTarget) {
         WebTarget updatedWebTarget = webTarget;
         for (Map.Entry<String, List<String>> param : params.entrySet()) {
-            updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), Lists.transform(param.getValue(), new EncodingFunction()).toArray());
+            updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), Lists.transform(param.getValue(), RestClientUtils.ENCODING_FUNCTION).toArray());
         }
         return updatedWebTarget;
     }
@@ -353,13 +352,6 @@ public class RestClientTarget {
         } catch (ProcessingException | IllegalStateException e1) {
             // stream has already been closed
             return new RestClientException(e1.getCause());
-        }
-    }
-
-    private class EncodingFunction implements Function<String, String> {
-        @Override
-        public String apply(final String input) {
-            return RestClientUtils.encode(input);
         }
     }
 }
