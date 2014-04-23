@@ -112,7 +112,7 @@ public class MassUpdateAutnumStatus {
             LOGGER.info("Updating autnum: " + key);
 
             //do a lookup first to get the latest version of the object. The split files may have old info.
-            final RpslObject object = restClient.request().addParam("override", override).lookup(ObjectType.AUT_NUM, key);
+            final RpslObject object = restClient.request().lookup(ObjectType.AUT_NUM, key);
 
             if (!object.getValuesForAttribute(AttributeType.STATUS).isEmpty()) {
                 return Status.STATUS_ALREADY_SET;
