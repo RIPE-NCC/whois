@@ -20,6 +20,8 @@ import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
+import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -156,7 +158,8 @@ public class WhoisRestService {
     private final RpslObjectDao rpslObjectDao;
     private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
-    private final WhoisObjectServerMapper whoisObjectMapper;
+    private final WhoisObjectMapper whoisObjectMapper;
+    private final WhoisObjectServerMapper whoisObjectServerMapper;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
 
@@ -164,13 +167,15 @@ public class WhoisRestService {
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
                             final SourceContext sourceContext,
                             final QueryHandler queryHandler,
-                            final WhoisObjectServerMapper whoisObjectMapper,
+                            final WhoisObjectMapper whoisObjectMapper,
+                            final WhoisObjectServerMapper whoisObjectServerMapper,
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator) {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.whoisObjectMapper = whoisObjectMapper;
+        this.whoisObjectServerMapper = whoisObjectServerMapper;
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
     }
@@ -348,7 +353,7 @@ public class WhoisRestService {
         }
 
         final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
-        final WhoisVersions whoisVersions = new WhoisVersions(type, key, whoisObjectMapper.mapVersions(deleted, versions));
+        final WhoisVersions whoisVersions = new WhoisVersions(type, key, whoisObjectServerMapper.mapVersions(deleted, versions));
 
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setVersions(whoisVersions);
@@ -388,7 +393,7 @@ public class WhoisRestService {
 
         // TODO: [AH] this should use StreamingMarshal to properly handle newlines in errormessages
         final WhoisResources whoisResources = new WhoisResources();
-        final WhoisObject whoisObject = whoisObjectMapper.map(versionWithRpslResponseObject.getRpslObject());
+        final WhoisObject whoisObject = whoisObjectMapper.map(versionWithRpslResponseObject.getRpslObject(), FormattedServerAttributeMapper.class);
         whoisObject.setVersion(versionWithRpslResponseObject.getVersion());
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         whoisResources.setErrorMessages(createErrorMessages(versionsResponseHandler.getErrors()));
@@ -544,7 +549,7 @@ public class WhoisRestService {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.singleObjectExpected(whoisResources.getWhoisObjects().size()))).build());
         }
 
-        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
     }
 
     private void validateSubmittedObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
@@ -725,7 +730,7 @@ public class WhoisRestService {
                     return;
                 }
 
-                final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, tagResponseObjects);
+                final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, tagResponseObjects, FormattedServerAttributeMapper.class);
 
                 // TODO: [AH] add method 'writeAsArray' or 'writeObject' to StreamingMarshal interface to get rid of this uglyness
                 if (streamingMarshal instanceof StreamingMarshalJson) {
