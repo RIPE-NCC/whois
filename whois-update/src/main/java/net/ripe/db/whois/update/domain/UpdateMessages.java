@@ -189,18 +189,22 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Enforced new keyword specified, but the object already exists in the database");
     }
 
-    public static Message invalidMaintainerForOrganisationType() {
-        return new Message(Type.ERROR, "\"org-type:\" value can only be changed by the RIPE NCC for this organisation.\n" +
-                "Please contact \"ncc@ripe.net\" to change the name.");
+    public static Message invalidMaintainerForOrganisationType(CharSequence orgType) {
+        return new Message(Type.ERROR, "Value '%s' can only be set by the RIPE NCC for this organisation.", orgType);
     }
 
     public static Message cantChangeOrgAttribute() {
-        return new Message(Type.ERROR, "\"org:\" value can only be changed by the RIPE NCC for this organisation.\n" +
-                "Please contact \"ncc@ripe.net\" to change the name.");
+        return new Message(Type.ERROR, "Referenced organisation can only be changed by the RIPE NCC for this resource.\n" +
+                "Please contact \"ncc@ripe.net\" to change this reference.");
+    }
+
+    public static Message cantRemoveOrgAttribute() {
+        return new Message(Type.ERROR, "Referenced organisation can only be removed by the RIPE NCC for this resource.\n" +
+                "Please contact \"ncc@ripe.net\" to remove this reference.");
     }
 
     public static Message cantChangeOrgName() {
-        return new Message(Type.ERROR, "\"org-name:\" value can only be changed by the RIPE NCC for this organisation.\n" +
+        return new Message(Type.ERROR, "Organisation name can only be changed by the RIPE NCC for this organisation.\n" +
                 "Please contact \"ncc@ripe.net\" to change the name.");
     }
 

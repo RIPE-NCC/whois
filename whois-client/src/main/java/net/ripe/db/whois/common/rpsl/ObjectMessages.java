@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class ObjectMessages {
     private final Messages messages = new Messages();
-    private final Map<RpslAttribute, Messages> attributeMessages = Maps.newHashMap();
+    private final Map<RpslAttribute, Messages> attributeMessages = Maps.newLinkedHashMap();
 
     public Messages getMessages() {
         return messages;

@@ -155,10 +155,7 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
                 "***Warning: An override password was found not attached to an object and was\n" +
                 "            ignored")
 
-        result.contains("" +
-                "Error:   \"org-type:\" value can only be changed by the RIPE NCC for this\n" +
-                "            organisation.\n" +
-                "            Please contact \"ncc@ripe.net\" to change the name.")
+        result.contains("***Error:   Value 'IANA' can only be set by the RIPE NCC for this organisation.");
     }
 
     def "override wrong password"() {

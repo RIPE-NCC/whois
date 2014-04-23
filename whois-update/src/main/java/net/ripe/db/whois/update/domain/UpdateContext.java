@@ -172,6 +172,7 @@ public class UpdateContext {
     }
 
     public void setPreparedUpdate(final PreparedUpdate preparedUpdate) {
+        loggerContext.logPreparedUpdate(preparedUpdate);
         final Context context = getOrCreateContext(preparedUpdate);
         context.preparedUpdate = preparedUpdate;
     }

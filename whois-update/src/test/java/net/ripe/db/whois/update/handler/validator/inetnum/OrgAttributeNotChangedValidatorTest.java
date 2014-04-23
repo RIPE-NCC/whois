@@ -1,19 +1,24 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -58,7 +63,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgAttribute());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
     }
 
     @Test
@@ -71,7 +77,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgAttribute());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
     }
 
     @Test
@@ -93,11 +100,12 @@ public class OrgAttributeNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgAttribute());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
     }
 
     @Test
-    public void validate_resource_maintained_by_ripe_auth_by_other_mnt() {
+    public void validate_modify_resource_maintained_by_ripe_auth_by_other_mnt() {
         final RpslObject original = RpslObject.parse("" +
                 "aut-num: AS123\n" +
                 "org: ORG-RT-TEST\n" +
@@ -115,7 +123,30 @@ public class OrgAttributeNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.cantChangeOrgAttribute());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext).addMessage(update, updated.findAttribute(AttributeType.ORG), UpdateMessages.cantChangeOrgAttribute());
+    }
+
+    @Test
+    public void validate_delete_resource_maintained_by_ripe_auth_by_other_mnt() {
+        final RpslObject original = RpslObject.parse("" +
+                "aut-num: AS123\n" +
+                "org: ORG-RT-TEST\n" +
+                "mnt-by: RIPE-NCC-HM-MNT");
+        when(update.getReferenceObject()).thenReturn(original);
+
+        final RpslObject updated = RpslObject.parse("" +
+                "aut-num: AS123\n" +
+                "mnt-by: RIPE-NCC-HM-MNT");
+        when(update.getUpdatedObject()).thenReturn(updated);
+        when(update.isOverride()).thenReturn(Boolean.FALSE);
+        when(updateContext.getSubject(update)).thenReturn(subjectObject);
+        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.cantRemoveOrgAttribute());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
     }
 
     @Test
@@ -139,7 +170,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgAttribute());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
     }
 
     @Test
@@ -163,6 +195,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.cantChangeOrgAttribute());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
     }
 }
