@@ -13,7 +13,6 @@ public class Update implements UpdateContainer {
     private final Paragraph paragraph;
     private final Operation operation;
 
-    // TODO: [AH] these 3 should be moved to preparedupdate?
     private final List<String> deleteReasons;
     private final RpslObject submittedObject;
     private final RpslObjectUpdateInfo submittedObjectInfo;

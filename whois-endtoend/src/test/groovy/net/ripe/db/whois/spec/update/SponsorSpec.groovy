@@ -1,6 +1,8 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.rpsl.AttributeType
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import spock.lang.Ignore
@@ -1052,13 +1054,33 @@ class SponsorSpec extends BaseQueryUpdateSpec {
 
         where:
         status | extra
-        "ALLOCATED-BY-RIR" | ""
-        "ALLOCATED-BY-LIR" | ""
+        "ALLOCATED-BY-RIR"  | ""
+        "ALLOCATED-BY-LIR"  | ""
         "AGGREGATED-BY-LIR" | "\nassignment-size: 96"
-        "ASSIGNED" | ""
-        "ASSIGNED ANYCAST" | ""
+        "ASSIGNED"          | ""
+        "ASSIGNED ANYCAST"  | ""
     }
 
+    def "remove sponsoring-org without override without RS maintainer is NOOP"() {
+        given:
+        syncUpdate(getTransient("AS222SPON") + "password: nccend\npassword: hm\npassword: owner3")
+
+        def removedSponsoringOrg = new RpslObjectBuilder(getTransient("AS222SPON").trim()).removeAttributeType(AttributeType.SPONSORING_ORG).get().toString()
+        def message = syncUpdate(removedSponsoringOrg +"\npassword: lir\n");
+
+        expect:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS222") ==
+                ["The attribute 'sponsoring-org' can only be removed by RIPE NCC"]
+    }
 
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, change to another type LIR sponsoring org, with RS pw"() {
         given:

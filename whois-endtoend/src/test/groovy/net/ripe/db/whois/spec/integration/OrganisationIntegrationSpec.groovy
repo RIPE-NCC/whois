@@ -181,23 +181,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         result =~ /Syntax error in WRONG/
     }
 
-    def "orgtype IANA (and others) requires mnt-by from rip.config"() {
-      given:
-        def data = fixtures["ORG1"].stripIndent() + "password:update"
-        data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: IANA")
-
-        def update = new SyncUpdate(data: data)
-
-      when:
-        def result = syncUpdate update
-
-      then:
-        result =~ /FAIL/
-        result =~ /Error:   "org-type:" value can only be changed by the RIPE NCC for this
-            organisation.
-            Please contact "ncc@ripe.net" to change the name./
-    }
-
     def "orgtype LIR (and others) passes when mnt-by from rip.config in create"() {
       given:
         def data = """\
@@ -221,69 +204,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         result =~ /SUCCESS/
-    }
-
-    def "orgtype LIR (and others) fails when mnt-by from rip.config only in update"() {
-      given:
-        def data = fixtures["ORG1"].stripIndent() + "password:update"
-        data = (data =~ /org-type:     OTHER/).replaceFirst("org-type: LIR")
-        data = (data =~ /mnt-by:       TST-MNT/).replaceFirst("mnt-by:RIPE-NCC-HM-MNT")
-
-        def update = new SyncUpdate(data: data)
-
-      when:
-        def result = syncUpdate update
-
-      then:
-        result =~ /\*\*\*Error:   "org-type:" value can only be changed by the RIPE NCC for this
-            organisation.
-            Please contact "ncc@ripe.net" to change the name./
-    }
-
-    def "other mntners than powermaintainers fail update"() {
-      given:
-        def update = new SyncUpdate(data: "organisation: ORG-TOL1-TEST\n" +
-                "org-name:     Test Organisation Ltd\n" +
-                "org-type: LIR\n" +
-                "descr:        test org\n" +
-                "address:      street 5\n" +
-                "e-mail:       org1@test.com\n" +
-                "mnt-ref:      TST-MNT\n" +
-                "mnt-by:       RIPE-NCC-HM-MNT\n" +
-                "mnt-by:       TST-MNT2\n" +
-                "changed:      dbtest@ripe.net 20120505\n" +
-                "source:       TEST\n" +
-                "password:update".stripIndent())
-
-      when:
-        def result = syncUpdate update
-
-      then:
-        result =~ /\*\*\*Error:   "org-type:" value can only be changed by the RIPE NCC for this
-            organisation.
-            Please contact "ncc@ripe.net" to change the name./
-    }
-
-    def "create auth by pwrmntner succeeds"() {
-      given:
-        def update = new SyncUpdate(data: "organisation: AUTO-1\n" +
-                "org-name:     Other Organisation Ltd\n" +
-                "org-type: LIR\n" +
-                "descr:        test org\n" +
-                "address:      street 5\n" +
-                "e-mail:       org1@test.com\n" +
-                "mnt-ref:      TST-MNT\n" +
-                "mnt-by:       RIPE-NCC-HM-MNT\n" +
-                "mnt-by:       TST-MNT2\n" +
-                "changed:      dbtest@ripe.net 20120505\n" +
-                "source:       TEST\n" +
-                "password:update".stripIndent())
-
-      when:
-        def result = syncUpdate update
-
-      then:
-        result =~ /Create SUCCEEDED: \[organisation\] ORG-OOL1-TEST/
     }
 
     def "create organisation no mntner"() {
@@ -655,46 +575,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Modify SUCCEEDED: \[aut-num\] AS123/
     }
 
-    def "org attribute changed any RS mntner not override nor auth by RS"() {
-      given:
-        databaseHelper.addObject("" +
-                "mntner: RIPE-NCC-END-MNT\n" +
-                "mnt-by: RIPE-NCC-END-MNT\n" +
-                "auth: MD5-PW \$1\$lg/7YFfk\$X6ScFx7wATYpuuh/VNU631 #end\n" +
-                "source: TEST");
-
-        databaseHelper.addObject("" +
-                "aut-num: AS123\n" +
-                "as-name: asname\n" +
-                "descr: descr\n" +
-                "org: ORG-TOL2-TEST\n" +
-                "admin-c: TEST-RIPE\n" +
-                "tech-c: TEST-RIPE\n" +
-                "mnt-by: TST-MNT\n" +
-                "mnt-by: RIPE-NCC-END-MNT\n" +
-                "changed: test@ripe.net\n" +
-                "source: TEST");
-
-      when:
-        def response = syncUpdate new SyncUpdate(data: """\
-                aut-num: AS123
-                as-name: asname2
-                descr: descr
-                org: ORG-TOL1-TEST
-                admin-c: TEST-RIPE
-                tech-c: TEST-RIPE
-                mnt-by: TST-MNT
-                mnt-by: RIPE-NCC-END-MNT
-                changed: test@ripe.net
-                source: TEST
-                password: update
-                """)
-      then:
-        response =~ /"org:" value can only be changed by the RIPE NCC for this
-            organisation.
-            Please contact "ncc@ripe.net" to change the name./
-    }
-
     def "org attribute changed RS mntner not override"() {
       given:
         databaseHelper.addObject("" +
@@ -820,46 +700,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ /Modify SUCCEEDED: \[organisation\] ORG-TO1-TEST/
-    }
-
-    def "org-name changed organisation ref by resource with RSmntner not auth by RS mntner"() {
-      given:
-        databaseHelper.addObject("" +
-                "mntner: RIPE-NCC-END-MNT\n" +
-                "mnt-by: RIPE-NCC-END-MNT\n" +
-                "auth: MD5-PW \$1\$lg/7YFfk\$X6ScFx7wATYpuuh/VNU631 #end\n" +
-                "source: TEST");
-
-        databaseHelper.addObject("" +
-                "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Org" +
-                "mnt-by: TST-MNT\n" +
-                "source: TEST")
-
-        databaseHelper.addObject("" +
-                "aut-num: AS1234\n" +
-                "org: ORG-TO1-TEST\n" +
-                "mnt-by: RIPE-NCC-END-MNT\n" +
-                "source: TEST")
-
-      when:
-        def response = syncUpdate new SyncUpdate(data: """\
-                organisation: ORG-TO1-TEST
-                org-name:     Updated Org
-                org-type:     OTHER
-                address:      Singel 258
-                e-mail:        bitbucket@ripe.net
-                changed:      admin@test.com 20120505
-                mnt-by:       TST-MNT
-                mnt-ref:      TST-MNT
-                source:       TEST
-                password: update
-                """.stripIndent())
-
-      then:
-        response =~ /Error:   "org-name:" value can only be changed by the RIPE NCC for this
-            organisation.
-            Please contact "ncc@ripe.net" to change the name./
     }
 
     def "org-name changed organisation ref by resource with RSmntner auth by RS mntner"() {

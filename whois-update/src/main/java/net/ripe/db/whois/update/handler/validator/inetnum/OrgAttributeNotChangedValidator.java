@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
@@ -54,7 +55,12 @@ public class OrgAttributeNotChangedValidator implements BusinessRuleValidator {
 
         final Subject subject = updateContext.getSubject(update);
         if (rsMaintained && !(subject.hasPrincipal(Principal.RS_MAINTAINER) || subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER))) {
-            updateContext.addMessage(update, UpdateMessages.cantChangeOrgAttribute());
+            final List<RpslAttribute> org = update.getUpdatedObject().findAttributes(AttributeType.ORG);
+            if (org.isEmpty()) {
+                updateContext.addMessage(update, UpdateMessages.cantRemoveOrgAttribute());
+            } else {
+                updateContext.addMessage(update, org.get(0), UpdateMessages.cantChangeOrgAttribute());
+            }
         }
     }
 }
