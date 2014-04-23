@@ -193,7 +193,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public RpslObject getByKeyOrNull(final ObjectType type, final CIString key) {
-        return getByKey(type, key.toString());
+        return getByKeyOrNull(type, key.toString());
     }
 
     @Override

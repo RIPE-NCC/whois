@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.dao.jdbc;
 
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -21,6 +22,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -120,8 +122,24 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
     }
 
     @Test(expected = EmptyResultDataAccessException.class)
-    public void nonexistentIrtLookup() {
+     public void nonexistentIrtLookup() {
         subject.getByKey(ObjectType.IRT, "nonexistent");
+    }
+
+    @Test
+    public void getByKeyOrNullIrtLookupReturnsNull() {
+        final RpslObject result = subject.getByKeyOrNull(ObjectType.IRT, CIString.ciString("nonexistent"));
+
+        assertThat(result, is(nullValue()));
+    }
+
+    @Test
+    public void getByKeyOrNullIrtLookup() {
+        databaseHelper.addObject("irt:DEV-IRT");
+
+        final RpslObject result = subject.getByKeyOrNull(ObjectType.IRT, CIString.ciString("DEV-IRT"));
+
+        assertThat(result.getKey().toString(), is("DEV-IRT"));
     }
 
     /*
