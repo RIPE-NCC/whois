@@ -32,7 +32,6 @@ public class MassUpdateAutnumStatus {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MassUpdateAutnumStatus.class.getSimpleName());
     private static final String OVERRIDE = "override";
-    private static final String OVERRIDE_COMMENT = "setting_autnum_status_with_override";
     private static final File OUTPUT_FILE = new File("massUpdateAutnumStatus.txt");
 
     private static final String SPLIT_FILE = "/ncc/ftp/ripe/dbase/split/ripe.db.aut-num.gz";
@@ -51,7 +50,7 @@ public class MassUpdateAutnumStatus {
 
         append("Updating autnums using override user: " + override.split(",")[0]);
 
-        updateAutnums(override + "," + OVERRIDE_COMMENT);
+        updateAutnums(override + ",mass_setting_autnum_status {notify=false}");
 
         LOGGER.debug("done");
     }
