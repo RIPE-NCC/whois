@@ -62,8 +62,9 @@ public class SponsoringOrgAdder {
         final String overrideUser = (String)options.valueOf(ARG_OVERRIDE_USER);
         final String overridePass = (String)options.valueOf(ARG_OVERRIDE_PASS);
         final boolean useDummy = Boolean.parseBoolean((String)options.valueOf(ARG_USE_DUMMY_ORG));
+        final boolean useNotify = options.hasArgument(ARG_NOTIFY);
 
-        new SponsoringOrgAdder(url, source, overrideUser, overridePass, useDummy, options.hasArgument(ARG_NOTIFY)).addSponsoringOrgs();
+        new SponsoringOrgAdder(url, source, overrideUser, overridePass, useDummy, useNotify).addSponsoringOrgs();
     }
 
     private static void setupLogging() {
@@ -94,6 +95,7 @@ public class SponsoringOrgAdder {
     private final boolean notify;
     private final String overrideUser;
     private final String overridePassword;
+
     public SponsoringOrgAdder(final String restUrl, final String source, final String overrideUser, final String overridePass, final boolean useDummy, final boolean notify) {
         this.restClient = new RestClient(restUrl, source);
         this.overrideUser = overrideUser;
