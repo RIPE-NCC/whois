@@ -70,6 +70,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     @Autowired MailUpdatesTestSupport mailUpdatesTestSupport;
     @Autowired MailSenderStub mailSenderStub;
 
+    @Autowired
     private RestClient restClient;
 
     @Before
@@ -77,7 +78,8 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T13:00:00"));
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
 
-        restClient = new RestClient(String.format("http://localhost:%d/whois", getPort()), "TEST");
+        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
+        restClient.setSource("TEST");
     }
 
     @After
