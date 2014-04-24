@@ -1,20 +1,31 @@
 package net.ripe.db.whois.api.rest.mapper;
 
+import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+
 @RunWith(MockitoJUnitRunner.class)
 @Ignore
-public class WhoisObjectClientMapperTest {
-/*
+public class WhoisObjectMapperTest {
+
     private static final String BASE_URL = "http://rest.db.ripe.net/lookup";
 
-    private WhoisObjectClientMapper mapper;
+    private WhoisObjectMapper mapper;
 
     @Before
     public void setup() {
-        mapper = new WhoisObjectClientMapper(BASE_URL);
+        mapper = new WhoisObjectMapper(BASE_URL, new AttributeMapper[]{new FormattedClientAttributeMapper()});
     }
 
     @Test
@@ -31,7 +42,7 @@ public class WhoisObjectClientMapperTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST\n");
 
-        final WhoisObject whoisObject = mapper.map(rpslObject);
+        final WhoisObject whoisObject = mapper.map(rpslObject, FormattedClientAttributeMapper.class);
 
         assertThat(whoisObject.getType(), is("mntner"));
         assertThat(whoisObject.getSource().getId(), is("test"));
@@ -68,7 +79,7 @@ public class WhoisObjectClientMapperTest {
                 "changed:   hostmaster@ripe.net 20121115\n" +
                 "source:    TEST");
 
-        final WhoisObject whoisObject = mapper.map(rpslObject);
+        final WhoisObject whoisObject = mapper.map(rpslObject, FormattedClientAttributeMapper.class);
 
         assertThat(whoisObject.getType(), is("as-set"));
         assertThat(whoisObject.getSource().getId(), is("test"));
@@ -92,5 +103,5 @@ public class WhoisObjectClientMapperTest {
                 new Attribute("source", "TEST", null, null, null)
         ));
     }
-    */
+
 }
