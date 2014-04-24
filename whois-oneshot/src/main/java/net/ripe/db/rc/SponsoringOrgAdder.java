@@ -1,6 +1,5 @@
 package net.ripe.db.rc;
 
-import com.google.common.collect.Lists;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.LogUtil;
@@ -12,10 +11,16 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class SponsoringOrgAdder {
     private static final Logger LOGGER = LoggerFactory.getLogger(SponsoringOrgAdder.class);
@@ -30,7 +35,7 @@ public class SponsoringOrgAdder {
     /**
      *
      * Accepted arguments:
-     * --rest-url - the rest api url to use, defaults to 'http://rest-test.db.ripe.net'. Required.
+     * --rest-url - the rest api url to use, defaults to 'https://rest-test.db.ripe.net'. Required.
      * --rest-source - the rest source to use, defaults to 'RIPE'. Required.
      * --override-user - override username. Required.
      * --override-pass - override password. Required.
@@ -38,11 +43,19 @@ public class SponsoringOrgAdder {
      * --notify - sends notifications
      *
      * Example call, use a dummy organisation with the value ORG-DUMMY-RIPE, and do not send notifications:
-     * --rest-url http://rest-test.db.ripe.net --rest-source TEST --override-user user --override-pass password --dummy-org true
+     * --rest-url https://rest-test.db.ripe.net --rest-source TEST --override-user user --override-pass password --dummy-org true
+     *
+     * The input file is expected to have the formats
+     * ipv4: 127.0.0.0-127.0.0.1   - note the lack of space between dash and IPs
+     * ipv6: 1000:200:3000::/32
+     * autnum: 1234
+     * One entry per line.
+     *
+     * Keep in mind that the override user must be able to update ipv4, ipv6, autnum & organisation.
+     * Logs are written to file in var/log/SponsoringOrgAdder.log
      */
     public static void main(final String[] args) {
-        LogUtil.initLogger();
-
+        setupLogging();
         final OptionSet options = setupOptionParser().parse(args);
         final String url = (String)options.valueOf(ARG_REST_URL);
         final String source = (String)options.valueOf(ARG_REST_SOURCE);
@@ -53,9 +66,20 @@ public class SponsoringOrgAdder {
         new SponsoringOrgAdder(url, source, overrideUser, overridePass, useDummy, options.hasArgument(ARG_NOTIFY)).addSponsoringOrgs();
     }
 
+    private static void setupLogging() {
+        LogUtil.initLogger();
+        final FileAppender fa = new FileAppender();
+        fa.setFile("var/log/SponsoringOrgAdder.log");
+        fa.setLayout(new PatternLayout("%d [%C{1}] %m%n"));
+        fa.setThreshold(Level.INFO);
+        fa.activateOptions();
+
+        LogManager.getRootLogger().addAppender(fa);
+    }
+
     private static OptionParser setupOptionParser() {
         final OptionParser parser = new OptionParser();
-        parser.accepts(ARG_REST_URL).withRequiredArg().defaultsTo("http://rest-test.db.ripe.net").required();
+        parser.accepts(ARG_REST_URL).withRequiredArg().defaultsTo("https://rest-test.db.ripe.net").required();
         parser.accepts(ARG_REST_SOURCE).withRequiredArg().defaultsTo("RIPE").required();
         parser.accepts(ARG_OVERRIDE_USER).withRequiredArg().required();
         parser.accepts(ARG_OVERRIDE_PASS).withRequiredArg().required();
@@ -65,9 +89,8 @@ public class SponsoringOrgAdder {
     }
 
 
-    private static final String DUMMY_ORG = "ORG-DUMMY-RIPE";
+    private String DUMMY_ORG = "ORG-DUMMY-RIPE";
     private final RestClient restClient;
-    private final boolean useDummyOrg;
     private final boolean notify;
     private final String overrideUser;
     private final String overridePassword;
@@ -75,59 +98,87 @@ public class SponsoringOrgAdder {
         this.restClient = new RestClient(restUrl, source);
         this.overrideUser = overrideUser;
         this.overridePassword = overridePass;
-        this.useDummyOrg = useDummy;
         this.notify = notify;
-    }
 
-    public void addSponsoringOrgs() {
-        //TODO parse input file(s), dummy for now. Expect failures, the dummy objects might not exist.
-        for (ParseResult parseResult : dummyParse()) {
-            RpslObject rpslObject;
-            try {
-                rpslObject = restClient.request().lookup(parseResult.objectType, parseResult.pkey);
-            } catch (RestClientException e) {
-                LOGGER.info("Entry {} not found in the db, skipping.", parseResult.pkey);
-                continue;
-            }
-
-            if (rpslObject.containsAttribute(AttributeType.ORG)) {
-                final RpslObject referencedOrganisation = restClient.request().lookup(ObjectType.ORGANISATION, rpslObject.getValueForAttribute(AttributeType.ORG).toString());
-                if (OrgType.getFor(referencedOrganisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR) {
-                    LOGGER.info("Skipping {}, it's referencing an org of org-type LIR", parseResult.pkey);
-                    continue;
-                }
-            }
-
-            final String sponsoringOrgValue = useDummyOrg ? DUMMY_ORG : parseResult.sponsoringOrg;
-
-            try {
-                restClient.request()
-                        .addParam("override", String.format("%s,%s {notify=%s}", overrideUser, overridePassword, notify))
-                        .update(new RpslObjectBuilder(rpslObject).addAttributeSorted(new RpslAttribute(AttributeType.SPONSORING_ORG, sponsoringOrgValue)).get());
-            } catch (RestClientException e) {
-                LOGGER.info("Failed {}, {}", parseResult.pkey, e.toString());
-            }
+        if (useDummy) {
+            setupDummy();
         }
     }
 
-
-    private List<ParseResult> dummyParse() {
-        return Lists.newArrayList(
-                new ParseResult(ObjectType.AUT_NUM, "AS101111", "ORG-TEST1-RIPE"),
-                new ParseResult(ObjectType.INETNUM, "10.11.13.0/30", "ORG-TEST2-RIPE"),
-                new ParseResult(ObjectType.INET6NUM, "2001:db8:60::/48", "ORG-TEST3-RIPE")
-        );
+    public void addSponsoringOrgs() {
+        try (BufferedReader in = new BufferedReader(new FileReader("sponsoredResources.txt"))) {
+            String line;
+            while ((line = in.readLine()) != null) {
+                if (line.contains(",")) {
+                    LOGGER.info("This shouldn't be happening {}", line);
+                } else {
+                    line = line.trim();
+                    if (line.contains("::")) {
+                        addSponsoringOrg(ObjectType.INET6NUM, line, DUMMY_ORG); //TODO change the dummy org to parsed value when available
+                    } else if (line.contains(".")) {
+                        addSponsoringOrg(ObjectType.INETNUM, line, DUMMY_ORG);
+                    } else {
+                        final String AUTNUM_PREFIX = "AS";
+                        addSponsoringOrg(ObjectType.AUT_NUM, AUTNUM_PREFIX + line, DUMMY_ORG);
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            LOGGER.info(ex.toString());
+        }
     }
 
-    private class ParseResult {
-        private final ObjectType objectType;
-        private final String pkey;
-        private final String sponsoringOrg;
+    private void setupDummy() {
+        //TODO change the dummy organisation object to fit the environment you're in, just make sure the org-type is LIR
+        try {
+            final RpslObject result = restClient.request()
+                    .addParam("override", String.format("%s,%s,dummyOrg{notify=%s}", overrideUser, overridePassword, notify))
+                    .create(RpslObject.parse("" +
+                            "organisation: AUTO-1\n" +
+                            "org-name: Dummy Organisation For SponsoringOrg Test\n" +
+                            "org-type: LIR\n" +
+                            "address: Street\n" +
+                            "e-mail: test@ripe.net\n" +
+                            "mnt-ref: TEST-DBM-MNT\n" +
+                            "mnt-by: TEST-DBM-MNT\n" +
+                            "changed: test@test.net\n" +
+                            "source: TEST"));
+            DUMMY_ORG = result.getKey().toString();
+        } catch (RestClientException e) {
+            LOGGER.info("Could not create dummy org {}", DUMMY_ORG);
+            throw e;
+        }
+    }
 
-        private ParseResult(final ObjectType objectType, final String pkey, final String sponsoringOrg) {
-            this.objectType = objectType;
-            this.pkey = pkey;
-            this.sponsoringOrg = sponsoringOrg;
+    private void addSponsoringOrg(final ObjectType objectType, final String key, final String sponsoringOrg) {
+        RpslObject rpslObject;
+        try {
+            rpslObject = restClient.request().addParam("unformatted", "true").addParam("unfiltered", "true").lookup(objectType, key);
+        } catch (RestClientException e) {
+            LOGGER.info("Entry {} not found in the db, skipping.", key);
+            return;
+        }
+
+        if (rpslObject.containsAttribute(AttributeType.ORG)) {
+            final RpslObject referencedOrganisation = restClient.request().lookup(ObjectType.ORGANISATION, rpslObject.getValueForAttribute(AttributeType.ORG).toString());
+            if (OrgType.getFor(referencedOrganisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR) {
+                LOGGER.info("Skipping {}, it's referencing an org of org-type LIR", key);
+                return;
+            }
+        }
+
+        try {
+            final RpslObjectBuilder objectBuilder =
+                    new RpslObjectBuilder(rpslObject)
+                            .removeAttributeType(AttributeType.SPONSORING_ORG)
+                            .addAttributeSorted(new RpslAttribute(AttributeType.SPONSORING_ORG, sponsoringOrg));
+
+            restClient.request()
+                    .addParam("override", String.format("%s,%s,bulkaddSponsoringOrg{notify=%s}", overrideUser, overridePassword, notify))
+                            .update(objectBuilder.get());
+            LOGGER.info("Success, updated {}", key);
+        } catch (RestClientException e) {
+            LOGGER.info("Failed {}, {}", key, e.toString());
         }
     }
 }
