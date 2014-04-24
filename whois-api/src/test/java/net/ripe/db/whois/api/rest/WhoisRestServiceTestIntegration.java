@@ -23,7 +23,6 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
-import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -38,6 +37,7 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
+import org.glassfish.jersey.uri.UriComponent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.mail.internet.MimeMessage;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.InternalServerErrorException;
@@ -1208,7 +1207,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_xsi_attributes_not_in_root_level_link() {
-        final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
+        final String whoisResources = RestTest.target(getPort(), "whois/search")
+                .queryParam("query-string", "TP1-TEST")
+                .queryParam("source", "TEST")
                 .request(MediaType.APPLICATION_XML_TYPE).get(String.class);
         assertThat(whoisResources, not(containsString("xsi:type")));
         assertThat(whoisResources, not(containsString("xmlns:xsi")));
@@ -1918,7 +1919,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:       remark\n" +
                 "source:        TEST\n");
 
-        RestTest.target(getPort(), "whois/test/person?override=agoston,zoh,reason")
+        RestTest.target(getPort(), "whois/test/person")
+                .queryParam("override", "agoston,zoh,reason")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(person)), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -1952,7 +1954,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:       remark\n" +
                 "source:        TEST\n");
 
-        RestTest.target(getPort(), "whois/test/person?override=" + RestClientUtils.encode("agoston,zoh,reason {notify=false}"))
+        RestTest.target(getPort(), "whois/test/person")
+                .queryParam("override", encode("agoston,zoh,reason {notify=false}"))
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(person)), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -1964,7 +1967,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void delete_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test").request().delete(WhoisResources.class);
+
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("password", "test")
+                .request()
+                .delete(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -1979,7 +1986,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void delete_with_reason_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&reason=not_needed_no_more").request().delete(WhoisResources.class);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("password", "test")
+                .queryParam("reason", "not_needed_no_more")
+                .request()
+                .delete(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -2035,7 +2047,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_self_referencing_maintainer_with_sso_auth_attribute_authenticated_with_password_succeeds() throws Exception {
         databaseHelper.addObject(SSO_AND_PASSWORD_MNT);
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT?password=test")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT")
+                .queryParam("password", "test")
                 .request()
                 .delete(WhoisResources.class);
 
@@ -2055,7 +2068,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_self_referencing_maintainer_with_sso_auth_attribute_invalid_token_authenticated_with_password_succeeds() throws Exception {
         databaseHelper.addObject(SSO_AND_PASSWORD_MNT);
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT?password=test")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT")
+                .queryParam("password", "test")
                 .request()
                 .cookie("crowd.token_key", "invalid-token")
                 .delete(WhoisResources.class);
@@ -2075,13 +2089,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test(expected = NotFoundException.class)
     public void delete_nonexistant() {
-        RestTest.target(getPort(), "whois/test/person/NON-EXISTANT").request().delete(String.class);
+        RestTest.target(getPort(), "whois/test/person/NON-EXISTANT")
+                .request()
+                .delete(String.class);
     }
 
     @Test
     public void delete_referenced_from_other_objects() {
         try {
-            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test").request().delete(WhoisResources.class);
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST")
+                    .queryParam("password", "test")
+                    .request()
+                    .delete(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Object [%s] %s is referenced from other objects", "person", "TP1-TEST");
@@ -2092,7 +2111,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_invalid_password() {
         try {
             databaseHelper.addObject(PAULETH_PALTHEN);
-            RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=invalid").request().delete(String.class);
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                    .queryParam("password", "invalid")
+                    .request()
+                    .delete(String.class);
             fail();
         } catch (NotAuthorizedException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
@@ -2103,7 +2125,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_no_password() {
         try {
             databaseHelper.addObject(PAULETH_PALTHEN);
-            RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().delete(String.class);
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                    .request()
+                    .delete(String.class);
             fail();
         } catch (NotAuthorizedException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
@@ -2134,7 +2158,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:       remark\n" +
                 "source:        TEST\n");
 
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=123").request().delete(String.class);
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("password", "123")
+                .request()
+                .delete(String.class);
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
@@ -2166,7 +2193,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST\n");
 
         try {
-            RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=invalid").request().delete(String.class);
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                    .queryParam("password", "invalid")
+                    .request()
+                    .delete(String.class);
             fail();
         } catch (NotAuthorizedException e) {
             final String message = mailSenderStub.getMessage("upd-to@ripe.net").getContent().toString();
@@ -2200,7 +2230,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:       remark\n" +
                 "source:        TEST\n");
 
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason").request().delete(String.class);
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("override", "agoston,zoh,reason")
+                .request()
+                .delete(String.class);
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
@@ -2232,7 +2265,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remarks:       remark\n" +
                 "source:        TEST\n");
 
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=" + RestClientUtils.encode("agoston,zoh,reason {notify=false}"));
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("override", encode("agoston,zoh,reason {notify=false}"))
+                .request()
+                .delete(String.class);
 
         assertFalse(mailSenderStub.anyMoreMessages());
     }
@@ -2819,7 +2855,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(person);
         final RpslObject updatedPerson = new RpslObjectBuilder(person).append(new RpslAttribute(AttributeType.REMARKS, "updated")).get();
 
-        RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=" + RestClientUtils.encode("agoston,zoh,reason {notify=false}"))
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("override", encode("agoston,zoh,reason {notify=false}"))
                 .request()
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(updatedPerson)), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -4340,5 +4377,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void maintenance_mode_none_query() {
         maintenanceMode.set("NONE,NONE");
         RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
+    }
+
+    // helper methods
+
+    private String encode(final String input) {
+        // do not interpret template parameters
+        return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
     }
 }
