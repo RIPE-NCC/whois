@@ -299,6 +299,44 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_person_dirty() {
+        final String text = "" +
+                "person:  Pauleth Palthen\n" +
+                "address: Singel 258\n" +
+                "phone:   +31-1234567890\n" +
+                "e-mail:  noreply@ripe.net\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "nic-hdl: PP1-TEST\n" +
+                "changed: noreply@ripe.net 20120101\n" +
+                "remark:  remark1 # comment1\n" +
+                "         remark2 # comment2\n" +
+                "         remark3 # comment3\n" +
+                "remark:  separate remark # separate comment\n" +
+                "source:  TEST\n";
+
+        final RpslObject rpslObject = RpslObject.parse(text);
+
+        databaseHelper.addObject(rpslObject);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?unfiltered&dirty").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+
+        for (Attribute attribute : whoisObject.getAttributes()) {
+            if (attribute.getName().equals(AttributeType.REMARKS.getName())){
+                assertThat(attribute.getValue(), is(
+                        "remark1 # comment1\n" +
+                        "         remark2 # comment2\n" +
+                        "         remark3 # comment3"));
+            }
+        }
+    }
+
+
+    @Test
     public void lookup_xml_text_not_contains_empty_xmlns() {
         final String whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(String.class);
         assertThat(whoisResources, not(containsString("xmlns=\"\"")));

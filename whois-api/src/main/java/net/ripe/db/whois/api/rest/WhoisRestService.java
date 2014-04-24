@@ -21,6 +21,8 @@ import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
+import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.DirtyServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
@@ -112,7 +114,6 @@ import static net.ripe.db.whois.query.QueryFlag.VERSION;
 @Component
 @Path("/")
 public class WhoisRestService {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRestService.class);
 
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
@@ -319,10 +320,15 @@ public class WhoisRestService {
 
         try {
             final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords).setMatchPrimaryKeyOnly(true);
-            return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
+            return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null, getServerAttributeMapper(request));
         } catch (QueryException e) {
             throw getWebApplicationException(e, request, Lists.<Message>newArrayList());
         }
+    }
+
+    private Class<? extends AttributeMapper> getServerAttributeMapper(HttpServletRequest request){
+        return isQueryParamSet(request.getQueryString(), "dirty") ?
+                DirtyServerAttributeMapper.class : FormattedServerAttributeMapper.class;
     }
 
     @GET
@@ -470,7 +476,7 @@ public class WhoisRestService {
 
         final Service service = new Service(SERVICE_SEARCH);
 
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service, getServerAttributeMapper(request));
     }
 
     private void validateSearchKey(final HttpServletRequest request, final String searchKey) {
@@ -602,9 +608,10 @@ public class WhoisRestService {
                                                   final HttpServletRequest request,
                                                   final InetAddress remoteAddress,
                                                   @Nullable final Parameters parameters,
-                                                  @Nullable final Service service) {
+                                                  @Nullable final Service service,
+                                                  final Class<? extends AttributeMapper> attributeMapper) {
 
-        return Response.ok(new RpslObjectStreamer(request, query, remoteAddress, parameters, service)).build();
+        return Response.ok(new RpslObjectStreamer(request, query, remoteAddress, parameters, service, attributeMapper)).build();
     }
 
     private WebApplicationException getWebApplicationException(final RuntimeException exception, final HttpServletRequest request, final List<Message> messages) {
@@ -639,13 +646,15 @@ public class WhoisRestService {
         private final Parameters parameters;
         private final Service service;
         private StreamingMarshal streamingMarshal;
+        private Class<? extends AttributeMapper> attributeMapper;
 
-        public RpslObjectStreamer(final HttpServletRequest request, final Query query, final InetAddress remoteAddress, final Parameters parameters, final Service service) {
+        public RpslObjectStreamer(final HttpServletRequest request, final Query query, final InetAddress remoteAddress, final Parameters parameters, final Service service, final Class<? extends AttributeMapper> attributeMapper) {
             this.request = request;
             this.query = query;
             this.remoteAddress = remoteAddress;
             this.parameters = parameters;
             this.service = service;
+            this.attributeMapper = attributeMapper;
         }
 
         @Override
@@ -731,7 +740,7 @@ public class WhoisRestService {
                     return;
                 }
 
-                final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, tagResponseObjects, FormattedServerAttributeMapper.class);
+                final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, tagResponseObjects, attributeMapper);
 
                 // TODO: [AH] add method 'writeAsArray' or 'writeObject' to StreamingMarshal interface to get rid of this uglyness
                 if (streamingMarshal instanceof StreamingMarshalJson) {
