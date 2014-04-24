@@ -5,7 +5,8 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.ClockDateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectDao;
@@ -38,6 +39,7 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
     @Autowired @Qualifier("whoisReadOnlySlaveDataSource") DataSource dataSource;
     @Autowired CrowdClient crowdClient;
     @Autowired UserOrgFinder userOrgFinder;
+    @Autowired WhoisObjectMapper whoisObjectMapper;
     CrowdServerDummy crowdServerDummy;
 
     @Before
@@ -97,7 +99,7 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
-        final RpslObject resultOrg = new WhoisObjectClientMapper("test.url").map(result.getWhoisObjects().get(0));
+        final RpslObject resultOrg = whoisObjectMapper.map(result.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
         assertThat(resultOrg, is(organisation));
     }
@@ -116,7 +118,7 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(WhoisResources.class);
 
-        final RpslObject resultOrg = new WhoisObjectClientMapper("test.url").map(result.getWhoisObjects().get(0));
+        final RpslObject resultOrg = whoisObjectMapper.map(result.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
         assertThat(resultOrg, is(organisation));
     }
@@ -152,7 +154,7 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
-        final RpslObject resultOrg = new WhoisObjectClientMapper("test.url").map(result.getWhoisObjects().get(0));
+        final RpslObject resultOrg = whoisObjectMapper.map(result.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
         assertThat(resultOrg, is(organisation));
     }
@@ -173,7 +175,7 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
-        final RpslObject resultOrg = new WhoisObjectClientMapper("test.url").map(result.getWhoisObjects().get(0));
+        final RpslObject resultOrg = whoisObjectMapper.map(result.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
         assertThat(resultOrg, is(organisation));
     }
@@ -195,7 +197,7 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
         final List<WhoisObject> whoisObjects = result.getWhoisObjects();
         assertThat(whoisObjects, hasSize(1));
 
-        final RpslObject resultOrg = new WhoisObjectClientMapper("test.url").map(whoisObjects.get(0));
+        final RpslObject resultOrg = whoisObjectMapper.map(whoisObjects.get(0), FormattedClientAttributeMapper.class);
 
         assertThat(resultOrg, is(organisation));
     }
@@ -218,7 +220,7 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
         final List<WhoisObject> whoisObjects = result.getWhoisObjects();
         assertThat(whoisObjects, hasSize(1));
 
-        final RpslObject resultOrg = new WhoisObjectClientMapper("test.url").map(whoisObjects.get(0));
+        final RpslObject resultOrg = whoisObjectMapper.map(whoisObjects.get(0), FormattedClientAttributeMapper.class);
 
         assertThat(resultOrg, is(organisation));
     }
@@ -246,7 +248,7 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
         final List<WhoisObject> whoisObjects = result.getWhoisObjects();
         assertThat(whoisObjects, hasSize(1));
 
-        final RpslObject resultOrg = new WhoisObjectClientMapper("test.url").map(whoisObjects.get(0));
+        final RpslObject resultOrg = whoisObjectMapper.map(whoisObjects.get(0), FormattedClientAttributeMapper.class);
 
         assertThat(resultOrg, is(organisation));
     }
@@ -272,9 +274,7 @@ public class UserOrgFinderServiceTestIntegration extends AbstractInternalTest {
         final List<WhoisObject> whoisObjects = result.getWhoisObjects();
         assertThat(whoisObjects, hasSize(2));
 
-        final WhoisObjectClientMapper objectMapper = new WhoisObjectClientMapper("test.url");
-
-        assertThat(objectMapper.map(whoisObjects.get(0)), is(org2));
-        assertThat(objectMapper.map(whoisObjects.get(1)), is(org1));
+        assertThat(whoisObjectMapper.map(whoisObjects.get(0), FormattedClientAttributeMapper.class), is(org2));
+        assertThat(whoisObjectMapper.map(whoisObjects.get(1), FormattedClientAttributeMapper.class), is(org1));
     }
 }
