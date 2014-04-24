@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Function;
+import org.glassfish.jersey.uri.UriComponent;
 
-import javax.annotation.Nullable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -11,10 +11,9 @@ public class RestClientUtils {
     }
 
     public static final Function<String, String> ENCODING_FUNCTION = new Function<String, String>() {
-        @Nullable
         @Override
-        public String apply(@Nullable String input) {
-            return encode(input);
+        public String apply(final String input) {
+            return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
         }
     };
 
