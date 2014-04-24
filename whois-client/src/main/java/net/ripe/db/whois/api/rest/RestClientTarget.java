@@ -300,7 +300,7 @@ public class RestClientTarget {
     private WebTarget setParams(final WebTarget webTarget) {
         WebTarget updatedWebTarget = webTarget;
         for (Map.Entry<String, List<String>> param : params.entrySet()) {
-            updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), Lists.transform(param.getValue(), RestClientUtils.ENCODING_FUNCTION).toArray());
+            updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), Lists.transform(param.getValue(), RestClientUtils.CURLY_BRACES_ENCODING_FUNCTION).toArray());
         }
         return updatedWebTarget;
     }
