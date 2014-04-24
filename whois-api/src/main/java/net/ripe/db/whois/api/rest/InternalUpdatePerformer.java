@@ -5,7 +5,8 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -51,14 +52,14 @@ import java.util.Set;
 public class InternalUpdatePerformer {
     private final UpdateRequestHandler updateRequestHandler;
     private final DateTimeProvider dateTimeProvider;
-    private final WhoisObjectServerMapper whoisObjectMapper;
+    private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
     private final SsoTokenTranslator ssoTokenTranslator;
 
     @Autowired
     public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
                                    final DateTimeProvider dateTimeProvider,
-                                   final WhoisObjectServerMapper whoisObjectMapper,
+                                   final WhoisObjectMapper whoisObjectMapper,
                                    final LoggerContext loggerContext,
                                    final SsoTokenTranslator ssoTokenTranslator) {
         this.updateRequestHandler = updateRequestHandler;
@@ -140,7 +141,7 @@ public class InternalUpdatePerformer {
 
         final PreparedUpdate preparedUpdate = updateContext.getPreparedUpdate(update);
         if (preparedUpdate != null) {
-            whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(preparedUpdate.getUpdatedObject())));
+            whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(preparedUpdate.getUpdatedObject(), FormattedServerAttributeMapper.class)));
         }
 
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));

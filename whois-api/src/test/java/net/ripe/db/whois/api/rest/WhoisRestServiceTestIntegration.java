@@ -19,6 +19,8 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
@@ -44,7 +46,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.mail.internet.MimeMessage;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.InternalServerErrorException;
@@ -174,7 +175,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "changed:      dbtest@ripe.net 20120101\n" +
             "source:       TEST\n");
 
-    @Autowired private WhoisObjectServerMapper whoisObjectMapper;
+    @Autowired private WhoisObjectMapper whoisObjectMapper;
+    @Autowired private WhoisObjectServerMapper whoisObjectServerMapper;
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private MailSenderStub mailSenderStub;
 
@@ -214,7 +216,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .get(WhoisResources.class);
 
-        final RpslObject object = whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        final RpslObject object = whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
         assertThat(object, is(RpslObject.parse("" +
                 "mntner:         OWNER-MNT\n" +
@@ -1200,7 +1202,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_successful_error_message_not_included() throws Exception {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
-                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), String.class);
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
 
         assertThat(response, not(containsString("errormessages")));
     }
@@ -1259,7 +1261,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void create_succeeds() throws Exception {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
-                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(Arrays.asList(PAULETH_PALTHEN)), MediaType.APPLICATION_XML), WhoisResources.class);
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person", getPort())));
         assertThat(whoisResources.getErrorMessages(), is(empty()));

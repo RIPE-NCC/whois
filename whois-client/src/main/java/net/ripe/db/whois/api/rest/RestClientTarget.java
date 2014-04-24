@@ -6,7 +6,8 @@ import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
@@ -33,13 +34,13 @@ public class RestClientTarget {
     private Client client;
     private String baseUrl;
     private String source;
-    private WhoisObjectClientMapper mapper;
+    private WhoisObjectMapper mapper;
     private NotifierCallback notifierCallback;
     private MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
     private MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
     private List<Cookie> cookies = Lists.newArrayList();
 
-    RestClientTarget(final Client client, final String baseUrl, final String source, final WhoisObjectClientMapper mapper) {
+    RestClientTarget(final Client client, final String baseUrl, final String source, final WhoisObjectMapper mapper) {
         this.client = client;
         this.baseUrl = baseUrl;
         this.source = source;
@@ -113,14 +114,14 @@ public class RestClientTarget {
             setCookies(request);
             setHeaders(request);
 
-            final WhoisResources whoisResources = request
-                    .post(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+            final WhoisResources entity = mapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObject);
+            final WhoisResources whoisResources = request.post(Entity.entity(entity, MediaType.APPLICATION_XML), WhoisResources.class);
 
             if (notifierCallback != null) {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
-            return mapper.map(whoisResources.getWhoisObjects().get(0));
+            return mapper.map(whoisResources.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
         } catch (ClientErrorException e) {
             throw createException(e);
@@ -140,14 +141,14 @@ public class RestClientTarget {
             setCookies(request);
             setHeaders(request);
 
-            final WhoisResources whoisResources = request
-                    .put(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+            final WhoisResources entity = mapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObject);
+            final WhoisResources whoisResources = request.put(Entity.entity(entity, MediaType.APPLICATION_XML), WhoisResources.class);
 
             if (notifierCallback != null) {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
-            return mapper.map(whoisResources.getWhoisObjects().get(0));
+            return mapper.map(whoisResources.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
         } catch (ClientErrorException e) {
             throw createException(e);
@@ -173,7 +174,7 @@ public class RestClientTarget {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
-            return mapper.map(whoisResources.getWhoisObjects().get(0));
+            return mapper.map(whoisResources.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
         } catch (ClientErrorException e) {
             throw createException(e);
@@ -181,7 +182,7 @@ public class RestClientTarget {
     }
 
     public RpslObject lookup(final ObjectType objectType, final String pkey) {
-        return mapper.map(lookupRaw(objectType, pkey));
+        return mapper.map(lookupRaw(objectType, pkey), FormattedClientAttributeMapper.class);
     }
 
     public WhoisObject lookupRaw(final ObjectType objectType, final String pkey) {
@@ -265,7 +266,7 @@ public class RestClientTarget {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
-            return mapper.mapWhoisObjects(whoisResources.getWhoisObjects());
+            return mapper.mapWhoisObjects(whoisResources.getWhoisObjects(), FormattedClientAttributeMapper.class);
 
         } catch (ClientErrorException e) {
             throw createException(e);
