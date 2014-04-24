@@ -3,7 +3,7 @@ package net.ripe.db.whois.api;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import net.ripe.db.whois.api.rest.RestClientUtils;
+import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
