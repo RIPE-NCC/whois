@@ -23,8 +23,9 @@ import java.util.Map;
 @Component
 public class WhoisObjectMapper {
 
-    protected final String baseUrl;
-    protected final Map<Class, AttributeMapper> objectMapperFunctions;
+    private final String baseUrl;
+    private final Map<Class, AttributeMapper> objectMapperFunctions;
+    private final AttributeMapper primaryKeyAttributeMapper;
 
     @Autowired
     public WhoisObjectMapper(@Value("${api.rest.baseurl}") final String baseUrl,
@@ -35,6 +36,7 @@ public class WhoisObjectMapper {
         for (AttributeMapper objectMapperFunction : objectMapperFunctions) {
             this.objectMapperFunctions.put(objectMapperFunction.getClass(), objectMapperFunction);
         }
+        this.primaryKeyAttributeMapper = this.objectMapperFunctions.get(FormattedClientAttributeMapper.class);
     }
 
     public RpslObject map(final WhoisObject whoisObject, Class<?> mapFunction) {
@@ -77,7 +79,7 @@ public class WhoisObjectMapper {
 
         final List<Attribute> primaryKeyAttributes = new ArrayList<>();
         for (RpslAttribute keyAttribute : rpslObject.findAttributes(ObjectTemplate.getTemplate(rpslObject.getType()).getKeyAttributes())) {
-            primaryKeyAttributes.addAll(attributeMapper.map(keyAttribute, source));
+            primaryKeyAttributes.addAll(primaryKeyAttributeMapper.map(keyAttribute, source));
         }
 
         final List<Attribute> attributes = Lists.newArrayList();
