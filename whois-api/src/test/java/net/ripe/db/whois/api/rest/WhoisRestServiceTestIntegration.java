@@ -23,6 +23,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -4278,6 +4279,35 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisResources whoisResources = response.readEntity(WhoisResources.class);
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
     }
+
+    @Test
+    public void search_multiple_params_and_spaces() throws Exception {
+        databaseHelper.addObject("inetnum:   10.0.0.0 - 10.255.255.255\n" +
+                "netname:   TEST-NET\n" +
+                "descr:     description\n" +
+                "country:   NL\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "status:    ASSIGNED PI\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "changed:   noreply@ripe.net\n" +
+                "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search")
+                .queryParam("query-string", "10.0.0.0 - 10.255.255.255")
+                .queryParam("filter-types", "inetnum")
+                .queryParam("flags", "r","exact")
+                .queryParam("source", "test")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes().get(0).getValue(), is("10.0.0.0 - 10.255.255.255"));
+    }
+
 
     // maintenance mode
 
