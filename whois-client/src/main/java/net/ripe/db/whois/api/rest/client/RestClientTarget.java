@@ -75,7 +75,7 @@ public class RestClientTarget {
         return this;
     }
 
-    public RestClientTarget addParams(final MultivaluedMap map) {
+    public RestClientTarget addParams(final MultivaluedMap<String, String> map) {
         params.putAll(map);
         return this;
     }
@@ -97,7 +97,7 @@ public class RestClientTarget {
         return this;
     }
 
-    public RestClientTarget addHeaders(final MultivaluedMap map) {
+    public RestClientTarget addHeaders(final MultivaluedMap<String, Object> map) {
         headers.putAll(map);
         return this;
     }
@@ -271,7 +271,7 @@ public class RestClientTarget {
             return mapper.mapWhoisObjects(whoisResources.getWhoisObjects(), FormattedClientAttributeMapper.class);
 
         } catch (NotFoundException e) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         catch (ClientErrorException e) {
             throw createException(e);
