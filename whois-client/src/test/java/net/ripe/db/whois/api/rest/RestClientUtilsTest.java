@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Iterables;
+import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import org.junit.Test;
 
 import java.util.Arrays;
