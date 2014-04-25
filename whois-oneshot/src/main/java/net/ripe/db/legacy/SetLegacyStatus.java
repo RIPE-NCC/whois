@@ -6,6 +6,7 @@ import com.sun.istack.NotNull;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -48,7 +49,8 @@ public class SetLegacyStatus {
                 new WhoisObjectMapper(
                         "https://rest.db.ripe.net",
                         new AttributeMapper[]{
-                                new FormattedClientAttributeMapper()
+                                new FormattedClientAttributeMapper(),
+                                new DirtyClientAttributeMapper()
                         }));
     }
 
@@ -121,6 +123,7 @@ public class SetLegacyStatus {
                 final String override = String.format("%s,%s,set-legacy-status {notify=false}", username, password);
                 updatedObject = REST_CLIENT
                         .request()
+                        .addParam("unformatted", "")
                         .addParam("override", override)
                         .update(updatedObject);
             } catch (RestClientException e) {
@@ -177,6 +180,7 @@ public class SetLegacyStatus {
         try {
             objects = REST_CLIENT
                     .request()
+                    .addParam("unformatted", "")
                     .addParam("query-string", concatenated.toRangeString())
                     .addParams("type-filter", ObjectType.INETNUM.getName())
                     .addParams("flags", QueryFlag.NO_REFERENCED.getName(), QueryFlag.EXACT.getName(), QueryFlag.NO_FILTERING.getName())
@@ -204,6 +208,7 @@ public class SetLegacyStatus {
         try {
             return REST_CLIENT
                     .request()
+                    .addParam("unformatted", "")
                     .addParam("query-string", inetnumString)
                     .addParams("type-filter", ObjectType.INETNUM.getName())
                     .addParams("flags", QueryFlag.ALL_MORE.getName(), QueryFlag.NO_REFERENCED.getName(), QueryFlag.NO_FILTERING.getName())
