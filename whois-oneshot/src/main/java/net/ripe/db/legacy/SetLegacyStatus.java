@@ -14,6 +14,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.query.QueryFlag;
 import org.apache.commons.lang.StringUtils;
@@ -111,14 +112,14 @@ public class SetLegacyStatus {
             return;
         }
 
-        final RpslObject updatedObject = (new RpslObjectBuilder(rpslObject))
+        RpslObject updatedObject = (new RpslObjectBuilder(rpslObject))
                 .replaceAttribute(statusAttribute, new RpslAttribute(AttributeType.STATUS, InetnumStatus.LEGACY.toString()))
                 .get();
 
         if (!dryRun) {
             try {
                 final String override = String.format("%s,%s,set-legacy-status {notify=false}", username, password);
-                REST_CLIENT
+                updatedObject = REST_CLIENT
                         .request()
                         .addParam("override", override)
                         .update(updatedObject);
@@ -127,7 +128,9 @@ public class SetLegacyStatus {
             }
         }
 
-        LOGGER.info("inetnum: {} status set to LEGACY", updatedObject.getKey());
+        LOGGER.info("inetnum: {} status set to LEGACY\n{}",
+                updatedObject.getKey(),
+                RpslObjectFilter.diff(rpslObject, updatedObject));
     }
 
 
