@@ -227,7 +227,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void lookup_mntner_with_mntby_password() throws Exception {
         databaseHelper.addObject(SECOND_MNT);
 
-        RpslObject obj = restClient.request()
+        final RpslObject obj = restClient.request()
                 .addParam("password", "test")
                 .lookup(SECOND_MNT.getType(), SECOND_MNT.getKey().toString());
 
@@ -237,7 +237,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_mntner_with_one_of_mntby_passwords() throws Exception {
-        RpslObject THIRD_MNT = RpslObject.parse("" +
+        final RpslObject THIRD_MNT = RpslObject.parse("" +
                 "mntner:        THIRD-MNT\n" +
                 "descr:         Owner Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +
