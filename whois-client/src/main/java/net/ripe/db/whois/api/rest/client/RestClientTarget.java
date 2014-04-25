@@ -14,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 import sun.net.www.protocol.http.HttpURLConnection;
 
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -247,7 +249,7 @@ public class RestClientTarget {
     }
 
     /**
-     * beware, this imlementation is not streaming; result can be gigantic
+     * beware, this implementation is not streaming; result can be gigantic
      */
     public Collection<RpslObject> search() {
         try {
@@ -268,7 +270,10 @@ public class RestClientTarget {
 
             return mapper.mapWhoisObjects(whoisResources.getWhoisObjects(), FormattedClientAttributeMapper.class);
 
-        } catch (ClientErrorException e) {
+        } catch (NotFoundException e) {
+            return Collections.EMPTY_LIST;
+        }
+        catch (ClientErrorException e) {
             throw createException(e);
         }
     }
@@ -338,7 +343,7 @@ public class RestClientTarget {
         urlConnection.setRequestProperty("Cookie", cookieHeader.toString());
     }
 
-    private static RuntimeException createException(final ClientErrorException e) {
+    private static RestClientException createException(final ClientErrorException e) {
         try {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             return new RestClientException(whoisResources.getErrorMessages());
@@ -347,7 +352,7 @@ public class RestClientTarget {
         }
     }
 
-    private static RuntimeException createExceptionFromMessage(final ClientErrorException e) {
+    private static RestClientException createExceptionFromMessage(final ClientErrorException e) {
         try {
             return new RestClientException(e.getResponse().readEntity(String.class));
         } catch (ProcessingException | IllegalStateException e1) {
