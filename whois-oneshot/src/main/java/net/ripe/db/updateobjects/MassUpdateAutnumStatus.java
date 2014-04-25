@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Arrays;
 
 /**
     This class is an one shot operation to add the status attribute to all autnums that do not have it.
@@ -62,20 +62,18 @@ public class MassUpdateAutnumStatus {
     }
 
     public static void updateAutnums(final String override) {
-        final RpslObjectFileReader autnumStrings = new RpslObjectFileReader(SPLIT_FILE);
-
         int countSplitfileObjects = 0;
         int countNotUpdatedObjects = 0;
         int countUpdatedObjects = 0;
         int countAlreadySet = 0;
 
-        for (final String nextObject : autnumStrings) {
+        for (final String nextObject : new RpslObjectFileReader(SPLIT_FILE)) {
             final RpslObject rpslObject;
             try {
                 rpslObject = RpslObject.parse(nextObject);
             } catch (Exception e) {
-                LOGGER.info("Cannot process string:\n" + nextObject, e);
-                append("cannot process the following from splitfile: " + nextObject);
+                LOGGER.info("Malformed RPSL: \n" + nextObject, e);
+                append("Malformed RPSL: " + nextObject);
 
                 continue;
             }
@@ -133,9 +131,10 @@ public class MassUpdateAutnumStatus {
         return Status.STATUS_UPDATE_ERROR;
     }
 
-    private static void append(String line) {
+    // FIXME: [AH] opens/closes the file to write each line
+    private static void append(String... lines) {
         try {
-            FileUtils.writeLines(OUTPUT_FILE, Collections.singletonList(line), true);
+            FileUtils.writeLines(OUTPUT_FILE, Arrays.asList(lines), true);
         } catch (IOException e) {
             LOGGER.info(e.getMessage(), e);
         }
