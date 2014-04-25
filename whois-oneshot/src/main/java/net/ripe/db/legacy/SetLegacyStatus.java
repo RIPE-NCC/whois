@@ -5,6 +5,9 @@ import com.google.common.collect.Lists;
 import com.sun.istack.NotNull;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
+import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -19,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
@@ -30,13 +34,22 @@ public class SetLegacyStatus {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SetLegacyStatus.class);
 
-    private static final RestClient REST_CLIENT = new RestClient("http://dbc-dev1:1080/whois", "RIPE");
+    private static final RestClient REST_CLIENT;
     private static final Splitter cslPattern = Splitter.on(',');
     private final String username;
     private final String password;
     private final boolean dryRun;
     private String ipNumberResource;
 
+    static {
+        REST_CLIENT = new RestClient("http://dbc-dev1:1080/whois", "RIPE");
+        REST_CLIENT.setWhoisObjectMapper(
+                new WhoisObjectMapper(
+                        "https://rest.db.ripe.net",
+                        new AttributeMapper[]{
+                                new FormattedClientAttributeMapper()
+                        }));
+    }
 
     public static void main(String[] args) throws IOException {
         if ((args.length < 2 || args.length > 3) || StringUtils.isEmpty(args[0]) || StringUtils.isEmpty(args[1])) {
@@ -46,7 +59,7 @@ public class SetLegacyStatus {
 
         boolean dryRun = !(args.length == 3 && args[2].equalsIgnoreCase("false"));
 
-        SetLegacyStatus setter = new SetLegacyStatus("/DBlist20140407.csv", args[0], args[1], dryRun);
+        SetLegacyStatus setter = new SetLegacyStatus("DBlist20140407.csv", args[0], args[1], dryRun);
         setter.execute();
     }
 
@@ -58,7 +71,7 @@ public class SetLegacyStatus {
     }
 
     private void execute() throws IOException {
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(ipNumberResource)));
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(ipNumberResource)));
 
         String line;
         while ((line = reader.readLine()) != null) {
