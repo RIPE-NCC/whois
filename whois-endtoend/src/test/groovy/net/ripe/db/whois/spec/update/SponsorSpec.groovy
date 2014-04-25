@@ -1,11 +1,9 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class SponsorSpec extends BaseQueryUpdateSpec {
@@ -710,7 +708,6 @@ class SponsorSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -BG -T aut-num AS222", "aut-num", "AS222")
     }
 
-    @Ignore("auth issues, password for parent RS MNTNER but not this mnt-by RS MNTNER")
     def "create inetnum, inet6num, aut-num, with type LIR sponsoring org, with LIR pw"() {
         expect:
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -774,23 +771,17 @@ class SponsorSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 3
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(3, 3, 0, 0)
+        ack.summary.assertSuccess(3, 3, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(3, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["Referenced organisation must have org-type: LIR"]
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
-                ["Referenced organisation must have org-type: LIR"]
-        ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS222" }
-        ack.errorMessagesFor("Create", "[aut-num] AS222") ==
-                ["Referenced organisation must have org-type: LIR"]
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS222" }
 
-        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-        queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
-        queryObjectNotFound("-r -BG -T aut-num AS222", "aut-num", "AS222")
+        query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
+        query_object_matches("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64", "sponsoring-org:\\s*ORG-LIRA-TEST")
+        query_object_matches("-r -BG -T aut-num AS222", "aut-num", "AS222", "sponsoring-org:\\s*ORG-LIRA-TEST")
     }
 
 
