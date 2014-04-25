@@ -44,16 +44,16 @@ public class RestServiceHelper {
     public static boolean isQueryParamSet(final String queryString, final String key) {
         if (queryString == null) {
             return false;
-
         }
 
         for (String next : AMPERSAND_SPLITTER.split(queryString)) {
             final Iterator<String> iterator = EQUALS_SPLITTER.split(next).iterator();
             if (iterator.hasNext()) {
-                // check if query parameter is present, and has no value, or value is true
-                if (iterator.next().equals(key) &&
-                        (!iterator.hasNext() || iterator.next().equals("true"))) {
-                    return true;
+                if (iterator.next().equals(key)) {
+                    if (!iterator.hasNext()) return true;
+
+                    String value = iterator.next();
+                    if (StringUtils.isEmpty(value) || value.equalsIgnoreCase("true")) return true;
                 }
             }
         }
@@ -61,8 +61,8 @@ public class RestServiceHelper {
         return false;
     }
 
-    public static Class<? extends AttributeMapper> getServerAttributeMapper(HttpServletRequest request){
-        return isQueryParamSet(request.getQueryString(), "dirty") ?
+    public static Class<? extends AttributeMapper> getServerAttributeMapper(String queryString){
+        return isQueryParamSet(queryString, "unformatted") ?
                 DirtyServerAttributeMapper.class : FormattedServerAttributeMapper.class;
     }
 

@@ -118,7 +118,7 @@ public class MassUpdateAutnumStatus {
                 return Status.STATUS_ALREADY_SET;
             }
 
-            final RpslObject updatedAutnum = restClient.request().addParam("dirty", "").addParam("override", override).update(object);
+            final RpslObject updatedAutnum = restClient.request().addParam("unformatted", "").addParam("override", override).update(object);
 
             if (updatedAutnum.containsAttribute(AttributeType.STATUS)) {
                 return Status.STATUS_UPDATE_SUCCESS;

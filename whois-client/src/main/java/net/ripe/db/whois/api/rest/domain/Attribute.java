@@ -106,6 +106,7 @@ public class Attribute {
                 Objects.equals(attribute.link, link);
     }
 
+    /** does not properly handle multiline attributes; first line will have an extra space before the value */
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(name).append(": ").append(value);
