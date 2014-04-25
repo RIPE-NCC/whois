@@ -39,9 +39,9 @@ public class DirtyServerAttributeMapper implements AttributeMapper {
             final CIString cleanValue = cleanValues.iterator().next();
             final String referencedType = (rpslAttribute.getType() != null) ? referencedTypeResolver.getReferencedType(rpslAttribute.getType(), cleanValue) : null;
             final Link link = (referencedType != null) ? createLink(source, referencedType, cleanValue.toString()) : null;
-            return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getValue(), null, referencedType, link));
+            return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, referencedType, link));
         } else {
-            return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getValue(), null, null, null));
+            return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, null, null));
         }
     }
 

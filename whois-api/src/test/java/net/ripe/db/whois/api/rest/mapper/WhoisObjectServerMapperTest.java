@@ -18,7 +18,6 @@ import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -38,7 +37,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore //TODO [TP] primaryKeyAttributeMapper needs to be mocked
 public class WhoisObjectServerMapperTest {
     private static final String BASE_URL = "http://rest.db.ripe.net/lookup";
 
@@ -50,7 +48,10 @@ public class WhoisObjectServerMapperTest {
 
     @Before
     public void setup() {
-        whoisObjectMapper = new WhoisObjectMapper(BASE_URL, new AttributeMapper [] {new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL)});
+        whoisObjectMapper = new WhoisObjectMapper(BASE_URL, new AttributeMapper [] {
+                new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL),
+                new FormattedClientAttributeMapper()
+        });
         whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper);
     }
 

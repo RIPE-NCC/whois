@@ -318,7 +318,7 @@ public class WhoisRestService {
 
         try {
             final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords).setMatchPrimaryKeyOnly(true);
-            return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null, getServerAttributeMapper(request));
+            return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
         } catch (QueryException e) {
             throw getWebApplicationException(e, request, Lists.<Message>newArrayList());
         }
@@ -449,7 +449,7 @@ public class WhoisRestService {
 
         final Service service = new Service(SERVICE_SEARCH);
 
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service, getServerAttributeMapper(request));
+        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);
     }
 
     private void validateSearchKey(final HttpServletRequest request, final String searchKey) {
@@ -519,6 +519,7 @@ public class WhoisRestService {
     private WhoisResources createErrorEntity(final HttpServletRequest request, final List<Message> errorMessages) {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setErrorMessages(createErrorMessages(errorMessages));
+        // TODO: [AH] the external URL should be configurable via properties
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;
@@ -529,7 +530,7 @@ public class WhoisRestService {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.singleObjectExpected(whoisResources.getWhoisObjects().size()))).build());
         }
 
-        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), getServerAttributeMapper(request));
+        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), getServerAttributeMapper(request.getQueryString()));
     }
 
     private void validateSubmittedObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
@@ -581,10 +582,9 @@ public class WhoisRestService {
                                                   final HttpServletRequest request,
                                                   final InetAddress remoteAddress,
                                                   @Nullable final Parameters parameters,
-                                                  @Nullable final Service service,
-                                                  final Class<? extends AttributeMapper> attributeMapper) {
+                                                  @Nullable final Service service) {
 
-        return Response.ok(new RpslObjectStreamer(request, query, remoteAddress, parameters, service, attributeMapper)).build();
+        return Response.ok(new RpslObjectStreamer(request, query, remoteAddress, parameters, service)).build();
     }
 
     private WebApplicationException getWebApplicationException(final RuntimeException exception, final HttpServletRequest request, final List<Message> messages) {
@@ -621,13 +621,13 @@ public class WhoisRestService {
         private StreamingMarshal streamingMarshal;
         private Class<? extends AttributeMapper> attributeMapper;
 
-        public RpslObjectStreamer(final HttpServletRequest request, final Query query, final InetAddress remoteAddress, final Parameters parameters, final Service service, final Class<? extends AttributeMapper> attributeMapper) {
+        public RpslObjectStreamer(final HttpServletRequest request, final Query query, final InetAddress remoteAddress, final Parameters parameters, final Service service) {
             this.request = request;
             this.query = query;
             this.remoteAddress = remoteAddress;
             this.parameters = parameters;
             this.service = service;
-            this.attributeMapper = attributeMapper;
+            this.attributeMapper = RestServiceHelper.getServerAttributeMapper(request.getQueryString());
         }
 
         @Override

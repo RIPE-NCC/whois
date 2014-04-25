@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -140,7 +141,8 @@ public class InternalUpdatePerformer {
 
         final PreparedUpdate preparedUpdate = updateContext.getPreparedUpdate(update);
         if (preparedUpdate != null) {
-            whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectMapper.map(preparedUpdate.getUpdatedObject(), RestServiceHelper.getServerAttributeMapper(request))));
+            final WhoisObject whoisObject = whoisObjectMapper.map(preparedUpdate.getUpdatedObject(), RestServiceHelper.getServerAttributeMapper(request.getQueryString()));
+            whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         }
 
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));

@@ -18,7 +18,7 @@ public class DirtyClientAttributeMapper implements AttributeMapper {
 
     @Override
     public Collection<Attribute> map(RpslAttribute rpslAttribute, String source) {
-        return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getValue(), null, null, null));
+        return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, null, null));
     }
 
     private static String getAttributeValue(final Attribute attribute) {
