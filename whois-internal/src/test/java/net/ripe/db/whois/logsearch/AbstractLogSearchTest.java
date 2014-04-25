@@ -2,7 +2,7 @@ package net.ripe.db.whois.logsearch;
 
 import com.google.common.io.Files;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.RestClientUtils;
+import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import net.ripe.db.whois.internal.logsearch.LogFileIndex;
 import org.junit.After;

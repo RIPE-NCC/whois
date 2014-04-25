@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.LogUtil;
-import net.ripe.db.whois.api.rest.RestClient;
+import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.ip.Ipv4Resource;

@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
+import net.ripe.db.whois.api.rest.client.StreamingException;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.InverseAttributes;
@@ -20,6 +21,9 @@ import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
+import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -78,11 +82,12 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
+import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.QueryFlag.ABUSE_CONTACT;
 import static net.ripe.db.whois.query.QueryFlag.ALL_SOURCES;
@@ -109,16 +114,13 @@ import static net.ripe.db.whois.query.QueryFlag.VERSION;
 @Component
 @Path("/")
 public class WhoisRestService {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRestService.class);
 
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
 
     public static final String SERVICE_SEARCH = "search";
 
-    private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings();
     private static final Splitter WHITESPACE_SPLITTER = Splitter.on(CharMatcher.WHITESPACE).trimResults().omitEmptyStrings();
-    private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings();
 
     private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = ImmutableSet.of(
             // flags for port43 only
@@ -156,7 +158,8 @@ public class WhoisRestService {
     private final RpslObjectDao rpslObjectDao;
     private final SourceContext sourceContext;
     private final QueryHandler queryHandler;
-    private final WhoisObjectServerMapper whoisObjectMapper;
+    private final WhoisObjectMapper whoisObjectMapper;
+    private final WhoisObjectServerMapper whoisObjectServerMapper;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
 
@@ -164,13 +167,15 @@ public class WhoisRestService {
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
                             final SourceContext sourceContext,
                             final QueryHandler queryHandler,
-                            final WhoisObjectServerMapper whoisObjectMapper,
+                            final WhoisObjectMapper whoisObjectMapper,
+                            final WhoisObjectServerMapper whoisObjectServerMapper,
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator) {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
         this.whoisObjectMapper = whoisObjectMapper;
+        this.whoisObjectServerMapper = whoisObjectServerMapper;
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
     }
@@ -348,7 +353,7 @@ public class WhoisRestService {
         }
 
         final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
-        final WhoisVersions whoisVersions = new WhoisVersions(type, key, whoisObjectMapper.mapVersions(deleted, versions));
+        final WhoisVersions whoisVersions = new WhoisVersions(type, key, whoisObjectServerMapper.mapVersions(deleted, versions));
 
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setVersions(whoisVersions);
@@ -388,33 +393,13 @@ public class WhoisRestService {
 
         // TODO: [AH] this should use StreamingMarshal to properly handle newlines in errormessages
         final WhoisResources whoisResources = new WhoisResources();
-        final WhoisObject whoisObject = whoisObjectMapper.map(versionWithRpslResponseObject.getRpslObject());
+        final WhoisObject whoisObject = whoisObjectMapper.map(versionWithRpslResponseObject.getRpslObject(), FormattedServerAttributeMapper.class);
         whoisObject.setVersion(versionWithRpslResponseObject.getVersion());
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         whoisResources.setErrorMessages(createErrorMessages(versionsResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
         return Response.ok(whoisResources).build();
-    }
-
-    private boolean isQueryParamSet(final String queryString, final String key) {
-        if (queryString == null) {
-            return false;
-
-        }
-
-        for (String next : AMPERSAND_SPLITTER.split(queryString)) {
-            final Iterator<String> iterator = EQUALS_SPLITTER.split(next).iterator();
-            if (iterator.hasNext()) {
-                // check if query parameter is present, and has no value, or value is true
-                if (iterator.next().equals(key) &&
-                        (!iterator.hasNext() || iterator.next().equals("true"))) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -534,6 +519,7 @@ public class WhoisRestService {
     private WhoisResources createErrorEntity(final HttpServletRequest request, final List<Message> errorMessages) {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setErrorMessages(createErrorMessages(errorMessages));
+        // TODO: [AH] the external URL should be configurable via properties
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;
@@ -544,7 +530,7 @@ public class WhoisRestService {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.singleObjectExpected(whoisResources.getWhoisObjects().size()))).build());
         }
 
-        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0));
+        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), getServerAttributeMapper(request.getQueryString()));
     }
 
     private void validateSubmittedObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
@@ -633,6 +619,7 @@ public class WhoisRestService {
         private final Parameters parameters;
         private final Service service;
         private StreamingMarshal streamingMarshal;
+        private Class<? extends AttributeMapper> attributeMapper;
 
         public RpslObjectStreamer(final HttpServletRequest request, final Query query, final InetAddress remoteAddress, final Parameters parameters, final Service service) {
             this.request = request;
@@ -640,6 +627,7 @@ public class WhoisRestService {
             this.remoteAddress = remoteAddress;
             this.parameters = parameters;
             this.service = service;
+            this.attributeMapper = RestServiceHelper.getServerAttributeMapper(request.getQueryString());
         }
 
         @Override
@@ -725,7 +713,7 @@ public class WhoisRestService {
                     return;
                 }
 
-                final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, tagResponseObjects);
+                final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, tagResponseObjects, attributeMapper);
 
                 // TODO: [AH] add method 'writeAsArray' or 'writeObject' to StreamingMarshal interface to get rid of this uglyness
                 if (streamingMarshal instanceof StreamingMarshalJson) {
