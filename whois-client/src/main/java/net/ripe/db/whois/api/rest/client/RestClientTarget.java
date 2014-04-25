@@ -1,19 +1,20 @@
-package net.ripe.db.whois.api.rest;
+package net.ripe.db.whois.api.rest.client;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
 import sun.net.www.protocol.http.HttpURLConnection;
 
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -34,13 +36,13 @@ public class RestClientTarget {
     private Client client;
     private String baseUrl;
     private String source;
-    private WhoisObjectClientMapper mapper;
+    private WhoisObjectMapper mapper;
     private NotifierCallback notifierCallback;
     private MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
     private MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
     private List<Cookie> cookies = Lists.newArrayList();
 
-    RestClientTarget(final Client client, final String baseUrl, final String source, final WhoisObjectClientMapper mapper) {
+    RestClientTarget(final Client client, final String baseUrl, final String source, final WhoisObjectMapper mapper) {
         this.client = client;
         this.baseUrl = baseUrl;
         this.source = source;
@@ -114,14 +116,14 @@ public class RestClientTarget {
             setCookies(request);
             setHeaders(request);
 
-            final WhoisResources whoisResources = request
-                    .post(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+            final WhoisResources entity = mapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObject);
+            final WhoisResources whoisResources = request.post(Entity.entity(entity, MediaType.APPLICATION_XML), WhoisResources.class);
 
             if (notifierCallback != null) {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
-            return mapper.map(whoisResources.getWhoisObjects().get(0));
+            return mapper.map(whoisResources.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
         } catch (ClientErrorException e) {
             throw createException(e);
@@ -141,14 +143,14 @@ public class RestClientTarget {
             setCookies(request);
             setHeaders(request);
 
-            final WhoisResources whoisResources = request
-                    .put(Entity.entity(mapper.mapRpslObjects(Lists.newArrayList(rpslObject)), MediaType.APPLICATION_XML), WhoisResources.class);
+            final WhoisResources entity = mapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObject);
+            final WhoisResources whoisResources = request.put(Entity.entity(entity, MediaType.APPLICATION_XML), WhoisResources.class);
 
             if (notifierCallback != null) {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
-            return mapper.map(whoisResources.getWhoisObjects().get(0));
+            return mapper.map(whoisResources.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
         } catch (ClientErrorException e) {
             throw createException(e);
@@ -174,7 +176,7 @@ public class RestClientTarget {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
-            return mapper.map(whoisResources.getWhoisObjects().get(0));
+            return mapper.map(whoisResources.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
         } catch (ClientErrorException e) {
             throw createException(e);
@@ -182,7 +184,7 @@ public class RestClientTarget {
     }
 
     public RpslObject lookup(final ObjectType objectType, final String pkey) {
-        return mapper.map(lookupRaw(objectType, pkey));
+        return mapper.map(lookupRaw(objectType, pkey), FormattedClientAttributeMapper.class);
     }
 
     public WhoisObject lookupRaw(final ObjectType objectType, final String pkey) {
@@ -247,7 +249,7 @@ public class RestClientTarget {
     }
 
     /**
-     * beware, this imlementation is not streaming; result can be gigantic
+     * beware, this implementation is not streaming; result can be gigantic
      */
     public Collection<RpslObject> search() {
         try {
@@ -266,9 +268,12 @@ public class RestClientTarget {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
-            return mapper.mapWhoisObjects(whoisResources.getWhoisObjects());
+            return mapper.mapWhoisObjects(whoisResources.getWhoisObjects(), FormattedClientAttributeMapper.class);
 
-        } catch (ClientErrorException e) {
+        } catch (NotFoundException e) {
+            return Collections.EMPTY_LIST;
+        }
+        catch (ClientErrorException e) {
             throw createException(e);
         }
     }
@@ -301,7 +306,7 @@ public class RestClientTarget {
     private WebTarget setParams(final WebTarget webTarget) {
         WebTarget updatedWebTarget = webTarget;
         for (Map.Entry<String, List<String>> param : params.entrySet()) {
-            updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), Lists.transform(param.getValue(), new EncodingFunction()).toArray());
+            updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), Lists.transform(param.getValue(), RestClientUtils.CURLY_BRACES_ENCODING_FUNCTION).toArray());
         }
         return updatedWebTarget;
     }
@@ -338,7 +343,7 @@ public class RestClientTarget {
         urlConnection.setRequestProperty("Cookie", cookieHeader.toString());
     }
 
-    private static RuntimeException createException(final ClientErrorException e) {
+    private static RestClientException createException(final ClientErrorException e) {
         try {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             return new RestClientException(whoisResources.getErrorMessages());
@@ -347,19 +352,12 @@ public class RestClientTarget {
         }
     }
 
-    private static RuntimeException createExceptionFromMessage(final ClientErrorException e) {
+    private static RestClientException createExceptionFromMessage(final ClientErrorException e) {
         try {
             return new RestClientException(e.getResponse().readEntity(String.class));
         } catch (ProcessingException | IllegalStateException e1) {
             // stream has already been closed
             return new RestClientException(e1.getCause());
-        }
-    }
-
-    private class EncodingFunction implements Function<String, String> {
-        @Override
-        public String apply(final String input) {
-            return RestClientUtils.encode(input);
         }
     }
 }

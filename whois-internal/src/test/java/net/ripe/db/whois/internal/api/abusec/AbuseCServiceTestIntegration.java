@@ -2,7 +2,7 @@ package net.ripe.db.whois.internal.api.abusec;
 
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
-import net.ripe.db.whois.api.rest.RestClient;
+import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;

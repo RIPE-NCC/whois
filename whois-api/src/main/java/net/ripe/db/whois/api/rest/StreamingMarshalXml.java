@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.ImmutableList;
 import javanet.staxutils.events.NamespaceEvent;
 import javanet.staxutils.io.XMLWriterUtils;
+import net.ripe.db.whois.api.rest.client.StreamingException;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.TemplateResources;

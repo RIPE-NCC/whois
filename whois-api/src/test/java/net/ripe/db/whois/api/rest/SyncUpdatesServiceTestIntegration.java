@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;

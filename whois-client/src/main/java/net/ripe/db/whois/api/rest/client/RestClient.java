@@ -1,9 +1,10 @@
-package net.ripe.db.whois.api.rest;
+package net.ripe.db.whois.api.rest.client;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ public class RestClient {
     private Client client;
     private String restApiUrl;
     private String sourceName;
-    private WhoisObjectClientMapper whoisObjectClientMapper;
+    private WhoisObjectMapper whoisObjectMapper;
 
     // TODO: [ES] use autowired constructor, drop the setters
     // NB: this is also used from dbweb, with multiple environments represented by multiple RestClient beans, managed by AppConfig
@@ -33,7 +34,11 @@ public class RestClient {
     @Value("${api.rest.baseurl}")
     public void setRestApiUrl(final String restApiUrl) {
         this.restApiUrl = restApiUrl;
-        this.whoisObjectClientMapper = new WhoisObjectClientMapper(restApiUrl);
+    }
+
+    @Autowired
+    public void setWhoisObjectMapper(final WhoisObjectMapper whoisObjectMapper) {
+        this.whoisObjectMapper = whoisObjectMapper;
     }
 
     @Value("${whois.source}")
@@ -46,7 +51,7 @@ public class RestClient {
     }
 
     public RestClientTarget request() {
-        return new RestClientTarget(client, restApiUrl, sourceName, whoisObjectClientMapper);
+        return new RestClientTarget(client, restApiUrl, sourceName, whoisObjectMapper);
     }
 
     private static Client createClient() {
