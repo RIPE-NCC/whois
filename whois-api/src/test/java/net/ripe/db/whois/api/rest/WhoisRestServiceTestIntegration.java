@@ -20,6 +20,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
+import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
@@ -300,7 +301,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_person_dirty() {
-        final String text = "" +
+
+        final RpslObject rpslObject = RpslObject.parse("" +
                 "person:  Pauleth Palthen\n" +
                 "address: Singel 258\n" +
                 "phone:   +31-1234567890\n" +
@@ -311,10 +313,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "remark:  remark1 # comment1\n" +
                 "         remark2 # comment2\n" +
                 "         remark3 # comment3\n" +
-                "remark:  separate remark # separate comment\n" +
-                "source:  TEST\n";
-
-        final RpslObject rpslObject = RpslObject.parse(text);
+                "source:  TEST\n");
 
         databaseHelper.addObject(rpslObject);
 
@@ -325,7 +324,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
 
-        for (Attribute attribute : whoisObject.getAttributes()) {
+        for (final Attribute attribute : whoisObject.getAttributes()) {
             if (attribute.getName().equals(AttributeType.REMARKS.getName())){
                 assertThat(attribute.getValue(), is(
                         "remark1 # comment1\n" +
@@ -333,8 +332,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "         remark3 # comment3"));
             }
         }
-    }
 
+//        assertThat(whoisObject.getAttributes(), hasItem(new Attribute(AttributeType.REMARKS.getName(),
+//                "remark1 # comment1\n" +
+//                "         remark2 # comment2\n" +
+//                "         remark3 # comment3")));
+
+    }
 
     @Test
     public void lookup_xml_text_not_contains_empty_xmlns() {
@@ -1996,6 +2000,37 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertFalse(mailSenderStub.anyMoreMessages());
     }
 
+    @Test
+    public void create_person_dirty() {
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:  Pauleth Palthen\n" +
+                "address: Singel 258\n" +
+                "phone:   +31-1234567890\n" +
+                "e-mail:  noreply@ripe.net\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "nic-hdl: PP1-TEST\n" +
+                "changed: noreply@ripe.net 20120101\n" +
+                "remarks: remark1 # comment1\n" +
+                "         remark2 # comment2\n" +
+                "         remark3 # comment3\n" +
+                "source:  TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dirty")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+//        assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person", getPort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(object.getAttributes(), hasItem(new Attribute(AttributeType.REMARKS.getName(),
+                " remark1 # comment1\n" +
+                        "         remark2 # comment2\n" +
+                        "         remark3 # comment3")));
+    }
+
+
     // delete
 
     @Test
@@ -2861,6 +2896,40 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertFalse(mailSenderStub.anyMoreMessages());
+    }
+
+    @Test
+    public void update_person_dirty() {
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:  Pauleth Palthen\n" +
+                "address: Singel 258\n" +
+                "phone:   +31-1234567890\n" +
+                "e-mail:  noreply@ripe.net\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "nic-hdl: PP1-TEST\n" +
+                "changed: noreply@ripe.net 20120101\n" +
+                "remarks: remark1 # comment1\n" +
+                "         remark2 # comment2\n" +
+                "         remark3 # comment3\n" +
+                "source:  TEST\n");
+        databaseHelper.addObject(rpslObject);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(rpslObject).append(new RpslAttribute(AttributeType.FAX_NO, "+30 123")).get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&dirty")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+//        assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person", getPort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(object.getAttributes(), hasItem(new Attribute(AttributeType.REMARKS.getName(),
+                " remark1 # comment1\n" +
+                "         remark2 # comment2\n" +
+                "         remark3 # comment3")));
+        assertThat(object.getAttributes(), hasItem(new Attribute(AttributeType.FAX_NO.getName(), "+30 123")));
     }
 
     // versions

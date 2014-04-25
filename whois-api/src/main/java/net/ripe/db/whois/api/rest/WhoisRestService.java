@@ -22,7 +22,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.DirtyServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
@@ -83,11 +82,12 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
+import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.QueryFlag.ABUSE_CONTACT;
 import static net.ripe.db.whois.query.QueryFlag.ALL_SOURCES;
@@ -120,9 +120,7 @@ public class WhoisRestService {
 
     public static final String SERVICE_SEARCH = "search";
 
-    private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings();
     private static final Splitter WHITESPACE_SPLITTER = Splitter.on(CharMatcher.WHITESPACE).trimResults().omitEmptyStrings();
-    private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings();
 
     private static final Set<QueryFlag> NOT_ALLOWED_SEARCH_QUERY_FLAGS = ImmutableSet.of(
             // flags for port43 only
@@ -326,11 +324,6 @@ public class WhoisRestService {
         }
     }
 
-    private Class<? extends AttributeMapper> getServerAttributeMapper(HttpServletRequest request){
-        return isQueryParamSet(request.getQueryString(), "dirty") ?
-                DirtyServerAttributeMapper.class : FormattedServerAttributeMapper.class;
-    }
-
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}/versions")
@@ -407,26 +400,6 @@ public class WhoisRestService {
         whoisResources.includeTermsAndConditions();
 
         return Response.ok(whoisResources).build();
-    }
-
-    private boolean isQueryParamSet(final String queryString, final String key) {
-        if (queryString == null) {
-            return false;
-
-        }
-
-        for (String next : AMPERSAND_SPLITTER.split(queryString)) {
-            final Iterator<String> iterator = EQUALS_SPLITTER.split(next).iterator();
-            if (iterator.hasNext()) {
-                // check if query parameter is present, and has no value, or value is true
-                if (iterator.next().equals(key) &&
-                        (!iterator.hasNext() || iterator.next().equals("true"))) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -556,7 +529,7 @@ public class WhoisRestService {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.singleObjectExpected(whoisResources.getWhoisObjects().size()))).build());
         }
 
-        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
+        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), getServerAttributeMapper(request));
     }
 
     private void validateSubmittedObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
