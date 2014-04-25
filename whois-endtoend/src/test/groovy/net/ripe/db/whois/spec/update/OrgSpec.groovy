@@ -1627,6 +1627,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T organisation ORG-FO2-TEST", "organisation", "ORG-FO2-TEST")
     }
 
+    // TODO: [AH] this test follows what legacy whois did; we should allow for this situation in the new code (as in, this test should create 2 organisation objects successfully)
     def "create 2 mutually referencing organisations, auto-1 auto-2"() {
         expect:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.internal.api.acl;
 
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.RestClientUtils;
+import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.internal.AbstractInternalTest;

@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.log;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.rest.RestClient;
+import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -47,17 +47,16 @@ public class QueryLogTestIntegration extends AbstractIntegrationTest {
             "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST\n");
 
-    @Autowired
-    private TestWhoisLog queryLog;
-
-    private RestClient restClient;
+    @Autowired private TestWhoisLog queryLog;
+    @Autowired private RestClient restClient;
 
     @Before
     public void setup() throws Exception {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
 
-        restClient = new RestClient(String.format("http://localhost:%d/whois", getPort()), "TEST");
+        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
+        restClient.setSource("TEST");
     }
 
     @Test

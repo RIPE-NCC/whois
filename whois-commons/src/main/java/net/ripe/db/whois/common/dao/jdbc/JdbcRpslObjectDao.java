@@ -36,6 +36,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -178,6 +179,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     @Override
+    @Nullable
     public RpslObject getByKeyOrNull(final ObjectType type, final String key) {
         final RpslObjectInfo rpslObjectInfo = findByKeyOrNull(type, key);
         if (rpslObjectInfo == null) {
@@ -192,8 +194,9 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     @Override
+    @Nullable
     public RpslObject getByKeyOrNull(final ObjectType type, final CIString key) {
-        return getByKey(type, key.toString());
+        return getByKeyOrNull(type, key.toString());
     }
 
     @Override
@@ -253,6 +256,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     @Override
+    @Nullable
     public RpslObjectInfo findByKeyOrNull(final ObjectType type, final CIString searchKey) {
         return findByKeyOrNull(type, searchKey.toString());
     }
@@ -268,6 +272,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     @Override
+    @Nullable
     public RpslObjectInfo findByKeyOrNull(final ObjectType type, final String searchKey) {
         final List<RpslObjectInfo> objectInfos = findByKeyInIndex(type, searchKey);
 

@@ -276,6 +276,7 @@ public class JdbcRpslObjectOperations {
     }
 
     private static int insertIntoLast(final DateTimeProvider dateTimeProvider, JdbcTemplate jdbcTemplate, final RpslObject object, final Integer objectTypeId, final String pkey) {
+        // FIXME: [AH] put a unique index on (`pkey`, `object_type`) on last (and history) instead of this extra lookup
         final int count = jdbcTemplate.queryForInt("" +
                         "SELECT COUNT(*)\n" +
                         "    FROM last\n" +

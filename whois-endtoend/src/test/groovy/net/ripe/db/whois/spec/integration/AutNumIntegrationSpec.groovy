@@ -979,8 +979,22 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: update
                         """.stripIndent())
         then:
-        response =~ /Create FAILED: \[aut-num\] AS100/
-        response =~ /Error:   Attribute "status" appears more than once/
+        response =~ /SUCCESS/
+        then:
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
+        println autnum
+        autnum.equals(RpslObject.parse("""\
+                        aut-num:        AS100
+                        as-name:        End-User
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
+                        status:         OTHER
+                        descr:          description
+                        admin-c:        AP1-TEST
+                        tech-c:         AP1-TEST
+                        mnt-by:         UPD-MNT
+                        changed:        noreply@ripe.net 20120101
+                        source:         TEST
+                        """.stripIndent()))
     }
 
     // sponsoring org

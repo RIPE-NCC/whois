@@ -2,7 +2,8 @@ package net.ripe.db.whois.internal.api.sso;
 
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectClientMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -23,13 +24,12 @@ import java.util.Set;
 public class UserOrgFinderService {
 
     private final UserOrgFinder orgFinder;
-    private final WhoisObjectClientMapper whoisObjectMapper;
+    private final WhoisObjectMapper whoisObjectMapper;
 
     @Autowired
-    public UserOrgFinderService(final UserOrgFinder orgFinder) {
+    public UserOrgFinderService(final UserOrgFinder orgFinder, final WhoisObjectMapper whoisObjectMapper) {
         this.orgFinder = orgFinder;
-        // TODO: [AH] autowire
-        this.whoisObjectMapper = new WhoisObjectClientMapper("");
+        this.whoisObjectMapper = whoisObjectMapper;
     }
 
     @GET
@@ -43,6 +43,6 @@ public class UserOrgFinderService {
             return Response.status(Response.Status.NOT_FOUND).entity(whoisResources).build();
         }
 
-        return Response.ok(whoisObjectMapper.mapRpslObjects(organisationsForAuth)).build();
+        return Response.ok(whoisObjectMapper.mapRpslObjects(organisationsForAuth, FormattedClientAttributeMapper.class)).build();
     }
 }
