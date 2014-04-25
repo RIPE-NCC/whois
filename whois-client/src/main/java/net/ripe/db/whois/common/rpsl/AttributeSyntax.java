@@ -858,7 +858,9 @@ public interface AttributeSyntax extends Documented {
             return "" +
                     "Must have at least 2 words beginning with a letter.\n" +
                     "Each word consists of letters, digits and the following symbols:\n" +
-                    "    .`'_-\n";
+                    "    .`'_-\n" +
+                    "The first word should begin with a letter.\n" +
+                    "Max 64 characters can be used in each word.";
 
         }
     }
