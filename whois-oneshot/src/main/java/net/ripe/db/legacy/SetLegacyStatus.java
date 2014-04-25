@@ -104,6 +104,19 @@ public class SetLegacyStatus {
         this.dryRun = dryRun;
     }
 
+    public SetLegacyStatus(
+            @NotNull final String filename,
+            @NotNull final String username,
+            @NotNull final String password,
+            @NotNull final RestClient restClient,
+            @NotNull boolean dryRun) {
+        this.filename = filename;
+        this.username = username;
+        this.password = password;
+        this.restClient = restClient;
+        this.dryRun = dryRun;
+    }
+
     private void execute() throws IOException {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
         String line;
