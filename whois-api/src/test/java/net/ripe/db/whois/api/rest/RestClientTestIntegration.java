@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.rest.client.RestClient;
+import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -13,6 +15,7 @@ import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.core.Cookie;
@@ -65,6 +68,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
+    @Autowired
     RestClient restClient;
 
     @Before
@@ -72,7 +76,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
 
-        restClient = new RestClient(String.format("http://localhost:%d/whois", getPort()), "TEST");
+        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
+        restClient.setSource("TEST");
     }
 
     @Test
@@ -222,7 +227,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void lookup_mntner_with_mntby_password() throws Exception {
         databaseHelper.addObject(SECOND_MNT);
 
-        RpslObject obj = restClient.request()
+        final RpslObject obj = restClient.request()
                 .addParam("password", "test")
                 .lookup(SECOND_MNT.getType(), SECOND_MNT.getKey().toString());
 
@@ -232,7 +237,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_mntner_with_one_of_mntby_passwords() throws Exception {
-        RpslObject THIRD_MNT = RpslObject.parse("" +
+        final RpslObject THIRD_MNT = RpslObject.parse("" +
                 "mntner:        THIRD-MNT\n" +
                 "descr:         Owner Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +

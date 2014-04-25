@@ -1,7 +1,7 @@
 package net.ripe.db.whois.internal.api.abusec;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.rest.RestClient;
+import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;

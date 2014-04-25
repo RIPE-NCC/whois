@@ -4,8 +4,8 @@ import com.google.common.base.Throwables;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.LogUtil;
-import net.ripe.db.whois.api.rest.RestClient;
-import net.ripe.db.whois.api.rest.RestClientException;
+import net.ripe.db.whois.api.rest.client.RestClient;
+import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -118,7 +118,7 @@ public class MassUpdateAutnumStatus {
                 return Status.STATUS_ALREADY_SET;
             }
 
-            final RpslObject updatedAutnum = restClient.request().addParam("override", override).update(object);
+            final RpslObject updatedAutnum = restClient.request().addParam("unformatted", "").addParam("override", override).update(object);
 
             if (updatedAutnum.containsAttribute(AttributeType.STATUS)) {
                 return Status.STATUS_UPDATE_SUCCESS;
