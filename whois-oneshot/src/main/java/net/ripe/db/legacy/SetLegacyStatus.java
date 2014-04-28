@@ -123,10 +123,12 @@ public class SetLegacyStatus {
         while ((line = reader.readLine()) != null) {
             RpslObject rpslObject = null;
             if (line.contains(",")) {
-                rpslObject = lookupTopLevelIpv4ResourceFromCsl(line);
+                final Ipv4Resource resource = createIpv4ResourceFromCommaSeparatedList(line);
+                rpslObject = searchExactMatch(resource);
             } else {
                 if (line.contains("/")) {
-                    rpslObject = lookupTopLevelIp4Resource(line);
+                    final Ipv4Resource resource = createIpv4Resource(line);
+                    rpslObject = searchExactMatch(resource);
                 } else {
                     LOGGER.info("Skipping line: {}", line);
                 }
@@ -179,69 +181,43 @@ public class SetLegacyStatus {
                 RpslObjectFilter.diff(rpslObject, updatedObject));
     }
 
-    @Nullable
-    RpslObject lookupTopLevelIpv4ResourceFromCsl(final String line) {
-        final Iterator<String> tokens = COMMA_SEPARATED_LIST_SPLITTER.split(line).iterator();
-        if (!tokens.hasNext()) {
-            LOGGER.error("line: {} does not contain comma separated list", line);
-            return null;
-        }
-
-        Ipv4Resource nextAddress = Ipv4Resource.parse(tokens.next());
-        final List<Ipv4Resource> addresses = Lists.newArrayList(nextAddress);
-        long end = nextAddress.end();
-        while (tokens.hasNext()) {
-            nextAddress = createIpv4Resource(end + 1, Integer.parseInt(tokens.next().substring(1)));
-            addresses.add(nextAddress);
-            end = nextAddress.end();
-        }
-
-        final Ipv4Resource concatenatedAddress = concatenateIpv4Resources(addresses);
-
-        return validateIpv4Resource(concatenatedAddress);
-    }
+    // REST Client
 
     @Nullable
-    private RpslObject validateIpv4Resource(final Ipv4Resource concatenated) {
-        final RpslObject object = searchExactMatch(concatenated);
-        if (object == null) {
-            return null;
-        }
-
-        final RpslAttribute inetnum = object.findAttribute(AttributeType.INETNUM);
-        if (!inetnum.getCleanValue().equals(concatenated.toRangeString())) {
-            LOGGER.warn("Search result from database: {} does not match concatenated inetnum: {}, skipping.", inetnum.getCleanValue().toString(), concatenated.toString());
-            return null;
-        }
-        return object;
-    }
-
-    @Nullable
-    private RpslObject searchExactMatch(final Ipv4Resource concatenated) {
+    private RpslObject searchExactMatch(final Ipv4Resource ipv4Resource) {
         final Collection<RpslObject> objects;
         try {
             objects = restClient
                     .request()
                     .addParam("unformatted", "")
-                    .addParam("query-string", concatenated.toRangeString())
+                    .addParam("query-string", ipv4Resource.toRangeString())
                     .addParams("type-filter", ObjectType.INETNUM.getName())
                     .addParams("flags", QueryFlag.NO_REFERENCED.getName(), QueryFlag.EXACT.getName(), QueryFlag.NO_FILTERING.getName())
                     .search();
         } catch (RestClientException ex) {
-            LOGGER.error("Unable to retrieve exact match for inetnum: {}\nreason: {}", concatenated.toRangeString(), ex.toString());
+            LOGGER.error("Unable to retrieve exact match for inetnum: {}\nreason: {}", ipv4Resource.toRangeString(), ex.toString());
             return null;
         }
 
         switch(objects.size()) {
             case 0:
-                LOGGER.warn("inetnum {} not found in database", concatenated.toRangeString());
+                LOGGER.warn("inetnum {} not found in database", ipv4Resource.toRangeString());
                 return null;
             case 1:
                 // always expect only one result
-                return objects.iterator().next();
+                final RpslObject rpslObject = objects.iterator().next();
+
+                final RpslAttribute inetnum = rpslObject.findAttribute(AttributeType.INETNUM);
+                if (!inetnum.getCleanValue().equals(ipv4Resource.toRangeString())) {
+                    LOGGER.warn("Search result from database: {} does not match concatenated inetnum: {}, skipping.", inetnum.getCleanValue().toString(), ipv4Resource.toString());
+                    return null;
+                }
+
+                return rpslObject;
+
             default:
-                LOGGER.warn("More than one match for {} found in database, skipping", concatenated.toRangeString());
-                return objects.iterator().next();
+                LOGGER.warn("More than one match for {} found in database, skipping", ipv4Resource.toRangeString());
+                return null;
         }
     }
 
@@ -261,18 +237,44 @@ public class SetLegacyStatus {
         }
     }
 
-    @Nullable
-    RpslObject lookupTopLevelIp4Resource(String line) {
-        Ipv4Resource resource = Ipv4Resource.parse(line);
-        RpslObject rpslObject = validateIpv4Resource(resource);
-        if (rpslObject != null) {
-            return rpslObject;
-        } else {
-            return null;
-        }
+    private RestClient createRestClient(final String restApiUrl, final String source) {
+        final RestClient restClient = new RestClient(restApiUrl, source);
+        restClient.setWhoisObjectMapper(
+                new WhoisObjectMapper(
+                        restApiUrl,
+                        new AttributeMapper[]{
+                                new FormattedClientAttributeMapper(),
+                                new DirtyClientAttributeMapper()
+                        }));
+        return restClient;
     }
 
-    private Ipv4Resource createIpv4Resource(final long startAddress, final int prefixLength) {
+    // Ipv4Resource
+
+    Ipv4Resource createIpv4Resource(final String line) {
+        return Ipv4Resource.parse(line);
+    }
+
+    Ipv4Resource createIpv4ResourceFromCommaSeparatedList(final String line) {
+        final Iterator<String> tokens = COMMA_SEPARATED_LIST_SPLITTER.split(line).iterator();
+        if (!tokens.hasNext()) {
+            LOGGER.error("line: {} does not contain comma separated list", line);
+            return null;
+        }
+
+        Ipv4Resource nextAddress = Ipv4Resource.parse(tokens.next());
+        final List<Ipv4Resource> addresses = Lists.newArrayList(nextAddress);
+        long end = nextAddress.end();
+        while (tokens.hasNext()) {
+            nextAddress = createIpv4Resource(end + 1, Integer.parseInt(tokens.next().substring(1)));
+            addresses.add(nextAddress);
+            end = nextAddress.end();
+        }
+
+        return concatenateIpv4Resources(addresses);
+    }
+
+    Ipv4Resource createIpv4Resource(final long startAddress, final int prefixLength) {
         final int length = (1 << (32 - prefixLength));
         final long endAddress = startAddress + (length - 1l);
         return new Ipv4Resource(startAddress, endAddress);
@@ -291,17 +293,4 @@ public class SetLegacyStatus {
 
         return new Ipv4Resource(resources.get(0).begin(), resources.get(resources.size() - 1).end());
     }
-
-    private RestClient createRestClient(final String restApiUrl, final String source) {
-        final RestClient restClient = new RestClient(restApiUrl, source);
-        restClient.setWhoisObjectMapper(
-                new WhoisObjectMapper(
-                        restApiUrl,
-                        new AttributeMapper[]{
-                                new FormattedClientAttributeMapper(),
-                                new DirtyClientAttributeMapper()
-                        }));
-        return restClient;
-    }
-
 }
