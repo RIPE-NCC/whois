@@ -24,7 +24,7 @@ import java.util.Arrays;
     The arguments for executing the class are --override person,override_password
  */
 public class MassUpdateAutnumStatus {
-    enum Status {
+    enum UpdateStatus {
         STATUS_UPDATE_SUCCESS,
         STATUS_ALREADY_SET,
         STATUS_UPDATE_ERROR
@@ -80,11 +80,11 @@ public class MassUpdateAutnumStatus {
 
             countSplitfileObjects++;
 
-            final Status status = updateAutnum(rpslObject.getKey().toString(), override);
+            final UpdateStatus updateStatus = updateAutnum(rpslObject.getKey().toString(), override);
 
-            append(String.format("AUT_NUM:%s:%s",rpslObject.getKey().toString(), status.name()));
+            append(String.format("AUT_NUM:%s:%s",rpslObject.getKey().toString(), updateStatus.name()));
 
-            switch (status) {
+            switch (updateStatus) {
                 case STATUS_UPDATE_SUCCESS:
                     countUpdatedObjects++;
                     break;
@@ -105,7 +105,7 @@ public class MassUpdateAutnumStatus {
         append(String.format("%s autnums not updated.", countNotUpdatedObjects));
     }
 
-    public static Status updateAutnum(final String key, final String override) {
+    public static UpdateStatus updateAutnum(final String key, final String override) {
         try {
             LOGGER.info("Updating autnum: " + key);
 
@@ -113,13 +113,13 @@ public class MassUpdateAutnumStatus {
             final RpslObject object = restClient.request().lookup(ObjectType.AUT_NUM, key);
 
             if (!object.getValuesForAttribute(AttributeType.STATUS).isEmpty()) {
-                return Status.STATUS_ALREADY_SET;
+                return UpdateStatus.STATUS_ALREADY_SET;
             }
 
             final RpslObject updatedAutnum = restClient.request().addParam("unformatted", "").addParam("override", override).update(object);
 
             if (updatedAutnum.containsAttribute(AttributeType.STATUS)) {
-                return Status.STATUS_UPDATE_SUCCESS;
+                return UpdateStatus.STATUS_UPDATE_SUCCESS;
             }
         } catch (RestClientException e) {
             LOGGER.info(e.getErrorMessages().toString());
@@ -128,11 +128,11 @@ public class MassUpdateAutnumStatus {
             LOGGER.debug("Unexpected error", e1);
             append(Throwables.getStackTraceAsString(e1));
         }
-        return Status.STATUS_UPDATE_ERROR;
+        return UpdateStatus.STATUS_UPDATE_ERROR;
     }
 
-    // FIXME: [AH] opens/closes the file to write each line
     private static void append(String... lines) {
+        //Closing the file on each write to prevent loss of logged data if script crashes
         try {
             FileUtils.writeLines(OUTPUT_FILE, Arrays.asList(lines), true);
         } catch (IOException e) {
