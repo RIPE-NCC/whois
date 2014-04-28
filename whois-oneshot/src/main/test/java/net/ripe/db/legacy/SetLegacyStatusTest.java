@@ -1,23 +1,11 @@
 package net.ripe.db.legacy;
 
-import net.ripe.db.whois.api.rest.client.RestClient;
-import net.ripe.db.whois.api.rest.client.RestClientTarget;
-import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.is;
 
 /*
     (1) input line: 137.191.192.0/20,/21,/22,/23,/24
@@ -30,48 +18,37 @@ import static org.mockito.Mockito.when;
     (2) input line: 128.141.0.0/16,/16
         should map to: 128.141.0.0 - 128.142.255.255
  */
-@RunWith(MockitoJUnitRunner.class)
 public class SetLegacyStatusTest {
 
-    @Mock RestClient restClient;
-    @Mock RestClientTarget restClientTarget;
-    private SetLegacyStatus setLegacyStatus;
+    private SetLegacyStatus subject;
 
     @Before
     public void setup() throws Exception {
-        when(restClient.request()).thenReturn(restClientTarget);
-        when(restClientTarget.addParam(any(String.class), any(String.class))).thenReturn(restClientTarget);
-        when(restClientTarget.addParams(any(String.class), org.mockito.Matchers.<String>anyVararg())).thenReturn(restClientTarget);
-
-        final Path tempFile = Files.createTempFile("test", "csv");
-        final String overrideUsername = "dbint";
-        final String overridePassword = "dbint";
-        this.setLegacyStatus = new SetLegacyStatus(tempFile.getFileName().toString(), overrideUsername, overridePassword, restClient, true);
+        this.subject = new SetLegacyStatus(null, "dbint", "dbint", null, false);
     }
 
     @Test
-    public void shouldGiveRpslObjectForCsl() throws Exception {
-        when(restClientTarget.search()).thenReturn(Collections.singleton(RpslObject.parse("inetnum: 137.191.192.0 - 137.191.222.255")));
-
-        setLegacyStatus.lookupTopLevelIpv4ResourceFromCsl("137.191.192.0/20,/21,/22,/23,/24");
-
-        verify(restClientTarget).addParam("query-string", "137.191.192.0 - 137.191.222.255");
+    public void createIpv4Resource() {
+        assertThat(subject.createIpv4Resource("10.0.0.0/8"), is(Ipv4Resource.parse("10.0.0.0/8")));
+        assertThat(subject.createIpv4Resource("128.130.0.0/15"), is(Ipv4Resource.parseIPv4Resource("128.130.0.0 - 128.131.255.255")));
     }
 
     @Test
-    public void shouldNotGiveIpIntervalForCsl() throws Exception {
-        final RpslObject rpslObject = setLegacyStatus.lookupTopLevelIpv4ResourceFromCsl("128.141.0.0/16,/17");
-
-        verify(restClientTarget).addParam("query-string", "128.141.0.0 - 128.142.127.255");
-        assertThat(rpslObject, nullValue());
+    public void createIpv4ResourceFromCommaSeparatedList() {
+        assertThat(subject.createIpv4ResourceFromCommaSeparatedList("137.191.192.0/20,/21,/22,/23,/24"), is(Ipv4Resource.parse("137.191.192.0 - 137.191.222.255")));
+        assertThat(subject.createIpv4ResourceFromCommaSeparatedList("128.141.0.0/16,/16"), is(Ipv4Resource.parse("128.141.0.0 - 128.142.255.255")));
+        assertThat(subject.createIpv4ResourceFromCommaSeparatedList("128.141.0.0/16,/17"), is(Ipv4Resource.parse("128.141.0.0 - 128.142.127.255")));
     }
 
     @Test
-    public void shouldGiveIntervalForInetnum() throws Exception {
-        when(restClientTarget.search()).thenReturn(Collections.singleton(RpslObject.parse("inetnum: 128.130.0.0 - 128.131.255.255")));
+    public void createIpv4ResourceFromAddressAndLength() {
+        final Ipv4Resource slash8 = Ipv4Resource.parse("10.0.0.0/8");
+        assertThat(subject.createIpv4Resource(slash8.begin(), 8), is(slash8));
 
-        setLegacyStatus.lookupTopLevelIp4Resource("128.130.0.0/15");
+        final Ipv4Resource slash15 = Ipv4Resource.parse("192.168.0.0/15");
+        assertThat(subject.createIpv4Resource(slash15.begin(), 15), is(slash15));
 
-        verify(restClientTarget).addParam("query-string", "128.130.0.0 - 128.131.255.255");
+        final Ipv4Resource slash16 = Ipv4Resource.parse("192.168.0.0 - 192.168.255.255");
+        assertThat(subject.createIpv4Resource(slash16.begin(), 16), is(slash16));
     }
 }
