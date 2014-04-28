@@ -856,12 +856,11 @@ public interface AttributeSyntax extends Documented {
         @Override
         public String getDescription(final ObjectType objectType) {
             return "" +
-                    "Must have at least 2 words beginning with a letter.\n" +
-                    "Each word consists of letters, digits and the following symbols:\n" +
-                    "    .`'_-\n" +
+                    "It should contain 2 to 10 words.\n" +
+                    "Each word consists of letters, digits or the following symbols:\n" +
+                    ".`'_-\n" +
                     "The first word should begin with a letter.\n" +
                     "Max 64 characters can be used in each word.";
-
         }
     }
 
