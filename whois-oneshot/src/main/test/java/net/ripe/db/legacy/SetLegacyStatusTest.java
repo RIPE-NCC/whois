@@ -2,7 +2,6 @@ package net.ripe.db.legacy;
 
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientTarget;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,10 +14,9 @@ import java.nio.file.Path;
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /*
@@ -55,22 +53,25 @@ public class SetLegacyStatusTest {
     public void shouldGiveRpslObjectForCsl() throws Exception {
         when(restClientTarget.search()).thenReturn(Collections.singleton(RpslObject.parse("inetnum: 137.191.192.0 - 137.191.222.255")));
 
-        final RpslObject rpslObject = setLegacyStatus.lookupTopLevelIpv4ResourceFromCsl("137.191.192.0/20,/21,/22,/23,/24");
+        setLegacyStatus.lookupTopLevelIpv4ResourceFromCsl("137.191.192.0/20,/21,/22,/23,/24");
 
-        assertThat(rpslObject, notNullValue());
-        assertThat(rpslObject.getValueForAttribute(AttributeType.INETNUM).toString(), is("137.191.192.0 - 137.191.222.255"));
+        verify(restClientTarget).addParam("query-string", "137.191.192.0 - 137.191.222.255");
     }
 
     @Test
     public void shouldNotGiveIpIntervalForCsl() throws Exception {
         final RpslObject rpslObject = setLegacyStatus.lookupTopLevelIpv4ResourceFromCsl("128.141.0.0/16,/17");
+
+        verify(restClientTarget).addParam("query-string", "128.141.0.0 - 128.142.127.255");
         assertThat(rpslObject, nullValue());
     }
 
     @Test
     public void shouldGiveIntervalForInetnum() throws Exception {
-        final RpslObject rpslObject = setLegacyStatus.lookupTopLevelIp4Resource("128.130.0.0/15");
-        assertThat(rpslObject, notNullValue());
-        assertThat(rpslObject.getValueForAttribute(AttributeType.INETNUM).toString(), is("128.130.0.0 - 128.131.255.255"));
+        when(restClientTarget.search()).thenReturn(Collections.singleton(RpslObject.parse("inetnum: 128.130.0.0 - 128.131.255.255")));
+
+        setLegacyStatus.lookupTopLevelIp4Resource("128.130.0.0/15");
+
+        verify(restClientTarget).addParam("query-string", "128.130.0.0 - 128.131.255.255");
     }
 }
