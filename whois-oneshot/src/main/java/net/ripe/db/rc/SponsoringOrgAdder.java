@@ -92,8 +92,7 @@ public class SponsoringOrgAdder {
         return parser;
     }
 
-
-    private String DUMMY_ORG = "ORG-DUMMY-RIPE";
+    private String dummyOrg = "ORG-DUMMY-RIPE";
     private final RestClient restClient;
     private final boolean notify;
     private final String overrideUser;
@@ -127,12 +126,12 @@ public class SponsoringOrgAdder {
                 } else {
                     line = line.trim();
                     if (line.contains("::")) {
-                        addSponsoringOrg(ObjectType.INET6NUM, line, DUMMY_ORG); //TODO change the dummy org to parsed value when available
+                        addSponsoringOrg(ObjectType.INET6NUM, line, dummyOrg); //TODO change the dummy org to parsed value when available
                     } else if (line.contains(".")) {
-                        addSponsoringOrg(ObjectType.INETNUM, line, DUMMY_ORG);
+                        addSponsoringOrg(ObjectType.INETNUM, line, dummyOrg);
                     } else {
                         final String AUTNUM_PREFIX = "AS";
-                        addSponsoringOrg(ObjectType.AUT_NUM, AUTNUM_PREFIX + line, DUMMY_ORG);
+                        addSponsoringOrg(ObjectType.AUT_NUM, AUTNUM_PREFIX + line, dummyOrg);
                     }
                 }
             }
@@ -147,18 +146,18 @@ public class SponsoringOrgAdder {
             final RpslObject result = restClient.request()
                     .addParam("override", String.format("%s,%s,dummyOrg{notify=%s}", overrideUser, overridePassword, notify))
                     .create(RpslObject.parse("" +
-                            "organisation: AUTO-1\n" +
-                            "org-name: Dummy Organisation For SponsoringOrg Test\n" +
-                            "org-type: LIR\n" +
-                            "address: Street\n" +
-                            "e-mail: test@ripe.net\n" +
-                            "mnt-ref: TEST-DBM-MNT\n" +
-                            "mnt-by: TEST-DBM-MNT\n" +
-                            "changed: test@test.net\n" +
-                            "source: TEST"));
-            DUMMY_ORG = result.getKey().toString();
+                            "organisation:  AUTO-1\n" +
+                            "org-name:      Dummy Organisation For Sponsoring Org Patch\n" +
+                            "org-type:      LIR\n" +
+                            "address:       Amsterdam\n" +
+                            "e-mail:        noreply@ripe.net\n" +
+                            "mnt-ref:       RIPE-DBM-MNT\n" +
+                            "mnt-by:        RIPE-DBM-MNT\n" +
+                            "changed:       noreply@ripe.net\n" +
+                            "source:        RIPE"));
+            dummyOrg = result.getKey().toString();
         } catch (RestClientException e) {
-            LOGGER.info("Could not create dummy org {}", DUMMY_ORG);
+            LOGGER.info("Could not create dummy org {}", dummyOrg);
             throw e;
         }
     }
