@@ -215,6 +215,7 @@ public final class RpslAttribute {
     }
 
     /** value as it is written to mysql/port43 client */
+    //TODO [TP] this needs a unit test
     public String getFormattedValue() {
         try {
             final StringWriter writer = new StringWriter();
