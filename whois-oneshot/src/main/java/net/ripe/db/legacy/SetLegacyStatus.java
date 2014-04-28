@@ -34,7 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Set Legacy Status script - set the status of the specified inetnums to LEGACY
+ * Set Legacy Status script - set the status of the specified inetnums (read from a CSV file) to LEGACY
  *
  * Command-line options:
  *
@@ -133,19 +133,19 @@ public class SetLegacyStatus {
             }
 
             if (rpslObject != null) {
-                setAllLegacyStatusToIpv4Resource(rpslObject);
+                setAllMoreSpecificLegacyStatus(rpslObject);
             }
         }
     }
 
-    private void setAllLegacyStatusToIpv4Resource(final RpslObject rpslObject) {
-        setLegacyStatusToIpv4Resource(rpslObject);
-        for (RpslObject moreSpecificObject : searchMoreSpecificMatch(rpslObject.getKey().toString())) {
-            setLegacyStatusToIpv4Resource(moreSpecificObject);
+    private void setAllMoreSpecificLegacyStatus(final RpslObject rpslObject) {
+        setLegacyStatus(rpslObject);
+        for (RpslObject moreSpecificObject : searchAllMoreSpecificMatch(rpslObject.getKey().toString())) {
+            setLegacyStatus(moreSpecificObject);
         }
     }
 
-    private void setLegacyStatusToIpv4Resource(final RpslObject rpslObject) {
+    private void setLegacyStatus(final RpslObject rpslObject) {
         if (!rpslObject.containsAttribute(AttributeType.STATUS)) {
             LOGGER.warn("inetnum {} has no status, skipping it.", rpslObject.getKey());
             return;
@@ -178,7 +178,6 @@ public class SetLegacyStatus {
                 updatedObject.getKey(),
                 RpslObjectFilter.diff(rpslObject, updatedObject));
     }
-
 
     @Nullable
     RpslObject lookupTopLevelIpv4ResourceFromCsl(final String line) {
@@ -247,7 +246,7 @@ public class SetLegacyStatus {
     }
 
     @SuppressWarnings("unchecked")
-    private Collection<RpslObject> searchMoreSpecificMatch(final String inetnumString) {
+    private Collection<RpslObject> searchAllMoreSpecificMatch(final String inetnumString) {
         try {
             return restClient
                     .request()
