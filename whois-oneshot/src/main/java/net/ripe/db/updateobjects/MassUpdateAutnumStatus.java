@@ -126,6 +126,7 @@ public class MassUpdateAutnumStatus {
             final UpdateStatus updateStatus = updateAutnum(rpslObject.getKey().toString());
 
             append(outputFile, String.format("AUT_NUM:%s:%s",rpslObject.getKey().toString(), updateStatus.name()));
+            LOGGER.info(String.format("AUT_NUM:%s:%s",rpslObject.getKey().toString(), updateStatus.name()));
 
             switch (updateStatus) {
                 case STATUS_UPDATE_SUCCESS:
@@ -159,7 +160,7 @@ public class MassUpdateAutnumStatus {
                 return UpdateStatus.STATUS_ALREADY_SET;
             }
 
-            final String override = String.format("%s,%s,set-legacy-status {notify=false}", username, password);
+            final String override = String.format("%s,%s,mass-update-autnum-status {notify=false}", username, password);
             final RpslObject updatedAutnum = restClient.request().addParam("unformatted", "").addParam("override", override).update(object);
 
             if (updatedAutnum.containsAttribute(AttributeType.STATUS)) {
