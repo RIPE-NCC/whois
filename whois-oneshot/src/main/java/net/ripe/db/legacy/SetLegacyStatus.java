@@ -192,7 +192,7 @@ public class SetLegacyStatus {
         final List<Ipv4Resource> addresses = Lists.newArrayList(nextAddress);
         long end = nextAddress.end();
         while (tokens.hasNext()) {
-            nextAddress = createIpv4Address(end + 1, Integer.parseInt(tokens.next().substring(1)));
+            nextAddress = createIpv4Resource(end + 1, Integer.parseInt(tokens.next().substring(1)));
             addresses.add(nextAddress);
             end = nextAddress.end();
         }
@@ -273,10 +273,10 @@ public class SetLegacyStatus {
         }
     }
 
-    private Ipv4Resource createIpv4Address(final long startAddress, final int prefixLength) {
-        long length = ((long) Math.pow(2d, (32 - prefixLength))) - 1l;
-        long endAddres = startAddress + length;
-        return new Ipv4Resource(startAddress, endAddres);
+    private Ipv4Resource createIpv4Resource(final long startAddress, final int prefixLength) {
+        final int length = (1 << (32 - prefixLength));
+        final long endAddress = startAddress + (length - 1l);
+        return new Ipv4Resource(startAddress, endAddress);
     }
 
     private Ipv4Resource concatenateIpv4Resources(final List<Ipv4Resource> resources) {
