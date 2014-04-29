@@ -10,6 +10,8 @@
 	- whois-1.73-1.sql
 	- whois-1.73-2.sql
 	- legacy_autnums.sql
+Also run whois scripts in all MIRROR datasources.
+[DEPLOY] when deploying the web application, change access.hostname to access.url.
 
 ## 1.72
 [web, api] Better integration with other Ripe services:
