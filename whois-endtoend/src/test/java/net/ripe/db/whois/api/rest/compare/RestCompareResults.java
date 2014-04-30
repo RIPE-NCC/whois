@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.rest.compare;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import difflib.Delta;
 import difflib.DiffUtils;
 import difflib.Patch;
@@ -10,7 +8,6 @@ import net.ripe.db.whois.query.endtoend.compare.CompareResults;
 import net.ripe.db.whois.query.endtoend.compare.ComparisonConfiguration;
 import net.ripe.db.whois.query.endtoend.compare.ComparisonExecutor;
 import net.ripe.db.whois.query.endtoend.compare.QueryReader;
-import net.ripe.db.whois.query.endtoend.compare.query.KnownDifferencesPredicate;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
 import org.slf4j.Logger;
@@ -81,11 +78,7 @@ public class RestCompareResults implements CompareResults {
             final List<ResponseObject> queryExecutor1Result = queryExecutor1Future.get();
             final List<ResponseObject> queryExecutor2Result = queryExecutor2Future.get();
 
-            final KnownDifferencesPredicate knownDifferencesPredicate = new KnownDifferencesPredicate();
-            final List<ResponseObject> responseObjects1 = Lists.newArrayList(Iterables.filter(queryExecutor1Result, knownDifferencesPredicate));
-            final List<ResponseObject> responseObjects2 = Lists.newArrayList(Iterables.filter(queryExecutor2Result, knownDifferencesPredicate));
-
-            final Patch patch = DiffUtils.diff(responseObjects1, responseObjects2);
+            final Patch patch = DiffUtils.diff(queryExecutor1Result, queryExecutor2Result);
             final List<Delta> deltas = patch.getDeltas();
             if (!deltas.isEmpty()) {
                 writeDifferences(targetDir, queryString, queryExecutor1Result, queryExecutor2Result, deltas);
