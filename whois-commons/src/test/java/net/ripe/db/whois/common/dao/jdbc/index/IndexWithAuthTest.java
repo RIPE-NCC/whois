@@ -78,4 +78,14 @@ public class IndexWithAuthTest extends IndexTestBase {
         assertThat(subject.findInIndex(whoisTemplate, "PGPKEY-12345678"), hasSize(1));
     }
 
+    @Test
+    public void addIndex_works_case_insensitive() throws Exception {
+        RpslObjectInfo maintainer = objectUpdateInfoMap.get(OWNER_MNT);
+
+        final int added = subject.addToIndex(whoisTemplate, maintainer, null, "PGPKEY-12345678");
+        assertThat(added, is(1));
+
+        assertThat(subject.findInIndex(whoisTemplate, "PGpKeY-12345678"), hasSize(1));
+    }
+
 }
