@@ -1,0 +1,3 @@
+
+ALTER TABLE `auth` MODIFY COLUMN `auth` varchar(90) NOT NULL DEFAULT '';
+

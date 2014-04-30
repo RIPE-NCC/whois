@@ -121,7 +121,7 @@ DROP TABLE IF EXISTS `auth`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `auth` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `auth` varchar(90) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL DEFAULT '',
+  `auth` varchar(90) NOT NULL DEFAULT '',
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`auth`,`object_id`),
   KEY `object_id` (`object_id`)

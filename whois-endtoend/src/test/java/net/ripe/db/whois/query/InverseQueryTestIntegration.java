@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.test.context.ContextConfiguration;
@@ -84,10 +83,14 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         queryServer.stop(true);
     }
 
-    @Ignore("TODO: [ES] mixed case lookup fails")
     @Test
     public void inverse_auth_pgpkey_case_sensitive() throws Exception {
         assertThat(query("-B -i auth PgPKeY-A8D16B70"), containsString("OWNER-MNT"));
+    }
+
+    @Test
+    public void inverse_upd_to_case_sensitive() throws Exception {
+        assertThat(query("-B -i upd-to noreply@riPe.net"), containsString("OWNER-MNT"));
     }
 
     @Test
