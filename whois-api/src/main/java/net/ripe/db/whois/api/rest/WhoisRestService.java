@@ -234,7 +234,7 @@ public class WhoisRestService {
         checkForMainSource(request, source);
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
-        validateSubmittedObject(request, submittedObject, objectType, key);
+        validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
         final Origin origin = updatePerformer.createOrigin(request);
         final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
@@ -259,7 +259,7 @@ public class WhoisRestService {
             final WhoisResources resource,
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
-            @PathParam("objectType") final String objectType,               // TODO: [ES] validate object type (REST paradigm suggests specifying resource type on creation)
+            @PathParam("objectType") final String objectType,
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
@@ -267,6 +267,7 @@ public class WhoisRestService {
         checkForMainSource(request, source);
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
+        validateSubmittedCreateObject(request, submittedObject, objectType);
 
         final Origin origin = updatePerformer.createOrigin(request);
         final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
@@ -533,9 +534,15 @@ public class WhoisRestService {
         return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), getServerAttributeMapper(request.getQueryString()));
     }
 
-    private void validateSubmittedObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
+    private void validateSubmittedUpdateObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
         if (!object.getKey().equals(key) || !object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.uriMismatch(objectType, key))).build());
+        }
+    }
+
+    private void validateSubmittedCreateObject(final HttpServletRequest request, final RpslObject object, final String objectType) {
+        if (!object.getType().getName().equalsIgnoreCase(objectType)) {
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(request, RestMessages.uriMismatch(objectType))).build());
         }
     }
 

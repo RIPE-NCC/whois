@@ -1,5 +1,7 @@
 package net.ripe.db.whois.query.endtoend.compare.query;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import difflib.Delta;
 import difflib.DiffUtils;
 import difflib.Patch;
@@ -85,11 +87,14 @@ public class CompareQueryResults implements CompareResults {
 
             final Future<List<ResponseObject>> queryExecutor1Future = executeQuery(queryExecutor1, queryString);
             final Future<List<ResponseObject>> queryExecutor2Future = executeQuery(queryExecutor2, queryString);
-
             final List<ResponseObject> queryExecutor1Result = queryExecutor1Future.get();
             final List<ResponseObject> queryExecutor2Result = queryExecutor2Future.get();
 
-            final Patch patch = DiffUtils.diff(queryExecutor1Result, queryExecutor2Result);
+            final KnownDifferencesPredicate knownDifferencesPredicate = new KnownDifferencesPredicate();
+            final List<ResponseObject> responseObjects1 = Lists.newArrayList(Iterables.filter(queryExecutor1Result, knownDifferencesPredicate));
+            final List<ResponseObject> responseObjects2 = Lists.newArrayList(Iterables.filter(queryExecutor2Result, knownDifferencesPredicate));
+
+            final Patch patch = DiffUtils.diff(responseObjects1, responseObjects2);
             final List<Delta> deltas = patch.getDeltas();
             if (!deltas.isEmpty()) {
                 writeDifferences(targetDir, queryString, queryExecutor1Result, queryExecutor2Result, deltas);

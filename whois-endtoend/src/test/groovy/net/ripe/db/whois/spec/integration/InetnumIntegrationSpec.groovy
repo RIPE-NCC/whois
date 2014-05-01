@@ -956,6 +956,40 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       insertResponse =~ /Error:   Parent 192.0.0.0 - 192.0.255.255 has invalid status: OTHER/
   }
 
+  def "create child ASSIGNED PA, parent LEGACY, not RS or override"() {
+    given:
+      databaseHelper.addObject("" +
+              "inetnum: 192.0.0.0 - 192.0.255.255\n" +
+              "netname: RIPE-NCC\n" +
+              "descr: description\n" +
+              "country: DK\n" +
+              "admin-c: TEST-PN\n" +
+              "tech-c: TEST-PN\n" +
+              "status: LEGACY\n" +
+              "mnt-by: TEST-MNT\n" +
+              "changed: ripe@test.net 20120505\n" +
+              "source: TEST")
+
+    when:
+      def create = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0 - 192.0.0.255
+                    netname: RIPE-NCC
+                    descr: updated description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ASSIGNED PA
+                    mnt-by: TEST-MNT
+                    changed: ripe@test.net 20120505
+                    source: TEST
+                    password:update
+                """.stripIndent()))
+    then:
+      create =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      create =~ /Error:   inetnum parent has incorrect status: LEGACY/
+
+  }
+
   def "delete status LEGACY, parent not LEGACY, not RS or override"() {
     given:
       databaseHelper.addObject("" +
