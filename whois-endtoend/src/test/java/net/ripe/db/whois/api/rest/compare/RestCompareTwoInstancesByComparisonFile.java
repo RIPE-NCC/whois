@@ -23,6 +23,7 @@ public class RestCompareTwoInstancesByComparisonFile {
                     }
                 },
                 new File("target/qry/comparison_rest_file"),
-                1).runCompareTest();
+                RestCompareResults.QueryType.ALL)
+                .runCompareTest();
     }
 }
