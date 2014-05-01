@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -20,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -42,6 +44,8 @@ import java.util.Set;
  *  Expects to read a file called 'legacyInetnums' which contains inetnums in this format:
  *    159.100.128.0 - 159.100.159.255
  *    one inetnum per line
+ *
+ *  Also expects the aut-num splitfile, 'ripe.db.aut-num.gz'
  */
 public class AutnumMassupdateEmailListGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger("AutnumMassupdateEmailListGenerator");
@@ -59,7 +63,7 @@ public class AutnumMassupdateEmailListGenerator {
         initOutputFile(outputInetnum);
 
         final AutnumMassupdateEmailListGenerator emailGenerator = new AutnumMassupdateEmailListGenerator((String)options.valueOf(ARG_DBPASSWORD));
-        emailGenerator.executeForAutnum(outputAutnum);
+        emailGenerator.executeForAutnumFromSplitfile("ripe.db.aut-num.gz", outputAutnum);
         emailGenerator.executeForInetnum(outputInetnum);
     }
 
@@ -78,10 +82,13 @@ public class AutnumMassupdateEmailListGenerator {
     }
 
     private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate indexJdbcTemplate;
     public AutnumMassupdateEmailListGenerator(final String dbPassword) throws SQLException {
-        jdbcTemplate = new JdbcTemplate(new SimpleDriverDataSource(new Driver(), "jdbc:mysql://dbc-whois5.ripe.net/WHOIS_UPDATE_RIPE", "rdonly", dbPassword));
+        jdbcTemplate = new JdbcTemplate(new SimpleDriverDataSource(new Driver(), "jdbc:mysql://dbc-dev1.ripe.net/WHOIS_UPDATE_RIPE", "rdonly", dbPassword));
+        indexJdbcTemplate = new JdbcTemplate(new SimpleDriverDataSource(new Driver(), "jdbc:mysql://dbc-dev1.ripe.net/WHOIS_UPDATE_RIPE", "rdonly", dbPassword));
     }
 
+    private int counter = 0;
     public void executeForAutnum(final File output) {
         //         email        autnumkeys
         final Map<CIString, Set<CIString>> autnumsPerEmail = Maps.newHashMap();
@@ -101,18 +108,45 @@ public class AutnumMassupdateEmailListGenerator {
                             LOGGER.warn("Unable to parse RPSL object with object_id: {}", objectId);
                             return;
                         }
-
+                        counter++;
+                        if (counter % 100 == 0) {
+                            LOGGER.info("autnums {}", counter);
+                        }
                         collectResourcesPerEmail(object, autnumsPerEmail);
                     }
                 });
 
         print(autnumsPerEmail, output);
+        LOGGER.info("finished executing autnums");
     }
+
+    public void executeForAutnumFromSplitfile(final String splitFile, final File output) {
+        final Map<CIString, Set<CIString>> autnumsPerEmail = Maps.newHashMap();
+        for (final String nextObject : new RpslObjectFileReader(splitFile)) {
+            final RpslObject object;
+            try {
+                object = RpslObject.parse(nextObject);
+            } catch (Exception e) {
+                LOGGER.info("Malformed RPSL: \n" + nextObject, e);
+                continue;
+            }
+
+            counter++;
+            if (counter % 100 == 0) {
+                LOGGER.info("autnums {}", counter);
+            }
+            collectResourcesPerEmail(object, autnumsPerEmail);
+        }
+        print(autnumsPerEmail, output);
+        LOGGER.info("finished executing autnums");
+    }
+
 
     public void executeForInetnum(final File output) throws IOException {
 //                 email         inetnums
         final Map<CIString, Set<CIString>> inetnumsPerEmail = Maps.newHashMap();
         final LineIterator iterator = FileUtils.lineIterator(new File("legacyInetnums"));
+        counter = 0;
         while (iterator.hasNext()) {
             final String line = iterator.nextLine().trim();
             final IndexStrategy indexStrategy = IndexStrategies.get(AttributeType.INETNUM);
@@ -123,6 +157,11 @@ public class AutnumMassupdateEmailListGenerator {
             }
 
             final RpslObject inetnum = JdbcRpslObjectOperations.getObjectById(jdbcTemplate, inetnumInfos.get(0).getObjectId());
+
+            counter++;
+            if (counter % 100 == 0) {
+                LOGGER.info("inetnums {}", counter);
+            }
             collectResourcesPerEmail(inetnum, inetnumsPerEmail);
         }
 
@@ -131,13 +170,20 @@ public class AutnumMassupdateEmailListGenerator {
 
     private void collectResourcesPerEmail(final RpslObject object, final Map<CIString, Set<CIString>> resourcesPerEmail) {
         final Set<CIString> emailAddresses = Sets.newHashSet();
-        final IndexStrategy indexStrategy = IndexStrategies.get(AttributeType.MNT_BY);
+        final IndexStrategy indexStrategy = IndexStrategies.get(AttributeType.MNTNER);
         for (CIString mntBy : object.getValuesForAttribute(AttributeType.MNT_BY)) {
-            for (RpslObjectInfo objectInfo : indexStrategy.findInIndex(jdbcTemplate, mntBy, ObjectType.MNTNER)) {
-                final RpslObject mntner = JdbcRpslObjectOperations.getObjectById(jdbcTemplate, objectInfo.getObjectId());
+            for (RpslObjectInfo objectInfo : indexStrategy.findInIndex(indexJdbcTemplate, mntBy, ObjectType.MNTNER)) {
+                RpslObject mntner;
+                try {
+                    mntner = JdbcRpslObjectOperations.getObjectById(indexJdbcTemplate, objectInfo.getObjectId());
+                } catch (EmptyResultDataAccessException e) {
+                    LOGGER.info("can't seem to find {} with oid {} in the database", objectInfo.getKey(), objectInfo.getObjectId());
+                    continue;
+                }
                 emailAddresses.addAll(mntner.getValuesForAttribute(AttributeType.UPD_TO));
             }
         }
+
 
         for (CIString emailAddress : emailAddresses) {
             Set<CIString> inetnums = resourcesPerEmail.get(emailAddress);
@@ -159,6 +205,13 @@ public class AutnumMassupdateEmailListGenerator {
             } catch (IOException e) {
                 LOGGER.info("Error writing email {}: {},\n{}",email, joiner.join(emailAutnumsMap.get(email)), e.getMessage());
             }
+        }
+
+        // add denis' email so that he knows when the mailing is done
+        try {
+            FileUtils.write(outputFile, String.format("denis@ripe.net | AS123"), append);
+        } catch (IOException e) {
+            LOGGER.info("Failed to generate denis email entry");
         }
     }
 }
