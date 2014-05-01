@@ -2,7 +2,11 @@
 
 # lookup
 
+#note: this lookup should generate no results, and a 404
+#difference between 1.72 and 1.73 as expected
 whois/ripe/as-block/as512
+whois/ripe/organisation/olga
+
 whois/ripe/as-set/AS8308:AS-Customers:AS197621
 whois/ripe/aut-num/AS513
 whois/ripe/domain/0.0.0.0.0.0.0.0.0.0.2.0.0.0.0.0.0.0.0.0.0.0.0.0.c.e.0.0.a.2.ip6.arpa
@@ -13,7 +17,6 @@ whois/ripe/inet-rtr/bgp2-rtr.kt.am
 whois/ripe/irt/IRT-AA
 whois/ripe/key-cert/PGPKEY-006AC66C
 whois/ripe/mntner/RIPE-DBM-STARTUP-MNT
-whois/ripe/organisation/olga
 whois/ripe/peering-set/AS702:PRNG-NL
 whois/ripe/person/dw-ripe
 whois/ripe/role/NA568-RIPE
@@ -23,7 +26,11 @@ whois/ripe/route/72.27.10.0/24AS10292
 whois/ripe/route-set/RS-KROOT-LOCAL
 whois/ripe/rtr-set/rtrs-AS1930
 
+#note: this lookup should generate no results, and a 404
 whois/ripe/as-block/as512.json
+whois/ripe/organisation/olga.json
+
+
 whois/ripe/as-set/AS8308:AS-Customers:AS197621.json
 whois/ripe/aut-num/AS513.json
 whois/ripe/domain/0.0.0.0.0.0.0.0.0.0.2.0.0.0.0.0.0.0.0.0.0.0.0.0.c.e.0.0.a.2.ip6.arpa.json
@@ -34,7 +41,6 @@ whois/ripe/inetnum/193.0.0.0%20-%20193.0.7.255.json
 whois/ripe/irt/IRT-AA.json
 whois/ripe/key-cert/PGPKEY-006AC66C.json
 whois/ripe/mntner/RIPE-DBM-STARTUP-MNT.json
-whois/ripe/organisation/olga.json
 whois/ripe/peering-set/AS702:PRNG-NL.json
 whois/ripe/person/dw-ripe.json
 whois/ripe/role/NA568-RIPE.json
