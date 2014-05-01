@@ -161,7 +161,7 @@ public class RpslAttributeTest {
 
     @Test
     public void format_single_line_too_many_spaces() {
-        final RpslAttribute subject = new RpslAttribute("person", "                       Brian Riddle");
+        final RpslAttribute subject = new RpslAttribute("person", "       Brian Riddle");
         assertThat(subject.toString(), is("person:         Brian Riddle\n"));
     }
 
@@ -190,5 +190,30 @@ public class RpslAttributeTest {
 
         subject = new RpslAttribute("remarks", "foo\t  # comment1 \n bar # \t comment2\n+ bla");
         assertThat(subject.getCleanComment(), is("comment1 comment2"));
+    }
+
+    @Test
+    public void preserve_and_allign_multiline_attributes(){
+        //[TP] we do not support leading spaces in values for formatting.
+        //all attribute value lines are automatically aligned to RpslAttribute.LEADING_CHARS(_SHORTHAND)
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "         line\n" +
+                "            line");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "         line\n" +
+                "            line"));
+
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "                line\n" +
+                "                line"));
+
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "                line\n" +
+                "                line\n"));
     }
 }

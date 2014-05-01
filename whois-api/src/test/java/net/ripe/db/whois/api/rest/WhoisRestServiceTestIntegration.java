@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Flag;
 import net.ripe.db.whois.api.rest.domain.Flags;
@@ -1566,14 +1565,28 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_already_exists() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        try {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (ClientErrorException e1) {
+            assertThat(e1.getResponse().getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
+            RestTest.assertOnlyErrorMessage(e1, "Error", "Enforced new keyword specified, but the object already exists in the database");
+        }
+    }
+
+    @Test
+    public void create_validate_objecttype() {
         try {
             RestTest.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, OWNER_MNT), MediaType.APPLICATION_XML), String.class);
             fail();
         } catch (ClientErrorException e1) {
-            assertThat(e1.getResponse().getStatus(), is(Response.Status.CONFLICT.getStatusCode()));
-            RestTest.assertOnlyErrorMessage(e1, "Error", "Enforced new keyword specified, but the object already exists in the database");
+            assertThat(e1.getResponse().getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
+            RestTest.assertOnlyErrorMessage(e1, "Error", "Object type specified in URI (%s) does not match the WhoisResources contents", "person");
         }
     }
 
