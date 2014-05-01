@@ -72,7 +72,7 @@ class LacnicGrsSource extends GrsSource {
 
         post(loginAction);
 
-        final String downloadAction = "http://lacnic.net" + loginAction.replace("stini", "bulkWhoisLoader");
+        final String downloadAction = loginAction.replace("stini", "bulkWhoisLoader");
 
         downloader.downloadTo(logger, new URL(downloadAction), path);
     }
