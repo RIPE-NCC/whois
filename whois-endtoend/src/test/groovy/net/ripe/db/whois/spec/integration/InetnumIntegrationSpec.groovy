@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
@@ -209,10 +208,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password:update
                 """.stripIndent()))
-
     expect:
       insertResponse =~ /SUCCESS/
-
     when:
       def delete = new SyncUpdate(data: """\
                 inetnum: 193.0.0.0 - 193.0.0.255
@@ -229,7 +226,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 delete:yes
                 password:update
                 """.stripIndent())
-
     then:
       def response = syncUpdate delete
 
@@ -269,7 +265,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /SUCCESS/
   }
 
-  def "create inetnum dash notation multiple spaces"() {
+  def "modify inetnum dash notation multiple spaces"() {
     when:
       def response = syncUpdate new SyncUpdate(data: """\
                 inetnum: 193.0.0.0   -  193.0.0.255
@@ -284,12 +280,32 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password:update
                 """.stripIndent())
-
     then:
       response =~ /No operation: \[inetnum\] 193.0.0.0 - 193.0.0.255/
   }
 
-  def "Create CIDR notation"() {
+  def "modify inetnum newline in primary key"() {
+    when:
+      def response = syncUpdate new SyncUpdate(data: """\
+                inetnum: 193.0.0.0
+                 -  193.0.0.255
+                netname: RIPE-NCC
+                descr: description
+                country: DK
+                admin-c: TEST-PN
+                tech-c: TEST-PN
+                status: SUB-ALLOCATED PA
+                mnt-by: TEST-MNT
+                changed: ripe@test.net 20120505
+                source: TEST
+                password:update
+                """.stripIndent())
+    then:
+      response =~ /Continuation lines are not allowed here and have been removed/
+      response =~ /No operation: \[inetnum\] 193.0.0.0 - 193.0.0.255/
+  }
+
+  def "create CIDR notation"() {
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0/24
@@ -306,7 +322,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password: update
                     password: hm
                     """.stripIndent()))
-
     then:
       response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /\*\*\*Info:    Value 192.0.0.0\/24 converted to 192.0.0.0 - 192.0.0.255/
@@ -331,8 +346,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                         """.stripIndent()))
     when:
       insertResponse =~ /SUCCESS/
-
-
     then:
       def response = syncUpdate new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -349,7 +362,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password: hm
                     password: update
                 """.stripIndent())
-
     then:
       response =~ /SUCCESS/
       response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
@@ -372,7 +384,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             password: update
             password: hm
         """.stripIndent()))
-
     then:
       insertResponse =~ /SUCCESS/
       insertResponse =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
@@ -394,9 +405,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             source: TEST
             override:denis,override1
         """.stripIndent()))
-
     then:
-      insertResponse.contains("Create SUCCEEDED: [inetnum] 192.0.0.0 - 192.0.0.255")
+      insertResponse =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
   def "modify status ALLOCATED PI has reference to non-RIR organisation"() {
@@ -416,10 +426,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             password: update
             password: hm
         """.stripIndent()))
-
     expect:
       insertResponse =~ /SUCCESS/
-
     when:
       def response = syncUpdate new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255
@@ -434,7 +442,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             changed: ripe@test.net 20120505
             source: TEST
             password: hm""".stripIndent())
-
     then:
       response =~ /FAIL/
       response =~ /Referenced organisation has wrong "org-type"/
@@ -471,10 +478,9 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             changed: ripe@test.net 20120505
             source: TEST
             override:denis,override1""".stripIndent()))
-
     then:
-      response.contains("Create SUCCEEDED: [inetnum] 192.0.0.0 - 192.0.0.255")
-      response.contains("Modify SUCCEEDED: [inetnum] 192.0.0.0 - 192.0.0.255")
+      response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
   def "modify status ALLOCATED PI has no reference to organisation"() {
@@ -494,10 +500,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             password: update
                             password: hm
                         """.stripIndent()))
-
     expect:
       insertResponse =~ /SUCCESS/
-
     when:
       def response = syncUpdate new SyncUpdate(data: ("""\
                             inetnum: 192.0.0.0 - 192.0.0.255
@@ -512,12 +516,10 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             source: TEST
                             password: hm
                         """.stripIndent()))
-
     then:
       response =~ /FAIL/
       response =~ /Missing required "org:" attribute/
   }
-
 
   def "status EARLY-REGISTRATION is allowed for an RS maintainer"() {
     when:
@@ -536,9 +538,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password: update
                     password: hm
                     """.stripIndent()))
-
     then:
-      insertResponse =~ "Create SUCCEEDED: \\[inetnum\\] 10.0.0.0 - 10.0.0.255"
+      insertResponse =~ /Create SUCCEEDED: \[inetnum\] 10.0.0.0 - 10.0.0.255/
   }
 
   def "status EARLY-REGISTRATION is not allowed for regular maintainer"() {
@@ -558,9 +559,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password:emptypassword
                     """.stripIndent()))
     then:
-      println insertResponse
-      insertResponse =~ "Status EARLY-REGISTRATION can only be created by the database\n" +
-              "            administrator"
+      insertResponse =~ /Status EARLY-REGISTRATION can only be created by the database\n\s+administrator/
   }
 
   def "status EARLY-REGISTRATION with override"() {
@@ -580,7 +579,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     override:denis,override1
                     """.stripIndent()))
     then:
-      insertResponse.contains("Create SUCCEEDED: [inetnum] 10.0.0.0 - 10.0.0.255")
+      insertResponse =~ /Create SUCCEEDED: \[inetnum\] 10.0.0.0 - 10.0.0.255/
   }
 
   def "modify status ASSIGNED PA does not reference organisation of type LIR or OTHER"() {
@@ -600,10 +599,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password: hm
                     password: update
                 """.stripIndent()))
-
     expect:
       insertResponse =~ /SUCCESS/
-
     when:
       def response = syncUpdate new SyncUpdate(data: """\
                     inetnum: 10.0.0.0 - 10.0.0.255
@@ -619,7 +616,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: hm
                 """.stripIndent())
-
     then:
       response =~ /FAIL/
       response =~ /Referenced organisation has wrong "org-type"./
@@ -656,10 +652,9 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     override:denis,override1
                 """.stripIndent()))
-
     then:
-      response.contains("Create SUCCEEDED: [inetnum] 10.0.0.0 - 10.0.0.255")
-      response.contains("Modify SUCCEEDED: [inetnum] 10.0.0.0 - 10.0.0.255")
+      response =~ /Create SUCCEEDED: \[inetnum\] 10.0.0.0 - 10.0.0.255/
+      response =~ /Modify SUCCEEDED: \[inetnum\] 10.0.0.0 - 10.0.0.255/
   }
 
   def "modify status ASSIGNED PA does not reference any organisation"() {
@@ -679,10 +674,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password: hm
                     password: update
                 """.stripIndent()))
-
     expect:
       insertResponse =~ /SUCCESS/
-
     when:
       def response = syncUpdate new SyncUpdate(data: """\
                     inetnum: 10.0.0.0 - 10.0.0.255
@@ -697,7 +690,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: hm
                 """.stripIndent())
-
     then:
       response =~ /SUCCESS/
   }
@@ -720,10 +712,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password:update
                     password:hm
                 """.stripIndent()))
-
     expect:
       insertResponse =~ /SUCCESS/
-
     when:
       def response = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -739,7 +729,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password:update
                 """.stripIndent()))
-
     then:
       response =~ /FAIL/
       response =~ /Referenced organisation has wrong "org-type".
@@ -778,10 +767,9 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     override:denis,override1
                 """.stripIndent()))
-
     then:
-      response.contains("Create SUCCEEDED: [inetnum] 192.0.0.0 - 192.0.0.255")
-      response.contains("Modify SUCCEEDED: [inetnum] 192.0.0.0 - 192.0.0.255")
+      response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
   def "modify status ALLOCATED PA has no reference to organisation"() {
@@ -803,7 +791,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     expect:
       insertResponse =~ /SUCCESS/
-
     when:
       def response = syncUpdate new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -818,7 +805,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password:update
                 """.stripIndent())
-
     then:
       response =~ /FAIL/
       response =~ /Missing required "org:" attribute/
@@ -862,7 +848,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password:update
                 """.stripIndent()))
-
     then:
       insertResponse =~ /FAIL/
       insertResponse =~ /Error:   Only RIPE NCC can create\/delete a top level object with status
@@ -883,7 +868,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "mnt-by: TEST-MNT\n" +
               "changed: ripe@test.net 20120505\n" +
               "source: TEST")
-
     when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -969,7 +953,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "mnt-by: TEST-MNT\n" +
               "changed: ripe@test.net 20120505\n" +
               "source: TEST")
-
     when:
       def create = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -1014,7 +997,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "mnt-by: TEST-MNT\n" +
               "changed: ripe@test.net 20120505\n" +
               "source: TEST")
-
     when:
       def delete = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -1061,7 +1043,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "mnt-by: TEST-MNT\n" +
               "changed: ripe@test.net 20120505\n" +
               "source: TEST")
-
     when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -1105,7 +1086,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "mnt-by: RIPE-NCC-HM-MNT\n" +
               "changed: ripe@test.net 20120505\n" +
               "source: TEST")
-
     when:
       def delete = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -1149,7 +1129,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "mnt-by: TEST-MNT\n" +
               "changed: ripe@test.net 20120505\n" +
               "source: TEST")
-
     when:
       def modify = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -1185,10 +1164,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password: hm
                     password: update
                 """.stripIndent()))
-
     expect:
       insertResponse =~ /SUCCESS/
-
     when:
       def response = syncUpdate new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -1208,7 +1185,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password:update
                 """.stripIndent())
-
     then:
       response =~ /SUCCESS/
   }
@@ -1233,7 +1209,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             """.stripIndent()))
     then:
       insertResponse =~ /SUCCESS/
-
     when:
       def response = syncUpdate new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255
@@ -1249,7 +1224,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             changed: ripe@test.net 20120505
             source: TEST
             """.stripIndent())
-
     then:
       response =~ /FAIL/
       response =~ /not authenticated by: TEST-MNT, RIPE-NCC-END-MNT/
@@ -1288,10 +1262,9 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             source: TEST
             override: denis,override1
             """.stripIndent()))
-
     then:
-      response.contains("Create SUCCEEDED: [inetnum] 192.0.0.0 - 192.0.0.255")
-      response.contains("Modify SUCCEEDED: [inetnum] 192.0.0.0 - 192.0.0.255")
+      response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
   def "adding mnt-irt fails if not authenticated against IRT"() {
@@ -1312,7 +1285,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     expect:
       insertResponse =~ /SUCCESS/
-
     when:
       def response = syncUpdate new SyncUpdate(data: """\
                     inetnum: 193.0.0.0 - 193.0.0.255
@@ -1329,7 +1301,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org:ORG-TOL2-TEST
                     password:FAIL
                 """.stripIndent())
-
     then:
       response =~ /FAIL/
       response =~ /not authenticated by: irt-IRT1/
@@ -1366,10 +1337,9 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org:ORG-TOL2-TEST
                     override:denis,override1
                 """.stripIndent()))
-
     then:
-      !response.contains("FAIL")
-      response.contains("Modify SUCCEEDED: [inetnum] 193.0.0.0 - 193.0.0.255")
+      !(response =~ /FAIL/)
+      response =~ /Modify SUCCEEDED: \[inetnum\] 193.0.0.0 - 193.0.0.255/
   }
 
   def "adding mnt-irt succeeds when authenticated correctly against IRT"() {
@@ -1390,7 +1360,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     expect:
       insertResponse =~ /SUCCESS/
-
     when:
       def response = syncUpdate new SyncUpdate(data: """\
                     inetnum: 193.0.0.0 - 193.0.0.255
@@ -1407,7 +1376,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password:update
                     """.stripIndent())
-
     then:
       response =~ /SUCCESS/
   }
@@ -1430,7 +1398,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
                 password: hm
                 """.stripIndent()))
-
     then:
       response =~ /SUCCESS/
       response =~ /Create SUCCEEDED: \[inetnum\] 192.168.128.0 - 192.168.255.255/
@@ -1474,7 +1441,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 override:     denis,override1
                 """.stripIndent()))
     then:
-      response.contains("Create SUCCEEDED: [inetnum] 192.168.200.0 - 192.168.200.255")
+      response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
   }
 
   def "create, assigned pi can have other mntby's than rs maintainer"() {
@@ -1542,6 +1509,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 override:     denis,override1
                 """.stripIndent()))
     then:
-      response.contains("Create SUCCEEDED: [inetnum] 192.168.200.0 - 192.168.200.255")
+      response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
   }
 }
