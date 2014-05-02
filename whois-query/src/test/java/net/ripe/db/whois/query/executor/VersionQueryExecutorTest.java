@@ -176,6 +176,30 @@ public class VersionQueryExecutorTest {
     }
 
     @Test
+    public void listVersions_person_maintainer() {
+        when(versionDao.getObjectType("TP1-TEST")).thenReturn(Lists.newArrayList(ObjectType.PERSON, ObjectType.MNTNER));
+        setupVersionMock(versionInfo1, 1, 1312210585L);
+        setupVersionMock(versionInfo2, 2, 1334066282L);
+        setupVersionMock(versionInfo3, 1, 1334066292L);
+        final VersionLookupResult versionLookupResultPerson = new VersionLookupResult(Lists.newArrayList(versionInfo1, versionInfo2), ObjectType.PERSON, "TP1-TEST");
+        final VersionLookupResult versionLookupResultMntner = new VersionLookupResult(Lists.newArrayList(versionInfo3), ObjectType.MNTNER, "TP1-TEST");
+        when(versionDao.findByKey(ObjectType.PERSON, "TP1-TEST")).thenReturn(versionLookupResultPerson);
+        when(versionDao.findByKey(ObjectType.MNTNER, "TP1-TEST")).thenReturn(versionLookupResultMntner);
+
+        final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
+        subject.execute(Query.parse("--list-versions TP1-TEST"), responseHandler);
+
+        final List<ResponseObject> responseObjects = responseHandler.getResponseObjects();
+
+        assertThat(new String(responseObjects.get(0).toByteArray()),
+                is(QueryMessages.versionPersonRole("PERSON", "TP1-TEST").toString()));
+        assertThat(new String(responseObjects.get(1).toByteArray()),
+                is(QueryMessages.versionListStart(ObjectType.MNTNER.getName().toUpperCase(), "TP1-TEST").toString()));
+    }
+
+
+
+    @Test
     public void showVersion_person_role() {
         when(versionDao.getObjectType("TP1-TEST")).thenReturn(Lists.newArrayList(ObjectType.PERSON));
         setupVersionMock(versionInfo1, 1, 1312210585L);
