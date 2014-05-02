@@ -82,10 +82,8 @@ public class AutnumMassupdateEmailListGenerator {
     }
 
     private final JdbcTemplate jdbcTemplate;
-    private final JdbcTemplate indexJdbcTemplate;
     public AutnumMassupdateEmailListGenerator(final String dbPassword) throws SQLException {
-        jdbcTemplate = new JdbcTemplate(new SimpleDriverDataSource(new Driver(), "jdbc:mysql://dbc-dev1.ripe.net/WHOIS_UPDATE_RIPE", "rdonly", dbPassword));
-        indexJdbcTemplate = new JdbcTemplate(new SimpleDriverDataSource(new Driver(), "jdbc:mysql://dbc-dev1.ripe.net/WHOIS_UPDATE_RIPE", "rdonly", dbPassword));
+        jdbcTemplate = new JdbcTemplate(new SimpleDriverDataSource(new Driver(), "jdbc:mysql://dbc-whois5.ripe.net/WHOIS_UPDATE_RIPE", "rdonly", dbPassword));
     }
 
     private int counter = 0;
@@ -172,10 +170,10 @@ public class AutnumMassupdateEmailListGenerator {
         final Set<CIString> emailAddresses = Sets.newHashSet();
         final IndexStrategy indexStrategy = IndexStrategies.get(AttributeType.MNTNER);
         for (CIString mntBy : object.getValuesForAttribute(AttributeType.MNT_BY)) {
-            for (RpslObjectInfo objectInfo : indexStrategy.findInIndex(indexJdbcTemplate, mntBy, ObjectType.MNTNER)) {
+            for (RpslObjectInfo objectInfo : indexStrategy.findInIndex(jdbcTemplate, mntBy, ObjectType.MNTNER)) {
                 RpslObject mntner;
                 try {
-                    mntner = JdbcRpslObjectOperations.getObjectById(indexJdbcTemplate, objectInfo.getObjectId());
+                    mntner = JdbcRpslObjectOperations.getObjectById(jdbcTemplate, objectInfo.getObjectId());
                 } catch (EmptyResultDataAccessException e) {
                     LOGGER.info("can't seem to find {} with oid {} in the database", objectInfo.getKey(), objectInfo.getObjectId());
                     continue;
@@ -201,7 +199,7 @@ public class AutnumMassupdateEmailListGenerator {
 
         for (CIString email : emailAutnumsMap.keySet()) {
             try {
-                FileUtils.write(outputFile, String.format("%s | %s", email, joiner.join(emailAutnumsMap.get(email))), append);
+                FileUtils.write(outputFile, String.format("%s | %s\n", email, joiner.join(emailAutnumsMap.get(email))), append);
             } catch (IOException e) {
                 LOGGER.info("Error writing email {}: {},\n{}",email, joiner.join(emailAutnumsMap.get(email)), e.getMessage());
             }
