@@ -25,7 +25,7 @@ import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.CheckForNull;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -67,6 +67,7 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private Iterable<? extends ResponseObject> decorate(final Query query, Iterable<? extends ResponseObject> responseObjects) {
+
         final Iterable<ResponseObject> objects = Iterables.transform(responseObjects, new Function<ResponseObject, ResponseObject>() {
             @Override
             public ResponseObject apply(final ResponseObject input) {
@@ -88,42 +89,49 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private Iterable<? extends ResponseObject> getResponseObjects(final Query query) {
-        VersionLookupResult res = getVersionInfo(query);
+        Collection<VersionLookupResult> versionLookupResults = getVersionInfo(query);
 
         // common & sanity checks
-        if (res == null) {
+        if (versionLookupResults.size() == 0) {
             return Collections.emptyList();
         }
 
-        final ObjectType objectType = res.getObjectType();
         final String searchKey = query.getSearchValue();
-        if (objectType == ObjectType.PERSON || objectType == ObjectType.ROLE) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionPersonRole(objectType.getName().toUpperCase(), searchKey)));
-        }
+        final List<ResponseObject> results = new ArrayList<>();
+        for (VersionLookupResult versionLookupResult : versionLookupResults) {
+            final ObjectType objectType = versionLookupResult.getObjectType();
 
-        final List<VersionInfo> versionInfos = res.getVersionInfos();
-        final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
-        if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
-            return Lists.newArrayList(
-                    new MessageObject(QueryMessages.versionListStart(objectType.getName().toUpperCase(), searchKey)),
-                    new DeletedVersionResponseObject(lastDeletionTimestamp, objectType, searchKey));
-        }
+            if (objectType == ObjectType.PERSON || objectType == ObjectType.ROLE) {
+                results.add(new MessageObject(QueryMessages.versionPersonRole(objectType.getName().toUpperCase(), searchKey)));
+                continue;
+            }
 
-        final int version = query.getObjectVersion();
-        final int[] versions = query.getObjectVersions();
+            final List<VersionInfo> versionInfos = versionLookupResult.getVersionInfos();
+            final VersionDateTime lastDeletionTimestamp = versionLookupResult.getLastDeletionTimestamp();
+            if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
+                results.add(new MessageObject(QueryMessages.versionListStart(objectType.getName().toUpperCase(), searchKey)));
+                results.add(new DeletedVersionResponseObject(lastDeletionTimestamp, objectType, searchKey));
+                continue;
+            }
 
-        if (version > versionInfos.size() || versions[0] > versionInfos.size() || versions[1] > versionInfos.size()) {
-            return Collections.singletonList(new MessageObject(QueryMessages.versionOutOfRange(versionInfos.size())));
-        }
+            final int version = query.getObjectVersion();
+            final int[] versions = query.getObjectVersions();
 
-        // all good, dispatch
-        if (query.isVersionList()) {
-            return getAllVersions(res, searchKey);
-        } else if (query.isVersionDiff()) {
-            return getVersionDiffs(res, versions);
-        } else {
-            return getVersion(res, version);
+            if (version > versionInfos.size() || versions[0] > versionInfos.size() || versions[1] > versionInfos.size()) {
+                results.add(new MessageObject(QueryMessages.versionOutOfRange(versionInfos.size())));
+                continue;
+            }
+
+            // all good, dispatch
+            if (query.isVersionList()) {
+                Iterables.addAll(results, getAllVersions(versionLookupResult, searchKey));
+            } else if (query.isVersionDiff()) {
+                Iterables.addAll(results, getVersionDiffs(versionLookupResult, versions));
+            } else {
+                Iterables.addAll(results, getVersion(versionLookupResult, version));
+            }
         }
+        return results;
     }
 
     private Iterable<? extends ResponseObject> getAllVersions(final VersionLookupResult res, final String searchKey) {
@@ -185,16 +193,14 @@ public class VersionQueryExecutor implements QueryExecutor {
         return versionDao.getObjectType(query.getSearchValue());
     }
 
-    @CheckForNull
-    public VersionLookupResult getVersionInfo(final Query query) {
+    public Collection<VersionLookupResult> getVersionInfo(final Query query) {
+        List<VersionLookupResult> versionLookupResults = new ArrayList<>();
         for (ObjectType type : getObjectType(query)) {
-            final VersionLookupResult found = versionDao.findByKey(type, query.getSearchValue());
-            if (found != null) {
-                return found;
-            }
+            final VersionLookupResult versionLookupResult = versionDao.findByKey(type, query.getSearchValue());
+            versionLookupResults.add(versionLookupResult);
         }
 
-        return null;
+        return versionLookupResults;
     }
 
     private int getPadding(List<VersionInfo> versionInfos) {
