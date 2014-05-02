@@ -234,6 +234,17 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
+                "LIR-PN": """\
+                person:  Anothertest Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: DW-RIPE
+                mnt-by:  LIR-MNT
+                changed: dbtest@ripe.net 20120101
+                source:  TEST
+                """,
         ]
     }
 
@@ -277,6 +288,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
     }
 
     def "create ROLE, with abuse-mailbox"() {
+
       given:
 
       expect:
@@ -839,34 +851,34 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ROLE-AM-NOREF") + "password: lir")
         query_object_matches("-r -T role AR1-TEST", "role", "Abuse Role", "abuse-mailbox:")
+        syncUpdate(getTransient("LIR-PN") + "password: lir")
 
       expect:
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                role:         Abuse Role
-                remarks:      DO NOT REFERENCE this object
-                address:      St James Street
-                address:      Burnley
-                address:      UK
-                e-mail:       dbtest@ripe.net
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                nic-hdl:      AR1-TEST
-                mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20121016
-                source:       TEST
+      def message = send new Message(
+              subject: "create SELF-MNT",
+              body: """\
+                mntner: DW-RIPE
+                descr: description
+                admin-c: TP1-TEST
+                mnt-by: DW-RIPE
+                referral-by: DW-RIPE
+                upd-to: updto_cre@ripe.net
+                auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                changed: dbtest@ripe.net 20120707
+                source: TEST
 
-                password: lir
+                password: update
                 """.stripIndent()
-        )
+      )
 
       then:
         def ack = ackFor message
 
-        ack.summary.nrFound == 1
+      Thread.sleep(Long.MAX_VALUE)
+
+      ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
@@ -1299,7 +1311,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
     def "modify ORGANISATION, add abuse-c "() {
       given:
-
+          syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
       expect:
         query_object_matches("-r -T role AH1-TEST", "role", "Abuse Handler", "abuse-mailbox:")
         query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "abuse-c:")
