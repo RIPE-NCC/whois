@@ -394,6 +394,46 @@ class OrgSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T organisation ORG-XA1-TEST", "organisation", "ORG-XA1-TEST")
     }
 
+    // FIXME: [AH] the character 'Ő' was converted to a ? in the acknowledgement message
+    def "create organisation with auto-1 and weird (invalid) chars in name, missing auth"() {
+        expect:
+        queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    auto-1
+                org-type:        other
+                org-name:        Hö öns mö åäö ŐÚ
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                changed:         denis@ripe.net 20121016
+                source:          TEST
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+        ack.failed
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errorMessagesFor("Create", "[organisation] auto-1") == ["Syntax error in Hö öns mö åäö ?Ú"]
+
+        queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
+    }
+
     def "create organisation disallowed org-type no power mntner"() {
         given:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
