@@ -62,6 +62,9 @@ public class SetLegacyStatus {
     public static final String ARG_SOURCE = "source";
     public static final String ARG_DRY_RUN = "dryrun";
 
+    private static final String REMARKS_TEXT = "For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources";
+    private static final RpslAttribute STATUS_REMARK = new RpslAttribute(AttributeType.REMARKS, REMARKS_TEXT);
+
     private final String username;
     private final String password;
     private final boolean dryRun;
@@ -161,6 +164,7 @@ public class SetLegacyStatus {
 
         RpslObject updatedObject = (new RpslObjectBuilder(rpslObject))
                 .replaceAttribute(statusAttribute, new RpslAttribute(AttributeType.STATUS, InetnumStatus.LEGACY.toString()))
+                .addAttributeAfter(STATUS_REMARK, AttributeType.STATUS)
                 .get();
 
         if (!dryRun) {

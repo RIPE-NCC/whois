@@ -2,6 +2,8 @@ package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import org.apache.commons.lang.Validate;
 
 import java.util.ArrayList;
@@ -194,6 +196,16 @@ public class RpslObjectBuilder {
     public RpslObjectBuilder addAttribute(final int index, final RpslAttribute newAttribute) {
         attributes.add(index, newAttribute);
         return this;
+    }
+
+    public RpslObjectBuilder addAttributeAfter(final RpslAttribute newAttribute, final AttributeType insertAfter) {
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributes.get(i).getType() == insertAfter) {
+                addAttribute(i, newAttribute);
+                return this;
+            }
+        }
+        throw new IllegalArgumentException(String.format("attributeType %s not found in object", insertAfter));
     }
 
     // TODO: [AH] this should be pre-initialized in ObjectTemplate
