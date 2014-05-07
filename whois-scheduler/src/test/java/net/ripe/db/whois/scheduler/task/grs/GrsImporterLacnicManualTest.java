@@ -30,7 +30,7 @@ import static org.junit.Assert.assertThat;
 
 @Category(ManualTest.class)
 @DirtiesContext
-public class GrsImporterLacnicTestIntegration extends AbstractSchedulerIntegrationTest {
+public class GrsImporterLacnicManualTest extends AbstractSchedulerIntegrationTest {
 
     @Autowired GrsImporter grsImporter;
     @Autowired GrsSourceImporter grsSourceImporter;
