@@ -13,6 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
+@DirtiesContext
 public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegrationTest {
 
     @Autowired GrsImporter grsImporter;
@@ -60,11 +62,6 @@ public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegratio
 
     @AfterClass
     public static void cleanup() throws Exception {
-        System.clearProperty("grs.import.apnic.source");
-        System.clearProperty("grs.import.apnic.resourceDataUrl");
-        System.clearProperty("grs.import.apnic.download");
-        System.clearProperty("dir.grs.import.download");
-
         FileHelper.delete(tempDirectory);
     }
 
