@@ -1,4 +1,5 @@
 package net.ripe.db.whois.spec.integration
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
@@ -915,7 +916,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "country: DK\n" +
               "admin-c: TEST-PN\n" +
               "tech-c: TEST-PN\n" +
-              "status: OTHER\n" +
+              "status: ASSIGNED PI\n" +
               "mnt-by: TEST-MNT\n" +
               "changed: ripe@test.net 20120505\n" +
               "source: TEST")
@@ -937,7 +938,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
     then:
       insertResponse =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-      insertResponse =~ /Error:   Parent 192.0.0.0 - 192.0.255.255 has invalid status: OTHER/
+      insertResponse =~ /Error:   inetnum parent has incorrect status: ASSIGNED PI/
   }
 
   def "create child ASSIGNED PA, parent LEGACY, not RS or override"() {
@@ -968,9 +969,38 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password:update
                 """.stripIndent()))
     then:
-      create =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-      create =~ /Error:   inetnum parent has incorrect status: LEGACY/
+      create =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      create =~ /Info:    Value ASSIGNED PA converted to LEGACY/
 
+  }
+
+  def "create with parent status LEGACY, update has status LEGACY"() {
+    databaseHelper.addObject("" +
+            "inetnum: 192.168.0.0 - 192.168.0.255\n" +
+            "netname: test netname\n" +
+            "status: LEGACY\n" +
+            "mnt-by: TEST2-MNT\n" +
+            "source: test");
+    ipTreeUpdater.rebuild();
+
+    when:
+      def response = syncUpdate(new SyncUpdate(data: """\
+                inetnum:      192.168.0.5 - 192.168.0.10
+                netname:      test-netname
+                status:       LEGACY
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TEST-PN
+                tech-c:       TEST-PN
+                mnt-by:       test2-mnt
+                changed:      test@ripe.net
+                source:       TEST
+                password:     emptypassword
+                """))
+
+    then:
+      response =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.5 - 192.168.0.10/
+      !(response =~ /\*\*\*Info:    Value ASSIGNED PA converted to LEGACY/)
   }
 
   def "delete status LEGACY, parent not LEGACY, not RS or override"() {
@@ -1071,7 +1101,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "country: DK\n" +
               "admin-c: TEST-PN\n" +
               "tech-c: TEST-PN\n" +
-              "status: OTHER\n" +
+              "status: ASSIGNED PI\n" +
               "mnt-by: TEST-MNT\n" +
               "changed: ripe@test.net 20120505\n" +
               "source: TEST")
@@ -1114,7 +1144,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "country: DK\n" +
               "admin-c: TEST-PN\n" +
               "tech-c: TEST-PN\n" +
-              "status: OTHER\n" +
+              "status: ASSIGNED PI\n" +
               "mnt-by: TEST-MNT\n" +
               "changed: ripe@test.net 20120505\n" +
               "source: TEST")
