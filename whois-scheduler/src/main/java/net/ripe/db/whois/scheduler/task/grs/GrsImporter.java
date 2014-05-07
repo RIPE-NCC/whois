@@ -106,27 +106,30 @@ public class GrsImporter implements DailyScheduledTask {
         final List<Future> futures = Lists.newArrayListWithCapacity(sourcesToImport.size());
         for (final CIString enabledSource : sourcesToImport) {
             final GrsSource grsSource = grsSources.get(enabledSource);
+
             if (grsSource == null) {
                 LOGGER.warn("Unknown source: {}", enabledSource);
-            } else {
-                futures.add(executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (currentlyImporting.add(enabledSource)) {
-                            try {
-                                LOGGER.info("Importing: {}", enabledSource);
-                                grsSourceImporter.grsImport(grsSource, rebuild);
-                            } catch (RuntimeException e) {
-                                grsSource.getLogger().error("Unexpected", e);
-                            } finally {
-                                currentlyImporting.remove(enabledSource);
-                            }
-                        } else {
-                            grsSource.getLogger().warn("Skipped, already running");
-                        }
-                    }
-                }));
+                continue;
             }
+
+            futures.add(executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    if (!currentlyImporting.add(enabledSource)) {
+                        grsSource.getLogger().warn("Skipped, already running");
+                        return;
+                    }
+
+                    try {
+                        LOGGER.info("Importing: {}", enabledSource);
+                        grsSourceImporter.grsImport(grsSource, rebuild);
+                    } catch (RuntimeException e) {
+                        grsSource.getLogger().error("Unexpected", e);
+                    } finally {
+                        currentlyImporting.remove(enabledSource);
+                    }
+                }
+            }));
         }
 
         return futures;
