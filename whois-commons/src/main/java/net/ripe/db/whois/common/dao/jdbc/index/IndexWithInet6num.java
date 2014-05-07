@@ -2,9 +2,9 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -23,8 +23,8 @@ class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
         final Ipv6Resource resource = Ipv6Resource.parse(objectInfo.getKey());
 
         // GRS sources might not have netname
-        final List<RpslAttribute> netnameAttribute = object.findAttributes(AttributeType.NETNAME);
-        final String netname = netnameAttribute.isEmpty() ? "" : netnameAttribute.get(0).getCleanValue().toString();
+        final CIString netnameAttribute = object.getValueOrNullForAttribute(AttributeType.NETNAME);
+        final String netname = netnameAttribute == null ? "" : netnameAttribute.toString();
 
         return jdbcTemplate.update(
                 "INSERT INTO inet6num (object_id, i6_msb, i6_lsb, prefix_length, netname) VALUES (?, ?, ?, ?, ?)",
