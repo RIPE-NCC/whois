@@ -1,6 +1,8 @@
 package net.ripe.db.legacy;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.sun.istack.NotNull;
 import joptsimple.OptionParser;
@@ -35,19 +37,18 @@ import java.util.List;
 
 /**
  * Set Legacy Status script - set the status of the specified inetnums (read from a CSV file) to LEGACY
- *
+ * <p/>
  * Command-line options:
- *
- *      --override-username : the override user
- *      --override-password : the override password
- *      --filename          : the input filename containing inetnums (csv format)
- *      --rest-api-url      : the REST API url (for lookup/search/update operations)
- *      --source            : the source name (RIPE or TEST)
- *
+ * <p/>
+ * --override-username : the override user
+ * --override-password : the override password
+ * --filename          : the input filename containing inetnums (csv format)
+ * --rest-api-url      : the REST API url (for lookup/search/update operations)
+ * --source            : the source name (RIPE or TEST)
+ * <p/>
  * For example:
- *
- *      --override-username dbint --override-password dbint --filename DBlist20140407.csv --rest-api-url https://rest.db.ripe.net --source RIPE
- *
+ * <p/>
+ * --override-username dbint --override-password dbint --filename DBlist20140407.csv --rest-api-url https://rest.db.ripe.net --source RIPE
  */
 public class SetLegacyStatus {
 
@@ -74,12 +75,12 @@ public class SetLegacyStatus {
     public static void main(String[] args) throws IOException {
         final OptionSet options = setupOptionParser().parse(args);
         new SetLegacyStatus(
-                (String)options.valueOf(ARG_FILENAME),
-                (String)options.valueOf(ARG_OVERRIDE_USERNAME),
-                (String)options.valueOf(ARG_OVERRIDE_PASSWORD),
-                (String)options.valueOf(ARG_REST_API_URL),
-                (String)options.valueOf(ARG_SOURCE),
-                (Boolean)options.valueOf(ARG_DRY_RUN)).execute();
+                (String) options.valueOf(ARG_FILENAME),
+                (String) options.valueOf(ARG_OVERRIDE_USERNAME),
+                (String) options.valueOf(ARG_OVERRIDE_PASSWORD),
+                (String) options.valueOf(ARG_REST_API_URL),
+                (String) options.valueOf(ARG_SOURCE),
+                (Boolean) options.valueOf(ARG_DRY_RUN)).execute();
     }
 
     private static OptionParser setupOptionParser() {
@@ -162,10 +163,41 @@ public class SetLegacyStatus {
             return;
         }
 
+        // only update the object if there is at least one maintainer that is not a power maintainer
+        FluentIterable<RpslAttribute> mntByWithoutPowerMaintainer = FluentIterable
+                .from(rpslObject.findAttributes(AttributeType.MNT_BY))
+                .filter(new Predicate<RpslAttribute>() {
+                    @Override
+                    public boolean apply(@Nullable RpslAttribute input) {
+                        return input != null && !(input.getCleanValue().equals("RIPE-NCC-HM-MNT"));
+                    }
+                });
+
+        boolean convertMntLower = false;
+
+        if (mntByWithoutPowerMaintainer.isEmpty()) {
+            mntByWithoutPowerMaintainer = FluentIterable.from(rpslObject.findAttributes(AttributeType.MNT_LOWER));
+            convertMntLower = true;
+        }
+
+        if (mntByWithoutPowerMaintainer.isEmpty()) {
+            LOGGER.warn("inetnum {} has no non power maintainers in mnt-by or mnt-lower, skipping it.");
+            return;
+        }
+
         RpslObject updatedObject = (new RpslObjectBuilder(rpslObject))
                 .replaceAttribute(statusAttribute, new RpslAttribute(AttributeType.STATUS, InetnumStatus.LEGACY.toString()))
                 .addAttributeAfter(STATUS_REMARK, AttributeType.STATUS)
+                .removeAttributeType(AttributeType.MNT_BY)
+                .append(mntByWithoutPowerMaintainer.toList())
                 .get();
+
+
+        if (convertMntLower) {
+            updatedObject = (new RpslObjectBuilder(updatedObject))
+                    .removeAttributeType(AttributeType.MNT_LOWER)
+                    .get();
+        }
 
         if (!dryRun) {
             try {
@@ -203,7 +235,7 @@ public class SetLegacyStatus {
             return null;
         }
 
-        switch(objects.size()) {
+        switch (objects.size()) {
             case 0:
                 LOGGER.warn("inetnum {} not found in database", ipv4Resource.toRangeString());
                 return null;
@@ -249,7 +281,9 @@ public class SetLegacyStatus {
                         new AttributeMapper[]{
                                 new FormattedClientAttributeMapper(),
                                 new DirtyClientAttributeMapper()
-                        }));
+                        }
+                )
+        );
         return restClient;
     }
 
