@@ -163,7 +163,7 @@ public class SetLegacyStatus {
             return;
         }
 
-        // only update the object if there is at least one maintainer that is not a power maintainer
+        boolean convertMntLower = false;
         FluentIterable<RpslAttribute> mntByWithoutPowerMaintainer = FluentIterable
                 .from(rpslObject.findAttributes(AttributeType.MNT_BY))
                 .filter(new Predicate<RpslAttribute>() {
@@ -173,7 +173,6 @@ public class SetLegacyStatus {
                     }
                 });
 
-        boolean convertMntLower = false;
 
         if (mntByWithoutPowerMaintainer.isEmpty()) {
             mntByWithoutPowerMaintainer = FluentIterable.from(rpslObject.findAttributes(AttributeType.MNT_LOWER));
@@ -189,7 +188,7 @@ public class SetLegacyStatus {
                 .replaceAttribute(statusAttribute, new RpslAttribute(AttributeType.STATUS, InetnumStatus.LEGACY.toString()))
                 .addAttributeAfter(STATUS_REMARK, AttributeType.STATUS)
                 .removeAttributeType(AttributeType.MNT_BY)
-                .append(mntByWithoutPowerMaintainer.toList())
+                .addAttributesAfter(mntByWithoutPowerMaintainer.toList(), AttributeType.STATUS)
                 .get();
 
 

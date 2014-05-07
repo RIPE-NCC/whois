@@ -198,14 +198,15 @@ public class RpslObjectBuilder {
         return this;
     }
 
+
     public RpslObjectBuilder addAttributeAfter(final RpslAttribute newAttribute, final AttributeType insertAfter) {
-        for (int i = 0; i < attributes.size(); i++) {
-            if (attributes.get(i).getType() == insertAfter) {
-                addAttribute(i, newAttribute);
-                return this;
-            }
-        }
-        throw new IllegalArgumentException(String.format("attributeType %s not found in object", insertAfter));
+        addAttribute(getAttributeTypeIndex(insertAfter) + 1, newAttribute);
+        return this;
+    }
+
+    public RpslObjectBuilder addAttributesAfter(final Collection<RpslAttribute> newAttributes, final AttributeType insertAfter) {
+        addAttributes(getAttributeTypeIndex(insertAfter) + 1, newAttributes);
+        return this;
     }
 
     // TODO: [AH] this should be pre-initialized in ObjectTemplate
@@ -311,4 +312,14 @@ public class RpslObjectBuilder {
         }
         return this;
     }
+
+    private int getAttributeTypeIndex(final AttributeType attributeType) {
+        for (int i = 0; i < attributes.size(); i++) {
+            if (attributes.get(i).getType() == attributeType) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException(String.format("attributeType %s not found in object", attributeType));
+    }
+
 }
