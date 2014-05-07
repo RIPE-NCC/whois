@@ -876,7 +876,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
       then:
         def ack = ackFor message
 
-      ack.summary.nrFound == 1
+        ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
@@ -1308,9 +1308,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
     }
 
     def "modify ORGANISATION, add abuse-c "() {
-      given:
-          syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
-      expect:
         query_object_matches("-r -T role AH1-TEST", "role", "Abuse Handler", "abuse-mailbox:")
         query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "abuse-c:")
 

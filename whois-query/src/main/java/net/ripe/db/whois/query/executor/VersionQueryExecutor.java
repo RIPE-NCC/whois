@@ -60,7 +60,6 @@ public class VersionQueryExecutor implements QueryExecutor {
     public void execute(final Query query, final ResponseHandler responseHandler) {
         final Iterable<? extends ResponseObject> responseObjects = getResponseObjects(query);
 
-        // TODO: [AH] refactor this spaghetti
         for (final ResponseObject responseObject : decorate(query, responseObjects)) {
             responseHandler.handle(responseObject);
         }
@@ -88,11 +87,12 @@ public class VersionQueryExecutor implements QueryExecutor {
         return objects;
     }
 
+    // TODO: [AH] make this streaming, too; objects could have thousands of versions
     private Iterable<? extends ResponseObject> getResponseObjects(final Query query) {
         Collection<VersionLookupResult> versionLookupResults = getVersionInfo(query);
 
         // common & sanity checks
-        if (versionLookupResults.size() == 0) {
+        if (versionLookupResults.isEmpty()) {
             return Collections.emptyList();
         }
 
