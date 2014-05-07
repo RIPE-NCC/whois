@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.sso;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +26,9 @@ import java.util.NoSuchElementException;
 @Component
 public class CrowdClient {
     private static final String CROWD_SESSION_PATH = "rest/usermanagement/1/session";
-
+    private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
+    private static final int CLIENT_READ_TIMEOUT = 10_000;
+    
     private String restUrl;
     private Client client;
 
@@ -34,10 +37,11 @@ public class CrowdClient {
                        @Value("${crowd.rest.user}") final String crowdAuthUser,
                        @Value("${crowd.rest.password}") final String crowdAuthPassword) {
         this.restUrl = translatorUrl;
-
         client = ClientBuilder.newBuilder()
                 .register(HttpAuthenticationFeature.basic(crowdAuthUser, crowdAuthPassword))
                 .build();
+        client.property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT);
+        client.property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT);
     }
 
     public void setRestUrl(final String url) {
