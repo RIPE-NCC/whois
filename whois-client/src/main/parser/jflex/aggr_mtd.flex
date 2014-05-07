@@ -55,6 +55,7 @@ EXCEPT     { return AggrMtdParser.KEYW_EXCEPT; }
 
 OR    { return AggrMtdParser.OP_OR; }
 AND   { return AggrMtdParser.OP_AND; }
+NOT   { return AggrMtdParser.OP_NOT; }
 
 
 {ASNO} {

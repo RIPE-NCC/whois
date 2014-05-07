@@ -256,6 +256,8 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT, "to AS31133 announce AS-i1");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT, "to AS35805 announce as-set-wanex");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT, "to AS12840 announce AS-TEST");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT, "to AS-ANY AND NOT AS15562 announce AS-TEST");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT, "to AS-ANY EXCEPT AS15562 announce AS-TEST");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT, "to prng-as5408-ibgp announce ANY;");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT, "to AS20485 action pref=100; announce AS-ORTEL");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT, "to AS42688 at 195.250.64.11 action med = 0; announce AS8226:AS-ALL {0.0.0.0/0}");
@@ -284,6 +286,7 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "                     AS12956  \t84.16.8.225 at 84.16.8.226\t to AS986 AS123 to AS234 announce AS-TEST AND NOT {0.0.0.0/0}");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "afi any AS9070 62.44.108.66 at 62.44.108.65 to AS456789 announce AS-SU-LOCAL");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "afi ipv4.unicast AS99070 to AS123456 action pref=100; pref=10; announce AS-SU-LOCAL");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "AS15562 TO AS-ANY AND NOT AS3333 action pref=100; pref=10; announce AS-SNIJDERS");
 
         verifyFailure(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "ipv4.unicast AS99070 to AS123456 announce AS-SU-LOCAL");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "afi ipv4.unicast AS99070 to AS123456 to AS123457 announce AS-SU-LOCAL");
@@ -419,6 +422,8 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT, "from AS34002 action pref=10; accept <^AS34002+$>");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT, "from AS6777 accept ANY AND NOT <[AS2-AS9]>");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT, "from AS-FOO accept PeerAS");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT, "from AS-FOO EXCEPT AS3333 accept PeerAS");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT, "from AS-FOO AND NOT AS3333 accept PeerAS");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT, "from AS-FOO accept peeras");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT, "from AS2 action pref = 10; med = 0; community.append(10250, 3561:10); accept { 128.9.0.0/16 }\n");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT, "from AS2 action pref = 10; med = 0; community.delete(100, NO_EXPORT, 3561:10); accept { 128.9.0.0/16 }\n");
@@ -442,10 +447,15 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144 accept <^[AS9002 AS31133 AS24940]>");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144 accept <^[AS1002-AS1005]>");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144 accept ANY ;");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "AS16777 from AS-ANY AND NOT AS3333 accept ANY ;");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "AS16777 from AS-ANY EXCEPT AS3333 accept ANY ;");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144 action next_hop = 10.0.0.1; next_hop = 10.0.0.10; accept ANY");
 
         verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "ipv6.unicast AS16777 from AS262144 accept ANY ;");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "AS16777 from ANY AS3333 accept ANY ;");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "AS16777 from ANY except AS3333 accept ANY ;");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "AS16777 from ANY and not AS3333 accept ANY ;");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144 action next_hop = 10.0.0.1; action next_hop = 10.0.0.10; accept ANY");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, " afi ipv6.unicast  AS3248  AS39560");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, " afi wonttell  AS3248 accept AS39560");

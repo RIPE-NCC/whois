@@ -50,6 +50,7 @@ EXCEPT     { return AggrBndryParser.KEYW_EXCEPT; }
 
 OR    { return AggrBndryParser.OP_OR; }
 AND   { return AggrBndryParser.OP_AND; }
+NOT   { return AggrBndryParser.OP_NOT; }
 
 {ASNO} {
     ParserHelper.validateAsNumber(yytext());
