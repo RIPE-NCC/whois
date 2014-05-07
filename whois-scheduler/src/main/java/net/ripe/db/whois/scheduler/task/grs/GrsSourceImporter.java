@@ -108,7 +108,7 @@ class GrsSourceImporter {
                 }
 
                 try {
-                    // TODO: continue from here to switch to Path
+                    // TODO: [AH] continue from here to switch File to Path
                     importObjects(dump.toFile());
                     deleteNotFoundInImport();
                 } catch (IOException e) {
@@ -175,7 +175,8 @@ class GrsSourceImporter {
                             }
                         }
 
-                        builder.sort().append(sourceAttribute);
+                        // best not to sort to avoid reordering remarks: attributes
+                        builder.append(sourceAttribute);
 
                         return builder.get();
                     }
