@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -20,7 +21,9 @@ class IndexWithInetnum extends IndexStrategyWithSingleLookupTable {
     public int addToIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo, final RpslObject object, final String value) {
         final Ipv4Resource resource = Ipv4Resource.parse(objectInfo.getKey());
 
-        final String netname = object.getValueForAttribute(AttributeType.NETNAME).toString();
+        // GRS sources might not have netname
+        final List<RpslAttribute> netnameAttribute = object.findAttributes(AttributeType.NETNAME);
+        final String netname = netnameAttribute.isEmpty() ? "" : netnameAttribute.get(0).getCleanValue().toString();
 
         return jdbcTemplate.update(
                 "INSERT INTO inetnum (object_id, begin_in, end_in, netname) VALUES (?, ?, ?, ?)",

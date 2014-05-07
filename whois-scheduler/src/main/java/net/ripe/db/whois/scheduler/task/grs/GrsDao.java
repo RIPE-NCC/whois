@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.*;
 
+// TODO: [AH] add an init() method instead of the ensureInitialized() hack
 class GrsDao {
     private final Logger logger;
     private final DateTimeProvider dateTimeProvider;

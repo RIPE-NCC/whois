@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.util.List;
 
+// TODO: [AH] replace this early implementation with IndexStrategy
 @Repository
 public class JdbcInetnumDao implements InetnumDao {
 
