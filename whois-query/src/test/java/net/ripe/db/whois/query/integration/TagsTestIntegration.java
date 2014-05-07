@@ -3,7 +3,6 @@ package net.ripe.db.whois.query.integration;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
-import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
@@ -12,7 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
@@ -23,8 +21,6 @@ import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
 public class TagsTestIntegration extends AbstractQueryIntegrationTest {
-    @Autowired
-    private IpTreeUpdater ipTreeUpdater;
 
     @Before
     public void setup() {
