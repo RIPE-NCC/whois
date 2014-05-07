@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.support;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -81,6 +82,17 @@ public class FileHelper {
     public static File addToTextFile(final File directory, final String filename, final String content) throws IOException {
         final File file = File.createTempFile(filename, ".txt", directory);
         Files.write(content.getBytes(), file);
+        return file;
+    }
+
+    public static File addToTextFileWithMd5Checksum(final File directory, final String filename, final String content) throws IOException {
+        final File file = File.createTempFile(filename, ".txt", directory);
+        Files.write(content.getBytes(), file);
+
+        final File md5File = new File(file.getAbsolutePath() + ".md5");
+        final String md5Sum = DigestUtils.md5Hex(content);
+        Files.write(md5Sum.getBytes(), md5File);
+
         return file;
     }
 
