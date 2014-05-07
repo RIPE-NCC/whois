@@ -181,7 +181,7 @@ public class SetLegacyStatus {
         }
 
         if (mntByWithoutPowerMaintainer.isEmpty()) {
-            LOGGER.warn("inetnum {} has no non power maintainers in mnt-by or mnt-lower, skipping it.");
+            LOGGER.warn("inetnum {} has no non-power maintainers in mnt-by or mnt-lower, skipping it.", rpslObject.getKey());
             return;
         }
 
