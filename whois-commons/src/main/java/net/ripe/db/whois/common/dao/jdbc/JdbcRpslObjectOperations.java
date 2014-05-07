@@ -54,13 +54,14 @@ public class JdbcRpslObjectOperations {
 
     public static Set<CIString> insertIntoTablesIgnoreMissing(final JdbcTemplate jdbcTemplate, final RpslObjectInfo rpslObjectInfo, final RpslObject rpslObject) {
         final Set<CIString> missingReferences = Sets.newHashSet();
-        final Set<AttributeType> keyAttributes = ObjectTemplate.getTemplate(rpslObject.getType()).getKeyAttributes();
+        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
+
+        final Set<AttributeType> keyAttributes = objectTemplate.getKeyAttributes();
         for (final AttributeType keyAttributeType : keyAttributes) {
             missingReferences.addAll(insertAttributeIndex(jdbcTemplate, rpslObjectInfo, rpslObject, keyAttributeType));
         }
 
-        final List<AttributeTemplate> attributeTemplates = ObjectTemplate.getTemplate(rpslObject.getType()).getAttributeTemplates();
-        for (final AttributeTemplate attributeTemplate : attributeTemplates) {
+        for (final AttributeTemplate attributeTemplate : objectTemplate.getAttributeTemplates()) {
             final AttributeType attributeType = attributeTemplate.getAttributeType();
             if (!keyAttributes.contains(attributeType)) {
                 missingReferences.addAll(insertAttributeIndex(jdbcTemplate, rpslObjectInfo, rpslObject, attributeType));
@@ -86,7 +87,7 @@ public class JdbcRpslObjectOperations {
                             throw new DataIntegrityViolationException("Rows affected: " + rows);
                         }
                     } catch (IllegalArgumentException e) {
-                        LOGGER.debug("Missing reference: {}", value);
+                        LOGGER.debug("Missing reference: " + value, e);
                         missingReferences.add(value);
                     }
                 }
