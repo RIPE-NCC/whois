@@ -3371,15 +3371,15 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
       def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.100.0 - 192.168.200.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.100.0 - 192.168.200.255") ==
-                ["Status ASSIGNED PA not allowed when more specific object '192.168.100.0 - 192.168.100.255' has status LEGACY"]
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.100.0 - 192.168.200.255" }
+        ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.100.0 - 192.168.200.255") ==
+                ["Value ASSIGNED PA converted to LEGACY"]
 
-        queryObjectNotFound("-r -T inetnum 192.168.100.0 - 192.168.200.255", "inetnum", "192.168.100.0 - 192.168.200.255")
+        queryObject("-r -T inetnum 192.168.100.0 - 192.168.200.255", "inetnum", "192.168.100.0 - 192.168.200.255")
     }
 
     // misc tests
