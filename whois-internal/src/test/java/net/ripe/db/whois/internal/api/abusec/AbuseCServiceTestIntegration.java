@@ -2,7 +2,7 @@ package net.ripe.db.whois.internal.api.abusec;
 
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
-import net.ripe.db.whois.api.rest.RestClient;
+import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
@@ -181,6 +181,39 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
                 .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(result, is("http://apps.db.ripe.net/search/lookup.html?source=TEST&key=ORG-TOL1-TEST&type=ORGANISATION"));
+    }
+
+    @Test
+    public void create_organisation_without_abusec_role_has_only_ripe_mntner() {
+        databaseHelperRest.addObject("" +
+                "mntner:    TEST-MNT\n" +
+                "mnt-by:    TEST-MNT\n" +
+                "source:    TEST");
+        databaseHelperRest.addObject("" +
+                "mntner:    RIPE-NCC-HM-MNT\n" +
+                "mnt-by:    RIPE-NCC-HM-MNT\n" +
+                "source:    TEST");
+        databaseHelperRest.addObject("" +
+                "organisation:  ORG-TOL1-TEST\n" +
+                "org-name:      Test Organisation Left\n" +
+                "org-type:      OTHER\n" +
+                "address:       street\n" +
+                "e-mail:        some@email.net\n" +
+                "mnt-ref:       RIPE-NCC-HM-MNT\n" +
+                "mnt-by:        RIPE-NCC-HM-MNT\n" +
+                "changed:       denis@ripe.net 20121016\n" +
+                "source:        TEST");
+
+        try {
+            RestTest.target(getPort(), "api/abusec/ORG-TOL1-TEST", null, apiKey)
+                .request(MediaType.TEXT_PLAIN)
+                .post(Entity.entity("email=email@email.net", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+        } catch (ClientErrorException e) {
+            final String errorMessage = e.getResponse().readEntity(String.class);
+            System.out.println(errorMessage);
+            System.out.println(e.getResponse().getStatus());
+        }
+
     }
 
     @Test

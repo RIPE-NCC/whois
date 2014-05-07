@@ -311,7 +311,6 @@ class BasicFixtures {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$bzCpMX7h\$wl3EmBzNXG..8oTMmGVF51 # nccend
                 org:         ORG-OTO1-TEST
-                auth:        MD5-PW # Filtered
                 mnt-by:      RIPE-NCC-END-MNT
                 changed:     dbtest@ripe.net
                 referral-by: RIPE-DBM-MNT

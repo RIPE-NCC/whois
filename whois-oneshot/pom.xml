@@ -4,13 +4,13 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.73-SNAPSHOT</version>
+        <version>1.74-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois-oneshot</artifactId>
-    <version>1.73-SNAPSHOT</version>
+    <version>1.74-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -83,7 +83,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <whois.main>net.ripe.db.abusec.ListOrgsWithNoAbuseC</whois.main>
+                <whois.main>net.ripe.db.updateobjects.MassUpdateAutnumStatus</whois.main>
             </properties>
             <build>
                 <plugins>

@@ -30,12 +30,20 @@ public final class RpslAttribute {
     private int hash;
     private Set<CIString> cleanValues;
 
+    public RpslAttribute(final AttributeType attributeType, final CIString value) {
+        this(attributeType, value.toString());
+    }
+
     public RpslAttribute(final AttributeType attributeType, final String value) {
         Validate.notNull(attributeType);
         Validate.notNull(value);
         this.key = attributeType.getName();
         this.value = value;
         this.type = attributeType;
+    }
+
+    public RpslAttribute(final String key, final CIString value) {
+        this(key, value.toString());
     }
 
     public RpslAttribute(final String key, final String value) {
@@ -202,7 +210,22 @@ public final class RpslAttribute {
     public void writeTo(final Writer writer) throws IOException {
         writer.write(key);
         writer.write(':');
+        writeAttributeValueTo(writer);
+        writer.write('\n');
+    }
 
+    /** value as it is written to mysql/port43 client */
+    public String getFormattedValue() {
+        try {
+            final StringWriter writer = new StringWriter();
+            writeAttributeValueTo(writer);
+            return writer.toString();
+        } catch (IOException e) {
+            throw new IllegalStateException("Should never occur", e);
+        }
+    }
+
+    public void writeAttributeValueTo(final Writer writer) throws IOException {
         final int column = key.startsWith("*") ? LEADING_CHARS_SHORTHAND : LEADING_CHARS;
         final char[] chars = value.toCharArray();
 
@@ -233,8 +256,6 @@ public final class RpslAttribute {
                 writer.write(c);
             }
         }
-
-        writer.write('\n');
     }
 
     @Override

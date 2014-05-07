@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.rest.client.RestClient;
+import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -13,6 +15,7 @@ import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.ws.rs.core.Cookie;
@@ -65,6 +68,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
+    @Autowired
     RestClient restClient;
 
     @Before
@@ -72,7 +76,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
 
-        restClient = new RestClient(String.format("http://localhost:%d/whois", getPort()), "TEST");
+        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
+        restClient.setSource("TEST");
     }
 
     @Test
@@ -222,7 +227,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void lookup_mntner_with_mntby_password() throws Exception {
         databaseHelper.addObject(SECOND_MNT);
 
-        RpslObject obj = restClient.request()
+        final RpslObject obj = restClient.request()
                 .addParam("password", "test")
                 .lookup(SECOND_MNT.getType(), SECOND_MNT.getKey().toString());
 
@@ -232,7 +237,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_mntner_with_one_of_mntby_passwords() throws Exception {
-        RpslObject THIRD_MNT = RpslObject.parse("" +
+        final RpslObject THIRD_MNT = RpslObject.parse("" +
                 "mntner:        THIRD-MNT\n" +
                 "descr:         Owner Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +
@@ -332,7 +337,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_route_multiple_matches() {
+    public void lookup_route_primary_key_must_be_fully_defined() {
         databaseHelper.addObject(
                 "inetnum:       193.0.0.0 - 193.0.0.255\n" +
                 "netname:       RIPE-NCC\n" +
@@ -378,10 +383,13 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         resetIpTrees();
 
-        // TODO: [ES] what should happen on multiple matches, if the primary key is not fully specified? currently return the first match.
-        final RpslObject responseNoOrgin = restClient.request().lookup(ObjectType.ROUTE, "193.0.0.0/21");
-        assertThat(responseNoOrgin.getValueForAttribute(AttributeType.ROUTE).toString(), is("193.0.0.0/21"));
-        assertThat(responseNoOrgin.getValueForAttribute(AttributeType.ORIGIN).toString(), is("AS3333"));
+        // return nothing on partial primary key
+        try {
+            final RpslObject responseNoOrigin = restClient.request().lookup(ObjectType.ROUTE, "193.0.0.0/21");
+            fail("no result on partial primary key");
+        } catch (RestClientException e){
+            assertThat(e.getErrorMessages().get(0).toString(), is("ERROR:101: no entries found\n\nNo entries found in source TEST.\n"));
+        }
 
         // primary key is fully specified (one match)
         final RpslObject responseWithOrgin = restClient.request().lookup(ObjectType.ROUTE, "193.0.0.0/21AS3334");

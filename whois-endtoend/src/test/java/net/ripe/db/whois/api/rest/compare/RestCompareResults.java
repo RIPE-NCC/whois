@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.rest.compare;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import difflib.Delta;
@@ -10,12 +12,11 @@ import net.ripe.db.whois.query.endtoend.compare.CompareResults;
 import net.ripe.db.whois.query.endtoend.compare.ComparisonConfiguration;
 import net.ripe.db.whois.query.endtoend.compare.ComparisonExecutor;
 import net.ripe.db.whois.query.endtoend.compare.QueryReader;
-import net.ripe.db.whois.query.endtoend.compare.query.KnownDifferencesPredicate;
 import org.apache.commons.lang.StringUtils;
-import org.hamcrest.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -25,12 +26,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static net.ripe.db.whois.query.endtoend.compare.ComparisonPrinter.writeDifferences;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class RestCompareResults implements CompareResults {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestCompareResults.class);
+
+    public enum QueryType {
+        ALL, XML, JSON
+    }
 
     private final ComparisonConfiguration config1;
     private final ComparisonConfiguration config2;
@@ -39,12 +45,12 @@ public class RestCompareResults implements CompareResults {
     private final ExecutorService executorService;
     private final QueryReader queryReader;
     private final File targetDir;
-    private final int logEntries;
+    private QueryType queryType;
 
     public RestCompareResults(final RestExecutorConfiguration config1,
                               final RestExecutorConfiguration config2,
                               final QueryReader queryReader, final File targetDir,
-                              final int logEntries) throws UnknownHostException {
+                              final QueryType queryType) throws UnknownHostException {
         this.config1 = config1;
         this.config2 = config2;
         this.restExecutor1 = new RestExecutor(config1);
@@ -52,7 +58,7 @@ public class RestCompareResults implements CompareResults {
         this.executorService = Executors.newFixedThreadPool(2);
         this.queryReader = queryReader;
         this.targetDir = targetDir;
-        this.logEntries = logEntries;
+        this.queryType = queryType;
     }
 
     @Override
@@ -62,30 +68,45 @@ public class RestCompareResults implements CompareResults {
         assertTrue("Unable to create: " + targetDir.getAbsolutePath(), targetDir.mkdirs());
         assertTrue(new File(targetDir, "0_deltas_go_here.txt").createNewFile());
 
-        int nrQueries = 0;
         int failedQueries = 0;
-        for (final String queryString : queryReader.getQueries()) {
-            if (StringUtils.isBlank(queryString) || queryString.startsWith("#")) {
-                continue;
-            }
+        FluentIterable<String> queries = FluentIterable
+                .from(queryReader.getQueries())
+                .filter(new Predicate<String>() {
+                    @Override
+                    public boolean apply(@Nullable String input) {
+                        return !(input == null || (StringUtils.isBlank(input) || input.startsWith("#")));
+                    }
+                });
 
-            if (logEntries == 1) {
-                LOGGER.info("Compare query: {}", queryString);
-            } else if (++nrQueries % logEntries == 0) {
-                LOGGER.info("Compared {} queries", nrQueries);
-            }
+        // do only XML or JSON if needed
+        if (queryType == QueryType.XML) {
+            queries = queries.filter(new Predicate<String>() {
+                @Override
+                public boolean apply(@Nullable String input) {
+                    return !(input != null && input.contains(".json"));
+                }
+            });
+        } else if (queryType == QueryType.JSON) {
+            queries = queries.filter(new Predicate<String>() {
+                @Override
+                public boolean apply(@Nullable String input) {
+                    return input != null && input.contains(".json");
+                }
+            });
+        }
 
+        if (queries.size() == 1) {
+            LOGGER.info("Compare query: {}", queries.get(0));
+        }
+
+        for (final String queryString : queries) {
             final Future<List<ResponseObject>> queryExecutor1Future = executeQuery(restExecutor1, queryString);
             final Future<List<ResponseObject>> queryExecutor2Future = executeQuery(restExecutor2, queryString);
 
             final List<ResponseObject> queryExecutor1Result = queryExecutor1Future.get();
             final List<ResponseObject> queryExecutor2Result = queryExecutor2Future.get();
 
-            final KnownDifferencesPredicate knownDifferencesPredicate = new KnownDifferencesPredicate();
-            final List<ResponseObject> responseObjects1 = Lists.newArrayList(Iterables.filter(queryExecutor1Result, knownDifferencesPredicate));
-            final List<ResponseObject> responseObjects2 = Lists.newArrayList(Iterables.filter(queryExecutor2Result, knownDifferencesPredicate));
-
-            final Patch patch = DiffUtils.diff(responseObjects1, responseObjects2);
+            final Patch patch = DiffUtils.diff(queryExecutor1Result, queryExecutor2Result);
             final List<Delta> deltas = patch.getDeltas();
             if (!deltas.isEmpty()) {
                 writeDifferences(targetDir, queryString, queryExecutor1Result, queryExecutor2Result, deltas);
@@ -94,7 +115,8 @@ public class RestCompareResults implements CompareResults {
             }
         }
 
-        assertThat("Number of failed queries", failedQueries, Matchers.is(0));
+        LOGGER.info("Compared {} queries", queries.size());
+        assertThat("Number of failed queries", failedQueries, is(0));
     }
 
     public Future<List<ResponseObject>> executeQuery(final ComparisonExecutor comparisonExecutor, final String queryString) {

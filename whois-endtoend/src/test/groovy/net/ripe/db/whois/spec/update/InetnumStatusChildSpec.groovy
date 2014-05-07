@@ -1,11 +1,12 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.common.EndToEndTest
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(EndToEndTest.class)
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -35,21 +36,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-MNT
-                mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                """,
-            "ERX-ALLOC-PA": """\
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
                 changed:      dbtest@ripe.net 20020101
@@ -114,7 +100,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-            "ERX-ALLOC-PI": """\
+            "USER-ALLOC-PI": """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -123,7 +109,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PI
-                mnt-by:       LIR-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
@@ -205,19 +191,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-            "ERX-ASSPI": """\
-                inetnum:      192.168.200.0 - 192.168.200.255
-                netname:      RIPE-NET1
-                descr:        /24 assigned
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                """,
             "ASSANY": """\
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
@@ -231,16 +204,17 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-            "EARLY": """\
+            "LEGACYROOT": """\
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      RIPE-NET1
                 descr:        /16 ERX
                 country:      NL
+                org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-mnt
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
@@ -300,7 +274,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.169.0.0 - 192.170.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.169.0.0 - 192.170.255.255") == [
                 "This range overlaps with 192.168.0.0 - 192.169.255.255",
-                "Status ASSIGNED PA not allowed when more specific object has status ALLOCATED PA"
+                "Status ASSIGNED PA not allowed when more specific object '192.170.0.0 - 192.170.255.255' has status ALLOCATED PA"
         ]
 
         queryObjectNotFound("-rGBT inetnum 192.169.0.0 - 192.170.255.255", "inetnum", "192.169.0.0 - 192.170.255.255")
@@ -395,7 +369,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.169.0.0 - 192.171.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.169.0.0 - 192.171.255.255") == [
                 "This range overlaps with 192.168.0.0 - 192.169.255.255",
-                "Status ALLOCATED PA not allowed when more specific object has status ALLOCATED PA"
+                "Status ALLOCATED PA not allowed when more specific object '192.171.0.0 - 192.171.255.255' has status ALLOCATED PA"
         ];
 
         queryObjectNotFound("-rGBT inetnum 192.169.0.0 - 192.171.255.255", "inetnum", "192.169.0.0 - 192.171.255.255")
@@ -820,12 +794,12 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
-    def "create child ALLOCATED UNSPECIFIED, parent status EARLY-REGISTRATION"() {
+    def "create child ALLOCATED UNSPECIFIED, parent status LEGACY"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
 
       when:
@@ -840,12 +814,11 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED UNSPECIFIED
-                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
-                password: hm
                 password: owner3
                 password: lir
                 """.stripIndent()
@@ -858,10 +831,11 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
-                ["inetnum parent has incorrect status: EARLY-REGISTRATION"]
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
+                "Status ALLOCATED UNSPECIFIED can only be created by the database administrator",
+                "inetnum parent has incorrect status: LEGACY"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
@@ -1596,18 +1570,16 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
-    def "create child ALLOCATED PA, parent status EARLY-REGISTRATION"() {
+    def "create child ALLOCATED PA, parent status LEGACY"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.168.200.0 - 192.168.200.127
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -1616,19 +1588,18 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
-                password: hm
                 password: owner3
                 password: lir
                 """.stripIndent()
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1637,7 +1608,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
-                ["inetnum parent has incorrect status: EARLY-REGISTRATION"]
+                ["inetnum parent has incorrect status: LEGACY"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
@@ -2372,18 +2343,16 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
-    def "create child ALLOCATED PI, parent status EARLY-REGISTRATION"() {
+    def "create child ALLOCATED PI, parent status LEGACY"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.168.200.0 - 192.168.200.127
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -2392,19 +2361,19 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PI
-                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
-                password: hm
                 password: owner3
                 password: lir
                 """.stripIndent()
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
+
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -2413,7 +2382,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
-                ["inetnum parent has incorrect status: EARLY-REGISTRATION"]
+                ["inetnum parent has incorrect status: LEGACY"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
@@ -3219,18 +3188,16 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
-    def "create child SUB-ALLOCATED PA, parent status EARLY-REGISTRATION"() {
+    def "create child SUB-ALLOCATED PA, parent status LEGACY"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.127")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -3244,23 +3211,24 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
-                password: hm
                 password: owner3
                 password: lir
                 """.stripIndent()
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["inetnum parent has incorrect status: LEGACY"]
 
-        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
     def "create child SUB-ALLOCATED PA, parent status NOT-SET"() {
@@ -3986,18 +3954,16 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
-    def "create child LIR-PARTITIONED PA, parent status EARLY-REGISTRATION"() {
+    def "create child LIR-PARTITIONED PA, parent status LEGACY"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.168.200.0 - 192.168.200.127
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -4011,23 +3977,24 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
-                password: hm
                 password: owner3
                 password: lir
                 """.stripIndent()
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
+                ["inetnum parent has incorrect status: LEGACY"]
 
-        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
     def "create child LIR-PARTITIONED PA, parent status NOT-SET"() {
@@ -4755,18 +4722,16 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
-    def "create child LIR-PARTITIONED PI, parent status EARLY-REGISTRATION"() {
+    def "create child LIR-PARTITIONED PI, parent status LEGACY"() {
       given:
-        syncUpdate(getTransient("EARLY") + "password: hm")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override:  denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.168.200.0 - 192.168.200.127
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -4780,23 +4745,24 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
-                password: hm
                 password: owner3
                 password: lir
                 """.stripIndent()
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
+                ["inetnum parent has incorrect status: LEGACY"]
 
-        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
     def "create child LIR-PARTITIONED PI, parent status NOT-SET"() {
@@ -5573,18 +5539,16 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
-    def "create child ASSIGNED ANYCAST, parent status EARLY-REGISTRATION"() {
+    def "create child ASSIGNED ANYCAST, parent status LEGACY"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.168.200.0 - 192.168.200.127
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -5593,28 +5557,27 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED ANYCAST
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
+                mnt-by:       lir-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
-                password: hm
                 password: lir
                 password: owner3
                 """.stripIndent()
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
-                ["inetnum parent has incorrect status: EARLY-REGISTRATION"]
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
+                "Status ASSIGNED ANYCAST can only be created by the database administrator",
+                "inetnum parent has incorrect status: LEGACY"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
@@ -6164,7 +6127,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
     def "create child ASSIGNED PI, parent status LIR-PARTITIONED PI, not mnt-by RS"() {
       given:
-        syncUpdate(getTransient("ERX-ALLOC-PI") + "password: lir\npassword: owner3\npassword: hm")
+        syncUpdate(getTransient("USER-ALLOC-PI") + "password: lir\npassword: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
         syncUpdate(getTransient("PART-PI") + "password: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -6399,51 +6362,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
-    def "create child ASSIGNED PI, parent status ASSIGNED PI, not mnt-by RS, parent not mnt-by RS"() {
-      given:
-        syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ERX-ASSPI") + "password: lir")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.168.200.0 - 192.168.200.127
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                mnt-by:       LIR-MNT
-                mnt-lower:    lir-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: owner3
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
-
-        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
-    }
-
     def "create child ASSIGNED PI, parent status ASSIGNED ANYCAST"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: hm\npassword: owner3")
@@ -6491,64 +6409,16 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
-    def "create child ASSIGNED PI, parent status EARLY-REGISTRATION, mnt-by RS"() {
+    def "create child ASSIGNED PI, parent status LEGACY"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.168.200.0 - 192.168.200.127
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: hm
-                password: lir
-                password: owner3
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
-                ["inetnum parent has incorrect status: EARLY-REGISTRATION"]
-
-        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
-    }
-
-    def "create child ASSIGNED PI, parent status EARLY-REGISTRATION, NOT mnt-by RS"() {
-      given:
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.168.200.0 - 192.168.200.127
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -6558,7 +6428,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
                 mnt-by:       lir-MNT
-                mnt-lower:    LIr-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
@@ -6568,16 +6437,18 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
+                "inetnum parent has incorrect status: LEGACY"]
 
-        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
     def "create child ASSIGNED PI, parent status NOT-SET"() {
@@ -7212,54 +7083,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
-    def "create child ASSIGNED PA, parent status ASSIGNED PA, less specific ALLOCATED PA NOT RS mnt-by"() {
-      given:
-        syncUpdate(getTransient("ALLOC-UNS") + "password: hm\npassword: owner3")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("ERX-ALLOC-PA") + "password: lir\npassword: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASS-END") + "password: end\npassword: hm\npassword: lir\npassword: lir2")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.168.200.0 - 192.168.200.127
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PA
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: owner3
-                password: end
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
-
-        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
-    }
-
     def "create child ASSIGNED PA, parent status ASSIGNED PI"() {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
@@ -7356,18 +7179,16 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
-    def "create child ASSIGNED PA, parent status EARLY-REGISTRATION"() {
+    def "create child ASSIGNED PA, parent status LEGACY"() {
       given:
-        syncUpdate(getTransient("EARLY") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
 
       expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+      def message = syncUpdate("""
                 inetnum:      192.168.200.0 - 192.168.200.127
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -7381,23 +7202,24 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
-                password: hm
                 password: owner3
                 password: lir
                 """.stripIndent()
         )
 
       then:
-        def ack = ackFor message
+      def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
+                ["inetnum parent has incorrect status: LEGACY"]
 
-        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
 
     def "create child ASSIGNED PA, parent status NOT-SET"() {
@@ -7705,9 +7527,9 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
     }
 
-    // Create child object with status EARLY-REGISTRATION tests
+    // Create child object with status LEGACY tests
 
-    def "create child EARLY-REGISTRATION, parent no status"() {
+    def "create child LEGACY, parent no status"() {
       expect:
         queryObject("-r -T inetnum 25.168.0.0 - 25.168.255.255", "inetnum", "25.168.0.0 - 25.168.255.255")
         queryObjectNotFound("-r -T inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
@@ -7721,13 +7543,14 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       denis,override1
 
+                password: lir
+                password: owner3
                 """.stripIndent()
         )
 
@@ -7735,204 +7558,114 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 25.168.200.0 - 25.168.200.127" }
-        ack.infoSuccessMessagesFor("Create", "[inetnum] 25.168.200.0 - 25.168.200.127") == [
-                "Authorisation override used"]
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 25.168.200.0 - 25.168.200.127" }
+        ack.errorMessagesFor("Create", "[inetnum] 25.168.200.0 - 25.168.200.127") == [
+                "Parent 25.168.0.0 - 25.168.255.255 does not have \"status:\""]
 
-        queryObject("-r -T inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
+        queryObjectNotFound("-r -T inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
     }
 
-    def "create child EARLY-REGISTRATION, no parent status, no org"() {
-      expect:
-        queryObjectNotFound("-r -T inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
+    def "create hierarchy with status LEGACY, parent status LEGACY"() {
+        given:
+        syncUpdate(getTransient("LEGACYROOT") + "override: denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.201.255")
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
+        queryObjectNotFound("-rGBT inetnum 192.168.200.128 - 192.168.200.255", "inetnum", "192.168.200.128 - 192.168.200.255")
+        queryObjectNotFound("-rGBT inetnum 192.168.200.255 - 192.168.200.255", "inetnum", "192.168.200.255 - 192.168.200.255")
+        queryObjectNotFound("-rGBT inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
 
       when:
         def message = syncUpdate("""\
-                inetnum:      25.168.200.0 - 25.168.200.127
+                inetnum:      192.168.200.0 - 192.168.201.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       denis,override1
 
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 25.168.200.0 - 25.168.200.127" }
-        ack.infoSuccessMessagesFor("Create", "[inetnum] 25.168.200.0 - 25.168.200.127") == [
-                "Authorisation override used"]
-
-        queryObject("-rGBT inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
-    }
-
-    def "create child EARLY-REGISTRATION, no parent status, referenced org type OTHER"() {
-      expect:
-        queryObjectNotFound("-r -T inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
-
-      when:
-        def message = syncUpdate("""\
-                inetnum:      25.168.200.0 - 25.168.200.127
+                inetnum:      192.168.200.0 - 192.168.200.127
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
-                org:          ORG-OTO1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       denis,override1
 
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 25.168.200.0 - 25.168.200.127" }
-        ack.infoSuccessMessagesFor("Create", "[inetnum] 25.168.200.0 - 25.168.200.127") == [
-                "Authorisation override used"]
-
-        queryObject("-rGBT inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
-    }
-
-    def "create child EARLY-REGISTRATION, no parent status, referenced org type RIR"() {
-      expect:
-        queryObjectNotFound("-r -T inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
-
-      when:
-        def message = syncUpdate("""\
-                inetnum:      25.168.200.0 - 25.168.200.127
+                inetnum:      192.168.200.128 - 192.168.200.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
-                org:          ORG-RIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       denis,override1
 
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 25.168.200.0 - 25.168.200.127" }
-        ack.infoSuccessMessagesFor("Create", "[inetnum] 25.168.200.0 - 25.168.200.127") == [
-                "Authorisation override used"]
-
-        queryObject("-rGBT inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
-    }
-
-    def "create child EARLY-REGISTRATION, no parent status, referenced org type NIR"() {
-      expect:
-        queryObjectNotFound("-r -T inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
-
-      when:
-        def message = syncUpdate("""\
-                inetnum:      25.168.200.0 - 25.168.200.127
+                inetnum:      192.168.200.255 - 192.168.200.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
-                org:          ORG-NIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       denis,override1
 
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 25.168.200.0 - 25.168.200.127" }
-        ack.infoSuccessMessagesFor("Create", "[inetnum] 25.168.200.0 - 25.168.200.127") == [
-                "Authorisation override used"]
-
-        queryObject("-rGBT inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
-    }
-
-    def "create child EARLY-REGISTRATION, no parent status, referenced org type IANA"() {
-      expect:
-        queryObjectNotFound("-r -T inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
-
-      when:
-        def message = syncUpdate("""\
-                inetnum:      25.168.200.0 - 25.168.200.127
+                inetnum:      192.168.201.0 - 192.168.201.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
-                org:          ORG-IANA1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:       denis,override1
 
+                password:  lir
                 """.stripIndent()
         )
 
       then:
         def ack = new AckResponse("", message)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.nrFound == 5
+        ack.summary.assertSuccess(5, 5, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 25.168.200.0 - 25.168.200.127" }
-        ack.infoSuccessMessagesFor("Create", "[inetnum] 25.168.200.0 - 25.168.200.127") == [
-                "Authorisation override used"]
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.201.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.128 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.255 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
 
-        queryObject("-rGBT inetnum 25.168.200.0 - 25.168.200.127", "inetnum", "25.168.200.0 - 25.168.200.127")
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.201.255")
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
+        queryObject("-rGBT inetnum 192.168.200.128 - 192.168.200.255", "inetnum", "192.168.200.128 - 192.168.200.255")
+        queryObject("-rGBT inetnum 192.168.200.255 - 192.168.200.255", "inetnum", "192.168.200.255 - 192.168.200.255")
+        queryObject("-rGBT inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
     }
 
     // Create child object with status NOT-SET tests

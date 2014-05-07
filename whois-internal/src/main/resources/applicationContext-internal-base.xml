@@ -9,10 +9,19 @@
 
     <context:annotation-config/>
     <!-- TODO: [AH] this component-scan package list is getting ugly and fragile -->
-    <context:component-scan base-package="net.ripe.db.whois.internal,net.ripe.db.whois.api.httpserver,net.ripe.db.whois.common.sso"/>
+    <context:component-scan base-package="
+                        net.ripe.db.whois.internal,
+                        net.ripe.db.whois.api.httpserver,
+                        net.ripe.db.whois.common.sso,
+                        net.ripe.db.whois.api.rest.client,
+                        net.ripe.db.whois.api.rest.mapper">
+        <context:exclude-filter type="regex"
+                                expression="net.ripe.db.whois.api.rest.mapper.*ServerAttributeMapper.*"/>
+    </context:component-scan>
 
     <bean class="net.ripe.db.whois.common.domain.IpRanges"/>
-    <bean class="net.ripe.db.whois.api.rest.RestClient"/>
+    <bean class="net.ripe.db.whois.common.domain.Maintainers"/>
+
 
     <!--datasource bean definitions copied from applicationContext-common.xml-->
 

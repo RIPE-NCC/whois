@@ -7,36 +7,48 @@ import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.Identifiable;
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
-import net.ripe.db.whois.common.iptree.*;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.iptree.IpEntry;
+import net.ripe.db.whois.common.iptree.IpTree;
+import net.ripe.db.whois.common.iptree.Ipv4DomainTree;
+import net.ripe.db.whois.common.iptree.Ipv4RouteTree;
+import net.ripe.db.whois.common.iptree.Ipv4Tree;
+import net.ripe.db.whois.common.iptree.Ipv6DomainTree;
+import net.ripe.db.whois.common.iptree.Ipv6RouteTree;
+import net.ripe.db.whois.common.iptree.Ipv6Tree;
+import net.ripe.db.whois.common.iptree.RouteEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.dao.Inet6numDao;
 import net.ripe.db.whois.query.dao.InetnumDao;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 class RpslObjectSearcher {
-    private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES;
+    private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES = EnumSet.noneOf(AttributeType.class);
+    private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES_OVERRIDE = EnumSet.of(AttributeType.SPONSORING_ORG);
 
     static {
-        Set<AttributeType> supportAttributeTypes = Sets.newHashSet();
         for (final ObjectType objectType : ObjectType.values()) {
-            supportAttributeTypes.addAll(ObjectTemplate.getTemplate(objectType).getInverseLookupAttributes());
+            INVERSE_ATTRIBUTE_TYPES.addAll(ObjectTemplate.getTemplate(objectType).getInverseLookupAttributes());
         }
-
-        INVERSE_ATTRIBUTE_TYPES = Sets.newEnumSet(supportAttributeTypes, AttributeType.class);
     }
 
     private final RpslObjectDao rpslObjectDao;
@@ -78,11 +90,24 @@ class RpslObjectSearcher {
             return indexLookupReverse(query);
         }
 
+        if (query.isMatchPrimaryKeyOnly()) {
+            return indexLookupDirect(query);
+        }
+
         for (final ObjectType objectType : query.getObjectTypes()) {
             result = Iterables.concat(result, executeForObjectType(query, objectType));
         }
 
         return result;
+    }
+
+    private Iterable<? extends ResponseObject> indexLookupDirect(Query query) {
+        try {
+            ObjectType type = Iterables.getOnlyElement(query.getObjectTypes());
+            return Arrays.asList(rpslObjectDao.getByKey(type, query.getSearchValue()));
+        } catch (EmptyResultDataAccessException e) {
+            return Collections.emptyList();
+        }
     }
 
     private Iterable<ResponseObject> executeForObjectType(final Query query, final ObjectType type) {
@@ -104,12 +129,13 @@ class RpslObjectSearcher {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Iterable<ResponseObject> routeLookup(IpTree routeTree, Query query) {
         final String origin = query.getRouteOrigin();
         if (origin != null) {
             final List newEntries = new ArrayList();
             for (IpEntry ipEntry : ipTreeLookup(routeTree, query.getIpKeyOrNull(), query)) {
-                if (((RouteEntry)ipEntry).getOrigin().equals(origin)) {
+                if (((RouteEntry) ipEntry).getOrigin().equals(origin)) {
                     newEntries.add(ipEntry);
                 }
             }
@@ -235,7 +261,7 @@ class RpslObjectSearcher {
     private Iterable<ResponseObject> indexLookupReverse(final Query query) {
         final List<ResponseObject> errors = Lists.newArrayList();
         for (final AttributeType attributeType : query.getAttributeTypes()) {
-            if (!INVERSE_ATTRIBUTE_TYPES.contains(attributeType)) {
+            if (!(INVERSE_ATTRIBUTE_TYPES.contains(attributeType) || (query.isTrusted() && INVERSE_ATTRIBUTE_TYPES_OVERRIDE.contains(attributeType)))) {
                 errors.add(new MessageObject(QueryMessages.attributeNotSearchable(attributeType.getName())));
             }
         }

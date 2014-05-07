@@ -114,6 +114,10 @@ public class AclLimitService {
 
         final IpInterval<?> ipInterval = IpInterval.parse(decode(prefix));
 
+        if (ipInterval.getPrefixLength() == 0) {
+            return Response.status(Response.Status.FORBIDDEN).entity("Deleting the root object is not allowed").build();
+        }
+
         for (final Limit limit : aclServiceDao.getLimits()) {
             final IpInterval<?> existingIpInterval = IpInterval.parse(limit.getPrefix());
             if (ipInterval.equals(existingIpInterval)) {

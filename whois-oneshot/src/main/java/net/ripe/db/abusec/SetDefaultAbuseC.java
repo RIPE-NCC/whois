@@ -3,7 +3,7 @@ package net.ripe.db.abusec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.LogUtil;
-import net.ripe.db.whois.api.rest.RestClient;
+import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -26,7 +26,7 @@ public class SetDefaultAbuseC {
         String override = options.valueOf(ARG_OVERRIDE).toString();
 
         final RestClient restClient = new RestClient("https://rest.db.ripe.net", "RIPE");
-        final AbuseCService abuseCService = new AbuseCService(restClient, "RIPE");
+        final AbuseCService abuseCService = null; //new AbuseCService(restClient, "RIPE"); FIX THIS @ next time use
 
         abuseCService.setOverride(override);
 

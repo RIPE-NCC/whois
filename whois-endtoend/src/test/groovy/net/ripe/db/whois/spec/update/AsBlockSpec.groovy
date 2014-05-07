@@ -1,12 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.EndToEndTest
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
-import spock.lang.Ignore
 
-@org.junit.experimental.categories.Category(EndToEndTest.class)
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class AsBlockSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -428,8 +427,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
     }
 
-    // Create as-block with RIPE mnt-by, mnt-by pw supplied, diff mnt-lower
-    @Ignore
     def "create as-block with RIPE mnt-by, mnt-by pw supplied, diff mnt-lower"() {
 
         when:
@@ -449,10 +446,9 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-MNT
                 changed:        dbtest@ripe.net
-                mnt-lower:      RIPE-NCC-HM-MNT
+                mnt-lower:      LIR-MNT
                 source:         TEST
 
-                password: hm
                 password: dbm
                 """.stripIndent()
         )

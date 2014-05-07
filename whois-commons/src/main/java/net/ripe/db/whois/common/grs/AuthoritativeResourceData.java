@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.IllegalSourceException;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -78,7 +79,7 @@ public class AuthoritativeResourceData {
     }
 
     public AuthoritativeResource getAuthoritativeResource(final CIString source) {
-        final String sourceName = source.toLowerCase().replace("-grs", "");
+        final String sourceName = StringUtils.removeEnd(source.toLowerCase(), "-grs");
         final AuthoritativeResource authoritativeResource = authoritativeResourceCache.get(sourceName);
         if (authoritativeResource == null) {
             throw new IllegalSourceException(source);

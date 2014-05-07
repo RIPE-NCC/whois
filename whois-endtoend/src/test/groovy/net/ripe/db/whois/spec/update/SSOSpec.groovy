@@ -6,6 +6,7 @@ import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import spock.lang.Ignore
 
+// TODO: [AH] switch this to IntegrationTest once we got the crowd server dummy instead of the real thing in testlab/prepdev
 @org.junit.experimental.categories.Category(EndToEndTest.class)
 class SSOSpec extends BaseQueryUpdateSpec {
 

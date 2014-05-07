@@ -2,10 +2,16 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +76,8 @@ class GrsSourceImporter {
         final Logger logger = grsSource.getLogger();
 
         new Runnable() {
+            private final RpslAttribute sourceAttribute = new RpslAttribute(AttributeType.SOURCE, grsSource.getName().toUpperCase());
+
             private int nrCreated;
             private int nrUpdated;
             private int nrDeleted;
@@ -100,7 +108,7 @@ class GrsSourceImporter {
                 }
 
                 try {
-                    // TODO: continue from here to switch to Path
+                    // TODO: [AH] continue from here to switch File to Path
                     importObjects(dump.toFile());
                     deleteNotFoundInImport();
                 } catch (IOException e) {
@@ -122,7 +130,7 @@ class GrsSourceImporter {
                         try {
                             rpslObject = RpslObject.parse(rpslObjectString);
                         } catch (RuntimeException e) {
-                            logger.warn("Unable to parse input as object:\n\n{}\n", rpslObjectString);
+                            logger.info("Unable to parse input as object:\n\n{}\n", rpslObjectString);
                             return;
                         }
 
@@ -150,35 +158,27 @@ class GrsSourceImporter {
                     }
 
                     private RpslObject filterObject(final RpslObject rpslObject) {
-                        final RpslAttribute sourceAttribute = new RpslAttribute(AttributeType.SOURCE, grsSource.getName().toUpperCase());
-
                         final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
-                        final Set<AttributeType> attributeTypes = objectTemplate.getAllAttributes();
 
-                        final List<RpslAttribute> attributes = rpslObject.getAttributes();
-                        final List<RpslAttribute> newAttributes = Lists.newArrayListWithExpectedSize(attributes.size());
-                        final Set<AttributeType> newAttributeTypes = Sets.newHashSet();
+                        final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
 
-                        for (final RpslAttribute attribute : attributes) {
-                            final AttributeType attributeType = attribute.getType();
-                            if (attributeType == null || !attributeTypes.contains(attributeType)) {
-                                logger.debug("Ignoring attribute in object {}: {}", rpslObject.getFormattedKey(), attribute);
-                                continue;
-                            }
+                        for (int i = 0; i < builder.size(); i++) {
+                            final RpslAttribute rpslAttribute = builder.get(i);
+                            final AttributeType attributeType = rpslAttribute.getType();
 
-                            newAttributeTypes.add(attributeType);
-                            if (attributeType.equals(AttributeType.SOURCE)) {
-                                newAttributes.add(sourceAttribute);
-                            } else {
-                                newAttributes.add(attribute);
+                            if (attributeType == null || !objectTemplate.hasAttribute(attributeType)) {
+                                logger.debug("Ignoring attribute in object {}: {}", rpslObject.getFormattedKey(), rpslAttribute);
+                                builder.remove(i--);
+
+                            } else  if (attributeType.equals(AttributeType.SOURCE)) {
+                                builder.remove(i--);
                             }
                         }
 
-                        if (!newAttributeTypes.contains(AttributeType.SOURCE)) {
-                            newAttributes.add(sourceAttribute);
-                        }
+                        // best not to sort to avoid reordering remarks: attributes
+                        builder.append(sourceAttribute);
 
-                        return new RpslObject(newAttributes);
+                        return builder.get();
                     }
 
                     @Transactional

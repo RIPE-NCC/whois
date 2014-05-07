@@ -1,8 +1,13 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.io.Files;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
+import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.query.QueryServer;
@@ -13,6 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,9 +31,16 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
+@DirtiesContext
 public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegrationTest {
 
     @Autowired GrsImporter grsImporter;
+    @Autowired IpTreeUpdater ipTreeUpdater;
+
+    @Autowired AuthoritativeResourceImportTask authoritativeResourceImportTask;
+    @Autowired AuthoritativeResourceData authoritativeResourceData;
+    @Autowired DailySchedulerDao dailySchedulerDao;
+    @Autowired DateTimeProvider dateTimeProvider;
 
     private static final File tempDirectory = Files.createTempDir();
 
@@ -35,22 +48,40 @@ public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegratio
     public static void setup_database() throws IOException {
         DatabaseHelper.addGrsDatabases("APNIC-GRS");
 
-        final File resourceFile = FileHelper.addToTextFile(tempDirectory, "APNIC-GRS-RES.tmp", "apnic|*|asn|*|22831|summary\n" +
+        final File resourceFile = FileHelper.addToTextFileWithMd5Checksum(tempDirectory, "APNIC-GRS-RES.tmp", "apnic|*|asn|*|22831|summary\n" +
                 "apnic|*|ipv4|*|53557|summary\n" +
-                "apnic|*|ipv6|*|29780|summary\n");
+                "apnic|*|ipv6|*|29780|summary\n" +
+                "apnic|CO|ipv4|24.232.0.0|65536|20140414|allocated|35073");
 
         final File dumpFile = FileHelper.addToGZipFile(
                 tempDirectory,
                 "APNIC-GRS-DMP.tmp",
                 "\n" +
-                "mntner:         SOME-MNT\n" +
-                "descr:          description\n" +
-                "mnt-by:         SOME-MNT\n" +
-                "referral-by:    SOME-MNT\n" +
-                "upd-to:         dbtest@ripe.net\n" +
-                "auth:           MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed:        dbtest@ripe.net 20120707\n" +
-                "source:         APNIC\n\n\n");
+                        "mntner:         SOME-MNT\n" +
+                        "descr:          description\n" +
+                        "mnt-by:         SOME-MNT\n" +
+                        "referral-by:    SOME-MNT\n" +
+                        "upd-to:         dbtest@ripe.net\n" +
+                        "auth:           MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+                        "changed:        dbtest@ripe.net 20120707\n" +
+                        "source:         APNIC\n" +
+                        "\n" +
+                        "\n" +
+                        "inetnum:    24.232/16\n" +
+                        "status:     allocated\n" +
+                        "owner:      CABLEVISION S.A.\n" +
+                        "city:       Munro\n" +
+                        "country:    AR\n" +
+                        "owner-c:    NEA\n" +
+                        "tech-c:     NEA\n" +
+                        "abuse-c:    NEA\n" +
+                        "inetrev:    24.232/16\n" +
+                        "nserver:    DNS1.CVTCI.COM.AR\n" +
+                        "nserver:    DNS2.CVTCI.COM.AR\n" +
+                        "created:    1997-06-02\n" +
+                        "changed:    2003-05-19\n" +
+                        "source:     LACNIC\n\n"
+        );
 
         System.setProperty("grs.import.apnic.source", "APNIC-GRS");
         System.setProperty("grs.import.apnic.resourceDataUrl", getUrl(resourceFile));
@@ -60,16 +91,17 @@ public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegratio
 
     @AfterClass
     public static void cleanup() throws Exception {
-        System.clearProperty("grs.import.apnic.source");
-        System.clearProperty("grs.import.apnic.resourceDataUrl");
-        System.clearProperty("grs.import.apnic.download");
-        System.clearProperty("dir.grs.import.download");
-
         FileHelper.delete(tempDirectory);
     }
 
     @Before
     public void setUp() throws Exception {
+        // initialize authoritativeresource
+        dailySchedulerDao.acquireDailyTask(dateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class, "localhost");
+        authoritativeResourceImportTask.run();
+        dailySchedulerDao.markTaskDone(System.currentTimeMillis(), dateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class);
+        authoritativeResourceData.refreshAuthoritativeResourceCache();
+
         grsImporter.setGrsImportEnabled(true);
         queryServer.start();
     }
@@ -77,9 +109,11 @@ public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegratio
     @Test
     public void import_apnic_grs() throws Exception {
         awaitAll(grsImporter.grsImport("APNIC-GRS", false));
+        ipTreeUpdater.rebuild();
 
         assertThat(query("-s APNIC-GRS SOME-MNT"), containsString("mntner:         SOME-MNT"));
         assertThat(query("-s APNIC-GRS -i mnt-by SOME-MNT"), containsString("mntner:         SOME-MNT"));
+        assertThat(query("-s APNIC-GRS 24.232.1.1"), containsString("status:         ALLOCATED"));
     }
 
     private void awaitAll(final List<Future> futures) throws ExecutionException, InterruptedException {

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.common.EndToEndTest
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.scheduler.task.update.PendingUpdatesCleanup
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -8,7 +9,7 @@ import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.joda.time.LocalDateTime
 
-@org.junit.experimental.categories.Category(EndToEndTest.class)
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     @Override

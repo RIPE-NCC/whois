@@ -1,12 +1,12 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.EndToEndTest
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
-@org.junit.experimental.categories.Category(EndToEndTest.class)
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class Inet6numSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -771,10 +771,10 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 1)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
-                ["Syntax error in frED"]
+                ["Syntax error in FRED"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }

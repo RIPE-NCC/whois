@@ -51,4 +51,7 @@ public final class ValidationMessages {
         return new Message(Messages.Type.INFO, "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
     }
 
+    public static Message attributeCanBeRemovedOnlyByRipe(final AttributeType attributeType) {
+        return new Message(Messages.Type.WARNING, "The attribute '%s' can only be removed by RIPE NCC", attributeType.getName());
+    }
 }

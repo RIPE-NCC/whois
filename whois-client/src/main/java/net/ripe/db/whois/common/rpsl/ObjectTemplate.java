@@ -8,15 +8,130 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.WordUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Cardinality.MULTIPLE;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Cardinality.SINGLE;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key;
-import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.*;
-import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.*;
-import static net.ripe.db.whois.common.rpsl.AttributeType.*;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.INVERSE_KEY;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.LOOKUP_KEY;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.PRIMARY_KEY;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.TEMPLATE_ORDER;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.USER_ORDER;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.GENERATED;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.MANDATORY;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.OPTIONAL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AGGR_BNDRY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AGGR_MTD;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ALIAS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ASSIGNMENT_SIZE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AS_BLOCK;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AS_NAME;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AS_SET;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AUTH;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AUTHOR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AUT_NUM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.CERTIF;
+import static net.ripe.db.whois.common.rpsl.AttributeType.CHANGED;
+import static net.ripe.db.whois.common.rpsl.AttributeType.COMPONENTS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DEFAULT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DESCR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DOMAIN;
+import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ENCRYPTION;
+import static net.ripe.db.whois.common.rpsl.AttributeType.EXPORT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.EXPORT_COMPS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.EXPORT_VIA;
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FILTER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FILTER_SET;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FINGERPR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FORM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.GEOLOC;
+import static net.ripe.db.whois.common.rpsl.AttributeType.HOLES;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IFADDR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IMPORT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IMPORT_VIA;
+import static net.ripe.db.whois.common.rpsl.AttributeType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.INETNUM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.INET_RTR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.INJECT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.INTERFACE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IRT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.KEY_CERT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.LOCAL_AS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MBRS_BY_REF;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MEMBERS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MEMBER_OF;
+import static net.ripe.db.whois.common.rpsl.AttributeType.METHOD;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNTNER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_BY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_DOMAINS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_IRT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_LOWER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_REF;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_ROUTES;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_DEFAULT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_EXPORT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_FILTER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_IMPORT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_MEMBERS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_PEER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MP_PEERING;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NETNAME;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NIC_HDL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NSERVER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORGANISATION;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_NAME;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORG_TYPE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ORIGIN;
+import static net.ripe.db.whois.common.rpsl.AttributeType.OWNER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PEER;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PEERING;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PEERING_SET;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PHONE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PINGABLE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PING_HDL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.POEM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.POETIC_FORM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.REFERRAL_BY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.REF_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.REMARKS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ROUTE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ROUTE6;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ROUTE_SET;
+import static net.ripe.db.whois.common.rpsl.AttributeType.RTR_SET;
+import static net.ripe.db.whois.common.rpsl.AttributeType.SIGNATURE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.SOURCE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.SPONSORING_ORG;
+import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.TEXT;
+import static net.ripe.db.whois.common.rpsl.AttributeType.UPD_TO;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
 
 public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     private static final Map<ObjectType, ObjectTemplate> TEMPLATE_MAP;
@@ -55,18 +170,20 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(AS_NAME, MANDATORY, SINGLE),
                         new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
                         new AttributeTemplate(MEMBER_OF, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(IMPORT_VIA, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(IMPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(MP_IMPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(EXPORT_VIA, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(EXPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(MP_EXPORT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(DEFAULT, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE),
+                        new AttributeTemplate(IMPORT_VIA, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(IMPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(MP_IMPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(EXPORT_VIA, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(EXPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(MP_EXPORT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(DEFAULT, OPTIONAL, MULTIPLE, USER_ORDER),
+                        new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE, USER_ORDER),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
+                        new AttributeTemplate(STATUS, GENERATED, SINGLE),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_ROUTES, OPTIONAL, MULTIPLE, INVERSE_KEY),
@@ -131,6 +248,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, MANDATORY, SINGLE),
@@ -153,6 +271,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, MANDATORY, SINGLE),
@@ -396,17 +515,38 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         TEMPLATE_MAP = Collections.unmodifiableMap(templateMap);
     }
 
+    @SuppressWarnings("unchecked")
     private class AttributeTypeComparator implements Comparator<RpslAttribute> {
         private EnumMap<AttributeType, Integer> order = new EnumMap(AttributeType.class);
+
         public AttributeTypeComparator(final AttributeTemplate... attributeTemplates) {
-            for (int i = 0; i < attributeTemplates.length; i++) {
-                order.put(attributeTemplates[i].getAttributeType(), i);
+            int i = 0;
+            Order prevOrder = null;
+
+            for (AttributeTemplate attributeTemplate : attributeTemplates) {
+                final Order actOrder = attributeTemplate.getOrder();
+
+                if (prevOrder == USER_ORDER && actOrder == TEMPLATE_ORDER) {
+                    i++;
+                }
+
+                order.put(attributeTemplate.getAttributeType(), i);
+
+                if (actOrder == TEMPLATE_ORDER) {
+                    i++;
+                }
+
+                prevOrder = actOrder;
             }
         }
 
         @Override
-        public int compare(RpslAttribute o1, RpslAttribute o2) {
-            return order.get(o1.getType()) - order.get(o2.getType());
+        public int compare(final RpslAttribute o1, final RpslAttribute o2) {
+            try {
+                return order.get(o1.getType()) - order.get(o2.getType());
+            } catch (NullPointerException e) {
+                return 0;
+            }
         }
     }
 
@@ -417,6 +557,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     private final Set<AttributeType> allAttributeTypes;
     private final Set<AttributeType> keyAttributes;
     private final Set<AttributeType> lookupAttributes;
+    private final AttributeType keyLookupAttribute;
     private final Set<AttributeType> inverseLookupAttributes;
     private final Set<AttributeType> mandatoryAttributes;
     private final Set<AttributeType> multipleAttributes;
@@ -445,6 +586,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         inverseLookupAttributes = getAttributes(attributeTemplates, INVERSE_KEY);
         mandatoryAttributes = getAttributes(attributeTemplates, MANDATORY);
         multipleAttributes = getAttributes(attributeTemplates, MULTIPLE);
+        keyLookupAttribute = Iterables.getOnlyElement(Sets.intersection(keyAttributes, lookupAttributes));
 
         comparator = new AttributeTypeComparator(attributeTemplates);
     }
@@ -515,6 +657,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         return lookupAttributes;
     }
 
+    public AttributeType getKeyLookupAttribute() {
+        return keyLookupAttribute;
+    }
+
     public Set<AttributeType> getMandatoryAttributes() {
         return mandatoryAttributes;
     }
@@ -546,12 +692,25 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     }
 
     @Override
-    public int compareTo(final ObjectTemplate o) {
+    public int compareTo(@Nonnull final ObjectTemplate o) {
         return orderPosition - o.orderPosition;
     }
 
-    public ObjectMessages validate(final RpslObject rpslObject) {
-        final ObjectMessages objectMessages = new ObjectMessages();
+    public void validateStructure(final RpslObject rpslObject, ObjectMessages objectMessages) {
+        for (final RpslAttribute attribute : rpslObject.getAttributes()) {
+            final AttributeType attributeType = attribute.getType();
+            if (attributeType == null) {
+                objectMessages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
+            } else {
+                final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
+                if (attributeTemplate == null) {
+                    objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
+                }
+            }
+        }
+    }
+
+    public void validateSyntax(final RpslObject rpslObject, ObjectMessages objectMessages, boolean skipGenerated) {
         final ObjectType rpslObjectType = rpslObject.getType();
 
         final Map<AttributeType, Integer> attributeCount = Maps.newEnumMap(AttributeType.class);
@@ -561,13 +720,11 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             final AttributeType attributeType = attribute.getType();
-            if (attributeType == null) {
-                objectMessages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
-            } else {
+
+            if (attributeType != null) {
                 final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
-                if (attributeTemplate == null) {
-                    objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
-                } else if (!attributeTemplate.getRequirement().equals(GENERATED)) {
+                if (attributeTemplate != null) {
+                    if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) continue;
                     attribute.validateSyntax(rpslObjectType, objectMessages);
                     attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
                 }
@@ -575,26 +732,26 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         }
 
         for (final AttributeTemplate attributeTemplate : attributeTemplates) {
-            addValidationMessagesForAttributeTemplate(objectMessages, attributeTemplate, attributeCount);
-        }
+            if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) continue;
 
-        return objectMessages;
+            final AttributeType attributeType = attributeTemplate.getAttributeType();
+            final int attributeTypeCount = attributeCount.get(attributeType);
+
+            if (attributeTemplate.getRequirement() == MANDATORY && attributeTypeCount == 0) {
+                objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
+            }
+
+            if (attributeTemplate.getCardinality() == SINGLE && attributeTypeCount > 1) {
+                objectMessages.addMessage(ValidationMessages.tooManyAttributesOfType(attributeType));
+            }
+        }
     }
 
-    public void addValidationMessagesForAttributeTemplate(
-                        ObjectMessages objectMessages, AttributeTemplate attributeTemplate,
-                        Map<AttributeType, Integer> attributeCount){
-
-        final AttributeType attributeType = attributeTemplate.getAttributeType();
-        final int attributeTypeCount = attributeCount.get(attributeType);
-
-        if (MANDATORY.equals(attributeTemplate.getRequirement()) && attributeTypeCount == 0) {
-            objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
-        }
-
-        if (SINGLE.equals(attributeTemplate.getCardinality()) && attributeTypeCount > 1) {
-            objectMessages.addMessage(ValidationMessages.tooManyAttributesOfType(attributeType));
-        }
+    public ObjectMessages validate(final RpslObject rpslObject) {
+        final ObjectMessages objectMessages = new ObjectMessages();
+        validateStructure(rpslObject, objectMessages);
+        validateSyntax(rpslObject, objectMessages, false);
+        return objectMessages;
     }
 
     @Override

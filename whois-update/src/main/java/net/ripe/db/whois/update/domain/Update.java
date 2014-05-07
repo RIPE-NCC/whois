@@ -13,7 +13,6 @@ public class Update implements UpdateContainer {
     private final Paragraph paragraph;
     private final Operation operation;
 
-    // TODO: [AH] these 3 should be moved to preparedupdate?
     private final List<String> deleteReasons;
     private final RpslObject submittedObject;
     private final RpslObjectUpdateInfo submittedObjectInfo;
@@ -68,6 +67,7 @@ public class Update implements UpdateContainer {
         return paragraph.getCredentials().has(PgpCredential.class) || paragraph.getCredentials().has(X509Credential.class);
     }
 
+    /** checks presence of credential only */
     public boolean isOverride() {
         return paragraph.getCredentials().has(OverrideCredential.class);
     }

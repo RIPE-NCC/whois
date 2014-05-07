@@ -49,10 +49,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.collect.Lists.*;
+import static org.slf4j.LoggerFactory.*;
+
 // TODO: instead of relying on scattered 'if (StringUtils.isBlank(indexDir) {...}', we should use profiles/...
 @Component
 public class FreeTextIndex extends RebuildableIndex {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FreeTextIndex.class);
+    private static final Logger LOGGER = getLogger(FreeTextIndex.class);
 
     private static final int INDEX_UPDATE_INTERVAL_IN_SECONDS = 60;
 
@@ -71,7 +74,7 @@ public class FreeTextIndex extends RebuildableIndex {
     private static final FieldType INDEXED_NOT_TOKENIZED;
 
     static {
-        final List<String> names = Lists.newArrayListWithExpectedSize(AttributeType.values().length);
+        final List<String> names = newArrayListWithExpectedSize(AttributeType.values().length);
         for (final AttributeType attributeType : AttributeType.values()) {
             if (!SKIPPED_ATTRIBUTES.contains(attributeType)) {
                 names.add(attributeType.getName());
@@ -208,7 +211,7 @@ public class FreeTextIndex extends RebuildableIndex {
 
             final Stopwatch stopwatch = Stopwatch.createStarted();
             for (int serial = last + 1; serial <= end; serial++) {
-                final SerialEntry serialEntry = JdbcRpslObjectOperations.getById(jdbcTemplate, serial);
+                final SerialEntry serialEntry = JdbcRpslObjectOperations.getSerialEntry(jdbcTemplate, serial);
                 if (serialEntry == null) {
                     // TODO: [AH] suboptimal; there could be big gaps in serial entries. we should have a getNextId() call instead, SELECT()ing on serial_id > serial
                     continue;
@@ -253,7 +256,7 @@ public class FreeTextIndex extends RebuildableIndex {
 
         final CategoryPath categoryPath = new CategoryPath(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName());
         final FacetFields facetFields = new FacetFields(taxonomyWriter);
-        facetFields.addFields(document, Lists.newArrayList(categoryPath));
+        facetFields.addFields(document, newArrayList(categoryPath));
 
         indexWriter.addDocument(document);
     }

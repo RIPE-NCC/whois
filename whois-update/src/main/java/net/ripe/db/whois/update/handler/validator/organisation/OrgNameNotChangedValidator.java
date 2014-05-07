@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
@@ -53,7 +54,9 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject original = update.getReferenceObject();
         final CIString storedOrgName = original.getValueOrNullForAttribute(AttributeType.ORG_NAME);
-        final CIString updateOrgName = update.getUpdatedObject().getValueOrNullForAttribute(AttributeType.ORG_NAME);
+
+        final RpslAttribute orgNameAttribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_NAME);
+        final CIString updateOrgName = orgNameAttribute.getCleanValue();
 
         if (Objects.equals(storedOrgName, updateOrgName)) {
             return;
@@ -74,7 +77,7 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
 
         final Subject subject = updateContext.getSubject(update);
         if (rsMaintainedReferenceFound && !(subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER))) {
-            updateContext.addMessage(update, UpdateMessages.cantChangeOrgName());
+            updateContext.addMessage(update, orgNameAttribute, UpdateMessages.cantChangeOrgName());
         }
     }
 

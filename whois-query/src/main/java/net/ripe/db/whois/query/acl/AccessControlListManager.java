@@ -2,6 +2,8 @@ package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.BlockEvent;
+import net.ripe.db.whois.common.domain.IpRanges;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -27,16 +29,19 @@ public class AccessControlListManager {
     private final IpResourceConfiguration resourceConfiguration;
     private final AccessControlListDao accessControlListDao;
     private final PersonalObjectAccounting personalObjectAccounting;
+    private final IpRanges ipRanges;
 
     @Autowired
     public AccessControlListManager(final DateTimeProvider dateTimeProvider,
                                     final IpResourceConfiguration resourceConfiguration,
                                     final AccessControlListDao accessControlListDao,
-                                    final PersonalObjectAccounting personalObjectAccounting) {
+                                    final PersonalObjectAccounting personalObjectAccounting,
+                                    final IpRanges ipRanges) {
         this.dateTimeProvider = dateTimeProvider;
         this.resourceConfiguration = resourceConfiguration;
         this.accessControlListDao = accessControlListDao;
         this.personalObjectAccounting = personalObjectAccounting;
+        this.ipRanges = ipRanges;
     }
 
     public boolean requiresAcl(final RpslObject rpslObject, final Source source) {
@@ -67,6 +72,10 @@ public class AccessControlListManager {
 
     public boolean canQueryPersonalObjects(final InetAddress remoteAddress) {
         return getPersonalObjects(remoteAddress) >= 0;
+    }
+
+    public boolean isTrusted(final InetAddress remoteAddress) {
+        return ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress));
     }
 
     public int getPersonalObjects(final InetAddress remoteAddress) {

@@ -9,6 +9,10 @@ public class RestMessages {
         return new Message(Messages.Type.ERROR, "Object type and key specified in URI (%s: %s) do not match the WhoisResources contents", objectType, key);
     }
 
+    public static Message uriMismatch(final CharSequence objectType) {
+        return new Message(Messages.Type.ERROR, "Object type specified in URI (%s) does not match the WhoisResources contents", objectType);
+    }
+
     public static Message singleObjectExpected(final int found) {
         // TODO: [AH] lowercase WhoisResources to better match xml/json output
         return new Message(Messages.Type.ERROR, "Single object expected in WhoisResources (found %d)", found);

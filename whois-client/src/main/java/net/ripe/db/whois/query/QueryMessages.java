@@ -343,4 +343,8 @@ public final class QueryMessages {
     public static Message validSyntax(final CharSequence objectKey) {
         return new Message(Type.INFO, "%% '%s' has valid syntax", objectKey);
     }
+
+    public static Message inverseSearchNotAllowed() {
+        return new Message(Type.ERROR, "% Inverse search on 'auth' attribute is limited to 'key-cert' objects only");
+    }
 }

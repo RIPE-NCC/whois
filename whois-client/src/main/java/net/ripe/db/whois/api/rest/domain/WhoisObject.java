@@ -103,4 +103,12 @@ public class WhoisObject {
     public void setTags(List<WhoisTag> tags) {
         this.tags = new WhoisTags(tags);
     }
+
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (Attribute attribute : getAttributes()) {
+            builder.append(attribute.toString()).append('\n');
+        }
+        return builder.toString();
+    }
 }

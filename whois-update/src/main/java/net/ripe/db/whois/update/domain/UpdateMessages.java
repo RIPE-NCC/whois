@@ -189,16 +189,23 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Enforced new keyword specified, but the object already exists in the database");
     }
 
-    public static Message invalidMaintainerForOrganisationType() {
-        return new Message(Type.ERROR, "This org-type value can only be set by administrative mntners");
+    public static Message invalidMaintainerForOrganisationType(CharSequence orgType) {
+        return new Message(Type.ERROR, "Value '%s' can only be set by the RIPE NCC for this organisation.", orgType);
     }
 
     public static Message cantChangeOrgAttribute() {
-        return new Message(Type.ERROR, "The org attribute value can only be set by administrative mntners");
+        return new Message(Type.ERROR, "Referenced organisation can only be changed by the RIPE NCC for this resource.\n" +
+                "Please contact \"ncc@ripe.net\" to change this reference.");
+    }
+
+    public static Message cantRemoveOrgAttribute() {
+        return new Message(Type.ERROR, "Referenced organisation can only be removed by the RIPE NCC for this resource.\n" +
+                "Please contact \"ncc@ripe.net\" to remove this reference.");
     }
 
     public static Message cantChangeOrgName() {
-        return new Message(Type.ERROR, "The org name can only be set by administrative mntners");
+        return new Message(Type.ERROR, "Organisation name can only be changed by the RIPE NCC for this organisation.\n" +
+                "Please contact \"ncc@ripe.net\" to change the name.");
     }
 
     public static Message countryNotRecognised(final CharSequence country) {
@@ -275,8 +282,8 @@ public final class UpdateMessages {
         return new Message(Messages.Type.ERROR, "%s parent has incorrect status: %s", type.getName(), parentStatus);
     }
 
-    public static Message incorrectChildStatus(final CharSequence givenStatus, final CharSequence childStatus) {
-        return new Message(Type.ERROR, "Status %s not allowed when more specific object has status %s", givenStatus, childStatus);
+    public static Message incorrectChildStatus(final CharSequence givenStatus, final CharSequence childStatus, final CharSequence moreSpecificObject) {
+        return new Message(Type.ERROR, "Status %s not allowed when more specific object '%s' has status %s", givenStatus, moreSpecificObject, childStatus);
     }
 
     public static Message objectLacksStatus(final CharSequence familyMember, final CharSequence parentInetnum) {
@@ -289,6 +296,10 @@ public final class UpdateMessages {
 
     public static Message intersectingRange(final Interval<?> intersectingRange) {
         return new Message(Type.ERROR, "This range overlaps with %s", intervalToString(intersectingRange));
+    }
+
+    public static Message inetnumStatusLegacy() {
+        return new Message(Type.ERROR, "Only RIPE NCC can create/delete a top level object with status 'LEGACY'\nContact legacy@ripe.net for more info");
     }
 
     private static CharSequence intervalToString(final Interval<?> interval) {
@@ -556,5 +567,33 @@ public final class UpdateMessages {
 
     public static Message ripeAccessServerUnavailable() {
         return new Message(Type.ERROR, "RIPE NCC Access server is unavailable");
+    }
+
+    public static Message statusCannotBeRemoved() {
+        return new Message(Type.WARNING, "\"status:\" attribute cannot be removed");
+    }
+
+    public static Message sponsoringOrgChanged() {
+        return new Message(Type.ERROR, "The sponsoring-org can only be changed by the RIPE NCC");
+    }
+
+    public static Message sponsoringOrgAdded() {
+        return new Message(Type.ERROR, "The sponsoring-org can only be added by the RIPE NCC");
+    }
+
+    public static Message sponsoringOrgRemoved() {
+        return new Message(Type.ERROR, "The sponsoring-org can only be removed by the RIPE NCC");
+    }
+
+    public static Message sponsoringOrgNotLIR() {
+        return new Message(Type.ERROR, "Referenced organisation must have org-type: LIR");
+    }
+
+    public static Message sponsoringOrgNotAllowedWithStatus(final CharSequence status) {
+        return new Message(Type.ERROR, "The \"sponsoring-org:\" attribute is not allowed with status value \"%s\"", status);
+    }
+
+    public static Message sponsoringOrgMustBePresent() {
+        return new Message(Type.ERROR, "This resource object must be created with a sponsoring-org attribute");
     }
 }

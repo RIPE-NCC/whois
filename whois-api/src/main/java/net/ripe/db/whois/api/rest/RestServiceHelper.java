@@ -1,6 +1,9 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Splitter;
+import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.DirtyServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,4 +45,30 @@ public class RestServiceHelper {
 
         return builder.toString();
     }
+
+    public static boolean isQueryParamSet(final String queryString, final String key) {
+        if (queryString == null) {
+            return false;
+        }
+
+        for (String next : AMPERSAND_SPLITTER.split(queryString)) {
+            final Iterator<String> iterator = EQUALS_SPLITTER.split(next).iterator();
+            if (iterator.hasNext()) {
+                if (iterator.next().equals(key)) {
+                    if (!iterator.hasNext()) return true;
+
+                    String value = iterator.next();
+                    if (StringUtils.isEmpty(value) || value.equalsIgnoreCase("true")) return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static Class<? extends AttributeMapper> getServerAttributeMapper(String queryString){
+        return isQueryParamSet(queryString, "unformatted") ?
+                DirtyServerAttributeMapper.class : FormattedServerAttributeMapper.class;
+    }
+
 }

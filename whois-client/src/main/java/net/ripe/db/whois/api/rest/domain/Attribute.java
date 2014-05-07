@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import net.ripe.db.whois.api.rest.mapper.ValidXmlAdapter;
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -40,7 +41,7 @@ public class Attribute {
     @XmlAttribute(name = "comment")
     private String comment;
 
-    public Attribute(final String name, final String value, final String comment, final String referencedType, final Link link) {
+    public Attribute(final String name, final String value, @Nullable final String comment, @Nullable final String referencedType, @Nullable final Link link) {
         this.name = name;
         this.value = value;
         this.comment = comment;
@@ -105,6 +106,7 @@ public class Attribute {
                 Objects.equals(attribute.link, link);
     }
 
+    /** does not properly handle multiline attributes; first line will have an extra space before the value */
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(name).append(": ").append(value);

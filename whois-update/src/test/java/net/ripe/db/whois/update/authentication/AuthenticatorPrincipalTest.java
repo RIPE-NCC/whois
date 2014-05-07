@@ -121,30 +121,6 @@ public class AuthenticatorPrincipalTest {
         ));
     }
 
-    @Test
-    @Ignore // TODO [AK] For now we allow updating by power maintainers outside the RIPE range, so this test fails
-    public void authenticate_by_powerMaintainer_outside_ripe() {
-        when(origin.getFrom()).thenReturn("212.0.0.0");
-        when(ipRanges.isTrusted(any(Interval.class))).thenReturn(false);
-        when(authenticationStrategy1.supports(update)).thenReturn(true);
-        when(authenticationStrategy1.authenticate(update, updateContext)).thenReturn(Lists.newArrayList(RpslObject.parse("mntner: RIPE-NCC-HM-MNT")));
-
-        subject.authenticate(origin, update, updateContext);
-
-        verify(updateContext, times(1)).addMessage(update, UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());
-    }
-
-    @Test
-    @Ignore
-    public void authenticate_by_powerMaintainer_by_email() {
-        when(origin.allowAdminOperations()).thenReturn(false);
-        when(authenticationStrategy1.supports(update)).thenReturn(true);
-        when(authenticationStrategy1.authenticate(update, updateContext)).thenReturn(Lists.newArrayList(RpslObject.parse("mntner: RIPE-NCC-HM-MNT")));
-
-        subject.authenticate(origin, update, updateContext);
-
-        verify(updateContext, times(1)).addMessage(update, UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());
-    }
 
     @Test
     public void authenticate_by_powerMaintainer_inside_ripe() {

@@ -1,12 +1,13 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.common.EndToEndTest
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
-@org.junit.experimental.categories.Category(EndToEndTest.class)
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class InetnumSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -91,6 +92,20 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-mnt
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "PLACEHOLDER": """\
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-RIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED UNSPECIFIED
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
@@ -342,6 +357,20 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       EARLY-REGISTRATION
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "LEGACY-USER-ONLY": """\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
@@ -5068,6 +5097,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -i mu LIR2-MNT", "inetnum", "192.168.128.0 - 192.168.255.255")
     }
 
+    //ToDo delete this test when we deprecate EARLY-REGISTRATION status
     def "modify EARLY-REGISTRATION, mnt-by RS and user, change mnt-lower"() {
       given:
         syncUpdate(getTransient("EARLY-USER") + "override: denis,override1")
@@ -5110,14 +5140,15 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
     }
 
+    //ToDo delete this test when we deprecate EARLY-REGISTRATION status
     def "modify EARLY-REGISTRATION, mnt-by user only, change mnt-lower"() {
-      given:
+        given:
         syncUpdate(getTransient("EARLY-USER-ONLY") + "override: denis,override1")
 
-      expect:
+        expect:
         query_object_not_matches("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -5139,7 +5170,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -5149,6 +5180,236 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
+    }
+
+    def "create top level LEGACY, mnt-by user only, no parent LEGACY, LIR pw"() {
+        given:
+        syncUpdate(getTransient("PLACEHOLDER") + "override: denis,override1")
+
+        expect:
+        queryObjectNotFound("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+      when:
+      def message = syncUpdate("""
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: lir
+                password: owner3
+                """.stripIndent()
+        )
+
+      then:
+      def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") == [
+                "Authorisation for parent [inetnum] 192.0.0.0 - 192.255.255.255 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT",
+                "Only RIPE NCC can create/delete a top level object with status 'LEGACY' Contact legacy@ripe.net for more info"]
+
+        queryObjectNotFound("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+    }
+
+    def "create top level LEGACY, mnt-by user only, no parent LEGACY, override"() {
+        given:
+        syncUpdate(getTransient("PLACEHOLDER") + "override: denis,override1")
+
+        expect:
+        queryObjectNotFound("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+    }
+
+    def "modify top level LEGACY, mnt-by user only, change mnt-lower, LIR pw"() {
+        given:
+        syncUpdate(getTransient("LEGACY-USER-ONLY") + "override: denis,override1")
+
+        expect:
+        query_object_not_matches("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR2-MNT      # was LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+
+        query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
+    }
+
+    def "delete top level LEGACY, re-create 2 sub ranges, mnt-by user only, override"() {
+        given:
+        syncUpdate(getTransient("LEGACY-USER-ONLY") + "override: denis,override1")
+
+        expect:
+        query_object_not_matches("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                delete: splitting into 2
+                override:   denis,override1
+
+                inetnum:      192.168.0.0 - 192.168.127.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override:   denis,override1
+
+                inetnum:      192.168.128.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR2-MNT
+                mnt-lower:    LIR2-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 3
+        ack.summary.assertSuccess(3, 2, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 3)
+        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.127.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
+
+        queryObjectNotFound("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.127.255", "inetnum", "192.168.0.0 - 192.168.127.255", "LIR-MNT")
+        query_object_matches("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255", "LIR2-MNT")
+    }
+
+    def "delete top level LEGACY, mnt-by user only, LIR pw"() {
+        given:
+        syncUpdate(getTransient("LEGACY-USER-ONLY") + "override: denis,override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                delete: splitting into 2
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 0, 1)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.168.255.255") == [
+                "Only RIPE NCC can create/delete a top level object with status 'LEGACY' Contact legacy@ripe.net for more info"]
+
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
     }
 
     def "dry-run modify PI assignment, pw supplied, add remarks:"() {

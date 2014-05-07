@@ -170,14 +170,12 @@ public class UpdatesParser {
                 operation = Operation.DELETE;
                 deleteReasons.add(matcher.group(1).trim());
             }
-            if (operation == operation.DELETE) {
+            if (operation == Operation.DELETE) {
                 content = matcher.reset().replaceAll("");
             }
 
-            RpslObject rpslObject = null;
             try {
-                rpslObject = RpslObject.parse(content);
-                updates.add(new Update(paragraph, operation, deleteReasons, rpslObject));
+                updates.add(new Update(paragraph, operation, deleteReasons, RpslObject.parse(content)));
             } catch (IllegalArgumentException e) {
                 updateContext.ignore(paragraph);
             }

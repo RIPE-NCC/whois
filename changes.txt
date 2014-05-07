@@ -1,3 +1,25 @@
+## next
+
+## 1.73.1
+[all] Fixed issues listed in GitHub: https://github.com/RIPE-NCC/whois/issues?milestone=11&state=closed
+[all] Created script to remove references to reserved AS numbers
+[all] Created script to find emails for legacy resources
+[all] Created script to turn multiple abuse-mailbox attributes into remarks
+[all] Auth table cleanup patch (whois-1.73-3.sql) - fixes case-sensitivity regression in 1.73
+
+## 1.73
+[all] Implemented policy 2012-07: added "legacy" status to inetnum, and added (generated) status attribute to autnum
+[all] Implemented policy 2012-08: attribute "sponsoring-org" added to inetnum, inet6num and aut-num
+[all] Fixed issues listed in GitHub: https://github.com/RIPE-NCC/whois/issues?milestone=10&page=1&state=closed
+[DEPLOY] merge and deploy web application feature-1.73 branch
+[DEPLOY] run the following scripts for this release:
+	- internals-1.73-1.sql
+	- whois-1.73-1.sql
+	- whois-1.73-2.sql
+	- legacy_autnums.sql
+Also run whois scripts in all MIRROR datasources.
+[DEPLOY] when deploying the web application, change access.hostname to access.url.
+
 ## 1.72
 [web, api] Better integration with other Ripe services:
 Introduced Single Sign On (SSO) for Ripe Database web interface.

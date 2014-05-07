@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.dao.jdbc;
 
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -119,8 +122,24 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
     }
 
     @Test(expected = EmptyResultDataAccessException.class)
-    public void nonexistentIrtLookup() {
+     public void nonexistentIrtLookup() {
         subject.getByKey(ObjectType.IRT, "nonexistent");
+    }
+
+    @Test
+    public void getByKeyOrNullIrtLookupReturnsNull() {
+        final RpslObject result = subject.getByKeyOrNull(ObjectType.IRT, CIString.ciString("nonexistent"));
+
+        assertThat(result, is(nullValue()));
+    }
+
+    @Test
+    public void getByKeyOrNullIrtLookup() {
+        databaseHelper.addObject("irt:DEV-IRT");
+
+        final RpslObject result = subject.getByKeyOrNull(ObjectType.IRT, CIString.ciString("DEV-IRT"));
+
+        assertThat(result.getKey().toString(), is("DEV-IRT"));
     }
 
     /*
@@ -312,10 +331,10 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
         RpslObject person = databaseHelper.addObject(RpslObject.parse("person:Brian Riddle\nnic-hdl:BRD-RIPE"));
         RpslObject role = databaseHelper.addObject(RpslObject.parse("role:RIPE NCC Operations\nadmin-c:BRD-RIPE\nnic-hdl:OPS4-RIPE"));
 
-        List<RpslObjectInfo> result = subject.relatedTo(role, Collections.<ObjectType>emptySet());
+        Collection<RpslObjectInfo> result = subject.relatedTo(role, Collections.<ObjectType>emptySet());
 
         assertThat(result, hasSize(1));
-        assertThat(result.get(0).getKey(), is(person.getKey().toString()));
+        assertThat(result.iterator().next().getKey(), is(person.getKey().toString()));
     }
 
     @Test
@@ -323,7 +342,7 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
         databaseHelper.addObject(RpslObject.parse("person:Brian Riddle\nnic-hdl:BRD-RIPE"));
         RpslObject role = databaseHelper.addObject(RpslObject.parse("role:RIPE NCC Operations\nadmin-c:BRD-RIPE\nnic-hdl:OPS4-RIPE"));
 
-        List<RpslObjectInfo> result = subject.relatedTo(role, Collections.singleton(ObjectType.PERSON));
+        Collection<RpslObjectInfo> result = subject.relatedTo(role, Collections.singleton(ObjectType.PERSON));
         assertThat(result, hasSize(0));
     }
 
@@ -365,4 +384,18 @@ public class JdbcRpslObjectDaoTest extends AbstractDaoTest {
         final List<RpslObject> byKeys = subject.getByKeys(ObjectType.ROLE, ciSet("TEST-PN"));
         assertThat(byKeys, hasSize(0));
     }
+
+    @Test
+    public void getById() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:          Test\n" +
+                "nic-hdl:         TEST-PN\n" +
+                "source:          RIPE\n");
+
+        databaseHelper.addObject(rpslObject);
+
+        final RpslObject object = subject.getById(1);
+        assertThat(object, is(rpslObject));
+    }
+
 }

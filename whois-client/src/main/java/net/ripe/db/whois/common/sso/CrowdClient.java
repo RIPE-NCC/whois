@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.sso;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,12 +20,15 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 // NB: we can't use the atlassian crowd-rest-client as uuid is a ripe-specific crowd plug-in
 @Component
 public class CrowdClient {
     private static final String CROWD_SESSION_PATH = "rest/usermanagement/1/session";
-
+    private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
+    private static final int CLIENT_READ_TIMEOUT = 10_000;
+    
     private String restUrl;
     private Client client;
 
@@ -33,10 +37,11 @@ public class CrowdClient {
                        @Value("${crowd.rest.user}") final String crowdAuthUser,
                        @Value("${crowd.rest.password}") final String crowdAuthPassword) {
         this.restUrl = translatorUrl;
-
         client = ClientBuilder.newBuilder()
                 .register(HttpAuthenticationFeature.basic(crowdAuthUser, crowdAuthPassword))
                 .build();
+        client.property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT);
+        client.property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT);
     }
 
     public void setRestUrl(final String url) {
@@ -93,6 +98,8 @@ public class CrowdClient {
                     .request()
                     .get(CrowdResponse.class)
                     .getUUID();
+        } catch (NoSuchElementException e) {
+            throw new CrowdClientException("Cannot find UUID for: " + username);
         } catch (NotFoundException e) {
             throw new CrowdClientException("Unknown RIPE NCC Access user: " + username);
         } catch (WebApplicationException | ProcessingException e) {
@@ -117,13 +124,15 @@ public class CrowdClient {
 
     public UserSession getUserSession(final String token) throws CrowdClientException {
         try {
-            CrowdUser user = client.target(restUrl)
+            final CrowdSession crowdSession = client.target(restUrl)
                     .path(CROWD_SESSION_PATH)
                     .path(token)
                     .request()
-                    .get(CrowdSession.class)
-                    .getUser();
-            return new UserSession(user.getName(), user.getActive());
+                    .get(CrowdSession.class);
+
+            CrowdUser user = crowdSession.getUser();
+
+            return new UserSession(user.getName(), user.getActive(), crowdSession.getExpiryDate());
         } catch (BadRequestException e) {
             throw new CrowdClientException("Unknown RIPE NCC Access token: " + token);
         } catch (WebApplicationException | ProcessingException e) {
@@ -151,14 +160,14 @@ public class CrowdClient {
         }
 
         public String getUUID() {
-            final CrowdAttribute attributeElement = Iterables.find(attributes, new Predicate<CrowdAttribute>() {
+            final CrowdAttribute uuid = Iterables.find(attributes, new Predicate<CrowdAttribute>() {
                 @Override
                 public boolean apply(final CrowdAttribute input) {
                     return input.getName().equals("uuid");
                 }
             });
 
-            return attributeElement.getValues().get(0).getValue();
+            return uuid.getValues().get(0).getValue();
         }
     }
 
@@ -236,14 +245,17 @@ public class CrowdClient {
         private CrowdUser user;
         @XmlElement(name = "token")
         private String token;
+        @XmlElement(name = "expiry-date")
+        private String expiryDate;
 
         public CrowdSession() {
             // required no-arg constructor
         }
 
-        public CrowdSession(final CrowdUser user, final String token) {
+        public CrowdSession(final CrowdUser user, final String token, final String expiryDate) {
             this.user = user;
             this.token = token;
+            this.expiryDate = expiryDate;
         }
 
         public CrowdUser getUser() {
@@ -252,6 +264,10 @@ public class CrowdClient {
 
         public String getToken() {
             return token;
+        }
+
+        public String getExpiryDate() {
+            return expiryDate;
         }
     }
 

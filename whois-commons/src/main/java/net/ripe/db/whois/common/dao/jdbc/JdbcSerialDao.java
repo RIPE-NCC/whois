@@ -31,7 +31,7 @@ public class JdbcSerialDao implements SerialDao {
     @Override
     @CheckForNull
     public SerialEntry getById(final int serialId) {
-        return JdbcRpslObjectOperations.getById(jdbcTemplate, serialId);
+        return JdbcRpslObjectOperations.getSerialEntry(jdbcTemplate, serialId);
     }
 
     @Override

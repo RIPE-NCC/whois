@@ -1,10 +1,8 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Collections;
 import java.util.Set;
 
 public class AttributeTemplate {
@@ -60,16 +58,27 @@ public class AttributeTemplate {
         }
     }
 
+    /** signifies if an attribute order matters or not */
+    public static enum Order {
+        TEMPLATE_ORDER, USER_ORDER;
+    }
+
     private final AttributeType attributeType;
     private final Requirement requirement;
     private final Cardinality cardinality;
     private final Set<Key> keys;
+    private final Order order;
 
     AttributeTemplate(final AttributeType attributeType, final Requirement requirement, final Cardinality cardinality, final Key... keys) {
+        this(attributeType, requirement, cardinality, Order.TEMPLATE_ORDER, keys);
+    }
+
+    AttributeTemplate(final AttributeType attributeType, final Requirement requirement, final Cardinality cardinality, final Order order, final Key... keys) {
         this.attributeType = attributeType;
         this.requirement = requirement;
         this.cardinality = cardinality;
-        this.keys = Collections.unmodifiableSet(Sets.newEnumSet(Lists.newArrayList(keys), Key.class));
+        this.order = order;
+        this.keys = ImmutableSet.copyOf(keys);
     }
 
     public AttributeType getAttributeType() {
@@ -86,6 +95,10 @@ public class AttributeTemplate {
 
     public Set<Key> getKeys() {
         return keys;
+    }
+
+    public Order getOrder() {
+        return order;
     }
 
     @Override

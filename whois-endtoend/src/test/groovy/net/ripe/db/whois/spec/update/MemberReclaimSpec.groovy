@@ -1,10 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.EndToEndTest
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 
-@org.junit.experimental.categories.Category(EndToEndTest.class)
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class MemberReclaimSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {
@@ -225,6 +226,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
             "AS10000": """\
                 aut-num:     AS10000
                 as-name:     TEST-AS
+                status:      OTHER
                 descr:       Testing Authorisation code
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
@@ -235,6 +237,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
             "AS20000": """\
                 aut-num:     AS20000
                 as-name:     TEST-AS
+                status:      OTHER
                 descr:       Testing Authorisation code
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
@@ -1458,6 +1461,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
 
     def "delete full network using mnt-lower of ALLOCATED-BY-RIR"() {
       given:
+
         syncUpdate(getTransient("PING-PN") + "override: denis,override1")
         syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
         syncUpdate(getTransient("AS10000") + "override: denis,override1")
@@ -1472,6 +1476,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("ROUTE6-CHILD32-1") + "override: denis,override1")
         syncUpdate(getTransient("ROUTE6-CHILD32-2") + "override: denis,override1")
 
+        DatabaseHelper.dumpSchema(databaseHelper.whoisTemplate.dataSource)
       expect:
         // PING-PN
         queryObject("-GBr -T person PP1-TEST", "person", "Ping Person")
@@ -1615,6 +1620,8 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
 
                 aut-num:     AS20000
                 as-name:     TEST-AS
+                remarks:     For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
+                status:      OTHER
                 descr:       Testing Authorisation code
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST

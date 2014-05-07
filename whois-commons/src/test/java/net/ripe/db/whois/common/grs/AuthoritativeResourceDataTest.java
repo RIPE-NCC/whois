@@ -40,9 +40,10 @@ public class AuthoritativeResourceDataTest {
     @Test
     public void refresh() {
         when(dailySchedulerDao.getDailyTaskFinishTime(any(LocalDate.class), any(Class.class))).thenReturn(10l);
-        final AuthoritativeResource unknown = AuthoritativeResource.unknown();
-        when(resourceDataDao.load(any(String.class))).thenReturn(unknown);
+        when(resourceDataDao.load(any(String.class))).thenReturn(AuthoritativeResource.unknown());
+
         subject.init();
+
         verify(resourceDataDao).load(eq("test"));
         assertThat(subject.getAuthoritativeResource(ciString("TEST")), isA(AuthoritativeResource.class));
     }

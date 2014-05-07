@@ -58,7 +58,7 @@ public class CrowdServerDummy implements Stub {
         final Map<String, UserSession> crowdSessionMap;
         {
             crowdSessionMap = Maps.newHashMap();
-            crowdSessionMap.put("valid-token", new UserSession("person@net.net", true));
+            crowdSessionMap.put("valid-token", new UserSession("person@net.net", true, "2033-01-30T16:38:27.369+11:00"));
             crowdSessionMap.put("invalid-token", null);
         }
 
@@ -109,6 +109,7 @@ public class CrowdServerDummy implements Stub {
                         "<user name=\"%s\">" +
                             "<active>%s</active>" +
                         "</user>" +
+                        "<expiry-date>2033-01-30T16:38:27.369+11:00</expiry-date>" +
                     "</session>", userSession.getUsername(), userSession.isActive());
         }
 

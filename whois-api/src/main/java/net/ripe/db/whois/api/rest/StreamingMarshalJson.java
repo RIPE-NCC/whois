@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import net.ripe.db.whois.api.rest.client.StreamingException;
 
 import java.io.IOException;
 import java.io.OutputStream;

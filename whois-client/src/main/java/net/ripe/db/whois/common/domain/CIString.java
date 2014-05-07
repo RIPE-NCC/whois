@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
@@ -48,6 +49,10 @@ public final class CIString implements Comparable<CIString>, CharSequence {
         return builder.build();
     }
 
+    public static boolean isBlank(CIString ciString) {
+        return ciString == null || StringUtils.isBlank(ciString.value);
+    }
+
     private CIString(final String value) {
         this.value = value;
         this.lcValue = value.toLowerCase();
@@ -64,7 +69,7 @@ public final class CIString implements Comparable<CIString>, CharSequence {
         }
 
         if (o instanceof String) {
-            return lcValue.equals(((String) o).toLowerCase());
+            return value.equalsIgnoreCase((String) o);
         }
 
         return getClass() == o.getClass() && lcValue.equals(((CIString) o).lcValue);

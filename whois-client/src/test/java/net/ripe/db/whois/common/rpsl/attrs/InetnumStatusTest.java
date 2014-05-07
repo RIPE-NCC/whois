@@ -10,6 +10,7 @@ import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_ANYCAST
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_PA;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ASSIGNED_PI;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.EARLY_REGISTRATION;
+import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LEGACY;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LIR_PARTITIONED_PA;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LIR_PARTITIONED_PI;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.SUB_ALLOCATED_PA;
@@ -48,6 +49,7 @@ public class InetnumStatusTest {
 
         assertThat(ALLOCATED_PI.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
         assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
+        assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(LEGACY, true), is(false));
         assertThat(ALLOCATED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
         assertThat(ALLOCATED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true), is(false));
 
@@ -66,6 +68,13 @@ public class InetnumStatusTest {
         assertThat(EARLY_REGISTRATION.worksWithParentStatus(ALLOCATED_UNSPECIFIED, false), is(true));
         assertThat(EARLY_REGISTRATION.worksWithParentStatus(EARLY_REGISTRATION, false), is(true));
         assertThat(EARLY_REGISTRATION.worksWithParentStatus(ALLOCATED_PA, false), is(false));
+
+        assertThat(LEGACY.worksWithParentStatus(ALLOCATED_UNSPECIFIED, false), is(true));
+        assertThat(LEGACY.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
+        assertThat(LEGACY.worksWithParentStatus(LEGACY, false), is(true));
+        assertThat(LEGACY.worksWithParentStatus(LEGACY, true), is(true));
+        assertThat(LEGACY.worksWithParentStatus(LIR_PARTITIONED_PA, true), is(false));
+
     }
 
     @Test
@@ -141,5 +150,6 @@ public class InetnumStatusTest {
         assertThat(ASSIGNED_PI.needsOrgReference(), is(false));
         assertThat(ASSIGNED_ANYCAST.needsOrgReference(), is(false));
         assertThat(EARLY_REGISTRATION.needsOrgReference(), is(false));
+        assertThat(LEGACY.needsOrgReference(), is(false));
     }
 }

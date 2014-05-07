@@ -121,7 +121,7 @@ DROP TABLE IF EXISTS `auth`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `auth` (
   `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `auth` varchar(90) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL DEFAULT '',
+  `auth` varchar(90) NOT NULL DEFAULT '',
   `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`auth`,`object_id`),
   KEY `object_id` (`object_id`)
@@ -714,10 +714,9 @@ CREATE TABLE `organisation_id` (
   `range_end` int(10) unsigned NOT NULL DEFAULT '0',
   `space` char(4) NOT NULL DEFAULT '',
   `source` char(10) NOT NULL DEFAULT '',
-  PRIMARY KEY (`range_id`,`range_end`),
-  KEY `range_end` (`range_end`),
-  KEY `space` (`space`,`source`)
-) ENGINE=InnoDB AUTO_INCREMENT=19153 DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`range_id`),
+  UNIQUE KEY `space` (`space`,`source`)
+) ENGINE=InnoDB AUTO_INCREMENT=22661 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -915,6 +914,22 @@ CREATE TABLE `serials` (
   PRIMARY KEY (`serial_id`),
   KEY `object` (`object_id`,`sequence_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25050923 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `sponsoring_org`
+--
+
+DROP TABLE IF EXISTS `sponsoring_org`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sponsoring_org` (
+  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `org_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`org_id`,`object_id`),
+  KEY `object_id` (`object_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
