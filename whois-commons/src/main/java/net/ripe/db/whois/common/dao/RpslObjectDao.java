@@ -17,11 +17,9 @@ import java.util.Set;
 public interface RpslObjectDao extends ProxyLoader<Identifiable, RpslObject> {
     RpslObject getById(int objectId);
 
-<<<<<<< HEAD
     LocalDateTime getLastUpdated(int objectId);
-=======
+
     RpslObject getByKey(ObjectType type, CIString key);
->>>>>>> master
 
     RpslObject getByKey(ObjectType type, String searchKey);
 

@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.freetext.FreeTextIndex;
-import net.ripe.db.whois.api.rest.RestClientUtils;
+import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.api.whois.rdap.domain.Action;
 import net.ripe.db.whois.api.whois.rdap.domain.Autnum;
 import net.ripe.db.whois.api.whois.rdap.domain.Domain;

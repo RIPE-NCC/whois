@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.73-SNAPSHOT</version>
+    <version>1.74-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -27,7 +27,7 @@
         <aspectj.version>1.7.4</aspectj.version>
         <compiler.version>1.7</compiler.version>
         <java.version>1.7</java.version>
-        <jersey.version>2.5.1</jersey.version>
+        <jersey.version>2.7</jersey.version>
         <lucene.version>4.4.0</lucene.version>
         <jetty.version>8.1.12.v20130726</jetty.version>
         <whois.main>OVERRIDE</whois.main>
@@ -37,30 +37,6 @@
         <sonar.jdbc.username>dbint</sonar.jdbc.username>
         <sonar.jdbc.password />
     </properties>
-
-    <!-- TODO: [ES] move site-specific repositories to .m2/settings.xml -->
-    <repositories>
-        <repository>
-            <id>ripe-releases</id>
-            <url>http://nexus.ripe.net/nexus/content/repositories/releases</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>ripe-snapshots</id>
-            <url>http://nexus.ripe.net/nexus/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/RIPE-NCC/whois.git</developerConnection>
@@ -302,7 +278,7 @@
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
-                <version>2.4</version>
+                <version>2.6.7</version>
             </dependency>
 
             <dependency>
@@ -369,12 +345,17 @@
                 <artifactId>velocity</artifactId>
                 <version>1.7</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.3.3</version>
+            </dependency>
 
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
-                <version>1.7.1</version>
+                <version>1.7.3</version>
             </dependency>
 
             <!-- Jetty as an embedded server -->
@@ -694,7 +675,7 @@
                 <version>2.16</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx512m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx512m -DjvmId=${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
@@ -713,7 +694,7 @@
                 <version>2.16</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
@@ -815,6 +796,17 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.EndToEndTest,net.ripe.db.whois.common.IntegrationTest</test.groups>
+                <test.files.unit>**/*Test.class</test.files.unit>
+                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.forkCount.integration>3</test.forkCount.integration>
+            </properties>
+        </profile>
+        <profile>
+            <!-- travis can't run endtoend tests because of the dependency on ripe-internal servers like crowd -->
+            <id>travis</id>
+            <properties>
+                <test.redirectOutput>true</test.redirectOutput>
+                <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>**/*Test.class</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
