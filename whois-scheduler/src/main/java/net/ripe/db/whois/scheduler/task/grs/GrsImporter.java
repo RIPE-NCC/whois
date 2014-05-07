@@ -90,7 +90,7 @@ public class GrsImporter implements DailyScheduledTask {
 
         List<Future> futures = grsImport(defaultSources, false);
 
-        // block here so dailyscheduler will mark the job as 'done' correctly
+        // block here so dailyscheduler will mark the job as 'done' only after it actually is done
         for (Future future : futures) {
             try {
                 future.get();
