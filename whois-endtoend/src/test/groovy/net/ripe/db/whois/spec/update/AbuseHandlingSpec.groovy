@@ -876,8 +876,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
       then:
         def ack = ackFor message
 
-      Thread.sleep(Long.MAX_VALUE)
-
       ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
