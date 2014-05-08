@@ -180,8 +180,8 @@ public class SetLegacyStatus {
         }
 
         if (mntByWithoutPowerMaintainer.isEmpty()) {
-            LOGGER.warn("inetnum {} has no non-power maintainers in mnt-by or mnt-lower, skipping it.", rpslObject.getKey());
-            return;
+            LOGGER.warn("inetnum {} has no non-power maintainers. Keeping mnt-by unchanged", rpslObject.getKey());
+            mntByWithoutPowerMaintainer = FluentIterable.from(rpslObject.findAttributes(AttributeType.MNT_BY));
         }
 
         RpslObject updatedObject = (new RpslObjectBuilder(rpslObject))
