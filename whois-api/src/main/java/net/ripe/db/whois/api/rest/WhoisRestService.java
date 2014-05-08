@@ -35,6 +35,7 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryParser;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -162,6 +163,7 @@ public class WhoisRestService {
     private final WhoisObjectServerMapper whoisObjectServerMapper;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
+    private final AccessControlListManager accessControlListManager;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
@@ -170,7 +172,8 @@ public class WhoisRestService {
                             final WhoisObjectMapper whoisObjectMapper,
                             final WhoisObjectServerMapper whoisObjectServerMapper,
                             final InternalUpdatePerformer updatePerformer,
-                            final SsoTranslator ssoTranslator) {
+                            final SsoTranslator ssoTranslator,
+                            final AccessControlListManager accessControlListManager) {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
@@ -178,6 +181,7 @@ public class WhoisRestService {
         this.whoisObjectServerMapper = whoisObjectServerMapper;
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
+        this.accessControlListManager = accessControlListManager;
     }
 
     @DELETE
@@ -318,7 +322,7 @@ public class WhoisRestService {
         }
 
         try {
-            final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords).setMatchPrimaryKeyOnly(true);
+            final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request)).setMatchPrimaryKeyOnly(true);
             return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
         } catch (QueryException e) {
             throw getWebApplicationException(e, request, Lists.<Message>newArrayList());
@@ -340,7 +344,7 @@ public class WhoisRestService {
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addFlag(QueryFlag.LIST_VERSIONS);
 
-        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST);
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
@@ -380,7 +384,7 @@ public class WhoisRestService {
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addCommaList(QueryFlag.SHOW_VERSION, String.valueOf(version));
 
-        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST);
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
@@ -438,7 +442,7 @@ public class WhoisRestService {
             queryBuilder.addFlag(separateFlag);
         }
 
-        final Query query = Query.parse(queryBuilder.build(searchKey), Query.Origin.REST);
+        final Query query = Query.parse(queryBuilder.build(searchKey), Query.Origin.REST, isTrusted(request));
 
         final Parameters parameters = new Parameters(
                 new InverseAttributes(inverseAttributes),
@@ -832,5 +836,9 @@ public class WhoisRestService {
         }
 
         return new StreamingMarshalXml(outputStream, "whois-resources");
+    }
+
+    private boolean isTrusted(final HttpServletRequest request) {
+        return accessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
     }
 }

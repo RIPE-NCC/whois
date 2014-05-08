@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.mapper.AbuseContactMapper;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.planner.RpslAttributes;
 import net.ripe.db.whois.query.query.Query;
@@ -33,10 +34,12 @@ import static net.ripe.db.whois.api.rest.WhoisRestService.QueryBuilder;
 public class AbuseContactService {
 
     private final QueryHandler queryHandler;
+    private final AccessControlListManager accessControlListManager;
 
     @Autowired
-    public AbuseContactService(final QueryHandler queryHandler) {
+    public AbuseContactService(final QueryHandler queryHandler, final AccessControlListManager accessControlListManager) {
         this.queryHandler = queryHandler;
+        this.accessControlListManager = accessControlListManager;
     }
 
     @GET
@@ -49,7 +52,7 @@ public class AbuseContactService {
         QueryBuilder queryBuilder = new QueryBuilder()
                 .addFlag(QueryFlag.ABUSE_CONTACT);
 
-        final Query query = Query.parse(queryBuilder.build(key));
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
 
         final List<AbuseResources> abuseResources = Lists.newArrayList();
 
@@ -82,5 +85,9 @@ public class AbuseContactService {
                 WhoisRestService.getStreamingMarshal(request, output).singleton(result);
             }
         }).build();
+    }
+
+    private boolean isTrusted(final HttpServletRequest request) {
+        return accessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
     }
 }
