@@ -3,6 +3,7 @@ package net.ripe.db.whois.query.executor;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
@@ -29,15 +30,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class VersionQueryExecutor implements QueryExecutor {
-    private final VersionDao versionDao;
+    public static final Set<ObjectType> NO_VERSION_HISTORY_FOR = Sets.immutableEnumSet(ObjectType.PERSON, ObjectType.ROLE);
+
     private final static String VERSION_HEADER = "rev#";
     private final static String DATE_HEADER = "Date";
     private final static String OPERATION_HEADER = "Op.";
+
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
+
+    private final VersionDao versionDao;
     private final SourceContext sourceContext;
 
     @Autowired
@@ -101,7 +107,7 @@ public class VersionQueryExecutor implements QueryExecutor {
         for (VersionLookupResult versionLookupResult : versionLookupResults) {
             final ObjectType objectType = versionLookupResult.getObjectType();
 
-            if (objectType == ObjectType.PERSON || objectType == ObjectType.ROLE) {
+            if (NO_VERSION_HISTORY_FOR.contains(objectType)) {
                 results.add(new MessageObject(QueryMessages.versionPersonRole(objectType.getName().toUpperCase(), searchKey)));
                 continue;
             }
@@ -190,14 +196,20 @@ public class VersionQueryExecutor implements QueryExecutor {
             return query.getObjectTypes();
         }
 
-        return versionDao.getObjectType(query.getSearchValue());
+        // if user did not specify object type filter, we only return the error message 'no person/role history allowed' if there would be no other match
+        final Set<ObjectType> objectType = versionDao.getObjectType(query.getSearchValue());
+        final Sets.SetView<ObjectType> noPersonal = Sets.difference(objectType, NO_VERSION_HISTORY_FOR);
+
+        return noPersonal.isEmpty() ? objectType : noPersonal;
     }
 
     public Collection<VersionLookupResult> getVersionInfo(final Query query) {
         List<VersionLookupResult> versionLookupResults = new ArrayList<>();
         for (ObjectType type : getObjectType(query)) {
             final VersionLookupResult versionLookupResult = versionDao.findByKey(type, query.getSearchValue());
-            versionLookupResults.add(versionLookupResult);
+            if (versionLookupResult != null) {
+                versionLookupResults.add(versionLookupResult);
+            }
         }
 
         return versionLookupResults;
