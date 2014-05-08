@@ -3,14 +3,13 @@ package net.ripe.db.whois.api.rest.client;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
-import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
@@ -214,7 +213,7 @@ public class RestClientTarget {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
-            return getUniqueLookupObject(whoisResources, objectType, pkey);
+            return whoisResources.getWhoisObjects().get(0);
         } catch (ClientErrorException e) {
             throw createException(e);
         }
@@ -240,7 +239,7 @@ public class RestClientTarget {
             if (notifierCallback != null) {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
-            return getUniqueLookupObject(whoisResources, objectType, pkey);
+            return whoisResources.getWhoisObjects().get(0);
         } catch (ClientErrorException e) {
             throw createException(e);
         }
@@ -268,25 +267,6 @@ public class RestClientTarget {
             return whoisResources.getVersions().getVersions();
         } catch (ClientErrorException e) {
             throw createException(e);
-        }
-    }
-
-    private WhoisObject getUniqueLookupObject(WhoisResources whoisResources, ObjectType objectType, String pkey){
-        // TODO: [AH] fix lookup to actually return 1 object, then remove this workaround
-        if (whoisResources.getWhoisObjects().size() == 1) {
-            return whoisResources.getWhoisObjects().get(0);
-        } else {
-            for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
-                if (whoisObject.getType().equals(objectType.getName())) {
-                    for (Attribute attribute : whoisObject.getPrimaryKey()) {
-                        if (attribute.getValue().equalsIgnoreCase(pkey)) {
-                            return whoisObject;
-                        }
-                    }
-                }
-            }
-
-            throw new RestClientException(pkey + " (" + objectType.getName() + ") not found in " + source);
         }
     }
 
