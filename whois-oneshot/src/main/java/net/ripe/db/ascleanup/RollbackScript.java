@@ -4,7 +4,6 @@ package net.ripe.db.ascleanup;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
-import com.mysql.jdbc.Driver;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.whois.api.rest.client.RestClient;
@@ -20,8 +19,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -32,9 +29,6 @@ import java.util.Map;
  --overrideoptions rollback_autnumcleanup {notify=false}
  --source RIPE
  --resturl http://localhost:1080/whois
- --jdbcurl jdbc:mysql://localhost/WHOIS_UPDATE_RIPE
- --dbuser user
- --dbpassword pass
  --filebefore autnumCleanupDeleter.before
  --fileafter autnumCleanupDeleter.after
  --dryrun true
@@ -49,15 +43,10 @@ public class RollbackScript {
     private static final String ARG_OVERRIDEUSER = "overrideuser";
     private static final String ARG_OVERRIDEPASSWORD = "overridepassword";
     private static final String ARG_OVERRIDEOPTIONS = "overrideoptions";
-    private static final String ARG_JDBCURL = "jdbcurl";
-    private static final String ARG_DBUSER = "dbuser";
-    private static final String ARG_DBPASSWORD = "dbpassword";
 
     private static final String ARG_DRYRUN = "dryrun";
     private static final String ARG_FILEBEFORE = "filebefore";
     private static final String ARG_FILEAFTER = "fileafter";
-
-    private JdbcTemplate jdbcTemplate;
 
     private final RestClient restClient;
     private final String override;
@@ -75,9 +64,6 @@ public class RollbackScript {
                 options.valueOf(ARG_OVERRIDEUSER).toString(),
                 options.valueOf(ARG_OVERRIDEPASSWORD).toString(),
                 options.valueOf(ARG_OVERRIDEOPTIONS).toString(),
-                options.valueOf(ARG_JDBCURL).toString(),
-                options.valueOf(ARG_DBUSER).toString(),
-                options.valueOf(ARG_DBPASSWORD).toString(),
                 options.valueOf(ARG_FILEBEFORE).toString(),
                 options.valueOf(ARG_FILEAFTER).toString(),
                 (Boolean)options.valueOf(ARG_DRYRUN)).execute();
@@ -167,7 +153,6 @@ public class RollbackScript {
 
     public RollbackScript(final String restUrl, final String source,
                           final String overrideUser, final String overridePassword, final String overrideOptions,
-                          final String jdbcUrl, final String dbUser, final String dbPassword,
                           final String fileBefore, final String fileAfter, final boolean dryRun) throws SQLException {
         this.restClient = RestClientUtils.createRestClient(restUrl, source);
 
@@ -179,7 +164,6 @@ public class RollbackScript {
             this.override = commaJoiner.join(overrideUser, overridePassword, overrideOptions);
         }
 
-        this.jdbcTemplate = new JdbcTemplate(new SimpleDriverDataSource(new Driver(), jdbcUrl, dbUser, dbPassword));
         this.fileBefore = fileBefore;
         this.fileAfter = fileAfter;
         this.dryRun = dryRun;
@@ -192,9 +176,6 @@ public class RollbackScript {
         parser.accepts(ARG_OVERRIDEUSER).withRequiredArg().required();
         parser.accepts(ARG_OVERRIDEPASSWORD).withRequiredArg().required();
         parser.accepts(ARG_OVERRIDEOPTIONS).withOptionalArg();
-        parser.accepts(ARG_JDBCURL).withRequiredArg();
-        parser.accepts(ARG_DBUSER).withRequiredArg().required();
-        parser.accepts(ARG_DBPASSWORD).withRequiredArg();
         parser.accepts(ARG_FILEBEFORE).withRequiredArg().required();
         parser.accepts(ARG_FILEAFTER).withRequiredArg().required();
         parser.accepts(ARG_DRYRUN).withOptionalArg().ofType(Boolean.class).defaultsTo(true);
