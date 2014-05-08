@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 /**
- * --source RIPE --overrideuser dbint --overridepassword dbint --resturl http://localost:1080/whois --jdbcurl "jdbc:mysql://localhost/WHOIS_UPDATE_RIPE --dbuser dbint --dbpassword dbint
+ * --source RIPE --overrideuser dbint --overridepassword dbint --overridepassword dbint --overrideoptions autnum_cleanup{notify=false} --resturl http://localost:1080/whois --jdbcurl "jdbc:mysql://localhost/WHOIS_UPDATE_RIPE --dbuser dbint --dbpassword dbint
  */
 public class AutnumCleanupDeleter {
     private static final Logger BEFORE_LOGGER = LoggerFactory.getLogger("before");
@@ -76,6 +76,8 @@ public class AutnumCleanupDeleter {
     private static final String ARG_RESTSOURCE = "source";
     private static final String ARG_OVERRIDEUSER = "overrideuser";
     private static final String ARG_OVERRIDEPASSWORD = "overridepassword";
+    private static final String ARG_OVERRIDEOPTIONS = "overrideoptions";
+
     private static final String ARG_JDBCURL = "jdbcurl";
     private static final String ARG_DBUSER = "dbuser";
     private static final String ARG_DBPASSWORD = "dbpassword";
@@ -90,8 +92,7 @@ public class AutnumCleanupDeleter {
     private AuthoritativeResource authoritativeResource;
 
     private final RestClient restClient;
-    private final String overrideUser;
-    private final String overridePassword;
+    private final String override;
 
     public static void main(final String[] argv) throws Exception {
         setupLogging();
@@ -102,11 +103,13 @@ public class AutnumCleanupDeleter {
         final String restSource = options.valueOf(ARG_RESTSOURCE).toString();
         final String overrideUser = options.valueOf(ARG_OVERRIDEUSER).toString();
         final String overridePassword = options.valueOf(ARG_OVERRIDEPASSWORD).toString();
+        final String overrideOptions = options.valueOf(ARG_OVERRIDEOPTIONS).toString();
+
         final String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
         final String dbuser = options.valueOf(ARG_DBUSER).toString();
         final String dbpassword = options.valueOf(ARG_DBPASSWORD).toString();
 
-        new AutnumCleanupDeleter(restUrl, restSource, overrideUser, overridePassword, jdbcUrl, dbuser, dbpassword).execute();
+        new AutnumCleanupDeleter(restUrl, restSource, overrideUser, overridePassword, overrideOptions, jdbcUrl, dbuser, dbpassword).execute();
     }
 
     private static OptionParser setupOptionParser() {
@@ -115,16 +118,23 @@ public class AutnumCleanupDeleter {
         parser.accepts(ARG_RESTSOURCE).withRequiredArg().required();
         parser.accepts(ARG_OVERRIDEUSER).withRequiredArg().required();
         parser.accepts(ARG_OVERRIDEPASSWORD).withRequiredArg().required();
+        parser.accepts(ARG_OVERRIDEOPTIONS).withOptionalArg();
         parser.accepts(ARG_JDBCURL).withRequiredArg();
         parser.accepts(ARG_DBUSER).withRequiredArg().required();
         parser.accepts(ARG_DBPASSWORD).withRequiredArg();
         return parser;
     }
 
-    public AutnumCleanupDeleter(final String restUrl, final String source, final String overrideUser, final String overridePassword, final String jdbcUrl, final String dbUser, final String dbPassword) throws SQLException {
+    public AutnumCleanupDeleter(final String restUrl, final String source,
+                                final String overrideUser, final String overridePassword, final String overrideOptions,
+                                final String jdbcUrl, final String dbUser, final String dbPassword) throws SQLException {
         this.restClient = RestClientUtils.createRestClient(restUrl, source);
-        this.overrideUser = overrideUser;
-        this.overridePassword = overridePassword;
+        if (StringUtils.isBlank(overrideOptions)) {
+            this.override = COMMA_JOINER.join(overrideUser, overridePassword);
+        } else {
+            this.override = COMMA_JOINER.join(overrideUser, overridePassword, overrideOptions);
+        }
+
         this.jdbcTemplate = new JdbcTemplate(new SimpleDriverDataSource(new Driver(), jdbcUrl, dbUser, dbPassword));
     }
 
@@ -203,11 +213,8 @@ public class AutnumCleanupDeleter {
 
     @Nullable
     private RpslObject updateObject(final RpslObject object) {
-        //TODO turn on notify if it's needed
         try {
-            return restClient.request()
-                    .addParam("override", String.format("%s,%s,autnumCleanup{notify=%s}", overrideUser, overridePassword, "false"))
-                    .update(object);
+            return restClient.request().addParam("override", override).update(object);
         } catch (RestClientException e) {
             ERROR_LOGGER.info("{} update failed with message(s): {}", object.getKey(), e.toString());
             return null;
