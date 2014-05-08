@@ -81,6 +81,7 @@ public final class RpslAttribute {
         }
     }
 
+    // TODO: [AH] should NOT return empty values; however, that behavior breaks validateSyntax() as it also relies on this method, and can't validate list structure if empty values are silently omitted
     public Set<CIString> getCleanValues() {
         if (cleanValues == null) {
             extractCleanValueAndComment(value);

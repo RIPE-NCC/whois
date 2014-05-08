@@ -1,15 +1,27 @@
 package net.ripe.db.whois.common.collect;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Collection;
 
 public final class CollectionHelper {
+    public static final IsBlankPredicate IS_BLANK_PREDICATE = new IsBlankPredicate();
+
     private CollectionHelper() {
+    }
+
+    static class IsBlankPredicate implements Predicate<CIString> {
+        @Override
+        public boolean apply(@javax.annotation.Nullable CIString input) {
+            return StringUtils.isBlank(input.toString());
+        }
     }
 
     public static <T> T uniqueResult(final Collection<T> c) {

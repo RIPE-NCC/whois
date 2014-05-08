@@ -2,6 +2,7 @@ package net.ripe.db.ascleanup;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mysql.jdbc.Driver;
@@ -11,6 +12,7 @@ import joptsimple.OptionSet;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
+import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
@@ -300,9 +302,10 @@ public class AutnumCleanupDeleter {
 
                 final RpslAttribute updatedAttribute = new RpslAttribute(rpslAttribute.getKey(), updatedValue);
 
-                if (updatedAttribute.getCleanValues().isEmpty()) {
+                if (Iterables.all(updatedAttribute.getCleanValues(), CollectionHelper.IS_BLANK_PREDICATE)) {    // blergh
                     return null;
                 }
+
                 result = updatedAttribute;
             }
         }
