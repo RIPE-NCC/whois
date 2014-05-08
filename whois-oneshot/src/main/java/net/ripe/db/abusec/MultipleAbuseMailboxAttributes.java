@@ -34,7 +34,7 @@ public class MultipleAbuseMailboxAttributes {
         for (String nextRole : new RpslObjectFileReader(Resources.getResource("ripe.db.role.gz").getFile())) {
             final RpslObject role = RpslObject.parse(nextRole);
             if (role.findAttributes(AttributeType.ABUSE_MAILBOX).size() > 1) {
-                final String key = role.getKey().toString().toUpperCase();
+                final String key = role.getKey().toUpperCase();
                 rolesWithMultipleAbuseMailboxes.add(key);
             }
         }
@@ -44,7 +44,7 @@ public class MultipleAbuseMailboxAttributes {
         for (String nextOrg : new RpslObjectFileReader(Resources.getResource("ripe.db.organisation.gz").getFile())) {
             final RpslObject orgObject = RpslObject.parse(nextOrg);
             if (orgObject.containsAttribute(AttributeType.ABUSE_C)) {
-                final String key = orgObject.getValueForAttribute(AttributeType.ABUSE_C).toString().toUpperCase();
+                final String key = orgObject.getValueForAttribute(AttributeType.ABUSE_C).toUpperCase();
                 if (rolesWithMultipleAbuseMailboxes.contains(key)) {
                     System.out.println("organisation: " + orgObject.getKey() + " already references syntactically incorrect role: " + key + " - this role must be updated manually!");
                     rolesWithMultipleAbuseMailboxes.remove(key);
@@ -59,7 +59,7 @@ public class MultipleAbuseMailboxAttributes {
         for (String nextRole : rolesWithMultipleAbuseMailboxes) {
             final RpslObject roleObject = restClient.request().lookup(ObjectType.ROLE, nextRole);
 
-            Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
+            final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
 
             for (RpslAttribute nextAttribute : roleObject.findAttributes(AttributeType.ABUSE_MAILBOX)) {
                 replacements.put(nextAttribute, new RpslAttribute(AttributeType.REMARKS, String.format("%s: %s", nextAttribute.getKey(), nextAttribute.getValue())));
@@ -84,5 +84,5 @@ public class MultipleAbuseMailboxAttributes {
                                 new DirtyClientAttributeMapper()
                         }));
         return restClient;
-    };
+    }
 }
