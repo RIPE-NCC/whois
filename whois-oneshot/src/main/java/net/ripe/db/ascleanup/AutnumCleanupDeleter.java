@@ -22,6 +22,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Appender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
@@ -133,7 +134,7 @@ public class AutnumCleanupDeleter {
         if (jdbcTemplate != null) {
             executeJdbc();
         } else {
-           ERROR_LOGGER.info("Database connection error");
+            ERROR_LOGGER.info("Database connection error");
         }
     }
 
@@ -160,7 +161,7 @@ public class AutnumCleanupDeleter {
             if (++count % 1000 == 0) {
                 INFO_LOGGER.info("Looked at {} objects", count);
             }
-            RpslObject object=null;
+            RpslObject object = null;
 
             try {
                 object = JdbcRpslObjectOperations.getObjectById(jdbcTemplate, objectId);
@@ -172,7 +173,7 @@ public class AutnumCleanupDeleter {
 
                     final RpslObject updatedObject = updateObject(newObject);
 
-                    if (updatedObject!=null){
+                    if (updatedObject != null) {
                         INFO_LOGGER.info("{}: updated", object.getKey());
                         AFTER_LOGGER.info(updatedObject.toString() + "\n");
                         objectsWithReferenceUpdated++;
@@ -183,7 +184,7 @@ public class AutnumCleanupDeleter {
                     }
                 }
             } catch (RuntimeException e) {
-                if(object==null) {
+                if (object == null) {
                     ERROR_LOGGER.error("Unable to process RPSL object with object_id: {}", objectId);
                 } else {
                     ERROR_LOGGER.error("Unable to process RPSL object with key: {}", object.getKey());
@@ -202,11 +203,11 @@ public class AutnumCleanupDeleter {
 
     @Nullable
     private RpslObject updateObject(final RpslObject object) {
-            //TODO turn on notify if it's needed
-        try{
+        //TODO turn on notify if it's needed
+        try {
             return restClient.request()
-                .addParam("override", String.format("%s,%s,autnumCleanup{notify=%s}", overrideUser, overridePassword, "false"))
-                .update(object);
+                    .addParam("override", String.format("%s,%s,autnumCleanup{notify=%s}", overrideUser, overridePassword, "false"))
+                    .update(object);
         } catch (RestClientException e) {
             ERROR_LOGGER.info("{} update failed with message(s): {}", object.getKey(), e.toString());
             return null;
@@ -225,8 +226,8 @@ public class AutnumCleanupDeleter {
 
                 final RpslAttribute newAttribute = cleanupAttribute(rpslAttribute);
 
-                if (!rpslAttribute.equals(newAttribute)){
-                     attributesChanged++;
+                if (!rpslAttribute.equals(newAttribute)) {
+                    attributesChanged++;
                 }
 
                 if (newAttribute == null) {
@@ -282,6 +283,8 @@ public class AutnumCleanupDeleter {
     RpslAttribute cleanupMembersAttribute(final RpslAttribute rpslAttribute) {
         RpslAttribute result = rpslAttribute;
         for (CIString value : rpslAttribute.getCleanValues()) {
+            if (StringUtils.isBlank(value.toString())) continue;
+
             if (authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, value)) {
                 final String match = value.toString();
                 references++;
@@ -410,12 +413,12 @@ public class AutnumCleanupDeleter {
         LogManager.getLogger("errors").addAppender(createAppender("errors"));
     }
 
-    private static Appender createAppender(final String name){
+    private static Appender createAppender(final String name) {
         final FileAppender appender = new FileAppender();
 
         appender.setFile(String.format("autnumCleanupDeleter.%s", name));
         appender.setLayout(new PatternLayout("%m%n"));
-        if (name.equals("errors")){
+        if (name.equals("errors")) {
             appender.setThreshold(Level.DEBUG);
         } else {
             appender.setThreshold(Level.INFO);
