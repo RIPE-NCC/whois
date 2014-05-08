@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class KeycertSpec extends BaseQueryUpdateSpec {
@@ -2541,7 +2540,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0", "Test User \\(testing\\) <dbtest@ripe.net>")
     }
 
-    @Ignore
     def "create X509 key-cert obj X509-99, ref in mntner, delete key-cert"() {
         expect:
         queryObjectNotFound("-r -T key-cert X509-99", "key-cert", "X509-99")
