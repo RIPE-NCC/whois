@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
 import java.util.Set;
@@ -13,6 +14,7 @@ public final class CIString implements Comparable<CIString>, CharSequence {
     private final String value;
     private final String lcValue;
 
+    @Nullable
     public static CIString ciString(final String value) {
         if (value == null) {
             return null;
@@ -59,7 +61,7 @@ public final class CIString implements Comparable<CIString>, CharSequence {
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(@Nullable final Object o) {
         if (this == o) {
             return true;
         }
