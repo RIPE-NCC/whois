@@ -94,10 +94,6 @@ public class AutnumCleanupDeleter {
 
     public static void main(final String[] argv) throws Exception {
         setupLogging();
-        INFO_LOGGER.info("using info logger");
-        BEFORE_LOGGER.info("using before logger");
-        AFTER_LOGGER.info("using after logger");
-        ERROR_LOGGER.info("using error logger");
 
         final OptionSet options = setupOptionParser().parse(argv);
 
