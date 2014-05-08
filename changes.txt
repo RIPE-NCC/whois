@@ -6,6 +6,7 @@
 [all] Created script to find emails for legacy resources
 [all] Created script to turn multiple abuse-mailbox attributes into remarks
 [all] Auth table cleanup patch (whois-1.73-3.sql) - fixes case-sensitivity regression in 1.73
+[all] Crowd connect/read timeout decrease
 
 ## 1.73
 [all] Implemented policy 2012-07: added "legacy" status to inetnum, and added (generated) status attribute to autnum
