@@ -18,7 +18,7 @@ interface AttributeValueType {
     }
 
     final class ListValueType implements AttributeValueType {
-        private static final Splitter LIST_VALUE_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+        private static final Splitter LIST_VALUE_SPLITTER = Splitter.on(',').trimResults();
 
         @Override
         public Iterable<String> getValues(final String value) {
