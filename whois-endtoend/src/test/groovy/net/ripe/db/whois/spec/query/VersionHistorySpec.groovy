@@ -645,6 +645,31 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         ! queryLineMatches("--list-versions 192.168.0.0 - 192.169.255.255", "^2\\s*[0-9-]+\\s*[0-9:]+\\s*ADD/UPD")
     }
 
+    def "query --list-versions, person and role object with same pkey"() {
+        given:
+        syncUpdate(getTransient("PN-FF") + "override: denis,override1")
+        syncUpdate("""
+                mntner:  ff1-TEST
+                descr:   description
+                admin-c: TP1-TEST
+                mnt-by:  ff1-TEST
+                referral-by: ff1-TEST
+                upd-to:  updto_cre@ripe.net
+                auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                changed: dbtest@ripe.net 20120707
+                source:  TEST
+                override: denis,override1
+                """.stripIndent())
+
+        expect:
+        queryObject("-rBG -T person ff1-test", "person", "fred fred")
+        queryObject("-rBG -T mntner ff1-test", "mntner", "ff1-TEST")
+
+        queryLineMatches("--list-versions ff1-test", "^% Version history for MNTNER object \"ff1-test\"")
+        ! queryLineMatches("--list-versions ff1-test", "^% Version history for PERSON object \"ff1-test\"")
+        ! queryLineMatches("--list-versions ff1-test", "% History not available for PERSON and ROLE objects")
+    }
+
     def "query --list-versions, 2 versions, person object"() {
       given:
         syncUpdate(getTransient("PN-FF") + "override: denis,override1")

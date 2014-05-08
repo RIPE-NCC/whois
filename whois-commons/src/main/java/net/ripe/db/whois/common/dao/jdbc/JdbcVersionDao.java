@@ -18,7 +18,9 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public class JdbcVersionDao implements VersionDao {
@@ -50,8 +52,8 @@ public class JdbcVersionDao implements VersionDao {
     }
 
     @Override
-    public List<ObjectType> getObjectType(String searchKey) {
-        final List<ObjectType> objectTypes = Lists.newArrayList();
+    public Set<ObjectType> getObjectType(String searchKey) {
+        final EnumSet<ObjectType> objectTypes = EnumSet.noneOf(ObjectType.class);
         final List<Integer> serialTypes = jdbcTemplate.queryForList("SELECT object_type FROM last WHERE pkey = ? ORDER BY object_type", Integer.class, searchKey);
         for (Integer serialType : serialTypes) {
             objectTypes.add(ObjectTypeIds.getType(serialType));
