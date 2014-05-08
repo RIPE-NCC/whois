@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class RpslObjectBuilder {
     private RpslObject original;
@@ -272,13 +271,6 @@ public class RpslObjectBuilder {
                 attributes.remove(i);
                 return this;
             }
-        }
-        return this;
-    }
-
-    public RpslObjectBuilder removeAttributes(final Set<RpslAttribute> attributes) {
-        for (RpslAttribute attribute : attributes) {
-            removeAttribute(attribute);
         }
         return this;
     }
