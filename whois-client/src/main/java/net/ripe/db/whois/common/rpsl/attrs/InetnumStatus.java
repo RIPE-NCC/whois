@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.rpsl.attrs;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -57,7 +58,7 @@ public enum InetnumStatus implements InetStatus {
         allowedOrgTypes = Sets.immutableEnumSet(Arrays.asList(orgType));
     }
 
-    public static InetnumStatus getStatusFor(final CIString status) {
+    public static InetnumStatus getStatusFor(@Nullable final CIString status) {
         for (final InetnumStatus stat : InetnumStatus.values()) {
             if (stat.literalStatus.equals(status)) {
                 return stat;

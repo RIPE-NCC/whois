@@ -13,6 +13,7 @@ import org.apache.commons.lang.Validate;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -278,6 +279,7 @@ public class RpslObject implements Identifiable, ResponseObject {
         return findAttribute(attributeType).getCleanValue();
     }
 
+    @Nullable
     public CIString getValueOrNullForAttribute(final AttributeType attributeType) {
         List<RpslAttribute> attributes = findAttributes(attributeType);
         if (attributes.isEmpty()) {
