@@ -2,8 +2,6 @@ package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import org.apache.commons.lang.Validate;
 
 import java.util.ArrayList;
@@ -12,6 +10,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RpslObjectBuilder {
     private RpslObject original;
@@ -273,6 +272,13 @@ public class RpslObjectBuilder {
                 attributes.remove(i);
                 return this;
             }
+        }
+        return this;
+    }
+
+    public RpslObjectBuilder removeAttributes(final Set<RpslAttribute> attributes) {
+        for (RpslAttribute attribute : attributes) {
+            removeAttribute(attribute);
         }
         return this;
     }
