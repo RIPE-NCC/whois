@@ -2,6 +2,7 @@ package net.ripe.db.whois.query.pipeline;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.query.Query;
@@ -19,11 +20,14 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -34,6 +38,7 @@ public class QueryDecoderTest {
     @Mock private ChannelFuture channelFutureMock;
     @Mock private ChannelPipeline channelPipelineMock;
     @Mock private ChannelHandlerContext channelHandlerContextMock;
+    @Mock private AccessControlListManager accessControlListManager;
     @InjectMocks private QueryDecoder subject;
 
     private List<Object> writtenBuffer = Lists.newArrayList();
@@ -50,6 +55,7 @@ public class QueryDecoderTest {
         when(channelMock.getPipeline()).thenReturn(channelPipelineMock);
         when(channelHandlerContextMock.getPipeline()).thenReturn(channelPipelineMock);
         when(channelPipelineMock.getContext(QueryDecoder.class)).thenReturn(channelHandlerContextMock);
+        when(accessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
     }
 
     @Test(expected = QueryException.class)
