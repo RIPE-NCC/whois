@@ -38,6 +38,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "Dummifier", description = "Whois data dummifier")
+/**
+ * in jmxterm, run with:
+ *      run dummify jdbc:mysql://<host>/<db> <user> <pass>
+ */
 public class DatabaseDummifierJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseDummifierJmx.class);
 
@@ -59,7 +63,6 @@ public class DatabaseDummifierJmx extends JmxBase {
             @ManagedOperationParameter(name = "user", description = "jdbc username"),
             @ManagedOperationParameter(name = "pass", description = "jdbc password")
     })
-
     public String dummify(final String jdbcUrl, final String user, final String pass) {
         validateJdbcUrl(user, pass);
         final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
