@@ -216,7 +216,7 @@ public class AutnumCleanupDeleter {
     @Nullable
     private RpslObject updateObject(final RpslObject object) {
         try {
-            return restClient.request().addParam("override", override).update(object);
+            return restClient.request().addParam("unformatted", "").addParam("override", override).update(object);
         } catch (RestClientException e) {
             ERROR_LOGGER.info("{} update failed with message(s): {}", object.getKey(), e.toString());
             return null;
