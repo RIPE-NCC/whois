@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.Validate;
@@ -15,9 +14,8 @@ public class Update implements UpdateContainer {
 
     private final List<String> deleteReasons;
     private final RpslObject submittedObject;
-    private final RpslObjectUpdateInfo submittedObjectInfo;
 
-    public Update(final Paragraph paragraph, final Operation operation, final List<String> deleteReasons, final RpslObject submittedObject, final RpslObjectUpdateInfo submittedObjectInfo) {
+    public Update(final Paragraph paragraph, final Operation operation, final List<String> deleteReasons, final RpslObject submittedObject) {
         Validate.notNull(paragraph, "paragraph cannot be null");
         Validate.notNull(operation, "operation cannot be null");
         Validate.notNull(submittedObject, "submittedObject cannot be null");
@@ -27,12 +25,8 @@ public class Update implements UpdateContainer {
         this.operation = operation;
         this.deleteReasons = deleteReasons;
         this.submittedObject = submittedObject;
-        this.submittedObjectInfo = submittedObjectInfo;
     }
 
-    public Update(final Paragraph paragraph, final Operation operation, final List<String> deleteReasons, final RpslObject submittedObject) {
-        this(paragraph, operation, deleteReasons, submittedObject, null);
-    }
 
     @Override
     public Update getUpdate() {
@@ -59,15 +53,13 @@ public class Update implements UpdateContainer {
         return submittedObject;
     }
 
-    public RpslObjectUpdateInfo getSubmittedObjectInfo() {
-        return submittedObjectInfo;
-    }
-
     public boolean isSigned() {
         return paragraph.getCredentials().has(PgpCredential.class) || paragraph.getCredentials().has(X509Credential.class);
     }
 
-    /** checks presence of credential only */
+    /**
+     * checks presence of credential only
+     */
     public boolean isOverride() {
         return paragraph.getCredentials().has(OverrideCredential.class);
     }
@@ -93,9 +85,6 @@ public class Update implements UpdateContainer {
             for (String reason : deleteReasons) {
                 builder.append("REASON = ").append(reason).append('\n');
             }
-        }
-        if (submittedObjectInfo != null) {
-            builder.append("\nOBJECT INFO:\n\n").append(submittedObjectInfo.toString()).append('\n');
         }
 
         return builder.toString();

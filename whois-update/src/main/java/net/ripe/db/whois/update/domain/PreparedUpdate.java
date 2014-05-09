@@ -18,11 +18,11 @@ public class PreparedUpdate implements UpdateContainer {
     private final Action action;
     private final OverrideOptions overrideOptions;
 
-    public PreparedUpdate(final Update update, @Nullable final RpslObject originalObject, final RpslObject updatedObject, final Action action) {
+    public PreparedUpdate(final Update update, @Nullable final RpslObject originalObject, @Nullable final RpslObject updatedObject, final Action action) {
         this(update, originalObject, updatedObject, action, OverrideOptions.NONE);
     }
 
-    public PreparedUpdate(final Update update, @Nullable final RpslObject originalObject, final RpslObject updatedObject, final Action action, final OverrideOptions overrideOptions) {
+    public PreparedUpdate(final Update update, @Nullable final RpslObject originalObject, @Nullable final RpslObject updatedObject, final Action action, final OverrideOptions overrideOptions) {
         this.update = update;
         this.originalObject = originalObject;
         this.updatedObject = updatedObject;
@@ -43,6 +43,7 @@ public class PreparedUpdate implements UpdateContainer {
         return originalObject != null;
     }
 
+    @Nullable
     public RpslObject getReferenceObject() {
         if (originalObject != null) {
             return originalObject;
@@ -51,6 +52,7 @@ public class PreparedUpdate implements UpdateContainer {
         return updatedObject;
     }
 
+    @Nullable
     public RpslObject getUpdatedObject() {
         return updatedObject;
     }
