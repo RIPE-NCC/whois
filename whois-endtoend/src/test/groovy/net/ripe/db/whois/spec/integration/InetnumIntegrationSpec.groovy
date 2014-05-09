@@ -1541,4 +1541,54 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
     then:
       response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
   }
+
+  def "create and modify, more specific, without needing mnt-lower"() {
+    given:
+      databaseHelper.addObject("""\
+                inetnum:    192.168.0.0 - 192.168.255.255
+                netname:    RIPE-NCC
+                status:     ASSIGNED PI
+                descr:      description
+                country:    NL
+                admin-c:    TEST-PN
+                tech-c:     TEST-PN
+                mnt-by:     TEST-MNT
+                changed:    ripe@test.net 20120505
+                source:     TEST
+                """.stripIndent())
+      whoisFixture.reloadTrees()
+    when:
+      def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.0.0 - 192.168.0.255
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PI
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    then:
+      created =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
+    when:
+      def modified = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.0.0 - 192.168.0.255
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PI
+                    descr:      description (updated)
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    then:
+      modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
+  }
+
 }
