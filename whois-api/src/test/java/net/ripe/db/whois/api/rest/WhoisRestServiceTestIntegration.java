@@ -2778,6 +2778,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    @Test(expected = BadRequestException.class)
+    public void update_bad_input_empty_body() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity("", MediaType.APPLICATION_XML), WhoisResources.class);
+    }
+
     @Test
     public void update_comment_is_noop_and_returns_old_object() {
         assertThat(TEST_PERSON.findAttributes(AttributeType.REMARKS), hasSize(0));
