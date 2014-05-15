@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-class InetnumAuthentication extends AuthenticationStrategyBase {
+public class InetnumAuthentication extends AuthenticationStrategyBase {
     private final AuthenticationModule authenticationModule;
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
