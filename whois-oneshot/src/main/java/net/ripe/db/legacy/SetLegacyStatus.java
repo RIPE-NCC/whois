@@ -206,7 +206,6 @@ public class SetLegacyStatus {
         }
 
         // update object
-
         RpslObject updatedObject = rpslObjectBuilder.get();
         if (!dryRun) {
             try {
