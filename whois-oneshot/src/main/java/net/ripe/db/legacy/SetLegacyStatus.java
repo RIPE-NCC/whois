@@ -13,6 +13,7 @@ import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -153,37 +154,30 @@ public class SetLegacyStatus {
 
     private void setLegacyStatus(final RpslObject rpslObject) {
 
-        final RpslAttribute statusAttribute = rpslObject.containsAttribute(AttributeType.STATUS) ?
-                rpslObject.findAttribute(AttributeType.STATUS) : null;
+        final CIString status = rpslObject.getValueOrNullForAttribute(AttributeType.STATUS);
 
-        if (statusAttribute != null &&
-                statusAttribute.getCleanValue().equals(InetnumStatus.LEGACY.toString())) {
+        if (status != null && status.equals(InetnumStatus.LEGACY.toString())) {
             LOGGER.info("LEGACY status already set for inetnum {}, skipping it.", rpslObject.getKey());
             return;
         }
 
         final RpslObjectBuilder rpslObjectBuilder = new RpslObjectBuilder(rpslObject);
 
-        // status
+        if (status != null) rpslObjectBuilder.removeAttributeType(AttributeType.STATUS);
 
-        if (statusAttribute != null) {
-            rpslObjectBuilder.replaceAttribute(statusAttribute, new RpslAttribute(AttributeType.STATUS, InetnumStatus.LEGACY.toString()));
-            rpslObjectBuilder.addAttributeAfter(STATUS_REMARK, AttributeType.STATUS);
-        } else {
-            rpslObjectBuilder.addAttribute(2, new RpslAttribute(AttributeType.STATUS, InetnumStatus.LEGACY.toString()));
-            rpslObjectBuilder.addAttributeAfter(STATUS_REMARK, AttributeType.STATUS);
-        }
+        rpslObjectBuilder.addAttributeSorted(new RpslAttribute(AttributeType.STATUS, InetnumStatus.LEGACY.toString()));
+        rpslObjectBuilder.addAttributeAfter(STATUS_REMARK, AttributeType.STATUS);
 
         // maintainer
 
         final List<RpslAttribute> mntBy = rpslObject.findAttributes(AttributeType.MNT_BY);
-        final List<RpslAttribute> mntByRipeNcc = Lists.newArrayList(Iterables.filter(rpslObject.findAttributes(AttributeType.MNT_BY),
-            new Predicate<RpslAttribute>() {
-                @Override
-                public boolean apply(final RpslAttribute rpslAttribute) {
-                    return rpslAttribute.getCleanValue().equals("RIPE-NCC-HM-MNT");
+        final List<RpslAttribute> mntByRipeNcc = Lists.newArrayList(Iterables.filter(mntBy,
+                new Predicate<RpslAttribute>() {
+                    @Override
+                    public boolean apply(final RpslAttribute rpslAttribute) {
+                        return rpslAttribute.getCleanValue().equals("RIPE-NCC-HM-MNT");
+                    }
                 }
-            }
         ));
 
         if (!mntByRipeNcc.isEmpty()) {
