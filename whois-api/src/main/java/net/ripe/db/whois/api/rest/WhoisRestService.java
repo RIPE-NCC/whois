@@ -674,14 +674,14 @@ public class WhoisRestService {
 
             // tags come separately
             private final Queue<RpslObject> rpslObjectQueue = new ArrayDeque<>(1);
-            private final List<TagResponseObject> tagResponseObjects = Lists.newArrayList();
+            private TagResponseObject tagResponseObject = null;
             private final List<Message> errors = Lists.newArrayList();
 
             // TODO: [AH] replace this 'if instanceof' mess with an OO approach
             @Override
             public void handle(final ResponseObject responseObject) {
                 if (responseObject instanceof TagResponseObject) {
-                    tagResponseObjects.add((TagResponseObject) responseObject);
+                    tagResponseObject = (TagResponseObject) responseObject;
                 } else if (responseObject instanceof RpslObject) {
                     streamRpslObject((RpslObject) responseObject);
                 } else if (responseObject instanceof MessageObject) {
@@ -697,7 +697,7 @@ public class WhoisRestService {
                     rpslObjectFound = true;
                     startStreaming();
                 }
-                streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+                streamObject(rpslObjectQueue.poll());
                 rpslObjectQueue.add(rpslObject);
             }
 
@@ -718,12 +718,12 @@ public class WhoisRestService {
                 }
             }
 
-            private void streamObject(@Nullable final RpslObject rpslObject, final List<TagResponseObject> tagResponseObjects) {
+            private void streamObject(@Nullable final RpslObject rpslObject) {
                 if (rpslObject == null) {
                     return;
                 }
 
-                final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, tagResponseObjects, attributeMapper);
+                final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, tagResponseObject, attributeMapper);
 
                 // TODO: [AH] add method 'writeAsArray' or 'writeObject' to StreamingMarshal interface to get rid of this uglyness
                 if (streamingMarshal instanceof StreamingMarshalJson) {
@@ -731,8 +731,7 @@ public class WhoisRestService {
                 } else {
                     streamingMarshal.write("object", whoisObject);
                 }
-
-                tagResponseObjects.clear();
+                tagResponseObject = null;
             }
 
             public boolean rpslObjectFound() {
@@ -743,7 +742,7 @@ public class WhoisRestService {
                 if (!rpslObjectFound) {
                     return errors;
                 }
-                streamObject(rpslObjectQueue.poll(), tagResponseObjects);
+                streamObject(rpslObjectQueue.poll());
 
                 if (streamingMarshal instanceof StreamingMarshalJson) {
                     ((StreamingMarshalJson) streamingMarshal).endArray();
