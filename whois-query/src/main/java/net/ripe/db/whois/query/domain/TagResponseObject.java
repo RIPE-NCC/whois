@@ -1,30 +1,44 @@
 package net.ripe.db.whois.query.domain;
 
+import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.query.QueryMessages;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
-public class TagResponseObject implements ResponseObject {
+public final class TagResponseObject implements ResponseObject {
     private final CIString objectKey;
-    private final CIString type;
-    private final String value;
+    private final List<Tag> tags;
 
-
-    public TagResponseObject(final CIString objectKey, final CIString type, final String value) {
+    public TagResponseObject(final CIString objectKey, final List<Tag> tags) {
         this.objectKey = objectKey;
-        this.type = type;
-        this.value = value;
+        this.tags = tags;
     }
 
-    public CIString getType() {
-        return type;
+    public List<Tag> getTags() {
+        return tags;
     }
 
-    public String getValue() {
-        return value;
+    @Override
+    public String toString() {
+        if (tags.isEmpty()) return "";
+
+        final StringBuilder builder = new StringBuilder(128);
+        builder.append(QueryMessages.tagInfoStart(objectKey));
+
+        for (Tag tag : tags) {
+            if (tag.getType().equals("unref")) {
+                builder.append(QueryMessages.unreferencedTagInfo(objectKey, tag.getValue()));
+            } else {
+                builder.append(QueryMessages.tagInfo(tag.getType(), tag.getValue()));
+            }
+        }
+
+        return builder.toString();
     }
 
     @Override
@@ -34,10 +48,8 @@ public class TagResponseObject implements ResponseObject {
 
     @Override
     public byte[] toByteArray() {
-        if (getType().equals("unref")) {
-            return QueryMessages.unreferencedTagInfo(objectKey, getValue()).toString().getBytes();
-        } else {
-            return QueryMessages.tagInfo(getType(), getValue()).toString().getBytes();
-        }
+        if (tags.isEmpty()) return CollectionHelper.EMPTY_BYTE_ARRAY;
+
+        return toString().getBytes();
     }
 }

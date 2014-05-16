@@ -13,6 +13,10 @@ public class Tag {
         this(type, objectId, null);
     }
 
+    public Tag(final CIString type, @Nullable final String value) {
+        this(type, -1, value);
+    }
+
     public Tag(final CIString type, final int objectId, @Nullable final String value) {
         this.type = type;
         this.objectId = objectId;
