@@ -280,7 +280,7 @@ public class RestClientTarget {
             setCookies(request);
             setHeaders(request);
 
-            AbuseResources abuseResources = request.get(AbuseResources.class);
+            final AbuseResources abuseResources = request.get(AbuseResources.class);
 
             return abuseResources.getAbuseContact();
 
