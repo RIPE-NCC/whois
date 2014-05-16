@@ -310,7 +310,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             restClient.request().lookupAbuseContact("10.0.0.1");
             fail();
         } catch (RestClientException e) {
-            assertThat(e.getErrorMessages().get(0).getText(), is("No abuse contact found for 10.0.0.1"));
+            assertThat(e.getErrorMessages().get(0).getText(), is("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\"><message>No abuse contact found for 10.0.0.1</message></abuse-resources>"));
         }
     }
 
