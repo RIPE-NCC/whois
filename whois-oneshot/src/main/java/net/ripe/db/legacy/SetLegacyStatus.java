@@ -145,14 +145,14 @@ public class SetLegacyStatus {
         }
     }
 
-    private void setAllMoreSpecificLegacyStatus(final RpslObject rpslObject) {
+    void setAllMoreSpecificLegacyStatus(final RpslObject rpslObject) {
         setLegacyStatus(rpslObject);
         for (RpslObject moreSpecificObject : searchAllMoreSpecificMatch(rpslObject.getKey().toString())) {
             setLegacyStatus(moreSpecificObject);
         }
     }
 
-    private void setLegacyStatus(final RpslObject rpslObject) {
+    void setLegacyStatus(final RpslObject rpslObject) {
 
         final CIString status = rpslObject.getValueOrNullForAttribute(AttributeType.STATUS);
 
