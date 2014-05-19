@@ -214,8 +214,7 @@ public class FreeTextIndex extends RebuildableIndex {
             for (int serial = last + 1; serial <= end; serial++) {
                 final SerialEntry serialEntry = JdbcRpslObjectOperations.getSerialEntry(jdbcTemplate, serial);
                 if (serialEntry == null) {
-                    // bit hacky, the for loop will increase the serial again
-                    serial = JdbcRpslObjectOperations.getNextId(jdbcTemplate, serial) - 1;
+                    // suboptimal;there could be big gaps in serial entries.
                     continue;
                 }
                 final RpslObject rpslObject = serialEntry.getRpslObject();

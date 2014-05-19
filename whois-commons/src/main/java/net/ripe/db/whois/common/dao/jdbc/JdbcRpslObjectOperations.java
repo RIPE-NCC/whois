@@ -388,11 +388,6 @@ public class JdbcRpslObjectOperations {
         );
     }
 
-    public static int getNextId(final JdbcTemplate jdbcTemplate, final int objectId) {
-        return jdbcTemplate.queryForObject("SELECT object_id FROM last WHERE object_id > ?", Integer.class, objectId);
-    }
-
-
     @CheckForNull
     public static SerialEntry getSerialEntry(final JdbcTemplate jdbcTemplate, final int serialId) {
         try {
