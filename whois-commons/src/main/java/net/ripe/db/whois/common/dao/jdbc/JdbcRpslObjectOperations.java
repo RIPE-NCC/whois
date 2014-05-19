@@ -358,7 +358,7 @@ public class JdbcRpslObjectOperations {
         }
 
         if (jdbcTemplate.queryForList("SHOW TABLES", String.class).contains("serials")) {
-            if (jdbcTemplate.queryForInt("SELECT count(*) FROM serials") > 20000000) {
+            if (jdbcTemplate.queryForObject("SELECT count(*) FROM serials", Integer.class) > 20000000) {
                 throw new IllegalStateException(String.format("%s has more than 20M serials, exiting", dbName));
             }
         }
@@ -387,6 +387,11 @@ public class JdbcRpslObjectOperations {
                 objectId
         );
     }
+
+    public static int getNextId(final JdbcTemplate jdbcTemplate, final int objectId) {
+        return jdbcTemplate.queryForObject("SELECT object_id FROM last WHERE object_id > ?", Integer.class, objectId);
+    }
+
 
     @CheckForNull
     public static SerialEntry getSerialEntry(final JdbcTemplate jdbcTemplate, final int serialId) {
