@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *      run dummify jdbc:mysql://<host>/<db> <user> <pass>
  *
  * in console, run with
- *      java -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbcUrl jdbc:mysql://localhost/BLAH --user XXX --pass XXX
+ *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbc-url jdbc:mysql://localhost/BLAH --user XXX --pass XXX
  *
  */
 public class DatabaseDummifierJmx extends JmxBase {
