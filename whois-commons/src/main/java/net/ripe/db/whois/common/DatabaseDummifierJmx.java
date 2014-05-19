@@ -33,6 +33,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -74,33 +75,38 @@ public class DatabaseDummifierJmx extends JmxBase {
             @ManagedOperationParameter(name = "pass", description = "jdbc password")
     })
     public String dummify(final String jdbcUrl, final String user, final String pass) {
-        validateJdbcUrl(user, pass);
-        final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
-        final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
-        jdbcTemplate = new JdbcTemplate(dataSource);
+        return invokeOperation("Load dump", null, new Callable<String>() {
+            @Override
+            public String call() {
+                validateJdbcUrl(user, pass);
+                final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
+                final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
+                jdbcTemplate = new JdbcTemplate(dataSource);
 
-        final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
-        transactionTemplate = new TransactionTemplate(transactionManager);
-        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+                final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+                transactionTemplate = new TransactionTemplate(transactionManager);
+                transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 
-        // sadly Executors don't offer a bounded/blocking submit() implementation
-        int numThreads = Runtime.getRuntime().availableProcessors();
-        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
-        final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
-                0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+                // sadly Executors don't offer a bounded/blocking submit() implementation
+                int numThreads = Runtime.getRuntime().availableProcessors();
+                final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
+                final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
+                        0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
-        LOGGER.info("Started " + numThreads + " threads");
+                LOGGER.info("Started " + numThreads + " threads");
 
-        addWork("last", jdbcTemplate, executorService);
-        addWork("history", jdbcTemplate, executorService);
+                addWork("last", jdbcTemplate, executorService);
+                addWork("history", jdbcTemplate, executorService);
 
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(1, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            LOGGER.error("shutdown", e);
-        }
-        return "Database dummified";
+                executorService.shutdown();
+                try {
+                    executorService.awaitTermination(1, TimeUnit.DAYS);
+                } catch (InterruptedException e) {
+                    LOGGER.error("shutdown", e);
+                }
+                return "Database dummified";
+            }
+        });
     }
 
     private void validateJdbcUrl(final String user, final String password) {
