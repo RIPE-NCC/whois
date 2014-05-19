@@ -1,5 +1,7 @@
 package net.ripe.db.whois.common;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
@@ -41,9 +43,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * in jmxterm, run with:
  *      run dummify jdbc:mysql://<host>/<db> <user> <pass>
+ *
+ * in console, run with
+ *      java -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbcUrl jdbc:mysql://localhost/BLAH --user XXX --pass XXX
+ *
  */
 public class DatabaseDummifierJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseDummifierJmx.class);
+
+    private static final String ARG_JDBCURL = "jdbc-url";
+    private static final String ARG_USER = "user";
+    private static final String ARG_PASS = "pass";
 
     private static TransactionTemplate transactionTemplate;
     private static JdbcTemplate jdbcTemplate;
@@ -189,5 +199,21 @@ public class DatabaseDummifierJmx extends JmxBase {
             }
             return false;
         }
+    }
+
+    private static OptionParser setupOptionParser() {
+        final OptionParser parser = new OptionParser();
+        parser.accepts(ARG_JDBCURL).withRequiredArg().required();
+        parser.accepts(ARG_USER).withRequiredArg().required();
+        parser.accepts(ARG_PASS).withRequiredArg().required();
+        return parser;
+    }
+
+    public static void main(String[] argv) {
+        final OptionSet options = setupOptionParser().parse(argv);
+        String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
+        String user = options.valueOf(ARG_USER).toString();
+        String pass = options.valueOf(ARG_PASS).toString();
+        new DatabaseDummifierJmx().dummify(jdbcUrl, user, pass);
     }
 }

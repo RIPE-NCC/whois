@@ -3,7 +3,10 @@ package net.ripe.db.legacy;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import net.ripe.db.whois.common.ManualTest;
 
+@Category(ManualTest.class)
 public class SetLegacyStatusTest {
 
     SetLegacyStatus subject;
