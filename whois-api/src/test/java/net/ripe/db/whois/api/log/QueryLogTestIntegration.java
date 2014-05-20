@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -55,8 +56,8 @@ public class QueryLogTestIntegration extends AbstractIntegrationTest {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
 
-        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
-        restClient.setSource("TEST");
+        ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%d/whois", getPort()));
+        ReflectionTestUtils.setField(restClient, "sourceName", "TEST");
     }
 
     @Test

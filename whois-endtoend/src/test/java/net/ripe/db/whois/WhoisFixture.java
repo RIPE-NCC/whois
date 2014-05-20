@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -129,7 +130,8 @@ public class WhoisFixture {
         databaseHelper.setup();
         whoisServer.start();
 
-        restClient.setRestApiUrl(String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
+
+        ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
 
         initData();
     }
