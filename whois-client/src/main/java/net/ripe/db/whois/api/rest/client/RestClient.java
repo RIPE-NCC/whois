@@ -15,8 +15,14 @@ import javax.ws.rs.client.ClientBuilder;
 public class RestClient {
 
     private Client client;
+
+    @Value("${api.rest.baseurl}")
     private String restApiUrl;
+
+    @Value("${whois.source}")
     private String sourceName;
+
+    @Autowired
     private WhoisObjectMapper whoisObjectMapper;
 
     // TODO: [ES] use autowired constructor, drop the setters
@@ -27,23 +33,12 @@ public class RestClient {
 
     public RestClient(final String restApiUrl, final String sourceName) {
         this();
-        setRestApiUrl(restApiUrl);
-        setSource(sourceName);
-    }
-
-    @Value("${api.rest.baseurl}")
-    public void setRestApiUrl(final String restApiUrl) {
         this.restApiUrl = restApiUrl;
+        this.sourceName = sourceName;
     }
 
-    @Autowired
     public void setWhoisObjectMapper(final WhoisObjectMapper whoisObjectMapper) {
         this.whoisObjectMapper = whoisObjectMapper;
-    }
-
-    @Value("${whois.source}")
-    public void setSource(final String sourceName) {
-        this.sourceName = sourceName;
     }
 
     void setClient(final Client client) {
