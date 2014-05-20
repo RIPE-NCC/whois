@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +17,10 @@ import javax.mail.internet.MimeMessage;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
-@Ignore("TODO: ignored until WhoisProfile.isDeployed() check is removed from Authenticator")
 @Category(IntegrationTest.class)
 public class RipeMaintainerAuthenticationMailTestIntegration extends AbstractIntegrationTest {
+    //regardless the trusted range, email is never trusted.
+
     @Autowired IpRanges ipRanges;
     @Autowired MailUpdatesTestSupport mailUpdatesTestSupport;
     @Autowired MailSenderStub mailSenderStub;
