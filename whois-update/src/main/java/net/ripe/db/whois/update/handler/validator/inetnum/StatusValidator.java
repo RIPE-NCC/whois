@@ -28,7 +28,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
+import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelper.getStatus;
@@ -255,10 +257,11 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
     }
 
     private void validateModify(final PreparedUpdate update, final UpdateContext updateContext) {
-        final CIString originalStatus = update.getReferenceObject().getValueForAttribute(AttributeType.STATUS);
-        final CIString updateStatus = update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS);
+        final CIString originalStatus = update.getReferenceObject() != null ? update.getReferenceObject().getValueForAttribute(AttributeType.STATUS) : null;
+        final CIString updateStatus = update.getUpdatedObject() != null ? update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS) : null;
 
-        if (!originalStatus.equals(updateStatus)) {
+
+        if (!Objects.equals(originalStatus, updateStatus)) {
             updateContext.addMessage(update, UpdateMessages.statusChange());
         }
     }
