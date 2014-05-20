@@ -5,8 +5,10 @@ import com.sun.istack.NotNull;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.LogUtil;
+import net.ripe.db.whois.api.rest.client.NotifierCallback;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Mass Update Autnum Status script - set the status of all autnums (read from the split file) to the generated value.
@@ -161,7 +164,14 @@ public class MassUpdateAutnumStatus {
             }
 
             final String override = String.format("%s,%s,mass-update-autnum-status {notify=false}", username, password);
-            final RpslObject updatedAutnum = restClient.request().addParam("unformatted", "").addParam("override", override).update(object);
+            final RpslObject updatedAutnum = restClient.request().addParam("unformatted", "").addParam("override", override).setNotifier(new NotifierCallback() {
+                @Override
+                public void notify(List<ErrorMessage> messages) {
+                    for (ErrorMessage message : messages) {
+                        LOGGER.info(message.toString());
+                    }
+                }
+            }).update(object);
 
             if (updatedAutnum.containsAttribute(AttributeType.STATUS)) {
                 return UpdateStatus.STATUS_UPDATE_SUCCESS;
