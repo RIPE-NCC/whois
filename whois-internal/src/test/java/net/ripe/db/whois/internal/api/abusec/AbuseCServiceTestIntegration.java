@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ForbiddenException;
@@ -63,8 +64,9 @@ public class AbuseCServiceTestIntegration extends AbstractInternalTest {
             if (applicationService instanceof JettyBootstrap) {
                 final int port = ((JettyBootstrap) applicationService).getPort();
                 final String url = String.format("http://localhost:%d/whois", port);
-                restClient.setRestApiUrl(url);
-            }
+
+                ReflectionTestUtils.setField(restClient, "restApiUrl", url);
+                            }
         }
 
         databaseHelperRest.setup();
