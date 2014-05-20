@@ -1340,6 +1340,43 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("-rBG AS400", "sponsoring-org", "ORG-NCC1-RIPE")
     }
 
+    def "modify autnum without status in db with same object adds status"() {
+        given:
+        databaseHelper.addObject("""\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                descr:          description
+                sponsoring-org: ORG-NCC1-RIPE
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:       denis,override1
+                """.stripIndent())
+
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                descr:          description
+                sponsoring-org: ORG-NCC1-RIPE
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: update
+                """.stripIndent()))
+
+        then:
+        update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS400")
+        autnum =~ "status:         OTHER"
+    }
+
     def "delete autnum with sponsoring-org"() {
         when:
         databaseHelper.addObject("" +
