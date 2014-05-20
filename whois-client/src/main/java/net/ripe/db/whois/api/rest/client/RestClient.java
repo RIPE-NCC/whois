@@ -25,7 +25,6 @@ public class RestClient {
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
 
-    // TODO: [ES] use autowired constructor, drop the setters
     // NB: this is also used from dbweb, with multiple environments represented by multiple RestClient beans, managed by AppConfig
     public RestClient() {
         this.client = createClient();
