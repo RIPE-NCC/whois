@@ -11,6 +11,7 @@ import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.NotificationResponse
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import net.ripe.db.whois.spec.domain.SyncUpdateResponse
 import net.ripe.db.whois.update.dns.DnsGatewayStub
 import spock.lang.Specification
 
@@ -269,6 +270,14 @@ ${response}
 <<<<<
 """
         response
+    }
+
+    SyncUpdateResponse syncUpdateWithResponse(SyncUpdate update) {
+        new SyncUpdateResponse(syncUpdate(update));
+    }
+
+    SyncUpdateResponse syncUpdateWithResponse(String content) {
+        new SyncUpdateResponse(syncUpdate(content));
     }
 
     def noMoreMessages() {
