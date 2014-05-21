@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -107,9 +106,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T route-set RS-CUSTOMERS", "route-set", "RS-CUSTOMERS")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 route-set:    RS-CUSTOMERS
                 descr:        test route-set
                 members:      47.247.0.0/16,
@@ -126,12 +123,9 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
-        )
+                """.stripIndent())
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -809,9 +803,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T route-set AS123:RS-CUSTOMERS", "route-set", "AS123:RS-CUSTOMERS")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -829,8 +821,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -934,9 +924,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T route-set AS123:RS-CUSTOMERS:RS-CUSTOMERS2", "route-set", "AS123:RS-CUSTOMERS:RS-CUSTOMERS2")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -964,8 +952,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
@@ -988,9 +974,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T route-set AS123:RS-CUSTOMERS:RS-CUSTOMERS2", "route-set", "AS123:RS-CUSTOMERS:RS-CUSTOMERS2")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 route-set:    AS123:RS-CUSTOMERS
                 descr:        test route-set
                 tech-c:       TP1-TEST
@@ -1018,8 +1002,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 2, 0, 0, 0)

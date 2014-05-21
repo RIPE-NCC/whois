@@ -480,12 +480,10 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
     def "create organisation org-type LIR with power mntner"() {
         expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 organisation:    auto-1
                 org-type:        LIR
                 org-name:        First Org
@@ -501,29 +499,26 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
-        ack.success
+            ack.success
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
 
     def "create organisation org-type IANA with power mntner"() {
         expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 organisation:    auto-1
                 org-type:        IANA
                 org-name:        First Org
@@ -539,29 +534,26 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
-        ack.success
+            ack.success
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
 
     def "create organisation org-type RIR with power mntner"() {
         expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 organisation:    auto-1
                 org-type:        RIR
                 org-name:        First Org
@@ -577,29 +569,26 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
-        ack.success
+            ack.success
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
 
     def "create organisation org-type WHITEPAGES with power mntner"() {
         expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+           def ack = syncUpdateWithResponse("""
                 organisation:    auto-1
                 org-type:        WHITEPAGES
                 org-name:        First Org
@@ -615,29 +604,26 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+           )
 
         then:
-        def ack = ackFor message
-        ack.success
+            ack.success
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
 
     def "create organisation org-type DIRECT_ASSIGNMENT with power mntner"() {
         expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 organisation:    auto-1
                 org-type:        DIRECT_ASSIGNMENT
                 org-name:        First Org
@@ -653,19 +639,18 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
-        ack.success
+            ack.success
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
 
     def "create organisation with 1 word name"() {

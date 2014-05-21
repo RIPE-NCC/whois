@@ -483,9 +483,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 inetnum:      192.0.0.0 - 192.255.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -505,7 +503,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
         ack.success
 
         ack.summary.nrFound == 1
@@ -568,9 +565,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -590,7 +585,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
         ack.success
 
         ack.summary.nrFound == 1
@@ -612,9 +606,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -636,7 +628,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
         ack.success
 
         ack.summary.nrFound == 1
@@ -654,9 +645,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -677,8 +666,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -694,9 +681,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -717,8 +702,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -734,9 +717,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -757,8 +738,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -777,9 +756,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -800,8 +777,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -817,9 +792,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -839,7 +812,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
         ack.success
 
         ack.summary.nrFound == 1
@@ -857,9 +829,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -879,7 +849,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
         ack.success
 
         ack.summary.nrFound == 1
@@ -901,9 +870,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -921,7 +888,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
         ack.success
 
         ack.summary.nrFound == 1
@@ -3585,9 +3551,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      RIPE-NET1
                 descr:        /16 assigned
@@ -3607,7 +3571,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
         ack.success
 
         ack.summary.nrFound == 1
@@ -3629,9 +3592,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      RIPE-NET1
                 descr:        /16 assigned
@@ -3650,7 +3611,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
         ack.errors
 
         ack.summary.nrFound == 1
@@ -3673,9 +3633,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.168.255.255  # primary key comment
                 netname:      RIPE-NET1
                 descr:        /16 assigned
@@ -3718,7 +3676,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
         ack.success
 
         ack.summary.nrFound == 1
