@@ -27,9 +27,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route6 2013:600::/32", "route6", "2013:600::/32")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 route6:         2013:600::/32
                 descr:          Route6
                 origin:         AS2000
@@ -45,8 +43,6 @@ class PingSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -64,9 +60,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route6 2013:600::/32", "route6", "2013:600::/32")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 route6:         2013:600::/32
                 descr:          Route6
                 origin:         AS2000
@@ -82,8 +76,6 @@ class PingSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -222,9 +214,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route6 2013:600::/32", "route6", "2013:600::/32")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 route6:         2013:600::/32
                 descr:          Route
                 origin:         AS2000
@@ -241,8 +231,6 @@ class PingSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
