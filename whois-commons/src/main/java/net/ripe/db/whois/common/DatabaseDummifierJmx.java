@@ -75,7 +75,7 @@ public class DatabaseDummifierJmx extends JmxBase {
             @ManagedOperationParameter(name = "pass", description = "jdbc password")
     })
     public String dummify(final String jdbcUrl, final String user, final String pass) {
-        return invokeOperation("Load dump", null, new Callable<String>() {
+        return invokeOperation("dummify", jdbcUrl, new Callable<String>() {
             @Override
             public String call() {
                 validateJdbcUrl(user, pass);
