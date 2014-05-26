@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -106,8 +107,8 @@ public class ResponseFactoryTest {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(new LocalDateTime(0, DateTimeZone.UTC));
         when(updateContext.printGlobalMessages()).thenReturn("");
 
-        subject.setVersion("1.2.3");
-        subject.setSource("TEST");
+        ReflectionTestUtils.setField(subject, "version", "1.2.3");
+        ReflectionTestUtils.setField(subject, "source", "TEST");
     }
 
     @Test

@@ -56,12 +56,9 @@ public class SingleUpdateHandler {
     private final IpTreeUpdater ipTreeUpdater;
     private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
-    private CIString source;
 
-    @Value("${whois.source}")
-    void setSource(final String source) {
-        this.source = ciString(source);
-    }
+    @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
+    private CIString source;
 
     @Autowired
     public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver,

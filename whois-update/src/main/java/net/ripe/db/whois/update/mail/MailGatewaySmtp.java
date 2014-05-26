@@ -30,13 +30,9 @@ public class MailGatewaySmtp implements MailGateway {
     private final MailConfiguration mailConfiguration;
     private final JavaMailSender mailSender;
 
+    @Value("${mail.smtp.enabled}")
     private boolean outgoingMailEnabled;
 
-    @Value("${mail.smtp.enabled}")
-    public void setOutgoingMailEnabled(final boolean outgoingMailEnabled) {
-        LOGGER.info("Outgoing mail enabled: {}", outgoingMailEnabled);
-        this.outgoingMailEnabled = outgoingMailEnabled;
-    }
 
     @Autowired
     public MailGatewaySmtp(final LoggerContext loggerContext, final MailConfiguration mailConfiguration, final JavaMailSender mailSender) {
