@@ -8,10 +8,27 @@ import org.springframework.test.util.ReflectionTestUtils
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
+    //FIXME [TP] this workaround with the authenticator and the principalsMap is a hack to...
+    //FIXME [TP] ...temporarilly allow hierarchical *mail*updates with power maintainers. Do not replicate this logic.
 
-    private void clearPowerMaintainers() {
-        def authenticator = getApplicationContext().getBean(net.ripe.db.whois.update.authentication.Authenticator.class);
+    static net.ripe.db.whois.update.authentication.Authenticator authenticator;
+    static Map principalsMap;
+
+    def setupSpec(){
+        authenticator = getApplicationContext().getBean(net.ripe.db.whois.update.authentication.Authenticator.class);
+        principalsMap = ReflectionTestUtils.getField(authenticator, "principalsMap")
+    }
+
+    def setup(){
+        restorePowerMaintainers()
+    }
+
+    private static void clearPowerMaintainers() {
         ReflectionTestUtils.setField(authenticator, "principalsMap", Collections.emptyMap());
+    }
+
+    private static void restorePowerMaintainers() {
+        ReflectionTestUtils.setField(authenticator, "principalsMap", principalsMap);
     }
 
   @Override
@@ -3155,7 +3172,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: hm")
-    then:
+
+      clearPowerMaintainers();
+
       def message = send "From: noreply@ripe.net\n" +
               "Content-Type: multipart/signed; boundary=\"Apple-Mail=_93B09F74-BFD6-4EDB-9C10-C12CBBB1B61A\"; " +
               "protocol=\"application/pkcs7-signature\"; micalg=sha1\n" +
@@ -3292,17 +3311,19 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-    then:
+
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: owner")
-    then:
+
       syncUpdate new SyncUpdate(data:
               getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: hm")
-    then:
+
+      clearPowerMaintainers();
+
       def message = send "From: noreply@ripe.net\n" +
               "Content-Type: multipart/signed; boundary=\"Apple-Mail=_5C37A745-48FA-47C6-8B90-EB93253082EB\"; " +
               "protocol=\"application/pgp-signature\"; micalg=pgp-sha1\n" +
@@ -3440,7 +3461,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "multipart plaintext PGP signed message with hierarchical authentication and different signers"() {
-    when:
+
+      when:
       syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-28F6CD6C
                 method:         PGP
@@ -3494,12 +3516,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-    then:
+
+
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: owner")
-    then:
+
       syncUpdate new SyncUpdate(data: """
                 key-cert:       PGPKEY-5763950D
                 method:         PGP
@@ -3542,7 +3565,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       hm
              """.stripIndent())
-    then:
+
       syncUpdate new SyncUpdate(data:
               getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
