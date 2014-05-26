@@ -280,6 +280,10 @@ ${response}
         new SyncUpdateResponse(syncUpdate(content));
     }
 
+    SyncUpdateResponse syncUpdateWithResponseNoRedirect(String content) {
+        syncUpdateWithResponse(new SyncUpdate(data: content, redirect: false));
+    }
+
     def noMoreMessages() {
         !whoisFixture.anyMoreMessages()
     }
