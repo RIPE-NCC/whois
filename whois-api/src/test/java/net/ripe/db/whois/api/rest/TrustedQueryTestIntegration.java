@@ -136,7 +136,7 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/search?query-string=SSO%20906635c2-0405-429a-800b-0602bd716124&inverse-attribute=auth").request().get(String.class);
             fail();
         } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "Inverse search on 'auth' attribute is limited to 'key-cert' objects only");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Inverse search on 'auth' attribute is limited to 'key-cert' objects only\n");
         }
     }
 }

@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.handler;
 
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
@@ -38,6 +37,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -95,16 +95,15 @@ public class SingleUpdateHandler {
         updateLockDao.setUpdateLock();
         ipTreeUpdater.updateCurrent();
 
-        // FIXME: [AH] ATM nothing is setting submittedobjectinfo, rendering this call surplus
-        checkForUnexpectedModification(update);
-
         if (updateContext.isDryRun()) {
             updateContext.addMessage(update, UpdateMessages.dryRunNotice());
         }
 
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
-        RpslObject updatedObject = getUpdatedObject(originalObject, update, updateContext, keyword);
+        RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
+
+
         Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
@@ -200,7 +199,8 @@ public class SingleUpdateHandler {
         return originalObject;
     }
 
-    private RpslObject getUpdatedObject(final RpslObject originalObject, final Update update, final UpdateContext updateContext, final Keyword keyword) {
+    @Nonnull
+    private RpslObject getUpdatedObject(final Update update, final UpdateContext updateContext, final Keyword keyword) {
         RpslObject updatedObject = update.getSubmittedObject();
 
         if (RpslObjectFilter.isFiltered(updatedObject)) {
@@ -244,18 +244,5 @@ public class SingleUpdateHandler {
         }
 
         return Action.MODIFY;
-    }
-
-    // TODO: [AH] Replace with versioning
-    private void checkForUnexpectedModification(final Update update) {
-        if (update.getSubmittedObjectInfo() != null) {
-            final RpslObjectUpdateInfo latestUpdateInfo = rpslObjectUpdateDao.lookupObject(
-                    update.getSubmittedObject().getType(),
-                    update.getSubmittedObject().getKey().toString());
-
-            if (latestUpdateInfo.getSequenceId() != update.getSubmittedObjectInfo().getSequenceId()) {
-                throw new IllegalStateException("Object was modified unexpectedly");
-            }
-        }
     }
 }

@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 import org.junit.Test;
 
@@ -56,7 +57,7 @@ public class SyntaxFilterFunctionTest {
         final Iterable<? extends ResponseObject> result = validSyntaxFilterFunction.apply(object);
 
         assertThat(Iterables.size(result), is(1));
-        assertThat(Iterables.getFirst(result, null), is((ResponseObject) new MessageObject("% 'tst-ripe' invalid syntax")));
+        assertThat(Iterables.getFirst(result, null), is((ResponseObject)new MessageObject(QueryMessages.invalidSyntax("tst-ripe"))));
     }
 
     @Test
@@ -75,7 +76,7 @@ public class SyntaxFilterFunctionTest {
         final Iterable<? extends ResponseObject> result = novalidSyntaxFilterFunction.apply(object);
 
         assertThat(Iterables.size(result), is(1));
-        assertThat(Iterables.getFirst(result, null), is((ResponseObject) new MessageObject("% 'TST-MNT' has valid syntax")));
+        assertThat(Iterables.getFirst(result, null), is((ResponseObject)new MessageObject(QueryMessages.validSyntax("TST-MNT"))));
     }
 
     @Test

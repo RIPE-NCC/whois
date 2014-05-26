@@ -31,7 +31,6 @@ public class FilterTagsDecoratorTest {
     @InjectMocks
     FilterTagsDecorator subject;
 
-
     @Test
     public void unrefInfo_for_unreferenced_role() {
         when(tagsDao.getTags(1)).thenReturn(Lists.newArrayList(new Tag(CIString.ciString("unref"), 1, "34")));
@@ -42,8 +41,9 @@ public class FilterTagsDecoratorTest {
 
         final Iterator<? extends ResponseObject> iterator = result.iterator();
         assertThat(iterator.next() instanceof RpslObject, is(true));
-        assertThat(iterator.next().toString(), is("% Tags relating to 'TR1-TEST'"));
-        assertThat(new String(iterator.next().toByteArray()), is("% Unreferenced # 'TR1-TEST' will be deleted in 34 days\n"));
+        assertThat(iterator.next().toString(), is("% Tags relating to 'TR1-TEST'\n" +
+                "% Unreferenced # 'TR1-TEST' will be deleted in 34 days\n"));
+        assertThat(iterator.hasNext(), is(false));
     }
 
     @Test
