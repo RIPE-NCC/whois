@@ -201,9 +201,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBT aut-num AS123", "aut-num", "AS123")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -222,8 +220,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -246,9 +242,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBT aut-num AS123", "aut-num", "AS123")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -268,8 +262,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -293,9 +285,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBT aut-num AS123", "aut-num", "AS123")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -314,8 +304,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.failed
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -330,20 +318,18 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
     def "create aut-num obj, member-of multiple existing set"() {
         given:
-        dbfixture(getTransient("REF-AS-SET2"))
-        dbfixture(getTransient("REF-AS-SET3"))
-        dbfixture(getTransient("ASB16"))
+            dbfixture(getTransient("REF-AS-SET2"))
+            dbfixture(getTransient("REF-AS-SET3"))
+            dbfixture(getTransient("ASB16"))
 
         expect:
-        queryObject("-r -T as-set AS-TEST", "as-set", "AS-TEST")
-        query_object_matches("-r -T as-set AS-TEST", "as-set", "AS-TEST", "mbrs-by-ref:")
-        queryObject("-r -T as-block AS0 - AS65535", "as-block", "AS0 - AS65535")
-        queryObjectNotFound("-rBT aut-num AS123", "aut-num", "AS123")
+            queryObject("-r -T as-set AS-TEST", "as-set", "AS-TEST")
+            query_object_matches("-r -T as-set AS-TEST", "as-set", "AS-TEST", "mbrs-by-ref:")
+            queryObject("-r -T as-block AS0 - AS65535", "as-block", "AS0 - AS65535")
+            queryObjectNotFound("-rBT aut-num AS123", "aut-num", "AS123")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -363,17 +349,15 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any {it.operation == "Create" && it.key == "[aut-num] AS123"}
-        ack.errorMessagesFor("Create", "[aut-num] AS123") == [
-                "Membership claim is not supported by mbrs-by-ref: attribute of the referenced set [AS-TEST2, AS-TEST]"]
-        queryObjectNotFound("-rBT aut-num AS123", "aut-num", "AS123")
+            ack.countErrorWarnInfo(1, 0, 0)
+            ack.errors.any {it.operation == "Create" && it.key == "[aut-num] AS123"}
+            ack.errorMessagesFor("Create", "[aut-num] AS123") == [
+                    "Membership claim is not supported by mbrs-by-ref: attribute of the referenced set [AS-TEST2, AS-TEST]"]
+            queryObjectNotFound("-rBT aut-num AS123", "aut-num", "AS123")
     }
 
     def "modify aut-num obj, member-of existing set, remove ref mntner"() {
@@ -387,9 +371,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBT aut-num AS352", "aut-num", "AS352", "member-of:\\s*AS-TEST")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS352
                 as-name:        some-name
                 descr:          description
@@ -408,8 +390,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.errors
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -895,9 +875,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBT aut-num AS123", "aut-num", "AS123")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -916,8 +894,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1006,9 +982,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         query_object_matches("-r -T as-set AS-TEST2", "as-set", "AS-TEST2", "mbrs-by-ref:\\s*ANY")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -1029,8 +1003,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1124,9 +1096,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST", "mbrs-by-ref:\\s*LIR3-MNT")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS456
                 as-name:        some-name
                 descr:          description
@@ -1157,8 +1127,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
@@ -1187,9 +1155,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         query_object_matches("-r -T as-set AS123:AS-TEST:AS-TEST2", "as-set", "AS123:AS-TEST:AS-TEST2", "mbrs-by-ref:\\s*owner-MNT")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -1211,8 +1177,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.failed
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1467,9 +1431,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T as-block AS0 - AS65535", "as-block", "AS0 - AS65535")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS1
                 as-name:        some-name
                 descr:          description
@@ -1487,8 +1449,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)

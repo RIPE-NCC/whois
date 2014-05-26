@@ -293,9 +293,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2a00:c90:c000::/34", "inet6num", "2a00:c90:c000::/34")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2a00:c90::/32
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -360,7 +358,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 5
         ack.summary.assertSuccess(5, 5, 0, 0, 0)
@@ -389,9 +386,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2a00:c90:c000::/34", "inet6num", "2a00:c90:c000::/34")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2a00:c90::/34
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -456,7 +451,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 5
         ack.summary.assertSuccess(5, 5, 0, 0, 0)
@@ -483,9 +477,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -505,7 +497,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -526,9 +517,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -549,7 +538,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -572,9 +560,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -595,7 +581,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -618,9 +603,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -641,7 +624,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -664,9 +646,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -687,7 +667,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -710,9 +689,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -733,7 +710,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -756,9 +732,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -776,7 +750,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -799,9 +772,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -821,7 +792,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -844,9 +814,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -866,7 +834,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -887,9 +854,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -909,7 +874,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -930,9 +894,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -952,7 +914,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -975,9 +936,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -997,7 +956,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1018,9 +976,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1041,7 +997,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1062,9 +1017,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1085,7 +1038,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1108,9 +1060,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1131,7 +1081,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1154,9 +1103,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1177,7 +1124,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1200,9 +1146,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1223,7 +1167,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1246,9 +1189,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1266,7 +1207,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1287,9 +1227,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1309,7 +1247,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1330,9 +1267,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1352,7 +1287,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1373,9 +1307,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1395,7 +1327,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1418,9 +1349,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1440,7 +1369,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1465,9 +1393,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1488,7 +1414,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1509,9 +1434,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1533,7 +1456,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1554,9 +1476,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1578,7 +1498,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1599,9 +1518,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1623,7 +1540,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1646,9 +1562,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1670,7 +1584,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1693,9 +1606,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1717,7 +1628,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1740,9 +1650,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1761,7 +1669,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1782,9 +1689,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1805,7 +1710,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1826,9 +1730,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1849,7 +1751,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1870,9 +1771,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1893,7 +1792,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1916,9 +1814,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1939,7 +1835,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -1962,9 +1857,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1983,7 +1876,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -2197,9 +2089,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -2219,7 +2109,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -2568,9 +2457,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -2602,7 +2489,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
@@ -3814,9 +3700,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -3836,7 +3720,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3857,9 +3740,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -3880,7 +3761,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3901,9 +3781,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -3924,7 +3802,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -3945,9 +3822,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -3968,7 +3843,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -3991,9 +3865,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4014,7 +3886,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4037,9 +3908,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4060,7 +3929,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4083,9 +3951,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4103,7 +3969,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -4124,9 +3989,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4146,7 +4009,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -4167,9 +4029,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4189,7 +4049,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -4210,9 +4069,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4232,7 +4089,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4255,9 +4111,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4277,7 +4131,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4302,9 +4155,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4324,7 +4175,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -4345,9 +4195,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4368,7 +4216,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4391,9 +4238,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4414,7 +4259,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4437,9 +4281,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4460,7 +4302,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4483,9 +4324,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4506,7 +4345,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4529,9 +4367,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4552,7 +4388,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4575,9 +4410,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4595,7 +4428,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4618,9 +4450,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4640,7 +4470,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -4661,9 +4490,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4683,7 +4510,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -4704,9 +4530,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4726,7 +4550,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4750,9 +4573,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4772,7 +4593,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4797,9 +4617,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4819,7 +4637,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -4840,9 +4657,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/32
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4863,7 +4678,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4886,9 +4700,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4909,7 +4721,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4932,9 +4743,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -4955,7 +4764,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -4978,9 +4786,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -5001,7 +4807,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -5024,9 +4829,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -5047,7 +4850,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -5070,9 +4872,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -5090,7 +4890,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -5113,9 +4912,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -5135,7 +4932,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -5156,9 +4952,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -5178,7 +4972,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -5199,9 +4992,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -5221,7 +5012,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
@@ -5244,9 +5034,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -5266,7 +5054,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)

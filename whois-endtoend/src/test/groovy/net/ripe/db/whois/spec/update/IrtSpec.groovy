@@ -205,9 +205,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
             queryObjectNotFound("-r -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.201.0 - 192.168.201.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -223,20 +221,18 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 password: end
                 password: hm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.201.0 - 192.168.201.255") ==
-                ["Authorisation for [inetnum] 192.168.201.0 - 192.168.201.255 failed using \"mnt-irt:\" not authenticated by: irt-test"]
-        queryObjectNotFound("-rGBT inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
+            ack.countErrorWarnInfo(1, 0, 0)
+            ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
+            ack.errorMessagesFor("Create", "[inetnum] 192.168.201.0 - 192.168.201.255") ==
+                    ["Authorisation for [inetnum] 192.168.201.0 - 192.168.201.255 failed using \"mnt-irt:\" not authenticated by: irt-test"]
+            queryObjectNotFound("-rGBT inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
     }
 
     def "create INETNUM, with mnt-irt, mnt-by pw supplied, no irt exist"() {
@@ -247,9 +243,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
             queryObjectNotFound("-r -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.201.0 - 192.168.201.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -265,21 +259,19 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 password: end
                 password: hm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
+            ack.countErrorWarnInfo(2, 0, 0)
+            ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
+            ack.errorMessagesFor("Create", "[inetnum] 192.168.201.0 - 192.168.201.255") ==
+                    ["Unknown object referenced irt-test",
+                            "Authorisation for [inetnum] 192.168.201.0 - 192.168.201.255 failed using \"mnt-irt:\" no valid maintainer found"]
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.201.0 - 192.168.201.255") ==
-                ["Unknown object referenced irt-test",
-                        "Authorisation for [inetnum] 192.168.201.0 - 192.168.201.255 failed using \"mnt-irt:\" no valid maintainer found"]
-
-        queryObjectNotFound("-rGBT inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
+            queryObjectNotFound("-rGBT inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
     }
 
     def "create INETNUM, with mnt-irt, mnt-by pw supplied, irt pw supplied"() {
@@ -291,9 +283,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
             queryObjectNotFound("-r -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.201.0 - 192.168.201.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -313,15 +303,13 @@ class IrtSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
-
-        query_object_matches("-rGBT inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "mnt-irt:\\s*irt-test")
+            query_object_matches("-rGBT inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "mnt-irt:\\s*irt-test")
     }
 
     def "delete inetnum, with mnt-irt, mnt-by pw supplied, no irt pw"() {

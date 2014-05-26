@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-@Ignore("TODO: ignored until WhoisProfile.isDeployed() check is removed from Authenticator")
 @Category(IntegrationTest.class)
 public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends AbstractIntegrationTest {
 
@@ -93,6 +91,7 @@ public class RipeMaintainerAuthenticationSyncupdatesTestIntegration extends Abst
                 .request()
                 .post(Entity.entity("DATA=" + RestClientUtils.encode(RPSL_PERSON_WITH_RIPE_MAINTAINER) + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
+        assertThat(response, containsString("Create SUCCEEDED: [person] TP1-TEST   TEST Person"));
         assertThat(response, not(containsString("" +
                 "***Error:   Authentication by RIPE NCC maintainers only allowed from within the\n" +
                 "            RIPE NCC network")));

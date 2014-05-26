@@ -47,12 +47,10 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
     def "create as-block with RIPE mnt-by, mnt-by pw supplied"() {
         expect:
-        queryObjectNotFound("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS222 - AS333
                 descr:          ARIN ASN block
                 remarks:        These AS numbers are further assigned by ARIN
@@ -76,15 +74,13 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
     }
 
@@ -301,12 +297,10 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
     def "create as-block with RIPE mnt-by, with range of single value"() {
         expect:
-        queryObjectNotFound("-r -T as-block AS222 - AS222", "as-block", "AS222 - AS222")
+            queryObjectNotFound("-r -T as-block AS222 - AS222", "as-block", "AS222 - AS222")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS222 - AS222
                 descr:          ARIN ASN block
                 remarks:        These AS numbers are further assigned by ARIN
@@ -326,29 +320,25 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 password: dbm
 
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS222" }
-        queryObject("-rGBT as-block AS222 - AS222", "as-block", "AS222 - AS222")
+            ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS222" }
+            queryObject("-rGBT as-block AS222 - AS222", "as-block", "AS222 - AS222")
 
     }
 
     def "create as-block with non-RIPE mnt-by, mnt-by pw supplied"() {
         expect:
-        queryObjectNotFound("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS222 - AS333
                 descr:          ARIN ASN block
                 remarks:        These AS numbers are further assigned by ARIN
@@ -367,23 +357,20 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: test2
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
+            ack.countErrorWarnInfo(2, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
-
-        ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
-        ack.errorMessagesFor("Create", "[as-block] AS222 - AS333") == [
-                "As-block object are maintained by RIPE NCC",
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
-        ]
-        queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-
+            ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
+            ack.errorMessagesFor("Create", "[as-block] AS222 - AS333") == [
+                    "As-block object are maintained by RIPE NCC",
+                    "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+            ]
+            queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
     }
 
     def "create as-block, with RIPE mnt-by, mnt-by pw supplied, reversed values"() {
@@ -430,9 +417,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
     def "create as-block with RIPE mnt-by, mnt-by pw supplied, diff mnt-lower"() {
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS222 - AS333
                 descr:          ARIN ASN block
                 remarks:        These AS numbers are further assigned by ARIN
@@ -451,35 +436,32 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
 
-        ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
-
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
     }
 
     def "modify as-block, change mnt-by, old mnt-by pw supplied, new mnt-by pw not supplied"() {
 
         given:
-        syncUpdate(getTransient("RIPE-DBM-STARTUP-MNT") + "password:startup")
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
+            syncUpdate(getTransient("RIPE-DBM-STARTUP-MNT") + "password:startup")
+            syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
+
         expect:
-        queryObject("-rBGT mntner RIPE-DBM-STARTUP-MNT", "mntner", "RIPE-DBM-STARTUP-MNT")
-        queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObject("-rBGT mntner RIPE-DBM-STARTUP-MNT", "mntner", "RIPE-DBM-STARTUP-MNT")
+            queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS222 - AS333
                 descr:          ARIN ASN block
                 remarks:        These AS numbers are further assigned by ARIN
@@ -498,30 +480,27 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.successes.any { it.operation == "Modify" && it.key == "[as-block] AS222 - AS333" }
-        query_object_matches("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333", "mnt-by:\\s*RIPE-DBM-STARTUP-MNT")
-
+            ack.successes.any { it.operation == "Modify" && it.key == "[as-block] AS222 - AS333" }
+            query_object_matches("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333", "mnt-by:\\s*RIPE-DBM-STARTUP-MNT")
     }
 
     def "modify as-block, add org, change remarks"() {
         given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
+            syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
+
         expect:
-        queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS222 - AS333
                 descr:          ARIN ASN block
                 remarks:        These AS numbers are further assigned by ARIN
@@ -535,19 +514,16 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 password: dbm
                 password: owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        ack.successes.any { it.operation == "Modify" && it.key == "[as-block] AS222 - AS333" }
-        query_object_matches("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333", "org:\\s*ORG-LIR1-TEST")
-
+            ack.successes.any { it.operation == "Modify" && it.key == "[as-block] AS222 - AS333" }
+            query_object_matches("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333", "org:\\s*ORG-LIR1-TEST")
     }
 
     def "modify as-block, add multiple mnt-by"() {
@@ -653,14 +629,13 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
     def "delete as-block"() {
         given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
+            syncUpdate(getTransient("AS222 - AS333") + "password: dbm\npassword: owner3")
+
         expect:
-        queryObject("-rBG -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObject("-rBG -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS222 - AS333
                 descr:          ARIN ASN block
                 remarks:        These AS numbers are further assigned by ARIN
@@ -684,26 +659,21 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 0, 1, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 1, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        ack.successes.any { it.operation == "Delete" && it.key == "[as-block] AS222 - AS333" }
-        queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-
+            ack.successes.any { it.operation == "Delete" && it.key == "[as-block] AS222 - AS333" }
+            queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
     }
 
     def "create as-block, with full 16 bit range"() {
         expect:
-        queryObjectNotFound("-rBG -T as-block AS0 - AS65535", "as-block", "AS0 - AS65535")
+            queryObjectNotFound("-rBG -T as-block AS0 - AS65535", "as-block", "AS0 - AS65535")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS0 - AS65535
                 descr:          ASN block
                 remarks:        some comment
@@ -715,28 +685,24 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 password: dbm
 
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS0 - AS65535" }
-        queryObject("-rGBT as-block AS0 - AS65535", "as-block", "AS0 - AS65535")
+            ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS0 - AS65535" }
+            queryObject("-rGBT as-block AS0 - AS65535", "as-block", "AS0 - AS65535")
     }
 
     def "create as-block, crossing 16/32 bit ranges"() {
         expect:
-        queryObjectNotFound("-rBG -T as-block AS655 - AS7775535", "as-block", "AS655 - AS7775535")
+            queryObjectNotFound("-rBG -T as-block AS655 - AS7775535", "as-block", "AS655 - AS7775535")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS655 - AS7775535
                 descr:          ASN block
                 remarks:        some comment
@@ -747,18 +713,16 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 password: dbm
 
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS655 - AS7775535" }
-        queryObject("-rGBT as-block AS655 - AS7775535", "as-block", "AS655 - AS7775535")
+            ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS655 - AS7775535" }
+            queryObject("-rGBT as-block AS655 - AS7775535", "as-block", "AS655 - AS7775535")
     }
 
     def "create as-block with hierarchy parent exists"() {
@@ -855,14 +819,11 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
     def "create overlapping as-block scenario1"() {
         expect:
-        queryObjectNotFound("-rBG -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        queryObjectNotFound("-rBG -T as-block AS250 - AS350", "as-block", "AS250 - AS350")
+            queryObjectNotFound("-rBG -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-rBG -T as-block AS250 - AS350", "as-block", "AS250 - AS350")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS250 - AS350
                 descr:          ASN block
                 remarks:        some comment
@@ -883,34 +844,30 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 2
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
+            ack.countErrorWarnInfo(1, 0, 0)
 
-        ack.summary.nrFound == 2
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS250 - AS350" }
+            ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
+            ack.errorMessagesFor("Create", "[as-block] AS222 - AS333") ==
+                    ["Overlapping As-block already exists"]
 
-        ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS250 - AS350" }
-        ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
-        ack.errorMessagesFor("Create", "[as-block] AS222 - AS333") ==
-                ["Overlapping As-block already exists"]
-
-        queryObject("-rGBT as-block AS250 - AS350", "as-block", "AS250 - AS350")
-        queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObject("-rGBT as-block AS250 - AS350", "as-block", "AS250 - AS350")
+            queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
     }
 
     def "create overlapping as-block scenario2 "() {
         expect:
-        queryObjectNotFound("-rBG -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        queryObjectNotFound("-rBG -T as-block AS250 - AS350", "as-block", "AS250 - AS350")
+            queryObjectNotFound("-rBG -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-rBG -T as-block AS250 - AS350", "as-block", "AS250 - AS350")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS222 - AS333
                 descr:          ASN block
                 remarks:        some comment
@@ -931,33 +888,29 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 2
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
+            ack.countErrorWarnInfo(1, 0, 0)
 
-        ack.summary.nrFound == 2
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
+            ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS250 - AS350" }
+            ack.errorMessagesFor("Create", "[as-block] AS250 - AS350") ==
+                    ["Overlapping As-block already exists"]
 
-        ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
-        ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS250 - AS350" }
-        ack.errorMessagesFor("Create", "[as-block] AS250 - AS350") ==
-                ["Overlapping As-block already exists"]
-
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        queryObjectNotFound("-rGBT as-block AS250 - AS350", "as-block", "AS250 - AS350")
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-rGBT as-block AS250 - AS350", "as-block", "AS250 - AS350")
     }
 
     def "create as-block ranging from 16 bit to 32 bit number"() {
         expect:
-        queryObjectNotFound("-rBG -T as-block AS777 - AS7775535", "as-block", "AS777 - AS7775535")
+            queryObjectNotFound("-rBG -T as-block AS777 - AS7775535", "as-block", "AS777 - AS7775535")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS777 - AS7775535
                 descr:          ASN block
                 remarks:        some comment
@@ -972,25 +925,21 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS777 - AS7775535" }
-        queryObject("-rGBT as-block AS777 - AS7775535", "as-block", "AS777 - AS7775535")
+            ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS777 - AS7775535" }
+            queryObject("-rGBT as-block AS777 - AS7775535", "as-block", "AS777 - AS7775535")
     }
 
     def "create as-block ranging from AS0-AS0"() {
         expect:
-        queryObjectNotFound("-rBG -T as-block AS0-AS0", "as-block", "AS0-AS0")
+            queryObjectNotFound("-rBG -T as-block AS0-AS0", "as-block", "AS0-AS0")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS0-AS0
                 descr:          ASN block
                 remarks:        some comment
@@ -1002,28 +951,24 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 password: dbm
 
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS0-AS0" }
-        queryObject("-rGBT as-block AS0-AS0", "as-block", "AS0-AS0")
+            ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS0-AS0" }
+            queryObject("-rGBT as-block AS0-AS0", "as-block", "AS0-AS0")
     }
 
     def "create as-block ranging from AS4294967295 - AS4294967295"() {
         expect:
-        queryObjectNotFound("-rBG -T as-block AS4294967295 - AS4294967295", "as-block", "AS4294967295 - AS4294967295")
+            queryObjectNotFound("-rBG -T as-block AS4294967295 - AS4294967295", "as-block", "AS4294967295 - AS4294967295")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS4294967295 - AS4294967295
                 descr:          ASN block
                 remarks:        some comment
@@ -1035,28 +980,24 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 password: dbm
 
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS4294967295 - AS4294967295" }
-        queryObject("-rGBT as-block AS4294967295 - AS4294967295", "as-block", "AS4294967295 - AS4294967295")
+            ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS4294967295 - AS4294967295" }
+            queryObject("-rGBT as-block AS4294967295 - AS4294967295", "as-block", "AS4294967295 - AS4294967295")
     }
 
     def "create as-block covering full range"() {
         expect:
-        queryObjectNotFound("-rBG -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+            queryObjectNotFound("-rBG -T as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 as-block:       AS0 - AS4294967295
                 descr:          ASN block
                 remarks:        some comment
@@ -1068,17 +1009,15 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 password: dbm
 
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS0 - AS4294967295" }
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+            ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS0 - AS4294967295" }
+            queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
     }
 }

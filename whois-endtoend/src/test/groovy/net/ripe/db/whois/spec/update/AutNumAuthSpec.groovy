@@ -290,9 +290,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
@@ -316,8 +314,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -336,9 +332,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
@@ -365,8 +359,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -385,9 +377,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
@@ -410,8 +400,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -471,10 +459,8 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
       expect:
         queryObjectNotFound("-rBG -T aut-num AS650", "aut-num", "AS650")
 
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+    when:
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS650
                 as-name:        End-User-1
                 descr:          description
@@ -496,8 +482,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -916,10 +900,8 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS94967295", "aut-num", "AS94967295")
 
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        when:
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS94967295
                 as-name:        End-User-1
                 descr:          description
@@ -944,8 +926,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -964,9 +944,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS4294967295", "aut-num", "AS4294967295")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS4294967295
                 as-name:        End-User-1
                 descr:          description
@@ -987,8 +965,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1007,9 +983,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS65535", "aut-num", "AS65535")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS65535
                 as-name:        End-User-1
                 descr:          description
@@ -1034,8 +1008,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1054,9 +1026,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS0", "aut-num", "AS0")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        As0
                 as-name:        End-User-1
                 descr:          description
@@ -1081,8 +1051,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1101,9 +1069,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS0 - AS1", "aut-num", "AS0 - AS1")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS0 - AS1
                 as-name:        End-User-1
                 descr:          description
@@ -1127,8 +1093,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -1340,9 +1304,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
@@ -1364,8 +1326,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1439,9 +1399,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
@@ -1463,8 +1421,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -1487,9 +1443,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
@@ -1511,8 +1465,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -1534,9 +1486,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
@@ -1558,8 +1508,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -1581,9 +1529,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
@@ -1607,8 +1553,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1680,9 +1624,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-r -T route -i origin AS200", "route", "20.13.0.0/16", "origin:\\s*AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
@@ -1705,8 +1647,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1730,9 +1670,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-r -T aut-num AS300", "aut-num", "AS300", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
@@ -1756,8 +1694,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1780,9 +1716,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT as-set AS7775535:AS-TEST", "as-set", "AS7775535:AS-TEST", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
@@ -1806,8 +1740,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -2013,9 +1945,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBG -T aut-num AS702", "aut-num", "AS702")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:      AS702
                 as-name:      AS702
                 descr:        ISP
@@ -2720,8 +2650,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -2734,16 +2662,14 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, RS pw, not on legacy list"() {
         given:
-        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
 
         expect:
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
@@ -2765,33 +2691,29 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   hm
                 password:   owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
-
-        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
-        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, no status, RS pw, not on legacy list"() {
         given:
-        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
 
         expect:
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        queryObjectNotFound("-rBG -T aut-num AS260", "aut-num", "AS260")
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-rBG -T aut-num AS260", "aut-num", "AS260")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS260
                 as-name:        End-User-1
                 descr:          description
@@ -2812,33 +2734,29 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   hm
                 password:   owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS260" }
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS260" }
-
-        query_object_matches("-rBG -T aut-num AS260", "aut-num", "AS260", "status:\\s*OTHER")
+            query_object_matches("-rBG -T aut-num AS260", "aut-num", "AS260", "status:\\s*OTHER")
     }
 
     
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status LEGACY, RS pw, not on legacy list"() {
         given:
-        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
 
         expect:
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
@@ -2863,33 +2781,29 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
+            ack.warningSuccessMessagesFor("Create", "[aut-num] AS250") ==
+                    ["Supplied attribute 'status' has been replaced with a generated value"]
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
-        ack.warningSuccessMessagesFor("Create", "[aut-num] AS250") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
-
-        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
-        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
     
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status OTHER, RS pw, not on legacy list"() {
         given:
-        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
 
         expect:
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
@@ -2911,20 +2825,18 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   hm
                 password:   owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
+            ack.warningSuccessMessagesFor("Create", "[aut-num] AS250") ==
+                    ["Supplied attribute 'status' has been replaced with a generated value"]
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
-        ack.warningSuccessMessagesFor("Create", "[aut-num] AS250") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
-
-        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
     
@@ -3288,17 +3200,15 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, RS pw, not on legacy list"() {
         given:
-        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
-        syncUpdate(getTransient("AS250") + "override: denis,override1")
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+            syncUpdate(getTransient("AS250") + "override: denis,override1")
 
         expect:
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          updated description
@@ -3317,36 +3227,32 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
+            ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
+                    ["\"status:\" attribute cannot be removed"]
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
-        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
-                ["\"status:\" attribute cannot be removed"]
-
-        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
     
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, LIR pw, not on legacy list"() {
         given:
-        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
-        syncUpdate(getTransient("AS250") + "override: denis,override1")
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+            syncUpdate(getTransient("AS250") + "override: denis,override1")
 
         expect:
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
@@ -3368,17 +3274,15 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
+            ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
+                    ["\"status:\" attribute cannot be removed"]
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
-        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
-                ["\"status:\" attribute cannot be removed"]
-
-        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
     
@@ -3610,16 +3514,14 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
     
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add ASSIGNED, RS pw, not on legacy list"() {
         given:
-        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
 
         expect:
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS251
                 as-name:        End-User-1
                 descr:          new description
@@ -3639,33 +3541,29 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
-
-        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
     
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add LEGACY, RS pw, not on legacy list"() {
         given:
-        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
 
         expect:
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS251
                 as-name:        End-User-1
                 descr:          description
@@ -3685,35 +3583,31 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
+            ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
+                    ["Supplied attribute 'status' has been replaced with a generated value"]
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
-        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
-
-        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
     
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add OTHER, RS pw, not on legacy list"() {
         given:
-        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
 
         expect:
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
-        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS251
                 as-name:        End-User-1
                 descr:          description
@@ -3733,20 +3627,18 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
+            ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
+                    ["Supplied attribute 'status' has been replaced with a generated value"]
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
-        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
-                ["Supplied attribute 'status' has been replaced with a generated value"]
-
-        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
     
