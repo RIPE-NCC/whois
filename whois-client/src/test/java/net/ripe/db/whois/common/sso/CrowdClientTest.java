@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotAuthorizedException;
@@ -50,7 +51,7 @@ public class CrowdClientTest {
         when(webTarget.request()).thenReturn(builder);
 
         subject = new CrowdClient("http://testurl", "crowduser", "crowdpassword");
-        subject.setClient(client);
+        ReflectionTestUtils.setField(client, "subject", client);
     }
 
     @Test

@@ -56,19 +56,11 @@ public class MessageDequeue implements ApplicationService {
     private ExecutorService handlerExecutor;
     private ScheduledExecutorService pollerExecutor;
 
+    @Value("${mail.update.threads}")
     private int nrThreads;
 
-    @Value("${mail.update.threads}")
-    void setNrThreads(final int nrThreads) {
-        this.nrThreads = nrThreads;
-    }
-
-    private int intervalMs;
-
     @Value("${mail.dequeue.interval}")
-    public void setIntervalMs(final int intervalMs) {
-        this.intervalMs = intervalMs;
-    }
+    private int intervalMs;
 
     @Autowired
     public MessageDequeue(final MaintenanceMode maintenanceMode,
@@ -90,6 +82,7 @@ public class MessageDequeue implements ApplicationService {
         this.loggerContext = loggerContext;
         this.dateTimeProvider = dateTimeProvider;
     }
+
 
     @Override
     public void start() {

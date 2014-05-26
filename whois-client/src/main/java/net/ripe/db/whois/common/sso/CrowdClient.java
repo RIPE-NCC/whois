@@ -44,14 +44,6 @@ public class CrowdClient {
         client.property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT);
     }
 
-    public void setRestUrl(final String url) {
-        this.restUrl = url;
-    }
-
-    void setClient(final Client client) {
-        this.client = client;
-    }
-
     public String login(final String username, final String password) throws CrowdClientException {
         final CrowdAuthenticationContext crowdAuth = new CrowdAuthenticationContext(username, password);
 
