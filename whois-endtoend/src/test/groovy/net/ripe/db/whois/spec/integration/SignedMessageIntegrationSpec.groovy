@@ -4,9 +4,15 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.joda.time.LocalDateTime
+import org.springframework.test.util.ReflectionTestUtils
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
+
+    private void clearPowerMaintainers() {
+        def authenticator = getApplicationContext().getBean(net.ripe.db.whois.update.authentication.Authenticator.class);
+        ReflectionTestUtils.setField(authenticator, "principalsMap", Collections.emptyMap());
+    }
 
   @Override
   Map<String, String> getFixtures() {
@@ -3139,12 +3145,12 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       owner
              """.stripIndent())
-    then:
+
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: owner")
-    then:
+
       syncUpdate new SyncUpdate(data:
               getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
@@ -3541,6 +3547,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: hm")
+
+      clearPowerMaintainers();
+
     then:
       def message = send "From: inetnum@ripe.net\n" +
               "Content-Type: multipart/signed; boundary=\"Apple-Mail=_02EDC824-733F-459F-93D6-8E066E37EFC8\"; " +
