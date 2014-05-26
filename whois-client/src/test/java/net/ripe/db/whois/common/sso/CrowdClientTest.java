@@ -51,7 +51,7 @@ public class CrowdClientTest {
         when(webTarget.request()).thenReturn(builder);
 
         subject = new CrowdClient("http://testurl", "crowduser", "crowdpassword");
-        ReflectionTestUtils.setField(client, "subject", client);
+        ReflectionTestUtils.setField(subject, "client", client);
     }
 
     @Test
