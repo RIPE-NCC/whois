@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -137,7 +138,7 @@ public class CrowdServerDummy implements Stub {
 
         final String restUrl = String.format("http://localhost:%s/crowd", getPort());
         LOGGER.info("Crowd dummy server restUrl: "+restUrl);
-        crowdClient.setRestUrl(restUrl);
+        ReflectionTestUtils.setField(crowdClient, "restUrl", restUrl);
     }
 
     @PreDestroy

@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
@@ -55,8 +56,8 @@ public class MessageDequeueTest {
 
     @Before
     public void setUp() throws Exception {
-        subject.setNrThreads(1);
-        subject.setIntervalMs(1);
+        ReflectionTestUtils.setField(subject, "nrThreads", 1);
+        ReflectionTestUtils.setField(subject, "intervalMs", 1);
         when(maintenanceMode.allowUpdate()).thenReturn(true);
     }
 
