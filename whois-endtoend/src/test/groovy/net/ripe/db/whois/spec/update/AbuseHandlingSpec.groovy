@@ -370,9 +370,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c:")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 organisation: ORG-LIR2-TEST
                 org-type:     LIR
                 org-name:     Local Internet Registry
@@ -392,8 +390,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
@@ -414,9 +410,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c:")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 organisation: ORG-LIR2-TEST
                 org-type:     LIR
                 org-name:     Local Internet Registry
@@ -435,8 +429,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -455,9 +447,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c:")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 organisation: ORG-LIR2-TEST
                 org-type:     LIR
                 org-name:     Local Internet Registry
@@ -476,8 +466,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1097,9 +1085,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c:")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 organisation: ORG-LIR2-TEST
                 org-type:     LIR
                 org-name:     Local Internet Registry
@@ -1119,8 +1105,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1139,9 +1123,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c:")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 organisation: ORG-LIR2-TEST
                 org-type:     LIR
                 org-name:     Local Internet Registry
@@ -1161,8 +1143,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1181,9 +1161,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         query_object_matches("-r -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "abuse-c:")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+         def ack = syncUpdateWithResponse("""
                 organisation: ORG-LIRA-TEST
                 org-type:     LIR
                 org-name:     Local Internet Registry Abuse
@@ -1204,8 +1182,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1478,9 +1454,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "AH1-TEST")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 organisation: ORG-LIR2-TEST
                 org-type:     LIR
                 org-name:     Local Internet Registry
@@ -1500,8 +1474,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -2221,9 +2193,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         query_object_matches("-r -T role AH1-TEST", "role", "Abuse Handler", "abuse-mailbox:")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 organisation: auto-1
                 org-type:     RIR
                 org-name:     Create Regional Registry
@@ -2242,8 +2212,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)

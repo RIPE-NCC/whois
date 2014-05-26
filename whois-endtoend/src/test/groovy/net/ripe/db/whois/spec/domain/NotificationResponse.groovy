@@ -2,7 +2,7 @@ package net.ripe.db.whois.spec.domain
 
 import javax.mail.internet.MimeMessage
 
-class NotificationResponse extends Response {
+class NotificationResponse extends BasicResponse {
 
     NotificationResponse(MimeMessage mimeMessage) {
         this.subject = mimeMessage.subject

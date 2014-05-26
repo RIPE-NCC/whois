@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-class DomainAuthentication extends AuthenticationStrategyBase {
+public class DomainAuthentication extends AuthenticationStrategyBase {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final RpslObjectDao objectDao;
