@@ -35,19 +35,11 @@ public class ResponseFactory {
     private final VelocityEngine velocityEngine;
     private final DateTimeProvider dateTimeProvider;
 
+    @Value("${application.version}")
     private String version;
 
-    @Value("${application.version}")
-    public void setVersion(final String version) {
-        this.version = version;
-    }
-
-    private String source;
-
     @Value("${whois.source}")
-    public void setSource(final String source) {
-        this.source = source;
-    }
+    private String source;
 
     @Autowired
     public ResponseFactory(final DateTimeProvider dateTimeProvider) {

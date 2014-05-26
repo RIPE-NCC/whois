@@ -1,29 +1,24 @@
 package net.ripe.db.whois.update.dao;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
-public class LanguageCodeRepositoryTest {
+public class LanguageCodeRepositoryTest extends AbstractUpdateDaoTest {
 
-    @InjectMocks
+    @Autowired
     private LanguageCodeRepository subject;
-
-    @Before
-    public void setUp() throws Exception {
-        subject.setLanguageCodes(new String[]{"az", "bm"});
-    }
 
     @Test
     public void getLanguageCodes() {
-        assertThat(subject.getLanguageCodes(), containsInAnyOrder(ciString("az"), ciString("bm")));
+        assertThat(subject.getLanguageCodes(), notNullValue());
+        assertThat(subject.getLanguageCodes(), hasSize(183));
     }
 
     @Test(expected = UnsupportedOperationException.class)
