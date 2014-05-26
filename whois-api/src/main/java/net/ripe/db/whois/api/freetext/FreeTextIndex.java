@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.freetext;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.search.IndexTemplate;
@@ -25,7 +24,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,8 +47,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.collect.Lists.*;
-import static org.slf4j.LoggerFactory.*;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
+import static org.slf4j.LoggerFactory.getLogger;
 
 // TODO: instead of relying on scattered 'if (StringUtils.isBlank(indexDir) {...}', we should use profiles/...
 @Component
@@ -115,7 +114,7 @@ public class FreeTextIndex extends RebuildableIndex {
     public void init() {
         if (StringUtils.isBlank(indexDir)) return;
         super.init(new IndexWriterConfig(Version.LUCENE_44, INDEX_ANALYZER)
-                .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
+                        .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
                 new IndexTemplate.WriteCallback() {
                     @Override
                     public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
@@ -138,7 +137,8 @@ public class FreeTextIndex extends RebuildableIndex {
                             }
                         }
                     }
-                });
+                }
+        );
     }
 
     @PreDestroy
@@ -159,9 +159,9 @@ public class FreeTextIndex extends RebuildableIndex {
                 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
         JdbcStreamingHelper.executeStreaming(jdbcTemplate, "" +
-                "SELECT object_id, object " +
-                "FROM last " +
-                "WHERE sequence_id != 0 ",
+                        "SELECT object_id, object " +
+                        "FROM last " +
+                        "WHERE sequence_id != 0 ",
                 new ResultSetExtractor<Void>() {
                     private static final int LOG_EVERY = 500000;
 
@@ -180,7 +180,8 @@ public class FreeTextIndex extends RebuildableIndex {
                         LOGGER.info("Indexed {} objects", nrIndexed);
                         return null;
                     }
-                });
+                }
+        );
 
         executorService.shutdown();
         try {
@@ -213,7 +214,7 @@ public class FreeTextIndex extends RebuildableIndex {
             for (int serial = last + 1; serial <= end; serial++) {
                 final SerialEntry serialEntry = JdbcRpslObjectOperations.getSerialEntry(jdbcTemplate, serial);
                 if (serialEntry == null) {
-                    // TODO: [AH] suboptimal; there could be big gaps in serial entries. we should have a getNextId() call instead, SELECT()ing on serial_id > serial
+                    // suboptimal;there could be big gaps in serial entries.
                     continue;
                 }
                 final RpslObject rpslObject = serialEntry.getRpslObject();
@@ -242,7 +243,7 @@ public class FreeTextIndex extends RebuildableIndex {
         indexWriter.setCommitData(metadata);
     }
 
-    final private void addEntry(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter, final RpslObject rpslObject) throws IOException {
+    private void addEntry(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter, final RpslObject rpslObject) throws IOException {
         final Document document = new Document();
         document.add(new Field(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId()), INDEXED_NOT_TOKENIZED));
         document.add(new Field(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName(), INDEXED_AND_TOKENIZED));

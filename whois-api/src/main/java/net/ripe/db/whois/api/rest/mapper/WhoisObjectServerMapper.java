@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
+import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
@@ -36,12 +37,13 @@ public class WhoisObjectServerMapper {
         return whoisVersions;
     }
 
-    public WhoisObject map(final RpslObject rpslObject, final List<TagResponseObject> tags, Class<?> mapFunction) {
+    public WhoisObject map(final RpslObject rpslObject, final TagResponseObject tagResponseObject, Class<?> mapFunction) {
         final WhoisObject object = whoisObjectMapper.map(rpslObject, mapFunction);
 
-        if (!tags.isEmpty()) {
+        if (tagResponseObject != null && !tagResponseObject.getTags().isEmpty()) {
+            final List<Tag> tags = tagResponseObject.getTags();
             final List<WhoisTag> whoisTags = Lists.newArrayListWithExpectedSize(tags.size());
-            for (final TagResponseObject tag : tags) {
+            for (final Tag tag : tags) {
                 whoisTags.add(new WhoisTag(tag.getType().toString(), tag.getValue()));
             }
             object.setTags(whoisTags);

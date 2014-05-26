@@ -13,8 +13,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
@@ -22,9 +20,6 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 @XmlRootElement(name = "errormessage")
 @JsonInclude(NON_EMPTY)
 public class ErrorMessage implements Comparable<ErrorMessage> {
-    private static final Pattern BEGINNING_OF_QUERY_ERROR_MESSAGES = Pattern.compile("^(%+)(?:ERROR|WARNING):");
-    private static final Pattern BEGINNING_OF_LINE_PERCENT_SIGNS = Pattern.compile("(?m)^%+ *");
-
     @XmlAttribute(required = true)
     private String severity;          // TODO: severity should be enum
     @XmlElement
@@ -34,7 +29,7 @@ public class ErrorMessage implements Comparable<ErrorMessage> {
     @XmlElement
     private List<Arg> args;
 
-    public ErrorMessage(String severity, Attribute attribute, String text, List<Arg> args) {
+    ErrorMessage(String severity, Attribute attribute, String text, List<Arg> args) {
         this.severity = severity;
         this.attribute = attribute;
         this.text = text;
@@ -49,13 +44,6 @@ public class ErrorMessage implements Comparable<ErrorMessage> {
         for (Object arg : message.getArgs()) {
             this.args.add(new Arg(arg.toString()));
         }
-
-        // TODO: instead of removing extra %/%% signs, we should make QueryMessages structured and add it where necessary
-        Matcher matcher = BEGINNING_OF_QUERY_ERROR_MESSAGES.matcher(text);
-        if (matcher.find()) {
-            text = text.substring(matcher.group(1).length());
-        }
-        text = BEGINNING_OF_LINE_PERCENT_SIGNS.matcher(text).replaceAll("");
     }
 
     public ErrorMessage(Message message, RpslAttribute attribute) {

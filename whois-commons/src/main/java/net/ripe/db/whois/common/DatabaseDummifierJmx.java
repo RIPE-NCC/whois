@@ -1,5 +1,7 @@
 package net.ripe.db.whois.common;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
@@ -31,6 +33,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -41,9 +44,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * in jmxterm, run with:
  *      run dummify jdbc:mysql://<host>/<db> <user> <pass>
+ *
+ * in console, run with
+ *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbc-url jdbc:mysql://localhost/BLAH --user XXX --pass XXX
+ *
  */
 public class DatabaseDummifierJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseDummifierJmx.class);
+
+    private static final String ARG_JDBCURL = "jdbc-url";
+    private static final String ARG_USER = "user";
+    private static final String ARG_PASS = "pass";
 
     private static TransactionTemplate transactionTemplate;
     private static JdbcTemplate jdbcTemplate;
@@ -64,33 +75,38 @@ public class DatabaseDummifierJmx extends JmxBase {
             @ManagedOperationParameter(name = "pass", description = "jdbc password")
     })
     public String dummify(final String jdbcUrl, final String user, final String pass) {
-        validateJdbcUrl(user, pass);
-        final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
-        final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
-        jdbcTemplate = new JdbcTemplate(dataSource);
+        return invokeOperation("Load dump", null, new Callable<String>() {
+            @Override
+            public String call() {
+                validateJdbcUrl(user, pass);
+                final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
+                final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
+                jdbcTemplate = new JdbcTemplate(dataSource);
 
-        final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
-        transactionTemplate = new TransactionTemplate(transactionManager);
-        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+                final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+                transactionTemplate = new TransactionTemplate(transactionManager);
+                transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 
-        // sadly Executors don't offer a bounded/blocking submit() implementation
-        int numThreads = Runtime.getRuntime().availableProcessors();
-        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
-        final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
-                0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+                // sadly Executors don't offer a bounded/blocking submit() implementation
+                int numThreads = Runtime.getRuntime().availableProcessors();
+                final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
+                final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
+                        0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
-        LOGGER.info("Started " + numThreads + " threads");
+                LOGGER.info("Started " + numThreads + " threads");
 
-        addWork("last", jdbcTemplate, executorService);
-        addWork("history", jdbcTemplate, executorService);
+                addWork("last", jdbcTemplate, executorService);
+                addWork("history", jdbcTemplate, executorService);
 
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(1, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            LOGGER.error("shutdown", e);
-        }
-        return "Database dummified";
+                executorService.shutdown();
+                try {
+                    executorService.awaitTermination(1, TimeUnit.DAYS);
+                } catch (InterruptedException e) {
+                    LOGGER.error("shutdown", e);
+                }
+                return "Database dummified";
+            }
+        });
     }
 
     private void validateJdbcUrl(final String user, final String password) {
@@ -189,5 +205,21 @@ public class DatabaseDummifierJmx extends JmxBase {
             }
             return false;
         }
+    }
+
+    private static OptionParser setupOptionParser() {
+        final OptionParser parser = new OptionParser();
+        parser.accepts(ARG_JDBCURL).withRequiredArg().required();
+        parser.accepts(ARG_USER).withRequiredArg().required();
+        parser.accepts(ARG_PASS).withRequiredArg().required();
+        return parser;
+    }
+
+    public static void main(String[] argv) {
+        final OptionSet options = setupOptionParser().parse(argv);
+        String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
+        String user = options.valueOf(ARG_USER).toString();
+        String pass = options.valueOf(ARG_PASS).toString();
+        new DatabaseDummifierJmx().dummify(jdbcUrl, user, pass);
     }
 }
