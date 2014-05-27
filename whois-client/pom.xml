@@ -72,6 +72,10 @@
             <artifactId>diffutils</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
         <!-- Jersey JAX-RS 2.0 implementation -->
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
