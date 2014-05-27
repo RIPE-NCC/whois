@@ -1,5 +1,3 @@
-USE INTERNALS_RIPE;
-
 DROP TABLE IF EXISTS `legacy_autnums`;
 CREATE TABLE `legacy_autnums` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
