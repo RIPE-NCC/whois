@@ -105,6 +105,7 @@ AT          { return ExportParser.KEYW_AT; }
 PROTOCOL    { return ExportParser.KEYW_PROTOCOL; }
 INTO        { return ExportParser.KEYW_INTO; }
 REFINE      { return ExportParser.KEYW_REFINE; }
+EXCEPT      { return ExportParser.KEYW_EXCEPT; }
 ANNOUNCE    { return ExportParser.KEYW_ANNOUNCE; }
 
 BGP4|OSPF|RIP|IGRP|IS-IS|STATIC|RIPng|PIM-DM|PIM-SM|CBT|MOSPF {

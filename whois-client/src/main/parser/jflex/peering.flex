@@ -59,6 +59,7 @@ ASNO           = AS([0-9]|[1-9][0-9]{1,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0
 
 OR    { return PeeringParser.OP_OR; }
 AND   { return PeeringParser.OP_AND; }
+NOT   { return PeeringParser.OP_NOT; }
 
 AT          { return PeeringParser.KEYW_AT; }
 EXCEPT      { return PeeringParser.KEYW_EXCEPT; }

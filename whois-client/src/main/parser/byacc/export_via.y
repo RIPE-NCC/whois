@@ -106,6 +106,7 @@ as_expr: as_expr OP_OR as_expr_term
 
 as_expr_term: as_expr_term OP_AND as_expr_factor
 | as_expr_term KEYW_EXCEPT as_expr_factor
+| as_expr_term OP_AND OP_NOT as_expr_factor
 | as_expr_factor
 ;
 

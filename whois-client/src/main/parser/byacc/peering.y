@@ -16,7 +16,7 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
 */
 %}
 
-%token OP_OR OP_AND
+%token OP_OR OP_AND OP_NOT
 %token TKN_ASNO TKN_ASNAME
 %token TKN_IPV4 TKN_DNS TKN_RTRSNAME TKN_PRNGNAME
 %token KEYW_EXCEPT
@@ -37,6 +37,7 @@ as_expr: as_expr OP_OR as_expr_term
 
 as_expr_term: as_expr_term OP_AND as_expr_factor
 | as_expr_term KEYW_EXCEPT as_expr_factor
+| as_expr_term OP_AND OP_NOT as_expr_factor
 | as_expr_factor
 ;
 
@@ -62,6 +63,7 @@ router_expr: router_expr OP_OR router_expr_term
 
 router_expr_term: router_expr_term OP_AND router_expr_factor
 | router_expr_term KEYW_EXCEPT router_expr_factor
+| router_expr_term OP_AND OP_NOT router_expr_factor
 | router_expr_factor
 ;
 

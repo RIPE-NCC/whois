@@ -56,6 +56,7 @@ ASNO           = AS([0-9]|[1-9][0-9]{1,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0
 
 OR    { return MpPeeringParser.OP_OR; }
 AND   { return MpPeeringParser.OP_AND; }
+NOT   { return MpPeeringParser.OP_NOT; }
 
 AT          { return MpPeeringParser.KEYW_AT; }
 EXCEPT      { return MpPeeringParser.KEYW_EXCEPT; }
