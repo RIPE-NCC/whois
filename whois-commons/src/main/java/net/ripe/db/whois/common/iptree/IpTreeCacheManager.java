@@ -4,13 +4,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.serials.Operation;
+import net.ripe.db.whois.common.etree.IntersectingIntervalException;
+import net.ripe.db.whois.common.etree.IntervalMap;
+import net.ripe.db.whois.common.etree.MultiValueIntervalMap;
+import net.ripe.db.whois.common.etree.NestedIntervalMap;
+import net.ripe.db.whois.common.etree.SynchronizedIntervalMap;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.rpsl.attrs.Domain;
-import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.common.etree.*;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
@@ -28,7 +32,11 @@ import java.util.concurrent.Semaphore;
 
 import static net.ripe.db.whois.common.domain.serials.Operation.UPDATE;
 import static net.ripe.db.whois.common.domain.serials.Operation.getByCode;
-import static net.ripe.db.whois.common.rpsl.ObjectType.*;
+import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE;
+import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
 
 @Component
 public class IpTreeCacheManager {
@@ -80,10 +88,12 @@ public class IpTreeCacheManager {
 
         volatile long lastSerial = Long.MIN_VALUE;
 
-        void update(final Iterable<IpTreeUpdate> updates, final long lastSerial) {
+        void update(final Iterable<IpTreeUpdate> updates, final long lastSerial, final CacheEntry cacheEntry) {
             for (final IpTreeUpdate ipTreeUpdate : updates) {
                 try {
                     update(ipTreeUpdate);
+                } catch (IntersectingIntervalException e) {
+                    LOGGER.warn("Skipping intersecting entry in " + cacheEntry.sourceConfiguration.getSource() + ": " + e.getMessage());
                 } catch (RuntimeException e) {
                     LOGGER.warn("Unable to update object {}: {}", ipTreeUpdate, e.getMessage());
                 }
@@ -129,13 +139,9 @@ public class IpTreeCacheManager {
         <K extends Interval<K>, V extends IpEntry<K>> void update(final IntervalMap<K, V> intervalMap, final V ipEntry, final Operation operation) {
             switch (operation) {
                 case UPDATE:
-                    try {
-                        intervalMap.put(ipEntry.getKey(), ipEntry);
-                    } catch (IntersectingIntervalException e) {
-                        LOGGER.warn("Skipping intersecting entry {}, should be cleaned up in database ({})", ipEntry, e.getMessage());
-                    }
-
+                    intervalMap.put(ipEntry.getKey(), ipEntry);
                     break;
+
                 case DELETE:
                     intervalMap.remove(ipEntry.getKey(), ipEntry);
             }
@@ -208,14 +214,14 @@ public class IpTreeCacheManager {
             rebuild(jdbcTemplate, cacheEntry);
         } else {
             final List<IpTreeUpdate> ipTreeUpdates = jdbcTemplate.query("" +
-                    "SELECT last.object_type, last.pkey, last.object_id, serials.operation " +
-                    "FROM serials " +
-                    "LEFT JOIN last ON last.object_id = serials.object_id " +
-                    "WHERE serials.serial_id > ? " +
-                    "AND serials.serial_id <= ? " +
-                    "AND last.object_type in (?, ?, ?, ?, ?) " +
-                    "AND ((serials.operation = 1 AND serials.sequence_id = 1) OR serials.operation = 2) " +
-                    "ORDER BY serials.serial_id ASC",
+                            "SELECT last.object_type, last.pkey, last.object_id, serials.operation " +
+                            "FROM serials " +
+                            "LEFT JOIN last ON last.object_id = serials.object_id " +
+                            "WHERE serials.serial_id > ? " +
+                            "AND serials.serial_id <= ? " +
+                            "AND last.object_type in (?, ?, ?, ?, ?) " +
+                            "AND ((serials.operation = 1 AND serials.sequence_id = 1) OR serials.operation = 2) " +
+                            "ORDER BY serials.serial_id ASC",
                     new RowMapper<IpTreeUpdate>() {
                         @Override
                         public IpTreeUpdate mapRow(final ResultSet rs, final int rowNum) throws SQLException {
@@ -232,9 +238,10 @@ public class IpTreeCacheManager {
                     ObjectTypeIds.getId(INET6NUM),
                     ObjectTypeIds.getId(ObjectType.ROUTE),
                     ObjectTypeIds.getId(ROUTE6),
-                    ObjectTypeIds.getId(DOMAIN));
+                    ObjectTypeIds.getId(DOMAIN)
+            );
 
-            cacheEntry.nestedIntervalMaps.update(ipTreeUpdates, toInclusive);
+            cacheEntry.nestedIntervalMaps.update(ipTreeUpdates, toInclusive, cacheEntry);
         }
     }
 
@@ -272,8 +279,8 @@ public class IpTreeCacheManager {
 
         final List<IpTreeUpdate> ipTreeUpdates = Lists.newArrayList();
         ipTreeUpdates.addAll(jdbcTemplate.query("" +
-                "SELECT begin_in, end_in, object_id " +
-                "FROM inetnum ",
+                        "SELECT begin_in, end_in, object_id " +
+                        "FROM inetnum ",
                 new RowMapper<IpTreeUpdate>() {
                     @Override
                     public IpTreeUpdate mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -282,11 +289,12 @@ public class IpTreeCacheManager {
                                 rs.getInt(3),
                                 UPDATE);
                     }
-                }));
+                }
+        ));
 
         ipTreeUpdates.addAll(jdbcTemplate.query("" +
-                "SELECT i6_msb, i6_lsb, prefix_length, object_id " +
-                "FROM inet6num ",
+                        "SELECT i6_msb, i6_lsb, prefix_length, object_id " +
+                        "FROM inet6num ",
                 new RowMapper<IpTreeUpdate>() {
                     @Override
                     public IpTreeUpdate mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -295,11 +303,12 @@ public class IpTreeCacheManager {
                                 rs.getInt(4),
                                 UPDATE);
                     }
-                }));
+                }
+        ));
 
         ipTreeUpdates.addAll(jdbcTemplate.query("" +
-                "SELECT prefix, prefix_length, origin, object_id " +
-                "FROM route ",
+                        "SELECT prefix, prefix_length, origin, object_id " +
+                        "FROM route ",
                 new RowMapper<IpTreeUpdate>() {
                     @Override
                     public IpTreeUpdate mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -308,11 +317,12 @@ public class IpTreeCacheManager {
                                 rs.getInt(4),
                                 UPDATE);
                     }
-                }));
+                }
+        ));
 
         ipTreeUpdates.addAll(jdbcTemplate.query("" +
-                "SELECT r6_msb, r6_lsb, prefix_length, object_id, origin " +
-                "FROM route6 ",
+                        "SELECT r6_msb, r6_lsb, prefix_length, object_id, origin " +
+                        "FROM route6 ",
                 new RowMapper<IpTreeUpdate>() {
                     @Override
                     public IpTreeUpdate mapRow(final ResultSet rs, final int rowNum) throws SQLException {
@@ -322,11 +332,12 @@ public class IpTreeCacheManager {
                                 rs.getInt(4),
                                 UPDATE);
                     }
-                }));
+                }
+        ));
 
         ipTreeUpdates.addAll(jdbcTemplate.query("" +
-                "SELECT domain, object_id " +
-                "FROM domain ",
+                        "SELECT domain, object_id " +
+                        "FROM domain ",
                 new RowMapper<IpTreeUpdate>() {
                     @Override
                     public IpTreeUpdate mapRow(final ResultSet rs, final int rowNum) throws SQLException {
@@ -335,9 +346,10 @@ public class IpTreeCacheManager {
                                 rs.getInt(2),
                                 UPDATE);
                     }
-                }));
+                }
+        ));
 
-        nestedIntervalMaps.update(ipTreeUpdates, toInclusive);
+        nestedIntervalMaps.update(ipTreeUpdates, toInclusive, cacheEntry);
 
         cacheEntry.nestedIntervalMaps = nestedIntervalMaps;
     }
