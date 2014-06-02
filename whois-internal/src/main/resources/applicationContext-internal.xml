@@ -20,8 +20,6 @@
             system-properties-mode="OVERRIDE"/>
 
 
-    <bean class="net.ripe.db.whois.api.rest.WhoisService"/>
-
     <task:annotation-driven scheduler="internalScheduler"/>
     <task:scheduler id="internalScheduler" pool-size="10"/>
 
