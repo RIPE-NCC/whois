@@ -1,7 +1,6 @@
 package net.ripe.db.whois.internal.api.rnd;
 
 import net.ripe.db.whois.api.rest.WhoisService;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,10 +13,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-
 @Component
-
-
+@Path("/rnd")
 public class VersionListService {
 
     private final WhoisService whoisService;
@@ -36,6 +33,8 @@ public class VersionListService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
 
-
+        return Response.ok("{hello: world}").build();
     }
+
+
 }
