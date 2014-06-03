@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
@@ -39,14 +40,14 @@ public class VersionListService {
     private final WhoisService whoisService;
     private final QueryHandler queryHandler;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
-    private final SourceContext sourceContext;
+    private final BasicSourceContext sourceContext;
 
     @Autowired
-    public VersionListService(final WhoisService whoisService, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectServerMapper, final SourceContext sourceContext) {
+    public VersionListService(final WhoisService whoisService, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectServerMapper, final BasicSourceContext basicSourceContext) {
         this.whoisService = whoisService;
         this.queryHandler = queryHandler;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
-        this.sourceContext = sourceContext;
+        this.sourceContext = basicSourceContext;
     }
 
     @GET
@@ -89,7 +90,10 @@ public class VersionListService {
 
     private void validSource(final HttpServletRequest request, final String source) {
         if (!sourceContext.getAllSourceNames().contains(CIString.ciString(source))) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source))).build());
+            throw new WebApplicationException(Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source)))
+                    .build());
         }
     }
 

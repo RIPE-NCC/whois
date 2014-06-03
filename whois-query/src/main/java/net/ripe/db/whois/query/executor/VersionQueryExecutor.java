@@ -14,6 +14,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
+import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.VersionDateTime;
@@ -44,10 +45,10 @@ public class VersionQueryExecutor implements QueryExecutor {
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
     private final VersionDao versionDao;
-    private final SourceContext sourceContext;
+    private final BasicSourceContext sourceContext;
 
     @Autowired
-    public VersionQueryExecutor(final SourceContext sourceContext, final VersionDao versionDao) {
+    public VersionQueryExecutor(final BasicSourceContext sourceContext, final VersionDao versionDao) {
         this.versionDao = versionDao;
         this.sourceContext = sourceContext;
     }

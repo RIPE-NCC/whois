@@ -1,108 +1,70 @@
 package net.ripe.db.whois.internal.api.source;
 
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.source.BasicSourceContext;
+import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.common.source.SourceContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+
+/**
+ * For the internal API, for the moment we keep it simple and only use the whois readonly slave
+ * Only use a subset of the complete SourceContext interface, add additional functionality when needed
+ * When full functionality needed replace BasicSourceContext with SourceContext
+ */
 @Component
-public class InternalSourceContext implements SourceContext {
+public class InternalSourceContext implements BasicSourceContext {
+
+    private final CIString mainSourceName;
+    private final Source mainSource;
+    private final SourceConfiguration mainSourceConfiguration;
+
+    @Autowired
+    public InternalSourceContext(@Value("${whois.source}") final String mainSourceNameString,
+                                 @Qualifier("whoisReadOnlySlaveDataSource") final DataSource mainDataSource) {
+        this.mainSourceName = ciString(mainSourceNameString);
+        this.mainSource = Source.slave(mainSourceName);
+        this.mainSourceConfiguration = new SourceConfiguration(mainSource, mainDataSource);
+    }
+
     @Override
     public Source getCurrentSource() {
-        return null;
-    }
-
-    @Override
-    public Set<CIString> getAllSourceNames() {
-        return null;
-    }
-
-    @Override
-    public Set<CIString> getGrsSourceNames() {
-        return null;
-    }
-
-    @Override
-    public Set<CIString> getAdditionalSourceNames() {
-        return null;
-    }
-
-    @Override
-    public SourceConfiguration getSourceConfiguration(Source source) {
-        return null;
-    }
-
-    @Override
-    public Collection<SourceConfiguration> getAllSourceConfigurations() {
-        return null;
-    }
-
-    @Override
-    public CIString getAlias(CIString source) {
-        return null;
-    }
-
-    @Override
-    public void setCurrentSourceToWhoisMaster() {
-
+        return mainSource;
     }
 
     @Override
     public SourceConfiguration getCurrentSourceConfiguration() {
-        return null;
+        return mainSourceConfiguration;
     }
 
     @Override
-    public Source getWhoisSlaveSource() {
-        return null;
+    public Set<CIString> getAllSourceNames() {
+        return Sets.newLinkedHashSet(Collections.singleton(mainSourceName));
     }
 
     @Override
-    public void setCurrent(Source source) {
-
+    public SourceConfiguration getSourceConfiguration(Source source) {
+        if (source.getName().equals(mainSourceName)) {
+            return mainSourceConfiguration;
+        } else {
+            throw new IllegalSourceException(source.getName());
+        }
     }
 
     @Override
-    public void removeCurrentSource() {
-
-    }
-
-    @Override
-    public void destroyDataSources() {
-
-    }
-
-    @Override
-    public boolean isAcl() {
-        return false;
-    }
-
-    @Override
-    public boolean isMain() {
-        return false;
-    }
-
-    @Override
-    public boolean isVirtual() {
-        return false;
-    }
-
-    @Override
-    public boolean isVirtual(CIString ciString) {
-        return false;
-    }
-
-    @Override
-    public boolean isDummificationRequired() {
-        return false;
-    }
-
-    @Override
-    public boolean isTagRoutes() {
-        return false;
+    public Collection<SourceConfiguration> getAllSourceConfigurations() {
+        return Collections.singleton(mainSourceConfiguration);
     }
 }

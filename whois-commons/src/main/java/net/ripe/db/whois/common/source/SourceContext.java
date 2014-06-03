@@ -5,19 +5,13 @@ import net.ripe.db.whois.common.domain.CIString;
 import java.util.Collection;
 import java.util.Set;
 
-public interface SourceContext {
-    Source getCurrentSource();
+public interface SourceContext extends BasicSourceContext {
 
-    Set<CIString> getAllSourceNames();
     Set<CIString> getGrsSourceNames();
     Set<CIString> getAdditionalSourceNames();
 
-    SourceConfiguration getSourceConfiguration(Source source);
-    Collection<SourceConfiguration> getAllSourceConfigurations();
-
     CIString getAlias(CIString source);
     void setCurrentSourceToWhoisMaster();
-    SourceConfiguration getCurrentSourceConfiguration();
     Source getWhoisSlaveSource();
 
     void setCurrent(Source source);
