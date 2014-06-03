@@ -611,6 +611,6 @@ public class Query {
     }
 
     public static enum Origin {
-        LEGACY, REST
+        LEGACY, REST, INTERNAL
     }
 }

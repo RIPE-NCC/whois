@@ -2,14 +2,17 @@ package net.ripe.db.whois.internal.api.rnd;
 
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.rest.ApiResponseHandler;
+import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.api.rest.WhoisRestService;
 import net.ripe.db.whois.api.rest.WhoisService;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
@@ -36,12 +39,14 @@ public class VersionListService {
     private final WhoisService whoisService;
     private final QueryHandler queryHandler;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
+    private final SourceContext sourceContext;
 
     @Autowired
-    public VersionListService(final WhoisService whoisService, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectServerMapper) {
+    public VersionListService(final WhoisService whoisService, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectServerMapper, final SourceContext sourceContext) {
         this.whoisService = whoisService;
         this.queryHandler = queryHandler;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
+        this.sourceContext = sourceContext;
     }
 
     @GET
@@ -54,13 +59,13 @@ public class VersionListService {
             @PathParam("key") final String key) {
 
 
-        validSource(source);
+        validSource(request, source);
 
-        WhoisRestService.QueryBuilder queryBuilder = new WhoisRestService.QueryBuilder()
+        final WhoisRestService.QueryBuilder queryBuilder = new WhoisRestService.QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addFlag(QueryFlag.LIST_VERSIONS);
 
-        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, whoisService.isTrusted(request));
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.INTERNAL, whoisService.isTrusted(request));
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
@@ -82,15 +87,17 @@ public class VersionListService {
         return Response.ok(whoisResources).build();
     }
 
-    private void validSource(final String source) {
-        //TODO sourcecontext won't work here, need to validate source in other ways.
+    private void validSource(final HttpServletRequest request, final String source) {
+        if (!sourceContext.getAllSourceNames().contains(CIString.ciString(source))) {
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source))).build());
+        }
     }
 
     private class VersionsResponseHandler extends ApiResponseHandler {
         private List<Message> errors;
 
         @Override
-        public void handle(ResponseObject responseObject) {
+        public void handle(final ResponseObject responseObject) {
 
         }
 
