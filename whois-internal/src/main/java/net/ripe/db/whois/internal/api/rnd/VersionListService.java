@@ -10,7 +10,9 @@ import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -41,13 +43,15 @@ public class VersionListService {
     private final QueryHandler queryHandler;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
     private final BasicSourceContext sourceContext;
+    private final IpRanges ipRanges;
 
     @Autowired
-    public VersionListService(final WhoisService whoisService, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectServerMapper, final BasicSourceContext basicSourceContext) {
+    public VersionListService(final WhoisService whoisService, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectServerMapper, final BasicSourceContext basicSourceContext, final IpRanges ipRanges) {
         this.whoisService = whoisService;
         this.queryHandler = queryHandler;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
         this.sourceContext = basicSourceContext;
+        this.ipRanges = ipRanges;
     }
 
     @GET
@@ -66,7 +70,7 @@ public class VersionListService {
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addFlag(QueryFlag.LIST_VERSIONS);
 
-        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.INTERNAL, whoisService.isTrusted(request));
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.INTERNAL, ipRanges.isTrusted(IpInterval.asIpInterval(InetAddresses.forString(request.getRemoteAddr()))));
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
