@@ -1,20 +1,20 @@
 package net.ripe.db.whois.query.domain;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.query.VersionDateTime;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class VersionResponseObject implements ResponseObject {
-    private final Operation operation;
-    private final Integer version;
+    private Operation operation;
+    private Integer version;
     private final VersionDateTime dateTime;
-    private final ObjectType type;
-    private final String key;
-    private final int versionPadding;
+    private ObjectType type;
+    private String key;
+    private int versionPadding;
 
     public VersionResponseObject(final int versionPadding, final Operation operation, final Integer version, final VersionDateTime dateTime, final ObjectType type, final String key) {
         this.versionPadding = versionPadding;
@@ -23,6 +23,10 @@ public class VersionResponseObject implements ResponseObject {
         this.dateTime = dateTime;
         this.type = type;
         this.key = key;
+    }
+
+    public VersionResponseObject(final VersionDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public Operation getOperation() {
