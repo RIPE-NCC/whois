@@ -2,18 +2,18 @@ package net.ripe.db.whois.internal.api.rnd;
 
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import java.sql.SQLException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 
 @Category(IntegrationTest.class)
@@ -26,14 +26,18 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
 
     @Test
     public void versionsReturnSomethingAtAll() {
+        updateDao.createObject(RpslObject.parse("" +
+                "aut-num: AS3333\n" +
+                "source: TEST"));
         try {
-            RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
+            DatabaseHelper.dumpSchema(whoisDataSource);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        final String result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
-        } catch (ClientErrorException e) {
-            final Response response = e.getResponse();
-            assertThat(response.getStatus(), is(404));
-            assertThat(response.readEntity(String.class), containsString("ERROR:101: no entries found"));
-        }
+        assertThat(result, notNullValue());
     }
 }
