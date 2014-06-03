@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectUpdateDao;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.junit.After;
 import org.junit.Before;
@@ -29,8 +30,10 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
     @Autowired protected TestDateTimeProvider testDateTimeProvider;
 
     @Autowired @Qualifier("aclDataSource") protected DataSource aclDataSource;
+    @Autowired @Qualifier("whoisReadOnlySlaveDataSource") protected DataSource whoisDataSource;
 
     @Autowired JettyBootstrap jettyBootstrap;
+    protected JdbcRpslObjectUpdateDao updateDao;
 
     protected DatabaseHelper databaseHelper;
 
@@ -44,6 +47,7 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
     public void setDatabaseHelper() {
         databaseHelper = new DatabaseHelper();      // TODO: [AH] DatabaseHelper is waaay overloaded, split into smaller parts so it can be used here easily, too
         databaseHelper.setAclDataSource(aclDataSource);
+        updateDao = new JdbcRpslObjectUpdateDao(whoisDataSource, new TestDateTimeProvider());
     }
 
     @After
