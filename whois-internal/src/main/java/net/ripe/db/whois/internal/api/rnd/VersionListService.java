@@ -1,7 +1,7 @@
 package net.ripe.db.whois.internal.api.rnd;
 
+import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.api.rest.ApiResponseHandler;
 import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.api.rest.WhoisRestService;
 import net.ripe.db.whois.api.rest.WhoisService;
@@ -9,14 +9,18 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.BasicSourceContext;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
+import net.ripe.db.whois.query.domain.MessageObject;
+import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
@@ -32,7 +36,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
+import java.net.InetAddress;
 import java.util.List;
 
 @Component
@@ -70,13 +74,14 @@ public class VersionListService {
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addFlag(QueryFlag.LIST_VERSIONS);
 
-        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.INTERNAL, ipRanges.isTrusted(IpInterval.asIpInterval(InetAddresses.forString(request.getRemoteAddr()))));
+        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.INTERNAL, ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress)));
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
-        queryHandler.streamResults(query, InetAddresses.forString(request.getRemoteAddr()), contextId, versionsResponseHandler);
+        queryHandler.streamResults(query, remoteAddress, contextId, versionsResponseHandler);
 
-        final List<VersionResponseObject> versions = versionsResponseHandler.getVersionObjects();
+        final List<VersionResponseObject> versions = versionsResponseHandler.getVersions();
 
         if (versions.isEmpty()) {
             throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors())).build());
@@ -101,21 +106,36 @@ public class VersionListService {
         }
     }
 
-    private class VersionsResponseHandler extends ApiResponseHandler {
-        private List<Message> errors;
+    private class VersionsResponseHandler implements ResponseHandler {
+        private List<Message> errors = Lists.newArrayList();
+        private List<VersionResponseObject> versions = Lists.newArrayList();
+
+        @Override
+        public String getApi() {
+            return "INTERNAL_API";
+        }
 
         @Override
         public void handle(final ResponseObject responseObject) {
-
+            if (responseObject instanceof VersionResponseObject) {
+                versions.add((VersionResponseObject)responseObject);
+            } else if (responseObject instanceof DeletedVersionResponseObject) {
+                DeletedVersionResponseObject deleted = ((DeletedVersionResponseObject)responseObject);
+                versions.add(new VersionResponseObject(deleted.getDeletedDate(), Operation.DELETE, deleted.getType(), deleted.getKey()));
+            } else if (responseObject instanceof MessageObject) {
+                final Message message = ((MessageObject) responseObject).getMessage();
+                if (message != null && Messages.Type.INFO != message.getType()) {
+                    errors.add(message);
+                }
+            }
         }
 
-        public List<VersionResponseObject> getVersionObjects() {
-            return Collections.EMPTY_LIST; //all (incl deleted)
+        public List<VersionResponseObject> getVersions() {
+            return versions;
         }
 
         public List<Message> getErrors() {
             return errors;
         }
     }
-
 }

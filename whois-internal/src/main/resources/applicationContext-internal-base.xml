@@ -8,7 +8,6 @@
                         http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:annotation-config/>
-    <!-- TODO: [AH] this component-scan package list is getting ugly and fragile -->
     <context:component-scan base-package="
                         net.ripe.db.whois.internal,
                         net.ripe.db.whois.api.httpserver,
