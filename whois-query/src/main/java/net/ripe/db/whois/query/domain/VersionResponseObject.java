@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class VersionResponseObject implements ResponseObject {
-    private Operation operation;
+    private final Operation operation;
     private Integer version;
     private final VersionDateTime dateTime;
-    private ObjectType type;
-    private String key;
+    private final ObjectType type;
+    private final String key;
     private int versionPadding;
 
     public VersionResponseObject(final int versionPadding, final Operation operation, final Integer version, final VersionDateTime dateTime, final ObjectType type, final String key) {
@@ -25,8 +25,11 @@ public class VersionResponseObject implements ResponseObject {
         this.key = key;
     }
 
-    public VersionResponseObject(final VersionDateTime dateTime) {
+    public VersionResponseObject(final VersionDateTime dateTime, final Operation operation, final ObjectType type, final String key) {
         this.dateTime = dateTime;
+        this.operation = operation;
+        this.type = type;
+        this.key = key;
     }
 
     public Operation getOperation() {
