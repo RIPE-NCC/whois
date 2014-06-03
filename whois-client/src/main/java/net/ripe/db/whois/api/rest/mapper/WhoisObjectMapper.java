@@ -72,7 +72,7 @@ public class WhoisObjectMapper {
         return whoisResources;
     }
 
-    public WhoisObject map(final RpslObject rpslObject, Class<?> mapFunction) {
+    public WhoisObject map(final RpslObject rpslObject, final Class<?> mapFunction) {
         final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
         final String type = rpslObject.getType().getName();
         final AttributeMapper attributeMapper = objectMapperFunctions.get(mapFunction);
