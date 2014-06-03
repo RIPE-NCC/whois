@@ -25,6 +25,7 @@ import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class VersionQueryExecutor implements QueryExecutor {
     private final BasicSourceContext sourceContext;
 
     @Autowired
-    public VersionQueryExecutor(final BasicSourceContext sourceContext, final VersionDao versionDao) {
+    public VersionQueryExecutor(final BasicSourceContext sourceContext,  @Qualifier("jdbcVersionDao") final VersionDao versionDao) {
         this.versionDao = versionDao;
         this.sourceContext = sourceContext;
     }
