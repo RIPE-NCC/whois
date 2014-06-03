@@ -13,6 +13,7 @@ import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -20,7 +21,7 @@ public class WhoisObjectServerMapper {
     private final WhoisObjectMapper whoisObjectMapper;
 
     @Autowired
-    public WhoisObjectServerMapper(WhoisObjectMapper whoisObjectMapper) {
+    public WhoisObjectServerMapper(final WhoisObjectMapper whoisObjectMapper) {
         this.whoisObjectMapper = whoisObjectMapper;
     }
 
@@ -37,7 +38,7 @@ public class WhoisObjectServerMapper {
         return whoisVersions;
     }
 
-    public WhoisObject map(final RpslObject rpslObject, final TagResponseObject tagResponseObject, Class<?> mapFunction) {
+    public WhoisObject map(final RpslObject rpslObject, final TagResponseObject tagResponseObject, final Class<?> mapFunction) {
         final WhoisObject object = whoisObjectMapper.map(rpslObject, mapFunction);
 
         if (tagResponseObject != null && !tagResponseObject.getTags().isEmpty()) {
@@ -49,5 +50,11 @@ public class WhoisObjectServerMapper {
             object.setTags(whoisTags);
         }
         return object;
+    }
+
+
+    public List<WhoisVersion> mapVersionsIncludingDeleted(final List<VersionResponseObject> versions) {
+        //TODO
+        return Collections.EMPTY_LIST;
     }
 }

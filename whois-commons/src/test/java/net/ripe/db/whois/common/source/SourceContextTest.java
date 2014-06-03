@@ -47,7 +47,7 @@ public class SourceContextTest {
     public void setUp() throws Exception {
         when(dataSourceFactory.createDataSource(anyString(), anyString(), anyString())).thenReturn(grsDataSource);
 
-        subject = new SourceContext(
+        subject = new DefaultSourceContext(
                 mainSourceNameString,
                 additionalSourceNames,
                 grsSourceNames,
@@ -112,7 +112,7 @@ public class SourceContextTest {
     public void invalidAdditionalSource() {
         final String invalidAdditionalSource = "INVALID";
         try {
-            new SourceContext(
+            new DefaultSourceContext(
                 mainSourceNameString,
                 invalidAdditionalSource,
                 grsSourceNames,
@@ -138,7 +138,7 @@ public class SourceContextTest {
     @Test
     public void noAdditionalSources() {
         final String noAdditionalSources = "";
-        subject = new SourceContext(
+        subject = new DefaultSourceContext(
             mainSourceNameString,
             noAdditionalSources,
             grsSourceNames,

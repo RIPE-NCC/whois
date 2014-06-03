@@ -24,7 +24,7 @@ public class Bootstrap implements DailyScheduledTask {
     private String[] dumpFileLocation;
 
     @Autowired
-    public Bootstrap(final Loader loader, SourceContext sourceContext) {
+    public Bootstrap(final Loader loader, final SourceContext sourceContext) {
         this.sourceContext = sourceContext;
         this.loader = loader;
     }

@@ -14,14 +14,20 @@
                         net.ripe.db.whois.api.httpserver,
                         net.ripe.db.whois.common.sso,
                         net.ripe.db.whois.api.rest.client,
-                        net.ripe.db.whois.api.rest.mapper">
+                        net.ripe.db.whois.api.rest.mapper,
+                        net.ripe.db.whois.query.acl,
+                        net.ripe.db.whois.query.dao.jdbc">
         <context:exclude-filter type="regex"
                                 expression="net.ripe.db.whois.api.rest.mapper.*ServerAttributeMapper.*"/>
     </context:component-scan>
 
     <bean class="net.ripe.db.whois.common.domain.IpRanges"/>
     <bean class="net.ripe.db.whois.common.domain.Maintainers"/>
+    <!--<bean class="net.ripe.db.whois.common.source.SourceAwareDataSource"/>-->
     <bean class="net.ripe.db.whois.api.rest.WhoisService"/>
+    <bean class="net.ripe.db.whois.query.handler.QueryHandler"/>
+    <bean class="net.ripe.db.whois.query.handler.WhoisLog"/>
+    <bean class="net.ripe.db.whois.query.executor.VersionQueryExecutor"/>
 
     <!--datasource bean definitions copied from applicationContext-common.xml-->
 
