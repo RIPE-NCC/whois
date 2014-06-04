@@ -70,7 +70,8 @@ public class VersionListService {
 
         validSource(request, source);
 
-        final WhoisRestService.QueryBuilder queryBuilder = new WhoisRestService.QueryBuilder()
+        final WhoisRestService.QueryBuilder queryBuilder = new WhoisRestService
+                .QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addFlag(QueryFlag.LIST_VERSIONS);
 
