@@ -10,10 +10,10 @@ import java.sql.SQLException;
 
 @Component
 public class SourceAwareDataSource extends AbstractDataSource {
-    private final SourceContext sourceContext;
+    private final BasicSourceContext sourceContext;
 
     @Autowired
-    public SourceAwareDataSource(final SourceContext sourceContext) {
+    public SourceAwareDataSource(final BasicSourceContext sourceContext) {
         this.sourceContext = sourceContext;
     }
 
