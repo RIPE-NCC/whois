@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
+import net.ripe.db.whois.api.rest.domain.WhoisVersionInternal;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -13,7 +14,6 @@ import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -52,9 +52,17 @@ public class WhoisObjectServerMapper {
         return object;
     }
 
+    public List<WhoisVersionInternal> mapVersionsIncludingDeleted(final List<VersionResponseObject> versions) {
+        final List<WhoisVersionInternal> whoisVersions = Lists.newArrayList();
+        for (int i = 0; i < versions.size(); i++) {
+            final VersionResponseObject from = versions.get(i);
+            VersionResponseObject to = null;
+            if (i + 1 < versions.size()) {
+                to = versions.get(i + 1);
+            }
 
-    public List<WhoisVersion> mapVersionsIncludingDeleted(final List<VersionResponseObject> versions) {
-        //TODO
-        return Collections.EMPTY_LIST;
+            whoisVersions.add(new WhoisVersionInternal(i + 1, from.getDateTime().toString(), to == null ? "" : to.getDateTime().toString(), from.getOperation() == Operation.UPDATE ? "ADD/UPD" : "DEL"));
+        }
+        return whoisVersions;
     }
 }
