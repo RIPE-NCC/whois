@@ -1,8 +1,8 @@
 package net.ripe.db.whois.common.dao;
 
-import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.query.VersionDateTime;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
@@ -16,7 +16,7 @@ public class VersionLookupResult {
 
     private final VersionDateTime lastDeletionTimestamp;
 
-    public VersionLookupResult(List<VersionInfo> daoLookupResults, ObjectType objectType, String pkey) {
+    public VersionLookupResult(final List<VersionInfo> daoLookupResults, final ObjectType objectType, final String pkey) {
         this.pkey = pkey;
         this.objectType = objectType;
 
@@ -32,7 +32,7 @@ public class VersionLookupResult {
         lastDeletionTimestamp = null;
     }
 
-    public int getVersionIdFor(RpslObjectUpdateInfo updateInfo) {
+    public int getVersionIdFor(final RpslObjectUpdateInfo updateInfo) {
         final int objectId = updateInfo.getObjectId();
         final int sequenceId = updateInfo.getSequenceId();
 

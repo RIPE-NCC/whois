@@ -47,7 +47,7 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
     public void setDatabaseHelper() {
         databaseHelper = new DatabaseHelper();      // TODO: [AH] DatabaseHelper is waaay overloaded, split into smaller parts so it can be used here easily, too
         databaseHelper.setAclDataSource(aclDataSource);
-        updateDao = new JdbcRpslObjectUpdateDao(whoisDataSource, new TestDateTimeProvider());
+        updateDao = new JdbcRpslObjectUpdateDao(whoisDataSource, testDateTimeProvider);
     }
 
     @After

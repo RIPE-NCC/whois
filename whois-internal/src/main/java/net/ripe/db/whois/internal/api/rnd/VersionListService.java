@@ -6,7 +6,7 @@ import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.api.rest.WhoisRestService;
 import net.ripe.db.whois.api.rest.WhoisService;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisVersions;
+import net.ripe.db.whois.api.rest.domain.WhoisVersionsInternal;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -88,7 +88,7 @@ public class VersionListService {
             throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors())).build());
         }
 
-        final WhoisVersions whoisVersions = new WhoisVersions("TYPE", key, whoisObjectServerMapper.mapVersionsIncludingDeleted(versions));
+        final WhoisVersionsInternal whoisVersions = new WhoisVersionsInternal(objectType, key, whoisObjectServerMapper.mapVersionsIncludingDeleted(versions));
 
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setVersions(whoisVersions);
