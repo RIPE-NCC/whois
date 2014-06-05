@@ -45,8 +45,8 @@ public class VersionQueryExecutor implements QueryExecutor {
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
-    private final VersionDao versionDao;
-    private final BasicSourceContext sourceContext;
+    protected final VersionDao versionDao;
+    protected final BasicSourceContext sourceContext;
 
     @Autowired
     public VersionQueryExecutor(final BasicSourceContext sourceContext,  @Qualifier("jdbcVersionDao") final VersionDao versionDao) {
@@ -74,7 +74,6 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private Iterable<? extends ResponseObject> decorate(final Query query, Iterable<? extends ResponseObject> responseObjects) {
-
         final Iterable<ResponseObject> objects = Iterables.transform(responseObjects, new Function<ResponseObject, ResponseObject>() {
             @Override
             public ResponseObject apply(final ResponseObject input) {
@@ -230,4 +229,5 @@ public class VersionQueryExecutor implements QueryExecutor {
         return FILTER_AUTH_FUNCTION.apply(
                 FILTER_EMAIL_FUNCTION.apply(rpslObject));
     }
+
 }

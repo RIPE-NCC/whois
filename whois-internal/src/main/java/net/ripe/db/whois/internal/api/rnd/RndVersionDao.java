@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -29,13 +30,12 @@ public class RndVersionDao implements VersionDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-
     @Override
     public RpslObject getRpslObject(VersionInfo info) {
         return null;
     }
 
-    @Override
+    @Override @Nullable
     public VersionLookupResult findByKey(ObjectType type, String searchKey) {
         final List<Integer> objectIds = jdbcTemplate.queryForList("" +
                         "SELECT object_id " +
