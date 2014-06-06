@@ -36,7 +36,7 @@ public class JdbcVersionDaoTest extends AbstractDaoTest {
     @Test
     public void noHistoryForObject() {
         VersionLookupResult result = subject.findByKey(ObjectType.AS_SET, "AS-TEST");
-        final List<VersionInfo> history = result.getVersionInfos();
+        final List<VersionInfo> history = result.getMostRecentlyCreatedVersions();
 
         assertThat(result.getObjectType(), is(ObjectType.AS_SET));
         assertThat(result.getPkey(), is("AS-TEST"));
@@ -60,7 +60,7 @@ public class JdbcVersionDaoTest extends AbstractDaoTest {
     @Test
     public void historyForDeletedObject() {
         VersionLookupResult result = subject.findByKey(ObjectType.DOMAIN, "test.sk");
-        final List<VersionInfo> history = result.getVersionInfos();
+        final List<VersionInfo> history = result.getMostRecentlyCreatedVersions();
 
         assertNotNull(history);
         assertThat(history, hasSize(0));
@@ -71,17 +71,17 @@ public class JdbcVersionDaoTest extends AbstractDaoTest {
         databaseHelper.updateObject("domain:test.sk\ndescr:description3\nsource:RIPE\n");
 
         VersionLookupResult rerun = subject.findByKey(ObjectType.DOMAIN, "test.sk");
-        final List<VersionInfo> recreated = rerun.getVersionInfos();
+        final List<VersionInfo> recreated = rerun.getMostRecentlyCreatedVersions();
         assertThat(recreated.size(), is(3));
-        for (int i = 0; i < recreated.size(); i++) {
-            assertThat(recreated.get(i).getOperation(), is(Operation.UPDATE));
+        for (VersionInfo aRecreated : recreated) {
+            assertThat(aRecreated.getOperation(), is(Operation.UPDATE));
         }
     }
 
     @Test
     public void longHistory() {
         VersionLookupResult result = subject.findByKey(ObjectType.AUT_NUM, "AS20507");
-        final List<VersionInfo> history = result.getVersionInfos();
+        final List<VersionInfo> history = result.getMostRecentlyCreatedVersions();
 
         assertNotNull(history);
         assertThat(history, hasSize(4));

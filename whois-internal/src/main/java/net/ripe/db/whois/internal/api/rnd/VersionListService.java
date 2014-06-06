@@ -17,6 +17,7 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
@@ -84,13 +85,14 @@ public class VersionListService {
         final List<VersionResponseObject> versions = versionsResponseHandler.getVersions();
 
         if (versions.isEmpty()) {
+            versionsResponseHandler.errors.add(new MessageObject(QueryMessages.noResults(source)).getMessage());
             throw new WebApplicationException(Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors()))
                     .build());
         }
 
-        final WhoisVersionsInternal whoisVersions = new WhoisVersionsInternal(objectType, key, whoisObjectServerMapper.mapVersionsIncludingDeleted(versions));
+        final WhoisVersionsInternal whoisVersions = new WhoisVersionsInternal(objectType, key, whoisObjectServerMapper.mapVersionsInternal(versions));
 
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setVersions(whoisVersions);
