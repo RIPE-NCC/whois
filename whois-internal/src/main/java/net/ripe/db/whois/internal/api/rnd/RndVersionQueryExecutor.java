@@ -39,10 +39,10 @@ public class RndVersionQueryExecutor extends VersionQueryExecutor {
 
     @Override
     // TODO [FRV]: There is going to be ton of code duplication here with the public version. Seperate this out and move to protected base class
-    public void execute(Query query, ResponseHandler responseHandler) {
+    public void execute(final Query query, final ResponseHandler responseHandler) {
         ObjectType objectType = query.getObjectTypes().iterator().next();   // internal REST API will allow only one object type
 
-        VersionLookupResult versionLookupResult = versionDao.findByKey(objectType, query.getSearchValue());
+        final VersionLookupResult versionLookupResult = versionDao.findByKey(objectType, query.getSearchValue());
 
         // transform the version lookup results in an array of ResponsObjects
         final List<ResponseObject> messages = Lists.newArrayList();
@@ -63,12 +63,12 @@ public class RndVersionQueryExecutor extends VersionQueryExecutor {
         }
     }
 
-    private Iterable<? extends ResponseObject> decorate(final Query query, Iterable<? extends ResponseObject> responseObjects) {
+    private Iterable<? extends ResponseObject> decorate(final Query query, final Iterable<? extends ResponseObject> responseObjects) {
         return Iterables.transform(responseObjects, new Function<ResponseObject, ResponseObject>() {
             @Override
-            public ResponseObject apply(ResponseObject input) {
+            public ResponseObject apply(final ResponseObject input) {
                 if (input instanceof RpslObject) {
-                    input = (new FilterEmailFunction()).apply((new FilterAuthFunction()).apply((RpslObject) input));
+                    return (new FilterEmailFunction()).apply((new FilterAuthFunction()).apply((RpslObject) input));
                     // TODO [FRV]: THis seems to be specific to get one responseobject version. Part of other story, remove for the moment
                     /*
                     if (query.isObjectVersion()) {
