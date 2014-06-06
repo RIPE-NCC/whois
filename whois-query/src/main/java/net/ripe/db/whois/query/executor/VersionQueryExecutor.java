@@ -15,7 +15,6 @@ import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.BasicSourceContext;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
@@ -113,7 +112,7 @@ public class VersionQueryExecutor implements QueryExecutor {
                 continue;
             }
 
-            final List<VersionInfo> versionInfos = versionLookupResult.getVersionInfos();
+            final List<VersionInfo> versionInfos = versionLookupResult.getMostRecentlyCreatedVersions();
             final VersionDateTime lastDeletionTimestamp = versionLookupResult.getLastDeletionTimestamp();
             if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
                 results.add(new MessageObject(QueryMessages.versionListStart(objectType.getName().toUpperCase(), searchKey)));
@@ -152,7 +151,7 @@ public class VersionQueryExecutor implements QueryExecutor {
             messages.add(new DeletedVersionResponseObject(lastDeletionTimestamp, objectType, pkey));
         }
 
-        final List<VersionInfo> versionInfos = res.getVersionInfos();
+        final List<VersionInfo> versionInfos = res.getMostRecentlyCreatedVersions();
         int versionPadding = getPadding(versionInfos);
 
         messages.add(new MessageObject(String.format("\n%-" + versionPadding + "s  %-16s  %-7s\n", VERSION_HEADER, DATE_HEADER, OPERATION_HEADER)));
@@ -168,7 +167,7 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private Iterable<? extends ResponseObject> getVersion(final VersionLookupResult res, final int version) {
-        final List<VersionInfo> versionInfos = res.getVersionInfos();
+        final List<VersionInfo> versionInfos = res.getMostRecentlyCreatedVersions();
         final VersionInfo info = versionInfos.get(version - 1);
         final RpslObject rpslObject = versionDao.getRpslObject(info);
 
@@ -183,7 +182,7 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private Iterable<? extends ResponseObject> getVersionDiffs(final VersionLookupResult res, final int[] versions) {
-        final List<VersionInfo> versionInfos = res.getVersionInfos();
+        final List<VersionInfo> versionInfos = res.getMostRecentlyCreatedVersions();
         final RpslObject firstObject = filter(versionDao.getRpslObject(versionInfos.get(versions[0] - 1)));
         final RpslObject secondObject = filter(versionDao.getRpslObject(versionInfos.get(versions[1] - 1)));
 

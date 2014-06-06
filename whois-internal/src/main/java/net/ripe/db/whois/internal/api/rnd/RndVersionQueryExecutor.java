@@ -38,23 +38,25 @@ public class RndVersionQueryExecutor extends VersionQueryExecutor {
         final ObjectType objectType = query.getObjectTypes().iterator().next();   // internal REST API will allow only one object type
         final VersionLookupResult versionLookupResult = versionDao.findByKey(objectType, query.getSearchValue());
 
-        ImmutableList<VersionResponseObject> versionResponseObjects = FluentIterable.from(versionLookupResult.getVersionInfos())
-                .transform(new Function<VersionInfo, VersionResponseObject>() {
-                    @Override
-                    @NotNull
-                    public VersionResponseObject apply(@NotNull VersionInfo input) {
-                        return new VersionResponseObject(input.getTimestamp(), input.getOperation(), objectType, versionLookupResult.getPkey());
-                    }
-                })
-                .toSortedList(new Comparator<VersionResponseObject>() {
-                    @Override
-                    public int compare(VersionResponseObject o1, VersionResponseObject o2) {
-                        return o1.getDateTime().compareTo(o2.getDateTime());
-                    }
-                });
+        if (versionLookupResult != null) {
+            ImmutableList<VersionResponseObject> versionResponseObjects = FluentIterable.from(versionLookupResult.getAllVersions())
+                    .transform(new Function<VersionInfo, VersionResponseObject>() {
+                        @Override
+                        @NotNull
+                        public VersionResponseObject apply(@NotNull VersionInfo input) {
+                            return new VersionResponseObject(input.getTimestamp(), input.getOperation(), objectType, versionLookupResult.getPkey());
+                        }
+                    })
+                    .toSortedList(new Comparator<VersionResponseObject>() {
+                        @Override
+                        public int compare(VersionResponseObject o1, VersionResponseObject o2) {
+                            return o1.getDateTime().compareTo(o2.getDateTime());
+                        }
+                    });
 
-        for (ResponseObject message : versionResponseObjects) {
-            responseHandler.handle(message);
+            for (ResponseObject message : versionResponseObjects) {
+                responseHandler.handle(message);
+            }
         }
     }
 }

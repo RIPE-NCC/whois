@@ -52,16 +52,21 @@ public class WhoisObjectServerMapper {
         return object;
     }
 
-    public List<WhoisVersionInternal> mapVersionsIncludingDeleted(final List<VersionResponseObject> versions) {
+    public List<WhoisVersionInternal> mapVersionsInternal(final List<VersionResponseObject> versions) {
         final List<WhoisVersionInternal> whoisVersions = Lists.newArrayList();
         for (int i = 0; i < versions.size(); i++) {
-            final VersionResponseObject from = versions.get(i);
-            VersionResponseObject to = null;
+            final VersionResponseObject currentVersion = versions.get(i);
+            VersionResponseObject nextVersion = null;
             if (i + 1 < versions.size()) {
-                to = versions.get(i + 1);
+                nextVersion = versions.get(i + 1);
             }
 
-            whoisVersions.add(new WhoisVersionInternal(i + 1, from.getDateTime().toString(), to == null ? "" : to.getDateTime().toString(), from.getOperation() == Operation.UPDATE ? "ADD/UPD" : "DEL"));
+            if (currentVersion.getOperation() != Operation.DELETE) {
+                whoisVersions.add(new WhoisVersionInternal(i + 1,
+                        currentVersion.getDateTime().toString(),
+                        nextVersion == null ? "" : nextVersion.getDateTime().toString(),
+                        currentVersion.getOperation().toString()));
+            }
         }
         return whoisVersions;
     }

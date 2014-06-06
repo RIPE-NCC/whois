@@ -70,7 +70,7 @@ public class RestoreRemovedAbuseCAttributes {
             }
 
             // check for abuse-c in previous versions of the object
-            for (VersionInfo version : Iterables.skip(Lists.reverse(versionDao.findByKey(ObjectType.ORGANISATION, rpslObject.getKey().toString()).getVersionInfos()), 1)) {
+            for (VersionInfo version : Iterables.skip(Lists.reverse(versionDao.findByKey(ObjectType.ORGANISATION, rpslObject.getKey().toString()).getMostRecentlyCreatedVersions()), 1)) {
                 final RpslObject oldEntry = versionDao.getRpslObject(version);
                 if (oldEntry.containsAttribute(AttributeType.ABUSE_C)) {
                     final List<RpslAttribute> attributes = Lists.newArrayList(rpslObject.getAttributes());
