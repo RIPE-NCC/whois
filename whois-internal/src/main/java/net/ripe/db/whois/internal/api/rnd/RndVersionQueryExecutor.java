@@ -1,18 +1,14 @@
 package net.ripe.db.whois.internal.api.rnd;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
-import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.BasicSourceContext;
-import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.executor.VersionQueryExecutor;
@@ -20,9 +16,8 @@ import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
-import static net.ripe.db.whois.common.domain.serials.Operation.DELETE;
+import javax.validation.constraints.NotNull;
+import java.util.Comparator;
 
 @Component
 public class RndVersionQueryExecutor extends VersionQueryExecutor {
@@ -37,47 +32,29 @@ public class RndVersionQueryExecutor extends VersionQueryExecutor {
         return false;
     }
 
+    // Minimal implementation compared to the public data because we can rely on only having versionresponses
     @Override
-    // TODO [FRV]: There is going to be ton of code duplication here with the public version. Seperate this out and move to protected base class
     public void execute(final Query query, final ResponseHandler responseHandler) {
-        ObjectType objectType = query.getObjectTypes().iterator().next();   // internal REST API will allow only one object type
-
+        final ObjectType objectType = query.getObjectTypes().iterator().next();   // internal REST API will allow only one object type
         final VersionLookupResult versionLookupResult = versionDao.findByKey(objectType, query.getSearchValue());
 
-        // transform the version lookup results in an array of ResponsObjects
-        final List<ResponseObject> messages = Lists.newArrayList();
+        ImmutableList<VersionResponseObject> versionResponseObjects = FluentIterable.from(versionLookupResult.getVersionInfos())
+                .transform(new Function<VersionInfo, VersionResponseObject>() {
+                    @Override
+                    @NotNull
+                    public VersionResponseObject apply(@NotNull VersionInfo input) {
+                        return new VersionResponseObject(input.getTimestamp(), input.getOperation(), objectType, versionLookupResult.getPkey());
+                    }
+                })
+                .toSortedList(new Comparator<VersionResponseObject>() {
+                    @Override
+                    public int compare(VersionResponseObject o1, VersionResponseObject o2) {
+                        return o1.getDateTime().compareTo(o2.getDateTime());
+                    }
+                });
 
-        int versionIndex = 1;
-        int versionPadding = 0;    // not relevant for REST API
-        for (VersionInfo versionInfo : versionLookupResult.getVersionInfos()) {
-            if (versionInfo.getOperation() == DELETE) {
-                messages.add(new DeletedVersionResponseObject(versionInfo.getTimestamp(), objectType, versionLookupResult.getPkey()));
-            } else {
-                messages.add(new VersionResponseObject(versionPadding, versionInfo.getOperation(), versionIndex, versionInfo.getTimestamp(), objectType, versionLookupResult.getPkey()));
-
-            }
-        }
-
-        for (ResponseObject message : decorate(query, messages))  {
+        for (ResponseObject message : versionResponseObjects) {
             responseHandler.handle(message);
         }
-    }
-
-    private Iterable<? extends ResponseObject> decorate(final Query query, final Iterable<? extends ResponseObject> responseObjects) {
-        return Iterables.transform(responseObjects, new Function<ResponseObject, ResponseObject>() {
-            @Override
-            public ResponseObject apply(final ResponseObject input) {
-                if (input instanceof RpslObject) {
-                    return (new FilterEmailFunction()).apply((new FilterAuthFunction()).apply((RpslObject) input));
-                    // TODO [FRV]: THis seems to be specific to get one responseobject version. Part of other story, remove for the moment
-                    /*
-                    if (query.isObjectVersion()) {
-                        filtered = new VersionWithRpslResponseObject((RpslObject) filtered, query.getObjectVersion());
-                    }
-                    */
-                }
-                return input;
-            }
-        });
     }
 }
