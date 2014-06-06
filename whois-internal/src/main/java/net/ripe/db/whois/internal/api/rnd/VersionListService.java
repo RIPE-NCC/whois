@@ -13,12 +13,10 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
@@ -80,12 +78,16 @@ public class VersionListService {
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
-        queryHandler.streamResults(query, remoteAddress, contextId, versionsResponseHandler);
 
+        // TODO [FRV] Is the public queryhandler handling everything correctly? Seems so but it looks like overkill
+        queryHandler.streamResults(query, remoteAddress, contextId, versionsResponseHandler);
         final List<VersionResponseObject> versions = versionsResponseHandler.getVersions();
 
         if (versions.isEmpty()) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors())).build());
+            throw new WebApplicationException(Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors()))
+                    .build());
         }
 
         final WhoisVersionsInternal whoisVersions = new WhoisVersionsInternal(objectType, key, whoisObjectServerMapper.mapVersionsIncludingDeleted(versions));
@@ -119,10 +121,7 @@ public class VersionListService {
         @Override
         public void handle(final ResponseObject responseObject) {
             if (responseObject instanceof VersionResponseObject) {
-                versions.add((VersionResponseObject)responseObject);
-            } else if (responseObject instanceof DeletedVersionResponseObject) {
-                DeletedVersionResponseObject deleted = ((DeletedVersionResponseObject)responseObject);
-                versions.add(new VersionResponseObject(deleted.getDeletedDate(), Operation.DELETE, deleted.getType(), deleted.getKey()));
+                versions.add((VersionResponseObject) responseObject);
             } else if (responseObject instanceof MessageObject) {
                 final Message message = ((MessageObject) responseObject).getMessage();
                 if (message != null && Messages.Type.INFO != message.getType()) {
