@@ -219,9 +219,9 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
                             return;
                         }
 
-                        if (line.startsWith("ADD ")) {
+                        if (line.startsWith("ADD/UPD ")) {
                             addCount++;
-                            signalLatch(line.substring(4));
+                            signalLatch(line.substring(8));
                         }
 
                         if (line.startsWith("DEL ")) {
