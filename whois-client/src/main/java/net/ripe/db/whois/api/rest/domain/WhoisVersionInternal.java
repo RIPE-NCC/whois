@@ -14,7 +14,9 @@ import javax.xml.bind.annotation.XmlType;
         "revision",
         "from",
         "to",
-        "operation"
+        "operation",
+        "link"
+
 })
 @XmlRootElement(name = "version")
 public class WhoisVersionInternal {
@@ -26,12 +28,16 @@ public class WhoisVersionInternal {
     private String to;
     @XmlElement(name = "operation", required = false)
     private String operation;
+    @XmlElement
+    private Link link;
 
-    public WhoisVersionInternal(final Integer revision, final String from, final String to, final String operation) {
+
+    public WhoisVersionInternal(final Integer revision, final String from, final String to, final String operation, final Link link) {
         this.revision = revision;
         this.from = from;
         this.to = to;
         this.operation = operation;
+        this.link = link;
     }
 
     public WhoisVersionInternal() {
@@ -52,6 +58,10 @@ public class WhoisVersionInternal {
 
     public String getOperation() {
         return operation;
+    }
+
+    public Link getLink() {
+        return link;
     }
 
     @Override
@@ -77,4 +87,5 @@ public class WhoisVersionInternal {
         result = 31 * result + (operation != null ? operation.hashCode() : 0);
         return result;
     }
+
 }

@@ -125,6 +125,14 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
+        String json = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
+                .request(MediaType.APPLICATION_JSON_TYPE).get(String.class);
+        String xml = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
+                .request(MediaType.APPLICATION_JSON_TYPE).get(String.class);
+
+        System.out.println(json);
+        System.out.println(xml);
+
         assertThat(result.getErrorMessages(), hasSize(0));
         final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
         assertThat(versions, hasSize(2));
