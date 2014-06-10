@@ -32,7 +32,7 @@ public class RndVersionQueryExecutor extends VersionQueryExecutor {
         return false;
     }
 
-    // Minimal implementation compared to the public data because we can rely on only having versionresponses
+    // Minimal implementation compared to the public interface because we can rely on only having version responses
     @Override
     public void execute(final Query query, final ResponseHandler responseHandler) {
         final ObjectType objectType = query.getObjectTypes().iterator().next();   // internal REST API will allow only one object type

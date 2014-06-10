@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
@@ -12,6 +13,7 @@ import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,10 +21,13 @@ import java.util.List;
 @Component
 public class WhoisObjectServerMapper {
     private final WhoisObjectMapper whoisObjectMapper;
+    private final String baseUrl;
 
     @Autowired
-    public WhoisObjectServerMapper(final WhoisObjectMapper whoisObjectMapper) {
+    public WhoisObjectServerMapper(@Value("${api.rest.baseurl}") final String baseUrl,
+                                   final WhoisObjectMapper whoisObjectMapper) {
         this.whoisObjectMapper = whoisObjectMapper;
+        this.baseUrl = baseUrl;
     }
 
     public List<WhoisVersion> mapVersions(final List<DeletedVersionResponseObject> deleted, final List<VersionResponseObject> versions) {
@@ -32,7 +37,8 @@ public class WhoisObjectServerMapper {
         }
 
         for (final VersionResponseObject version : versions) {
-            whoisVersions.add(new WhoisVersion(version.getOperation() == Operation.UPDATE ? "ADD/UPD" : "DEL", version.getDateTime().toString(), version.getVersion()));
+            whoisVersions.add(new WhoisVersion(version.getOperation() == Operation.UPDATE ? "ADD/UPD" : "DEL", version.getDateTime().toString(),
+                    version.getVersion()));
         }
 
         return whoisVersions;
@@ -52,7 +58,7 @@ public class WhoisObjectServerMapper {
         return object;
     }
 
-    public List<WhoisVersionInternal> mapVersionsInternal(final List<VersionResponseObject> versions) {
+    public List<WhoisVersionInternal> mapVersionsInternal(final List<VersionResponseObject> versions, final String source, final String type, final String key) {
         final List<WhoisVersionInternal> whoisVersions = Lists.newArrayList();
         for (int i = 0; i < versions.size(); i++) {
             final VersionResponseObject currentVersion = versions.get(i);
@@ -62,12 +68,19 @@ public class WhoisObjectServerMapper {
             }
 
             if (currentVersion.getOperation() != Operation.DELETE) {
-                whoisVersions.add(new WhoisVersionInternal(i + 1,
+                int versionId = i + 1;
+                whoisVersions.add(new WhoisVersionInternal(
+                        versionId,
                         currentVersion.getDateTime().toString(),
                         nextVersion == null ? "" : nextVersion.getDateTime().toString(),
-                        currentVersion.getOperation().toString()));
+                        currentVersion.getOperation().toString(),
+                        createWhoisVersionInternalLink(source, type, key + "/" + versionId)));
             }
         }
         return whoisVersions;
+    }
+
+    private Link createWhoisVersionInternalLink(String source, String type, String versionId) {
+        return new Link("locator", String.format("%s/api/rnd/%s/%s/%s", baseUrl, source, type, versionId));
     }
 }

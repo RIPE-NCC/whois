@@ -92,7 +92,10 @@ public class VersionListService {
                     .build());
         }
 
-        final WhoisVersionsInternal whoisVersions = new WhoisVersionsInternal(objectType, key, whoisObjectServerMapper.mapVersionsInternal(versions));
+        final WhoisVersionsInternal whoisVersions = new WhoisVersionsInternal(objectType,
+                key,
+                whoisObjectServerMapper.mapVersionsInternal(versions, source, objectType, key));
+
 
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setVersions(whoisVersions);
