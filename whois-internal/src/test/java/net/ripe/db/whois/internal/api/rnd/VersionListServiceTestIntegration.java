@@ -26,6 +26,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.joda.time.LocalDateTime.parse;
@@ -130,8 +131,7 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
         String xml = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE).get(String.class);
 
-        System.out.println(json);
-        System.out.println(xml);
+        String baseHref = "http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3335/";
 
         assertThat(result.getErrorMessages(), hasSize(0));
         final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
@@ -140,10 +140,13 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
         LocalDateTime fromDateFirst = parse(versions.get(0).getFrom(), DEFAULT_DATE_TIME_FORMATTER);
         LocalDateTime toDateFirst = parse(versions.get(0).getTo(), DEFAULT_DATE_TIME_FORMATTER);
         assertThat(Period.fieldDifference(fromDateFirst, toDateFirst).getDays(), is(3));
+        assertThat(versions.get(0).getLink().toString(), containsString(baseHref + "1"));
 
         LocalDateTime fromDateLast = parse(versions.get(1).getFrom(), DEFAULT_DATE_TIME_FORMATTER);
         assertThat(Period.fieldDifference(toDateFirst, fromDateLast).getDays(), is(2));
         assertThat(versions.get(1).getTo(), is(""));
+        assertThat(versions.get(1).getLink().toString(), containsString(baseHref + "3"));
+
     }
 
     @Test
@@ -156,9 +159,6 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
         } catch (ClientErrorException e) {
             WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             assertThat(e.getResponse().getStatus(), is(404));
-
-            //           assertThat(e.getResponse().getStatus(), is(404));
-            //more assertions perhaps
         }
     }
 }
