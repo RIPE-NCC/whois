@@ -60,21 +60,24 @@ public class WhoisObjectServerMapper {
 
     public List<WhoisVersionInternal> mapVersionsInternal(final List<VersionResponseObject> versions, final String source, final String type, final String key) {
         final List<WhoisVersionInternal> whoisVersions = Lists.newArrayList();
+
+        int versionIdCounter = 1;
         for (int i = 0; i < versions.size(); i++) {
             final VersionResponseObject currentVersion = versions.get(i);
             VersionResponseObject nextVersion = null;
+
             if (i + 1 < versions.size()) {
                 nextVersion = versions.get(i + 1);
             }
 
             if (currentVersion.getOperation() != Operation.DELETE) {
-                int versionId = i + 1;
                 whoisVersions.add(new WhoisVersionInternal(
-                        versionId,
+                        versionIdCounter,
                         currentVersion.getDateTime().toString(),
                         nextVersion == null ? "" : nextVersion.getDateTime().toString(),
                         currentVersion.getOperation().toString(),
-                        createWhoisVersionInternalLink(source, type, key + "/" + versionId)));
+                        createWhoisVersionInternalLink(source, type, key + "/" + versionIdCounter)));
+                versionIdCounter++;
             }
         }
         return whoisVersions;
