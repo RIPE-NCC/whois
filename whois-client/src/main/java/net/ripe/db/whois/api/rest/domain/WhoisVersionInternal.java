@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlType;
 public class WhoisVersionInternal {
     @XmlElement(name = "revision", required = false)
     private Integer revision;
-    @XmlAttribute(name = "from")
+    @XmlElement(name = "from")
     private String from;
     @XmlElement(name = "to", required = false)
     private String to;

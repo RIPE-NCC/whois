@@ -116,7 +116,14 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "aut-num: AS3335\n" +
                 "source: TEST");
+        final RpslObject person = RpslObject.parse("person: First Last\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "remarks: Some remark\n" +
+                "source: TEST");
+
         final RpslObjectUpdateInfo add = updateDao.createObject(rpslObject);
+
+        updateDao.createObject(person);
         testDateTimeProvider.setTime(new LocalDateTime().plusDays(3));
         updateDao.deleteObject(add.getObjectId(), "AS3335");
         testDateTimeProvider.setTime(new LocalDateTime().plusDays(5));
@@ -125,11 +132,6 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
         final WhoisResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
-
-        String json = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
-                .request(MediaType.APPLICATION_JSON_TYPE).get(String.class);
-        String xml = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
-                .request(MediaType.APPLICATION_JSON_TYPE).get(String.class);
 
         String baseHref = "http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3335/";
 
@@ -145,8 +147,7 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
         LocalDateTime fromDateLast = parse(versions.get(1).getFrom(), DEFAULT_DATE_TIME_FORMATTER);
         assertThat(Period.fieldDifference(toDateFirst, fromDateLast).getDays(), is(2));
         assertThat(versions.get(1).getTo(), is(""));
-        assertThat(versions.get(1).getLink().toString(), containsString(baseHref + "3"));
-
+        assertThat(versions.get(1).getLink().toString(), containsString(baseHref + "2"));
     }
 
     @Test
@@ -160,5 +161,23 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
             WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             assertThat(e.getResponse().getStatus(), is(404));
         }
+    }
+
+    @Test
+    public void allow_person_query() {
+        final RpslObject person = RpslObject.parse("person: First Last\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "remarks: Some remark\n" +
+                "source: TEST");
+        updateDao.createObject(person);
+
+        final WhoisResources result = RestTest.target(getPort(), "api/rnd/test/person/AA1-RIPE/versions", null, apiKey)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(result.getErrorMessages(), hasSize(0));
+        final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
+        assertThat(versions, hasSize(1));
+
     }
 }
