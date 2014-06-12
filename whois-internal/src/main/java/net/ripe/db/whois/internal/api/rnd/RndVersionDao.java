@@ -5,18 +5,15 @@ import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
-import net.ripe.db.whois.common.domain.serials.Operation;
+import net.ripe.db.whois.common.dao.jdbc.domain.VersionInfoRowMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Nullable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +33,7 @@ public class RndVersionDao implements VersionDao {
     }
 
     @Override @Nullable
-    public VersionLookupResult findByKey(ObjectType type, String searchKey) {
+    public VersionLookupResult findByKey(final ObjectType type, final String searchKey) {
         final List<Integer> objectIds = jdbcTemplate.queryForList("" +
                         "SELECT object_id " +
                         "FROM last " +
@@ -66,17 +63,7 @@ public class RndVersionDao implements VersionDao {
                                     "       LEFT JOIN history ON serials.object_id=history.object_id AND serials.sequence_id=history.sequence_id " +
                                     "WHERE serials.object_id =? " +
                                     "ORDER BY timestamp, serials.sequence_id",
-                            new RowMapper<VersionInfo>() {
-                                @Override
-                                public VersionInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
-                                    return new VersionInfo(
-                                            rs.getBoolean(1),
-                                            rs.getInt(2),
-                                            rs.getInt(3),
-                                            rs.getLong(5),
-                                            Operation.getByCode(rs.getInt(4)));
-                                }
-                            }, objectId
+                            new VersionInfoRowMapper(), objectId
                     )
             );
         }

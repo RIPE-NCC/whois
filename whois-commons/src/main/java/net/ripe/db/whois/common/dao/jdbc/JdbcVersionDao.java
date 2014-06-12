@@ -6,18 +6,15 @@ import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
-import net.ripe.db.whois.common.domain.serials.Operation;
+import net.ripe.db.whois.common.dao.jdbc.domain.VersionInfoRowMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -89,14 +86,7 @@ public class JdbcVersionDao implements VersionDao {
                     "       LEFT JOIN history ON history.object_id = serials.object_id AND history.sequence_id = serials.sequence_id " +
                     "WHERE serials.object_id = ? " +
                     "ORDER BY timestamp, serials.sequence_id",
-                    new RowMapper<VersionInfo>() {
-                        @Override
-                        public VersionInfo mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-                            return new VersionInfo(
-                                    rs.getBoolean(1), rs.getInt(2), rs.getInt(3), rs.getLong(5),
-                                    Operation.getByCode(rs.getInt(4)));
-                        }
-                    },
+                    new VersionInfoRowMapper(),
                     objectId)
             );
         }
