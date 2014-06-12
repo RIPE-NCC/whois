@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
-import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
+import net.ripe.db.whois.common.dao.jdbc.JdbcCommonOperations;
 import net.ripe.db.whois.common.dao.jdbc.domain.VersionInfoRowMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -34,15 +34,7 @@ public class RndVersionDao implements VersionDao {
 
     @Override @Nullable
     public VersionLookupResult findByKey(final ObjectType type, final String searchKey) {
-        final List<Integer> objectIds = jdbcTemplate.queryForList("" +
-                        "SELECT object_id " +
-                        "FROM last " +
-                        "WHERE object_type = ? " +
-                        "AND pkey = ? ",
-                Integer.class,
-                ObjectTypeIds.getId(type),
-                searchKey
-        );
+        final List<Integer> objectIds = JdbcCommonOperations.getObjectIds(jdbcTemplate, type, searchKey);
 
         if (objectIds.isEmpty()) {
             return null;
