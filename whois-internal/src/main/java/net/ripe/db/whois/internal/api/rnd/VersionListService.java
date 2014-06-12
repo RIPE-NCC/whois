@@ -2,8 +2,8 @@ package net.ripe.db.whois.internal.api.rnd;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.RestMessages;
-import net.ripe.db.whois.api.rest.WhoisRestService;
 import net.ripe.db.whois.api.rest.WhoisService;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersionsInternal;
@@ -69,8 +69,7 @@ public class VersionListService {
 
         validSource(request, source);
 
-        final WhoisRestService.QueryBuilder queryBuilder = new WhoisRestService
-                .QueryBuilder()
+        final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addFlag(QueryFlag.LIST_VERSIONS);
 
