@@ -36,6 +36,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -84,10 +85,9 @@ public class VersionListService {
         final List<VersionResponseObject> versions = versionsResponseHandler.getVersions();
 
         if (versions.isEmpty()) {
-            versionsResponseHandler.errors.add(new MessageObject(QueryMessages.noResults(source)).getMessage());
             throw new WebApplicationException(Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors()))
+                    .entity(whoisService.createErrorEntity(request, Collections.singletonList(QueryMessages.noResults(source))))
                     .build());
         }
 
