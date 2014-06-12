@@ -60,14 +60,7 @@ public class JdbcVersionDao implements VersionDao {
 
     @Override
     public VersionLookupResult findByKey(final ObjectType type, final String searchKey) {
-        final List<Integer> objectIds = jdbcTemplate.queryForList("" +
-                "SELECT object_id " +
-                "FROM last " +
-                "WHERE object_type = ? " +
-                "AND pkey = ? ",
-                Integer.class,
-                ObjectTypeIds.getId(type),
-                searchKey);
+        final List<Integer> objectIds = JdbcCommonOperations.getObjectIds(jdbcTemplate, type, searchKey);
 
         if (objectIds.isEmpty()) {
             return null;
