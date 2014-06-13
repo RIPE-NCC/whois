@@ -565,7 +565,7 @@ public enum AttributeType implements Documented {
 
     ROLE(new Builder("role", "ro")
             .doc("Specifies the full name of a role entity, e.g. RIPE DBM.")
-            .syntax(PERSON_ROLE_NAME_SYNTAX)),
+            .syntax(ORG_NAME_SYNTAX)),
 
     ROUTE(new Builder("route", "rt")
             .doc("Specifies the prefix of the interAS route. Together with the \"origin:\" attribute, " +
