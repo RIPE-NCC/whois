@@ -1016,8 +1016,8 @@ class RoleSpec extends BaseQueryUpdateSpec {
         qry =~ "FR1-TEST"
         def qry2 = query("-Trole (XAMPLE)")
         qry2 =~ "FR1-TEST"
-//        def qry3 = query("-Trole @")
-//        qry3 =~ "FR1-TEST"
+        def qry3 = query("-Trole @")
+        qry3 =~ "FR1-TEST"
         def qry4 = query("-Trole 1234567890")
         qry4 =~ "FR1-TEST"
     }
