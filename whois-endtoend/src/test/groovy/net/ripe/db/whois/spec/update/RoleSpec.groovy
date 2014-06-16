@@ -2,6 +2,7 @@ package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
@@ -506,6 +507,8 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
 
         queryObject("-rBT role FR1-TEST", "role", "First Role")
+        def qry = query("-Trole First")
+        qry =~ "FR1-TEST"
     }
 
     def "create role with all optional and multiple and duplicate attrs"() {
@@ -736,6 +739,287 @@ class RoleSpec extends BaseQueryUpdateSpec {
 
         query_object_not_matches("-rBT role FR1-TEST", "role", "First Role", "admin-c:")
         query_object_not_matches("-rBT role FR1-TEST", "role", "First Role", "tech-c:")
+    }
+
+    def "create role with name including all possible chars"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "@ \"*TTTTTT & ][,] (XAMPLE) 1234567890 abc ._\"*@,&:!'`+/-")
+
+        when:
+        def message = syncUpdate("""
+                role:    @ "*TTTTTT & ][,] (XAMPLE) 1234567890 abc ._"*@,&:!'`+/-
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                nic-hdl: FR1-TEST
+                mnt-by:  owner-mnt
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   @ \"*TTTTTT & ][,] (XAMPLE) 1234567890 abc ._\"*@,&:!'`+/-" }
+
+        queryObject("-rBT role FR1-TEST", "role", "@ \"\\*TTTTTT & \\]\\[,\\] \\(XAMPLE\\) 1234567890 abc \\._\"\\*@,&:\\!'`\\+\\/-")
+    }
+
+    def "create role with name including 30 words, 64 chars each"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+
+        when:
+        def message = syncUpdate("""
+                role:            1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                nic-hdl: FR1-TEST
+                mnt-by:  owner-mnt
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword" }
+        ack.infoSuccessMessagesFor("Create", "[role] FR1-TEST   1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword") ==
+                ["Continuation lines are not allowed here and have been removed"]
+
+        queryObject("-rBT role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+    }
+
+    def "create role with name including 30 words, one word with 65 chars"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+
+        when:
+        def message = syncUpdate("""
+                role:            1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                nic-hdl: FR1-TEST
+                mnt-by:  owner-mnt
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword" }
+        ack.infoMessagesFor("Create", "[role] FR1-TEST") =~
+                ["Continuation lines are not allowed here and have been removed"]
+        ack.errorMessagesFor("Create", "[role] FR1-TEST") =~
+                ["Syntax error in 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords"]
+
+        queryObjectNotFound("-rBT role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+    }
+
+    def "create role with name including >30 words, 65 chars each"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+
+        when:
+        def message = syncUpdate("""
+                role:            1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                nic-hdl: FR1-TEST
+                mnt-by:  owner-mnt
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword" }
+        ack.infoMessagesFor("Create", "[role] FR1-TEST") =~
+                ["Continuation lines are not allowed here and have been removed"]
+        ack.errorMessagesFor("Create", "[role] FR1-TEST") =~
+                ["Syntax error in 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword"]
+
+        queryObjectNotFound("-rBT role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+    }
+
+    def "create role with name including all possible chars, inverse query on part of name"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "@ \"*TTTTTT & ][,] (XAMPLE) 1234567890 abc ._\"*@,&:!'`+/-")
+
+        when:
+        def message = syncUpdate("""
+                role:    @ "*TTTTTT & ][,] (XAMPLE) 1234567890 abc ._"*@,&:!'`+/-
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                nic-hdl: FR1-TEST
+                mnt-by:  owner-mnt
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   @ \"*TTTTTT & ][,] (XAMPLE) 1234567890 abc ._\"*@,&:!'`+/-" }
+
+        queryObject("-rBT role FR1-TEST", "role", "@ \"\\*TTTTTT & \\]\\[,\\] \\(XAMPLE\\) 1234567890 abc \\._\"\\*@,&:\\!'`\\+\\/-")
+        def qry = query("-Trole abc")
+        qry =~ "FR1-TEST"
+        def qry2 = query("-Trole (XAMPLE)")
+        qry2 =~ "FR1-TEST"
+        def qry3 = query("-Trole @")
+        qry3 =~ "FR1-TEST"
+        def qry4 = query("-Trole 1234567890")
+        qry4 =~ "FR1-TEST"
     }
 
 }
