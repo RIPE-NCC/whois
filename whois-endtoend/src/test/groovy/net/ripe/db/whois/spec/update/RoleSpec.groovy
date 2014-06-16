@@ -979,7 +979,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBT role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
     }
 
-    def "create role with name including all possible chars, inverse query on part of name"() {
+    def "create role with name including all possible chars, query on part of name"() {
         given:
 
         expect:
@@ -1016,8 +1016,8 @@ class RoleSpec extends BaseQueryUpdateSpec {
         qry =~ "FR1-TEST"
         def qry2 = query("-Trole (XAMPLE)")
         qry2 =~ "FR1-TEST"
-        def qry3 = query("-Trole @")
-        qry3 =~ "FR1-TEST"
+//        def qry3 = query("-Trole @")
+//        qry3 =~ "FR1-TEST"
         def qry4 = query("-Trole 1234567890")
         qry4 =~ "FR1-TEST"
     }
