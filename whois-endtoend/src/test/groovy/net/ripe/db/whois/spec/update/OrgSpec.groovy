@@ -1007,7 +1007,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T organisation ORG-ABCD1-TEST", "organisation", "ORG-ABCD1-TEST")
     }
 
-    def "create organisation with all possible valid chars in name"() {
+    def "create organisation with all possible valid chars in name and query parts of the name"() {
         expect:
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ABZ 0123456789 .  _ \" * (qwerty) @, & :!'`+/-")
 
