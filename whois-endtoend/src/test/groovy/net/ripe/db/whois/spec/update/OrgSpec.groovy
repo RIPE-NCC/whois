@@ -1009,7 +1009,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
     def "create organisation with all possible valid chars in name"() {
         expect:
-        queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "A-Z 0-9 .  _ \" * ()@, & :!'`+/-")
+        queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ABZ 0123456789 .  _ \" * (qwerty) @, & :!'`+/-")
 
         when:
         def message = send new Message(
@@ -1017,7 +1017,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 body: """\
                 organisation:    auto-1
                 org-type:        other
-                org-name:        A-Z 0-9 .  _ " * ()@, & :!'`+/-
+                org-name:        ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+/-
                 address:         RIPE NCC
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
@@ -1040,7 +1040,15 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
 
         def qry = query("-r -T organisation ORG-AA1-TEST")
-        qry.contains(/org-name:       A-Z 0-9 .  _ " * ()@, & :!'`+\/-/)
+        qry.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+        def qry5 = query("-Trole ABZ")
+        qry5 =~ "ORG-AA1-TEST"
+        def qry2 = query("-Trole (qwerty)")
+        qry2 =~ "ORG-AA1-TEST"
+        def qry3 = query("-Trole @")
+        qry3 =~ "ORG-AA1-TEST"
+        def qry4 = query("-Trole 0123456789")
+        qry4 =~ "ORG-AA1-TEST"
     }
 
     def "create organisation with valid language and geoloc"() {
