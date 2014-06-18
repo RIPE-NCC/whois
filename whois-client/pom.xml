@@ -14,11 +14,6 @@
 
     <!-- TODO: [AH] minimize the amount of dependencies in whois-client -->
     <dependencies>
-        <!-- TODO: aspectj error without this, but there shouldn't even be aspectj for whois-client -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
