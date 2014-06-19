@@ -696,7 +696,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         return orderPosition - o.orderPosition;
     }
 
-    public void validateStructure(final RpslObject rpslObject, ObjectMessages objectMessages) {
+    public void validateStructure(final RpslObject rpslObject, final ObjectMessages objectMessages) {
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             final AttributeType attributeType = attribute.getType();
             if (attributeType == null) {
@@ -710,7 +710,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         }
     }
 
-    public void validateSyntax(final RpslObject rpslObject, ObjectMessages objectMessages, boolean skipGenerated) {
+    public void validateSyntax(final RpslObject rpslObject, final ObjectMessages objectMessages, final boolean skipGenerated) {
         final ObjectType rpslObjectType = rpslObject.getType();
 
         final Map<AttributeType, Integer> attributeCount = Maps.newEnumMap(AttributeType.class);

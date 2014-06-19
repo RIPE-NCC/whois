@@ -15,5 +15,5 @@ public interface InetStatus {
 
     boolean worksWithParentStatus(InetStatus parent, boolean objectHasRsMaintainer);
 
-    boolean worksWithParentInHierarchy(InetStatus parentInHierarchyMaintainedByRs, final boolean parentHasRsMntLower);
+    boolean worksWithParentInHierarchy(InetStatus parentInHierarchyMaintainedByRs, boolean parentHasRsMntLower);
 }

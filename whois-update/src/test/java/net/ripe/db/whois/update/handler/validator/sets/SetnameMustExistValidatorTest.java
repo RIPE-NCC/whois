@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-// TODO: [AH] drop this class, cover in integration/e2e tests
 @RunWith(MockitoJUnitRunner.class)
 public class SetnameMustExistValidatorTest {
 

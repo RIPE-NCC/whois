@@ -29,14 +29,14 @@ public class ErrorMessage implements Comparable<ErrorMessage> {
     @XmlElement
     private List<Arg> args;
 
-    ErrorMessage(String severity, Attribute attribute, String text, List<Arg> args) {
+    ErrorMessage(final String severity, final Attribute attribute, final String text, final List<Arg> args) {
         this.severity = severity;
         this.attribute = attribute;
         this.text = text;
         this.args = args;
     }
 
-    public ErrorMessage(Message message) {
+    public ErrorMessage(final Message message) {
         this.severity = message.getType().toString();
         this.attribute = null;
         this.text = message.getText();
@@ -46,7 +46,7 @@ public class ErrorMessage implements Comparable<ErrorMessage> {
         }
     }
 
-    public ErrorMessage(Message message, RpslAttribute attribute) {
+    public ErrorMessage(final Message message, final RpslAttribute attribute) {
         this(message);
         this.attribute = new Attribute(attribute.getKey(), attribute.getValue());
     }

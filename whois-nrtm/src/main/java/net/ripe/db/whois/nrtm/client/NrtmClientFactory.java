@@ -114,7 +114,6 @@ class NrtmClientFactory {
         }
 
         private void readHeader() throws IOException {
-            // TODO [AK] Read comments until empty line occurs
             readLineWithExpected("%");
             readLineWithExpected("%");
             readEmptyLine();

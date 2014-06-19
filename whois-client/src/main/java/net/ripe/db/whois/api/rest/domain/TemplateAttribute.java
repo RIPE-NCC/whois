@@ -26,7 +26,7 @@ public class TemplateAttribute {
         return name;
     }
 
-    public TemplateAttribute setName(String name) {
+    public TemplateAttribute setName(final String name) {
         this.name = name;
         return this;
     }
@@ -35,7 +35,7 @@ public class TemplateAttribute {
         return requirement;
     }
 
-    public TemplateAttribute setRequirement(Requirement requirement) {
+    public TemplateAttribute setRequirement(final Requirement requirement) {
         this.requirement = requirement;
         return this;
     }
@@ -44,7 +44,7 @@ public class TemplateAttribute {
         return cardinality;
     }
 
-    public TemplateAttribute setCardinality(Cardinality cardinality) {
+    public TemplateAttribute setCardinality(final Cardinality cardinality) {
         this.cardinality = cardinality;
         return this;
     }
@@ -53,7 +53,7 @@ public class TemplateAttribute {
         return keys;
     }
 
-    public TemplateAttribute setKeys(Set<Key> keys) {
+    public TemplateAttribute setKeys(final Set<Key> keys) {
         this.keys = keys;
         return this;
     }

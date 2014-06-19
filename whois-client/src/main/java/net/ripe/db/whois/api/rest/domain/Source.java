@@ -29,7 +29,7 @@ public class Source {
         return id;
     }
 
-    public Source setId(String value) {
+    public Source setId(final String value) {
         this.id = value;
         return this;
     }

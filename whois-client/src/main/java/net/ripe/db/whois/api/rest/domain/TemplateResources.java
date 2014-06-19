@@ -30,7 +30,7 @@ public class TemplateResources {
         return service;
     }
 
-    public TemplateResources setService(Service value) {
+    public TemplateResources setService(final Service value) {
         this.service = value;
         return this;
     }
@@ -39,7 +39,7 @@ public class TemplateResources {
         return templates != null ? templates.getTemplates() : Collections.<Template>emptyList();
     }
 
-    public TemplateResources setTemplates(List<Template> templates) {
+    public TemplateResources setTemplates(final List<Template> templates) {
         this.templates = new Templates(templates);
         return this;
     }

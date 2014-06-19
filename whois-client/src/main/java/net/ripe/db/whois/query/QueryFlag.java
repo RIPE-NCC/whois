@@ -201,7 +201,7 @@ public enum QueryFlag {
             return this;
         }
 
-        Builder requiresArgument(Class<?> requiredArgument) {
+        Builder requiresArgument(final Class<?> requiredArgument) {
             this.requiredArgument = requiredArgument;
             return this;
         }
@@ -300,11 +300,11 @@ public enum QueryFlag {
         return VALID_SHORT_FLAGS.keySet();
     }
 
-    public static QueryFlag getForLongFlag(String longFlag) {
+    public static QueryFlag getForLongFlag(final String longFlag) {
         return VALID_LONG_FLAGS.get(longFlag);
     }
 
-    public static QueryFlag getForShortFlag(String shortFlag) {
+    public static QueryFlag getForShortFlag(final String shortFlag) {
         return VALID_SHORT_FLAGS.get(shortFlag);
     }
 }

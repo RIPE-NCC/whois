@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Contract;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -53,7 +52,7 @@ public final class CIString implements Comparable<CIString>, CharSequence {
         return builder.build();
     }
 
-    public static boolean isBlank(CIString ciString) {
+    public static boolean isBlank(final CIString ciString) {
         return ciString == null || StringUtils.isBlank(ciString.value);
     }
 

@@ -19,7 +19,7 @@ public class Service {
     @JsonProperty
     private String name;
 
-    public Service(String name) {
+    public Service(final String name) {
         this.name = name;
     }
 
@@ -29,7 +29,7 @@ public class Service {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 }

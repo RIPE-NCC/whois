@@ -13,7 +13,7 @@ public class AbusePKey {
     @XmlAttribute(name = "value")
     private String value;
 
-    public AbusePKey(String value) {
+    public AbusePKey(final String value) {
         this.value = value;
     }
 

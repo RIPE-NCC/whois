@@ -15,12 +15,12 @@ import java.util.List;
 public class FormattedClientAttributeMapper implements AttributeMapper {
 
     @Override
-    public Collection<RpslAttribute> map(Attribute attribute) {
+    public Collection<RpslAttribute> map(final Attribute attribute) {
         return Collections.singleton(new RpslAttribute(attribute.getName(), getAttributeValue(attribute)));
     }
 
     @Override
-    public Collection<Attribute> map(RpslAttribute rpslAttribute, String source) {
+    public Collection<Attribute> map(final RpslAttribute rpslAttribute, final String source) {
         List<Attribute> result = new ArrayList(4);
         for (CIString value : rpslAttribute.getCleanValues()) {
             result.add(new Attribute(rpslAttribute.getKey(), value.toString(), rpslAttribute.getCleanComment(), null, null));

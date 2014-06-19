@@ -35,52 +35,52 @@ public class SyncUpdateBuilder {
     private boolean aNew;
     private boolean redirect;
 
-    public SyncUpdateBuilder setHeaders(MultivaluedMap<String, String> headers) {
+    public SyncUpdateBuilder setHeaders(final MultivaluedMap<String, String> headers) {
         this.headers = headers;
         return this;
     }
 
-    public SyncUpdateBuilder setUrl(String url) {
+    public SyncUpdateBuilder setUrl(final String url) {
         this.url = url;
         return this;
     }
 
-    public SyncUpdateBuilder setHost(String host) {
+    public SyncUpdateBuilder setHost(final String host) {
         this.host = host;
         return this;
     }
 
-    public SyncUpdateBuilder setPort(int port) {
+    public SyncUpdateBuilder setPort(final int port) {
         this.port = port;
         return this;
     }
 
-    public SyncUpdateBuilder setSource(String source) {
+    public SyncUpdateBuilder setSource(final String source) {
         this.source = source;
         return this;
     }
 
-    public SyncUpdateBuilder setData(String data) {
+    public SyncUpdateBuilder setData(final String data) {
         this.data = data;
         return this;
     }
 
-    public SyncUpdateBuilder setHelp(boolean help) {
+    public SyncUpdateBuilder setHelp(final boolean help) {
         this.help = help;
         return this;
     }
 
-    public SyncUpdateBuilder setDiff(boolean diff) {
+    public SyncUpdateBuilder setDiff(final boolean diff) {
         this.diff = diff;
         return this;
     }
 
-    public SyncUpdateBuilder setNew(boolean aNew) {
+    public SyncUpdateBuilder setNew(final boolean aNew) {
         this.aNew = aNew;
         return this;
     }
 
-    public SyncUpdateBuilder setRedirect(boolean redirect) {
+    public SyncUpdateBuilder setRedirect(final boolean redirect) {
         this.redirect = redirect;
         return this;
     }

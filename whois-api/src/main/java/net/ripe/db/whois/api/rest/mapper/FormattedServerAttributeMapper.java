@@ -27,13 +27,13 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
     }
 
     @Override
-    public Collection<RpslAttribute> map(Attribute attribute) {
+    public Collection<RpslAttribute> map(final Attribute attribute) {
         return Collections.singleton(new RpslAttribute(attribute.getName(), getAttributeValue(attribute)));
     }
 
     @Override
-    public Collection<Attribute> map(RpslAttribute rpslAttribute, String source) {
-        List<Attribute> result = new ArrayList(4);
+    public Collection<Attribute> map(final RpslAttribute rpslAttribute, final String source) {
+        final List<Attribute> result = new ArrayList(4);
         for (CIString value : rpslAttribute.getCleanValues()) {
             // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
             final String referencedType = (rpslAttribute.getType() != null) ? referencedTypeResolver.getReferencedType(rpslAttribute.getType(), value) : null;

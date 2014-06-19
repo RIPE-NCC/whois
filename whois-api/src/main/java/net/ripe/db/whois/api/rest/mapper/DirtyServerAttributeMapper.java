@@ -26,12 +26,12 @@ public class DirtyServerAttributeMapper implements AttributeMapper {
     }
 
     @Override
-    public Collection<RpslAttribute> map(Attribute attribute) {
+    public Collection<RpslAttribute> map(final Attribute attribute) {
         return Collections.singleton(new RpslAttribute(attribute.getName(), getAttributeValue(attribute)));
     }
 
     @Override
-    public Collection<Attribute> map(RpslAttribute rpslAttribute, String source) {
+    public Collection<Attribute> map(final RpslAttribute rpslAttribute, final String source) {
         final Set<CIString> cleanValues = rpslAttribute.getCleanValues();
 
         if (cleanValues.size() == 1) {

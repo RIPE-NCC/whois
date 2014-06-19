@@ -40,7 +40,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-// TODO: [AH] migrate this to integration test for better meaintainability and functional testing
 @RunWith(MockitoJUnitRunner.class)
 public class MntByAuthenticationTest {
     @Mock PreparedUpdate update;

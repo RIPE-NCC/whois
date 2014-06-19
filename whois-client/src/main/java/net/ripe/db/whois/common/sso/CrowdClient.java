@@ -22,7 +22,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-// NB: we can't use the atlassian crowd-rest-client as uuid is a ripe-specific crowd plug-in
 @Component
 public class CrowdClient {
     private static final String CROWD_SESSION_PATH = "rest/usermanagement/1/session";
