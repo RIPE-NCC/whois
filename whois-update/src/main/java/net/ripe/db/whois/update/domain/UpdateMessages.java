@@ -277,7 +277,6 @@ public final class UpdateMessages {
                 "Allowed values are %s", allowedOrgTypes);
     }
 
-    // TODO: [DW] this error should specify that this specific parent-child status in not allowed, similar to incorrectChildStatus()
     public static Message incorrectParentStatus(final ObjectType type, final CharSequence parentStatus) {
         return new Message(Messages.Type.ERROR, "%s parent has incorrect status: %s", type.getName(), parentStatus);
     }

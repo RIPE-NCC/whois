@@ -24,7 +24,7 @@ public class AutNum {
         return parse(value.toString());
     }
 
-    public static AutNum parse(String value) {
+    public static AutNum parse(final String value) {
         final Matcher matcher = AUTNUM_PATTERN.matcher(value);
         if (!matcher.matches()) {
             throw new AttributeParseException("Invalid syntax", value);

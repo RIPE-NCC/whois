@@ -11,7 +11,6 @@ public class MessageObject implements ResponseObject {
     private final String formattedText;
     private final Message message;
 
-    // TODO: [AH] this (String) constructor should be dropped & MessageObject merged with Message
     public MessageObject(final String formattedText) {
         this.formattedText = formattedText;
         this.message = null;

@@ -31,7 +31,7 @@ public final class Messages {
     }
 
     public void remove(final Message message) {
-        Set<Message> messageSet = messages.get(message.getType());
+        final Set<Message> messageSet = messages.get(message.getType());
         if (messageSet == null) {
             return;
         }

@@ -28,7 +28,7 @@ public class Template {
         return type;
     }
 
-    public Template setType(String type) {
+    public Template setType(final String type) {
         this.type = type;
         return this;
     }
@@ -37,7 +37,7 @@ public class Template {
         return source;
     }
 
-    public Template setSource(Source source) {
+    public Template setSource(final Source source) {
         this.source = source;
         return this;
     }
@@ -46,7 +46,7 @@ public class Template {
         return attributes != null ? attributes.getAttributes() : Collections.<TemplateAttribute>emptyList();
     }
 
-    public Template setAttributes(List<TemplateAttribute> attributes) {
+    public Template setAttributes(final List<TemplateAttribute> attributes) {
         this.attributes = new TemplateAttributes(attributes);
         return this;
     }

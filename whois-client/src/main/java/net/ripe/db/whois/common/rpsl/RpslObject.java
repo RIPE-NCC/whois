@@ -14,8 +14,18 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Immutable
 public class RpslObject implements Identifiable, ResponseObject {
@@ -23,7 +33,6 @@ public class RpslObject implements Identifiable, ResponseObject {
     private final RpslAttribute typeAttribute;
     private final CIString key;
 
-    // TODO: [AH] add sequence_id here too (to form the basis of versioning)
     private Integer objectId;
 
     private List<RpslAttribute> attributes;
@@ -56,12 +65,12 @@ public class RpslObject implements Identifiable, ResponseObject {
         this.type = ObjectType.getByName(typeAttribute.getKey());
         this.attributes = Collections.unmodifiableList(attributes);
 
-        Set<AttributeType> keyAttributes = ObjectTemplate.getTemplate(type).getKeyAttributes();
+        final Set<AttributeType> keyAttributes = ObjectTemplate.getTemplate(type).getKeyAttributes();
         if (keyAttributes.size() == 1) {
             this.key = getValueForAttribute(keyAttributes.iterator().next());
             Validate.notEmpty(this.key.toString(), "key attributes must have value");
         } else {
-            StringBuilder keyBuilder = new StringBuilder(32);
+            final StringBuilder keyBuilder = new StringBuilder(32);
             for (AttributeType keyAttribute : keyAttributes) {
                 String key = getValueForAttribute(keyAttribute).toString();
                 Validate.notEmpty(key, "key attributes must have value");
@@ -205,7 +214,7 @@ public class RpslObject implements Identifiable, ResponseObject {
         return findAttributes(Arrays.asList(attributeTypes));
     }
 
-    private void findCachedAttributes(List<RpslAttribute> result, AttributeType attributeType) {
+    private void findCachedAttributes(final List<RpslAttribute> result, final AttributeType attributeType) {
         final List<RpslAttribute> list = getOrCreateCache().get(attributeType);
         if (list != null) {
             result.addAll(list);

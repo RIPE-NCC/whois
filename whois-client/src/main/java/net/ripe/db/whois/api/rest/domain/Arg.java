@@ -20,7 +20,7 @@ public class Arg {
     @XmlAttribute(name = "value")
     private String value;
 
-    public Arg(String value) {
+    public Arg(final String value) {
         this.value = value;
     }
 

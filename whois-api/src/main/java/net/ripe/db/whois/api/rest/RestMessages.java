@@ -14,11 +14,10 @@ public class RestMessages {
     }
 
     public static Message singleObjectExpected(final int found) {
-        // TODO: [AH] lowercase WhoisResources to better match xml/json output
         return new Message(Messages.Type.ERROR, "Single object expected in WhoisResources (found %d)", found);
     }
 
-    public static Message disallowedSeachFlag(QueryFlag flag) {
+    public static Message disallowedSeachFlag(final QueryFlag flag) {
         return new Message(Messages.Type.ERROR, "Disallowed search flag '%s'", flag.getName());
     }
 

@@ -19,7 +19,7 @@ public class Message {
         this.formattedText = formatMessage(text, args);
     }
 
-    protected String formatMessage(String text, Object[] args) {
+    protected String formatMessage(final String text, final Object[] args) {
         return args.length == 0 ? text : String.format(text, args);
     }
 
@@ -29,7 +29,7 @@ public class Message {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }

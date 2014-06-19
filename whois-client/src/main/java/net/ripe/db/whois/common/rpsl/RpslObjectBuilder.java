@@ -19,20 +19,20 @@ public class RpslObjectBuilder {
         this.attributes = Lists.newArrayList();
     }
 
-    public RpslObjectBuilder(List<RpslAttribute> attributes) {
+    public RpslObjectBuilder(final List<RpslAttribute> attributes) {
         this.attributes = attributes;
     }
 
-    public RpslObjectBuilder(RpslObject rpslObject) {
+    public RpslObjectBuilder(final RpslObject rpslObject) {
         this.original = rpslObject;
         this.attributes = Lists.newArrayList(rpslObject.getAttributes());
     }
 
-    public RpslObjectBuilder(String input) {
+    public RpslObjectBuilder(final String input) {
         this(getAttributes(input));
     }
 
-    public RpslObjectBuilder(byte[] input) {
+    public RpslObjectBuilder(final byte[] input) {
         this(getAttributes(input));
     }
 
@@ -45,11 +45,11 @@ public class RpslObjectBuilder {
     }
 
     // Note: we use ISO_8859_1 encoding everywhere as it is the only one that maps directly from byte to char (as in, it effectively is a '(char)byteValue')
-    public static List<RpslAttribute> getAttributes(String input) {
+    public static List<RpslAttribute> getAttributes(final String input) {
         return getAttributes(input.getBytes(Charsets.ISO_8859_1));
     }
 
-    public static List<RpslAttribute> getAttributes(byte[] buf) {
+    public static List<RpslAttribute> getAttributes(final byte[] buf) {
         Validate.notNull(buf, "Object can not be null");
 
         final List<RpslAttribute> newAttributes = new ArrayList<>(32);
@@ -116,11 +116,11 @@ public class RpslObjectBuilder {
         return attributes.size();
     }
 
-    public RpslAttribute get(int index) {
+    public RpslAttribute get(final int index) {
         return attributes.get(index);
     }
 
-    public RpslObjectBuilder set(int index, RpslAttribute attribute) {
+    public RpslObjectBuilder set(final int index, final RpslAttribute attribute) {
         attributes.set(index, attribute);
         return this;
     }
@@ -145,7 +145,7 @@ public class RpslObjectBuilder {
         return this;
     }
 
-    public RpslObjectBuilder remove(int index) {
+    public RpslObjectBuilder remove(final int index) {
         attributes.remove(index);
         return this;
     }
@@ -179,7 +179,7 @@ public class RpslObjectBuilder {
     }
 
     public AttributeType getTypeAttribute() {
-        AttributeType type = attributes.get(0).getType();
+        final AttributeType type = attributes.get(0).getType();
         if (type == null) {
             throw new IllegalArgumentException(attributes.get(0) + " is not a known type");
         }
@@ -208,7 +208,7 @@ public class RpslObjectBuilder {
     }
 
     // TODO: [AH] this should be pre-initialized in ObjectTemplate
-    private EnumSet<AttributeType> getAttributeTypesAfter(ObjectTemplate objectTemplate, AttributeType attributeType) {
+    private EnumSet<AttributeType> getAttributeTypesAfter(final ObjectTemplate objectTemplate, final AttributeType attributeType) {
         final EnumSet<AttributeType> beforeAttributes = EnumSet.noneOf(AttributeType.class);
         final List<AttributeTemplate> attributeTemplates = objectTemplate.getAttributeTemplates();
 
@@ -247,7 +247,7 @@ public class RpslObjectBuilder {
         }
 
         for (int i = 0; i < attributes.size(); i++) {
-            RpslAttribute newValue = attributesToReplace.get(attributes.get(i));
+            final RpslAttribute newValue = attributesToReplace.get(attributes.get(i));
             if (newValue != null) {
                 attributes.set(i, newValue);
             }

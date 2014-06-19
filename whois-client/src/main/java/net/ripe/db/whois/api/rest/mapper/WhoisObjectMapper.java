@@ -29,7 +29,7 @@ public class WhoisObjectMapper {
 
     @Autowired
     public WhoisObjectMapper(@Value("${api.rest.baseurl}") final String baseUrl,
-                             AttributeMapper[] objectMapperFunctions) {
+                             final AttributeMapper[] objectMapperFunctions) {
         this.baseUrl = baseUrl;
 
         this.objectMapperFunctions = new HashMap<>(objectMapperFunctions.length);
@@ -39,7 +39,7 @@ public class WhoisObjectMapper {
         this.primaryKeyAttributeMapper = this.objectMapperFunctions.get(FormattedClientAttributeMapper.class);
     }
 
-    public RpslObject map(final WhoisObject whoisObject, Class<?> mapFunction) {
+    public RpslObject map(final WhoisObject whoisObject, final Class<?> mapFunction) {
         final List<RpslAttribute> rpslAttributes = Lists.newArrayList();
         final AttributeMapper attributeMapper = objectMapperFunctions.get(mapFunction);
 
@@ -50,7 +50,7 @@ public class WhoisObjectMapper {
         return new RpslObject(rpslAttributes);
     }
 
-    public List<RpslObject> mapWhoisObjects(final Iterable<WhoisObject> whoisObjects, Class<?> mapFunction) {
+    public List<RpslObject> mapWhoisObjects(final Iterable<WhoisObject> whoisObjects, final Class<?> mapFunction) {
         final List<RpslObject> rpslObjects = Lists.newArrayList();
         for (WhoisObject whoisObject : whoisObjects) {
             rpslObjects.add(map(whoisObject, mapFunction));
@@ -58,11 +58,11 @@ public class WhoisObjectMapper {
         return rpslObjects;
     }
 
-    public WhoisResources mapRpslObjects(Class<?> mapFunction, final RpslObject... rpslObjects) {
+    public WhoisResources mapRpslObjects(final Class<?> mapFunction, final RpslObject... rpslObjects) {
         return mapRpslObjects(Arrays.asList(rpslObjects), mapFunction);
     }
 
-    public WhoisResources mapRpslObjects(final Iterable<RpslObject> rpslObjects, Class<?> mapFunction) {
+    public WhoisResources mapRpslObjects(final Iterable<RpslObject> rpslObjects, final Class<?> mapFunction) {
         final WhoisResources whoisResources = new WhoisResources();
         final List<WhoisObject> whoisObjects = Lists.newArrayList();
         for (RpslObject rpslObject : rpslObjects) {
@@ -72,7 +72,7 @@ public class WhoisObjectMapper {
         return whoisResources;
     }
 
-    public WhoisObject map(final RpslObject rpslObject, Class<?> mapFunction) {
+    public WhoisObject map(final RpslObject rpslObject, final Class<?> mapFunction) {
         final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
         final String type = rpslObject.getType().getName();
         final AttributeMapper attributeMapper = objectMapperFunctions.get(mapFunction);

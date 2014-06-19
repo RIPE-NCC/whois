@@ -175,7 +175,7 @@ public class VersionQueryExecutor implements QueryExecutor {
                 new MessageObject(QueryMessages.versionInformation(version,
                         (version == versionInfos.size()),
                         rpslObject.getKey(),
-                        info.getOperation() == Operation.UPDATE ? "UPDATE" : "DELETE",   // TODO: [AH] Operation is overloaded/abused (DAO + different interpretations per module)
+                        info.getOperation() == Operation.UPDATE ? "UPDATE" : "DELETE",
                         info.getTimestamp())),
                 rpslObject
         );

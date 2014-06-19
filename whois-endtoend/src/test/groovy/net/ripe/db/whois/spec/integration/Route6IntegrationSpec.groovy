@@ -1206,7 +1206,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
         pendInetnum =~ /\*\*\*Info:\s+The route6 object 5353::\/24AS456 will be saved for one week/
 
-        notificationFor("dbtest@ripe.net") // TODO [AK] Notification contents
+        notificationFor("dbtest@ripe.net")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1

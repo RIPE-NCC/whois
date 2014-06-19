@@ -4,8 +4,6 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-// TODO: [AH] We check successful errors with response =~ /SUCCESS/; this is very error-prone and misleading, should be fixed everywhere
-// TODO: [AH] Use $ in regexp to increase efficiency, e.g. matching for /not authenticated by: TEST-MNT/ happily matches for 'not authenticated by: TEST-MNT2' !!!
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class RouteIntegrationSpec extends BaseWhoisSourceSpec {

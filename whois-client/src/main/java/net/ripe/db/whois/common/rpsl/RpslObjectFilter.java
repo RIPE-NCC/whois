@@ -55,7 +55,7 @@ public class RpslObjectFilter {
     }
 
 
-    public static RpslObjectBuilder keepKeyAttributesOnly(RpslObjectBuilder builder) {
+    public static RpslObjectBuilder keepKeyAttributesOnly(final RpslObjectBuilder builder) {
         final ObjectTemplate template = ObjectTemplate.getTemplate(ObjectType.getByFirstAttribute(builder.getTypeAttribute()));
         final Set<AttributeType> keyAttributes = Sets.newHashSet();
         keyAttributes.addAll(template.getLookupAttributes());
@@ -63,7 +63,7 @@ public class RpslObjectFilter {
         return builder.retainAttributeTypes(keyAttributes);
     }
 
-    public static RpslObjectBuilder setFiltered(RpslObjectBuilder builder) {
+    public static RpslObjectBuilder setFiltered(final RpslObjectBuilder builder) {
         for (int i = builder.size() - 1; i >= 0; i--) {
             RpslAttribute attribute = builder.get(i);
             if (attribute.getType() == AttributeType.SOURCE) {
@@ -75,7 +75,7 @@ public class RpslObjectFilter {
     }
 
     public static void addFilteredSourceReplacement(final RpslObject object, final Map<RpslAttribute, RpslAttribute> replacementsMap) {
-        RpslAttribute attribute = object.findAttribute(AttributeType.SOURCE);
+        final RpslAttribute attribute = object.findAttribute(AttributeType.SOURCE);
         replacementsMap.put(attribute, new RpslAttribute(AttributeType.SOURCE, attribute.getCleanValue() + FILTERED));
     }
 
@@ -96,12 +96,12 @@ public class RpslObjectFilter {
 
     /** slow way to build specific objects from object skeletons/templates */
     public static RpslObject buildGenericObject(final RpslObjectBuilder builder, final String ... attributes) {
-        List<RpslAttribute> attributeList = new ArrayList<>();
+        final List<RpslAttribute> attributeList = new ArrayList<>();
         for (String attribute : attributes) {
             attributeList.addAll(RpslObjectBuilder.getAttributes(attribute));
         }
 
-        EnumSet<AttributeType> seenTypes = EnumSet.noneOf(AttributeType.class);
+        final EnumSet<AttributeType> seenTypes = EnumSet.noneOf(AttributeType.class);
         for (RpslAttribute rpslAttribute : attributeList) {
             seenTypes.add(rpslAttribute.getType());
         }

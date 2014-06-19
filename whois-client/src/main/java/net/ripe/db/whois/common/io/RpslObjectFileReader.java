@@ -13,7 +13,7 @@ import java.util.zip.GZIPInputStream;
 public class RpslObjectFileReader implements Iterable<String> {
     private final String fileName;
 
-    public RpslObjectFileReader(String fileName) {
+    public RpslObjectFileReader(final String fileName) {
         this.fileName = fileName;
     }
 
@@ -26,7 +26,7 @@ public class RpslObjectFileReader implements Iterable<String> {
         private final BufferedReader bufferedReader;
         private String nextObject;
 
-        public StringIterator(String fileName) {
+        public StringIterator(final String fileName) {
             try {
                 InputStream in = new FileInputStream(fileName);
                 if (fileName.endsWith(".gz")) {

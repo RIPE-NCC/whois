@@ -40,8 +40,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static net.ripe.db.whois.common.domain.CIString.ciString;
-
 @Component
 public class SingleUpdateHandler {
     private final AutoKeyResolver autoKeyResolver;
@@ -143,7 +141,6 @@ public class SingleUpdateHandler {
 
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
-        // TODO: [AH] pending updates is scattered across the code
         final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
 
         if ((pendingAuthentication && !businessRulesOk) || (!pendingAuthentication && updateContext.hasErrors(update))) {

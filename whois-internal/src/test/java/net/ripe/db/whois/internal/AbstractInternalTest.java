@@ -42,7 +42,7 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
 
     @Before
     public void setDatabaseHelper() {
-        databaseHelper = new DatabaseHelper();      // TODO: [AH] DatabaseHelper is waaay overloaded, split into smaller parts so it can be used here easily, too
+        databaseHelper = new DatabaseHelper();
         databaseHelper.setAclDataSource(aclDataSource);
     }
 

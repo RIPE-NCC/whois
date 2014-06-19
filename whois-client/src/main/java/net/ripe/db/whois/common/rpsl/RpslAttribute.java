@@ -269,7 +269,7 @@ public final class RpslAttribute {
             return false;
         }
 
-        RpslAttribute attribute = (RpslAttribute) o;
+        final RpslAttribute attribute = (RpslAttribute) o;
 
         if (type == null) {
             if (attribute.type != null) {
