@@ -1,13 +1,11 @@
 package net.ripe.db.whois.internal.api.rnd;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
-import net.ripe.db.whois.common.dao.jdbc.JdbcCommonOperations;
+import net.ripe.db.whois.common.dao.jdbc.JdbcVersionBaseDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.VersionInfoRowMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,26 +13,19 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Set;
 
 @Repository
-public class RndVersionDao implements VersionDao {
-
-    private JdbcTemplate jdbcTemplate;
+public class RndVersionDao extends JdbcVersionBaseDao {
 
     @Autowired
     public RndVersionDao(final SourceAwareDataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        super(new JdbcTemplate(dataSource));
     }
 
     @Override
-    public RpslObject getRpslObject(VersionInfo info) {
-        return null;
-    }
-
-    @Override @Nullable
+    @Nullable
     public VersionLookupResult findByKey(final ObjectType type, final String searchKey) {
-        final List<Integer> objectIds = JdbcCommonOperations.getObjectIds(jdbcTemplate, type, searchKey);
+        final List<Integer> objectIds = getObjectIds(type, searchKey);
 
         if (objectIds.isEmpty()) {
             return null;
@@ -44,7 +35,7 @@ public class RndVersionDao implements VersionDao {
 
         for (Integer objectId : objectIds) {
             versionInfos.addAll(
-                    jdbcTemplate.query("" +
+                    getJdbcTemplate().query("" +
                                     "SELECT serials.atlast, " +
                                     "       serials.object_id, " +
                                     "       serials.sequence_id, " +
@@ -61,10 +52,5 @@ public class RndVersionDao implements VersionDao {
         }
 
         return new VersionLookupResult(versionInfos, type, searchKey);
-    }
-
-    @Override
-    public Set<ObjectType> getObjectType(String searchKey) {
-        return null;
     }
 }
