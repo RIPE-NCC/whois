@@ -528,6 +528,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\"");
     }
 
+    public static Message abuseContactNotRemovable() {
+        return new Message(Type.ERROR, "PLACEHOLDER Abuse Contact Can't Be Removed For This Object");
+    }
+
     public static Message selfReferenceError(final AttributeType attributeType) {
         return new Message(Type.ERROR, "Self reference is not allowed for attribute type \"%s\"", attributeType.getName());
     }

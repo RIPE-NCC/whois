@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -40,11 +41,18 @@ public class AbuseValidator implements BusinessRuleValidator {
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (!update.getUpdatedObject().containsAttribute(AttributeType.ABUSE_C)) {
+        final RpslObject updatedObject = update.getUpdatedObject();
+        if (null == updatedObject) {
             return;
         }
 
-        final CIString abuseC = update.getUpdatedObject().getValueForAttribute(AttributeType.ABUSE_C);
+        validateRemovedAbuseC(updatedObject, update, updateContext);
+
+        if (!updatedObject.containsAttribute(AttributeType.ABUSE_C)) {
+            return;
+        }
+
+        final CIString abuseC = updatedObject.getValueForAttribute(AttributeType.ABUSE_C);
         final RpslObject referencedRole = uniqueResult(objectDao.getByKeys(ObjectType.ROLE, Lists.newArrayList(abuseC)));
 
         if (referencedRole == null) {
@@ -54,5 +62,21 @@ public class AbuseValidator implements BusinessRuleValidator {
         } else if (!referencedRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
             updateContext.addMessage(update, UpdateMessages.abuseMailboxRequired(abuseC));
         }
+    }
+
+    private void validateRemovedAbuseC(final RpslObject updatedObject, final PreparedUpdate update, final UpdateContext updateContext) {
+        final OrgType orgType = OrgType.getFor(updatedObject.getValueForAttribute(AttributeType.ORG_TYPE));
+        if (orgType == OrgType.LIR && hasRemovedAbuseC(updatedObject, update)) {
+            updateContext.addMessage(update, UpdateMessages.abuseContactNotRemovable()); //TODO correct errormessage
+        }
+    }
+
+    private boolean hasRemovedAbuseC(final RpslObject updatedObject, final PreparedUpdate update) {
+        final boolean hasAbuseC = updatedObject.containsAttribute(AttributeType.ABUSE_C);
+
+        final RpslObject referenceObject = update.getReferenceObject();
+        final boolean originalHasAbuseC = null != referenceObject && referenceObject.containsAttribute(AttributeType.ABUSE_C);
+
+        return update.getAction() == Action.MODIFY && !hasAbuseC && originalHasAbuseC;
     }
 }
