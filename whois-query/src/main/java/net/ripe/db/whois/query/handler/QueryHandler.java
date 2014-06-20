@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -25,13 +26,13 @@ import java.util.concurrent.TimeUnit;
 public class QueryHandler {
     private final WhoisLog whoisLog;
     private final AccessControlListManager accessControlListManager;
-    private final SourceContext sourceContext;
+    private final BasicSourceContext sourceContext;
     private final List<QueryExecutor> queryExecutors;
 
     @Autowired
     public QueryHandler(final WhoisLog whoisLog,
                         final AccessControlListManager accessControlListManager,
-                        final SourceContext sourceContext,
+                        final BasicSourceContext sourceContext,
                         final QueryExecutor... queryExecutors) {
         this.whoisLog = whoisLog;
         this.accessControlListManager = accessControlListManager;

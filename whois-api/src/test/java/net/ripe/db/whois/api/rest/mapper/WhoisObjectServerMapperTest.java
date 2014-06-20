@@ -54,7 +54,7 @@ public class WhoisObjectServerMapperTest {
                 new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL),
                 new FormattedClientAttributeMapper()
         });
-        whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper);
+        whoisObjectServerMapper = new WhoisObjectServerMapper("test", whoisObjectMapper);
     }
 
     @Test

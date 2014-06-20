@@ -102,11 +102,11 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
         final String response = DummyWhoisClient.query(NrtmServer.getPort(), "-g TEST:3:1-3");
 
-        assertThat(response, containsString("ADD 1"));
+        assertThat(response, containsString("ADD/UPD 1"));
         assertThat(response, containsString("AS4294967207"));
-        assertThat(response, containsString("ADD 2"));
+        assertThat(response, containsString("ADD/UPD 2"));
         assertThat(response, containsString("DW-RIPE"));
-        assertThat(response, containsString("ADD 3"));
+        assertThat(response, containsString("ADD/UPD 3"));
         assertThat(response, containsString("DEV-MNT"));
     }
 
@@ -127,7 +127,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
         final String response = DummyWhoisClient.query(NrtmServer.getPort(), "-g TEST:3:1-LAST");
 
-        assertThat(response, containsString("ADD 3"));
+        assertThat(response, containsString("ADD/UPD 3"));
         assertThat(response, containsString("DEV-MNT"));
     }
 

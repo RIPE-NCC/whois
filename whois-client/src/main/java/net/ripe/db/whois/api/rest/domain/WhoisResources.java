@@ -24,6 +24,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "errorMessages",
         "geolocationAttributes",
         "versions",
+        "versionsInternal",
         "termsAndConditions"
 })
 @JsonInclude(NON_EMPTY)
@@ -48,6 +49,8 @@ public class WhoisResources {
     private ErrorMessages errorMessages;
     @XmlElement(name = "versions")
     private WhoisVersions versions;
+    @XmlElement(name = "versionsInternal")
+    private WhoisVersionsInternal versionsInternal;
     @XmlElement(name = "terms-and-conditions")
     private Link termsAndConditions;
 
@@ -116,8 +119,17 @@ public class WhoisResources {
         return versions;
     }
 
+    public WhoisVersionsInternal getVersionsInternal() {
+        return versionsInternal;
+    }
+
     public WhoisResources setVersions(final WhoisVersions versions) {
         this.versions = versions;
+        return this;
+    }
+
+    public WhoisResources setVersions(final WhoisVersionsInternal versions) {
+        this.versionsInternal = versions;
         return this;
     }
 
