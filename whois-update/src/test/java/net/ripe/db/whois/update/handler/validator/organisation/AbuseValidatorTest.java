@@ -20,7 +20,10 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbuseValidatorTest {
@@ -42,7 +45,8 @@ public class AbuseValidatorTest {
 
     @Test
     public void hasNoAbuseC() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\n" +
+                                                                    "org-type: OTHER"));
 
         subject.validate(update, updateContext);
 
@@ -51,7 +55,7 @@ public class AbuseValidatorTest {
 
     @Test
     public void referencesRoleWithoutAbuseMailbox() {
-        final RpslObject organisation = RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC");
+        final RpslObject organisation = RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER");
         when(update.getUpdatedObject()).thenReturn(organisation);
 
         final RpslObject role = RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC");
@@ -64,7 +68,7 @@ public class AbuseValidatorTest {
 
     @Test
     public void referencesRoleWithAbuseMailbox() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
         when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
 
         subject.validate(update, updateContext);
@@ -74,7 +78,7 @@ public class AbuseValidatorTest {
 
     @Test
     public void referencesPersonInsteadOfRole() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
         when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Collections.EMPTY_LIST);
         when(objectDao.getByKeys(eq(ObjectType.PERSON), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("person: Some Person\nnic-hdl: AB-NIC")));
 
@@ -86,9 +90,32 @@ public class AbuseValidatorTest {
 
     @Test
     public void referenceNotFound() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
         when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Collections.EMPTY_LIST);
         when(objectDao.getByKeys(eq(ObjectType.PERSON), anyCollection())).thenReturn(Collections.EMPTY_LIST);
+
+        subject.validate(update, updateContext);
+
+        verifyZeroInteractions(updateContext);
+    }
+
+    @Test
+    public void removeAbuseCContact_LIR() {
+        when(update.getAction()).thenReturn(Action.MODIFY);
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: LIR"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: LIR"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.abuseContactNotRemovable());
+    }
+
+    @Test
+    public void removeAbuseCContact_non_LIR() {
+        when(update.getAction()).thenReturn(Action.MODIFY);
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
+        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
 
         subject.validate(update, updateContext);
 
