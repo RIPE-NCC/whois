@@ -11,34 +11,36 @@ import javax.xml.bind.annotation.XmlType;
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-        "deletedDate",
         "revision",
-        "date",
-        "operation"
-})
+        "from",
+        "to",
+        "operation",
+        "link"
 
+})
 @XmlRootElement(name = "version")
-public class WhoisVersion {
-    @XmlAttribute(name = "deleted")
-    private String deletedDate;
+public class WhoisVersionInternal {
     @XmlElement(name = "revision", required = false)
     private Integer revision;
-    @XmlElement(name = "date", required = false)
-    private String date;
+    @XmlElement(name = "from")
+    private String from;
+    @XmlElement(name = "to", required = false)
+    private String to;
     @XmlElement(name = "operation", required = false)
     private String operation;
+    @XmlElement
+    private Link link;
 
-    public WhoisVersion(final String operation, final String date, final int revision) {
-        this.operation = operation;
-        this.date = date;
+
+    public WhoisVersionInternal(final Integer revision, final String from, final String to, final String operation, final Link link) {
         this.revision = revision;
+        this.from = from;
+        this.to = to;
+        this.operation = operation;
+        this.link = link;
     }
 
-    public WhoisVersion(final String deletedDate) {
-        this.deletedDate = deletedDate;
-    }
-
-    public WhoisVersion() {
+    public WhoisVersionInternal() {
         // required no-arg constructor
     }
 
@@ -46,16 +48,20 @@ public class WhoisVersion {
         return revision;
     }
 
-    public String getDate() {
-        return date;
+    public String getFrom() {
+        return from;
+    }
+
+    public String getTo() {
+        return to;
     }
 
     public String getOperation() {
         return operation;
     }
 
-    public String getDeletedDate() {
-        return deletedDate;
+    public Link getLink() {
+        return link;
     }
 
     @Override
@@ -63,21 +69,23 @@ public class WhoisVersion {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        WhoisVersion that = (WhoisVersion) o;
+        WhoisVersionInternal that = (WhoisVersionInternal) o;
 
-        if (date != null ? !date.equals(that.date) : that.date != null) return false;
-        if (deletedDate != null ? !deletedDate.equals(that.deletedDate) : that.deletedDate != null) return false;
+        if (from != null ? !from.equals(that.from) : that.from != null) return false;
         if (operation != null ? !operation.equals(that.operation) : that.operation != null) return false;
-        return !(revision != null ? !revision.equals(that.revision) : that.revision != null);
+        if (revision != null ? !revision.equals(that.revision) : that.revision != null) return false;
+        if (to != null ? !to.equals(that.to) : that.to != null) return false;
 
+        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = deletedDate != null ? deletedDate.hashCode() : 0;
-        result = 31 * result + (revision != null ? revision.hashCode() : 0);
-        result = 31 * result + (date != null ? date.hashCode() : 0);
+        int result = revision != null ? revision.hashCode() : 0;
+        result = 31 * result + (from != null ? from.hashCode() : 0);
+        result = 31 * result + (to != null ? to.hashCode() : 0);
         result = 31 * result + (operation != null ? operation.hashCode() : 0);
         return result;
     }
+
 }

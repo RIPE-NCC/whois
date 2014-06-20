@@ -4519,6 +4519,30 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisObject.getAttributes().get(0).getValue(), is("10.0.0.0 - 10.255.255.255"));
     }
 
+    @Test
+    public void search_no_empty_elements_in_xml_response() {
+        final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(whoisResources, containsString("Test Person"));
+        assertThat(whoisResources, not(containsString("<errormessages")));
+        assertThat(whoisResources, not(containsString("<versionsInternal")));
+        assertThat(whoisResources, not(containsString("<versions")));
+    }
+
+    @Test
+    public void search_no_empty_elements_in_json_response() {
+        final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST")
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        assertThat(whoisResources, containsString("Test Person"));
+        assertThat(whoisResources, not(containsString("errormessages")));
+        assertThat(whoisResources, not(containsString("versionsInternal")));
+        assertThat(whoisResources, not(containsString("versions")));
+    }
+
     // maintenance mode
 
     // TODO: [AH] also test origin, i.e. maintenanceMode.set("NONE,READONLY")

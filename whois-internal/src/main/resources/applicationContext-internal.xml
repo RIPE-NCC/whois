@@ -19,6 +19,7 @@
             file:${whois.config}"
             system-properties-mode="OVERRIDE"/>
 
+
     <task:annotation-driven scheduler="internalScheduler"/>
     <task:scheduler id="internalScheduler" pool-size="10"/>
 

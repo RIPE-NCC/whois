@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.mapper.AbuseContactMapper;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -27,7 +28,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import static net.ripe.db.whois.api.rest.WhoisRestService.QueryBuilder;
 
 @Component
 @Path("/abuse-contact")
