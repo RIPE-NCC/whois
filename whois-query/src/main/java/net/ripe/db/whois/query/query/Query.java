@@ -106,7 +106,7 @@ public class Query {
     }
 
     public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted) {
-        Query query = parse(args, Origin.REST, trusted);
+        final Query query = parse(args, Origin.REST, trusted);
         query.ssoToken = ssoToken;
         query.passwords = passwords;
         return query;

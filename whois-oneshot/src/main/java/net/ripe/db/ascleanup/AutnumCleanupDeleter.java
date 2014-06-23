@@ -245,7 +245,6 @@ public class AutnumCleanupDeleter {
                     builder.set(i, newAttribute);
                 }
             } catch (RuntimeException ignored) {
-                // todo log 'cannot process this complex/broken attribute, leaving as it is'
                 INFO_LOGGER.error("{} needs manual update", object.getKey());
                 ERROR_LOGGER.info("{} needs manual update", object.getKey(), ignored);
             }

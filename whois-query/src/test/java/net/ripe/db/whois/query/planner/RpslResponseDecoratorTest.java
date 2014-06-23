@@ -47,7 +47,6 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-// TODO: [AH] this should have been an integration test
 
 @RunWith(MockitoJUnitRunner.class)
 public class RpslResponseDecoratorTest {
