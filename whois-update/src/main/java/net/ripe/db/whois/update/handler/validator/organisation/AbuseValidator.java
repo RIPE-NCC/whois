@@ -67,7 +67,7 @@ public class AbuseValidator implements BusinessRuleValidator {
     private void validateRemovedAbuseC(final RpslObject updatedObject, final PreparedUpdate update, final UpdateContext updateContext) {
         final OrgType orgType = OrgType.getFor(updatedObject.getValueForAttribute(AttributeType.ORG_TYPE));
         if (orgType == OrgType.LIR && hasRemovedAbuseC(updatedObject, update)) {
-            updateContext.addMessage(update, UpdateMessages.abuseContactNotRemovable()); //TODO correct errormessage
+            updateContext.addMessage(update, UpdateMessages.abuseContactNotRemovable());
         }
     }
 
