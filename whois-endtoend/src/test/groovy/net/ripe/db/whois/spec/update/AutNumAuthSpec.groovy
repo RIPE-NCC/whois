@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class AutNumAuthSpec extends BaseQueryUpdateSpec {
@@ -3836,7 +3837,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+    @Ignore("Denis review: nothing should be happening, because when modifying an existing object no remarks are added")
     def "modify aut-num, ripe as-block, with mnt-by LIR, no status, add LEGACY, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -4040,7 +4041,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
 
-    
+    @Ignore("Denis review: nothing should be happening, because when modifying an existing object no remarks are added")
     def "modify aut-num, apnic as-block, with mnt-by LIR, no status, add OTHER, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
