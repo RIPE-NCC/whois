@@ -529,7 +529,7 @@ public final class UpdateMessages {
     }
 
     public static Message abuseContactNotRemovable() {
-        return new Message(Type.ERROR, "PLACEHOLDER Abuse Contact Can't Be Removed For This Object");
+        return new Message(Type.ERROR, "\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object");
     }
 
     public static Message selfReferenceError(final AttributeType attributeType) {

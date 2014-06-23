@@ -515,7 +515,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ /Modify FAILED: \[organisation\] ORG-RNO-TEST/
-        response =~ /Error:   PLACEHOLDER Abuse Contact Can't Be Removed For This Object/
+        response =~ "Error:   \"abuse-c:\" cannot be removed from an ORGANISATION object referenced\n            by a resource object"
     }
 
     def "modify organisation, remove abuse-c, not LIR"() {
