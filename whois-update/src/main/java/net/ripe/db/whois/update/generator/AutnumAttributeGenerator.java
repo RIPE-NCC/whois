@@ -15,6 +15,7 @@ import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -60,12 +61,12 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
 
         if (isMaintainedByRir(updatedObject)) {
             if (legacyAutnum.contains(updatedObject.getKey())) {
-                return setAutnumStatus(updatedObject, AutnumStatus.LEGACY, update, updateContext);
+                return setAutnumStatus(originalObject, updatedObject, AutnumStatus.LEGACY, update, updateContext);
             } else {
-                return setAutnumStatus(updatedObject, AutnumStatus.ASSIGNED, update, updateContext);
+                return setAutnumStatus(originalObject, updatedObject, AutnumStatus.ASSIGNED, update, updateContext);
             }
         }
-        return setAutnumStatus(updatedObject, AutnumStatus.OTHER, update, updateContext);
+        return setAutnumStatus(originalObject, updatedObject, AutnumStatus.OTHER, update, updateContext);
     }
 
     private boolean isMaintainedByRir(final RpslObject object) {
@@ -77,10 +78,14 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
         }
     }
 
-    private RpslObject setAutnumStatus(final RpslObject object, final AutnumStatus autnumStatus, final Update update, final UpdateContext updateContext) {
+    private RpslObject setAutnumStatus(@Nullable RpslObject originalObject, final RpslObject object, final AutnumStatus autnumStatus, final Update update, final UpdateContext updateContext) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(object);
         cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, autnumStatus.toString());
-        enforceRemarksRightBeforeStatus(builder);
+
+        // when creating, add the remark, if not the user can do what he wants
+        if (originalObject == null) {
+            enforceRemarksRightBeforeStatus(builder);
+        }
         return builder.get();
     }
 
@@ -90,7 +95,8 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
 
         for (int i = 0; i < attributes.size(); i++) {
             if (attributes.get(i).equals(STATUS_REMARK)) {
-                if (i + 1 < attributes.size() && attributes.get(i + 1).getType().equals(AttributeType.STATUS)) {
+                AttributeType next = attributes.get(i + 1).getType();
+                if (i + 1 < attributes.size() && next != null && next.equals(AttributeType.STATUS)) {
                     found = true;
                 } else {
                     attributes.remove(i--);
