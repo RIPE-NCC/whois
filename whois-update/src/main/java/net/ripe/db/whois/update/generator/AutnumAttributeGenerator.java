@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.LegacyAutnum;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Update;
@@ -61,12 +62,12 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
 
         if (isMaintainedByRir(updatedObject)) {
             if (legacyAutnum.contains(updatedObject.getKey())) {
-                return setAutnumStatus(originalObject, updatedObject, AutnumStatus.LEGACY, update, updateContext);
+                return setAutnumStatus(updatedObject, AutnumStatus.LEGACY, update, updateContext);
             } else {
-                return setAutnumStatus(originalObject, updatedObject, AutnumStatus.ASSIGNED, update, updateContext);
+                return setAutnumStatus(updatedObject, AutnumStatus.ASSIGNED, update, updateContext);
             }
         }
-        return setAutnumStatus(originalObject, updatedObject, AutnumStatus.OTHER, update, updateContext);
+        return setAutnumStatus(updatedObject, AutnumStatus.OTHER, update, updateContext);
     }
 
     private boolean isMaintainedByRir(final RpslObject object) {
@@ -78,12 +79,12 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
         }
     }
 
-    private RpslObject setAutnumStatus(@Nullable RpslObject originalObject, final RpslObject object, final AutnumStatus autnumStatus, final Update update, final UpdateContext updateContext) {
+    private RpslObject setAutnumStatus(final RpslObject object, final AutnumStatus autnumStatus, final Update update, final UpdateContext updateContext) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(object);
         cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, autnumStatus.toString());
 
         // when creating, add the remark, if not the user can do what he wants
-        if (originalObject == null) {
+        if (updateContext.getAction(update) == Action.CREATE) {
             enforceRemarksRightBeforeStatus(builder);
         }
         return builder.get();
