@@ -395,10 +395,9 @@ public interface AttributeSyntax extends Documented {
 
     AttributeSyntax ORG_NAME_SYNTAX = new AttributeSyntaxRegexp(
             Pattern.compile("(?i)^[\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}( [\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}){0,29}$"), "" +
-            "A list of words separated by white space.  A word is made up of letters,\n" +
-            "digits, the character underscore \"_\", and the character hyphen \"-\";\n" +
-            "the first character of a word must be a letter or digit; the last\n" +
-            "character of a word must be a letter, digit or a dot.\n"
+            "A list of 1 to 30 words separated by white space. A word is made up of letters, digits and the following characters:\n" +
+            "][)(._\"*@,&:!'`+/-\n" +
+            "A word may have up to 64 characters and is not case sensitive. Each word can have any combination of the above characters with no restriction on the start or end of a word.\n"
     );
 
     AttributeSyntax ORG_TYPE_SYNTAX = new OrgTypeSyntax();

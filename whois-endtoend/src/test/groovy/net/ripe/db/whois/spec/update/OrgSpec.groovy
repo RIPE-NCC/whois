@@ -103,7 +103,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR2-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
@@ -116,7 +116,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
@@ -130,7 +130,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:          ORG-OR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
@@ -1007,9 +1007,9 @@ class OrgSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T organisation ORG-ABCD1-TEST", "organisation", "ORG-ABCD1-TEST")
     }
 
-    def "create organisation with all possible valid chars in name"() {
+    def "create organisation with all possible valid chars in name and query parts of the name"() {
         expect:
-        queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "A-Z 0-9 .  _ \" * ()@, & :!'`+/-")
+        queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ABZ 0123456789 .  _ \" * (qwerty) @, & :!'`+/-")
 
         when:
         def message = send new Message(
@@ -1017,7 +1017,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 body: """\
                 organisation:    auto-1
                 org-type:        other
-                org-name:        A-Z 0-9 .  _ " * ()@, & :!'`+/-
+                org-name:        ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+/-
                 address:         RIPE NCC
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
@@ -1040,7 +1040,15 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
 
         def qry = query("-r -T organisation ORG-AA1-TEST")
-        qry.contains(/org-name:       A-Z 0-9 .  _ " * ()@, & :!'`+\/-/)
+        qry.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+        def qry5 = query("-Trole ABZ")
+        qry5 =~ "ORG-AA1-TEST"
+        def qry2 = query("-Trole (qwerty)")
+        qry2 =~ "ORG-AA1-TEST"
+        def qry3 = query("-Trole @")
+        qry3 =~ "ORG-AA1-TEST"
+        def qry4 = query("-Trole 0123456789")
+        qry4 =~ "ORG-AA1-TEST"
     }
 
     def "create organisation with valid language and geoloc"() {
@@ -2194,7 +2202,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("LEGACY-OTHER") + "override: denis,override1")
 
         expect:
-        query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "EARLY-REGISTRATION")
+        query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "LEGACY")
         query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
         query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
 
@@ -2415,7 +2423,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIRA-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
@@ -2452,7 +2460,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR2-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
