@@ -480,8 +480,8 @@ public enum AttributeType implements Documented {
             .references(ObjectType.ORGANISATION)),
 
     ORG_NAME(new Builder("org-name", "on")
-            .doc("Specifies the name of the organisation that this organisation object represents in the whois" +
-                    "database. This is an ASCII-only text attribute. The restriction is because this attribute is" +
+            .doc("Specifies the name of the organisation that this organisation object represents in the RIPE " +
+                    "Database. This is an ASCII-only text attribute. The restriction is because this attribute is " +
                     "a look-up key and the whois protocol does not allow specifying character sets in queries. " +
                     "The user can put the name of the organisation in non-ASCII character sets in " +
                     "the \"descr:\" attribute if required.")
@@ -565,7 +565,7 @@ public enum AttributeType implements Documented {
 
     ROLE(new Builder("role", "ro")
             .doc("Specifies the full name of a role entity, e.g. RIPE DBM.")
-            .syntax(PERSON_ROLE_NAME_SYNTAX)),
+            .syntax(ORG_NAME_SYNTAX)),
 
     ROUTE(new Builder("route", "rt")
             .doc("Specifies the prefix of the interAS route. Together with the \"origin:\" attribute, " +

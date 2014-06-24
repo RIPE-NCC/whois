@@ -1096,9 +1096,9 @@ public class AttributeSyntaxTest {
 
     @Test
     public void role() {
-        verifyFailure(ObjectType.ROLE, AttributeType.ROLE, "some [name]");
-        verifyFailure(ObjectType.ROLE, AttributeType.ROLE, "Mad 'Dog'");
-        verifyFailure(ObjectType.ROLE, AttributeType.ROLE, "1Big guy");
+        verifySuccess(ObjectType.ROLE, AttributeType.ROLE, "some [name]");
+        verifySuccess(ObjectType.ROLE, AttributeType.ROLE, "Mad 'Dog'");
+        verifySuccess(ObjectType.ROLE, AttributeType.ROLE, "1Big guy");
 
         verifySuccess(ObjectType.ROLE, AttributeType.ROLE, "Agoston Horvath");
         verifySuccess(ObjectType.ROLE, AttributeType.ROLE, "Andre Kampert");
