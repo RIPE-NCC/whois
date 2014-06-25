@@ -96,8 +96,7 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
 
         for (int i = 0; i < attributes.size(); i++) {
             if (attributes.get(i).equals(STATUS_REMARK)) {
-                AttributeType next = attributes.get(i + 1).getType();
-                if (i + 1 < attributes.size() && next != null && next.equals(AttributeType.STATUS)) {
+                if (i + 1 < attributes.size() && attributes.get(i + 1).getType() != null && attributes.get(i + 1).getType().equals(AttributeType.STATUS)) {
                     found = true;
                 } else {
                     attributes.remove(i--);
