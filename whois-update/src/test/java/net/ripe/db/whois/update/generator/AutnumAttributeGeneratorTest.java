@@ -147,6 +147,7 @@ public class AutnumAttributeGeneratorTest {
                         "remarks:\n" +
                         "status: OTHER\n" +
                         "mnt-by: TEST-MNT\n" +
+                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
                         "source: RIPE\n"
         )));
     }
@@ -172,6 +173,7 @@ public class AutnumAttributeGeneratorTest {
                         "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + " <-- line added by real ninjas, not me\n" +
                         "status: OTHER\n" +
                         "mnt-by: TEST-MNT\n" +
+                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
                         "source: RIPE\n"
         )));
     }
