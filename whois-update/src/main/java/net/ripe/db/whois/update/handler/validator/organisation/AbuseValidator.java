@@ -1,8 +1,11 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -15,7 +18,10 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.collect.CollectionHelper.uniqueResult;
 
@@ -23,10 +29,12 @@ import static net.ripe.db.whois.common.collect.CollectionHelper.uniqueResult;
 public class AbuseValidator implements BusinessRuleValidator {
 
     private final RpslObjectDao objectDao;
+    private Maintainers maintainers;
 
     @Autowired
-    public AbuseValidator(final RpslObjectDao objectDao) {
+    public AbuseValidator(final RpslObjectDao objectDao, final Maintainers maintainers) {
         this.objectDao = objectDao;
+        this.maintainers = maintainers;
     }
 
     @Override
@@ -65,9 +73,27 @@ public class AbuseValidator implements BusinessRuleValidator {
     }
 
     private void validateRemovedAbuseC(final RpslObject updatedObject, final PreparedUpdate update, final UpdateContext updateContext) {
-        final OrgType orgType = OrgType.getFor(updatedObject.getValueForAttribute(AttributeType.ORG_TYPE));
-        if (orgType == OrgType.LIR && hasRemovedAbuseC(updatedObject, update)) {
-            updateContext.addMessage(update, UpdateMessages.abuseContactNotRemovable());
+        if (hasRemovedAbuseC(updatedObject, update)) {
+            boolean isAllowedToUpdate = true;
+            if (OrgType.getFor(updatedObject.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR) {
+                isAllowedToUpdate = false;
+            }
+            if (isAllowedToUpdate) {
+                // check for referencing objects maintained by RS Maintainers
+                Collection<RpslObjectInfo> rpslObjectInfos = objectDao.relatedTo(updatedObject, new HashSet<ObjectType>());
+                for (RpslObjectInfo rpslObjectInfo : rpslObjectInfos) {
+                    final RpslObject referencingObject = objectDao.getById(rpslObjectInfo.getObjectId());
+                    final Set<CIString> objectMaintainers = referencingObject.getValuesForAttribute(AttributeType.MNT_BY);
+                    if (!Sets.intersection(maintainers.getRsMaintainers(), objectMaintainers).isEmpty()
+                            && updatedObject.getKey().equals(referencingObject.getValueForAttribute(AttributeType.ORG))) {
+                        isAllowedToUpdate = false;
+                        break;
+                    }
+                }
+            }
+            if (!isAllowedToUpdate) {
+                updateContext.addMessage(update, UpdateMessages.abuseContactNotRemovable());
+            }
         }
     }
 

@@ -1,7 +1,11 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectDao;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -14,11 +18,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -30,6 +37,7 @@ public class AbuseValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock JdbcRpslObjectDao objectDao;
+    @Mock Maintainers maintainers;
 
     @InjectMocks AbuseValidator subject;
 
@@ -111,14 +119,54 @@ public class AbuseValidatorTest {
     }
 
     @Test
-    public void removeAbuseCContact_non_LIR() {
+    public void allow_removeAbuseCContact_when_non_LIR_no_referencing_objects() {
         when(update.getAction()).thenReturn(Action.MODIFY);
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
         when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
+        when(objectDao.relatedTo(eq(update.getUpdatedObject()), anySet())).thenReturn(Collections.EMPTY_LIST);
 
         subject.validate(update, updateContext);
 
         verifyZeroInteractions(updateContext);
     }
+
+
+    @Test
+    public void allow_removeAbuseC_when_referencing_objects_not_rsMaintained() {
+        RpslObject referencingPerson = RpslObject.parse("person: A Person\naddress: Address 1\nphone: +31 20 535 4444\nnic-hdl: DUMY-RIPE\norg: ORG-1\nmnt-by: RIPE-DBM-MNT\nchanged: ripe-dbm@ripe.net 20090724\nsource: RIPE");
+        RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.PERSON, "a");
+
+        when(update.getAction()).thenReturn(Action.MODIFY);
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
+        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
+        when(objectDao.relatedTo(eq(update.getUpdatedObject()), anySet())).thenReturn(Collections.singletonList(info));
+        when(objectDao.getById(1)).thenReturn(referencingPerson);
+        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")));
+
+        subject.validate(update, updateContext);
+
+        verifyZeroInteractions(updateContext);
+
+    }
+
+    @Test
+    public void not_allow_removeAbuseC_when_referencing_object_rsMaintained() {
+        RpslObject referencingPerson = RpslObject.parse("person: A Person\naddress: Address 1\nphone: +31 20 535 4444\nnic-hdl: DUMY-RIPE\norg: ORG-1\nmnt-by: RIPE-DBM-MNT\nchanged: ripe-dbm@ripe.net 20090724\nsource: RIPE");
+        RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.PERSON, "a");
+
+        when(update.getAction()).thenReturn(Action.MODIFY);
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
+        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
+        when(objectDao.relatedTo(eq(update.getUpdatedObject()), anySet())).thenReturn(Collections.singletonList(info));
+        when(objectDao.getById(1)).thenReturn(referencingPerson);
+        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-DBM-MNT")));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.abuseContactNotRemovable());
+    }
+
 }
