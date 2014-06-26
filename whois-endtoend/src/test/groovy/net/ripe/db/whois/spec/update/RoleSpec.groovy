@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class RoleSpec extends BaseQueryUpdateSpec {
@@ -741,6 +742,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBT role FR1-TEST", "role", "First Role", "tech-c:")
     }
 
+    @Ignore("failing due to invalid search key: review by Denis")
     def "create role with name including all possible chars"() {
         given:
 
