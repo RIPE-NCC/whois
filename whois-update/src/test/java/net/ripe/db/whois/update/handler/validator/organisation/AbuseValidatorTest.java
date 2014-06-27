@@ -141,7 +141,7 @@ public class AbuseValidatorTest {
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
         when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
-        when(objectDao.relatedTo(eq(update.getUpdatedObject()), anySet())).thenReturn(Collections.singletonList(info));
+        when(objectDao.relatedTo(eq(update.getReferenceObject()), anySet())).thenReturn(Collections.singletonList(info));
         when(objectDao.getById(1)).thenReturn(referencingPerson);
         when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")));
 
@@ -160,7 +160,7 @@ public class AbuseValidatorTest {
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
         when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
-        when(objectDao.relatedTo(eq(update.getUpdatedObject()), anySet())).thenReturn(Collections.singletonList(info));
+        when(objectDao.relatedTo(eq(update.getReferenceObject()), anySet())).thenReturn(Collections.singletonList(info));
         when(objectDao.getById(1)).thenReturn(referencingPerson);
         when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-DBM-MNT")));
 
