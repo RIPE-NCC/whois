@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -78,9 +79,9 @@ public class AbuseValidator implements BusinessRuleValidator {
             if (OrgType.getFor(updatedObject.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR) {
                 isAllowedToUpdate = false;
             }
-            if (isAllowedToUpdate) {
+            if (isAllowedToUpdate && update.getReferenceObject() != null) {
                 // check for referencing objects maintained by RS Maintainers
-                Collection<RpslObjectInfo> rpslObjectInfos = objectDao.relatedTo(updatedObject, new HashSet<ObjectType>());
+                Collection<RpslObjectInfo> rpslObjectInfos = objectDao.relatedTo(update.getReferenceObject(), new HashSet<ObjectType>());
                 for (RpslObjectInfo rpslObjectInfo : rpslObjectInfos) {
                     final RpslObject referencingObject = objectDao.getById(rpslObjectInfo.getObjectId());
                     final Set<CIString> objectMaintainers = referencingObject.getValuesForAttribute(AttributeType.MNT_BY);
