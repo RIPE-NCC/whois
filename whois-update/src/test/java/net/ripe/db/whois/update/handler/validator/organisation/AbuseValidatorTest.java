@@ -133,27 +133,8 @@ public class AbuseValidatorTest {
 
 
     @Test
-    public void allow_removeAbuseC_when_referencing_objects_not_rsMaintained() {
-        RpslObject referencingPerson = RpslObject.parse("person: A Person\naddress: Address 1\nphone: +31 20 535 4444\nnic-hdl: DUMY-RIPE\norg: ORG-1\nmnt-by: RIPE-DBM-MNT\nchanged: ripe-dbm@ripe.net 20090724\nsource: RIPE");
-        RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.PERSON, "a");
-
-        when(update.getAction()).thenReturn(Action.MODIFY);
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
-        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
-        when(objectDao.relatedTo(eq(update.getReferenceObject()), anySet())).thenReturn(Collections.singletonList(info));
-        when(objectDao.getById(1)).thenReturn(referencingPerson);
-        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")));
-
-        subject.validate(update, updateContext);
-
-        verifyZeroInteractions(updateContext);
-
-    }
-
-    @Test
-    public void not_allow_removeAbuseC_when_referencing_object_rsMaintained() {
-        RpslObject referencingPerson = RpslObject.parse("person: A Person\naddress: Address 1\nphone: +31 20 535 4444\nnic-hdl: DUMY-RIPE\norg: ORG-1\nmnt-by: RIPE-DBM-MNT\nchanged: ripe-dbm@ripe.net 20090724\nsource: RIPE");
+    public void allow_removeAbuseC_when_referencing_object_is_not_resource() {
+        RpslObject referencingPerson = RpslObject.parse("person: A Person\naddress: Address 1\nphone: +31 20 535 4444\nnic-hdl: DUMY-RIPE\norg: ORG-1\nmnt-by: A_NON_RS_MAINTAINER\nchanged: ripe-dbm@ripe.net 20090724\nsource: RIPE");
         RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.PERSON, "a");
 
         when(update.getAction()).thenReturn(Action.MODIFY);
@@ -163,6 +144,44 @@ public class AbuseValidatorTest {
         when(objectDao.relatedTo(eq(update.getReferenceObject()), anySet())).thenReturn(Collections.singletonList(info));
         when(objectDao.getById(1)).thenReturn(referencingPerson);
         when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-DBM-MNT")));
+
+        subject.validate(update, updateContext);
+
+        verifyZeroInteractions(updateContext);
+    }
+
+    @Test
+    public void allow_removeAbuseC_when_referencing_resources_not_rsMaintained() {
+        RpslObject resource = RpslObject.parse("aut-num: AS6\norg: ORG-1\nmnt-by: A_NON_RS_MAINTAINER");
+        RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.AUT_NUM, "a");
+
+        when(update.getAction()).thenReturn(Action.MODIFY);
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
+        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
+        when(objectDao.relatedTo(eq(update.getReferenceObject()), anySet())).thenReturn(Collections.singletonList(info));
+        when(objectDao.getById(1)).thenReturn(resource);
+        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")));
+
+        subject.validate(update, updateContext);
+
+        verifyZeroInteractions(updateContext);
+
+    }
+
+    @Test
+    public void not_allow_removeAbuseC_when_a_referencing_resource_is_rsmaintained() {
+        RpslObject resource = RpslObject.parse("aut-num: AS6\norg: ORG-1\nmnt-by: AN_RS_MAINTAINER");
+
+        RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.AUT_NUM, "a");
+
+        when(update.getAction()).thenReturn(Action.MODIFY);
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-1\nabuse-c: AB-NIC\norg-type: OTHER"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-1\norg-type: OTHER"));
+        when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
+        when(objectDao.relatedTo(eq(update.getReferenceObject()), anySet())).thenReturn(Collections.singletonList(info));
+        when(objectDao.getById(1)).thenReturn(resource);
+        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")));
 
         subject.validate(update, updateContext);
 
