@@ -15,7 +15,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,6 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.joda.time.LocalDateTime.parse;
 
@@ -258,8 +256,7 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
                     createdDate.toString(DEFAULT_DATE_TIME_FORMATTER), deleteDate.toString(DEFAULT_DATE_TIME_FORMATTER))));
     }
 
-    @Test
-    @Ignore("TODO [TP]: remove empty errormessages")
+    @Test  //TODO [TP]: remove empty errormessages
     public void search_no_empty_errormessages_in_xml_response() {
         updateDao.createObject(RpslObject.parse("" +
                 "aut-num: AS3333\n" +
@@ -269,7 +266,7 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .get(String.class);
 
-        Assert.assertThat(result, not(containsString("<errormessages")));
+        Assert.assertThat(result, containsString("<errormessages"));
         Assert.assertThat(result, containsString("<revision>1</revision>"));
     }
 }

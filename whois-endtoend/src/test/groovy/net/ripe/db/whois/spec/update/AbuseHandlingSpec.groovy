@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class AbuseHandlingSpec extends BaseQueryUpdateSpec {
@@ -1966,143 +1965,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
     }
 
-    //# Modify ORGANISATION with abuse-c, type OTHER, ref RIPE ASSIGNED PI, remove abuse-c
-    @Ignore
-    def "modify ORGANISATION with abuse-c, type OTHER, ref RIPE ASSIGNED PI, remove abuse-c"() {
-      given:
-        syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        syncUpdate(getTransient("ASSPI-A") + "override: denis,override1")
-        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA1-TEST")
-        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
-
-      expect:
-
-      when:
-        def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
-                org-type:     OTHER
-                org-name:     Organisation for Abuse
-                address:      RIPE NCC
-                e-mail:       dbtest@ripe.net
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                ref-nfy:      dbtest-org@ripe.net
-                mnt-ref:      owner3-mnt
-                mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
-                source:       TEST
-
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-LIRA-TEST") ==
-                ["This object must include an \"abuse-c\" attribute"]
-
-        query_object_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-    }
-
-    //# Modify ORGANISATION with abuse-c, type OTHER, ref RIPE ASSIGNED ANY, remove abuse-c
-    @Ignore
-    def "modify ORGANISATION with abuse-c, type OTHER, ref RIPE ASSIGNED ANY, remove abuse-c"() {
-      given:
-        syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        syncUpdate(getTransient("ASSANY-A") + "override: denis,override1")
-        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ORG-OFA1-TEST")
-        query_object_matches("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
-
-      expect:
-
-      when:
-        def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
-                org-type:     OTHER
-                org-name:     Organisation for Abuse
-                address:      RIPE NCC
-                e-mail:       dbtest@ripe.net
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                ref-nfy:      dbtest-org@ripe.net
-                mnt-ref:      owner3-mnt
-                mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
-                source:       TEST
-
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-LIRA-TEST") ==
-                ["This object must include an \"abuse-c\" attribute"]
-
-        query_object_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-    }
-
-    //# Modify ORGANISATION with abuse-c, type OTHER, ref AUT-NUM, remove abuse-c
-    @Ignore
-    def "modify ORGANISATION with abuse-c, type OTHER, ref AUT-NUM, remove abuse-c"() {
-      given:
-        syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        syncUpdate(getTransient("AS352-A") + "override: denis,override1")
-        query_object_matches("-r -T aut-num AS352", "aut-num", "AS352", "ORG-OFA1-TEST")
-
-      expect:
-
-      when:
-        def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
-                org-type:     OTHER
-                org-name:     Organisation for Abuse
-                address:      RIPE NCC
-                e-mail:       dbtest@ripe.net
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                ref-nfy:      dbtest-org@ripe.net
-                mnt-ref:      owner3-mnt
-                mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
-                source:       TEST
-
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
-        ack.errorMessagesFor("Modify", "[organisation] ORG-LIRA-TEST") ==
-                ["This object must include an \"abuse-c\" attribute"]
-
-        query_object_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-    }
-
     def "modify ORGANISATION with abuse-c, type OTHER, ref ASSIGNED PA, remove abuse-c"() {
       given:
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
@@ -2360,55 +2222,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
         query_object_not_matches("-rGBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c:")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-    }
-
-    //# Modify ALLOCATED PA ref ORGANISATION with no abuse-c, type LIR
-    @Ignore
-    def "modify ALLOCATED PA ref ORGANISATION with no abuse-c, type LIR"() {
-      given:
-        syncUpdate(getTransient("ALLOC-UNS") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-
-      expect:
-
-      when:
-        def message = syncUpdate("""\
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR2-TEST
-                admin-c:      SR1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-MNT
-                mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                remarks:      just added
-
-                password: hm
-                password: owner3
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
-                ["This object must include an \"abuse-c\" attribute"]
-
-        query_object_not_matches("-rGBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c:")
-        query_object_not_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "just added")
     }
 
     //# Modify ORGANISATION, add abuse-c referencing PERSON

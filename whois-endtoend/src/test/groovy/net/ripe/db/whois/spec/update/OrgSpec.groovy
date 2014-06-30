@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class OrgSpec extends BaseQueryUpdateSpec {
@@ -1006,51 +1005,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
 
         queryObject("-r -T organisation ORG-ABCD1-TEST", "organisation", "ORG-ABCD1-TEST")
-    }
-
-    @Ignore("failing due to invalid search key: review by Denis")
-    def "create organisation with all possible valid chars in name and query parts of the name"() {
-        expect:
-        queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ABZ 0123456789 .  _ \" * (qwerty) @, & :!'`+/-")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                organisation:    auto-1
-                org-type:        other
-                org-name:        ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+/-
-                address:         RIPE NCC
-                e-mail:          dbtest@ripe.net
-                mnt-ref:         owner3-mnt
-                mnt-by:          owner2-mnT
-                changed:         denis@ripe.net 20121016
-                source:          TEST
-
-                password: owner2
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-        ack.success
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        def qry = query("-r -T organisation ORG-AA1-TEST")
-        qry.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
-        def qry5 = query("-Trole ABZ")
-        qry5 =~ "ORG-AA1-TEST"
-        def qry2 = query("-Trole (qwerty)")
-        qry2 =~ "ORG-AA1-TEST"
-        def qry3 = query("-Trole @")
-        qry3 =~ "ORG-AA1-TEST"
-        def qry4 = query("-Trole 0123456789")
-        qry4 =~ "ORG-AA1-TEST"
     }
 
     def "create organisation with valid language and geoloc"() {
