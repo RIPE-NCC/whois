@@ -67,6 +67,11 @@ public enum ObjectType {
         return shortName;
     }
 
+    public Boolean isResourceType() {
+        return this == AUT_NUM || this == INET6NUM || this == INETNUM;
+    }
+
+
     public static ObjectType getByName(final String name) throws IllegalArgumentException {
         final ObjectType ret = getByNameOrNull(name);
         if (ret == null) {
