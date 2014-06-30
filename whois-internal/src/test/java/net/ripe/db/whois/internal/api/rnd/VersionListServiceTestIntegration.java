@@ -80,7 +80,7 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
         final LocalDateTime toDate = parse(toFirst, DEFAULT_DATE_TIME_FORMATTER);
         final LocalDateTime fromLastDate = parse(fromLast, DEFAULT_DATE_TIME_FORMATTER);
 
-        assertThat(Period.fieldDifference(fromDate, toDate).getDays(), is(3));
+        assertThat(new Period(fromDate, toDate).getDays(), is(3));
         assertThat(toDate, is(fromLastDate));
         assertThat(toLast, is(""));
     }
@@ -108,7 +108,7 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
 
 
         assertThat(versions.get(0).getOperation(), is(Operation.UPDATE.toString()));
-        assertThat(Period.fieldDifference(fromDate, toDate).getDays(), is(3));
+        assertThat(new Period(fromDate, toDate).getDays(), is(3));
     }
 
 
@@ -143,11 +143,11 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
 
         LocalDateTime fromDateFirst = parse(versions.get(0).getFrom(), DEFAULT_DATE_TIME_FORMATTER);
         LocalDateTime toDateFirst = parse(versions.get(0).getTo(), DEFAULT_DATE_TIME_FORMATTER);
-        assertThat(Period.fieldDifference(fromDateFirst, toDateFirst).getDays(), is(3));
+        assertThat(new Period(fromDateFirst, toDateFirst).getDays(), is(3));
         assertThat(versions.get(0).getLink().toString(), containsString(baseHref + "1"));
 
         LocalDateTime fromDateLast = parse(versions.get(1).getFrom(), DEFAULT_DATE_TIME_FORMATTER);
-        assertThat(Period.fieldDifference(toDateFirst, fromDateLast).getDays(), is(2));
+        assertThat(new Period(toDateFirst, fromDateLast).getDays(), is(2));
         assertThat(versions.get(1).getTo(), is(""));
         assertThat(versions.get(1).getLink().toString(), containsString(baseHref + "2"));
     }
