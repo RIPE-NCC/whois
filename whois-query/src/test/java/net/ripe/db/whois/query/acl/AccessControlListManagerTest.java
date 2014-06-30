@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
@@ -12,6 +13,8 @@ import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -20,11 +23,13 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import static net.ripe.db.whois.query.acl.AccessControlListManager.mask;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -137,10 +142,16 @@ public class AccessControlListManagerTest {
         assertThat(subject.getPersonalDataLimit(ipv6Unknown), is(PERSONAL_DATA_LIMIT_UNKNOWN));
     }
 
+    @Captor
+    ArgumentCaptor<Ipv6Resource> ipv6ResourceCaptor;
+
     @Test
     public void test_if_block_temporary_is_logged() {
         subject.blockTemporary(ipv6Restricted, PERSONAL_DATA_LIMIT);
-        verify(accessControlListDao).saveAclEvent(AccessControlListManager.getMaskedAddressAsString(ipv6Restricted), now, PERSONAL_DATA_LIMIT, BlockEvent.Type.BLOCK_TEMPORARY);
+        verify(accessControlListDao).saveAclEvent(ipv6ResourceCaptor.capture(), eq(now), eq(PERSONAL_DATA_LIMIT), eq(BlockEvent.Type.BLOCK_TEMPORARY));
+
+        Ipv6Resource ipv6Resource = ipv6ResourceCaptor.getValue();
+        assertThat(ipv6Resource.toString(), is("2001::/64"));
     }
 
     @Test
@@ -211,9 +222,5 @@ public class AccessControlListManagerTest {
     public void override_from_untrusted_range() {
         when(ipRanges.isTrusted(any(IpInterval.class))).thenReturn(false);
         assertThat(subject.isTrusted(InetAddresses.forString("10.0.0.1")), is(false));
-    }
-
-    private InetAddress mask(InetAddress address, int mask) {
-        return AccessControlListManager.mask(address, mask);
     }
 }
