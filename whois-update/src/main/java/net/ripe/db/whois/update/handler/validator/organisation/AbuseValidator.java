@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
@@ -84,7 +83,7 @@ public class AbuseValidator implements BusinessRuleValidator {
             }
 
             if (isAllowedToUpdate) {
-                Collection<RpslObjectInfo> rpslObjectInfos = FluentIterable
+                final Collection<RpslObjectInfo> rpslObjectInfos = FluentIterable
                         .from(objectDao.relatedTo(update.getReferenceObject(), new HashSet<ObjectType>()))
                         .filter(new Predicate<RpslObjectInfo>() {
                             @Override
