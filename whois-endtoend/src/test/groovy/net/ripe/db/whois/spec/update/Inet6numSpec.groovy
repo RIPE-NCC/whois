@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -224,6 +223,78 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 """
         ]
+    }
+
+    def "modify 0::/0 without override"() {
+        when:
+            def ack = syncUpdateWithResponse("""\
+                inet6num:     0::/0
+                netname:      IANA-BLK
+                descr:        The whole IPv6 address space
+                country:      EU # Country is really world wide
+                org:          ORG-IANA1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-BY-RIR
+                remarks:      The country is really worldwide.
+                remarks:      This address space is assigned at various other places in
+                remarks:      the world and might therefore not be in the RIPE database.
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                mnt-routes:   RIPE-NCC-HM-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: owner3
+                password: hm
+                """.stripIndent()
+        )
+
+        then:
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+
+            ack.countErrorWarnInfo(0, 0, 1)
+            ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
+            ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == ["Value 0::/0 converted to ::/0"]
+    }
+
+    def "modify 0::/0 with override"() {
+        expect:
+            queryObject("-r -T inet6num ::/0", "inet6num", "::/0")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                inet6num:      0::/0
+                netname:      IANA-BLK
+                descr:        The whole IPv6 address space
+                country:      EU # Country is really world wide
+                org:          ORG-IANA1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-BY-RIR
+                remarks:      The country is really worldwide.
+                remarks:      This address space is assigned at various other places in
+                remarks:      the world and might therefore not be in the RIPE database.
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                mnt-routes:   owner-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override: denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+
+            ack.countErrorWarnInfo(0, 0, 2)
+            ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
+            ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == ["Value 0::/0 converted to ::/0", "Authorisation override used"]
     }
 
     def "modify with invalid prefix 1::/0"() {
