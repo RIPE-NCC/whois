@@ -500,11 +500,10 @@ public class WhoisRestService {
     private void checkForInvalidFlags(final HttpServletRequest request, final Set<QueryFlag> flags) {
         for (final QueryFlag flag : flags) {
             if (NOT_ALLOWED_SEARCH_QUERY_FLAGS.contains(flag)) {
-                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.disallowedSeachFlag(flag))).build());
+                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.disallowedSearchFlag(flag))).build());
             }
         }
     }
-
 
     private RpslObject getSubmittedObject(final HttpServletRequest request, final WhoisResources whoisResources) {
         final int size = (whoisResources == null || CollectionUtils.isEmpty(whoisResources.getWhoisObjects())) ? 0 :
@@ -629,7 +628,7 @@ public class WhoisRestService {
         public void write(final OutputStream output) throws IOException, WebApplicationException {
             streamingMarshal = getStreamingMarshal(request, output);
 
-            SearchResponseHandler responseHandler = new SearchResponseHandler();
+            final SearchResponseHandler responseHandler = new SearchResponseHandler();
             try {
                 final int contextId = System.identityHashCode(Thread.currentThread());
                 queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
@@ -670,7 +669,7 @@ public class WhoisRestService {
                 } else if (responseObject instanceof RpslObject) {
                     streamRpslObject((RpslObject) responseObject);
                 } else if (responseObject instanceof MessageObject) {
-                    Message message = ((MessageObject) responseObject).getMessage();
+                    final Message message = ((MessageObject) responseObject).getMessage();
                     if (message != null && Messages.Type.INFO != message.getType()) {
                         errors.add(message);
                     }
