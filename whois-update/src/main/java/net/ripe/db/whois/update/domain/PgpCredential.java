@@ -26,7 +26,7 @@ public class PgpCredential implements Credential {
     }
 
     public static PgpCredential createOfferedCredential(@Nullable final String clearText) {
-        return new PgpCredential(PgpSignedMessage.parse(clearText));
+        return new PgpCredential(PgpSignedMessage.parse(clearText));           // TODO: also specify the encoding from email / syncupdates / REST API request
     }
 
     public static PgpCredential createOfferedCredential(final String signedData, final String signature) {
