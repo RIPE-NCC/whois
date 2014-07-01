@@ -103,6 +103,7 @@ import static net.ripe.db.whois.query.QueryFlag.PERSISTENT_CONNECTION;
 import static net.ripe.db.whois.query.QueryFlag.PRIMARY_KEYS;
 import static net.ripe.db.whois.query.QueryFlag.SELECT_TYPES;
 import static net.ripe.db.whois.query.QueryFlag.SHOW_TAG_INFO;
+import static net.ripe.db.whois.query.QueryFlag.SHOW_TIMESTAMP_VERSION;
 import static net.ripe.db.whois.query.QueryFlag.SHOW_VERSION;
 import static net.ripe.db.whois.query.QueryFlag.SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.TEMPLATE;
@@ -148,7 +149,8 @@ public class WhoisRestService {
             // versions are accessible via REST URL /versions/
             DIFF_VERSIONS,
             LIST_VERSIONS,
-            SHOW_VERSION
+            SHOW_VERSION,
+            SHOW_TIMESTAMP_VERSION
     );
 
     private final RpslObjectDao rpslObjectDao;
