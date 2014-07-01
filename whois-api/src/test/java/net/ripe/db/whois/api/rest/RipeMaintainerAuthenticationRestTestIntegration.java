@@ -3,12 +3,12 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.hamcrest.Matchers;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +18,12 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-@Ignore("TODO: ignored until WhoisProfile.isDeployed() check is removed from Authenticator")
 @Category(IntegrationTest.class)
 public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractIntegrationTest {
 
@@ -91,7 +92,7 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractInt
                     .post(Entity.entity(person, MediaType.APPLICATION_XML), String.class);
             fail();
         } catch (NotAuthorizedException e) {
-            assertThat(e.getResponse().readEntity(String.class), Matchers.containsString("Unauthorized"));
+            assertThat(e.getResponse().readEntity(String.class), Matchers.containsString("Authentication by RIPE NCC maintainers only allowed from within the RIPE NCC network"));
         }
     }
 
@@ -118,13 +119,12 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractInt
                         "  </objects>\n" +
                         "</whois-resources>\n";
 
-        try {
-            RestTest.target(getPort(), "whois/test/person?password=emptypassword")
+        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=emptypassword")
                 .request()
-                .post(Entity.entity(person, MediaType.APPLICATION_XML), String.class);
-            fail();
-        } catch (NotAuthorizedException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("Unauthorized"));
-        }
+                .post(Entity.entity(person, MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 }

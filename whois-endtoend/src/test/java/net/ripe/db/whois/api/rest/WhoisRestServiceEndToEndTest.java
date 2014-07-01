@@ -13,8 +13,10 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.EndToEndTest;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.support.TestUpdateLog;
@@ -677,6 +679,27 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
         assertThat(linesContainingPassword, contains("<message><![CDATA[/whois/test/person/TP2-TEST?password=lir]]></message>",
                 "<credential>PasswordCredential{password = 'lir'}</credential>"));
+    }
+
+    @Test
+    public void create_inetnum_with_parent_without_status_to_check_error_message_beginning_with_percent_is_handled_correctly() {
+        databaseHelper.addObjects(
+                new RpslObjectBuilder(makeInetnum("10.0.0.0 - 10.255.255.255")).removeAttributeType(AttributeType.STATUS).get()
+        );
+
+        final RpslObject assignment = makeInetnum("10.0.0.0 - 10.0.255.255");
+
+        try {
+            RestTest.target(getPort(), "whois/test/inetnum")
+                    .request(mediaType)
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, assignment), mediaType), WhoisResources.class);
+            fail();
+        } catch (NotAuthorizedException expected) {
+            final WhoisResources whoisResources = expected.getResponse().readEntity(WhoisResources.class);
+            final ErrorMessage errorMessage = Lists.reverse(whoisResources.getErrorMessages()).get(0);
+            assertThat(errorMessage.getText(), is("%s %s does not have \"status:\""));
+            assertThat(errorMessage.toString(), is("Parent 10.0.0.0 - 10.255.255.255 does not have \"status:\""));
+        }
     }
 
     // helper methods

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query;
 
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
@@ -8,6 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import static org.hamcrest.Matchers.containsString;
@@ -71,6 +73,8 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
             "changed:        dbtest@ripe.net 20120101\n" +
             "source:         TEST");
 
+    @Autowired IpRanges ipRanges;
+
     @Before
     public void startupWhoisServer() throws Exception {
         databaseHelper.addObjects(PAULETH_PALTHEN, KEYCERT, OWNER_MNT);
@@ -111,9 +115,21 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     @Test
-    public void inverse_auth_sso_with_uuid() {
+    public void inverse_auth_sso_with_uuid_untrusted() {
+        ipRanges.setTrusted("::0");
+
         assertThat(query("-B -i auth SSO 906635c2-0405-429a-800b-0602bd716124"),
                 containsString("% Inverse search on 'auth' attribute is limited to 'key-cert' objects only"));
+    }
+
+    @Test
+    public void inverse_auth_sso_with_uuid_trusted() {
+        ipRanges.setTrusted("127/8", "::1");
+
+        final String response = query("-B -i auth SSO 906635c2-0405-429a-800b-0602bd716124");
+
+        assertThat(response, containsString("mntner:         OWNER-MNT"));
+        assertThat(response, containsString("auth:           SSO # Filtered"));
     }
 
     @Test

@@ -68,7 +68,7 @@ public class WhoisObject {
         return primaryKey != null ? primaryKey.getAttributes() : Collections.<Attribute>emptyList();
     }
 
-    public void setPrimaryKey(List<Attribute> value) {
+    public void setPrimaryKey(final List<Attribute> value) {
         this.primaryKey = new PrimaryKey(value);
     }
 
@@ -76,7 +76,7 @@ public class WhoisObject {
         return attributes != null ? attributes.getAttributes() : Collections.<Attribute>emptyList();
     }
 
-    public void setAttributes(List<Attribute> value) {
+    public void setAttributes(final List<Attribute> value) {
         this.attributes = new Attributes(value);
     }
 
@@ -92,7 +92,7 @@ public class WhoisObject {
         return version;
     }
 
-    public void setVersion(Integer version) {
+    public void setVersion(final Integer version) {
         this.version = version;
     }
 
@@ -100,12 +100,12 @@ public class WhoisObject {
         return tags != null ? tags.getTags() : Collections.<WhoisTag>emptyList();
     }
 
-    public void setTags(List<WhoisTag> tags) {
+    public void setTags(final List<WhoisTag> tags) {
         this.tags = new WhoisTags(tags);
     }
 
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         for (Attribute attribute : getAttributes()) {
             builder.append(attribute.toString()).append('\n');
         }

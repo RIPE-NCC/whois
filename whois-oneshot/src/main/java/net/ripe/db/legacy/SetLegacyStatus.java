@@ -2,7 +2,7 @@ package net.ripe.db.legacy;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
-import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.sun.istack.NotNull;
 import joptsimple.OptionParser;
@@ -13,6 +13,7 @@ import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -144,60 +145,62 @@ public class SetLegacyStatus {
         }
     }
 
-    private void setAllMoreSpecificLegacyStatus(final RpslObject rpslObject) {
+    void setAllMoreSpecificLegacyStatus(final RpslObject rpslObject) {
         setLegacyStatus(rpslObject);
         for (RpslObject moreSpecificObject : searchAllMoreSpecificMatch(rpslObject.getKey().toString())) {
             setLegacyStatus(moreSpecificObject);
         }
     }
 
-    private void setLegacyStatus(final RpslObject rpslObject) {
-        if (!rpslObject.containsAttribute(AttributeType.STATUS)) {
-            LOGGER.warn("inetnum {} has no status, skipping it.", rpslObject.getKey());
+    void setLegacyStatus(final RpslObject rpslObject) {
+
+        final CIString status = rpslObject.getValueOrNullForAttribute(AttributeType.STATUS);
+
+        if (status != null && status.equals(InetnumStatus.LEGACY.toString())) {
+            LOGGER.info("LEGACY status already set for inetnum {}, skipping it.", rpslObject.getKey());
             return;
         }
 
-        final RpslAttribute statusAttribute = rpslObject.findAttribute(AttributeType.STATUS);
-        if (statusAttribute.getCleanValue().equals(InetnumStatus.LEGACY.toString())) {
-            LOGGER.info("LEGACY status already set for inetnum {}", rpslObject.getKey());
-            return;
-        }
+        final RpslObjectBuilder rpslObjectBuilder = new RpslObjectBuilder(rpslObject);
 
-        boolean convertMntLower = false;
-        FluentIterable<RpslAttribute> mntByWithoutPowerMaintainer = FluentIterable
-                .from(rpslObject.findAttributes(AttributeType.MNT_BY))
-                .filter(new Predicate<RpslAttribute>() {
+        if (status != null) rpslObjectBuilder.removeAttributeType(AttributeType.STATUS);
+
+        rpslObjectBuilder.addAttributeSorted(new RpslAttribute(AttributeType.STATUS, InetnumStatus.LEGACY.toString()));
+        rpslObjectBuilder.addAttributeAfter(STATUS_REMARK, AttributeType.STATUS);
+
+        // maintainer
+
+        final List<RpslAttribute> mntBy = rpslObject.findAttributes(AttributeType.MNT_BY);
+        final List<RpslAttribute> mntByRipeNcc = Lists.newArrayList(Iterables.filter(mntBy,
+                new Predicate<RpslAttribute>() {
                     @Override
-                    public boolean apply(@Nullable RpslAttribute input) {
-                        return input != null && !(input.getCleanValue().equals("RIPE-NCC-HM-MNT"));
+                    public boolean apply(final RpslAttribute rpslAttribute) {
+                        return rpslAttribute.getCleanValue().equals("RIPE-NCC-HM-MNT");
                     }
-                });
+                }
+        ));
 
+        if (!mntByRipeNcc.isEmpty()) {
+            if (mntBy.size() > mntByRipeNcc.size()) {
+                for (RpslAttribute attribute : mntByRipeNcc) {
+                    rpslObjectBuilder.removeAttribute(attribute);
+                }
+            } else {
+                final List<RpslAttribute> mntLower = rpslObject.findAttributes(AttributeType.MNT_LOWER);
+                if (!mntLower.isEmpty()) {
+                    for (RpslAttribute attribute : mntByRipeNcc) {
+                        rpslObjectBuilder.removeAttribute(attribute);
+                    }
 
-        if (mntByWithoutPowerMaintainer.isEmpty()) {
-            mntByWithoutPowerMaintainer = FluentIterable.from(rpslObject.findAttributes(AttributeType.MNT_LOWER));
-            convertMntLower = true;
+                    for (RpslAttribute attribute : mntLower) {
+                        rpslObjectBuilder.replaceAttribute(attribute, new RpslAttribute(AttributeType.MNT_BY, attribute.getValue()));
+                    }
+                }
+            }
         }
 
-        if (mntByWithoutPowerMaintainer.isEmpty()) {
-            LOGGER.warn("inetnum {} has no non-power maintainers in mnt-by or mnt-lower, skipping it.", rpslObject.getKey());
-            return;
-        }
-
-        RpslObject updatedObject = (new RpslObjectBuilder(rpslObject))
-                .replaceAttribute(statusAttribute, new RpslAttribute(AttributeType.STATUS, InetnumStatus.LEGACY.toString()))
-                .addAttributeAfter(STATUS_REMARK, AttributeType.STATUS)
-                .removeAttributeType(AttributeType.MNT_BY)
-                .addAttributesAfter(mntByWithoutPowerMaintainer.toList(), AttributeType.STATUS)
-                .get();
-
-
-        if (convertMntLower) {
-            updatedObject = (new RpslObjectBuilder(updatedObject))
-                    .removeAttributeType(AttributeType.MNT_LOWER)
-                    .get();
-        }
-
+        // update object
+        RpslObject updatedObject = rpslObjectBuilder.get();
         if (!dryRun) {
             try {
                 final String override = String.format("%s,%s,set-legacy-status {notify=false}", username, password);
@@ -208,6 +211,7 @@ public class SetLegacyStatus {
                         .update(updatedObject);
             } catch (RestClientException e) {
                 LOGGER.warn("Error when updating inetnum: {}\nreason: {}", updatedObject.getKey(), e.toString());
+                return;
             }
         }
 

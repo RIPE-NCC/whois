@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.ImmutableList;
+import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 import javanet.staxutils.events.NamespaceEvent;
 import javanet.staxutils.io.XMLWriterUtils;
 import net.ripe.db.whois.api.rest.client.StreamingException;
@@ -8,7 +9,6 @@ import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.TemplateResources;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -102,6 +102,20 @@ class StreamingMarshalXml implements StreamingMarshal {
         } catch (JAXBException | IOException e) {
             throw new StreamingException(e);
         }
+    }
+
+    @Override
+    public <T> void writeArray(T t) {
+        write("object", t);
+    }
+
+    @Override
+    public <T> void startArray(final String name) {
+        // deliberately not implemented
+    }
+
+    public <T> void endArray() {
+        // deliberately not implemented
     }
 
     @Override

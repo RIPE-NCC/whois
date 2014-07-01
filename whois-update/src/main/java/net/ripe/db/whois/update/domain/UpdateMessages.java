@@ -277,7 +277,6 @@ public final class UpdateMessages {
                 "Allowed values are %s", allowedOrgTypes);
     }
 
-    // TODO: [DW] this error should specify that this specific parent-child status in not allowed, similar to incorrectChildStatus()
     public static Message incorrectParentStatus(final ObjectType type, final CharSequence parentStatus) {
         return new Message(Messages.Type.ERROR, "%s parent has incorrect status: %s", type.getName(), parentStatus);
     }
@@ -527,6 +526,10 @@ public final class UpdateMessages {
 
     public static Message abuseCNoLimitWarning() {
         return new Message(Type.WARNING, "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\"");
+    }
+
+    public static Message abuseContactNotRemovable() {
+        return new Message(Type.ERROR, "\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object");
     }
 
     public static Message selfReferenceError(final AttributeType attributeType) {

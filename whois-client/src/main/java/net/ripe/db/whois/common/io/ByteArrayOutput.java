@@ -14,12 +14,12 @@ public final class ByteArrayOutput extends OutputStream {
         this(128);
     }
 
-    public ByteArrayOutput(int initialCapacity) {
+    public ByteArrayOutput(final int initialCapacity) {
         buf = new byte[initialCapacity];
     }
 
-    public void write(int b) {
-        int newcount = count + 1;
+    public void write(final int b) {
+        final int newcount = count + 1;
         if (newcount > buf.length) {
             buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
         }
@@ -27,17 +27,17 @@ public final class ByteArrayOutput extends OutputStream {
         count = newcount;
     }
 
-    public void write(byte b[]) {
+    public void write(final byte b[]) {
         write(b, 0, b.length);
     }
 
-    public void write(byte b[], int off, int len) {
+    public void write(final byte b[], final int off, final int len) {
         if ((off < 0) || (off > b.length) || (len < 0) || ((off + len) > b.length) || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
         } else if (len == 0) {
             return;
         }
-        int newcount = count + len;
+        final int newcount = count + len;
         if (newcount > buf.length) {
             buf = Arrays.copyOf(buf, Math.max(buf.length << 1, newcount));
         }

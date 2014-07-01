@@ -1,8 +1,6 @@
 package net.ripe.db.whois.update.handler;
 
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
@@ -26,7 +24,6 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.generator.AttributeGenerator;
-import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,9 +35,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 public class SingleUpdateHandler {
@@ -48,31 +45,24 @@ public class SingleUpdateHandler {
     private final AttributeSanitizer attributeSanitizer;
     private final AttributeGenerator[] attributeGenerators;
     private final RpslObjectDao rpslObjectDao;
-    private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final UpdateLockDao updateLockDao;
-    private final LoggerContext loggerContext;
     private final Authenticator authenticator;
     private final UpdateObjectHandler updateObjectHandler;
     private final IpTreeUpdater ipTreeUpdater;
     private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
-    private CIString source;
 
-    @Value("${whois.source}")
-    void setSource(final String source) {
-        this.source = ciString(source);
-    }
+    @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
+    private CIString source;
 
     @Autowired
     public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver,
                                final AttributeGenerator[] attributeGenerators,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
-                               final LoggerContext loggerContext,
                                final Authenticator authenticator,
                                final UpdateObjectHandler updateObjectHandler,
                                final RpslObjectDao rpslObjectDao,
-                               final RpslObjectUpdateDao rpslObjectUpdateDao,
                                final IpTreeUpdater ipTreeUpdater,
                                final PendingUpdateHandler pendingUpdateHandler,
                                final SsoTranslator ssoTranslator) {
@@ -80,9 +70,7 @@ public class SingleUpdateHandler {
         this.attributeGenerators = attributeGenerators;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.updateLockDao = updateLockDao;
-        this.loggerContext = loggerContext;
         this.authenticator = authenticator;
         this.updateObjectHandler = updateObjectHandler;
         this.ipTreeUpdater = ipTreeUpdater;
@@ -95,16 +83,15 @@ public class SingleUpdateHandler {
         updateLockDao.setUpdateLock();
         ipTreeUpdater.updateCurrent();
 
-        // FIXME: [AH] ATM nothing is setting submittedobjectinfo, rendering this call surplus
-        checkForUnexpectedModification(update);
-
         if (updateContext.isDryRun()) {
             updateContext.addMessage(update, UpdateMessages.dryRunNotice());
         }
 
         final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
         final RpslObject originalObject = getOriginalObject(update, updateContext, overrideOptions);
-        RpslObject updatedObject = getUpdatedObject(originalObject, update, updateContext, keyword);
+        RpslObject updatedObject = getUpdatedObject(update, updateContext, keyword);
+
+
         Action action = getAction(originalObject, updatedObject, update, updateContext, keyword);
         updateContext.setAction(update, action);
 
@@ -200,7 +187,8 @@ public class SingleUpdateHandler {
         return originalObject;
     }
 
-    private RpslObject getUpdatedObject(final RpslObject originalObject, final Update update, final UpdateContext updateContext, final Keyword keyword) {
+    @Nonnull
+    private RpslObject getUpdatedObject(final Update update, final UpdateContext updateContext, final Keyword keyword) {
         RpslObject updatedObject = update.getSubmittedObject();
 
         if (RpslObjectFilter.isFiltered(updatedObject)) {
@@ -244,18 +232,5 @@ public class SingleUpdateHandler {
         }
 
         return Action.MODIFY;
-    }
-
-    // TODO: [AH] Replace with versioning
-    private void checkForUnexpectedModification(final Update update) {
-        if (update.getSubmittedObjectInfo() != null) {
-            final RpslObjectUpdateInfo latestUpdateInfo = rpslObjectUpdateDao.lookupObject(
-                    update.getSubmittedObject().getType(),
-                    update.getSubmittedObject().getKey().toString());
-
-            if (latestUpdateInfo.getSequenceId() != update.getSubmittedObjectInfo().getSequenceId()) {
-                throw new IllegalStateException("Object was modified unexpectedly");
-            }
-        }
     }
 }

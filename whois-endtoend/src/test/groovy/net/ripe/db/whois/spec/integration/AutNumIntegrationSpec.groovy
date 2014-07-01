@@ -658,7 +658,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         autnum =~ /status:         ASSIGNED/
     }
 
-    def "update aut-num object, rs maintainer, status cannot be removed"() {
+    def "update aut-num object, rs maintainer, status cannot be removed, remark can be removed"() {
         given:
         syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
@@ -698,7 +698,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         descr:          description
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         ASSIGNED
                         mnt-by:         RIPE-NCC-HM-MNT
                         changed:        noreply@ripe.net 20120101
@@ -760,7 +759,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         remarks:        remarks
-                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         OTHER
                         mnt-by:         UPD-MNT
                         changed:        noreply@ripe.net 20120101
@@ -769,7 +767,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
 
-    def "update autnum object, user maintainer, moving remark is noop"() {
+    def "update autnum object, user maintainer, moving remark is allowed"() {
         when:
         def create = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
@@ -813,49 +811,16 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         password: update
                         """.stripIndent())
         then:
-        update =~ /No operation: \[aut-num\] AS100/
-        update =~ /\*\*\*Warning: Submitted object identical to database object/
-    }
-
-    def "update autnum object, removing status and remarks is noop"() {
-        when:
-        def create = syncUpdate new SyncUpdate(data: """\
-                        aut-num:        AS100
-                        as-name:        End-User
-                        descr:          description
-                        admin-c:        AP1-TEST
-                        tech-c:         AP1-TEST
-                        mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
-                        source:         TEST
-                        password: update
-                        """.stripIndent())
-        then:
-        create =~ /Create SUCCEEDED: \[aut-num\] AS100/
-        then:
-        def update = syncUpdate new SyncUpdate(data: """\
-                        aut-num:        AS100
-                        as-name:        End-User
-                        descr:          description
-                        admin-c:        AP1-TEST
-                        tech-c:         AP1-TEST
-                        mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
-                        source:         TEST
-                        password: update
-                        """.stripIndent())
-        then:
-        update =~ /No operation: \[aut-num\] AS100/
-        update =~ /\*\*\*Warning: Submitted object identical to database object/
+        update =~ /Modify SUCCEEDED: \[aut-num\] AS100/
         then:
         def updatedAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
         updatedAutnum.equals(RpslObject.parse("""\
                         aut-num:        AS100
+                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         as-name:        End-User
                         descr:          description
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         OTHER
                         mnt-by:         UPD-MNT
                         changed:        noreply@ripe.net 20120101
@@ -1338,6 +1303,43 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
         update =~ /Warning: The attribute 'sponsoring-org' can only be removed by RIPE NCC/
         queryObject("-rBG AS400", "sponsoring-org", "ORG-NCC1-RIPE")
+    }
+
+    def "modify autnum without status in db with same object adds status"() {
+        given:
+        databaseHelper.addObject("""\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                descr:          description
+                sponsoring-org: ORG-NCC1-RIPE
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:       denis,override1
+                """.stripIndent())
+
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                aut-num:        AS400
+                as-name:        End-User-2
+                member-of:      AS-TESTSET
+                descr:          description
+                sponsoring-org: ORG-NCC1-RIPE
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: update
+                """.stripIndent()))
+
+        then:
+        update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
+        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS400")
+        autnum =~ "status:         OTHER"
     }
 
     def "delete autnum with sponsoring-org"() {

@@ -11,11 +11,11 @@ import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
+import net.ripe.db.whois.update.authentication.strategy.MntByAuthentication;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Origin;
@@ -30,8 +30,6 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -46,7 +44,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class Authenticator implements EnvironmentAware {
+public class Authenticator {
     private static final Logger LOGGER = LoggerFactory.getLogger(Authenticator.class);
 
     private final IpRanges ipRanges;
@@ -56,7 +54,6 @@ public class Authenticator implements EnvironmentAware {
     private final List<AuthenticationStrategy> authenticationStrategies;
     private final Map<CIString, Set<Principal>> principalsMap;
     private final Map<ObjectType, Set<String>> typesWithPendingAuthenticationSupport;
-    private Environment environment;
 
     @Autowired
     public Authenticator(final IpRanges ipRanges,
@@ -201,8 +198,7 @@ public class Authenticator implements EnvironmentAware {
             principals.addAll(getPrincipals(authenticatedObject));
         }
 
-        // TODO: [AH] remove the isDeployed() when we are done migrating power-maintainer tests to syncupdates (a lot of tests that require power mntner are using mailupdates ATM)
-        if (!principals.isEmpty() && !origin.isDefaultOverride() && environment.acceptsProfiles(WhoisProfile.DEPLOYED)) {
+        if (!principals.isEmpty() && !origin.isDefaultOverride()) {
             if (!origin.allowAdminOperations() || !ipRanges.isTrusted(IpInterval.parse(origin.getFrom()))) {
                 authenticationMessages.add(UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());
             }
@@ -260,9 +256,8 @@ public class Authenticator implements EnvironmentAware {
         if (isPending(update, updateContext, pendingAuthentications.keySet())) {
             final PendingUpdate pendingUpdate = findAndStorePendingUpdate(updateContext, update);
             if (pendingUpdate != null) {
-                //TODO: [TP] Replace magic string
-                if (failedAuthentications.remove("MntByAuthentication")) {
-                    passedAuthentications.add("MntByAuthentication");
+                if (failedAuthentications.remove(MntByAuthentication.class.getSimpleName())) {
+                    passedAuthentications.add(MntByAuthentication.class.getSimpleName());
                 }
             }
         }
@@ -284,10 +279,5 @@ public class Authenticator implements EnvironmentAware {
     public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final PendingUpdate pendingUpdate) {
         final Set<String> authenticationStrategyNames = typesWithPendingAuthenticationSupport.get(objectType);
         return pendingUpdate.getPassedAuthentications().containsAll(authenticationStrategyNames);
-    }
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 }

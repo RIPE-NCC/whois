@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlType;
         "date",
         "operation"
 })
+
 @XmlRootElement(name = "version")
 public class WhoisVersion {
     @XmlAttribute(name = "deleted")

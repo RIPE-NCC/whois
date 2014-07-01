@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -25,6 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -52,15 +54,15 @@ public class WhoisObjectServerMapperTest {
                 new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL),
                 new FormattedClientAttributeMapper()
         });
-        whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper);
+        whoisObjectServerMapper = new WhoisObjectServerMapper("test", whoisObjectMapper);
     }
 
     @Test
     public void map_rpsl_mntner() throws Exception {
-        when(referencedTypeResolver.getReferencedType(AttributeType.ADMIN_C, CIString.ciString("TP1-TEST"))).thenReturn("person");
-        when(referencedTypeResolver.getReferencedType(AttributeType.AUTH, CIString.ciString("PGPKEY-28F6CD6C"))).thenReturn("key-cert");
-        when(referencedTypeResolver.getReferencedType(AttributeType.MNT_BY, CIString.ciString("TST-MNT"))).thenReturn("mntner");
-        when(referencedTypeResolver.getReferencedType(AttributeType.REFERRAL_BY, CIString.ciString("TST-MNT"))).thenReturn("mntner");
+        when(referencedTypeResolver.getReferencedType(AttributeType.ADMIN_C, ciString("TP1-TEST"))).thenReturn("person");
+        when(referencedTypeResolver.getReferencedType(AttributeType.AUTH, ciString("PGPKEY-28F6CD6C"))).thenReturn("key-cert");
+        when(referencedTypeResolver.getReferencedType(AttributeType.MNT_BY, ciString("TST-MNT"))).thenReturn("mntner");
+        when(referencedTypeResolver.getReferencedType(AttributeType.REFERRAL_BY, ciString("TST-MNT"))).thenReturn("mntner");
 
         final RpslObject rpslObject = RpslObject.parse(
                 "mntner:      TST-MNT\n" +
@@ -170,10 +172,14 @@ public class WhoisObjectServerMapperTest {
     @Test
     public void map_tags() {
         final List<WhoisTag> tags = whoisObjectServerMapper.map(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"),
-                Lists.newArrayList(
-                        new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("foo"), "foo data"),
-                        new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("bar"), "bar data"),
-                        new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("barf"), "barf data")), FormattedServerAttributeMapper.class).getTags();
+                new TagResponseObject(ciString("TEST-DBM"),
+                        Lists.newArrayList(
+                                new Tag(ciString("foo"), "foo data"),
+                                new Tag(ciString("bar"), "bar data"),
+                                new Tag(ciString("barf"), "barf data")
+                        )),
+                        FormattedServerAttributeMapper.class
+                ).getTags();
 
         assertThat(tags, hasSize(3));
         final WhoisTag tag1 = tags.get(0);

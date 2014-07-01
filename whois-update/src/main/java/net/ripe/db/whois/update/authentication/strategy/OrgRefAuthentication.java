@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-class OrgRefAuthentication extends AuthenticationStrategyBase {
+public class OrgRefAuthentication extends AuthenticationStrategyBase {
 
     private final AuthenticationModule credentialValidators;
     private final RpslObjectDao rpslObjectDao;

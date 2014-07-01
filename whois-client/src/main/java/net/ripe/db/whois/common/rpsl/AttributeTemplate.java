@@ -1,8 +1,9 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Arrays;
 import java.util.Set;
 
 public class AttributeTemplate {
@@ -78,7 +79,7 @@ public class AttributeTemplate {
         this.requirement = requirement;
         this.cardinality = cardinality;
         this.order = order;
-        this.keys = ImmutableSet.copyOf(keys);
+        this.keys = Sets.immutableEnumSet(Arrays.asList(keys));
     }
 
     public AttributeType getAttributeType() {

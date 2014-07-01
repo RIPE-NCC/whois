@@ -9,7 +9,7 @@ public class UserSession {
     final private LocalDateTime expiryDate;
     private String uuid;
 
-    public UserSession(String username, boolean isActive, String expiryDate) {
+    public UserSession(final String username, final boolean isActive, final String expiryDate) {
         this.username = username;
         this.isActive = isActive;
         this.expiryDate = expiryDate == null ? LocalDateTime.now().plusHours(1) : LocalDateTime.parse(expiryDate, ISODateTimeFormat.dateTimeParser());
@@ -31,7 +31,7 @@ public class UserSession {
         return uuid;
     }
 
-    public void setUuid(String uuid) {
+    public void setUuid(final String uuid) {
         this.uuid = uuid;
     }
 

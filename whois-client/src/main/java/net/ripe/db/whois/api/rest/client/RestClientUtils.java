@@ -1,6 +1,10 @@
 package net.ripe.db.whois.api.rest.client;
 
 import com.google.common.base.Function;
+import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -32,5 +36,17 @@ public class RestClientUtils {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public static RestClient createRestClient(final String restApiUrl, final String source) {
+        final RestClient restClient = new RestClient(restApiUrl, source);
+        restClient.setWhoisObjectMapper(
+                new WhoisObjectMapper(
+                        restApiUrl,
+                        new AttributeMapper[]{
+                                new FormattedClientAttributeMapper(),
+                                new DirtyClientAttributeMapper()
+                        }));
+        return restClient;
     }
 }

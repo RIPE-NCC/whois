@@ -27,13 +27,11 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collection;
@@ -44,7 +42,6 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
@@ -65,7 +62,6 @@ public class AuthenticatorPrincipalTest {
     @Mock Maintainers maintainers;
     @Mock LoggerContext loggerContext;
     @Mock PendingUpdateDao pendingUpdateDao;
-    @Mock Environment environment;
 
     Authenticator subject;
     ArgumentCaptor<Subject> subjectCapture;
@@ -82,11 +78,8 @@ public class AuthenticatorPrincipalTest {
         when(maintainers.getAllocMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT", "AARDVARK-MNT"));
         when(update.getCredentials()).thenReturn(new Credentials());
 
-        when(environment.acceptsProfiles(anyString())).thenReturn(false);
-
         subjectCapture = ArgumentCaptor.forClass(Subject.class);
         subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2}, pendingUpdateDao);
-        subject.setEnvironment(environment);
     }
 
     @Test

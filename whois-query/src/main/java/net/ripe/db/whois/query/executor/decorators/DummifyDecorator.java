@@ -1,12 +1,13 @@
 package net.ripe.db.whois.query.executor.decorators;
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.collect.IterableTransformer;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.Dummifier;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.Deque;
-import java.util.List;
 
 @Component
 public class DummifyDecorator implements ResponseDecorator {
@@ -37,7 +37,7 @@ public class DummifyDecorator implements ResponseDecorator {
 
         return new IterableTransformer<ResponseObject>(input) {
             @Override
-            public void apply(ResponseObject input, Deque<ResponseObject> result) {
+            public void apply(final ResponseObject input, final Deque<ResponseObject> result) {
                 if (!(input instanceof RpslObject)) {
                     result.add(input);
                     return;
@@ -50,23 +50,11 @@ public class DummifyDecorator implements ResponseDecorator {
 
                 rpslObject = dummifier.dummify(DUMMIFIER_VERSION, rpslObject);
 
-                // TODO Setting the source should not be this complex
-                final String source = sourceContext.getCurrentSource().getName().toString();
+                final CIString source = sourceContext.getCurrentSource().getName();
                 final RpslAttribute sourceAttribute = rpslObject.findAttribute(AttributeType.SOURCE);
-                if (!source.equals(sourceAttribute.getCleanValue().toString())) {
-                    final List<RpslAttribute> attributes = rpslObject.getAttributes();
-                    final List<RpslAttribute> newAttributes = Lists.newArrayListWithCapacity(attributes.size());
-                    for (final RpslAttribute attribute : attributes) {
-                        if (attribute.equals(sourceAttribute)) {
-                            newAttributes.add(new RpslAttribute(AttributeType.SOURCE, source));
-                        } else {
-                            newAttributes.add(attribute);
-                        }
-                    }
-
-                    rpslObject = new RpslObject(rpslObject, newAttributes);
-                }
-
+                rpslObject = new RpslObjectBuilder(rpslObject)
+                        .replaceAttribute(sourceAttribute, new RpslAttribute(AttributeType.SOURCE, source))
+                        .get();
                 result.add(rpslObject);
             }
         };

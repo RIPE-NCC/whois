@@ -10,11 +10,13 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.LegacyAutnum;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -80,7 +82,11 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
     private RpslObject setAutnumStatus(final RpslObject object, final AutnumStatus autnumStatus, final Update update, final UpdateContext updateContext) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(object);
         cleanupAttributeType(update, updateContext, builder, AttributeType.STATUS, autnumStatus.toString());
-        enforceRemarksRightBeforeStatus(builder);
+
+        // when creating, add the remark, if not the user can do what he wants
+        if (updateContext.getAction(update) == Action.CREATE) {
+            enforceRemarksRightBeforeStatus(builder);
+        }
         return builder.get();
     }
 
@@ -90,7 +96,7 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
 
         for (int i = 0; i < attributes.size(); i++) {
             if (attributes.get(i).equals(STATUS_REMARK)) {
-                if (i + 1 < attributes.size() && attributes.get(i + 1).getType().equals(AttributeType.STATUS)) {
+                if (i + 1 < attributes.size() && attributes.get(i + 1).getType() != null && attributes.get(i + 1).getType().equals(AttributeType.STATUS)) {
                     found = true;
                 } else {
                     attributes.remove(i--);

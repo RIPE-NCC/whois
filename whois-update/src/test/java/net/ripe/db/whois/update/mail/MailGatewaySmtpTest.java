@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessagePreparator;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -22,7 +23,7 @@ public class MailGatewaySmtpTest {
 
     @Before
     public void setUp() throws Exception {
-        subject.setOutgoingMailEnabled(true);
+        ReflectionTestUtils.setField(subject, "outgoingMailEnabled", true);
     }
 
     @Test
@@ -34,7 +35,7 @@ public class MailGatewaySmtpTest {
 
     @Test
     public void sendResponse_disabled() throws Exception {
-        subject.setOutgoingMailEnabled(false);
+        ReflectionTestUtils.setField(subject, "outgoingMailEnabled", false);
         subject.sendEmail("to", "subject", "test");
 
         verifyZeroInteractions(mailSender);

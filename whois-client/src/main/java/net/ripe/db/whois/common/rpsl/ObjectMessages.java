@@ -93,7 +93,7 @@ public class ObjectMessages {
 
     @Override
     public String toString() {
-        StringBuilder ret = new StringBuilder();
+        final StringBuilder ret = new StringBuilder();
         for (Message message : messages.getMessages(Messages.Type.ERROR)) {
             ret.append(", ").append(message.toString());
         }

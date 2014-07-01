@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.LegacyAutnum;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -52,6 +53,7 @@ public class AutnumAttributeGeneratorTest {
     public void generate_assigned_status_on_create() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS3333\nmnt-by: RIPE-NCC-HM-MNT\nsource: RIPE");
         isMaintainedByRir(true);
+        when(updateContext.getAction(update)).thenReturn(Action.CREATE);
 
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
@@ -64,6 +66,7 @@ public class AutnumAttributeGeneratorTest {
         final RpslObject autnum = RpslObject.parse("aut-num: AS3333\nmnt-by: TEST-MNT\nsource: RIPE");
         isMaintainedByRir(true);
         when(legacyAutnum.contains(any(CIString.class))).thenReturn(Boolean.TRUE);
+        when(updateContext.getAction(update)).thenReturn(Action.CREATE);
 
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
@@ -88,6 +91,7 @@ public class AutnumAttributeGeneratorTest {
                         "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n"
         );
 
+        when(updateContext.getAction(update)).thenReturn(Action.CREATE);
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
         assertThat(result.getAttributes(), hasSize(5));
@@ -107,6 +111,7 @@ public class AutnumAttributeGeneratorTest {
                         "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n"
         );
 
+        when(updateContext.getAction(update)).thenReturn(Action.CREATE);
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
         assertThat(result, is(RpslObject.parse("" +
@@ -121,7 +126,7 @@ public class AutnumAttributeGeneratorTest {
     }
 
     @Test
-    public void changed_remarks_is_readded() {
+    public void status_remarks_not_readded_on_change() {
         final RpslObject autnum = RpslObject.parse("" +
                         "aut-num: AS3333\n" +
                         "descr: ninj-AS\n" +
@@ -132,21 +137,23 @@ public class AutnumAttributeGeneratorTest {
                         "source: RIPE\n"
         );
 
+        when(updateContext.getAction(update)).thenReturn(Action.MODIFY);
+
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
         assertThat(result, is(RpslObject.parse("" +
                         "aut-num: AS3333\n" +
                         "descr: ninj-AS\n" +
                         "remarks:\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
                         "status: OTHER\n" +
                         "mnt-by: TEST-MNT\n" +
+                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
                         "source: RIPE\n"
         )));
     }
 
     @Test
-    public void appended_remarks_is_readded() {
+    public void appended_remarks_is_not_readded() {
         final RpslObject autnum = RpslObject.parse("" +
                         "aut-num: AS3333\n" +
                         "descr: ninj-AS\n" +
@@ -157,15 +164,16 @@ public class AutnumAttributeGeneratorTest {
                         "source: RIPE\n"
         );
 
+        when(updateContext.getAction(update)).thenReturn(Action.MODIFY);
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
         assertThat(result, is(RpslObject.parse("" +
                         "aut-num: AS3333\n" +
                         "descr: ninj-AS\n" +
                         "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + " <-- line added by real ninjas, not me\n" +
-                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
                         "status: OTHER\n" +
                         "mnt-by: TEST-MNT\n" +
+                        "remarks: " + AutnumAttributeGenerator.REMARKS_TEXT + "\n" +
                         "source: RIPE\n"
         )));
     }

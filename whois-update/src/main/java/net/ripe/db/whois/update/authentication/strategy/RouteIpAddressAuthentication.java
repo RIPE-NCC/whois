@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-class RouteIpAddressAuthentication extends RouteAuthentication {
+public class RouteIpAddressAuthentication extends RouteAuthentication {
     private final Ipv4RouteTree ipv4RouteTree;
     private final Ipv4Tree ipv4Tree;
     private final Ipv6RouteTree ipv6RouteTree;

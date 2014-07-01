@@ -34,8 +34,7 @@ public class QueryParser {
 
     public QueryParser(final String query) {
         originalStringQuery = query;
-        String[] args = Iterables.toArray(SPACE_SPLITTER.split(query), String.class);
-        options = PARSER.parse(args);
+        options = PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(query), String.class));
         searchKey = SPACE_JOINER.join(options.nonOptionArguments());
     }
 
@@ -58,7 +57,7 @@ public class QueryParser {
     }
 
     // TODO: for Integers, this results in conversion String -> Integer -> String -> Integer
-    private Collection<?> getOptionValue(String flag) {
+    private Collection<?> getOptionValue(final String flag) {
         try {
             return options.valuesOf(flag);
         } catch (OptionException e) {   // Undocumented; thrown on integer conversion failure
@@ -133,11 +132,11 @@ public class QueryParser {
         return originalStringQuery.hashCode();
     }
 
-    public boolean hasOnlyQueryFlag(QueryFlag queryFlag) {
+    public boolean hasOnlyQueryFlag(final QueryFlag queryFlag) {
         return options.specs().size() == 1 && queryFlag.getFlags().contains(options.specs().get(0).options().iterator().next());
     }
 
-    public static boolean hasFlags(String queryString) {
+    public static boolean hasFlags(final String queryString) {
         return !PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class)).specs().isEmpty();
     }
 

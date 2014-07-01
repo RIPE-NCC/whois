@@ -485,6 +485,103 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /This must reference a ROLE object with an "abuse-mailbox:"/
     }
 
+    def "modify organisation, remove abuse-c, LIR"() {
+      given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-RNO-TEST\n" +
+                "org-name:     Ripe NCC organisation\n" +
+                "org-type:     LIR\n" +
+                "abuse-c:      AB-NIC\n" +
+                "address:      Singel 258\n" +
+                "e-mail:        bitbucket@ripe.net\n" +
+                "changed:      admin@test.com 20120505\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
+        def update = new SyncUpdate(data: """\
+                  organisation: ORG-RNO-TEST
+                  org-name:     Ripe NCC organisation
+                  org-type:     LIR
+                  address:      Singel 258
+                  e-mail:        bitbucket@ripe.net
+                  changed:      admin@test.com 20120505
+                  mnt-by:       TST-MNT
+                  mnt-ref:      TST-MNT
+                  source:       TEST
+                  password: update
+                  """.stripIndent())
+      when:
+        def response = syncUpdate update
+
+      then:
+        response =~ /Modify FAILED: \[organisation\] ORG-RNO-TEST/
+        response =~ "Error:   \"abuse-c:\" cannot be removed from an ORGANISATION object referenced\n            by a resource object"
+    }
+
+    def "modify organisation, remove abuse-c, not LIR"() {
+      given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-RNO-TEST\n" +
+                "org-name:     Ripe NCC organisation\n" +
+                "org-type:     OTHER\n" +
+                "abuse-c:      AB-NIC\n" +
+                "address:      Singel 258\n" +
+                "e-mail:        bitbucket@ripe.net\n" +
+                "changed:      admin@test.com 20120505\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
+        def update = new SyncUpdate(data: """\
+                  organisation: ORG-RNO-TEST
+                  org-name:     Ripe NCC organisation
+                  org-type:     OTHER
+                  address:      Singel 258
+                  e-mail:        bitbucket@ripe.net
+                  changed:      admin@test.com 20120505
+                  mnt-by:       TST-MNT
+                  mnt-ref:      TST-MNT
+                  source:       TEST
+                  password: update
+                  """.stripIndent())
+      when:
+        def response = syncUpdate update
+
+      then:
+        response =~ response =~ /Modify SUCCEEDED: \[organisation\] ORG-RNO-TEST/
+    }
+
+    def "modify organisation, never had abuse-c, LIR"() {
+      given:
+        databaseHelper.addObject("" +
+                "organisation: ORG-RNO-TEST\n" +
+                "org-name:     Ripe NCC organisation\n" +
+                "org-type:     LIR\n" +
+                "address:      Singel 258\n" +
+                "e-mail:        bitbucket@ripe.net\n" +
+                "changed:      admin@test.com 20120505\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
+        def update = new SyncUpdate(data: """\
+                  organisation: ORG-RNO-TEST
+                  org-name:     Ripe NCC organisation
+                  org-type:     LIR
+                  remarks:       update
+                  address:      Singel 258
+                  e-mail:        bitbucket@ripe.net
+                  changed:      admin@test.com 20120505
+                  mnt-by:       TST-MNT
+                  mnt-ref:      TST-MNT
+                  source:       TEST
+                  password: update
+                  """.stripIndent())
+      when:
+        def response = syncUpdate update
+
+      then:
+        response =~ /Modify SUCCEEDED: \[organisation\] ORG-RNO-TEST/
+    }
+
     def "org attribute added by override any mntner"() {
       given:
         databaseHelper.addObject("" +

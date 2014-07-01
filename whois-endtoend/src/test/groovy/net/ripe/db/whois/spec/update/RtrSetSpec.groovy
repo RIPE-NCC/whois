@@ -1,6 +1,5 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -748,9 +747,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T rtr-set AS123:rtrs-foo", "rtr-set", "AS123:rtrs-foo")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -768,8 +765,6 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -873,9 +868,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T rtr-set AS123:rtrs-foo:rtrs-foo2", "rtr-set", "AS123:rtrs-foo:rtrs-foo2")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -903,8 +896,6 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
@@ -927,9 +918,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T rtr-set AS123:rtrs-foo:rtrs-foo2", "rtr-set", "AS123:rtrs-foo:rtrs-foo2")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 rtr-set:      AS123:rtrs-foo
                 descr:        test rtr-set
                 tech-c:       TP1-TEST
@@ -957,8 +946,6 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 2, 0, 0, 0)

@@ -56,6 +56,18 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.48</version>
         </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-client</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-commons</artifactId>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
 
     <build>

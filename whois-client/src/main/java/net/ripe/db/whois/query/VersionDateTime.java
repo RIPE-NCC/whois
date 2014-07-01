@@ -24,11 +24,11 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        VersionDateTime that = (VersionDateTime) o;
+        final VersionDateTime that = (VersionDateTime) o;
 
         return timestamp.equals(that.timestamp);
 
@@ -40,7 +40,7 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
     }
 
     @Override
-    public int compareTo(VersionDateTime other) {
+    public int compareTo(final VersionDateTime other) {
         return timestamp.compareTo(other.timestamp);
     }
 }

@@ -219,11 +219,16 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "}"));
     }
 
-    @Test(expected = NotFoundException.class)
-    public void lookup_inetnum_not_found() {
-        RestTest.target(getPort(), "whois/abuse-contact/193.0.1.2")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
+    @Test
+    public void lookup_inetnum_not_found_xml() {
+        try {
+            RestTest.target(getPort(), "whois/abuse-contact/193.0.1.2")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(String.class);
+        } catch (NotFoundException e) {
+            final String responseEntity = e.getResponse().readEntity(String.class);
+            assertThat(responseEntity, is("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\"><message>No abuse contact found for 193.0.1.2</message></abuse-resources>"));
+        }
     }
 
     // inet6num
@@ -314,11 +319,16 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "</abuse-resources>"));
     }
 
-    @Test(expected = NotFoundException.class)
-    public void lookup_inet6num_not_found() {
-        RestTest.target(getPort(), "whois/abuse-contact/2a00:1234::/32")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
+    @Test
+    public void lookup_inet6num_not_found_json() {
+        try {
+            RestTest.target(getPort(), "whois/abuse-contact/2a00:1234::/32")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(String.class);
+        } catch (NotFoundException e) {
+            final AbuseResources result = e.getResponse().readEntity(AbuseResources.class);
+            assertThat(result.getMessage(), is("No abuse contact found for 2a00:1234::/32"));
+        }
     }
 
     // autnum
@@ -375,11 +385,18 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
         assertThat(abuseResources.getAbuseContact().getEmail(), is(""));
     }
 
-    @Test(expected = NotFoundException.class)
-    public void lookup_autnum_not_found() {
-        RestTest.target(getPort(), "whois/abuse-contact/AS333")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
+    @Test
+    public void lookup_autnum_not_found_json() {
+        try {
+            RestTest.target(getPort(), "whois/abuse-contact/AS333")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(AbuseResources.class);
+        } catch (NotFoundException e) {
+            assertThat(e.getResponse().readEntity(String.class),
+                    is("{\n" +
+                       "  \"message\" : \"No abuse contact found for AS333\"\n" +
+                       "}"));
+        }
     }
 
     @Test

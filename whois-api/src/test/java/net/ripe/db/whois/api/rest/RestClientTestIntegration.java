@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.ws.rs.core.Cookie;
 import java.util.Collection;
@@ -76,8 +77,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
 
-        restClient.setRestApiUrl(String.format("http://localhost:%d/whois", getPort()));
-        restClient.setSource("TEST");
+
+        ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%d/whois", getPort()));
+        ReflectionTestUtils.setField(restClient, "sourceName", "TEST");
     }
 
     @Test
@@ -308,7 +310,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             restClient.request().lookupAbuseContact("10.0.0.1");
             fail();
         } catch (RestClientException e) {
-            assertThat(e.getErrorMessages().get(0).getText(), is("No abuse contact found for 10.0.0.1"));
+            assertThat(e.getErrorMessages().get(0).getText(), is("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\"><message>No abuse contact found for 10.0.0.1</message></abuse-resources>"));
         }
     }
 

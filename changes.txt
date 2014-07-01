@@ -1,4 +1,9 @@
-## next
+## 1.74
+[all] Fixed issues listed in GitHub: https://github.com/RIPE-NCC/whois/issues?milestone=12&state=closed
+[update] Users can now remove the remarks about status in an aut-num object
+[update] Users cannot remove abuse-c from an organisation if it's referenced from RIPE resources
+[all] Role attribute now has a more permissive syntax
+
 
 ## 1.73.1
 [all] Fixed issues listed in GitHub: https://github.com/RIPE-NCC/whois/issues?milestone=11&state=closed
@@ -6,6 +11,7 @@
 [all] Created script to find emails for legacy resources
 [all] Created script to turn multiple abuse-mailbox attributes into remarks
 [all] Auth table cleanup patch (whois-1.73-3.sql) - fixes case-sensitivity regression in 1.73
+[all] Crowd connect/read timeout decrease
 
 ## 1.73
 [all] Implemented policy 2012-07: added "legacy" status to inetnum, and added (generated) status attribute to autnum

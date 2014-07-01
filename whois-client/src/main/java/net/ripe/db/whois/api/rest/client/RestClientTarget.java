@@ -3,9 +3,9 @@ package net.ripe.db.whois.api.rest.client;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
-import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -213,23 +213,58 @@ public class RestClientTarget {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
 
-            // TODO: [AH] fix lookup to actually return 1 object, then remove this workaround
-            if (whoisResources.getWhoisObjects().size() == 1) {
-                return whoisResources.getWhoisObjects().get(0);
-            } else {
-                for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
-                    if (whoisObject.getType().equals(objectType.getName())) {
-                        for (Attribute attribute : whoisObject.getPrimaryKey()) {
-                            if (attribute.getValue().equalsIgnoreCase(pkey)) {
-                                return whoisObject;
-                            }
-                        }
-                    }
-                }
+            return whoisResources.getWhoisObjects().get(0);
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
+    }
 
-                throw new RestClientException(pkey + " (" + objectType.getName() + ") not found in " + source);
+    public WhoisObject showVersion(final ObjectType objectType, final String pkey, final int version) {
+        try {
+            WebTarget webTarget = client.target(baseUrl)
+                    .path(source)
+                    .path(objectType.getName())
+                    .path(pkey)
+                    .path("versions")
+                    .path(String.valueOf(version));
+            webTarget = setParams(webTarget);
+
+            final Invocation.Builder request = webTarget.request();
+
+            setCookies(request);
+            setHeaders(request);
+
+            final WhoisResources whoisResources = request.get(WhoisResources.class);
+
+            if (notifierCallback != null) {
+                notifierCallback.notify(whoisResources.getErrorMessages());
             }
+            return whoisResources.getWhoisObjects().get(0);
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
+    }
 
+    public List<WhoisVersion> listVersions(final ObjectType objectType, final String pkey) {
+        try {
+            WebTarget webTarget = client.target(baseUrl)
+                    .path(source)
+                    .path(objectType.getName())
+                    .path(pkey)
+                    .path("versions");
+            webTarget = setParams(webTarget);
+
+            final Invocation.Builder request = webTarget.request();
+
+            setCookies(request);
+            setHeaders(request);
+
+            final WhoisResources whoisResources = request.get(WhoisResources.class);
+
+            if (notifierCallback != null) {
+                notifierCallback.notify(whoisResources.getErrorMessages());
+            }
+            return whoisResources.getVersions().getVersions();
         } catch (ClientErrorException e) {
             throw createException(e);
         }
@@ -245,7 +280,7 @@ public class RestClientTarget {
             setCookies(request);
             setHeaders(request);
 
-            AbuseResources abuseResources = request.get(AbuseResources.class);
+            final AbuseResources abuseResources = request.get(AbuseResources.class);
 
             return abuseResources.getAbuseContact();
 

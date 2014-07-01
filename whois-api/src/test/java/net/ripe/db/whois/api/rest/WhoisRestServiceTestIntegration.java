@@ -2778,6 +2778,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    @Test(expected = BadRequestException.class)
+    public void update_bad_input_empty_body() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity("", MediaType.APPLICATION_XML), WhoisResources.class);
+    }
+
     @Test
     public void update_comment_is_noop_and_returns_old_object() {
         assertThat(TEST_PERSON.findAttributes(AttributeType.REMARKS), hasSize(0));
@@ -4510,6 +4517,30 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getAttributes().get(0).getValue(), is("10.0.0.0 - 10.255.255.255"));
+    }
+
+    @Test
+    public void search_no_empty_elements_in_xml_response() {
+        final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(whoisResources, containsString("Test Person"));
+        assertThat(whoisResources, not(containsString("<errormessages")));
+        assertThat(whoisResources, not(containsString("<versionsInternal")));
+        assertThat(whoisResources, not(containsString("<versions")));
+    }
+
+    @Test
+    public void search_no_empty_elements_in_json_response() {
+        final String whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST")
+                .request(MediaType.APPLICATION_JSON)
+                .get(String.class);
+
+        assertThat(whoisResources, containsString("Test Person"));
+        assertThat(whoisResources, not(containsString("errormessages")));
+        assertThat(whoisResources, not(containsString("versionsInternal")));
+        assertThat(whoisResources, not(containsString("versions")));
     }
 
     // maintenance mode

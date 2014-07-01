@@ -3,7 +3,10 @@ package net.ripe.db.whois.common.domain;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.Contract;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
 import java.util.Set;
@@ -13,11 +16,11 @@ public final class CIString implements Comparable<CIString>, CharSequence {
     private final String value;
     private final String lcValue;
 
+    @Nullable @Contract("null -> null;!null -> !null")
     public static CIString ciString(final String value) {
         if (value == null) {
             return null;
         }
-
         return new CIString(value);
     }
 
@@ -49,7 +52,7 @@ public final class CIString implements Comparable<CIString>, CharSequence {
         return builder.build();
     }
 
-    public static boolean isBlank(CIString ciString) {
+    public static boolean isBlank(final CIString ciString) {
         return ciString == null || StringUtils.isBlank(ciString.value);
     }
 
@@ -59,7 +62,7 @@ public final class CIString implements Comparable<CIString>, CharSequence {
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(@Nullable final Object o) {
         if (this == o) {
             return true;
         }
@@ -81,11 +84,11 @@ public final class CIString implements Comparable<CIString>, CharSequence {
     }
 
     @Override
-    public int compareTo(final CIString o) {
+    public int compareTo(@Nonnull final CIString o) {
         return lcValue.compareTo(o.lcValue);
     }
 
-    @Override
+    @Override @Nonnull
     public String toString() {
         return value;
     }

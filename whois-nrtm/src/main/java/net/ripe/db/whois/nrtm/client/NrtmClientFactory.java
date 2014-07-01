@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 @Component
 class NrtmClientFactory {
-    private static final Pattern OPERATION_AND_SERIAL_PATTERN = Pattern.compile("^(ADD|DEL)[ ](\\d+)$");
+    private static final Pattern OPERATION_AND_SERIAL_PATTERN = Pattern.compile("^(ADD/UPD|DEL)[ ](\\d+)$");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmClientFactory.class);
 
@@ -114,7 +114,6 @@ class NrtmClientFactory {
         }
 
         private void readHeader() throws IOException {
-            // TODO [AK] Read comments until empty line occurs
             readLineWithExpected("%");
             readLineWithExpected("%");
             readEmptyLine();

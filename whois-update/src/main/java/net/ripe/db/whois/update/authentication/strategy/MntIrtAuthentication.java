@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-class MntIrtAuthentication extends AuthenticationStrategyBase {
+public class MntIrtAuthentication extends AuthenticationStrategyBase {
     private final AuthenticationModule credentialValidators;
     private final RpslObjectDao rpslObjectDao;
 

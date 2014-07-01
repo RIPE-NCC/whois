@@ -8,7 +8,7 @@ public final class RpslAttributeFilter {
     /**
      * Converts all continuation lines to use '+' (required for shorthand)
      */
-    public static String getValueForShortHand(String value) {
+    public static String getValueForShortHand(final String value) {
         final StringBuilder result = new StringBuilder(value.length());
 
         boolean foundNonSpace = false;

@@ -20,7 +20,6 @@ import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.apache.commons.lang.StringUtils;
 
-import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,7 +30,7 @@ import java.util.Set;
 
 // TODO: [AH] further separate concerns of query parsing and business logic
 // TODO: [AH] merge QueryBuilder and Query to cooperate better
-@Immutable
+// TODO: [ES] class is not immutable
 public class Query {
     public static final EnumSet<ObjectType> ABUSE_CONTACT_OBJECT_TYPES = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
     private static final EnumSet<ObjectType> GRS_LIMIT_TYPES = EnumSet.of(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.DOMAIN);
@@ -66,7 +65,7 @@ public class Query {
     // TODO: [AH] we should use -x flag for direct match for all object types instead of this hack
     private boolean matchPrimaryKeyOnly;
 
-    private Query(final String query, final Origin origin) {
+    private Query(final String query, final Origin origin, final boolean trusted) {
         try {
             queryParser = new QueryParser(query);
         } catch (IllegalArgumentExceptionMessage e) {
@@ -80,15 +79,16 @@ public class Query {
         attributeTypeFilter = parseAttributeTypes();
         matchOperation = parseMatchOperations();
         this.origin = origin;
+        this.trusted = trusted;
     }
 
     public static Query parse(final String args) {
-        return parse(args, Origin.LEGACY);
+        return parse(args, Origin.LEGACY, false);
     }
 
-    public static Query parse(final String args, final Origin origin) {
+    public static Query parse(final String args, final Origin origin, final boolean trusted) {
         try {
-            final Query query = new Query(args.trim(), origin);
+            final Query query = new Query(args.trim(), origin, trusted);
 
             for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
                 queryValidator.validate(query, query.messages);
@@ -105,8 +105,8 @@ public class Query {
         }
     }
 
-    public static Query parse(final String args, final String ssoToken, final List<String> passwords) {
-        Query query = parse(args, Origin.REST);
+    public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted) {
+        final Query query = parse(args, Origin.REST, trusted);
         query.ssoToken = ssoToken;
         query.passwords = passwords;
         return query;
@@ -122,10 +122,6 @@ public class Query {
 
     public boolean isTrusted() {
         return trusted;
-    }
-
-    public void setTrusted(boolean trusted) {
-        this.trusted = trusted;
     }
 
     public boolean via(Origin origin) {
@@ -615,6 +611,6 @@ public class Query {
     }
 
     public static enum Origin {
-        LEGACY, REST
+        LEGACY, REST, INTERNAL
     }
 }

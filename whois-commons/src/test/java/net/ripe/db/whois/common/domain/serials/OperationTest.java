@@ -16,7 +16,7 @@ public class OperationTest {
 
     @Test
     public void getByName() {
-        assertThat(Operation.getByName("ADD"), is(Operation.UPDATE));
+        assertThat(Operation.getByName("ADD/UPD"), is(Operation.UPDATE));
         assertThat(Operation.getByName("DEL"), is(Operation.DELETE));
     }
 }

@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public enum Operation {
-    UPDATE(1, "ADD"),
+    UPDATE(1, "ADD/UPD"),
     DELETE(2, "DEL");
 
     private final int code;

@@ -522,10 +522,6 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-GBr --select-types route 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
-    // -a ToDo
-
-    // -s ToDo
-
     def "query specific ASSIGNED PA range, parent ALLOCATED PA, with --sources --version"() {
       given:
         syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")

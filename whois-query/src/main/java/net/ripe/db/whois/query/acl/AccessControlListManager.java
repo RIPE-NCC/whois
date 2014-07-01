@@ -4,6 +4,8 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -23,7 +25,6 @@ public class AccessControlListManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlListManager.class);
 
     static final int IPV6_NETMASK = 64;
-    static final int IPV4_NETMASK = 32;
 
     private final DateTimeProvider dateTimeProvider;
     private final IpResourceConfiguration resourceConfiguration;
@@ -110,21 +111,17 @@ public class AccessControlListManager {
     }
 
     public void blockTemporary(final InetAddress hostAddress, final int limit) {
-        String maskedAddress = getMaskedAddressAsString(hostAddress);
+        IpInterval<?> maskedAddress;
+        if (hostAddress instanceof Inet6Address) {
+            maskedAddress = Ipv6Resource.parse(mask(hostAddress, IPV6_NETMASK).getHostAddress() + "/" + IPV6_NETMASK);
+        } else {
+            maskedAddress = Ipv4Resource.asIpInterval(hostAddress);
+        }
         accessControlListDao.saveAclEvent(maskedAddress, dateTimeProvider.getCurrentDate(), limit, BlockEvent.Type.BLOCK_TEMPORARY);
     }
 
-    static String getMaskedAddressAsString(final InetAddress hostAddress) {
-        String maskedAddress = mask(hostAddress, IPV6_NETMASK).getHostAddress();
-        if (hostAddress instanceof Inet6Address) {
-            maskedAddress += "/" + IPV6_NETMASK;
-        } else {
-            maskedAddress += "/" + IPV4_NETMASK;
-        }
-        return maskedAddress;
-    }
 
-    static InetAddress mask(final InetAddress address, final int mask) {
+    public static InetAddress mask(final InetAddress address, final int mask) {
         if (address instanceof Inet6Address) {
             byte[] bytes = address.getAddress();
 
