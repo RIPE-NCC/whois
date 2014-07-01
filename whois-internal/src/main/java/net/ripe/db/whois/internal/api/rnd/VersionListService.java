@@ -124,12 +124,12 @@ public class VersionListService {
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         final Query query = Query.parse(queryBuilder.build(key), Query.Origin.INTERNAL, ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress)));
 
-        final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
+        final SingleVersionResponseHandler singleVersionResponseHandler = new SingleVersionResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
 
-        queryHandler.streamResults(query, remoteAddress, contextId, versionsResponseHandler);
+        queryHandler.streamResults(query, remoteAddress, contextId, singleVersionResponseHandler);
 
-        final RpslObject rpslObject = versionsResponseHandler.getRpslObject();
+        final RpslObject rpslObject = singleVersionResponseHandler.getRpslObject();
         if (rpslObject == null) {
             throw new WebApplicationException(Response
                     .status(Response.Status.NOT_FOUND)
@@ -139,7 +139,7 @@ public class VersionListService {
 
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectServerMapper.map(rpslObject, null, FormattedServerAttributeMapper.class)));
-        whoisResources.setErrorMessages(whoisService.createErrorMessages(versionsResponseHandler.getErrors()));
+        whoisResources.setErrorMessages(whoisService.createErrorMessages(singleVersionResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
         return Response.ok(whoisResources).build();

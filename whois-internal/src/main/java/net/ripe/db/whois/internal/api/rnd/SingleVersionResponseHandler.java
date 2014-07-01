@@ -5,15 +5,14 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.domain.MessageObject;
+import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.ResponseHandler;
-import net.ripe.db.whois.query.domain.VersionResponseObject;
 
 import java.util.List;
 
-public class VersionsResponseHandler implements ResponseHandler {
+public class SingleVersionResponseHandler implements ResponseHandler {
     private List<Message> errors = Lists.newArrayList();
-    private List<VersionResponseObject> versions = Lists.newArrayList();
+    private VersionDateTime versionDateTime;
     private RpslObject rpslObject;
 
     @Override
@@ -23,18 +22,22 @@ public class VersionsResponseHandler implements ResponseHandler {
 
     @Override
     public void handle(final ResponseObject responseObject) {
-        if (responseObject instanceof VersionResponseObject) {
-            versions.add((VersionResponseObject) responseObject);
-        } else if (responseObject instanceof MessageObject) {
-            final Message message = ((MessageObject) responseObject).getMessage();
-            if (message != null && Messages.Type.INFO != message.getType()) {
-                errors.add(message);
+        if (responseObject instanceof RpslObjectWithTimestamp){
+            RpslObjectWithTimestamp object = (RpslObjectWithTimestamp) responseObject;
+            rpslObject = object.getRpslObject();
+            versionDateTime = object.getVersionDateTime();
+
+            if (object.getSameTimestampCount()>1){
+                errors.add(new Message(Messages.Type.WARNING, "%s versions for timestamp found.", object.getSameTimestampCount()));
             }
+        } else {
+            throw new UnsupportedOperationException();
         }
+
     }
 
-    public List<VersionResponseObject> getVersions() {
-        return versions;
+    public VersionDateTime getVersionDateTime() {
+        return versionDateTime;
     }
 
     public List<Message> getErrors() {
