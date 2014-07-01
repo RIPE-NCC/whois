@@ -15,5 +15,5 @@ public interface VersionDao {
     Set<ObjectType> getObjectType(String searchKey);
 
     @Nullable
-    RpslObject findHistoricalObject(ObjectType next, String searchValue, int objectVersion);
+    java.util.List<VersionInfo> getVersionsBeforeTimestamp(ObjectType type, String searchKey, long timestamp);
 }

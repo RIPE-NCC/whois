@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.dao.jdbc.domain.VersionInfoRowMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -53,7 +52,7 @@ public class JdbcVersionDao extends JdbcVersionBaseDao {
 
     @Nullable
     @Override
-    public RpslObject findHistoricalObject(ObjectType next, String searchValue, int objectVersion) {
+    public List<VersionInfo> getVersionsBeforeTimestamp(ObjectType type, String searchKey, long timestamp) {
         throw new UnsupportedOperationException();
     }
 }
