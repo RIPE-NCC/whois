@@ -37,6 +37,10 @@ public class RestMessages {
         return new Message(Messages.Type.ERROR, "Flags are not allowed in 'query-string'");
     }
 
+    public static Message invalidTimestampFormat(final CharSequence timestamp) {
+        return new Message(Messages.Type.ERROR, "Timestamp parameter '%s' does not have the correct format", timestamp);
+    }
+
     public static Message ssoAuthIgnored() {
         return new Message(Messages.Type.INFO, "RIPE NCC Access token ignored");
     }

@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.dao.jdbc.JdbcVersionBaseDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.VersionInfoRowMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -52,5 +53,14 @@ public class RndVersionDao extends JdbcVersionBaseDao {
         }
 
         return new VersionLookupResult(versionInfos, type, searchKey);
+    }
+
+    @Nullable
+    @Override
+    public RpslObject findHistoricalObject(ObjectType next, String searchValue, int objectVersion) {
+
+
+
+        throw new UnsupportedOperationException();
     }
 }

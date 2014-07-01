@@ -1,28 +1,26 @@
 package net.ripe.db.whois.internal.api.rnd;
 
-import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.api.rest.WhoisService;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersionsInternal;
+import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
-import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
-import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +40,7 @@ import java.util.List;
 @Component
 @Path("/rnd")
 public class VersionListService {
+    public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
 
     private final WhoisService whoisService;
     private final QueryHandler queryHandler;
@@ -104,6 +103,48 @@ public class VersionListService {
         return Response.ok(whoisResources).build();
     }
 
+    @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Path("/{source}/{objectType}/{key:.*}/versions/{datetime}")
+    public Response version(
+            @Context final HttpServletRequest request,
+            @PathParam("source") final String source,
+            @PathParam("objectType") final String objectType,
+            @PathParam("key") final String key,
+            @PathParam("datetime") final String datetime) {
+
+
+        validSource(request, source);
+        long timestamp = validateDateTimeAndConvertToTimestamp(request, datetime);
+
+        final QueryBuilder queryBuilder = new QueryBuilder()
+                .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
+                .addCommaList(QueryFlag.SHOW_VERSION, String.valueOf(timestamp));
+
+        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.INTERNAL, ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress)));
+
+        final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
+        final int contextId = System.identityHashCode(Thread.currentThread());
+
+        queryHandler.streamResults(query, remoteAddress, contextId, versionsResponseHandler);
+
+        final RpslObject rpslObject = versionsResponseHandler.getRpslObject();
+        if (rpslObject == null) {
+            throw new WebApplicationException(Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity(whoisService.createErrorEntity(request, Collections.singletonList(QueryMessages.noResults(source))))
+                    .build());
+        }
+
+        final WhoisResources whoisResources = new WhoisResources();
+        whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectServerMapper.map(rpslObject, null, FormattedServerAttributeMapper.class)));
+        whoisResources.setErrorMessages(whoisService.createErrorMessages(versionsResponseHandler.getErrors()));
+        whoisResources.includeTermsAndConditions();
+
+        return Response.ok(whoisResources).build();
+    }
+
     private void validSource(final HttpServletRequest request, final String source) {
         if (!sourceContext.getAllSourceNames().contains(CIString.ciString(source))) {
             throw new WebApplicationException(Response
@@ -113,33 +154,14 @@ public class VersionListService {
         }
     }
 
-    private class VersionsResponseHandler implements ResponseHandler {
-        private List<Message> errors = Lists.newArrayList();
-        private List<VersionResponseObject> versions = Lists.newArrayList();
-
-        @Override
-        public String getApi() {
-            return "INTERNAL_API";
-        }
-
-        @Override
-        public void handle(final ResponseObject responseObject) {
-            if (responseObject instanceof VersionResponseObject) {
-                versions.add((VersionResponseObject) responseObject);
-            } else if (responseObject instanceof MessageObject) {
-                final Message message = ((MessageObject) responseObject).getMessage();
-                if (message != null && Messages.Type.INFO != message.getType()) {
-                    errors.add(message);
-                }
-            }
-        }
-
-        public List<VersionResponseObject> getVersions() {
-            return versions;
-        }
-
-        public List<Message> getErrors() {
-            return errors;
+    private long validateDateTimeAndConvertToTimestamp(final HttpServletRequest request, final String timestamp) {
+        try {
+            return DEFAULT_DATE_TIME_FORMATTER.parseDateTime(timestamp).getMillis();
+        } catch (IllegalArgumentException e) {
+            throw new WebApplicationException(Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.invalidTimestampFormat(timestamp)))
+                    .build());
         }
     }
 }

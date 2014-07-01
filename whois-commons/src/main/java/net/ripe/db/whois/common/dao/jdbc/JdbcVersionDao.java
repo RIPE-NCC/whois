@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.dao.jdbc;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectRowMapper;
 import net.ripe.db.whois.common.dao.jdbc.domain.VersionInfoRowMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.util.List;
 
@@ -51,4 +51,9 @@ public class JdbcVersionDao extends JdbcVersionBaseDao {
         return new VersionLookupResult(versionInfos, type, searchKey);
     }
 
+    @Nullable
+    @Override
+    public RpslObject findHistoricalObject(ObjectType next, String searchValue, int objectVersion) {
+        throw new UnsupportedOperationException();
+    }
 }

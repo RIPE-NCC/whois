@@ -4582,4 +4582,56 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         // do not interpret template parameters
         return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
     }
+
+
+    @Test
+    //TODO [TP] REMOVE ME
+    public void testName() throws Exception {
+        RestTest.target(getPort(), "whois/test/mntner?password=test")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, SSO_AND_PASSWORD_MNT), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RpslObject modified = new RpslObjectBuilder(SSO_AND_PASSWORD_MNT).addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "modified1")).get();
+        RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT?password=test")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, modified), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        Thread.sleep(5*1000);
+        RpslObject modified2 = new RpslObjectBuilder(SSO_AND_PASSWORD_MNT).addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "modified2")).get();
+        RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT?password=test")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, modified2), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        Thread.sleep(5*1000);
+        RpslObject modified3 = new RpslObjectBuilder(SSO_AND_PASSWORD_MNT).addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "modified3")).get();
+        RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT?password=test")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, modified3), MediaType.APPLICATION_XML), WhoisResources.class);
+
+
+
+        RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT").queryParam("password", "test")
+                .request().delete(WhoisResources.class);
+
+        Thread.sleep(5*1000);
+
+        RestTest.target(getPort(), "whois/test/mntner?password=test")
+                    .request()
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, SSO_AND_PASSWORD_MNT), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RpslObject modified4 = new RpslObjectBuilder(SSO_AND_PASSWORD_MNT).addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "modified4")).get();
+        RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT?password=test")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, modified4), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        Thread.sleep(5*1000);
+        RpslObject modified5 = new RpslObjectBuilder(SSO_AND_PASSWORD_MNT).addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "modified5")).get();
+        RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT?password=test")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, modified5), MediaType.APPLICATION_XML), WhoisResources.class);
+
+
+        //comment out to test the modifications
+        Thread.sleep(Long.MAX_VALUE);
+    }
 }
