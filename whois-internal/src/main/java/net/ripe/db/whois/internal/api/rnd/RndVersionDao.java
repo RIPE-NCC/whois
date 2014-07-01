@@ -71,8 +71,8 @@ public class RndVersionDao extends JdbcVersionBaseDao {
                                 "  temp.atlast, " +
                                 "  temp.object_id, " +
                                 "  temp.sequence_id, " +
-                                "  temp.operation," +
-                                "  temp.timestamp" +
+                                "  temp.operation, " +
+                                "  temp.timestamp " +
                                 "from " +
                                 "  (" +
                                 "    SELECT serials.atlast, " +
