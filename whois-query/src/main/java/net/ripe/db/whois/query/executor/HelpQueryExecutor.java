@@ -1,15 +1,16 @@
 package net.ripe.db.whois.query.executor;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.QueryFlag;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
 import static net.ripe.db.whois.common.FormatHelper.prettyPrint;
+import static net.ripe.db.whois.query.QueryFlag.SHOW_TIMESTAMP_VERSION;
 
 @Component
 public class HelpQueryExecutor implements QueryExecutor {
@@ -19,7 +20,7 @@ public class HelpQueryExecutor implements QueryExecutor {
 
     private static final MessageObject HELP_RESPONSE;
 
-    static final Set<QueryFlag> SKIPPED = Sets.newHashSet();
+    static final Set<QueryFlag> SKIPPED = Sets.newHashSet(SHOW_TIMESTAMP_VERSION);
 
     static {
         final StringBuilder help = new StringBuilder();

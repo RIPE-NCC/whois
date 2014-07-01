@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
@@ -14,7 +13,6 @@ import java.util.List;
 public class VersionsResponseHandler implements ResponseHandler {
     private List<Message> errors = Lists.newArrayList();
     private List<VersionResponseObject> versions = Lists.newArrayList();
-    private RpslObject rpslObject;
 
     @Override
     public String getApi() {
@@ -41,7 +39,4 @@ public class VersionsResponseHandler implements ResponseHandler {
         return errors;
     }
 
-    public RpslObject getRpslObject() {
-        return rpslObject;
-    }
 }

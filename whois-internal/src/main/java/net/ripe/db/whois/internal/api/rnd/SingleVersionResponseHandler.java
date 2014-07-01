@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.VersionDateTime;
+import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 
 import java.util.List;
@@ -26,14 +27,14 @@ public class SingleVersionResponseHandler implements ResponseHandler {
             RpslObjectWithTimestamp object = (RpslObjectWithTimestamp) responseObject;
             rpslObject = object.getRpslObject();
             versionDateTime = object.getVersionDateTime();
-
-            if (object.getSameTimestampCount()>1){
-                errors.add(new Message(Messages.Type.WARNING, "%s versions for timestamp found.", object.getSameTimestampCount()));
+        } else if (responseObject instanceof MessageObject) {
+            final Message message = ((MessageObject) responseObject).getMessage();
+            if (message != null && Messages.Type.INFO != message.getType()) {
+                errors.add(message);
             }
         } else {
             throw new UnsupportedOperationException();
         }
-
     }
 
     public VersionDateTime getVersionDateTime() {

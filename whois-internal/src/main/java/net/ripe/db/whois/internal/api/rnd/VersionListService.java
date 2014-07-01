@@ -119,7 +119,7 @@ public class VersionListService {
 
         final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
-                .addCommaList(QueryFlag.SHOW_VERSION, String.valueOf(timestamp));
+                .addCommaList(QueryFlag.SHOW_TIMESTAMP_VERSION, String.valueOf(timestamp));
 
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         final Query query = Query.parse(queryBuilder.build(key), Query.Origin.INTERNAL, ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress)));

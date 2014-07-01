@@ -2,6 +2,7 @@ package net.ripe.db.whois.query;
 
 import com.google.common.base.Joiner;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.QueryMessage;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Hosts;
