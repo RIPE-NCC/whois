@@ -13,4 +13,7 @@ public interface VersionDao {
     VersionLookupResult findByKey(ObjectType type, String searchKey);
 
     Set<ObjectType> getObjectType(String searchKey);
+
+    @Nullable
+    RpslObject findHistoricalObject(ObjectType next, String searchValue, int objectVersion);
 }

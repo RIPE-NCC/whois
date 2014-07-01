@@ -32,6 +32,11 @@ public class RndVersionQueryExecutor extends VersionQueryExecutor {
         return false;
     }
 
+    @Override
+    public boolean supports(final Query query) {
+        return query.isVersionList();
+    }
+
     // Minimal implementation compared to the public interface because we can rely on only having version responses
     @Override
     public void execute(final Query query, final ResponseHandler responseHandler) {
