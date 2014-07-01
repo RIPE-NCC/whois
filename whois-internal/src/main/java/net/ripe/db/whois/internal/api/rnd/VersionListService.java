@@ -105,7 +105,7 @@ public class VersionListService {
 
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Path("/{source}/{objectType}/{key:.*}/versions/{datetime}")
+    @Path("/{source}/{objectType}/{key:.*}/versions/{datetime:.*}")
     public Response version(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
