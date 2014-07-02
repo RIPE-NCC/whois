@@ -65,7 +65,6 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
     private Iterable<? extends ResponseObject> getResponseObjects(final Query query) {
         final List<ResponseObject> results = new ArrayList<>();
 
-
         final List<VersionInfo> versionInfos = versionDao.getVersionsBeforeTimestamp(
                 query.getObjectTypes().iterator().next(), // internal REST API will allow only one object type
                 query.getSearchValue(),
@@ -86,11 +85,11 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
 
         Collections.sort(latestVersionInfos);
 
-        if (latestVersionInfos.isEmpty()){
+        if (latestVersionInfos.isEmpty()) {
             return makeListWithNoResultsMessage();
         }
 
-        if (latestVersionInfos.size() > 1 ){
+        if (latestVersionInfos.size() > 1) {
             results.add(new MessageObject(multipleVersionsForTimestamp(latestVersionInfos.size())));
         }
 
@@ -103,7 +102,7 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
         return results;
     }
 
-    private RpslObject decorateRpslObject(RpslObject rpslObject){
+    private RpslObject decorateRpslObject(final RpslObject rpslObject) {
         return FILTER_EMAIL_FUNCTION.apply(FILTER_AUTH_FUNCTION.apply(rpslObject));
     }
 
@@ -111,7 +110,7 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
         return new Message(Messages.Type.WARNING, "%s versions for timestamp found.", count);
     }
 
-    private Collection makeListWithNoResultsMessage(){
+    private Collection makeListWithNoResultsMessage() {
         return Collections.singletonList(new MessageObject(QueryMessages.noResults(sourceContext.getCurrentSource().getName())));
     }
 }
