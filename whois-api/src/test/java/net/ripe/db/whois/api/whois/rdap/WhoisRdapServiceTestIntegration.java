@@ -63,8 +63,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         System.setProperty("rdap.sources", "TEST-GRS");
         System.setProperty("rdap.redirect.test", "https://rdap.test.net");
         System.setProperty("rdap.public.baseUrl", "https://rdap.db.ripe.net");
+
         // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
-        System.setProperty("dir.freetext.index", "${dir.var}/idx");
+        System.setProperty("dir.freetext.index", "var${jvmId:}/idx");
     }
 
     @AfterClass
