@@ -74,6 +74,18 @@ public class SingleVersionResponseHandlerTest {
         assertThat(subject.getVersionDateTime(), is(nullValue()));
     }
 
+    @Test
+    public void handleWarningMessage() {
+        final MessageObject messageObject = new MessageObject(QueryMessages.uselessIpFlagPassed());
+
+        subject.handle(messageObject);
+
+        assertThat(subject.getErrors(), hasSize(1));
+        assertThat(subject.getErrors().get(0), is(messageObject.getMessage()));
+        assertThat(subject.getRpslObject(), is(nullValue()));
+        assertThat(subject.getVersionDateTime(), is(nullValue()));
+    }
+
     @Test(expected = UnsupportedOperationException.class)
     public void handleNull() {
         subject.handle(null);
