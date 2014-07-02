@@ -19,6 +19,7 @@ import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.executor.QueryExecutor;
 import net.ripe.db.whois.query.query.Query;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -70,7 +71,7 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
                 query.getSearchValue(),
                 query.getObjectTimestamp());
 
-        if (versionInfos.isEmpty()){
+        if (CollectionUtils.isEmpty(versionInfos)){
             return makeListWithNoResultsMessage();
         }
 

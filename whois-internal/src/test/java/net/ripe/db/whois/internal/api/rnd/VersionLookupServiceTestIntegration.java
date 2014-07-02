@@ -130,7 +130,7 @@ public class VersionLookupServiceTestIntegration extends AbstractInternalTest {
 
     @Test(expected = NotFoundException.class)
     public void doesNotExist() {
-        RestTest.target(getPort(), String.format("api/rnd/test/aut-num/AS123/versions/%s", new LocalDateTime()), null, apiKey)
+        RestTest.target(getPort(), String.format("api/rnd/test/aut-num/AS123/versions/%s", DEFAULT_DATE_TIME_FORMATTER.print(new LocalDateTime())), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
     }
