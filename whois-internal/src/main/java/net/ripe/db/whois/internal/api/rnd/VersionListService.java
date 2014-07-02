@@ -21,6 +21,7 @@ import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
+import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,7 +162,8 @@ public class VersionListService {
 
     private long validateDateTimeAndConvertToTimestamp(final HttpServletRequest request, final String timestamp) {
         try {
-            return VersionDateTime.formatter.parseDateTime(timestamp).getMillis();
+            //the date parameter has minute precision, therefore we need to convert it to max milliseconds for that minute.
+            return new LocalDateTime(VersionDateTime.formatter.parseDateTime(timestamp)).withSecondOfMinute(59).withMillisOfSecond(999).toDateTime().getMillis();
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(Response
                     .status(Response.Status.BAD_REQUEST)

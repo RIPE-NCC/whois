@@ -1,6 +1,9 @@
 package net.ripe.db.whois.internal.api.rnd;
 
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -24,6 +27,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -71,6 +75,7 @@ public class VersionLookupServiceTestIntegration extends AbstractInternalTest {
 
 
         final RpslObjectUpdateInfo objectInfo = updateDao.createObject(mntner);
+
         final LocalDateTime localDateTime = new LocalDateTime();
         testDateTimeProvider.setTime(localDateTime.plusDays(1));
         updateDao.updateObject(objectInfo.getObjectId(), new RpslObjectBuilder(mntner).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get());
@@ -81,7 +86,18 @@ public class VersionLookupServiceTestIntegration extends AbstractInternalTest {
                 .get(WhoisResources.class);
         assertThat(result, not(is(nullValue())));
         assertThat(result.getWhoisObjects(), hasSize(1));
-        assertThat(result.getWhoisObjects().get(0).getVersionDateTime(), is(creationTimestamp));
+
+        final WhoisObject whoisObject = result.getWhoisObjects().get(0);
+        assertThat(whoisObject.getVersionDateTime(), is(creationTimestamp));
+        assertThat(whoisObject.getAttributes(), hasItems(
+                new Attribute("auth", "MD5-PW", "Filtered", null, null),
+                new Attribute("auth", "SSO", "Filtered", null, null)
+        ));
+
+        assertThat(whoisObject.getAttributes(), not(hasItems(
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("upd-to", "noreply@ripe.net")
+        )));
     }
 
     @Test
@@ -160,6 +176,62 @@ public class VersionLookupServiceTestIntegration extends AbstractInternalTest {
                 .get(WhoisResources.class);
 
         assertThat(result.getWhoisObjects().get(0).getAttributes().get(1).getValue(), is("other street"));
+    }
+
+    @Test
+    public void multiple_updates_in_same_minute_returns_warning() {
+        final RpslObject one = RpslObject.parse("" +
+                "person: Test Person\n" +
+                "address: one street\n" +
+                "nic-hdl: TP1-TEST\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+        final RpslObject two = RpslObject.parse("" +
+                "person: Test Person\n" +
+                "address: two street\n" +
+                "nic-hdl: TP1-TEST\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+        final RpslObject three = RpslObject.parse("" +
+                "person: Test Person\n" +
+                "address: three street\n" +
+                "nic-hdl: TP1-TEST\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+        final RpslObject four = RpslObject.parse("" +
+                "person: Test Person\n" +
+                "address: four street\n" +
+                "nic-hdl: TP1-TEST\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@ripe.net\n" +
+                "source: TEST");
+
+        final RpslObjectUpdateInfo objectInfo = updateDao.createObject(one);
+        final LocalDateTime localDateTime = new LocalDateTime();
+        final String creationDateTime = DEFAULT_DATE_TIME_FORMATTER.print(localDateTime);
+
+        testDateTimeProvider.setTime(localDateTime.plusSeconds(5));
+        updateDao.updateObject(objectInfo.getObjectId(), two);
+
+        testDateTimeProvider.setTime(localDateTime.plusSeconds(10));
+        updateDao.updateObject(objectInfo.getObjectId(), three);
+
+        testDateTimeProvider.setTime(localDateTime.plusMinutes(1));
+        updateDao.updateObject(objectInfo.getObjectId(), four);
+
+        final WhoisResources result = RestTest.target(getPort(), String.format("api/rnd/test/person/TP1-TEST/versions/%s", creationDateTime), null, apiKey)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(result.getWhoisObjects(), hasSize(1));
+        assertThat(result.getWhoisObjects().get(0).getAttributes().get(1).getValue(), is("three street"));
+
+        final ErrorMessage message = result.getErrorMessages().get(0);
+        assertThat(message.getSeverity(), is("Warning"));
+        assertThat(message.toString(), is("There are 3 versions for the supplied datetime."));
     }
 
     @Test(expected = NotFoundException.class)
