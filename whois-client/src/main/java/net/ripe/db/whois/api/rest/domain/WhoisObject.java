@@ -21,7 +21,8 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
     "source",
     "primaryKey",
     "attributes",
-    "tags"
+    "tags",
+    "versionDateTime"
 })
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "object")
@@ -47,6 +48,9 @@ public class WhoisObject {
 
     @XmlAttribute(name = "version")
     private Integer version;
+
+    @XmlElement(name="version-datetime")
+    private String versionDateTime;
 
     public Link getLink() {
         return link;
@@ -102,6 +106,14 @@ public class WhoisObject {
 
     public void setTags(final List<WhoisTag> tags) {
         this.tags = new WhoisTags(tags);
+    }
+
+    public String getVersionDateTime() {
+        return versionDateTime;
+    }
+
+    public void setVersionDateTime(String versionDateTime) {
+        this.versionDateTime = versionDateTime;
     }
 
     public String toString() {

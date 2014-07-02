@@ -4,9 +4,10 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.api.rest.WhoisService;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersionsInternal;
-import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
@@ -16,6 +17,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
@@ -138,7 +140,10 @@ public class VersionListService {
         }
 
         final WhoisResources whoisResources = new WhoisResources();
-        whoisResources.setWhoisObjects(Collections.singletonList(whoisObjectServerMapper.map(rpslObject, null, FormattedServerAttributeMapper.class)));
+
+        final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, null, FormattedClientAttributeMapper.class);
+        whoisObject.setVersionDateTime(singleVersionResponseHandler.getVersionDateTime().toString());
+        whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         whoisResources.setErrorMessages(whoisService.createErrorMessages(singleVersionResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
@@ -156,7 +161,7 @@ public class VersionListService {
 
     private long validateDateTimeAndConvertToTimestamp(final HttpServletRequest request, final String timestamp) {
         try {
-            return DEFAULT_DATE_TIME_FORMATTER.parseDateTime(timestamp).getMillis();
+            return VersionDateTime.formatter.parseDateTime(timestamp).getMillis();
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(Response
                     .status(Response.Status.BAD_REQUEST)

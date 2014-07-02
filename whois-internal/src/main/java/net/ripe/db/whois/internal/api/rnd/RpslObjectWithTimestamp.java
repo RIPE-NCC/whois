@@ -12,7 +12,7 @@ public class RpslObjectWithTimestamp implements ResponseObject {
     private final int sameTimestampCount;
     private final VersionDateTime versionDateTime;
 
-    public RpslObjectWithTimestamp(final RpslObject rpslObject, final int sameTimestampCount, VersionDateTime versionDateTime) {
+    public RpslObjectWithTimestamp(final RpslObject rpslObject, final int sameTimestampCount, final VersionDateTime versionDateTime) {
         this.rpslObject = rpslObject;
         this.sameTimestampCount = sameTimestampCount;
         this.versionDateTime = versionDateTime;
