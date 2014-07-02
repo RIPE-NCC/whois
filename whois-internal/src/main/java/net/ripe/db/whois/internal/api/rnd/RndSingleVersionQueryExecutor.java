@@ -107,7 +107,7 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
     }
 
     public static Message multipleVersionsForTimestamp(final int count) {
-        return new Message(Messages.Type.WARNING, "%s versions for timestamp found.", count);
+        return new Message(Messages.Type.WARNING, "There are %s versions for the supplied datetime.", count);
     }
 
     private Collection makeListWithNoResultsMessage() {

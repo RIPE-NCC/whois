@@ -87,8 +87,9 @@ public class RndVersionDao extends JdbcVersionBaseDao {
                                 "    ORDER BY timestamp DESC, serials.object_id desc, serials.sequence_id desc " +
                                 "  ) as temp\n" +
                                 "where temp.timestamp<=? "
-                        , new VersionInfoRowMapper(),
-                        Joiner.on(',').join(objectIds), timestamp
+                        , new VersionInfoRowMapper()
+                        , Joiner.on(',').join(objectIds)
+                        , timestamp/1000L
                 )
         );
 
