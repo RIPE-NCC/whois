@@ -2,7 +2,6 @@ package net.ripe.db.whois.internal.api.rnd;
 
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -36,8 +35,6 @@ public class VersionLookupServiceTestIntegration extends AbstractInternalTest {
     @Autowired
     @Qualifier("whoisReadOnlySlaveDataSource")
     DataSource dataSource;
-    @Autowired
-    WhoisObjectMapper whoisObjectMapper;
     private DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
 
     @Before
@@ -84,7 +81,7 @@ public class VersionLookupServiceTestIntegration extends AbstractInternalTest {
                 .get(WhoisResources.class);
         assertThat(result, not(is(nullValue())));
         assertThat(result.getWhoisObjects(), hasSize(1));
-//        assertThat(result.getWhoisObjects().get(0).getTimestamp(), is(creationTimestamp));
+        assertThat(result.getWhoisObjects().get(0).getVersionDateTime(), is(creationTimestamp));
     }
 
     @Test
