@@ -9,6 +9,7 @@ import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class SingleVersionResponseHandler implements ResponseHandler {
@@ -24,7 +25,7 @@ public class SingleVersionResponseHandler implements ResponseHandler {
     @Override
     public void handle(final ResponseObject responseObject) {
         if (responseObject instanceof RpslObjectWithTimestamp){
-            RpslObjectWithTimestamp object = (RpslObjectWithTimestamp) responseObject;
+            final RpslObjectWithTimestamp object = (RpslObjectWithTimestamp) responseObject;
             rpslObject = object.getRpslObject();
             versionDateTime = object.getVersionDateTime();
         } else if (responseObject instanceof MessageObject) {
@@ -37,6 +38,7 @@ public class SingleVersionResponseHandler implements ResponseHandler {
         }
     }
 
+    @Nullable
     public VersionDateTime getVersionDateTime() {
         return versionDateTime;
     }
@@ -45,6 +47,7 @@ public class SingleVersionResponseHandler implements ResponseHandler {
         return errors;
     }
 
+    @Nullable
     public RpslObject getRpslObject() {
         return rpslObject;
     }
