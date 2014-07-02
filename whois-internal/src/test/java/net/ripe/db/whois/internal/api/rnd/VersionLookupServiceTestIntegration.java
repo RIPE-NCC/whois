@@ -155,7 +155,7 @@ public class VersionLookupServiceTestIntegration extends AbstractInternalTest {
         final RpslObjectUpdateInfo objectInfo = updateDao.createObject(before);
         updateDao.updateObject(objectInfo.getObjectId(), after);
 
-        final WhoisResources result = RestTest.target(getPort(), String.format("api/rnd/test/person/TP1-TEST/versions/%s", new LocalDateTime()), null, apiKey)
+        final WhoisResources result = RestTest.target(getPort(), String.format("api/rnd/test/person/TP1-TEST/versions/%s", DEFAULT_DATE_TIME_FORMATTER.print(new LocalDateTime())), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 

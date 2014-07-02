@@ -80,7 +80,7 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
                 Iterables.filter(versionInfos, new Predicate<VersionInfo>() {
                     @Override
                     public boolean apply(@Nullable VersionInfo input) {
-                        return input.getTimestamp() != maxTimestamp && input.getOperation() != Operation.DELETE;
+                        return input.getTimestamp().equals(maxTimestamp) || input.getOperation() != Operation.DELETE;
                     }
                 }));
 
