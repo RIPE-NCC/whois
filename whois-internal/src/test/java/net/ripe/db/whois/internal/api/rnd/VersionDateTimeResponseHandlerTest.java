@@ -18,16 +18,16 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SingleVersionResponseHandlerTest {
+public class VersionDateTimeResponseHandlerTest {
     @Mock
     RpslAttributes otherResponseObject;
 
-    SingleVersionResponseHandler subject;
+    VersionDateTimeResponseHandler subject;
 
 
     @Before
     public void setup() {
-        subject = new SingleVersionResponseHandler();
+        subject = new VersionDateTimeResponseHandler();
     }
 
     @Test

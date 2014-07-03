@@ -12,7 +12,7 @@ import net.ripe.db.whois.query.domain.ResponseHandler;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class SingleVersionResponseHandler implements ResponseHandler {
+public class VersionDateTimeResponseHandler implements ResponseHandler {
     private List<Message> errors = Lists.newArrayList();
     private VersionDateTime versionDateTime;
     private RpslObject rpslObject;

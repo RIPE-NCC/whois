@@ -22,8 +22,6 @@ import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,8 +41,6 @@ import java.util.List;
 @Component
 @Path("/rnd")
 public class VersionListService {
-    public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
-
     private final WhoisService whoisService;
     private final QueryHandler queryHandler;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
@@ -127,12 +123,12 @@ public class VersionListService {
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         final Query query = Query.parse(queryBuilder.build(key), Query.Origin.INTERNAL, ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress)));
 
-        final SingleVersionResponseHandler singleVersionResponseHandler = new SingleVersionResponseHandler();
+        final VersionDateTimeResponseHandler versionDateTimeResponseHandler = new VersionDateTimeResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
 
-        queryHandler.streamResults(query, remoteAddress, contextId, singleVersionResponseHandler);
+        queryHandler.streamResults(query, remoteAddress, contextId, versionDateTimeResponseHandler);
 
-        final RpslObject rpslObject = singleVersionResponseHandler.getRpslObject();
+        final RpslObject rpslObject = versionDateTimeResponseHandler.getRpslObject();
         if (rpslObject == null) {
             throw new WebApplicationException(Response
                     .status(Response.Status.NOT_FOUND)
@@ -143,9 +139,9 @@ public class VersionListService {
         final WhoisResources whoisResources = new WhoisResources();
 
         final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, null, FormattedClientAttributeMapper.class);
-        whoisObject.setVersionDateTime(singleVersionResponseHandler.getVersionDateTime().toString());
+        whoisObject.setVersionDateTime(versionDateTimeResponseHandler.getVersionDateTime().toString());
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        whoisResources.setErrorMessages(whoisService.createErrorMessages(singleVersionResponseHandler.getErrors()));
+        whoisResources.setErrorMessages(whoisService.createErrorMessages(versionDateTimeResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
         return Response.ok(whoisResources).build();

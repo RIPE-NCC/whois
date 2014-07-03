@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class RndSingleVersionQueryExecutor implements QueryExecutor {
+public class VersionDateTimeQueryExecutor implements QueryExecutor {
 
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
@@ -39,7 +39,7 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
     private final BasicSourceContext sourceContext;
 
     @Autowired
-    public RndSingleVersionQueryExecutor (final BasicSourceContext sourceContext,  final VersionDao versionDao) {
+    public VersionDateTimeQueryExecutor(final BasicSourceContext sourceContext, final VersionDao versionDao) {
         this.versionDao = versionDao;
         this.sourceContext = sourceContext;
     }
