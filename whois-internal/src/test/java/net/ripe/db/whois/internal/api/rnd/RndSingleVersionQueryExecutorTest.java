@@ -44,14 +44,14 @@ public class RndSingleVersionQueryExecutorTest {
 
     @Test
     public void supports() {
-//        assertThat(subject.supports(Query.parse("--show-timestamp-version 1404301680000 NINJA")), is(true));
-        assertThat(subject.supports(Query.parse("--show-version NINJA")), is(false));
+        assertThat(subject.supports(Query.parse("--show-timestamp-version 1404301680000 NINJA")), is(true));
+        assertThat(subject.supports(Query.parse("--show-version 1 NINJA")), is(false));
     }
 
     @Test
     public void multipleVersionsForTimestamp() {
         final Message message = RndSingleVersionQueryExecutor.multipleVersionsForTimestamp(3);
-        assertThat(message.getText(), is("%s versions for timestamp found."));
+        assertThat(message.getText(), is("There are %s versions for the supplied datetime."));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class RndSingleVersionQueryExecutorTest {
 
         subject.execute(Query.parse("--select-types PERSON --show-timestamp-version 123456789 TP1-TEST"), responseHandler);
 
-        verify(responseHandler).handle(new MessageObject("2 versions for timestamp found."));
+        verify(responseHandler).handle(new MessageObject("There are 2 versions for the supplied datetime."));
     }
 
     @Test
