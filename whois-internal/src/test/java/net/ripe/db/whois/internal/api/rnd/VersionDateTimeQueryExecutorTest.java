@@ -29,13 +29,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RndSingleVersionQueryExecutorTest {
+public class VersionDateTimeQueryExecutorTest {
 
     @Mock VersionDao versionDao;
     @Mock BasicSourceContext sourceContext;
     @Mock ResponseHandler responseHandler;
 
-    @InjectMocks RndSingleVersionQueryExecutor subject;
+    @InjectMocks
+    VersionDateTimeQueryExecutor subject;
 
     @Test
     public void aclNotSupported() {
@@ -50,7 +51,7 @@ public class RndSingleVersionQueryExecutorTest {
 
     @Test
     public void multipleVersionsForTimestamp() {
-        final Message message = RndSingleVersionQueryExecutor.multipleVersionsForTimestamp(3);
+        final Message message = VersionDateTimeQueryExecutor.multipleVersionsForTimestamp(3);
         assertThat(message.getText(), is("There are %s versions for the supplied datetime."));
     }
 

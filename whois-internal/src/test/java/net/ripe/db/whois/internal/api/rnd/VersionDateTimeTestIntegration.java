@@ -34,7 +34,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 
 @Category(IntegrationTest.class)
-public class VersionLookupServiceTestIntegration extends AbstractInternalTest {
+public class VersionDateTimeTestIntegration extends AbstractInternalTest {
 
     @Autowired
     @Qualifier("whoisReadOnlySlaveDataSource")
@@ -260,5 +260,34 @@ public class VersionLookupServiceTestIntegration extends AbstractInternalTest {
         RestTest.target(getPort(), String.format("api/rnd/test/person/TP1-TEST/versions/%s", timestamp), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
+    }
+
+    @Test
+    public void recreated_object_with_update_on_the_same_minute() {
+        final RpslObject domain1 = RpslObject.parse("domain:test.sk\ndescr:description1\nsource:TEST\n");
+        final RpslObject domain2 = RpslObject.parse("domain:test.sk\ndescr:description2\nsource:TEST\n");
+
+        final LocalDateTime localDateTime = new LocalDateTime();
+
+        final RpslObjectUpdateInfo objectInfo = updateDao.createObject(domain1);
+        updateDao.updateObject(objectInfo.getObjectId(), domain2);
+
+        testDateTimeProvider.setTime(localDateTime.plusDays(2));
+        updateDao.deleteObject(objectInfo.getObjectId(), objectInfo.getKey());
+
+        testDateTimeProvider.setTime(localDateTime.plusDays(3));
+        updateDao.createObject(domain1);
+
+        final String afterCreationDateTime = DEFAULT_DATE_TIME_FORMATTER.print(localDateTime.plusDays(1));
+        final WhoisResources result = RestTest.target(getPort(), String.format("api/rnd/test/domain/test.sk/versions/%s", afterCreationDateTime), null, apiKey)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(result.getWhoisObjects(), hasSize(1));
+        assertThat(result.getWhoisObjects().get(0).getAttributes().get(1).getValue(), is("description2"));
+
+        final ErrorMessage message = result.getErrorMessages().get(0);
+        assertThat(message.getSeverity(), is("Warning"));
+        assertThat(message.toString(), is("There are 2 versions for the supplied datetime."));
     }
 }
