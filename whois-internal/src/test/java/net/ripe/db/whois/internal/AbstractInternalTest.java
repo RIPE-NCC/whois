@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -19,6 +20,9 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 import javax.sql.DataSource;
+
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles(WhoisProfile.TEST)
@@ -48,7 +52,10 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
         databaseHelper = new DatabaseHelper();
         databaseHelper.setAclDataSource(aclDataSource);
         updateDao = new JdbcRpslObjectUpdateDao(whoisDataSource, testDateTimeProvider);
+
+        setupWhoisDatabase(new JdbcTemplate(whoisDataSource));
     }
+
 
     @After
     public void resetDatabaseHelper() {
@@ -67,5 +74,10 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
 
     public int getPort() {
         return jettyBootstrap.getPort();
+    }
+
+    public void setupWhoisDatabase(JdbcTemplate jdbcTemplate) {
+        truncateTables(jdbcTemplate);
+        loadScripts(jdbcTemplate, "whois_data.sql");
     }
 }

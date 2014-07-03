@@ -36,17 +36,6 @@ import static org.hamcrest.core.IsNull.nullValue;
 @Category(IntegrationTest.class)
 public class VersionLookupServiceTestIntegration extends AbstractInternalTest {
 
-    public static final RpslObject MNTNER = RpslObject.parse("" +
-            "mntner:         TEST-MNT\n" +
-            "descr:          Maintainer\n" +
-            "auth:           SSO person@net.net\n" +
-            "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-            "mnt-by:         TEST-MNT\n" +
-            "referral-by:    TEST-MNT\n" +
-            "upd-to:         noreply@ripe.net\n" +
-            "changed:        noreply@ripe.net 20120101\n" +
-            "source:         TEST");
-
     @Autowired
     @Qualifier("whoisReadOnlySlaveDataSource")
     DataSource dataSource;
@@ -61,16 +50,37 @@ public class VersionLookupServiceTestIntegration extends AbstractInternalTest {
         databaseHelper.setupWhoisDatabase(new JdbcTemplate(dataSource));
         databaseHelper.insertApiKey(apiKey, "/api/rnd", "rnd api key");
 
-        updateDao.createObject(MNTNER);
+        updateDao.createObject(RpslObject.parse("" +
+                "mntner:         TEST-MNT\n" +
+                "descr:          Maintainer\n" +
+                "auth:           SSO person@net.net\n" +
+                "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:         TEST-MNT\n" +
+                "referral-by:    TEST-MNT\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST"));
     }
 
     @Test
     public void lookupFirstVersion() {
-        final RpslObjectUpdateInfo objectInfo = updateDao.createObject(MNTNER);
+        final RpslObject mntner = RpslObject.parse("" +
+                "mntner:         TST-MNT\n" +
+                "descr:          Maintainer\n" +
+                "auth:           SSO person@net.net\n" +
+                "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:         TST-MNT\n" +
+                "referral-by:    TST-MNT\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST");
+
+
+        final RpslObjectUpdateInfo objectInfo = updateDao.createObject(mntner);
 
         final LocalDateTime localDateTime = new LocalDateTime();
         testDateTimeProvider.setTime(localDateTime.plusDays(1));
-        updateDao.updateObject(objectInfo.getObjectId(), new RpslObjectBuilder(MNTNER).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get());
+        updateDao.updateObject(objectInfo.getObjectId(), new RpslObjectBuilder(mntner).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get());
 
         final String creationTimestamp = DEFAULT_DATE_TIME_FORMATTER.print(localDateTime);
         final WhoisResources result = RestTest.target(getPort(), String.format("api/rnd/test/mntner/TST-MNT/versions/%s", creationTimestamp), null, apiKey)
