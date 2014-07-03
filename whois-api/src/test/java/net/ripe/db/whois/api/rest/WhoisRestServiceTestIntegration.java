@@ -2067,6 +2067,28 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "                remark3 # comment3"));
     }
 
+    @Test
+    public void create_multiple_objects_fails() throws Exception {
+        final RpslObject personObject = RpslObject.parse("" +
+            "person:    Some Person\n" +
+            "address:   Singel 258\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   AUTO-1\n" +
+            "changed:   noreply@ripe.net 20120101\n" +
+            "remarks:   remark\n" +
+            "source:    TEST\n");
+
+        try {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, personObject, personObject), MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            // expected
+        }
+    }
 
     // delete
 
