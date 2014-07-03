@@ -43,4 +43,8 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
     public int compareTo(final VersionDateTime other) {
         return timestamp.compareTo(other.timestamp);
     }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }

@@ -75,11 +75,14 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
         }
 
         final VersionDateTime maxTimestamp = versionInfos.get(0).getTimestamp();
+
         final List<VersionInfo> latestVersionInfos = Lists.newArrayList(
                 Iterables.filter(versionInfos, new Predicate<VersionInfo>() {
                     @Override
                     public boolean apply(@Nullable VersionInfo input) {
-                        return input.getTimestamp().equals(maxTimestamp) || input.getOperation() != Operation.DELETE;
+                        return input.getTimestamp().getTimestamp().withSecondOfMinute(0).withMillisOfSecond(0).
+                                equals(maxTimestamp.getTimestamp().withSecondOfMinute(0).withMillisOfSecond(0))
+                                && input.getOperation() != Operation.DELETE;
                     }
                 }));
 
