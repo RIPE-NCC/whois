@@ -61,7 +61,6 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
         }
     }
 
-
     private Iterable<? extends ResponseObject> getResponseObjects(final Query query) {
         final List<ResponseObject> results = new ArrayList<>();
 
@@ -86,8 +85,6 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
                     }
                 }));
 
-        Collections.sort(latestVersionInfos);
-
         if (latestVersionInfos.isEmpty()) {
             return makeListWithNoResultsMessage();
         }
@@ -95,6 +92,8 @@ public class RndSingleVersionQueryExecutor implements QueryExecutor {
         if (latestVersionInfos.size() > 1) {
             results.add(new MessageObject(multipleVersionsForTimestamp(latestVersionInfos.size())));
         }
+
+        Collections.sort(latestVersionInfos);
 
         final RpslObject rpslObject = versionDao.getRpslObject(Iterables.getLast(latestVersionInfos));
         results.add(new RpslObjectWithTimestamp(
