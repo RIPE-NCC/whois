@@ -1,6 +1,5 @@
 package net.ripe.db.whois.internal.api.rnd;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
@@ -10,6 +9,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Nullable;
@@ -57,42 +58,43 @@ public class RndVersionDao extends JdbcVersionBaseDao {
 
     @Nullable
     @Override
-    public List<VersionInfo> getVersionsBeforeTimestamp(ObjectType type, String searchKey, long timestamp) {
+    public List<VersionInfo> getVersionsBeforeTimestamp(ObjectType type, String searchKey, long timestampInMilliseconds) {
         final List<Integer> objectIds = getObjectIds(type, searchKey);
+        final long timestamp = timestampInMilliseconds / 1000L;
 
         if (objectIds.isEmpty()) {
             return null;
         }
 
-        final List<VersionInfo> versionInfos = Lists.newArrayList();
-        versionInfos.addAll(
-                getJdbcTemplate().query("" +
-                                "select " +
-                                "  temp.atlast, " +
-                                "  temp.object_id, " +
-                                "  temp.sequence_id, " +
-                                "  temp.operation, " +
-                                "  temp.timestamp " +
-                                "from " +
-                                "  (" +
-                                "    SELECT serials.atlast, " +
-                                "       serials.object_id, " +
-                                "       serials.sequence_id, " +
-                                "       serials.operation, " +
-                                "       COALESCE(history.timestamp, last.timestamp) AS timestamp " +
-                                "    FROM serials " +
-                                "       LEFT JOIN last ON serials.object_id = last.object_id " +
-                                "       LEFT JOIN history ON serials.object_id=history.object_id AND serials.sequence_id=history.sequence_id " +
-                                "    WHERE serials.object_id in (?) " +
-                                "    ORDER BY timestamp DESC, serials.object_id desc, serials.sequence_id desc " +
-                                "  ) as temp\n" +
-                                "where temp.timestamp<=? "
-                        , new VersionInfoRowMapper()
-                        , Joiner.on(',').join(objectIds)
-                        , timestamp/1000L
-                )
-        );
+        final MapSqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("objectIds", objectIds)
+                .addValue("cutofTime", timestamp);
 
+        // need named jdbc template to correctly resolve objectids in the IN sql part.
+        final NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(getJdbcTemplate());
+        final List<VersionInfo> versionInfos = Lists.newArrayList();
+
+        versionInfos.addAll(namedParameterJdbcTemplate.query("" +
+                "SELECT " +
+                "  temp.atlast, " +
+                "  temp.object_id, " +
+                "  temp.sequence_id, " +
+                "  temp.operation, " +
+                "  temp.timestamp " +
+                "FROM " +
+                "  (" +
+                "    SELECT serials.atlast, " +
+                "       serials.object_id, " +
+                "       serials.sequence_id, " +
+                "       serials.operation, " +
+                "       COALESCE(history.timestamp, last.timestamp) AS timestamp " +
+                "    FROM serials " +
+                "       LEFT JOIN last ON serials.object_id = last.object_id " +
+                "       LEFT JOIN history ON serials.object_id=history.object_id AND serials.sequence_id=history.sequence_id " +
+                "    WHERE serials.object_id IN (:objectIds) " +
+                "    ORDER BY timestamp DESC, serials.object_id DESC, serials.sequence_id DESC " +
+                "  ) AS temp " +
+                "WHERE temp.timestamp<=:cutofTime ", parameters, new VersionInfoRowMapper()));
         return versionInfos;
     }
 }
