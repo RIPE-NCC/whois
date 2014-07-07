@@ -1,6 +1,7 @@
 package net.ripe.db.whois.internal.api.rnd;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -69,7 +71,7 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
                 query.getSearchValue(),
                 query.getObjectTimestamp());
 
-        if (CollectionUtils.isEmpty(versionInfos)){
+        if (CollectionUtils.isEmpty(versionInfos)) {
             return makeListWithNoResultsMessage();
         }
 
@@ -78,7 +80,7 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
         final List<VersionInfo> latestVersionInfos = Lists.newArrayList(
                 Iterables.filter(versionInfos, new Predicate<VersionInfo>() {
                     @Override
-                    public boolean apply(@Nullable VersionInfo input) {
+                    public boolean apply(@NotNull VersionInfo input) {
                         return input.getTimestamp().getTimestamp().withSecondOfMinute(0).withMillisOfSecond(0).
                                 equals(maxTimestamp.getTimestamp().withSecondOfMinute(0).withMillisOfSecond(0))
                                 && input.getOperation() != Operation.DELETE;
@@ -93,9 +95,10 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
             results.add(new MessageObject(multipleVersionsForTimestamp(latestVersionInfos.size())));
         }
 
-        Collections.sort(latestVersionInfos);
+        // sort in reverse order, so that first item is the object with the highest timestamp.
+        Collections.sort(latestVersionInfos, Collections.reverseOrder());
 
-        final RpslObject rpslObject = versionDao.getRpslObject(Iterables.getLast(latestVersionInfos));
+        final RpslObject rpslObject = versionDao.getRpslObject(latestVersionInfos.get(0));
         results.add(new RpslObjectWithTimestamp(
                         decorateRpslObject(rpslObject),
                         latestVersionInfos.size(),
@@ -103,6 +106,7 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
 
         return results;
     }
+
 
     private RpslObject decorateRpslObject(final RpslObject rpslObject) {
         return FILTER_EMAIL_FUNCTION.apply(FILTER_AUTH_FUNCTION.apply(rpslObject));
@@ -112,7 +116,7 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
         return new Message(Messages.Type.WARNING, "There are %s versions for the supplied datetime.", count);
     }
 
-    private Collection makeListWithNoResultsMessage() {
+    private Collection<? extends ResponseObject> makeListWithNoResultsMessage() {
         return Collections.singletonList(new MessageObject(QueryMessages.noResults(sourceContext.getCurrentSource().getName())));
     }
 }

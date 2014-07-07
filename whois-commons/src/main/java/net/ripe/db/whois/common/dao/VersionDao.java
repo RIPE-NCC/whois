@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 public interface VersionDao {
@@ -14,6 +15,6 @@ public interface VersionDao {
 
     Set<ObjectType> getObjectType(String searchKey);
 
-    @Nullable
+    @NotNull
     java.util.List<VersionInfo> getVersionsBeforeTimestamp(ObjectType type, String searchKey, long timestamp);
 }

@@ -87,7 +87,6 @@ public class RndVersionDaoTest extends AbstractInternalTest {
         updateDao.createObject(RpslObject.parse("domain:test.sk\ndescr:description1\nsource:RIPE\n"));
 
         final List<VersionInfo> versions = subject.getVersionsBeforeTimestamp(ObjectType.DOMAIN, "test.sk", localDateTime.plusDays(4).toDateTime().getMillis());
-        //WHY DOES THIS FAIL?
         assertThat(versions, hasSize(4));
     }
 }

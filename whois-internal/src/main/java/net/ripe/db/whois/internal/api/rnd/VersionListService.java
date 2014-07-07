@@ -139,7 +139,9 @@ public class VersionListService {
         final WhoisResources whoisResources = new WhoisResources();
 
         final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, null, FormattedClientAttributeMapper.class);
-        whoisObject.setVersionDateTime(versionDateTimeResponseHandler.getVersionDateTime().toString());
+        if (versionDateTimeResponseHandler.getVersionDateTime() != null) {
+            whoisObject.setVersionDateTime(versionDateTimeResponseHandler.getVersionDateTime().toString());
+        }
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         whoisResources.setErrorMessages(whoisService.createErrorMessages(versionDateTimeResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
