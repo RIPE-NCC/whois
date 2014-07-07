@@ -78,7 +78,8 @@ public class VersionDateTimeTestIntegration extends AbstractInternalTest {
 
         final RpslObjectUpdateInfo objectInfo = updateDao.createObject(mntner);
 
-        final LocalDateTime localDateTime = new LocalDateTime();
+        final LocalDateTime localDateTime = new LocalDateTime().plusSeconds(10);
+
         testDateTimeProvider.setTime(localDateTime.plusDays(1));
         updateDao.updateObject(objectInfo.getObjectId(), new RpslObjectBuilder(mntner).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get());
 
@@ -90,11 +91,14 @@ public class VersionDateTimeTestIntegration extends AbstractInternalTest {
         assertThat(result.getWhoisObjects(), hasSize(1));
 
         final WhoisObject whoisObject = result.getWhoisObjects().get(0);
+
         assertThat(whoisObject.getVersionDateTime(), is(creationTimestamp));
+
         assertThat(whoisObject.getAttributes(), hasItems(
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
                 new Attribute("auth", "SSO", "Filtered", null, null)
         ));
+
 
         assertThat(whoisObject.getAttributes(), not(hasItems(
                 new Attribute("changed", "noreply@ripe.net 20120101"),
@@ -151,33 +155,6 @@ public class VersionDateTimeTestIntegration extends AbstractInternalTest {
         RestTest.target(getPort(), String.format("api/rnd/test/aut-num/AS123/versions/%s", DEFAULT_DATE_TIME_FORMATTER.print(new LocalDateTime())), null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
-    }
-
-    @Test
-    public void sameOrVeryNearlyTheSameTimestamp() {
-        final RpslObject before = RpslObject.parse("" +
-                "person: Test Person\n" +
-                "address: street\n" +
-                "nic-hdl: TP1-TEST\n" +
-                "mnt-by: TEST-MNT\n" +
-                "changed: test@ripe.net\n" +
-                "source: TEST");
-        final RpslObject after = RpslObject.parse("" +
-                "person: Test Person\n" +
-                "address: other street\n" +
-                "nic-hdl: TP1-TEST\n" +
-                "mnt-by: TEST-MNT\n" +
-                "changed: test@ripe.net\n" +
-                "source: TEST");
-
-        final RpslObjectUpdateInfo objectInfo = updateDao.createObject(before);
-        updateDao.updateObject(objectInfo.getObjectId(), after);
-
-        final WhoisResources result = RestTest.target(getPort(), String.format("api/rnd/test/person/TP1-TEST/versions/%s", DEFAULT_DATE_TIME_FORMATTER.print(new LocalDateTime())), null, apiKey)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(WhoisResources.class);
-
-        assertThat(result.getWhoisObjects().get(0).getAttributes().get(1).getValue(), is("other street"));
     }
 
     @Test
