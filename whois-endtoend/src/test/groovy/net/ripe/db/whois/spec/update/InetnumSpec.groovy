@@ -5,7 +5,6 @@ import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class InetnumSpec extends BaseQueryUpdateSpec {
@@ -1720,7 +1719,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
-    @Ignore //fix at appropriate time for policy 2014-01 no minimum allocation size - don't move it away
     def "create SUB-ALLOCATED PA with single IP address, parent and child with mnt-lower, pw supplied for parent mnt-lower and child mnt-by"() {
         given:
         syncUpdate(getTransient("P-LOW") + "password: hm\npassword: owner3")
@@ -1760,7 +1758,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.0" }
 
-        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.0")
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
     }
 
     def "create assignment, parent with mnt-lower mnt-routes, pw supplied parent mnt-routes object mnt-by"() {
@@ -4808,127 +4806,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 "Authorisation override used"]
 
         query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ALLOCATED PA")
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255", "SUB-ALLOCATED PA")
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "LIR-PARTITIONED PA")
-    }
-
-    @Ignore //for some unknown reason this test is ignoring the first delete, doing the second create as a modify,
-            // then doing the delete as the last operation - needs further investigation
-    def "delete and re-create 3 objects, change status"() {
-      given:
-        syncUpdate(getTransient("P-192-8") + "override: denis,override1")
-        syncUpdate(getTransient("PART-PA") + "password: lir")
-        syncUpdate(getTransient("ASS-END") + "password: lir\npassword: end")
-
-      expect:
-        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255")
-        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-        queryObjectNotFound("-r -T inetnum 62.59.192.2 - 92.59.192.30", "inetnum", "62.59.192.2 - 92.59.192.30")
-
-      when:
-        def message = syncUpdate("""\
-                inetnum:      192.0.0.0 - 192.255.255.255
-                netname:      RIPE-NET1
-                descr:        /16 ERX
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                delete:       changing status
-                override:   denis,override1
-
-                inetnum:      192.0.0.0 - 192.255.255.255
-                netname:      RIPE-NET1
-                descr:        /16 ERX
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                override:   denis,override1
-
-                inetnum:      192.168.200.0 - 192.168.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       LIR-PARTITIONED PA
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                delete:       changing status
-
-                inetnum:      192.168.200.0 - 192.168.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       SUB-ALLOCATED PA
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                inetnum:      192.168.200.0 - 192.168.200.255
-                netname:      RIPE-NET1
-                descr:        /24 assigned
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PA
-                mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                delete:       changing status
-
-                inetnum:      192.168.200.0 - 192.168.200.255
-                netname:      RIPE-NET1
-                descr:        /24 assigned
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       LIR-PARTITIONED PA
-                mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: lir
-                password: end
-                password: owner3
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        query_object_matches("-rGBT inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255", "ALLOCATED PA")
-
-        ack.summary.nrFound == 6
-        ack.summary.assertSuccess(6, 3, 0, 3, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 2)
-        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
-        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
-        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-
-        query_object_matches("-rGBT inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255", "ALLOCATED PA")
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255", "SUB-ALLOCATED PA")
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "LIR-PARTITIONED PA")
     }
