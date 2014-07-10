@@ -547,6 +547,108 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT inetnum 192.168.128.0 - 192.168.128.0", "inetnum", "192.168.128.0 - 192.168.128.0")
     }
 
+    def "create allocation with 3 IP addresses, create 2 partitions with 1 and 2 IPs, create assignments from partition parent with mnt-lower, parent mnt-lower pw supplied"() {
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.128.2", "inetnum", "192.168.128.0 - 192.168.128.2")
+        queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.128.0", "inetnum", "192.168.128.0 - 192.168.128.0")
+        queryObjectNotFound("-r -T inetnum 192.168.128.1 - 192.168.128.2", "inetnum", "192.168.128.1 - 192.168.128.2")
+        queryObjectNotFound("-r -T inetnum 192.168.128.1 - 192.168.128.1", "inetnum", "192.168.128.1 - 192.168.128.1")
+        queryObjectNotFound("-r -T inetnum 192.168.128.2 - 192.168.128.2", "inetnum", "192.168.128.2 - 192.168.128.2")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.128.0 - 192.168.128.2
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.128.0 - 192.168.128.0
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LIR-PARTITIONED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.128.1 - 192.168.128.2
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LIR-PARTITIONED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.128.1 - 192.168.128.1
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.128.2 - 192.168.128.2
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: hm
+                password: lir
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 5
+        ack.summary.assertSuccess(5, 5, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.128.2" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.128.0" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.1 - 192.168.128.2" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.1 - 192.168.128.1" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.2 - 192.168.128.2" }
+
+        queryObject("-r -T inetnum 192.168.128.0 - 192.168.128.2", "inetnum", "192.168.128.0 - 192.168.128.2")
+        queryObject("-r -T inetnum 192.168.128.0 - 192.168.128.0", "inetnum", "192.168.128.0 - 192.168.128.0")
+        queryObject("-r -T inetnum 192.168.128.1 - 192.168.128.2", "inetnum", "192.168.128.1 - 192.168.128.2")
+        queryObject("-r -T inetnum 192.168.128.1 - 192.168.128.1", "inetnum", "192.168.128.1 - 192.168.128.1")
+        queryObject("-r -T inetnum 192.168.128.2 - 192.168.128.2", "inetnum", "192.168.128.2 - 192.168.128.2")
+    }
+
     def "create allocation, parent with mnt-lower, parent mnt-lower pw supplied, mnt-by using second alloc mntner"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword:hm")
