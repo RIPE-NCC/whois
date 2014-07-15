@@ -75,7 +75,6 @@ public class WhoisObjectServerMapper {
                         versionIdCounter,
                         currentVersion.getDateTime().toString(),
                         nextVersion == null ? "" : nextVersion.getDateTime().toString(),
-                        currentVersion.getOperation().toString(),
                         createWhoisVersionInternalLink(source, type, key + "/" + versionIdCounter)));
                 versionIdCounter++;
             }
