@@ -1,7 +1,6 @@
 package net.ripe.db.whois.internal.api.rnd;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
@@ -13,8 +12,6 @@ import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
-import net.ripe.db.whois.common.source.BasicSourceContext;
-import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
@@ -24,7 +21,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,12 +34,14 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
     private final VersionDao versionDao;
-    private final BasicSourceContext sourceContext;
 
     @Autowired
-    public VersionDateTimeQueryExecutor(final BasicSourceContext sourceContext, final VersionDao versionDao) {
+    public VersionDateTimeQueryExecutor(final VersionDao versionDao) {
         this.versionDao = versionDao;
-        this.sourceContext = sourceContext;
+    }
+
+    public static Message multipleVersionsForTimestamp(final int count) {
+        return new Message(Messages.Type.WARNING, "There are %s versions for the supplied datetime.", count);
     }
 
     @Override
@@ -72,7 +70,7 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
                 query.getObjectTimestamp());
 
         if (CollectionUtils.isEmpty(versionInfos)) {
-            return makeListWithNoResultsMessage();
+            return makeListWithNoResultsMessage(query.getSearchValue());
         }
 
         final VersionDateTime maxTimestamp = versionInfos.get(0).getTimestamp();
@@ -88,7 +86,7 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
                 }));
 
         if (latestVersionInfos.isEmpty()) {
-            return makeListWithNoResultsMessage();
+            return makeListWithNoResultsMessage(query.getSearchValue());
         }
 
         if (latestVersionInfos.size() > 1) {
@@ -100,23 +98,18 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
 
         final RpslObject rpslObject = versionDao.getRpslObject(latestVersionInfos.get(0));
         results.add(new RpslObjectWithTimestamp(
-                        decorateRpslObject(rpslObject),
-                        latestVersionInfos.size(),
-                        Iterables.getLast(latestVersionInfos).getTimestamp()));
+                decorateRpslObject(rpslObject),
+                latestVersionInfos.size(),
+                Iterables.getLast(latestVersionInfos).getTimestamp()));
 
         return results;
     }
-
 
     private RpslObject decorateRpslObject(final RpslObject rpslObject) {
         return FILTER_EMAIL_FUNCTION.apply(FILTER_AUTH_FUNCTION.apply(rpslObject));
     }
 
-    public static Message multipleVersionsForTimestamp(final int count) {
-        return new Message(Messages.Type.WARNING, "There are %s versions for the supplied datetime.", count);
-    }
-
-    private Collection<? extends ResponseObject> makeListWithNoResultsMessage() {
-        return Collections.singletonList(new MessageObject(QueryMessages.noResults(sourceContext.getCurrentSource().getName())));
+    private Collection<? extends ResponseObject> makeListWithNoResultsMessage(String key) {
+        return Collections.singletonList(new MessageObject(new Message(Messages.Type.ERROR, "There is no entry for object %s for the supplied date time.", key)));
     }
 }
