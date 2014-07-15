@@ -150,11 +150,19 @@ public class VersionDateTimeTestIntegration extends AbstractInternalTest {
         assertThat(result.getWhoisObjects().get(0).getAttributes().get(3).getValue(), is("one line address"));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void doesNotExist() {
-        RestTest.target(getPort(), String.format("api/rnd/test/aut-num/AS123/versions/%s", DEFAULT_DATE_TIME_FORMATTER.print(new LocalDateTime())), null, apiKey)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(WhoisResources.class);
+        try {
+            RestTest.target(getPort(), String.format("api/rnd/test/aut-num/AS123/versions/%s", DEFAULT_DATE_TIME_FORMATTER.print(new LocalDateTime())), null, apiKey)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(WhoisResources.class);
+
+        } catch (NotFoundException e) {
+            WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), is("There is no entry for object AS123 for the supplied date time."));
+        }
+
     }
 
     @Test

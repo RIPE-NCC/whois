@@ -27,6 +27,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static net.ripe.db.whois.internal.api.rnd.InternalMessages.multipleVersionsForTimestamp;
+
 @Component
 public class VersionDateTimeQueryExecutor implements QueryExecutor {
 
@@ -38,10 +40,6 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
     @Autowired
     public VersionDateTimeQueryExecutor(final VersionDao versionDao) {
         this.versionDao = versionDao;
-    }
-
-    public static Message multipleVersionsForTimestamp(final int count) {
-        return new Message(Messages.Type.WARNING, "There are %s versions for the supplied datetime.", count);
     }
 
     @Override
