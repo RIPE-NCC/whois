@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.rest.domain;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -14,7 +13,6 @@ import javax.xml.bind.annotation.XmlType;
         "revision",
         "from",
         "to",
-        "operation",
         "link"
 
 })
@@ -26,17 +24,14 @@ public class WhoisVersionInternal {
     private String from;
     @XmlElement(name = "to", required = false)
     private String to;
-    @XmlElement(name = "operation", required = false)
-    private String operation;
     @XmlElement
     private Link link;
 
 
-    public WhoisVersionInternal(final Integer revision, final String from, final String to, final String operation, final Link link) {
+    public WhoisVersionInternal(final Integer revision, final String from, final String to, final Link link) {
         this.revision = revision;
         this.from = from;
         this.to = to;
-        this.operation = operation;
         this.link = link;
     }
 
@@ -56,10 +51,6 @@ public class WhoisVersionInternal {
         return to;
     }
 
-    public String getOperation() {
-        return operation;
-    }
-
     public Link getLink() {
         return link;
     }
@@ -72,7 +63,6 @@ public class WhoisVersionInternal {
         WhoisVersionInternal that = (WhoisVersionInternal) o;
 
         if (from != null ? !from.equals(that.from) : that.from != null) return false;
-        if (operation != null ? !operation.equals(that.operation) : that.operation != null) return false;
         if (revision != null ? !revision.equals(that.revision) : that.revision != null) return false;
         if (to != null ? !to.equals(that.to) : that.to != null) return false;
 
@@ -84,7 +74,6 @@ public class WhoisVersionInternal {
         int result = revision != null ? revision.hashCode() : 0;
         result = 31 * result + (from != null ? from.hashCode() : 0);
         result = 31 * result + (to != null ? to.hashCode() : 0);
-        result = 31 * result + (operation != null ? operation.hashCode() : 0);
         return result;
     }
 

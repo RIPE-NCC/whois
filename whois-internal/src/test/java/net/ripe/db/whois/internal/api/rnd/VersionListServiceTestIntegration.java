@@ -6,7 +6,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisVersionInternal;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
-import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.joda.time.LocalDateTime;
@@ -104,8 +103,6 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
         LocalDateTime fromDate = parse(versions.get(0).getFrom(), DEFAULT_DATE_TIME_FORMATTER);
         LocalDateTime toDate = parse(versions.get(0).getTo(), DEFAULT_DATE_TIME_FORMATTER);
 
-
-        assertThat(versions.get(0).getOperation(), is(Operation.UPDATE.toString()));
         assertThat(new Period(fromDate, toDate).getDays(), is(3));
     }
 
@@ -218,7 +215,6 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
                         "<revision>1</revision>" +
                         "<from>%s</from>" +
                         "<to>%s</to>" +
-                        "<operation>ADD/UPD</operation>" +
                         "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"/>" +
                         "</version>" +
                         "</versionsInternal>" +
@@ -250,7 +246,6 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
                                 "\"revision\":1," +
                                 "\"from\":\"%s\"," +
                                 "\"to\":\"%s\"," +
-                                "\"operation\":\"ADD/UPD\"," +
                                 "\"link\":{\"type\":\"locator\",\"href\":\"http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"}}]}," +
                         "\"terms-and-conditions\":{\"type\":\"locator\",\"href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}}",
                     createdDate.toString(DEFAULT_DATE_TIME_FORMATTER), deleteDate.toString(DEFAULT_DATE_TIME_FORMATTER))));
