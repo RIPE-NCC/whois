@@ -22,15 +22,15 @@ public class JdbcObjectReferenceDaoTest extends AbstractDaoTest {
     @Before
     public void setup() {
         databaseHelper.getWhoisTemplate().update("" +
-                "INSERT INTO `object_reference` " +
-                "(`from_object_type`, `from_pkey`, `from_object_id`, `from_sequence_id`, `to_object_type`, `to_pkey`, `to_object_id`, `to_sequence_id`, `from_timestamp`, `to_timestamp`)\n" +
-                "VALUES\n" +
-                "\t(10, 'TP1-TEST', 101, 1, 9,  'MNTNER1',  201, 2, 2001, 3000),\n" +
-                "\t(10, 'TP1-TEST', 101, 1, 9,  'MNTNER1',  201, 1, 1001, 2000),\n" +
-                "\t(10, 'TP1-TEST', 101, 2, 9,  'MNTNER2',  202, 1, 3001, NULL),\n" +
-                "\t(18, 'ORG1',     102, 1, 9,  'MNTNER2',  202, 1, 3001, NULL),\n" +
-                "\t(18, 'ORG1',     102, 1, 10, 'TP1-TEST', 101, 1, 1001, 3000),\n" +
-                "\t(18, 'ORG1',     102, 1, 10, 'TP1-TEST', 101, 2, 3001, NULL);\n");
+            "INSERT INTO `object_reference` " +
+            "(`from_object_type`, `from_pkey`, `from_object_id`, `from_sequence_id`, `to_object_type`, `to_pkey`, `to_object_id`, `to_sequence_id`, `from_timestamp`, `to_timestamp`)\n" +
+            "VALUES\n" +
+            "\t(10, 'TP1-TEST', 101, 1, 9,  'MNTNER1',  201, 1, 1001, 2000),\n" +
+            "\t(10, 'TP1-TEST', 101, 1, 9,  'MNTNER1',  201, 2, 2001, 3000),\n" +
+            "\t(10, 'TP1-TEST', 101, 2, 9,  'MNTNER2',  202, 1, 3001, NULL),\n" +
+            "\t(18, 'ORG1',     102, 1, 9,  'MNTNER2',  202, 1, 3001, NULL),\n" +
+            "\t(18, 'ORG1',     102, 1, 10, 'TP1-TEST', 101, 1, 1001, 3000),\n" +
+            "\t(18, 'ORG1',     102, 1, 10, 'TP1-TEST', 101, 2, 3001, NULL);\n");
     }
 
     @Test
