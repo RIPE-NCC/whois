@@ -16,7 +16,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
@@ -85,7 +84,7 @@ public class VersionListService {
         if (versions.isEmpty()) {
             throw new WebApplicationException(Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(whoisService.createErrorEntity(request, Collections.singletonList(QueryMessages.noResults(source))))
+                    .entity(whoisService.createErrorEntity(request, Collections.singletonList(InternalMessages.noVersions(key))))
                     .build());
         }
 
@@ -132,7 +131,7 @@ public class VersionListService {
         if (rpslObject == null) {
             throw new WebApplicationException(Response
                     .status(Response.Status.NOT_FOUND)
-                    .entity(whoisService.createErrorEntity(request, Collections.singletonList(QueryMessages.noResults(source))))
+                    .entity(whoisService.createErrorEntity(request, Collections.singletonList(InternalMessages.noVersion(key))))
                     .build());
         }
 

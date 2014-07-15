@@ -1,7 +1,6 @@
 package net.ripe.db.whois.internal.api.rnd;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.domain.serials.Operation;
@@ -47,12 +46,6 @@ public class VersionDateTimeQueryExecutorTest {
     public void supports() {
         assertThat(subject.supports(Query.parse("--show-timestamp-version 1404301680000 NINJA")), is(true));
         assertThat(subject.supports(Query.parse("--show-version 1 NINJA")), is(false));
-    }
-
-    @Test
-    public void multipleVersionsForTimestamp() {
-        final Message message = VersionDateTimeQueryExecutor.multipleVersionsForTimestamp(3);
-        assertThat(message.getText(), is("There are %s versions for the supplied datetime."));
     }
 
     @Test

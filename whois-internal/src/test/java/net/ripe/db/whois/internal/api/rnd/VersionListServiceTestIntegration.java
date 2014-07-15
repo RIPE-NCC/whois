@@ -156,7 +156,7 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
 
         } catch (ClientErrorException e) {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
-            assertThat(whoisResources.getErrorMessages().get(0).toString(), is("ERROR:101: no entries found\n\nNo entries found in source test.\n"));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), is("No entries found for object AS3336"));
             assertThat(e.getResponse().getStatus(), is(404));
         }
     }
