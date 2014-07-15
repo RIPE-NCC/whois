@@ -20,4 +20,4 @@ CREATE TABLE `object_reference` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 TRUNCATE version;
-INSERT INTO version VALUES ('whois-1.73-3');
+INSERT INTO version VALUES ('whois-1.74-1');
