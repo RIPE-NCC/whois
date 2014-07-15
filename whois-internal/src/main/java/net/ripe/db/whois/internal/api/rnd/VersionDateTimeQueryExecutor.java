@@ -3,8 +3,6 @@ package net.ripe.db.whois.internal.api.rnd;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -26,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import static net.ripe.db.whois.internal.api.rnd.InternalMessages.multipleVersionsForTimestamp;
 
 @Component
 public class VersionDateTimeQueryExecutor implements QueryExecutor {
@@ -88,7 +84,7 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
         }
 
         if (latestVersionInfos.size() > 1) {
-            results.add(new MessageObject(multipleVersionsForTimestamp(latestVersionInfos.size())));
+            results.add(new MessageObject(InternalMessages.multipleVersionsForTimestamp(latestVersionInfos.size())));
         }
 
         // sort in reverse order, so that first item is the object with the highest timestamp.
@@ -108,6 +104,6 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
     }
 
     private Collection<? extends ResponseObject> makeListWithNoResultsMessage(String key) {
-        return Collections.singletonList(new MessageObject(new Message(Messages.Type.ERROR, "There is no entry for object %s for the supplied date time.", key)));
+        return Collections.singletonList(new MessageObject(InternalMessages.noVersion(key)));
     }
 }
