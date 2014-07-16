@@ -275,4 +275,209 @@ public class VersionDateTimeTestIntegration extends AbstractInternalTest {
         assertThat(message.getSeverity(), is("Warning"));
         assertThat(message.toString(), is("There are 2 versions for the supplied datetime."));
     }
+
+
+    @Test
+    public void versionWithIncomingReference() {
+        final RpslObject organisation = RpslObject.parse("" +
+                "organisation: ORG-TOL1-TEST\n" +
+                "org-name: Acme carpets\n" +
+                "org-type: OTHER\n" +
+                "address: street\n" +
+                "address: postcode\n" +
+                "address: country\n" +
+                "e-mail: test@dev.net\n" +
+                "mnt-ref: TEST-MNT\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@test.net\n" +
+                "source: TEST");
+
+        final RpslObject person = RpslObject.parse("" +
+                "person: Test Person\n" +
+                "nic-hdl: TP1-TEST\n" +
+                "org: ORG-TOL1-TEST\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@test.net\n" +
+                "source: TEST");
+
+        final RpslObjectUpdateInfo objectInfo = updateDao.createObject(organisation);
+
+        final LocalDateTime localDateTime = new LocalDateTime();
+        testDateTimeProvider.setTime(localDateTime.plusDays(5));
+
+        updateDao.updateObject(objectInfo.getObjectId(),
+                new RpslObjectBuilder(organisation)
+                        .removeAttributeType(AttributeType.ADDRESS)
+                        .addAttributeSorted(new RpslAttribute(AttributeType.ADDRESS, "one line address"))
+                        .get()
+        );
+
+        updateDao.createObject(person);
+
+
+        testDateTimeProvider.setTime(localDateTime.plusDays(13));
+
+        updateDao.updateObject(objectInfo.getObjectId(),
+                new RpslObjectBuilder(organisation)
+                        .removeAttributeType(AttributeType.ADDRESS)
+                        .addAttributeSorted(new RpslAttribute(AttributeType.ADDRESS, "different address"))
+                        .get());
+
+        final String randomTimestamp = DEFAULT_DATE_TIME_FORMATTER.print(localDateTime.plusDays(6));
+        final WhoisResources result = RestTest.target(getPort(), String.format("api/rnd/test/organisation/ORG-TOL1-TEST/versions/%s", randomTimestamp), null, apiKey)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(result.getWhoisObjects().get(0).getAttributes().get(3).getValue(), is("one line address"));
+//        assertThat(result.getReferencedBy().getWhoisObjects().get(0).getType(), is("PERSON"));
+//        assertThat(result.getReferencedBy().getWhoisObjects().get(0).getPrimaryKey().get(0), is(new Attribute("NIC-HDL", "TP1-TEST")));
+    }
+
+    @Test
+    public void versionWithOutgoingReference() {
+        final RpslObject organisation = RpslObject.parse("" +
+                "organisation: ORG-TOL1-TEST\n" +
+                "org-name: Acme carpets\n" +
+                "org-type: OTHER\n" +
+                "address: street\n" +
+                "address: postcode\n" +
+                "address: country\n" +
+                "admin-c: TP1-TEST\n" +
+                "e-mail: test@dev.net\n" +
+                "mnt-ref: TEST-MNT\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@test.net\n" +
+                "source: TEST");
+
+        final RpslObject person = RpslObject.parse("" +
+                "person: Test Person\n" +
+                "nic-hdl: TP1-TEST\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@test.net\n" +
+                "source: TEST");
+
+        updateDao.createObject(person);
+        final RpslObjectUpdateInfo objectInfo = updateDao.createObject(organisation);
+
+        final LocalDateTime localDateTime = new LocalDateTime();
+        testDateTimeProvider.setTime(localDateTime.plusDays(5));
+
+        updateDao.updateObject(objectInfo.getObjectId(),
+                new RpslObjectBuilder(organisation)
+                        .removeAttributeType(AttributeType.ADDRESS)
+                        .addAttributeSorted(new RpslAttribute(AttributeType.ADDRESS, "one line address"))
+                        .get()
+        );
+
+        testDateTimeProvider.setTime(localDateTime.plusDays(13));
+
+        updateDao.updateObject(objectInfo.getObjectId(),
+                new RpslObjectBuilder(organisation)
+                        .removeAttributeType(AttributeType.ADDRESS)
+                        .addAttributeSorted(new RpslAttribute(AttributeType.ADDRESS, "different address"))
+                        .get());
+
+        final String randomTimestamp = DEFAULT_DATE_TIME_FORMATTER.print(localDateTime.plusDays(6));
+        final WhoisResources result = RestTest.target(getPort(), String.format("api/rnd/test/organisation/ORG-TOL1-TEST/versions/%s", randomTimestamp), null, apiKey)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(result.getWhoisObjects().get(0).getAttributes().get(3).getValue(), is("one line address"));
+//        assertThat(result.getReferencing().getWhoisObjects().get(0).getType(), is("PERSON"));
+//        assertThat(result.getReferencing().getWhoisObjects().get(0).getPrimaryKey().get(0), is(new Attribute("NIC-HDL", "TP1-TEST")));
+    }
+
+    @Test
+    public void versionWithIncomingAndOutgoingReferences() {
+        final RpslObject organisation = RpslObject.parse("" +
+                "organisation: ORG-TOL1-TEST\n" +
+                "org-name: Acme carpets\n" +
+                "org-type: OTHER\n" +
+                "address: street\n" +
+                "address: postcode\n" +
+                "address: country\n" +
+                "admin-c: TP1-TEST\n" +
+                "admin-c: OP1-TEST\n" +
+                "e-mail: test@dev.net\n" +
+                "mnt-ref: TEST-MNT\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@test.net\n" +
+                "source: TEST");
+
+        final RpslObject outgoingPerson = RpslObject.parse("" +
+                "person: Test Person\n" +
+                "nic-hdl: TP1-TEST\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@test.net\n" +
+                "source: TEST");
+
+        final RpslObject outgoingPerson2 = RpslObject.parse("" +
+                "person: Other Person\n" +
+                "nic-hdl: OP1-TEST\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@test.net\n" +
+                "source: TEST");
+
+        final RpslObject incomingMntner = RpslObject.parse("" +
+                "mntner: ORG-MNT\n" +
+                "descr: orgreferencing mntner\n" +
+                "org: ORG-TOL1-TEST\n" +
+                "admin-c: TP1-TEST\n" +
+                "upd-to: test@ripe.net\n" +
+                "auth: MD5-PW $1$gCwy2NMX$KU54GS8qZnb4AwSm.t9Gr1\n" +
+                "mnt-by: ORG-MNT\n" +
+                "referral-by: ORG-MNT\n" +
+                "changed: ttest@ripe.net\n" +
+                "source: TEST");
+        final RpslObject incomingOrg = RpslObject.parse("" +
+                "organisation: ORG-OTH1-TEST\n" +
+                "org-name: Other org\n" +
+                "org-type: OTHER\n" +
+                "org: ORG-TOL1-TEST\n" +
+                "address: street\n" +
+                "admin-c: TP1-TEST\n" +
+                "e-mail: test@dev.net\n" +
+                "mnt-ref: TEST-MNT\n" +
+                "mnt-by: TEST-MNT\n" +
+                "changed: test@test.net\n" +
+                "source: TEST");
+
+
+        updateDao.createObject(outgoingPerson);
+        updateDao.createObject(outgoingPerson2);
+        final RpslObjectUpdateInfo objectInfo = updateDao.createObject(organisation);
+
+        final LocalDateTime localDateTime = new LocalDateTime();
+        testDateTimeProvider.setTime(localDateTime.plusDays(5));
+
+        updateDao.updateObject(objectInfo.getObjectId(),
+                new RpslObjectBuilder(organisation)
+                        .removeAttributeType(AttributeType.ADDRESS)
+                        .addAttributeSorted(new RpslAttribute(AttributeType.ADDRESS, "one line address"))
+                        .get()
+        );
+
+        updateDao.createObject(incomingMntner);
+        updateDao.createObject(incomingOrg);
+
+
+        testDateTimeProvider.setTime(localDateTime.plusDays(13));
+
+        updateDao.updateObject(objectInfo.getObjectId(),
+                new RpslObjectBuilder(organisation)
+                        .removeAttributeType(AttributeType.ADDRESS)
+                        .addAttributeSorted(new RpslAttribute(AttributeType.ADDRESS, "different address"))
+                        .get());
+
+        final String randomTimestamp = DEFAULT_DATE_TIME_FORMATTER.print(localDateTime.plusDays(6));
+        final WhoisResources result = RestTest.target(getPort(), String.format("api/rnd/test/organisation/ORG-TOL1-TEST/versions/%s", randomTimestamp), null, apiKey)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(result.getWhoisObjects().get(0).getAttributes().get(3).getValue(), is("one line address"));
+//        assertThat(result.getReferencing().getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+//        assertThat(result.getReferencing().getWhoisObjects().get(1).getPrimaryKey().get(0).getValue(), is("OP1-TEST"));
+//        assertThat(result.getReferencedBy().getWhoisObjects().get(0).getType(), is("MNTNER"));
+//        assertThat(result.getReferencedBy().getWhoisObjects().get(1).getType(), is("ORGANISATION"));
+    }
 }
