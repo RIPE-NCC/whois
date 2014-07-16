@@ -1,10 +1,15 @@
 package net.ripe.db.whois.internal.api.rnd;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.api.rest.WhoisService;
+import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
+import net.ripe.db.whois.api.rest.domain.WhoisObjects;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersionsInternal;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -104,6 +109,7 @@ public class VersionListService {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}/versions/{datetime:.*}")
+    //TODO when finally presenting this to R&D, remember to specify whether the datetime param is the start or end of the timespan
     public Response version(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
@@ -142,6 +148,8 @@ public class VersionListService {
             whoisObject.setVersionDateTime(versionDateTimeResponseHandler.getVersionDateTime().toString());
         }
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
+        whoisResources.setReferencing(mapReferences(getReferencingPlaceholder(rpslObject, timestamp)));
+        whoisResources.setReferencedBy(mapReferences(getReferencedByPlaceholder(rpslObject, timestamp)));
         whoisResources.setErrorMessages(whoisService.createErrorMessages(versionDateTimeResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
@@ -167,5 +175,31 @@ public class VersionListService {
                     .entity(whoisService.createErrorEntity(request, RestMessages.invalidTimestampFormat(timestamp)))
                     .build());
         }
+    }
+
+    private WhoisObjects mapReferences(final Iterable<RpslObject> references) {
+        if (Iterables.isEmpty(references)) {
+            return null;
+        }
+
+        return new WhoisObjects(
+                Lists.newArrayList(Iterables.transform(references, new Function<RpslObject, WhoisObject>() {
+                    @Override
+                    public WhoisObject apply(final RpslObject input) {
+                        final WhoisObject whoisObject = new WhoisObject();
+                        whoisObject.setPrimaryKey(Lists.newArrayList(new Attribute(input.getType().getName(), input.getKey().toString())));
+                        whoisObject.setType(input.getType().toString());
+                        return whoisObject;
+                    }
+                })));
+
+    }
+
+    private Iterable<RpslObject> getReferencingPlaceholder(final RpslObject object, final long timestamp) {
+        return Lists.newArrayList();
+    }
+
+    private Iterable<RpslObject> getReferencedByPlaceholder(final RpslObject object, final long timestamp) {
+        return Lists.newArrayList();
     }
 }

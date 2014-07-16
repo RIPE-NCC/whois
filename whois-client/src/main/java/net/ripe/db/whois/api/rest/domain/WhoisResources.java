@@ -20,6 +20,8 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "service",
         "parameters",
         "objects",
+        "referencing",
+        "referencedBy",
         "sources",
         "errorMessages",
         "geolocationAttributes",
@@ -39,6 +41,12 @@ public class WhoisResources {
     @XmlElement(name = "objects", required = true)
     @JsonProperty(value = "objects", required = true)
     private WhoisObjects objects;
+    @XmlElement(name = "referenced-by")
+    @JsonProperty(value = "referenced-by")
+    private WhoisObjects referencedBy;
+    @XmlElement(name = "referencing")
+    @JsonProperty(value = "referencing")
+    private WhoisObjects referencing;
     @XmlElement(name = "sources")
     private Sources sources;
     @XmlElement
@@ -108,6 +116,22 @@ public class WhoisResources {
     public WhoisResources setWhoisObjects(final List<WhoisObject> value) {
         this.objects = new WhoisObjects(value);
         return this;
+    }
+
+    public WhoisObjects getReferencedBy() {
+        return referencedBy;
+    }
+
+    public void setReferencedBy(final WhoisObjects referencedBy) {
+        this.referencedBy = referencedBy;
+    }
+
+    public WhoisObjects getReferencing() {
+        return referencing;
+    }
+
+    public void setReferencing(final WhoisObjects referencing) {
+        this.referencing = referencing;
     }
 
     public WhoisResources setGeolocationAttributes(final GeolocationAttributes geolocationAttributes) {
