@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.domain;
+package net.ripe.db.whois.internal.api.rnd.domain;
 
 import net.ripe.db.whois.common.rpsl.ObjectType;
 

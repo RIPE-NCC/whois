@@ -1,9 +1,9 @@
-package net.ripe.db.whois.common.dao.jdbc;
+package net.ripe.db.whois.internal.api.rnd.dao;
 
-import net.ripe.db.whois.common.dao.ObjectReferenceDao;
-import net.ripe.db.whois.common.domain.ObjectReference;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.support.AbstractDaoTest;
+import net.ripe.db.whois.internal.AbstractInternalTest;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class JdbcObjectReferenceDaoTest extends AbstractDaoTest {
+public class JdbcObjectReferenceDaoTest extends AbstractInternalTest {
 
     @Autowired
     ObjectReferenceDao subject;
@@ -54,13 +54,13 @@ public class JdbcObjectReferenceDaoTest extends AbstractDaoTest {
 
     @Test
     public void testGetReferenced() throws Exception {
-        final List<ObjectReference> referenced1 = subject.getReferenced(ObjectType.MNTNER, "MNTNER1", 1500);
+        final List<ObjectReference> referenced1 = subject.getReferencedBy(ObjectType.MNTNER, "MNTNER1", 1500);
 
         assertThat(referenced1, hasSize(1));
         assertThat(referenced1.get(0).getFromPkey(), is("TP1-TEST"));
         assertThat(referenced1.get(0).getFromSequenceId(), is(1));
 
-        final List<ObjectReference> referenced2 = subject.getReferenced(ObjectType.MNTNER, "MNTNER2", 5000);
+        final List<ObjectReference> referenced2 = subject.getReferencedBy(ObjectType.MNTNER, "MNTNER2", 5000);
 
         assertThat(referenced2, hasSize(2));
         assertThat(referenced2.get(0).getFromPkey(), is("TP1-TEST"));

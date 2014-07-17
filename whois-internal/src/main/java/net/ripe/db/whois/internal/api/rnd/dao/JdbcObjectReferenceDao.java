@@ -1,11 +1,11 @@
-package net.ripe.db.whois.common.dao.jdbc;
+package net.ripe.db.whois.internal.api.rnd.dao;
+
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.dao.ObjectReferenceDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
-import net.ripe.db.whois.common.domain.ObjectReference;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -57,7 +57,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     }
 
     @Override
-    public List<ObjectReference> getReferenced(final ObjectType toObjectType, final String toPkey, final long timestamp) {
+    public List<ObjectReference> getReferencedBy(final ObjectType toObjectType, final String toPkey, final long timestamp) {
         final List<ObjectReference> referenced = Lists.newArrayList();
         referenced.addAll(jdbcTemplate.query("" +
                     "SELECT \n" +
