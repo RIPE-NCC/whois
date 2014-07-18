@@ -93,9 +93,9 @@ public class NrtmQueryHandlerTest {
 
         orderedChannelMock.verify(channelMock).write("%START Version: 2 RIPE 1-2\n\n");
         orderedChannelMock.verify(channelMock).write("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
-        orderedChannelMock.verify(channelMock).write("ADD/UPD\n\n");
+        orderedChannelMock.verify(channelMock).write("ADD\n\n");
         orderedChannelMock.verify(channelMock).write(inetnum + "\n");
-        orderedChannelMock.verify(channelMock).write("ADD/UPD\n\n");
+        orderedChannelMock.verify(channelMock).write("ADD\n\n");
         orderedChannelMock.verify(channelMock).write(DummifierLegacy.PLACEHOLDER_PERSON_OBJECT + "\n");
     }
 
@@ -124,9 +124,9 @@ public class NrtmQueryHandlerTest {
         subject.messageReceived(contextMock, messageEventMock);
 
         verify(channelMock, times(1)).write("%START Version: 3 RIPE 1-2\n\n");
-        verify(channelMock, times(1)).write("ADD/UPD 1\n\n");
+        verify(channelMock, times(1)).write("ADD 1\n\n");
         verify(channelMock, times(1)).write(inetnum.toString() + "\n");
-        verify(channelMock, times(0)).write("ADD/UPD 2\n\n");
+        verify(channelMock, times(0)).write("ADD 2\n\n");
         verify(channelMock, times(0)).write(person.toString() + "\n");
         verify(channelMock, times(1)).write("%END RIPE\n\n");
     }
@@ -139,7 +139,7 @@ public class NrtmQueryHandlerTest {
 
         verify(channelMock, times(1)).write("%START Version: 3 RIPE 1-2\n\n");
         verify(mySchedulerMock, times(1)).scheduleAtFixedRate(any(Runnable.class), anyLong());
-        verify(channelMock, times(1)).write("ADD/UPD 1\n\n");
+        verify(channelMock, times(1)).write("ADD 1\n\n");
         verify(channelMock, times(1)).write(inetnum.toString() + "\n");
     }
 
@@ -149,7 +149,7 @@ public class NrtmQueryHandlerTest {
 
         subject.messageReceived(contextMock, messageEventMock);
 
-        verify(channelMock, times(1)).write("ADD/UPD 1\n\n");
+        verify(channelMock, times(1)).write("ADD 1\n\n");
         verify(channelMock, times(1)).write(inetnum.toString() + "\n");
     }
 
