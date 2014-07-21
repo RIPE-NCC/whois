@@ -4,68 +4,113 @@ package net.ripe.db.whois.internal.api.rnd.dao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
+import net.ripe.db.whois.internal.api.rnd.domain.ReferenceType;
+import org.joda.time.Interval;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class JdbcObjectReferenceDaoTest extends AbstractInternalTest {
-
     @Autowired
     ObjectReferenceDao subject;
 
     @Before
     public void setup() {
-        databaseHelper.getWhoisTemplate().update("" +
-            "INSERT INTO `object_reference` " +
-            "(`from_object_type`, `from_pkey`, `from_object_id`, `from_sequence_id`, `to_object_type`, `to_pkey`, `to_object_id`, `to_sequence_id`, `from_timestamp`, `to_timestamp`)\n" +
-            "VALUES\n" +
-            "\t(10, 'TP1-TEST', 101, 1, 9,  'MNTNER1',  201, 1, 1001, 2000),\n" +
-            "\t(10, 'TP1-TEST', 101, 1, 9,  'MNTNER1',  201, 2, 2001, 3000),\n" +
-            "\t(10, 'TP1-TEST', 101, 2, 9,  'MNTNER2',  202, 1, 3001, NULL),\n" +
-            "\t(18, 'ORG1',     102, 1, 9,  'MNTNER2',  202, 1, 3001, NULL),\n" +
-            "\t(18, 'ORG1',     102, 1, 10, 'TP1-TEST', 101, 1, 1001, 3000),\n" +
-            "\t(18, 'ORG1',     102, 1, 10, 'TP1-TEST', 101, 2, 3001, NULL);\n");
+        whoisTemplate.execute(
+                "INSERT INTO object_version (version_id, object_type, pkey, from_timestamp, to_timestamp)\n" +
+                "VALUES\n" +
+                "(1, 9, 'MNTNER1', 1000, 2000),\n" +
+                "(2, 9, 'MNTNER1', 2000, 3000),\n" +
+                "(3, 9, 'MNTNER1', 3000, NULL),\n" +
+                "(4, 10, 'TP1-TEST', 1000, 2000),\n" +
+                "(5, 10, 'TP1-TEST', 2000, 2000),\n" +
+                "(6, 10, 'TP1-TEST', 2000, NULL);");
+
+        /*
+            MNTNER1:
+               mnt-by: MNTNER1
+               admin-c: TP1-TEST
+            ORG1:
+               mnt-by: MNTNER1
+         */
+        whoisTemplate.execute(
+                "INSERT INTO object_reference (version_id, object_type, pkey, ref_type)\n" +
+                        "VALUES\n" +
+                        "\t(3, 10, 'TP1-TEST', 0),\n" +
+                        "\t(3, 9, 'MNTNER1', 0),\n" +
+                        "\t(3, 9, 'MNTNER1', 1),\n" +
+                        "\t(3, 18, 'ORG1', 1);\n");
     }
 
     @Test
-    public void testGetReferencing() throws Exception {
-        final List<ObjectReference> referencing1 = subject.getReferencing(ObjectType.ORGANISATION, "ORG1", 2000);
-
-        assertThat(referencing1, hasSize(1));
-        assertThat(referencing1.get(0).getToPkey(), is("TP1-TEST"));
-        assertThat(referencing1.get(0).getToSequenceId(), is(1));
-
-        final List<ObjectReference> referencing2 = subject.getReferencing(ObjectType.ORGANISATION, "ORG1", 5000);
-
-        assertThat(referencing2, hasSize(2));
-        assertThat(referencing2.get(0).getToPkey(), is("MNTNER2"));
-        assertThat(referencing2.get(0).getToObjectId(), is(202));
-
-        assertThat(referencing2.get(1).getToPkey(), is("TP1-TEST"));
-        assertThat(referencing2.get(1).getToSequenceId(), is(2));
-
+    public void version_between_interval() {
+        final List<ObjectVersion> versions = subject.getObjectVersion(ObjectType.MNTNER, "MNTNER1", 1500);
+        assertThat(versions, hasSize(1));
+        assertThat(versions.get(0), is(
+                new ObjectVersion(1L, ObjectType.MNTNER, "MNTNER1", new Interval(1000000L, 2000000L))));
     }
 
     @Test
-    public void testGetReferenced() throws Exception {
-        final List<ObjectReference> referenced1 = subject.getReferencedBy(ObjectType.MNTNER, "MNTNER1", 1500);
+    public void query_version_with_null_end_date(){
+        final List<ObjectVersion> versions = subject.getObjectVersion(ObjectType.MNTNER, "MNTNER1", 5000);
+        assertThat(versions, hasSize(1));
+        assertThat(versions.get(0), is(
+                new ObjectVersion(3L, ObjectType.MNTNER, "MNTNER1", new Interval(3000000L, Long.MAX_VALUE))));
+    }
 
-        assertThat(referenced1, hasSize(1));
-        assertThat(referenced1.get(0).getFromPkey(), is("TP1-TEST"));
-        assertThat(referenced1.get(0).getFromSequenceId(), is(1));
+    @Test
+    public void start_timestamp_parameter_returns_version() {
+        final List<ObjectVersion> versions = subject.getObjectVersion(ObjectType.MNTNER, "MNTNER1", 2000);
+        assertThat(versions, hasSize(2));
+        assertThat(versions, contains(
+                new ObjectVersion(2L, ObjectType.MNTNER, "MNTNER1", new Interval(2000000L, 3000000L)),
+                new ObjectVersion(1L, ObjectType.MNTNER, "MNTNER1", new Interval(1000000L, 2000000L))));
+    }
 
-        final List<ObjectReference> referenced2 = subject.getReferencedBy(ObjectType.MNTNER, "MNTNER2", 5000);
+    @Test
+    public void end_timestamp_parameter_returns_version(){
+        final List<ObjectVersion> versions = subject.getObjectVersion(ObjectType.MNTNER, "MNTNER1", 1500);
+        assertThat(versions, hasSize(1));
+        assertThat(versions.get(0), is(
+                new ObjectVersion(1L, ObjectType.MNTNER, "MNTNER1", new Interval(1000000L, 2000000L))));
+    }
 
-        assertThat(referenced2, hasSize(2));
-        assertThat(referenced2.get(0).getFromPkey(), is("TP1-TEST"));
-        assertThat(referenced2.get(0).getFromSequenceId(), is(2));
-        assertThat(referenced2.get(1).getFromPkey(), is("ORG1"));
-        assertThat(referenced2.get(1).getFromObjectId(), is(102));
+    @Test
+    public void multiple_versions_for_timestamp(){
+        final List<ObjectVersion> versions = subject.getObjectVersion(ObjectType.PERSON, "TP1-TEST", 2000);
+        assertThat(versions, hasSize(3));
+        assertThat(versions, contains(
+                new ObjectVersion(6L, ObjectType.PERSON, "TP1-TEST", new Interval(2000000L, Long.MAX_VALUE)),
+                new ObjectVersion(5L, ObjectType.PERSON, "TP1-TEST", new Interval(2000000L, 2000000L)),
+                new ObjectVersion(4L, ObjectType.PERSON, "TP1-TEST", new Interval(1000000L, 2000000L))));
+    }
+    
+    @Test
+    public void test_referencing() {
+        final List<ObjectReference> referencing = subject.getReferencing(3);
+
+        assertThat(referencing, hasSize(2));
+        assertThat(referencing , containsInAnyOrder(
+                        new ObjectReference(3, ObjectType.MNTNER, "MNTNER1", ReferenceType.REFERENCING),
+                        new ObjectReference(3, ObjectType.PERSON, "TP1-TEST", ReferenceType.REFERENCING)));
+    }
+
+    @Test
+    public void test_referencedBy() {
+        final List<ObjectReference> referencedBy = subject.getReferencedBy(3);
+
+        assertThat(referencedBy, hasSize(2));
+        assertThat(referencedBy , containsInAnyOrder(
+                new ObjectReference(3, ObjectType.MNTNER, "MNTNER1", ReferenceType.REFERENCED_BY),
+                new ObjectReference(3, ObjectType.ORGANISATION, "ORG1", ReferenceType.REFERENCED_BY)));
     }
 }

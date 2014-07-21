@@ -1,75 +1,79 @@
 package net.ripe.db.whois.internal.api.rnd.domain;
 
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 
 import javax.annotation.concurrent.Immutable;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+
 @Immutable
 public class ObjectReference {
 
-    private final ObjectType fromObjectType;
-    private final String fromPkey;
-    private final int fromObjectId;
-    private final int fromSequenceId;
-    private final ObjectType toObjectType;
-    private final String toPkey;
-    private final int toObjectId;
-    private final int toSequenceId;
-    private final long fromTimestamp;
-    private final long toTimestamp;
+    private final long versionId;
+    private final ObjectType refObjectType;
+    private final CIString refPkey;
+    private final ReferenceType referenceType;
 
-    public ObjectReference(final ObjectType fromObjectType, final String fromPkey, final int fromObjectId, final int fromSequenceId, final ObjectType toObjectType, final String toPkey, final int toObjectId, final int toSequenceId, final long fromTimestamp, final long toTimestamp) {
-        this.fromObjectType = fromObjectType;
-        this.fromPkey = fromPkey;
-        this.fromObjectId = fromObjectId;
-        this.fromSequenceId = fromSequenceId;
-        this.toObjectType = toObjectType;
-        this.toPkey = toPkey;
-        this.toObjectId = toObjectId;
-        this.toSequenceId = toSequenceId;
-        this.fromTimestamp = fromTimestamp;
-        this.toTimestamp = toTimestamp;
+    public ObjectReference(long versionId, final ObjectType refObjectType, final CIString refPkey, final ReferenceType referenceType) {
+        this.versionId = versionId;
+        this.refObjectType = refObjectType;
+        this.refPkey = refPkey;
+        this.referenceType = referenceType;
     }
 
-    public ObjectType getFromObjectType() {
-        return fromObjectType;
+    public ObjectReference(final long versionId, final ObjectType refObjectType, final String refPkey, final ReferenceType referenceType) {
+        this(versionId, refObjectType, ciString(refPkey), referenceType);
     }
 
-    public String getFromPkey() {
-        return fromPkey;
+    public ObjectType getRefObjectType() {
+        return refObjectType;
     }
 
-    public int getFromObjectId() {
-        return fromObjectId;
+    public CIString getRefPkey() {
+        return refPkey;
     }
 
-    public int getFromSequenceId() {
-        return fromSequenceId;
+    public long getVersionId() {
+        return versionId;
     }
 
-    public ObjectType getToObjectType() {
-        return toObjectType;
+    public ReferenceType getReferenceType() {
+        return referenceType;
     }
 
-    public String getToPkey() {
-        return toPkey;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ObjectReference)) return false;
+
+        ObjectReference that = (ObjectReference) o;
+
+        if (versionId != that.versionId) return false;
+        if (refObjectType != that.refObjectType) return false;
+        if (!refPkey.equals(that.refPkey)) return false;
+        if (referenceType != that.referenceType) return false;
+
+        return true;
     }
 
-    public int getToObjectId() {
-        return toObjectId;
+    @Override
+    public int hashCode() {
+        int result = (int) (versionId ^ (versionId >>> 32));
+        result = 31 * result + refObjectType.hashCode();
+        result = 31 * result + refPkey.hashCode();
+        result = 31 * result + referenceType.hashCode();
+        return result;
     }
 
-    public int getToSequenceId() {
-        return toSequenceId;
+    @Override
+    public String toString() {
+        return "ObjectReference{" +
+                "versionId=" + versionId +
+                ", refObjectType=" + refObjectType +
+                ", refPkey=" + refPkey +
+                ", referenceType=" + referenceType +
+                '}';
     }
-
-    public long getFromTimestamp() {
-        return fromTimestamp;
-    }
-
-    public long getToTimestamp() {
-        return toTimestamp;
-    }
-
-
 }
+
