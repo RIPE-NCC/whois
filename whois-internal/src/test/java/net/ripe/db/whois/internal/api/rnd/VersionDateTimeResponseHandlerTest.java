@@ -47,8 +47,8 @@ public class VersionDateTimeResponseHandlerTest {
         subject.handle(rpslObjectWithTimestamp);
 
         assertThat(subject.getErrors(), hasSize(0));
-        assertThat(subject.getRpslObject(), is(object));
-        assertThat(subject.getVersionDateTime(), is(versionDateTime));
+        assertThat(subject.getRpslObjectWithTimestamp().getRpslObject(), is(object));
+        assertThat(subject.getRpslObjectWithTimestamp().getVersionDateTime(), is(versionDateTime));
     }
 
     @Test
@@ -58,8 +58,7 @@ public class VersionDateTimeResponseHandlerTest {
         subject.handle(messageObject);
 
         assertThat(subject.getErrors(), hasSize(0));
-        assertThat(subject.getRpslObject(), is(nullValue()));
-        assertThat(subject.getVersionDateTime(), is(nullValue()));
+        assertThat(subject.getRpslObjectWithTimestamp(), is(nullValue()));
     }
 
     @Test
@@ -70,8 +69,7 @@ public class VersionDateTimeResponseHandlerTest {
 
         assertThat(subject.getErrors(), hasSize(1));
         assertThat(subject.getErrors().get(0), is(messageObject.getMessage()));
-        assertThat(subject.getRpslObject(), is(nullValue()));
-        assertThat(subject.getVersionDateTime(), is(nullValue()));
+        assertThat(subject.getRpslObjectWithTimestamp(), is(nullValue()));
     }
 
     @Test
@@ -82,8 +80,7 @@ public class VersionDateTimeResponseHandlerTest {
 
         assertThat(subject.getErrors(), hasSize(1));
         assertThat(subject.getErrors().get(0), is(messageObject.getMessage()));
-        assertThat(subject.getRpslObject(), is(nullValue()));
-        assertThat(subject.getVersionDateTime(), is(nullValue()));
+        assertThat(subject.getRpslObjectWithTimestamp(), is(nullValue()));
     }
 
     @Test(expected = UnsupportedOperationException.class)

@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 
@@ -14,8 +12,8 @@ import java.util.List;
 
 public class VersionDateTimeResponseHandler implements ResponseHandler {
     private List<Message> errors = Lists.newArrayList();
-    private VersionDateTime versionDateTime;
-    private RpslObject rpslObject;
+    private RpslObjectWithTimestamp rpslObjectWithTimestamp;
+
 
     @Override
     public String getApi() {
@@ -25,9 +23,7 @@ public class VersionDateTimeResponseHandler implements ResponseHandler {
     @Override
     public void handle(final ResponseObject responseObject) {
         if (responseObject instanceof RpslObjectWithTimestamp){
-            final RpslObjectWithTimestamp object = (RpslObjectWithTimestamp) responseObject;
-            rpslObject = object.getRpslObject();
-            versionDateTime = object.getVersionDateTime();
+            this.rpslObjectWithTimestamp = (RpslObjectWithTimestamp) responseObject;
         } else if (responseObject instanceof MessageObject) {
             final Message message = ((MessageObject) responseObject).getMessage();
             if (message != null && Messages.Type.INFO != message.getType()) {
@@ -38,17 +34,12 @@ public class VersionDateTimeResponseHandler implements ResponseHandler {
         }
     }
 
-    @Nullable
-    public VersionDateTime getVersionDateTime() {
-        return versionDateTime;
-    }
-
     public List<Message> getErrors() {
         return errors;
     }
 
     @Nullable
-    public RpslObject getRpslObject() {
-        return rpslObject;
+    public RpslObjectWithTimestamp getRpslObjectWithTimestamp() {
+        return rpslObjectWithTimestamp;
     }
 }
