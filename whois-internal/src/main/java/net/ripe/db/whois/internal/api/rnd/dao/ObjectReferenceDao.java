@@ -2,12 +2,13 @@ package net.ripe.db.whois.internal.api.rnd.dao;
 
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 
 import java.util.List;
 
 public interface ObjectReferenceDao {
 
-    List<ObjectReference> getReferencing(final ObjectType fromObjectType, final String fromPkey, final long timestamp);
-    List<ObjectReference> getReferencedBy(final ObjectType toObjectType, final String toPkey, final long timestamp);
-
+    List<ObjectVersion> getObjectVersion(final ObjectType fromObjectType, final String pkey, final long timestamp);
+    List<ObjectReference> getReferencing(final long versionId);
+    List<ObjectReference> getReferencedBy(final long versionId);
 }

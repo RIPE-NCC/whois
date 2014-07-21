@@ -1,13 +1,14 @@
 package net.ripe.db.whois.internal.api.rnd.dao;
 
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
+import net.ripe.db.whois.internal.api.rnd.domain.ReferenceType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -21,87 +22,80 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public JdbcObjectReferenceDao(@Qualifier("sourceAwareDataSource") final SourceAwareDataSource dataSource) {
+    public JdbcObjectReferenceDao(final SourceAwareDataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Override
-    public List<ObjectReference> getReferencing(final ObjectType fromObjectType, final String fromPkey, final long timestamp) {
-
-        final List<ObjectReference> referencing = Lists.newArrayList();
-        referencing.addAll(jdbcTemplate.query("" +
-                        "SELECT \n" +
-                        "  from_object_type, \n" +
-                        "  from_pkey, \n" +
-                        "  from_object_id, \n" +
-                        "  from_sequence_id, \n" +
-                        "  to_object_type, \n" +
-                        "  to_pkey, \n" +
-                        "  to_object_id, \n" +
-                        "  to_sequence_id, \n" +
-                        "  from_timestamp, \n" +
-                        "  to_timestamp \n" +
-                        "FROM object_reference \n"+
-                        "WHERE \n" +
-                        "  from_object_type = ? \n" +
-                        "  AND from_pkey = ? \n" +
-                        "  AND from_timestamp <= ? \n" +
-                        "  AND (to_timestamp IS NULL OR ? <= to_timestamp) \n",
-                new ObjectReferenceRowMapper(),
-                ObjectTypeIds.getId(fromObjectType),
-                fromPkey,
+    public List<ObjectVersion> getObjectVersion(final ObjectType type, final String pkey, long timestamp) {
+        return jdbcTemplate.query("" +
+                "SELECT version_id, \n" +
+                "       object_type, \n" +
+                "       pkey, \n" +
+                "       from_timestamp, \n" +
+                "       to_timestamp \n" +
+                "FROM object_version \n" +
+                "WHERE object_type = ? \n" +
+                "  AND pkey = ? \n" +
+                "  AND from_timestamp <= ? \n" +
+                "  AND (? <= to_timestamp \n" +
+                "       OR to_timestamp IS NULL) \n" +
+                "ORDER BY version_id DESC",
+                new ObjectVersionRowMapper(),
+                ObjectTypeIds.getId(type),
+                pkey,
                 timestamp,
-                timestamp));
-
-        return referencing;
+                timestamp);
     }
 
     @Override
-    public List<ObjectReference> getReferencedBy(final ObjectType toObjectType, final String toPkey, final long timestamp) {
-        final List<ObjectReference> referenced = Lists.newArrayList();
-        referenced.addAll(jdbcTemplate.query("" +
-                    "SELECT \n" +
-                        "  from_object_type, \n" +
-                        "  from_pkey, \n" +
-                        "  from_object_id, \n" +
-                        "  from_sequence_id, \n" +
-                        "  to_object_type, \n" +
-                        "  to_pkey, \n" +
-                        "  to_object_id, \n" +
-                        "  to_sequence_id, \n" +
-                        "  from_timestamp, \n" +
-                        "  to_timestamp \n" +
-                    "FROM object_reference \n" +
-                        "WHERE\n" +
-                        "  to_object_type = ? \n" +
-                        "  AND to_pkey = ? \n" +
-                        "  AND from_timestamp <= ? \n" +
-                        "  AND (to_timestamp IS NULL OR ? <= to_timestamp) \n",
-                new ObjectReferenceRowMapper(),
-                ObjectTypeIds.getId(toObjectType),
-                toPkey,
-                timestamp,
-                timestamp));
+    public List<ObjectReference> getReferencedBy(final long versionId) {
+        return getReferences(versionId, ReferenceType.REFERENCED_BY);
+    }
 
-        return referenced;
+    @Override
+    public List<ObjectReference> getReferencing(final long versionId) {
+        return getReferences(versionId, ReferenceType.REFERENCING);
+    }
+    public List<ObjectReference> getReferences(final long versionId, final ReferenceType referenceType) {
+        return jdbcTemplate.query(""+
+                "SELECT version_id,\n" +
+                "       object_type,\n" +
+                "       pkey,\n" +
+                "       ref_type\n" +
+                "FROM object_reference\n" +
+                "WHERE version_id = ?\n" +
+                "  AND ref_type = ?\n" +
+                "ORDER BY object_type,\n" +
+                "         pkey ASC\n" +
+                "\n",
+                new ObjectReferenceRowMapper(),
+                versionId,
+                referenceType.getTypeId());
+    }
+
+
+    class ObjectVersionRowMapper implements RowMapper<ObjectVersion> {
+        @Override
+        public ObjectVersion mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+            return new ObjectVersion (
+                    rs.getLong(1), //versionId
+                    ObjectTypeIds.getType(rs.getInt(2)),
+                    rs.getString(3), //pkey
+                    rs.getLong(4),//fromTimestamp
+                    rs.getLong(5) == 0 ? Long.MAX_VALUE : rs.getLong(5)//toTimestamp
+            );
+        }
     }
 
     class ObjectReferenceRowMapper implements RowMapper<ObjectReference> {
         @Override
         public ObjectReference mapRow(final ResultSet rs, final int rowNum) throws SQLException {
             return new ObjectReference (
-                    ObjectTypeIds.getType(rs.getInt(1)), //fromType
-                    rs.getString(2), //pkey
-                    rs.getInt(3), //from_objId
-                    rs.getInt(4), //from_seqId
-
-                    ObjectTypeIds.getType(rs.getInt(5)), //toType
-                    rs.getString(6), //to_pkey
-                    rs.getInt(7), //to_objId
-                    rs.getInt(8), //to_seqId
-
-                    rs.getLong(9), //from_timestamp
-                    rs.getLong(10) //to_timestamp
+                    rs.getLong(1), //versionId
+                    ObjectTypeIds.getType(rs.getInt(2)), //reftype
+                    CIString.ciString(rs.getString(3)), //refpkey
+                    ReferenceType.get(rs.getInt(4))
             );
         }
     }

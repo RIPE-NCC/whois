@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectUpdateDao;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -35,11 +36,14 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
 
     @Autowired @Qualifier("aclDataSource") protected DataSource aclDataSource;
     @Autowired @Qualifier("whoisReadOnlySlaveDataSource") protected DataSource whoisDataSource;
+    @Autowired protected SourceAwareDataSource sourceAwareDataSource;
 
     @Autowired JettyBootstrap jettyBootstrap;
     protected JdbcRpslObjectUpdateDao updateDao;
 
     protected DatabaseHelper databaseHelper;
+    protected JdbcTemplate whoisTemplate;
+
 
     @BeforeClass
     public synchronized static void setupAbstractDatabaseHelperTest() throws Exception {
@@ -52,8 +56,8 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
         databaseHelper = new DatabaseHelper();
         databaseHelper.setAclDataSource(aclDataSource);
         updateDao = new JdbcRpslObjectUpdateDao(whoisDataSource, testDateTimeProvider);
-
-        setupWhoisDatabase(new JdbcTemplate(whoisDataSource));
+        whoisTemplate = new JdbcTemplate(whoisDataSource);
+        setupWhoisDatabase(whoisTemplate);
     }
 
 
