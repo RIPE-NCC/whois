@@ -18,13 +18,14 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.BasicSourceContext;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
+import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,7 +45,7 @@ import java.util.List;
 
 @Component
 @Path("/rnd")
-public class VersionListService {
+public class VersionsRestService {
     private final WhoisService whoisService;
     private final QueryHandler queryHandler;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
@@ -52,7 +53,7 @@ public class VersionListService {
     private final IpRanges ipRanges;
 
     @Autowired
-    public VersionListService(final WhoisService whoisService, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectServerMapper, final BasicSourceContext basicSourceContext, final IpRanges ipRanges) {
+    public VersionsRestService(final WhoisService whoisService, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectServerMapper, final BasicSourceContext basicSourceContext, final IpRanges ipRanges) {
         this.whoisService = whoisService;
         this.queryHandler = queryHandler;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
@@ -133,8 +134,8 @@ public class VersionListService {
 
         queryHandler.streamResults(query, remoteAddress, contextId, versionDateTimeResponseHandler);
 
-        final RpslObject rpslObject = versionDateTimeResponseHandler.getRpslObject();
-        if (rpslObject == null) {
+        final RpslObjectWithTimestamp rpslObjectWithTimestamp = versionDateTimeResponseHandler.getRpslObjectWithTimestamp();
+        if (rpslObjectWithTimestamp == null) {
             throw new WebApplicationException(Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(whoisService.createErrorEntity(request, Collections.singletonList(InternalMessages.noVersion(key))))
@@ -143,13 +144,13 @@ public class VersionListService {
 
         final WhoisResources whoisResources = new WhoisResources();
 
-        final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, null, FormattedClientAttributeMapper.class);
-        if (versionDateTimeResponseHandler.getVersionDateTime() != null) {
-            whoisObject.setVersionDateTime(versionDateTimeResponseHandler.getVersionDateTime().toString());
+        final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObjectWithTimestamp.getRpslObject(), null, FormattedClientAttributeMapper.class);
+        if (rpslObjectWithTimestamp.getVersionDateTime() != null) {
+            whoisObject.setVersionDateTime(rpslObjectWithTimestamp.getVersionDateTime().toString());
         }
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        whoisResources.setReferencing(mapReferences(getReferencingPlaceholder(rpslObject, timestamp)));
-        whoisResources.setReferencedBy(mapReferences(getReferencedByPlaceholder(rpslObject, timestamp)));
+        whoisResources.setReferencing(mapReferences(rpslObjectWithTimestamp.getReferencing()));
+        whoisResources.setReferencedBy(mapReferences(rpslObjectWithTimestamp.getReferencing()));
         whoisResources.setErrorMessages(whoisService.createErrorMessages(versionDateTimeResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
@@ -177,29 +178,21 @@ public class VersionListService {
         }
     }
 
-    private WhoisObjects mapReferences(final Iterable<RpslObject> references) {
-        if (Iterables.isEmpty(references)) {
+    private WhoisObjects mapReferences(final List<ObjectReference> references) {
+        if (CollectionUtils.isEmpty(references)) {
             return null;
         }
 
         return new WhoisObjects(
-                Lists.newArrayList(Iterables.transform(references, new Function<RpslObject, WhoisObject>() {
+                Lists.newArrayList(Iterables.transform(references, new Function<ObjectReference, WhoisObject>() {
                     @Override
-                    public WhoisObject apply(final RpslObject input) {
+                    public WhoisObject apply(final ObjectReference input) {
                         final WhoisObject whoisObject = new WhoisObject();
-                        whoisObject.setPrimaryKey(Lists.newArrayList(new Attribute(input.getType().getName(), input.getKey().toString())));
-                        whoisObject.setType(input.getType().toString());
+                        whoisObject.setPrimaryKey(Lists.newArrayList(new Attribute(input.getRefObjectType().getName(), input.getRefPkey().toString())));
+                        whoisObject.setType(input.getRefObjectType().getName());
                         return whoisObject;
                     }
                 })));
 
-    }
-
-    private Iterable<RpslObject> getReferencingPlaceholder(final RpslObject object, final long timestamp) {
-        return Lists.newArrayList();
-    }
-
-    private Iterable<RpslObject> getReferencedByPlaceholder(final RpslObject object, final long timestamp) {
-        return Lists.newArrayList();
     }
 }

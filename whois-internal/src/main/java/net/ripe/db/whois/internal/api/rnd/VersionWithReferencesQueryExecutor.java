@@ -10,6 +10,9 @@ import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
+import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
@@ -26,15 +29,17 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class VersionDateTimeQueryExecutor implements QueryExecutor {
+public class VersionWithReferencesQueryExecutor implements QueryExecutor {
 
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
+    private final ObjectReferenceDao objectReferenceDao;
     private final VersionDao versionDao;
 
     @Autowired
-    public VersionDateTimeQueryExecutor(final VersionDao versionDao) {
+    public VersionWithReferencesQueryExecutor(final ObjectReferenceDao objectReferenceDao, final VersionDao versionDao) {
+        this.objectReferenceDao = objectReferenceDao;
         this.versionDao = versionDao;
     }
 
@@ -45,8 +50,8 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
 
     @Override
     public boolean supports(Query query) {
-//        return false;
-        return query.isObjectTimestampVersion();
+          return false;
+//        return query.isObjectTimestampVersion();
     }
 
     @Override
@@ -59,13 +64,49 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
     private Iterable<? extends ResponseObject> getResponseObjects(final Query query) {
         final List<ResponseObject> results = new ArrayList<>();
 
-        final List<VersionInfo> versionInfos = versionDao.getVersionsBeforeTimestamp(
+
+        final List<ObjectVersion> versions = objectReferenceDao.getObjectVersion(
                 query.getObjectTypes().iterator().next(), // internal REST API will allow only one object type
                 query.getSearchValue(),
                 query.getObjectTimestamp());
 
-        if (CollectionUtils.isEmpty(versionInfos)) {
+        if (CollectionUtils.isEmpty(versions)) {
             return makeListWithNoResultsMessage(query.getSearchValue());
+        }
+
+        final ObjectVersion latestVersion = versions.get(0);
+
+        if (versions.size() > 2) {
+            results.add(new MessageObject(InternalMessages.multipleVersionsForTimestamp(versions.size())));
+        }
+
+        final RpslObject rpslObject = lookupRpslObjectByVersion(latestVersion);
+        final List<ObjectReference> referencing = objectReferenceDao.getReferencing(latestVersion.getVersionId());
+        final List<ObjectReference> referencedBy = objectReferenceDao.getReferencedBy(latestVersion.getVersionId());
+
+        final RpslObjectWithTimestamp rpslObjectWithTimestamp = new RpslObjectWithTimestamp(
+                decorateRpslObject(rpslObject),
+                versions.size(),
+                new VersionDateTime(latestVersion.getInterval().getStartMillis()),
+                referencing,
+                referencedBy);
+
+        results.add(rpslObjectWithTimestamp);
+
+        return results;
+    }
+
+    private RpslObject lookupRpslObjectByVersion(final ObjectVersion latestVersion) {
+       //TODO: [TP] copied big parts from VersionDateTimeQueryExecutor because this will be thrown way in the next story.
+       //TODO: This should change to something reasonable!!!
+
+        final List<VersionInfo> versionInfos = versionDao.getVersionsBeforeTimestamp(
+                latestVersion.getType(),
+                latestVersion.getPkey().toString(),
+                latestVersion.getInterval().getStart().getMillis());
+
+        if (CollectionUtils.isEmpty(versionInfos)) {
+            throw new IllegalStateException("There should be one or more objects");
         }
 
         final VersionDateTime maxTimestamp = versionInfos.get(0).getTimestamp();
@@ -81,23 +122,14 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
                 }));
 
         if (latestVersionInfos.isEmpty()) {
-            return makeListWithNoResultsMessage(query.getSearchValue());
-        }
-
-        if (latestVersionInfos.size() > 1) {
-            results.add(new MessageObject(InternalMessages.multipleVersionsForTimestamp(latestVersionInfos.size())));
+            throw new IllegalStateException("There should be one or more objects");
         }
 
         // sort in reverse order, so that first item is the object with the highest timestamp.
         Collections.sort(latestVersionInfos, Collections.reverseOrder());
 
         final RpslObject rpslObject = versionDao.getRpslObject(latestVersionInfos.get(0));
-        results.add(new RpslObjectWithTimestamp(
-                decorateRpslObject(rpslObject),
-                latestVersionInfos.size(),
-                Iterables.getLast(latestVersionInfos).getTimestamp()));
-
-        return results;
+        return rpslObject;
     }
 
     private RpslObject decorateRpslObject(final RpslObject rpslObject) {
