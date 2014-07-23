@@ -45,8 +45,8 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
 
     @Override
     public boolean supports(Query query) {
-//        return false;
-        return query.isObjectTimestampVersion();
+        return false;
+//        return query.isObjectTimestampVersion();
     }
 
     @Override
