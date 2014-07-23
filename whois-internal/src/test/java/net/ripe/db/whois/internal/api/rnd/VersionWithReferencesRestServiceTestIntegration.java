@@ -18,11 +18,6 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
     //datetime pattern should be the same as in VersionDateTime
     private DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
 
-//    @Autowired
-//    @Qualifier("whoisReadOnlySlaveDataSource")
-//    DataSource dataSource;
-
-
     @Before
     public void setUp() throws Exception {
         testDateTimeProvider.reset();
