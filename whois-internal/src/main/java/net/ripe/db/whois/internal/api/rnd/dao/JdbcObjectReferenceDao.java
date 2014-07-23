@@ -29,17 +29,17 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     @Override
     public List<ObjectVersion> getObjectVersion(final ObjectType type, final String pkey, long timestamp) {
         return jdbcTemplate.query("" +
-                "SELECT version_id, \n" +
-                "       object_type, \n" +
-                "       pkey, \n" +
-                "       from_timestamp, \n" +
-                "       to_timestamp \n" +
-                "FROM object_version \n" +
-                "WHERE object_type = ? \n" +
-                "  AND pkey = ? \n" +
-                "  AND from_timestamp <= ? \n" +
-                "  AND (? <= to_timestamp \n" +
-                "       OR to_timestamp IS NULL) \n" +
+                "SELECT version_id, " +
+                "       object_type, " +
+                "       pkey, " +
+                "       from_timestamp, " +
+                "       to_timestamp " +
+                "FROM object_version " +
+                "WHERE object_type = ? " +
+                "  AND pkey = ? " +
+                "  AND from_timestamp <= ? " +
+                "  AND (? <= to_timestamp " +
+                "       OR to_timestamp IS NULL) " +
                 "ORDER BY version_id DESC",
                 new ObjectVersionRowMapper(),
                 ObjectTypeIds.getId(type),
@@ -59,16 +59,15 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     }
     public List<ObjectReference> getReferences(final long versionId, final ReferenceType referenceType) {
         return jdbcTemplate.query(""+
-                "SELECT version_id,\n" +
-                "       object_type,\n" +
-                "       pkey,\n" +
-                "       ref_type\n" +
-                "FROM object_reference\n" +
-                "WHERE version_id = ?\n" +
-                "  AND ref_type = ?\n" +
-                "ORDER BY object_type,\n" +
-                "         pkey ASC\n" +
-                "\n",
+                "SELECT version_id," +
+                "       object_type," +
+                "       pkey," +
+                "       ref_type" +
+                "FROM object_reference" +
+                "WHERE version_id = ?" +
+                "  AND ref_type = ?" +
+                "ORDER BY object_type," +
+                "         pkey ASC",
                 new ObjectReferenceRowMapper(),
                 versionId,
                 referenceType.getTypeId());

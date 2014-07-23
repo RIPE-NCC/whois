@@ -15,7 +15,7 @@ public class ObjectReference {
     private final CIString refPkey;
     private final ReferenceType referenceType;
 
-    public ObjectReference(long versionId, final ObjectType refObjectType, final CIString refPkey, final ReferenceType referenceType) {
+    public ObjectReference(final long versionId, final ObjectType refObjectType, final CIString refPkey, final ReferenceType referenceType) {
         this.versionId = versionId;
         this.refObjectType = refObjectType;
         this.refPkey = refPkey;
