@@ -62,10 +62,10 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 "SELECT version_id," +
                 "       object_type," +
                 "       pkey," +
-                "       ref_type" +
-                "FROM object_reference" +
+                "       ref_type " +
+                "FROM object_reference " +
                 "WHERE version_id = ?" +
-                "  AND ref_type = ?" +
+                "  AND ref_type = ? " +
                 "ORDER BY object_type," +
                 "         pkey ASC",
                 new ObjectReferenceRowMapper(),
