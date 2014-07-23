@@ -110,7 +110,13 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
                         "(6, 18, 'ORG-TOL1-TEST', 1),\n" +
                         "(6, 10, 'TP1-TEST', 1),\n" +
                         "(6, 9, 'TEST-MNT', 1),\n" +
-                        "(6, 9, 'TEST-MNT', 1);"
+                        "(6, 9, 'TEST-MNT', 1)," +
+                        "(4, 9, 'ORG-MNT', 1),\n" +
+                        "(7, 9, 'ORG-MNT', 1),\n" +
+                        "(8, 9, 'ORG-MNT', 1),\n" +
+                        "(4, 18, 'ORG-OTH1-TEST', 1),\n" +
+                        "(7, 18, 'ORG-OTH1-TEST', 1),\n" +
+                        "(8, 18, 'ORG-OTH1-TEST', 1);\n"
         );
     }
 
