@@ -50,8 +50,8 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
 
     @Override
     public boolean supports(Query query) {
-          return false;
-//        return query.isObjectTimestampVersion();
+//          return false;
+        return query.isObjectTimestampVersion();
     }
 
     @Override
@@ -68,7 +68,7 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
         final List<ObjectVersion> versions = objectReferenceDao.getObjectVersion(
                 query.getObjectTypes().iterator().next(), // internal REST API will allow only one object type
                 query.getSearchValue(),
-                query.getObjectTimestamp());
+                query.getObjectTimestamp()/1000);
 
         if (CollectionUtils.isEmpty(versions)) {
             return makeListWithNoResultsMessage(query.getSearchValue());
@@ -97,7 +97,7 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
     }
 
     private RpslObject lookupRpslObjectByVersion(final ObjectVersion latestVersion) {
-       //TODO: [TP] copied big parts from VersionDateTimeQueryExecutor because this will be thrown way in the next story.
+       //TODO: [TP] copied big parts from VersionDateTimeQueryExecutor because this method will be thrown way in the next story.
        //TODO: This should change to something reasonable!!!
 
         final List<VersionInfo> versionInfos = versionDao.getVersionsBeforeTimestamp(

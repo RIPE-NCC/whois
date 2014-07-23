@@ -150,7 +150,7 @@ public class VersionsRestService {
         }
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         whoisResources.setReferencing(mapReferences(rpslObjectWithTimestamp.getReferencing()));
-        whoisResources.setReferencedBy(mapReferences(rpslObjectWithTimestamp.getReferencing()));
+        whoisResources.setReferencedBy(mapReferences(rpslObjectWithTimestamp.getReferencedBy()));
         whoisResources.setErrorMessages(whoisService.createErrorMessages(versionDateTimeResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
