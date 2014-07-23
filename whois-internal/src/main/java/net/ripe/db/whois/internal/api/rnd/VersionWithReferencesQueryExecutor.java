@@ -87,7 +87,7 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
         final RpslObjectWithTimestamp rpslObjectWithTimestamp = new RpslObjectWithTimestamp(
                 decorateRpslObject(rpslObject),
                 versions.size(),
-                new VersionDateTime(latestVersion.getInterval().getStartMillis()),
+                new VersionDateTime(latestVersion.getInterval().getStartMillis()/1000L),
                 referencing,
                 referencedBy);
 
