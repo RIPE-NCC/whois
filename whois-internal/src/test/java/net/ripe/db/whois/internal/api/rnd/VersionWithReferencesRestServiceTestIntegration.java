@@ -205,12 +205,6 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .get(String.class));
 
-        try {
-            Thread.sleep(Long.MAX_VALUE);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
 //
 //        final WhoisResources result = RestTest.target(getPort(), String.format("api/rnd/test/organisation/ORG-TOL1-TEST/versions/%s", randomTimestamp), null, apiKey)
 //                .request(MediaType.APPLICATION_JSON_TYPE)
