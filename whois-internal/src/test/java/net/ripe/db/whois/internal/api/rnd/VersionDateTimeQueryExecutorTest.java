@@ -22,10 +22,7 @@ import java.util.Collections;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VersionDateTimeQueryExecutorTest {
@@ -44,7 +41,7 @@ public class VersionDateTimeQueryExecutorTest {
 
     @Test
     public void supports() {
-        assertThat(subject.supports(Query.parse("--show-timestamp-version 1404301680000 NINJA")), is(true));
+        assertThat(subject.supports(Query.parse("--show-timestamp-version 1404301680000 NINJA")), is(false));
         assertThat(subject.supports(Query.parse("--show-version 1 NINJA")), is(false));
     }
 
