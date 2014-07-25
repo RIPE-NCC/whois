@@ -110,9 +110,6 @@ public class Domain {
 
     private static boolean checkIpv4Domain(final String value, final Ipv4Resource ipv4Resource) {
         final long rangeLength = ipv4Resource.end() - ipv4Resource.begin();
-        if (rangeLength == 0) {
-            throw new AttributeParseException("Too many octets specified", value);
-        }
 
         final int firstDash = value.indexOf('-');
         if (firstDash > 0) {
