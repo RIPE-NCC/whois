@@ -1,4 +1,4 @@
-package net.ripe.db.whois.internal.api.rnd;
+package net.ripe.db.whois.internal.api.rnd.dao;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.VersionInfo;
