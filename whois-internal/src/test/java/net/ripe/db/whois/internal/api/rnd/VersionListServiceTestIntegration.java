@@ -218,7 +218,7 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
                         "<revision>1</revision>" +
                         "<from>%s</from>" +
                         "<to>%s</to>" +
-                        "<operation>ADD/UPD</operation>" +
+                        "<operation>ADD</operation>" +
                         "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"/>" +
                         "</version>" +
                         "</versionsInternal>" +
@@ -250,7 +250,7 @@ public class VersionListServiceTestIntegration extends AbstractInternalTest {
                                 "\"revision\":1," +
                                 "\"from\":\"%s\"," +
                                 "\"to\":\"%s\"," +
-                                "\"operation\":\"ADD/UPD\"," +
+                                "\"operation\":\"ADD\"," +
                                 "\"link\":{\"type\":\"locator\",\"href\":\"http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"}}]}," +
                         "\"terms-and-conditions\":{\"type\":\"locator\",\"href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}}",
                     createdDate.toString(DEFAULT_DATE_TIME_FORMATTER), deleteDate.toString(DEFAULT_DATE_TIME_FORMATTER))));
