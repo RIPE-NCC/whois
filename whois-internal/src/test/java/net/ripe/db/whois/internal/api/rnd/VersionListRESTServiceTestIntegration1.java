@@ -33,7 +33,7 @@ import static org.joda.time.LocalDateTime.parse;
 
 
 @Category(IntegrationTest.class)
-public class VersionListRestServiceTestIntegration extends AbstractInternalTest {
+public class VersionListRESTServiceTestIntegration1 extends AbstractInternalTest {
     @Autowired
     @Qualifier("whoisReadOnlySlaveDataSource")
     DataSource dataSource;
