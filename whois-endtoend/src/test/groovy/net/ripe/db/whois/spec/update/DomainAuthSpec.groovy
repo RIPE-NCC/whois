@@ -3,7 +3,6 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class DomainAuthSpec extends BaseQueryUpdateSpec {
@@ -275,7 +274,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
     }
 
-    @Ignore //need to fix the syntax error on single IP address domain obj for 2014-01 no size limit on allocations
     def "create reverse domain, single IP, ripe space, exact match inetnum with mnt-domains, domains pw supplied"() {
         given:
         syncUpdate(getTransient("ALLOC-U") + "override: denis,override1")
@@ -975,14 +973,14 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[domain] 1.0.0.193.in-addr.arpa" }
-        ack.errorMessagesFor("Create", "[domain] 1.0.0.193.in-addr.arpa") ==
-                ["Syntax error in 1.0.0.193.in-addr.arpa"]
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 1.0.0.193.in-addr.arpa" }
+        ack.infoSuccessMessagesFor("Create", "[domain] 1.0.0.193.in-addr.arpa") == [
+              "Authorisation override used"]
 
-        queryObjectNotFound("-rGBT domain 1.0.0.193.in-addr.arpa", "domain", "1.0.0.193.in-addr.arpa")
+        queryObject("-rGBT domain 1.0.0.193.in-addr.arpa", "domain", "1.0.0.193.in-addr.arpa")
     }
 
     def "create reverse domain, ripe space, range smaller than /24, override"() {
@@ -1248,14 +1246,14 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[domain] 2-2.0.0.193.in-addr.arpa" }
-        ack.errorMessagesFor("Create", "[domain] 2-2.0.0.193.in-addr.arpa") ==
-                ["Syntax error in 2-2.0.0.193.in-addr.arpa"]
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 2-2.0.0.193.in-addr.arpa" }
+        ack.infoSuccessMessagesFor("Create", "[domain] 2-2.0.0.193.in-addr.arpa") == [
+              "Authorisation override used"]
 
-        queryObjectNotFound("-rGBT domain 2-2.0.0.193.in-addr.arpa", "domain", "2-2.0.0.193.in-addr.arpa")
+        queryObject("-rGBT domain 2-2.0.0.193.in-addr.arpa", "domain", "2-2.0.0.193.in-addr.arpa")
     }
 
     def "create reverse domain, ripe space, ip6.arpa suffix"() {
