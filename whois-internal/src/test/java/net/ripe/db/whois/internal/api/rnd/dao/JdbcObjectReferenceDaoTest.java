@@ -7,16 +7,14 @@ import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import net.ripe.db.whois.internal.api.rnd.domain.ReferenceType;
 import org.joda.time.Interval;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class JdbcObjectReferenceDaoTest extends AbstractInternalTest {
@@ -26,13 +24,13 @@ public class JdbcObjectReferenceDaoTest extends AbstractInternalTest {
     @Before
     public void setup() {
         whoisTemplate.execute(
-                "INSERT INTO object_version (version_id, object_type, pkey, from_timestamp, to_timestamp)\n" +
-                "VALUES\n" +
-                "(1, 9, 'MNTNER1', 1000, 2000),\n" +
-                "(2, 9, 'MNTNER1', 2000, 3000),\n" +
-                "(3, 9, 'MNTNER1', 3000, NULL),\n" +
-                "(4, 10, 'TP1-TEST', 1000, 2000),\n" +
-                "(5, 10, 'TP1-TEST', 2000, 2000),\n" +
+                "INSERT INTO object_version (version_id, object_type, pkey, from_timestamp, to_timestamp) " +
+                "VALUES " +
+                "(1, 9, 'MNTNER1', 1000, 2000), " +
+                "(2, 9, 'MNTNER1', 2000, 3000), " +
+                "(3, 9, 'MNTNER1', 3000, NULL), " +
+                "(4, 10, 'TP1-TEST', 1000, 2000), " +
+                "(5, 10, 'TP1-TEST', 2000, 2000), " +
                 "(6, 10, 'TP1-TEST', 2000, NULL);");
 
         /*
@@ -43,12 +41,18 @@ public class JdbcObjectReferenceDaoTest extends AbstractInternalTest {
                mnt-by: MNTNER1
          */
         whoisTemplate.execute(
-                "INSERT INTO object_reference (version_id, object_type, pkey, ref_type)\n" +
-                        "VALUES\n" +
-                        "\t(3, 10, 'TP1-TEST', 0),\n" +
-                        "\t(3, 9, 'MNTNER1', 0),\n" +
-                        "\t(3, 9, 'MNTNER1', 1),\n" +
-                        "\t(3, 18, 'ORG1', 1);\n");
+                "INSERT INTO object_reference (version_id, object_type, pkey, ref_type) " +
+                        "VALUES " +
+                        "\t(3, 10, 'TP1-TEST', 0), " +
+                        "\t(3, 9, 'MNTNER1', 0), " +
+                        "\t(3, 9, 'MNTNER1', 1), " +
+                        "\t(3, 18, 'ORG1', 1); ");
+    }
+
+    @After
+    public void teardown() {
+        whoisTemplate.execute("DELETE FROM object_reference");
+        whoisTemplate.execute("DELETE FROM object_version");
     }
 
     @Test
