@@ -1720,7 +1720,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
-    @Ignore //fix at appropriate time for policy 2014-01 no minimum allocation size - don't move it away
     def "create SUB-ALLOCATED PA with single IP address, parent and child with mnt-lower, pw supplied for parent mnt-lower and child mnt-by"() {
         given:
         syncUpdate(getTransient("P-LOW") + "password: hm\npassword: owner3")
@@ -1760,7 +1759,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.0" }
 
-        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.0")
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
     }
 
     def "create assignment, parent with mnt-lower mnt-routes, pw supplied parent mnt-routes object mnt-by"() {

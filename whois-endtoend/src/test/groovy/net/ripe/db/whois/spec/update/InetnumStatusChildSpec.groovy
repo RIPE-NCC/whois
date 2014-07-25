@@ -2658,15 +2658,13 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.100 - 192.168.0.100" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.100 - 192.168.0.100") ==
-                ["SUB-ALLOCATED PA cannot be smaller than /24"]
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.100 - 192.168.0.100" }
 
-        queryObjectNotFound("-rGBT inetnum 192.168.0.100 - 192.168.0.100", "inetnum", "192.168.0.100 - 192.168.0.100")
+        queryObject("-rGBT inetnum 192.168.0.100 - 192.168.0.100", "inetnum", "192.168.0.100 - 192.168.0.100")
     }
 
     def "create child SUB-ALLOCATED PA, parent status ALLOCATED PI"() {
@@ -3012,11 +3010,10 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
-                ["inetnum parent has incorrect status: ASSIGNED ANYCAST",
-                "SUB-ALLOCATED PA cannot be smaller than /24"]
+                ["inetnum parent has incorrect status: ASSIGNED ANYCAST"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }
