@@ -4630,6 +4630,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "LIR-PARTITIONED PA")
     }
 
+    @Ignore
     def "delete and re-create 3 objects, change status"() {
       given:
         syncUpdate(getTransient("EARLY") + "password: hm\npassword: owner3")
