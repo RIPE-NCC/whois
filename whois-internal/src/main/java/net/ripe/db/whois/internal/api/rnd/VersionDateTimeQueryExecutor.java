@@ -104,7 +104,7 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
         return FILTER_EMAIL_FUNCTION.apply(FILTER_AUTH_FUNCTION.apply(rpslObject));
     }
 
-    private Collection<? extends ResponseObject> makeListWithNoResultsMessage(String key) {
+    private Collection<? extends ResponseObject> makeListWithNoResultsMessage(final String key) {
         return Collections.singletonList(new MessageObject(InternalMessages.noVersion(key)));
     }
 }
