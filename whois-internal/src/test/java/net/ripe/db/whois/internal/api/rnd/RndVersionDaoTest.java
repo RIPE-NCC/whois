@@ -41,7 +41,7 @@ public class RndVersionDaoTest extends AbstractInternalTest {
         updateDao.updateObject(objectInfo.getObjectId(), RpslObject.parse("domain:test.sk\ndescr:description2\nsource:RIPE\n"));
         updateDao.updateObject(objectInfo.getObjectId(), RpslObject.parse("domain:test.sk\ndescr:description3\nsource:RIPE\n"));
 
-        final List<VersionInfo> versions = subject.getVersionsBeforeTimestamp(ObjectType.DOMAIN, "test.sk", localDateTime.toDateTime().getMillis());
+        final List<VersionInfo> versions = subject.getVersionsBeforeTimestamp(ObjectType.DOMAIN, "test.sk", localDateTime.plusDays(1).toDateTime().getMillis());
         assertThat(versions, hasSize(3));
     }
 
@@ -53,7 +53,7 @@ public class RndVersionDaoTest extends AbstractInternalTest {
         updateDao.updateObject(objectInfo.getObjectId(), RpslObject.parse("domain:test.sk\ndescr:description2\nsource:RIPE\n"));
         updateDao.deleteObject(objectInfo.getObjectId(), objectInfo.getKey());
 
-        final List<VersionInfo> versions = subject.getVersionsBeforeTimestamp(ObjectType.DOMAIN, "test.sk", localDateTime.toDateTime().getMillis());
+        final List<VersionInfo> versions = subject.getVersionsBeforeTimestamp(ObjectType.DOMAIN, "test.sk", localDateTime.plusDays(1).toDateTime().getMillis());
 
         assertThat(versions, hasSize(3));
     }
