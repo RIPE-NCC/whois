@@ -32,6 +32,7 @@ public enum ObjectType {
 
     private static final Map<CIString, ObjectType> TYPE_NAMES;
     private static final Set<ObjectType> SET_OBJECTS;
+    public static final Set<ObjectType> RESOURCE_TYPES;
 
     static {
         TYPE_NAMES = new HashMap<>(ObjectType.values().length * 2, 1);
@@ -49,6 +50,7 @@ public enum ObjectType {
         }
 
         SET_OBJECTS = Collections.unmodifiableSet(Sets.newEnumSet(setObjects, ObjectType.class));
+        RESOURCE_TYPES = Collections.unmodifiableSet(Sets.newHashSet(AUT_NUM, INETNUM, INET6NUM));
     }
 
     private final String name;
@@ -66,11 +68,6 @@ public enum ObjectType {
     public String getShortName() {
         return shortName;
     }
-
-    public Boolean isResourceType() {
-        return this == AUT_NUM || this == INET6NUM || this == INETNUM;
-    }
-
 
     public static ObjectType getByName(final String name) throws IllegalArgumentException {
         final ObjectType ret = getByNameOrNull(name);
