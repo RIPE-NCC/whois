@@ -1882,48 +1882,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
     }
 
-    def "modify ORGANISATION with abuse-c, type OTHER, ref EARLY-REGISTRATION, remove abuse-c"() {
-      given:
-        syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")
-        query_object_matches("-r -T organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        syncUpdate(getTransient("EARLY-A") + "override: denis,override1")
-        query_object_matches("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-OFA1-TEST")
-
-      expect:
-
-      when:
-        def message = syncUpdate("""\
-                organisation: ORG-OFA1-TEST
-                org-type:     OTHER
-                org-name:     Organisation for Abuse
-                address:      RIPE NCC
-                e-mail:       dbtest@ripe.net
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                ref-nfy:      dbtest-org@ripe.net
-                mnt-ref:      owner3-mnt
-                mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
-                source:       TEST
-
-                password: lir
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA1-TEST" }
-
-        query_object_not_matches("-rGBT organisation ORG-OFA1-TEST", "organisation", "ORG-OFA1-TEST", "abuse-c:")
-        query_object_matches("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ORG-OFA1-TEST")
-    }
-
     def "modify ORGANISATION with abuse-c, type OTHER, ref ERX ASSIGNED PI, remove abuse-c"() {
       given:
         syncUpdate(getTransient("ORG-OTHER-A") + "password: lir")

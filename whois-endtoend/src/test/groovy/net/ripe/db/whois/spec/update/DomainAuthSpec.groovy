@@ -3,6 +3,7 @@ package net.ripe.db.whois.spec.update
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class DomainAuthSpec extends BaseQueryUpdateSpec {
@@ -117,6 +118,43 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-routes:   LIR3-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+            "ALLOC-U": """\
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED Unspecified
+                mnt-by:       RIPE-NCC-HM-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+            "ALLOC-PA1": """\
+                inetnum:      192.0.0.0 - 192.0.0.0
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+            "ALLOC-PA2": """\
+                inetnum:      192.0.0.0 - 192.0.0.1
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
@@ -235,6 +273,87 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
 
         queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
+    }
+
+    @Ignore //need to fix the syntax error on single IP address domain obj for 2014-01 no size limit on allocations
+    def "create reverse domain, single IP, ripe space, exact match inetnum with mnt-domains, domains pw supplied"() {
+        given:
+        syncUpdate(getTransient("ALLOC-U") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA1") + "override: denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.0.0.0 - 192.0.0.0", "inetnum", "192.0.0.0 - 192.0.0.0")
+        queryObjectNotFound("-rGBT domain 0.0.0.192.in-addr.arpa", "domain", "0.0.0.192.in-addr.arpa")
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0.0.0.192.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         owner-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                password:   owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.0.192.in-addr.arpa" }
+
+        queryObject("-rGBT domain 0.0.0.192.in-addr.arpa", "domain", "0.0.0.192.in-addr.arpa")
+    }
+
+    def "create reverse domain, range of 2 IP, ripe space, exact match inetnum with mnt-domains, domains pw supplied"() {
+        given:
+        syncUpdate(getTransient("ALLOC-U") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA2") + "override: denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.0.0.0 - 192.0.0.1", "inetnum", "192.0.0.0 - 192.0.0.1")
+        queryObjectNotFound("-rGBT domain 0-1.0.0.192.in-addr.arpa", "domain", "0-1.0.0.192.in-addr.arpa")
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0-1.0.0.192.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         owner-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                password:   owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 0-1.0.0.192.in-addr.arpa" }
+
+        queryObject("-rGBT domain 0-1.0.0.192.in-addr.arpa", "domain", "0-1.0.0.192.in-addr.arpa")
     }
 
     def "create reverse domain, ripe space, exact match inetnum with mnt-domains, routes pw supplied"() {
