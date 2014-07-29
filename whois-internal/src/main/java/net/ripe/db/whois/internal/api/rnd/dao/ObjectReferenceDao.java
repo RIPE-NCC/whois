@@ -9,6 +9,6 @@ import java.util.List;
 public interface ObjectReferenceDao {
 
     List<ObjectVersion> getObjectVersion(final ObjectType fromObjectType, final String pkey, final long timestamp);
-    List<ObjectReference> getReferencing(final long versionId);
-    List<ObjectReference> getReferencedBy(final long versionId);
+    List<ObjectReference> getOutgoing(final long versionId);
+    List<ObjectReference> getIncoming(final long versionId);
 }

@@ -5,26 +5,26 @@ import java.util.Set;
 
 public class RpslObjectWithReferences {
     private final boolean isDeleted;
-    private Set<RpslObjectKey> referencing;
-    private Set<RpslObjectKey> referencedBy;
+    private Set<RpslObjectKey> outgoing;
+    private Set<RpslObjectKey> incoming;
 
 
-    public RpslObjectWithReferences(final boolean isDeleted, @CheckForNull final Set<RpslObjectKey> referencing) {
+    public RpslObjectWithReferences(final boolean isDeleted, @CheckForNull final Set<RpslObjectKey> outgoing) {
         this.isDeleted = isDeleted;
-        this.referencing = referencing;
+        this.outgoing = outgoing;
     }
 
 
-    public void setReferencing(final Set<RpslObjectKey> referencing) {
-        this.referencing = referencing;
+    public void setOutgoing(final Set<RpslObjectKey> outgoing) {
+        this.outgoing = outgoing;
     }
 
-    public Set<RpslObjectKey> getReferencing() {
-        return referencing;
+    public Set<RpslObjectKey> getOutgoing() {
+        return outgoing;
     }
 
-    public Set<RpslObjectKey> getReferencedBy() {
-        return referencedBy;
+    public Set<RpslObjectKey> getIncoming() {
+        return incoming;
     }
 
     public boolean isDeleted() {

@@ -20,8 +20,8 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "service",
         "parameters",
         "objects",
-        "referencing",
-        "referencedBy",
+        "outgoing",
+        "incoming",
         "sources",
         "errorMessages",
         "geolocationAttributes",
@@ -41,12 +41,12 @@ public class WhoisResources {
     @XmlElement(name = "objects", required = true)
     @JsonProperty(value = "objects", required = true)
     private WhoisObjects objects;
-    @XmlElement(name = "referenced-by")
-    @JsonProperty(value = "referenced-by")
-    private WhoisObjects referencedBy;
-    @XmlElement(name = "referencing")
-    @JsonProperty(value = "referencing")
-    private WhoisObjects referencing;
+    @XmlElement(name = "incoming")
+    @JsonProperty(value = "incoming")
+    private WhoisObjects incoming;
+    @XmlElement(name = "outgoing")
+    @JsonProperty(value = "outgoing")
+    private WhoisObjects outgoing;
     @XmlElement(name = "sources")
     private Sources sources;
     @XmlElement
@@ -118,20 +118,20 @@ public class WhoisResources {
         return this;
     }
 
-    public WhoisObjects getReferencedBy() {
-        return referencedBy;
+    public WhoisObjects getIncoming() {
+        return incoming;
     }
 
-    public void setReferencedBy(final WhoisObjects referencedBy) {
-        this.referencedBy = referencedBy;
+    public void setIncoming(final WhoisObjects incoming) {
+        this.incoming = incoming;
     }
 
-    public WhoisObjects getReferencing() {
-        return referencing;
+    public WhoisObjects getOutgoing() {
+        return outgoing;
     }
 
-    public void setReferencing(final WhoisObjects referencing) {
-        this.referencing = referencing;
+    public void setOutgoing(final WhoisObjects outgoing) {
+        this.outgoing = outgoing;
     }
 
     public WhoisResources setGeolocationAttributes(final GeolocationAttributes geolocationAttributes) {

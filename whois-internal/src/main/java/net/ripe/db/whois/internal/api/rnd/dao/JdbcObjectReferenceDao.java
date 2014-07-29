@@ -49,13 +49,13 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     }
 
     @Override
-    public List<ObjectReference> getReferencedBy(final long versionId) {
-        return getReferences(versionId, ReferenceType.REFERENCED_BY);
+    public List<ObjectReference> getIncoming(final long versionId) {
+        return getReferences(versionId, ReferenceType.INCOMING);
     }
 
     @Override
-    public List<ObjectReference> getReferencing(final long versionId) {
-        return getReferences(versionId, ReferenceType.REFERENCING);
+    public List<ObjectReference> getOutgoing(final long versionId) {
+        return getReferences(versionId, ReferenceType.OUTGOING);
     }
     public List<ObjectReference> getReferences(final long versionId, final ReferenceType referenceType) {
         return jdbcTemplate.query(""+

@@ -13,8 +13,8 @@ public class RpslObjectWithTimestamp implements ResponseObject {
     private final RpslObject rpslObject;
     private final int sameTimestampCount;
     private final VersionDateTime versionDateTime;
-    private List<ObjectReference> referencing;
-    private List<ObjectReference> referencedBy;
+    private List<ObjectReference> outgoing;
+    private List<ObjectReference> incoming;
 
     public RpslObjectWithTimestamp(final RpslObject rpslObject, final int sameTimestampCount, final VersionDateTime versionDateTime) {
         this.rpslObject = rpslObject;
@@ -23,10 +23,10 @@ public class RpslObjectWithTimestamp implements ResponseObject {
     }
 
     public RpslObjectWithTimestamp(final RpslObject rpslObject, final int sameTimestampCount, final VersionDateTime versionDateTime,
-                                   final List<ObjectReference> referencing, List<ObjectReference> referencedBy) {
+                                   final List<ObjectReference> outgoing, final List<ObjectReference> incoming) {
         this(rpslObject, sameTimestampCount, versionDateTime);
-        this.referencing = referencing;
-        this.referencedBy = referencedBy;
+        this.outgoing = outgoing;
+        this.incoming = incoming;
     }
 
     public RpslObject getRpslObject() {
@@ -51,11 +51,11 @@ public class RpslObjectWithTimestamp implements ResponseObject {
         return rpslObject.toByteArray();
     }
 
-    public List<ObjectReference> getReferencing() {
-        return referencing;
+    public List<ObjectReference> getOutgoing() {
+        return outgoing;
     }
 
-    public List<ObjectReference> getReferencedBy() {
-        return referencedBy;
+    public List<ObjectReference> getIncoming() {
+        return incoming;
     }
 }
