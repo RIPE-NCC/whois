@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum ReferenceType {
-    REFERENCING(0),
-    REFERENCED_BY(1);
+    OUTGOING(0),
+    INCOMING(1);
 
     private final int typeId;
 

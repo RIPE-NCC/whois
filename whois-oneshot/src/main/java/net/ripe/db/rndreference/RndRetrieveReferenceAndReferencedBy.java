@@ -216,7 +216,7 @@ public class RndRetrieveReferenceAndReferencedBy {
             if (!rpslObjectWithReferences.isDeleted()) {
                 final Set<RpslObjectKey> fixedSet = new HashSet<>();
 
-                for (RpslObjectKey base : rpslObjectWithReferences.getReferencing()) {
+                for (RpslObjectKey base : rpslObjectWithReferences.getOutgoing()) {
                     if (!base.getObjectType().equals(DUMMY_OBJECT_TYPE_ID)) {
                         fixedSet.add(base);
                     } else {
@@ -248,7 +248,7 @@ public class RndRetrieveReferenceAndReferencedBy {
                     }
                     processed++;
                 }
-                rpslObjectWithReferences.setReferencing(fixedSet);
+                rpslObjectWithReferences.setOutgoing(fixedSet);
             }
         }
         return processed;

@@ -80,15 +80,15 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
         }
 
         final RpslObject rpslObject = lookupRpslObjectByVersion(latestVersion);
-        final List<ObjectReference> referencing = objectReferenceDao.getReferencing(latestVersion.getVersionId());
-        final List<ObjectReference> referencedBy = objectReferenceDao.getReferencedBy(latestVersion.getVersionId());
+        final List<ObjectReference> outgoing = objectReferenceDao.getOutgoing(latestVersion.getVersionId());
+        final List<ObjectReference> incoming = objectReferenceDao.getIncoming(latestVersion.getVersionId());
 
         final RpslObjectWithTimestamp rpslObjectWithTimestamp = new RpslObjectWithTimestamp(
                 decorateRpslObject(rpslObject),
                 versions.size(),
                 new VersionDateTime(latestVersion.getInterval().getStartMillis()/1000L),
-                referencing,
-                referencedBy);
+                outgoing,
+                incoming);
 
         results.add(rpslObjectWithTimestamp);
 

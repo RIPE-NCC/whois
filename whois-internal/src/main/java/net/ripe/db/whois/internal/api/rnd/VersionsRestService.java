@@ -149,8 +149,8 @@ public class VersionsRestService {
             whoisObject.setVersionDateTime(rpslObjectWithTimestamp.getVersionDateTime().toString());
         }
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        whoisResources.setReferencing(mapReferences(rpslObjectWithTimestamp.getReferencing()));
-        whoisResources.setReferencedBy(mapReferences(rpslObjectWithTimestamp.getReferencedBy()));
+        whoisResources.setOutgoing(mapReferences(rpslObjectWithTimestamp.getOutgoing()));
+        whoisResources.setIncoming(mapReferences(rpslObjectWithTimestamp.getIncoming()));
         whoisResources.setErrorMessages(whoisService.createErrorMessages(versionDateTimeResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
 
