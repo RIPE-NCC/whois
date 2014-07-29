@@ -61,6 +61,11 @@
             <artifactId>lucene-facet</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+
         <!-- testing -->
         <dependency>
             <groupId>net.ripe.db</groupId>
