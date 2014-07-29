@@ -12,6 +12,9 @@ import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectKey;
+import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectTimeLine;
+import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectWithReferences;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -74,7 +77,7 @@ public class RndRetrieveReferenceAndReferencedBy {
     private static final String DBURL_OPTION = "url";
     private static final String START = "start";           // starting timestamp in seconds
     private static final Long FROM_BEGINNING = -1L;
-    public static final String DUMMY_OBJECT_TYPE_ID = "999";
+    public static final Integer DUMMY_OBJECT_TYPE_ID = 999;
 
 
     private final JdbcTemplate jdbcTemplate;
@@ -211,13 +214,13 @@ public class RndRetrieveReferenceAndReferencedBy {
         for (Map.Entry<Interval, RpslObjectWithReferences> entry : timeline.getRpslObjectIntervals().entrySet()) {
             final RpslObjectWithReferences rpslObjectWithReferences = entry.getValue();
             if (!rpslObjectWithReferences.isDeleted()) {
-                final Set<String> fixedSet = new HashSet<>();
+                final Set<RpslObjectKey> fixedSet = new HashSet<>();
 
-                for (String key : rpslObjectWithReferences.getReferencing()) {
-                    if (!key.startsWith(DUMMY_OBJECT_TYPE_ID)) {
-                        fixedSet.add(key);
+                for (RpslObjectKey base : rpslObjectWithReferences.getReferencing()) {
+                    if (!base.getObjectType().equals(DUMMY_OBJECT_TYPE_ID)) {
+                        fixedSet.add(base);
                     } else {
-                        final String primaryKey = key.split(RpslObjectTimeLine.KEY_SEPERATOR, 2)[1];
+                        final String primaryKey = base.getPkey(); //base.split(RpslObjectTimeLine.KEY_SEPERATOR, 2)[1];
                         if (!mappedRefobjects.containsKey(primaryKey)) {
                             mappedRefobjects.put(primaryKey, findRefObjects(primaryKey));
                         }
@@ -228,12 +231,12 @@ public class RndRetrieveReferenceAndReferencedBy {
                                 LOGGER.error("Unable to find entry for key {} in object {}", primaryKey, timeline.getKey());
                                 break;
                             case 1:
-                                fixedSet.add(refObjects.get(0).objectId + RpslObjectTimeLine.KEY_SEPERATOR + primaryKey);
+                                fixedSet.add(new RpslObjectKey(refObjects.get(0).objectId, primaryKey));
                                 break;
                             default:
                                 final RefObject refObject = findRefobjectForInterval(entry.getKey(), refObjects);
                                 if (refObject != null) {
-                                    fixedSet.add(refObject.objectId + RpslObjectTimeLine.KEY_SEPERATOR + primaryKey);
+                                    fixedSet.add(new RpslObjectKey(refObject.objectId, primaryKey));
                                 } else {
                                     LOGGER.error("Unable to find correct entry for key {} in object {}", primaryKey, timeline.getKey());
                                 }
@@ -362,8 +365,8 @@ public class RndRetrieveReferenceAndReferencedBy {
     }
 
     // code nicked from objectDao
-    private Set<String> getReferencingObjects(final RpslObject rpslObject) {
-        final Set<String> referencing = Sets.newHashSet();
+    private Set<RpslObjectKey> getReferencingObjects(final RpslObject rpslObject) {
+        final Set<RpslObjectKey> referencing = Sets.newHashSet();
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(RELATED_TO_ATTRIBUTES)) {
             for (final CIString referenceValue : attribute.getReferenceValues()) {
@@ -375,14 +378,14 @@ public class RndRetrieveReferenceAndReferencedBy {
                 }
 
                 if (objectTypes.size() == 1) {
-                    referencing.add(ObjectTypeIds.getId(objectTypes.iterator().next()) + RpslObjectTimeLine.KEY_SEPERATOR + referenceValue.toString());
+                    referencing.add(new RpslObjectKey(ObjectTypeIds.getId(objectTypes.iterator().next()), referenceValue.toString()));
                 } else {
                     switch (attribute.getType()) {
                         case AUTH:
                             // do nothing, we do not reverse lookup auths: local optimization.
                             break;
                         default:
-                            referencing.add(DUMMY_OBJECT_TYPE_ID + RpslObjectTimeLine.KEY_SEPERATOR + referenceValue.toString());
+                            referencing.add(new RpslObjectKey(DUMMY_OBJECT_TYPE_ID, referenceValue.toString()));
                     }
                 }
             }

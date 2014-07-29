@@ -2,6 +2,7 @@ package net.ripe.db.rndreference;
 
 import com.google.gson.Gson;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectTimeLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowCallbackHandler;
