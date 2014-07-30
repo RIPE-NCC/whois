@@ -144,7 +144,7 @@ public class RndRetrieveReferenceAndReferencedBy {
             public void run(final Jedis jedis) {
                 if (start.equals(FROM_BEGINNING)) {
                     JdbcStreamingHelper.executeStreaming(jdbcTemplate,
-                            "SELECT pkey, timestamp, object_type, object, sequence_id FROM last LIMIT 10", new RpslObjectLastEventsRowMapper());
+                            "SELECT pkey, timestamp, object_type, object, sequence_id FROM last LIMIT 100", new RpslObjectLastEventsRowMapper());
                 } else {
                     JdbcStreamingHelper.executeStreaming(jdbcTemplate,
                             "SELECT pkey, timestamp, object_type, object, sequence_id FROM last WHERE timestamp > ? LIMIT 10",
@@ -350,18 +350,21 @@ public class RndRetrieveReferenceAndReferencedBy {
             // only add the interval if begin and end are not the same
             if (!interval.getEnd().equals(interval.getStart())) {
                 if (databaseRpslObject instanceof LastEvent && ((LastEvent) databaseRpslObject).isDeleteEvent()) {
-                    rpslObjectTimeline.put(interval, new RpslObjectWithReferences(true, null, revision++));
+                    revision++;
+                    rpslObjectTimeline.put(interval, new RpslObjectWithReferences(true, null, revision));
                 } else {
                     try {
                         final RpslObject rpslObject =
                                 (databaseRpslObject instanceof LastEvent ?
                                         ((LastEvent) databaseRpslObject).getRpslObject() :
                                         RpslObject.parse(((HistoricRpslObject) databaseRpslObject).getObjectBytes()));
-                        rpslObjectTimeline.put(interval, new RpslObjectWithReferences(false, getReferencingObjects(rpslObject), revision++));
+                        revision++;
+                        rpslObjectTimeline.put(interval, new RpslObjectWithReferences(false, getReferencingObjects(rpslObject), revision));
                     } catch (Exception ex) {
                         LOGGER.error("ERROR: object {}: unable to parse object data but not a delete event.", key);
                         LOGGER.error("ERROR: object {}: not deleted object with no data in timeline", key);
-                        rpslObjectTimeline.put(interval, new RpslObjectWithReferences(false, null, revision++));
+                        revision++;
+                        rpslObjectTimeline.put(interval, new RpslObjectWithReferences(false, null, revision));
                     }
                 }
             }
@@ -431,7 +434,7 @@ public class RndRetrieveReferenceAndReferencedBy {
                             // do nothing, we do not reverse lookup auths: local optimization.
                             break;
                         default:
-                            referencing.add(new RpslObjectReference(new RpslObjectKey(DUMMY_OBJECT_TYPE_ID, referenceValue.toString()), new ArrayList<Integer>()));
+                            referencing.add(new RpslObjectReference(new RpslObjectKey(DUMMY_OBJECT_TYPE_ID, referenceValue.toUpperCase()), new ArrayList<Integer>()));
                     }
                 }
             }
@@ -466,6 +469,7 @@ public class RndRetrieveReferenceAndReferencedBy {
             for (String key : jedis.keys("*")) {
                 // we have to do this, otherwise we write a string instead of an object
                 //gson.toJson(gson.fromJson(jedis.get(key), RpslObjectTimeLine.class), writer);
+                LOGGER.info("key {}", key);
                 JsonElement element = gson.fromJson(jedis.get(key), JsonElement.class);
                 gson.toJson(element, writer);
             }
