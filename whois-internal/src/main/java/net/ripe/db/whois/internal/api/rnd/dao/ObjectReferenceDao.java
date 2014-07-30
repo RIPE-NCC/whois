@@ -11,4 +11,9 @@ public interface ObjectReferenceDao {
     List<ObjectVersion> getObjectVersion(final ObjectType fromObjectType, final String pkey, final long timestamp);
     List<ObjectReference> getOutgoing(final long versionId);
     List<ObjectReference> getIncoming(final long versionId);
+
+    List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType);
+    void createVersion(final ObjectVersion objectVersion);
+    void deleteVersion(final ObjectVersion objectVersion);
+
 }
