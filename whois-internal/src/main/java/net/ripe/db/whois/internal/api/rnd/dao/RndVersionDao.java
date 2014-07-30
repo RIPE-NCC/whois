@@ -27,38 +27,12 @@ public class RndVersionDao extends JdbcVersionBaseDao {
     @Override
     @Nullable
     public VersionLookupResult findByKey(final ObjectType type, final String searchKey) {
-        final List<Integer> objectIds = getObjectIds(type, searchKey);
-
-        if (objectIds.isEmpty()) {
-            return null;
-        }
-
-        final List<VersionInfo> versionInfos = Lists.newArrayList();
-
-        for (Integer objectId : objectIds) {
-            versionInfos.addAll(
-                    getJdbcTemplate().query("" +
-                                    "SELECT serials.atlast, " +
-                                    "       serials.object_id, " +
-                                    "       serials.sequence_id, " +
-                                    "       serials.operation, " +
-                                    "       COALESCE(history.timestamp, last.timestamp) AS timestamp " +
-                                    "FROM serials " +
-                                    "       LEFT JOIN last ON serials.object_id = last.object_id " +
-                                    "       LEFT JOIN history ON serials.object_id=history.object_id AND serials.sequence_id=history.sequence_id " +
-                                    "WHERE serials.object_id =? " +
-                                    "ORDER BY timestamp, serials.sequence_id",
-                            new VersionInfoRowMapper(), objectId
-                    )
-            );
-        }
-
-        return new VersionLookupResult(versionInfos, type, searchKey);
+        throw new UnsupportedOperationException();
     }
 
     @Nullable
     @Override
-    public List<VersionInfo> getVersionsForTimestamp(ObjectType type, String searchKey, long timestampInMilliseconds) {
+    public List<VersionInfo> getVersionsForTimestamp(final ObjectType type, final String searchKey, final long timestampInMilliseconds) {
         final List<Integer> objectIds = getObjectIds(type, searchKey);
         final long timestamp = timestampInMilliseconds / 1000L;
 

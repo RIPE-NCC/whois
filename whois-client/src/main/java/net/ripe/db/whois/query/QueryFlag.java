@@ -179,12 +179,7 @@ public enum QueryFlag {
     SHOW_VERSION(new Builder("show-version")
             .withSearchKey("<version-number>")
             .describedAs("Returns historical version of the object")
-            .requiresArgument(Integer.class)),
-
-    SHOW_INTERNAL_VERSION(new Builder("show-internal-version")
-        .withSearchKey("<internal-version-number>")
-        .describedAs("Returns historical version of the object (initially for RnD)")
-        .requiresArgument(Integer.class));
+            .requiresArgument(Integer.class));
 
 
     private static final class Builder {
