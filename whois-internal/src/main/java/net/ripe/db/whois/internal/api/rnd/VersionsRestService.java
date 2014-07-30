@@ -16,9 +16,7 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.BasicSourceContext;
-import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
-import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,16 +39,15 @@ import java.util.List;
 public class VersionsRestService {
     private final WhoisService whoisService;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
-    private final VersionObjectMapper versionObjectMapper;
+
     private final BasicSourceContext sourceContext;
     private final IpRanges ipRanges;
     private final VersionsService versionsService;
 
     @Autowired
-    public VersionsRestService(final WhoisService whoisService, final WhoisObjectServerMapper whoisObjectServerMapper, final VersionObjectMapper versionObjectMapper, final BasicSourceContext basicSourceContext, final IpRanges ipRanges, final ObjectReferenceDao referenceDao, final VersionsService versionsService) {
+    public VersionsRestService(final WhoisService whoisService, final WhoisObjectServerMapper whoisObjectServerMapper, final BasicSourceContext basicSourceContext, final IpRanges ipRanges, final VersionsService versionsService) {
         this.whoisService = whoisService;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
-        this.versionObjectMapper = versionObjectMapper;
         this.sourceContext = basicSourceContext;
         this.ipRanges = ipRanges;
         this.versionsService = versionsService;
@@ -67,16 +64,7 @@ public class VersionsRestService {
 
         validate(request, source);
 
-        final List<ObjectVersion> versions = versionsService.getVersions(key, ObjectType.getByName(objectType));
-
-        if (versions.isEmpty()) {
-            throw new WebApplicationException(Response
-                    .status(Response.Status.NOT_FOUND)
-                    .entity(whoisService.createErrorEntity(request, Collections.singletonList(InternalMessages.noVersions(key))))
-                    .build());
-        }
-
-        return Response.ok(versionObjectMapper.mapVersions(objectType, key, source, versions)).build();
+        return Response.ok(versionsService.streamVersions(key, ObjectType.getByName(objectType), source, request)).build();
     }
 
     @GET

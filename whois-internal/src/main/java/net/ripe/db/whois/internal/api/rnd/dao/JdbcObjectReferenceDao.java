@@ -1,17 +1,22 @@
 package net.ripe.db.whois.internal.api.rnd.dao;
 
 
+import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
+import net.ripe.db.whois.internal.api.rnd.StreamHandler;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import org.joda.time.Interval;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -29,16 +34,16 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     public ObjectVersion getVersion(final ObjectType type, final String pkey, final int revision) {
         return jdbcTemplate.queryForObject(
                 "SELECT id, " +
-                "       object_type, " +
-                "       pkey, " +
-                "       from_timestamp, " +
-                "       to_timestamp," +
-                "       revision " +
-                "FROM object_version " +
-                "WHERE object_type = ? " +
-                "  AND pkey = ? " +
-                "  AND revision = ? " +
-                "ORDER BY id DESC",
+                        "       object_type, " +
+                        "       pkey, " +
+                        "       from_timestamp, " +
+                        "       to_timestamp," +
+                        "       revision " +
+                        "FROM object_version " +
+                        "WHERE object_type = ? " +
+                        "  AND pkey = ? " +
+                        "  AND revision = ? " +
+                        "ORDER BY id DESC",
                 new ObjectVersionRowMapper(),
                 ObjectTypeIds.getId(type),
                 pkey,
@@ -53,6 +58,35 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 "ORDER BY from_timestamp,to_timestamp ASC",
                 new Object[]{pkey, ObjectTypeIds.getId(objectType)},
                 new ObjectVersionRowMapper());
+    }
+
+    @Override
+    public void streamVersions(final String pkey, final ObjectType objectType, final StreamHandler streamHandler) {
+        JdbcStreamingHelper.executeStreaming(
+                jdbcTemplate,
+                "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
+                        "WHERE pkey = ? AND object_type = ? " +
+                        "ORDER BY from_timestamp,to_timestamp ASC",
+                new PreparedStatementSetter() {
+                    @Override
+                    public void setValues(final PreparedStatement ps) throws SQLException {
+                        ps.setString(1, pkey);
+                        ps.setInt(2, ObjectTypeIds.getId(objectType));
+                    }
+                }, new RowCallbackHandler() {
+                    @Override
+                    public void processRow(final ResultSet rs) throws SQLException {
+                        final ObjectVersion objectVersion = new ObjectVersion(
+                                rs.getLong(1),                          // id
+                                ObjectTypeIds.getType(rs.getInt(2)),    // object_type
+                                rs.getString(3),                        // pkey
+                                rs.getLong(4),                          // from_timestamp
+                                rs.getLong(5) == 0 ? Long.MAX_VALUE : rs.getLong(5),     //to_timestamp
+                                rs.getInt(6)                           // revision
+                        );
+                        streamHandler.handleStreamEvent(objectVersion);
+                    }
+                });
     }
 
     class ObjectVersionRowMapper implements RowMapper<ObjectVersion> {
@@ -137,7 +171,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
 
 
     private static long getFromTimestamp(final Interval interval) {
-        return interval.getStart().getMillis();
+        return interval.getStart().getMillis() / 1000;
     }
 
     private static long getToTimestamp(final Interval interval) {
@@ -145,7 +179,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
             // by convention, an interval with Long.MAX_VALUE is used to represent a revision with no end timestamp
             return 0;
         } else {
-            return interval.getEnd().getMillis();
+            return interval.getEnd().getMillis() / 1000;
         }
     }
 }
