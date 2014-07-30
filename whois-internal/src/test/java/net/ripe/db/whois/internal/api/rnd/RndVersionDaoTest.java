@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,6 +20,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
+@Ignore
 public class RndVersionDaoTest extends AbstractInternalTest {
     @Autowired
     @Qualifier("whoisReadOnlySlaveDataSource")

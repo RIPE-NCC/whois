@@ -1,45 +1,25 @@
 package net.ripe.db.whois.internal.api.rnd.domain;
 
-import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-
 import javax.annotation.concurrent.Immutable;
-
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
 public class ObjectReference {
 
-    private final long versionId;
-    private final ObjectType refObjectType;
-    private final CIString refPkey;
-    private final ReferenceType referenceType;
+    private final ObjectVersion from;
+    private final ObjectVersion to;
 
-    public ObjectReference(final long versionId, final ObjectType refObjectType, final CIString refPkey, final ReferenceType referenceType) {
-        this.versionId = versionId;
-        this.refObjectType = refObjectType;
-        this.refPkey = refPkey;
-        this.referenceType = referenceType;
+
+    public ObjectReference(final ObjectVersion from, final ObjectVersion to) {
+        this.from = from;
+        this.to = to;
     }
 
-    public ObjectReference(final long versionId, final ObjectType refObjectType, final String refPkey, final ReferenceType referenceType) {
-        this(versionId, refObjectType, ciString(refPkey), referenceType);
+    public ObjectVersion getFrom() {
+        return from;
     }
 
-    public ObjectType getRefObjectType() {
-        return refObjectType;
-    }
-
-    public CIString getRefPkey() {
-        return refPkey;
-    }
-
-    public long getVersionId() {
-        return versionId;
-    }
-
-    public ReferenceType getReferenceType() {
-        return referenceType;
+    public ObjectVersion getTo() {
+        return to;
     }
 
     @Override
@@ -49,31 +29,23 @@ public class ObjectReference {
 
         ObjectReference that = (ObjectReference) o;
 
-        if (versionId != that.versionId) return false;
-        if (refObjectType != that.refObjectType) return false;
-        if (!refPkey.equals(that.refPkey)) return false;
-        if (referenceType != that.referenceType) return false;
-
-        return true;
+        return ((that.from != null && that.from.equals(this.from)) &&
+                (that.to != null && that.to.equals(this.to)));
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (versionId ^ (versionId >>> 32));
-        result = 31 * result + refObjectType.hashCode();
-        result = 31 * result + refPkey.hashCode();
-        result = 31 * result + referenceType.hashCode();
+        int result = (this.from != null ? this.from.hashCode() : 0);
+        result = 31 * result + (this.to != null ? this.to.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
         return "ObjectReference{" +
-                "versionId=" + versionId +
-                ", refObjectType=" + refObjectType +
-                ", refPkey=" + refPkey +
-                ", referenceType=" + referenceType +
-                '}';
+                "from=" + this.from.toString() +
+                ", to=" + this.to.toString() +
+                "}";
     }
 }
 
