@@ -26,4 +26,9 @@ public class RpslObjectKey {
     public void setPkey(final String pkey) {
         this.pkey = pkey;
     }
+
+    @Override
+    public String toString() {
+        return objectType + "::" + pkey;
+    }
 }
