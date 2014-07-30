@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectKey;
+import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectReference;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectTimeLine;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectWithReferences;
 import org.joda.time.DateTime;
@@ -128,12 +129,13 @@ public class RndRetrieveReferenceAndReferencedBy {
     public RndRetrieveReferenceAndReferencedBy(final String password, final String url) throws SQLException {
         this.jdbcTemplate = new JdbcTemplate(new SimpleDriverDataSource(new Driver(), url, "dbint", password));
         this.redisTemplate = new RedisTemplate();
-        this.gson = new GsonBuilder().registerTypeAdapter(Interval.class, new JsonDeserializer<Interval>() {
-            @Override
-            public Interval deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                return Interval.parse(json.getAsString());
-            }
-        }).create();
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(Interval.class, new JsonDeserializer<Interval>() {
+                    @Override
+                    public Interval deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                        return Interval.parse(json.getAsString());
+                    }
+                }).create();
     }
 
     private void run(final Long start) {
@@ -210,33 +212,34 @@ public class RndRetrieveReferenceAndReferencedBy {
         });
     }
 
-    private int setCorrectObjectType(final Map<String, List<RefObject>> mappedRefobjects, final RpslObjectTimeLine timeline) {
+    private int setCorrectObjectType(final Map<String, List<RefObject>> cache, final RpslObjectTimeLine timeline) {
         for (Map.Entry<Interval, RpslObjectWithReferences> entry : timeline.getRpslObjectIntervals().entrySet()) {
             final RpslObjectWithReferences rpslObjectWithReferences = entry.getValue();
             if (!rpslObjectWithReferences.isDeleted()) {
-                final Set<RpslObjectKey> fixedSet = new HashSet<>();
+                final Set<RpslObjectReference> fixedSet = new HashSet<>();
 
-                for (RpslObjectKey base : rpslObjectWithReferences.getOutgoing()) {
-                    if (!base.getObjectType().equals(DUMMY_OBJECT_TYPE_ID)) {
+                for (RpslObjectReference base : rpslObjectWithReferences.getOutgoingReferences()) {
+                    RpslObjectKey baseKey = base.getKey();
+                    if (!baseKey.getObjectType().equals(DUMMY_OBJECT_TYPE_ID)) {
                         fixedSet.add(base);
                     } else {
-                        final String primaryKey = base.getPkey(); //base.split(RpslObjectTimeLine.KEY_SEPERATOR, 2)[1];
-                        if (!mappedRefobjects.containsKey(primaryKey)) {
-                            mappedRefobjects.put(primaryKey, findRefObjects(primaryKey));
+                        final String primaryKey = baseKey.getPkey();
+                        if (!cache.containsKey(primaryKey)) {
+                            cache.put(primaryKey, findRefObjects(primaryKey));
                         }
 
-                        final List<RefObject> refObjects = mappedRefobjects.get(primaryKey);
+                        final List<RefObject> refObjects = cache.get(primaryKey);
                         switch (refObjects.size()) {
                             case 0:
                                 LOGGER.error("Unable to find entry for key {} in object {}", primaryKey, timeline.getKey());
                                 break;
                             case 1:
-                                fixedSet.add(new RpslObjectKey(refObjects.get(0).objectId, primaryKey));
+                                fixedSet.add(new RpslObjectReference(new RpslObjectKey(refObjects.get(0).objectId, primaryKey), new ArrayList<Integer>()));
                                 break;
                             default:
                                 final RefObject refObject = findRefobjectForInterval(entry.getKey(), refObjects);
                                 if (refObject != null) {
-                                    fixedSet.add(new RpslObjectKey(refObject.objectId, primaryKey));
+                                    fixedSet.add(new RpslObjectReference(new RpslObjectKey(refObject.objectId, primaryKey), new ArrayList<Integer>()));
                                 } else {
                                     LOGGER.error("Unable to find correct entry for key {} in object {}", primaryKey, timeline.getKey());
                                 }
@@ -248,7 +251,7 @@ public class RndRetrieveReferenceAndReferencedBy {
                     }
                     processed++;
                 }
-                rpslObjectWithReferences.setOutgoing(fixedSet);
+                rpslObjectWithReferences.setOutgoingReferences(fixedSet);
             }
         }
         return processed;
@@ -295,6 +298,8 @@ public class RndRetrieveReferenceAndReferencedBy {
 
     private Map<Interval, RpslObjectWithReferences> constructTimeLine(final String key, final List<DatabaseRpslObject> allEvents) {
         final Map<Interval, RpslObjectWithReferences> rpslObjectTimeline = new HashMap<>();
+
+        int revision = 0;
         for (int i = 0; i < allEvents.size(); i++) {
             final DatabaseRpslObject databaseRpslObject = allEvents.get(i);
 
@@ -305,22 +310,26 @@ public class RndRetrieveReferenceAndReferencedBy {
                 interval = new Interval(databaseRpslObject.getEventDate(), allEvents.get(i + 1).getEventDate());
             }
 
-            if (databaseRpslObject instanceof LastEvent && ((LastEvent) databaseRpslObject).isDeleteEvent()) {
-                rpslObjectTimeline.put(interval, new RpslObjectWithReferences(true, null));
-            } else {
-                try {
-                    final RpslObject rpslObject =
-                            (databaseRpslObject instanceof LastEvent ?
-                                    ((LastEvent) databaseRpslObject).getRpslObject() :
-                                    RpslObject.parse(((HistoricRpslObject) databaseRpslObject).getObjectBytes()));
-                    rpslObjectTimeline.put(interval, new RpslObjectWithReferences(false, getReferencingObjects(rpslObject)));
-                } catch (Exception ex) {
-                    LOGGER.error("ERROR: object {}: unable to parse object data but not a delete event.", key);
-                    LOGGER.error("ERROR: object {}: not deleted object with no data in timeline", key);
-                    rpslObjectTimeline.put(interval, new RpslObjectWithReferences(false, null));
+            // only add the interval if begin and end are not the same
+            if (!interval.getEnd().equals(interval.getStart())) {
+                if (databaseRpslObject instanceof LastEvent && ((LastEvent) databaseRpslObject).isDeleteEvent()) {
+                    rpslObjectTimeline.put(interval, new RpslObjectWithReferences(true, null, revision++));
+                } else {
+                    try {
+                        final RpslObject rpslObject =
+                                (databaseRpslObject instanceof LastEvent ?
+                                        ((LastEvent) databaseRpslObject).getRpslObject() :
+                                        RpslObject.parse(((HistoricRpslObject) databaseRpslObject).getObjectBytes()));
+                        rpslObjectTimeline.put(interval, new RpslObjectWithReferences(false, getReferencingObjects(rpslObject), revision++));
+                    } catch (Exception ex) {
+                        LOGGER.error("ERROR: object {}: unable to parse object data but not a delete event.", key);
+                        LOGGER.error("ERROR: object {}: not deleted object with no data in timeline", key);
+                        rpslObjectTimeline.put(interval, new RpslObjectWithReferences(false, null, revision++));
+                    }
                 }
             }
         }
+
         return rpslObjectTimeline;
     }
 
@@ -365,8 +374,8 @@ public class RndRetrieveReferenceAndReferencedBy {
     }
 
     // code nicked from objectDao
-    private Set<RpslObjectKey> getReferencingObjects(final RpslObject rpslObject) {
-        final Set<RpslObjectKey> referencing = Sets.newHashSet();
+    private Set<RpslObjectReference> getReferencingObjects(final RpslObject rpslObject) {
+        final Set<RpslObjectReference> referencing = Sets.newHashSet();
 
         for (final RpslAttribute attribute : rpslObject.findAttributes(RELATED_TO_ATTRIBUTES)) {
             for (final CIString referenceValue : attribute.getReferenceValues()) {
@@ -378,14 +387,14 @@ public class RndRetrieveReferenceAndReferencedBy {
                 }
 
                 if (objectTypes.size() == 1) {
-                    referencing.add(new RpslObjectKey(ObjectTypeIds.getId(objectTypes.iterator().next()), referenceValue.toString()));
+                    referencing.add(new RpslObjectReference(new RpslObjectKey(ObjectTypeIds.getId(objectTypes.iterator().next()), referenceValue.toString()), new ArrayList<Integer>()));
                 } else {
                     switch (attribute.getType()) {
                         case AUTH:
                             // do nothing, we do not reverse lookup auths: local optimization.
                             break;
                         default:
-                            referencing.add(new RpslObjectKey(DUMMY_OBJECT_TYPE_ID, referenceValue.toString()));
+                            referencing.add(new RpslObjectReference(new RpslObjectKey(DUMMY_OBJECT_TYPE_ID, referenceValue.toString()), new ArrayList<Integer>()));
                     }
                 }
             }
@@ -419,7 +428,9 @@ public class RndRetrieveReferenceAndReferencedBy {
             writer.beginArray();
             for (String key : jedis.keys("*")) {
                 // we have to do this, otherwise we write a string instead of an object
-                writer.value(gson.toJson(gson.fromJson(jedis.get(key), RpslObjectTimeLine.class)));
+                //gson.toJson(gson.fromJson(jedis.get(key), RpslObjectTimeLine.class), writer);
+                JsonElement element = gson.fromJson(jedis.get(key), JsonElement.class);
+                gson.toJson(element, writer);
             }
             writer.endArray();
             writer.close();
