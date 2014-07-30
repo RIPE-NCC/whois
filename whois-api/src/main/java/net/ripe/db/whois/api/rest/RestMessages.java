@@ -44,4 +44,8 @@ public class RestMessages {
     public static Message ssoAuthIgnored() {
         return new Message(Messages.Type.INFO, "RIPE NCC Access token ignored");
     }
+
+    public static Message invalidRequestIp() {
+        return new Message(Messages.Type.ERROR, "This call is only allowed from within RIPE");
+    }
 }
