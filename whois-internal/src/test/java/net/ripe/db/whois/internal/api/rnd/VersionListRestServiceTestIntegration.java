@@ -6,12 +6,17 @@ import net.ripe.db.whois.api.rest.domain.WhoisVersionInternal;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.AbstractInternalTest;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,14 +57,11 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
 
     @Test
     public void listVersions_created_updated() {
-        final RpslObjectUpdateInfo add = updateDao.createObject(RpslObject.parse("" +
-                "aut-num: AS3333\n" +
-                "source: TEST"));
-        testDateTimeProvider.setTime(new LocalDateTime().plusDays(3));
-        updateDao.updateObject(add.getObjectId(), RpslObject.parse("" +
-                "aut-num: AS3333\n" +
-                "remarks: updated\n" +
-                "source: TEST"));
+        DateTime start = new DateTime(2004, 12, 25, 0, 0, 0, 0);
+        DateTime end = new DateTime(2005, 1, 1, 0, 0, 0, 0);
+        DateTime newEnd = new DateTime(2006, 1, 1, 0, 0, 0, 0);
+        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", new Interval(start, end), 1));
+        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", new Interval(end, newEnd), 2));
 
         final WhoisResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -68,18 +70,18 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         assertThat(result.getErrorMessages(), hasSize(0));
         final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
         assertThat(versions, hasSize(2));
-        final String fromFirst = versions.get(0).getFrom();
-        final String toFirst = versions.get(0).getTo();
-        final String fromLast = versions.get(1).getFrom();
-        final String toLast = versions.get(1).getTo();
 
-        final LocalDateTime fromDate = parse(fromFirst, DEFAULT_DATE_TIME_FORMATTER);
-        final LocalDateTime toDate = parse(toFirst, DEFAULT_DATE_TIME_FORMATTER);
-        final LocalDateTime fromLastDate = parse(fromLast, DEFAULT_DATE_TIME_FORMATTER);
+        final DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTimeNoMillis();
+        final DateTime fromFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getFrom());
+        final DateTime toFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getTo());
+        final DateTime fromLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getFrom());
+        final DateTime toLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getTo());
 
-        assertThat(new Period(fromDate, toDate).getDays(), is(3));
-        assertThat(toDate, is(fromLastDate));
-        assertThat(toLast, is(""));
+        assertThat(fromFirstDateTime, is(start));
+        assertThat(toFirstDateTime, is(end));
+        assertThat(fromLastDateTime, is(toFirstDateTime));
+        assertThat(new Period(fromLastDateTime, toLastDateTime).getYears(), is(1));
+        assertThat(toLastDateTime, is(newEnd));
     }
 
     @Test

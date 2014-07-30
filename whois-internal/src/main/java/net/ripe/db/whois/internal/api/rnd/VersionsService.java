@@ -3,6 +3,8 @@ package net.ripe.db.whois.internal.api.rnd;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rest.StreamingMarshal;
+import net.ripe.db.whois.api.rest.WhoisRestService;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -20,7 +22,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -33,15 +40,29 @@ public class VersionsService {
 
     private final ObjectReferenceDao objectReferenceDao;
     private final VersionDao versionDao;
+    private final VersionObjectMapper versionObjectMapper;
 
     @Autowired
-    public VersionsService(final ObjectReferenceDao objectReferenceDao, final VersionDao versionDao) {
+    public VersionsService(final ObjectReferenceDao objectReferenceDao, final VersionDao versionDao, final VersionObjectMapper versionObjectMapper) {
         this.objectReferenceDao = objectReferenceDao;
         this.versionDao = versionDao;
+        this.versionObjectMapper = versionObjectMapper;
     }
 
     public List<ObjectVersion> getVersions(final String key, final ObjectType type) {
         return objectReferenceDao.getVersions(key, type);
+    }
+
+    public StreamingOutput streamVersions(final String key, final ObjectType type, final String source, final HttpServletRequest request) {
+        return new StreamingOutput() {
+            @Override
+            public void write(final OutputStream output) throws IOException, WebApplicationException {
+                final StreamingMarshal marshal = WhoisRestService.getStreamingMarshal(request, output);
+                final StreamHandler streamHandler = new StreamHandler(marshal, source, versionObjectMapper);
+                objectReferenceDao.streamVersions(key, type, streamHandler);
+                streamHandler.flushAndGetErrors();
+            }
+        };
     }
 
     public RpslObjectWithTimestamp getRpslObjectWithTimestamp(final ObjectType type, final String key, final Integer revision) {
