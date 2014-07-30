@@ -23,7 +23,7 @@ public class RpslObjectWithTimestamp implements ResponseObject {
     }
 
     public RpslObjectWithTimestamp(final RpslObject rpslObject, final int sameTimestampCount, final VersionDateTime versionDateTime,
-                                   final List<ObjectReference> outgoing, final List<ObjectReference> incoming) {
+                                   final List<ObjectReference> outgoing, List<ObjectReference> incoming) {
         this(rpslObject, sameTimestampCount, versionDateTime);
         this.outgoing = outgoing;
         this.incoming = incoming;

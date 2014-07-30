@@ -64,29 +64,24 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
         final List<ResponseObject> results = new ArrayList<>();
 
 
-        final List<ObjectVersion> versions = objectReferenceDao.getObjectVersion(
+        final ObjectVersion version = objectReferenceDao.getObjectVersion(
                 query.getObjectTypes().iterator().next(), // internal REST API will allow only one object type
                 query.getSearchValue(),
-                query.getObjectInternalVersion()/1000);
+                query.getObjectInternalVersion());
 
-        if (CollectionUtils.isEmpty(versions)) {
+        if (version == null) {
             return makeListWithNoResultsMessage(query.getSearchValue());
         }
 
-        final ObjectVersion latestVersion = versions.get(0);
-
-        if (versions.size() > 2) {
-            results.add(new MessageObject(InternalMessages.multipleVersionsForTimestamp(versions.size())));
-        }
-
-        final RpslObject rpslObject = lookupRpslObjectByVersion(latestVersion);
-        final List<ObjectReference> outgoing = objectReferenceDao.getOutgoing(latestVersion.getVersionId());
-        final List<ObjectReference> incoming = objectReferenceDao.getIncoming(latestVersion.getVersionId());
+        final List<VersionInfo> entriesInSameVersion = lookupRpslObjectByVersion(version);
+        final RpslObject rpslObject = versionDao.getRpslObject(entriesInSameVersion.get(0));
+        final List<ObjectReference> outgoing = objectReferenceDao.getOutgoing(version.getVersionId());
+        final List<ObjectReference> incoming = objectReferenceDao.getIncoming(version.getVersionId());
 
         final RpslObjectWithTimestamp rpslObjectWithTimestamp = new RpslObjectWithTimestamp(
                 decorateRpslObject(rpslObject),
-                versions.size(),
-                new VersionDateTime(latestVersion.getInterval().getStartMillis()/1000L),
+                entriesInSameVersion.size(),
+                new VersionDateTime(version.getInterval().getStartMillis()/1000L),
                 outgoing,
                 incoming);
 
@@ -95,14 +90,13 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
         return results;
     }
 
-    private RpslObject lookupRpslObjectByVersion(final ObjectVersion latestVersion) {
-       //TODO: [TP] copied big parts from VersionDateTimeQueryExecutor because this method will be thrown way in the next story.
-       //TODO: This should change to something reasonable!!!
+    private List<VersionInfo> lookupRpslObjectByVersion(final ObjectVersion version) {
+       //TODO: [TP] A list is returned because there may be multiple modifications of an object on the same timestamp.
 
-        final List<VersionInfo> versionInfos = versionDao.getVersionsBeforeTimestamp(
-                latestVersion.getType(),
-                latestVersion.getPkey().toString(),
-                latestVersion.getInterval().getStart().getMillis());
+        final List<VersionInfo> versionInfos = versionDao.getVersionsForTimestamp(
+                version.getType(),
+                version.getPkey().toString(),
+                version.getInterval().getStart().getMillis());
 
         if (CollectionUtils.isEmpty(versionInfos)) {
             throw new IllegalStateException("There should be one or more objects");
@@ -114,8 +108,8 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
                 Iterables.filter(versionInfos, new Predicate<VersionInfo>() {
                     @Override
                     public boolean apply(@NotNull VersionInfo input) {
-                        return input.getTimestamp().getTimestamp().withSecondOfMinute(0).withMillisOfSecond(0).
-                                equals(maxTimestamp.getTimestamp().withSecondOfMinute(0).withMillisOfSecond(0))
+                        return input.getTimestamp().getTimestamp().
+                                equals(maxTimestamp.getTimestamp())
                                 && input.getOperation() != Operation.DELETE;
                     }
                 }));
@@ -127,8 +121,8 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
         // sort in reverse order, so that first item is the object with the highest timestamp.
         Collections.sort(latestVersionInfos, Collections.reverseOrder());
 
-        final RpslObject rpslObject = versionDao.getRpslObject(latestVersionInfos.get(0));
-        return rpslObject;
+        return latestVersionInfos;
+
     }
 
     private RpslObject decorateRpslObject(final RpslObject rpslObject) {
