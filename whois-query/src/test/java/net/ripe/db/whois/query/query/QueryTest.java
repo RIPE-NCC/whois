@@ -814,7 +814,7 @@ public class QueryTest {
 
     @Test
     public void versionTimestampQuery() {
-        Query query = Query.parse("--show-timestamp-version 12345567888907 10.0.0.0");
+        Query query = Query.parse("--show-internal-version 2 10.0.0.0");
         assertThat(query.hasOption(QueryFlag.SHOW_INTERNAL_VERSION), is(true));
         assertThat(query.isObjectInternalVersion(), is(true));
     }
