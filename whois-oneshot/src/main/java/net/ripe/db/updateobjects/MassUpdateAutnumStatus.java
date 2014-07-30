@@ -1,7 +1,6 @@
 package net.ripe.db.updateobjects;
 
 import com.google.common.base.Throwables;
-import com.sun.istack.NotNull;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.LogUtil;
@@ -21,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;

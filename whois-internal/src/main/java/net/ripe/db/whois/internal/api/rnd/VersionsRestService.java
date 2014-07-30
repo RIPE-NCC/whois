@@ -10,7 +10,6 @@ import net.ripe.db.whois.api.rest.WhoisService;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisObjects;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisVersionsInternal;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.domain.CIString;
@@ -18,9 +17,10 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.BasicSourceContext;
+import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.collections.CollectionUtils;
@@ -28,11 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -46,16 +42,20 @@ public class VersionsRestService {
     private final WhoisService whoisService;
     private final QueryHandler queryHandler;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
+    private final VersionObjectMapper versionObjectMapper;
     private final BasicSourceContext sourceContext;
     private final IpRanges ipRanges;
+    private final ObjectReferenceDao referenceDao;
 
     @Autowired
-    public VersionsRestService(final WhoisService whoisService, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectServerMapper, final BasicSourceContext basicSourceContext, final IpRanges ipRanges) {
+    public VersionsRestService(final WhoisService whoisService, final QueryHandler queryHandler, final WhoisObjectServerMapper whoisObjectServerMapper, final VersionObjectMapper versionObjectMapper, final BasicSourceContext basicSourceContext, final IpRanges ipRanges, final ObjectReferenceDao referenceDao) {
         this.whoisService = whoisService;
         this.queryHandler = queryHandler;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
+        this.versionObjectMapper = versionObjectMapper;
         this.sourceContext = basicSourceContext;
         this.ipRanges = ipRanges;
+        this.referenceDao = referenceDao;
     }
 
     @GET
@@ -67,22 +67,9 @@ public class VersionsRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
 
-
         validSource(request, source);
 
-        final QueryBuilder queryBuilder = new QueryBuilder()
-                .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
-                .addFlag(QueryFlag.LIST_VERSIONS);
-
-        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.INTERNAL, ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress)));
-
-        final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
-        final int contextId = System.identityHashCode(Thread.currentThread());
-
-        // TODO [FRV] Is the public queryhandler handling everything correctly? Seems so but it looks like overkill
-        queryHandler.streamResults(query, remoteAddress, contextId, versionsResponseHandler);
-        final List<VersionResponseObject> versions = versionsResponseHandler.getVersions();
+        final List<ObjectVersion> versions = referenceDao.getVersions(key, ObjectType.getByName(objectType));
 
         if (versions.isEmpty()) {
             throw new WebApplicationException(Response
@@ -91,17 +78,7 @@ public class VersionsRestService {
                     .build());
         }
 
-        final WhoisVersionsInternal whoisVersions = new WhoisVersionsInternal(objectType,
-                key,
-                whoisObjectServerMapper.mapVersionsInternal(versions, source, objectType, key));
-
-
-        final WhoisResources whoisResources = new WhoisResources();
-        whoisResources.setVersions(whoisVersions);
-        whoisResources.setErrorMessages(whoisService.createErrorMessages(versionsResponseHandler.getErrors()));
-        whoisResources.includeTermsAndConditions();
-
-        return Response.ok(whoisResources).build();
+        return Response.ok(versionObjectMapper.mapVersions(objectType, key, source, versions)).build();
     }
 
     @GET
