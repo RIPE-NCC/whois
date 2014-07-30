@@ -1,33 +1,37 @@
 package net.ripe.db.whois.internal.api.rnd.domain;
 
+import net.ripe.db.whois.internal.api.rnd.InternalMessages;
+
 import javax.annotation.CheckForNull;
+import java.util.List;
 import java.util.Set;
 
 public class RpslObjectWithReferences {
     private final boolean isDeleted;
-    private Set<RpslObjectKey> outgoing;
-    private Set<RpslObjectKey> incoming;
+    private Set<RpslObjectReference> outgoingReferences;
+    private int revision;
 
-
-    public RpslObjectWithReferences(final boolean isDeleted, @CheckForNull final Set<RpslObjectKey> outgoing) {
+    public RpslObjectWithReferences(final boolean isDeleted, @CheckForNull final Set<RpslObjectReference> outgoingReferences, int revision) {
         this.isDeleted = isDeleted;
-        this.outgoing = outgoing;
+        this.outgoingReferences = outgoingReferences;
+        this.revision = revision;
     }
 
 
-    public void setOutgoing(final Set<RpslObjectKey> outgoing) {
-        this.outgoing = outgoing;
+    public void setOutgoingReferences(final Set<RpslObjectReference> outgoingReferences) {
+        this.outgoingReferences = outgoingReferences;
     }
 
-    public Set<RpslObjectKey> getOutgoing() {
-        return outgoing;
-    }
-
-    public Set<RpslObjectKey> getIncoming() {
-        return incoming;
+    public Set<RpslObjectReference> getOutgoingReferences() {
+        return outgoingReferences;
     }
 
     public boolean isDeleted() {
         return isDeleted;
     }
+
+    public int getRevision() {
+        return revision;
+    }
+
 }
