@@ -26,8 +26,8 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     }
 
     @Override
-    public List<ObjectVersion> getObjectVersion(final ObjectType type, final String pkey, long timestamp) {
-        return jdbcTemplate.query("" +
+    public ObjectVersion getVersion(final ObjectType type, final String pkey, final int revision) {
+        return jdbcTemplate.queryForObject(
                 "SELECT id, " +
                 "       object_type, " +
                 "       pkey, " +
@@ -37,15 +37,58 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 "FROM object_version " +
                 "WHERE object_type = ? " +
                 "  AND pkey = ? " +
-                "  AND from_timestamp <= ? " +
-                "  AND (? <= to_timestamp " +
-                "       OR to_timestamp IS NULL) " +
+                "  AND revision = ? " +
                 "ORDER BY id DESC",
                 new ObjectVersionRowMapper(),
                 ObjectTypeIds.getId(type),
                 pkey,
-                timestamp,
-                timestamp);
+                revision);
+    }
+
+    @Override
+    public List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType) {
+        return jdbcTemplate.query(
+                "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
+                "WHERE pkey = ? AND object_type = ? " +
+                "ORDER BY from_timestamp,to_timestamp ASC",
+                new Object[]{},
+                new ObjectVersionRowMapper());
+    }
+
+    class ObjectVersionRowMapper implements RowMapper<ObjectVersion> {
+        @Override
+        public ObjectVersion mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+            return new ObjectVersion (
+                    rs.getLong(1),                          // id
+                    ObjectTypeIds.getType(rs.getInt(2)),    // object_type
+                    rs.getString(3),                        // pkey
+                    rs.getLong(4),                          // from_timestamp
+                    rs.getLong(5) == 0 ? Long.MAX_VALUE : rs.getLong(5),     //to_timestamp
+                    rs.getInt(6)                           // revision
+            );
+        }
+    }
+
+    @Override
+    public void createVersion(final ObjectVersion objectVersion) {
+        jdbcTemplate.update(
+                "INSERT INTO object_version (pkey, object_type, from_timestamp, to_timestamp, revision) VALUES (?, ?, ?, ?, ?)",
+                objectVersion.getPkey(),
+                ObjectTypeIds.getId(objectVersion.getType()),
+                getFromTimestamp(objectVersion.getInterval()),
+                getToTimestamp(objectVersion.getInterval()),
+                objectVersion.getRevision());
+    }
+
+    @Override
+    public void deleteVersion(final ObjectVersion objectVersion) {
+        jdbcTemplate.update("DELETE FROM object_version WHERE " +
+                "pkey = ? AND object_type = ? AND from_timestamp = ? AND to_timestamp = ? AND revision = ?",
+                objectVersion.getPkey(),
+                ObjectTypeIds.getId(objectVersion.getType()),
+                getFromTimestamp(objectVersion.getInterval()),
+                getToTimestamp(objectVersion.getInterval()),
+                objectVersion.getRevision());
     }
 
     @Override
@@ -80,21 +123,6 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
 //        // TODO: [ES] find references for a versions.id
 //        throw new UnsupportedOperationException();
 //    }
-
-    class ObjectVersionRowMapper implements RowMapper<ObjectVersion> {
-        @Override
-        public ObjectVersion mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-            return new ObjectVersion (
-                    rs.getLong(1),                          // id
-                    ObjectTypeIds.getType(rs.getInt(2)),    // object_type
-                    rs.getString(3),                        // pkey
-                    rs.getLong(4),                          // from_timestamp
-                    rs.getLong(5) == 0 ? Long.MAX_VALUE : rs.getLong(5),     //to_timestamp
-                    rs.getLong(6)                           // revision
-            );
-        }
-    }
-
 //    class ObjectReferenceRowMapper implements RowMapper<ObjectReference> {
 //        @Override
 //        public ObjectReference mapRow(final ResultSet rs, final int rowNum) throws SQLException {
@@ -108,57 +136,13 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
 
 
 
-    @Override
-    public List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType) {
-        return jdbcTemplate.query(
-                "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
-                "WHERE pkey = ? AND object_type = ? " +
-                "ORDER BY from_timestamp,to_timestamp ASC",
-                new Object[]{},
-                new RowMapper<ObjectVersion>() {
-                    @Override
-                    public ObjectVersion mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        return new ObjectVersion(
-                                rs.getInt(1),
-                                ObjectTypeIds.getType(rs.getInt(2)),
-                                rs.getString(3),
-                                rs.getLong(4),
-                                rs.getLong(5),
-                                rs.getLong(6)
-                        );
-                    }
-                });
-    }
-
-    @Override
-    public void createVersion(final ObjectVersion objectVersion) {
-        jdbcTemplate.update(
-                "INSERT INTO object_version (pkey, object_type, from_timestamp, to_timestamp, revision) VALUES (?, ?, ?, ?, ?)",
-                objectVersion.getPkey(),
-                ObjectTypeIds.getId(objectVersion.getType()),
-                getFromTimestamp(objectVersion.getInterval()),
-                getToTimestamp(objectVersion.getInterval()),
-                objectVersion.getRevision());
-    }
-
-    @Override
-    public void deleteVersion(final ObjectVersion objectVersion) {
-        jdbcTemplate.update("DELETE FROM object_version WHERE " +
-                "pkey = ? AND object_type = ? AND from_timestamp = ? AND to_timestamp = ? AND revision = ?",
-                objectVersion.getPkey(),
-                ObjectTypeIds.getId(objectVersion.getType()),
-                getFromTimestamp(objectVersion.getInterval()),
-                getToTimestamp(objectVersion.getInterval()),
-                objectVersion.getRevision());
-    }
-
     private static long getFromTimestamp(final Interval interval) {
         return interval.getStart().getMillis();
     }
 
     private static long getToTimestamp(final Interval interval) {
         if (interval.getStart().equals(interval.getEnd())) {
-            // by convention, an interval with zero duration is used to represent a revision with no end timestamp
+            // by convention, an interval with Long.MAX_VALUE is used to represent a revision with no end timestamp
             return 0;
         } else {
             return interval.getEnd().getMillis();

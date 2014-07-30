@@ -15,9 +15,9 @@ public class ObjectVersion {
     private final CIString pkey;
     private final ObjectType type;
     private final Interval interval;
-    private final long revision;
+    private final int revision;
 
-    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final Interval interval, final long revision) {
+    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final Interval interval, final int revision) {
         this.versionId = versionId;
         this.type = type;
         this.pkey = ciString(pkey);
@@ -25,9 +25,11 @@ public class ObjectVersion {
         this.revision = revision;
     }
 
-    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final long fromTimestamp, final long toTimestamp, final long revision) {
+    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final long fromTimestamp,
+                         final long toTimestamp, final int revision) {
+
         this(versionId, type, pkey, new Interval(new DateTime(fromTimestamp*1000L),
-                                        new DateTime(toTimestamp == Long.MAX_VALUE ? Long.MAX_VALUE : toTimestamp*1000L)), revision);
+                                                 new DateTime(toTimestamp == Long.MAX_VALUE ? Long.MAX_VALUE : toTimestamp*1000L)), revision);
     }
 
     public long getVersionId() {
@@ -46,7 +48,7 @@ public class ObjectVersion {
         return interval;
     }
 
-    public long getRevision() {
+    public int getRevision() {
         return revision;
     }
 

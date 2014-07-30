@@ -64,7 +64,7 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
         final List<ResponseObject> results = new ArrayList<>();
 
 
-        final ObjectVersion version = objectReferenceDao.getObjectVersion(
+        final ObjectVersion version = objectReferenceDao.getVersion(
                 query.getObjectTypes().iterator().next(), // internal REST API will allow only one object type
                 query.getSearchValue(),
                 query.getObjectInternalVersion());
