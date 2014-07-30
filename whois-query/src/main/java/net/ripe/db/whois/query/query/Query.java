@@ -204,12 +204,8 @@ public class Query {
     }
 
     public int getObjectVersion() {
-        return getObjectVersion(QueryFlag.SHOW_VERSION);
-    }
-
-    private int getObjectVersion(final QueryFlag flag) {
-        if (queryParser.hasOption(flag)) {
-            final int version = Integer.parseInt(getOnlyValue(flag));
+        if (queryParser.hasOption(QueryFlag.SHOW_VERSION)) {
+            final int version = Integer.parseInt(getOnlyValue(QueryFlag.SHOW_VERSION));
             if (version < 1) {
                 throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("version flag number must be greater than 0"));
             }
@@ -235,14 +231,6 @@ public class Query {
             return new int[]{firstValue, secondValue};
         }
         return new int[]{-1, -1};
-    }
-
-    public boolean isObjectInternalVersion() {
-        return queryParser.hasOption(QueryFlag.SHOW_INTERNAL_VERSION);
-    }
-
-    public int getObjectInternalVersion() {
-        return getObjectVersion(QueryFlag.SHOW_INTERNAL_VERSION);
     }
 
     public String getTemplateOption() {

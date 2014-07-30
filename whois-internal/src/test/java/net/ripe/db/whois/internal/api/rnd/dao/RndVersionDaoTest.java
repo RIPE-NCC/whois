@@ -1,4 +1,4 @@
-package net.ripe.db.whois.internal.api.rnd;
+package net.ripe.db.whois.internal.api.rnd.dao;
 
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.VersionDao;
