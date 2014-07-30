@@ -21,12 +21,10 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
 import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.collections.CollectionUtils;
-import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -109,22 +107,20 @@ public class VersionsRestService {
 
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Path("/{source}/{objectType}/{key:.*}/versions/{datetime:.*}")
-    //TODO when finally presenting this to R&D, remember to specify whether the datetime param is the start or end of the timespan
+    @Path("/{source}/{objectType}/{key:.*}/versions/{revision:.*}")
     public Response version(
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
-            @PathParam("datetime") final String datetime) {
+            @PathParam("revision") final Integer revision) {
 
 
         validSource(request, source);
-        long timestamp = validateDateTimeAndConvertToTimestamp(request, datetime);
 
         final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
-                .addCommaList(QueryFlag.SHOW_TIMESTAMP_VERSION, String.valueOf(timestamp));
+                .addCommaList(QueryFlag.SHOW_INTERNAL_VERSION, String.valueOf(revision));
 
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
         final Query query = Query.parse(queryBuilder.build(key), Query.Origin.INTERNAL, ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress)));
@@ -166,18 +162,6 @@ public class VersionsRestService {
         }
     }
 
-    private long validateDateTimeAndConvertToTimestamp(final HttpServletRequest request, final String timestamp) {
-        try {
-            //the date parameter has minute precision, therefore we need to convert it to max milliseconds for that minute.
-            return new LocalDateTime(VersionDateTime.formatter.parseDateTime(timestamp)).withSecondOfMinute(59).withMillisOfSecond(999).toDateTime().getMillis();
-        } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(whoisService.createErrorEntity(request, RestMessages.invalidTimestampFormat(timestamp)))
-                    .build());
-        }
-    }
-
     private WhoisObjects mapReferences(final List<ObjectReference> references) {
         if (CollectionUtils.isEmpty(references)) {
             return null;
@@ -193,6 +177,5 @@ public class VersionsRestService {
                         return whoisObject;
                     }
                 })));
-
     }
 }

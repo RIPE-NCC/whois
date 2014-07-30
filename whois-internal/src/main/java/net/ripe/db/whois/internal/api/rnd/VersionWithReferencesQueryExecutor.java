@@ -50,7 +50,7 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
 
     @Override
     public boolean supports(final Query query) {
-        return query.isObjectTimestampVersion();
+        return query.isObjectInternalVersion();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class VersionWithReferencesQueryExecutor implements QueryExecutor {
         final List<ObjectVersion> versions = objectReferenceDao.getObjectVersion(
                 query.getObjectTypes().iterator().next(), // internal REST API will allow only one object type
                 query.getSearchValue(),
-                query.getObjectTimestamp()/1000);
+                query.getObjectInternalVersion()/1000);
 
         if (CollectionUtils.isEmpty(versions)) {
             return makeListWithNoResultsMessage(query.getSearchValue());

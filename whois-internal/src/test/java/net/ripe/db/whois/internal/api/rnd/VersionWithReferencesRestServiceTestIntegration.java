@@ -3,9 +3,6 @@ package net.ripe.db.whois.internal.api.rnd;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.AbstractInternalTest;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -14,9 +11,6 @@ import javax.ws.rs.core.MediaType;
 
 @Category(IntegrationTest.class)
 public class VersionWithReferencesRestServiceTestIntegration extends AbstractInternalTest {
-
-    //datetime pattern should be the same as in VersionDateTime
-    private DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
 
     @Before
     public void setUp() throws Exception {
@@ -199,9 +193,7 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
 //                        .addAttributeSorted(new RpslAttribute(AttributeType.ADDRESS, "different address"))
 //                        .get());
 
-        final String randomTimestamp = DEFAULT_DATE_TIME_FORMATTER.print(new LocalDateTime().plusDays(6));
-
-        System.out.println(RestTest.target(getPort(), String.format("api/rnd/test/organisation/ORG-TOL1-TEST/versions/%s", randomTimestamp), null, apiKey)
+        System.out.println(RestTest.target(getPort(), "api/rnd/test/organisation/ORG-TOL1-TEST/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .get(String.class));
 

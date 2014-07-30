@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.FormatHelper.prettyPrint;
-import static net.ripe.db.whois.query.QueryFlag.SHOW_TIMESTAMP_VERSION;
+import static net.ripe.db.whois.query.QueryFlag.SHOW_INTERNAL_VERSION;
 
 @Component
 public class HelpQueryExecutor implements QueryExecutor {
@@ -20,7 +20,7 @@ public class HelpQueryExecutor implements QueryExecutor {
 
     private static final MessageObject HELP_RESPONSE;
 
-    static final Set<QueryFlag> SKIPPED = Sets.newHashSet(SHOW_TIMESTAMP_VERSION);
+    static final Set<QueryFlag> SKIPPED = Sets.newHashSet(SHOW_INTERNAL_VERSION);
 
     static {
         final StringBuilder help = new StringBuilder();
