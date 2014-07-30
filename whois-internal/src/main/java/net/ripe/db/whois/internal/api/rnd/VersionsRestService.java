@@ -67,7 +67,7 @@ public class VersionsRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key) {
 
-        validSource(request, source);
+        validate(request, source);
 
         final List<ObjectVersion> versions = referenceDao.getVersions(key, ObjectType.getByName(objectType));
 
@@ -92,7 +92,7 @@ public class VersionsRestService {
             @PathParam("revision") final Integer revision) {
 
 
-        validSource(request, source);
+        validate(request, source);
 
         final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
@@ -129,11 +129,19 @@ public class VersionsRestService {
         return Response.ok(whoisResources).build();
     }
 
-    private void validSource(final HttpServletRequest request, final String source) {
+    private void validate(final HttpServletRequest request, final String source) {
         if (!sourceContext.getAllSourceNames().contains(CIString.ciString(source))) {
             throw new WebApplicationException(Response
                     .status(Response.Status.BAD_REQUEST)
                     .entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source)))
+                    .build());
+        }
+
+        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
+        if (!ipRanges.isTrusted(IpInterval.asIpInterval(remoteAddress))) {
+            throw new WebApplicationException(Response
+                    .status(Response.Status.FORBIDDEN)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.invalidRequestIp()))
                     .build());
         }
     }
