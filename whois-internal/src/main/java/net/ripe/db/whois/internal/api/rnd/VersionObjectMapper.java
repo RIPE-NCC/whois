@@ -8,6 +8,8 @@ import net.ripe.db.whois.api.rest.domain.WhoisVersionsInternal;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,7 @@ import java.util.List;
 
 @Component
 public class VersionObjectMapper {
+    private static final DateTimeFormatter ISO8601_FORMATTER = ISODateTimeFormat.dateTimeNoMillis();
     private final String baseUrl;
 
     @Autowired
@@ -50,8 +53,8 @@ public class VersionObjectMapper {
         final DateTime end = interval.getEnd();
         return new WhoisVersionInternal(
                 objectVersion.getRevision(),
-                start.toString(),
-                end.toString(),
+                ISO8601_FORMATTER.print(start),
+                ISO8601_FORMATTER.print(end),
                 createWhoisVersionInternalLink(source, objectVersion.getType().getName(), objectVersion.getPkey() + "/" + objectVersion.getRevision()));
     }
 
