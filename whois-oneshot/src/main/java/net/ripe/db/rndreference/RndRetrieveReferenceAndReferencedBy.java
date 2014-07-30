@@ -161,11 +161,13 @@ public class RndRetrieveReferenceAndReferencedBy {
                 createTimelines(start);
 
                 // because person/role is interchangeable, we need to do some fancy footwork ot get the right types for the timeperiods.
+                // additionally we need to set the right revisions for the references.
                 final Map<String, List<RefObject>> refObjectsCache = new HashMap<>();
 
                 for (String key : jedis.keys("*")) {
                     final RpslObjectTimeLine timeline = gson.fromJson(jedis.get(key), RpslObjectTimeLine.class);
                     processed = setCorrectObjectType(refObjectsCache, timeline);
+                    setRevisionsOfReferences(timeline, jedis);
                     jedis.set(key, gson.toJson(timeline));
                 }
 
@@ -175,34 +177,69 @@ public class RndRetrieveReferenceAndReferencedBy {
         RedisTemplate.shutdown();
     }
 
-    private void createTimelines(final Long start) {
+    private void setRevisionsOfReferences(RpslObjectTimeLine timeline, Jedis jedis) {
+        for (Map.Entry<Interval, RpslObjectWithReferences> entry : timeline.getRpslObjectIntervals().entrySet()) {
+            if (!entry.getValue().isDeleted()) {
+                Interval objectInterval = entry.getKey();
+                for (final RpslObjectReference reference : entry.getValue().getOutgoingReferences()) {
+                    if (!jedis.exists(reference.getKey().toString())) {
+                        // get the timeline for this object
+                        JdbcStreamingHelper.executeStreaming(jdbcTemplate,
+                                "SELECT pkey, timestamp, object_type, object, sequence_id FROM last where object_type=? and pkey=?",
+                                new PreparedStatementSetter() {
+                                    @Override
+                                    public void setValues(PreparedStatement ps) throws SQLException {
+                                        ps.setInt(1, reference.getKey().getObjectType());
+                                        ps.setString(2, reference.getKey().getPkey());
+                                    }
+                                }, new RpslObjectLastEventsRowMapper());
+                        createSingleTimeline(FROM_BEGINNING, reference.getKey().toString(), jedis);
+                    }
+                    RpslObjectTimeLine referenceTimeline = gson.fromJson(jedis.get(reference.getKey().toString()), RpslObjectTimeLine.class);
+                    for (Interval referenceInterval : referenceTimeline.getRpslObjectIntervals().keySet()) {
+                        if (referenceInterval.overlaps(objectInterval)) {
+                            reference.addRevision(referenceTimeline.getRpslObjectIntervals().get(referenceInterval).getRevision());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void createSingleTimeline(Long start, String key, Jedis jedis) {
         final List<HistoricRpslObject> historicRpslObjects = new ArrayList<>();
         final Gson gson = new Gson();
 
+        final String[] tokens = key.split(RpslObjectTimeLine.KEY_SEPERATOR, 2);
+        historicRpslObjects.clear();
+        // retrieves all the objects not in last table.
+
+        getHistoricRpslObjects(start, historicRpslObjects, tokens);
+
+        final List<DatabaseRpslObject> allEvents = new ArrayList<>();
+
+        // get the events for an object out of redis
+        for (String json : jedis.lrange(key, 0, Integer.MAX_VALUE)) {
+            allEvents.add(convertToLastEvent(gson.fromJson(json, LastEventForRedis.class)));
+        }
+
+        allEvents.addAll(historicRpslObjects);
+        Collections.sort(allEvents);
+
+        final RpslObjectTimeLine newTimeline = new RpslObjectTimeLine(tokens[1], Integer.parseInt(tokens[0]));
+        newTimeline.setRplsObjectIntervals(constructTimeLine(key, allEvents));
+
+        jedis.set(key, gson.toJson(newTimeline));
+
+    }
+
+
+    private void createTimelines(final Long start) {
         redisTemplate.execute(new RedisRunner() {
             @Override
             public void run(final Jedis jedis) {
                 for (String key : jedis.keys("*")) {
-                    final String[] tokens = key.split(RpslObjectTimeLine.KEY_SEPERATOR, 2);
-                    historicRpslObjects.clear();
-                    // retrieves all the objects not in last table.
-
-                    getHistoricRpslObjects(start, historicRpslObjects, tokens);
-
-                    final List<DatabaseRpslObject> allEvents = new ArrayList<>();
-
-                    // get the events for an object out of redis
-                    for (String json : jedis.lrange(key, 0, Integer.MAX_VALUE)) {
-                        allEvents.add(convertToLastEvent(gson.fromJson(json, LastEventForRedis.class)));
-                    }
-
-                    allEvents.addAll(historicRpslObjects);
-                    Collections.sort(allEvents);
-
-                    final RpslObjectTimeLine newTimeline = new RpslObjectTimeLine(tokens[1], Integer.parseInt(tokens[0]));
-                    newTimeline.setRplsObjectIntervals(constructTimeLine(key, allEvents));
-
-                    jedis.set(key, gson.toJson(newTimeline));
+                    createSingleTimeline(start, key, jedis);
                     if (processed % 10 == 0) {
                         LOGGER.info("processed {} timelines", processed);
                     }
