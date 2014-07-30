@@ -43,13 +43,13 @@ public class JsonReader {
 //                    int versionId = referenceDao.addObjectVersion(timeLine.getObjectType(), timeLine.getKey(), interval.getStart(), interval.getEnd());
                     final RpslObjectWithReferences references = rpslObjectIntervals.get(interval);
 
-                    for (RpslObjectKey referencing : references.getOutgoing()) {
+//                    for (RpslObjectKey referencing : references.getOutgoing()) {
 //                        referenceDao.addReferencing(versionId, referencing.getObjectType(), referencing.getPkey());
-                    }
+//                    }
 
-                    for (RpslObjectKey referencedBy : references.getIncoming()) {
+//                    for (RpslObjectKey referencedBy : references.getIncoming()) {
 //                        referenceDao.addReferencedBy(versionId, referencedBy.getObjectType(), referencedBy.getPkey());
-                    }
+//                    }
                 }
             }
         } finally {
