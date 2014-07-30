@@ -12,20 +12,22 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 @Immutable
 public class ObjectVersion {
     private final long versionId;
-    private final ObjectType type;
     private final CIString pkey;
+    private final ObjectType type;
     private final Interval interval;
+    private final long revision;
 
-    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final Interval interval) {
+    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final Interval interval, final long revision) {
         this.versionId = versionId;
         this.type = type;
         this.pkey = ciString(pkey);
         this.interval = interval;
+        this.revision = revision;
     }
 
-    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final long fromTimestamp, final long toTimestamp) {
+    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final long fromTimestamp, final long toTimestamp, final long revision) {
         this(versionId, type, pkey, new Interval(new DateTime(fromTimestamp*1000L),
-                                        new DateTime(toTimestamp == Long.MAX_VALUE ? Long.MAX_VALUE : toTimestamp*1000L)));
+                                        new DateTime(toTimestamp == Long.MAX_VALUE ? Long.MAX_VALUE : toTimestamp*1000L)), revision);
     }
 
     public long getVersionId() {
@@ -44,6 +46,10 @@ public class ObjectVersion {
         return interval;
     }
 
+    public long getRevision() {
+        return revision;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -55,6 +61,7 @@ public class ObjectVersion {
         if (!interval.equals(that.interval)) return false;
         if (!pkey.equals(that.pkey)) return false;
         if (type != that.type) return false;
+        if (revision != that.revision) return false;
 
         return true;
     }
@@ -65,6 +72,7 @@ public class ObjectVersion {
         result = 31 * result + type.hashCode();
         result = 31 * result + pkey.hashCode();
         result = 31 * result + interval.hashCode();
+        result = 31 * result + (int) (revision ^ (revision >>> 32));
         return result;
     }
 
@@ -75,6 +83,7 @@ public class ObjectVersion {
                 ", type=" + type +
                 ", pkey=" + pkey +
                 ", interval=" + interval +
+                ", revision=" + revision +
                 '}';
     }
 }

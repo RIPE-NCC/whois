@@ -7,7 +7,6 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.api.rest.WhoisService;
-import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisObjects;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -172,8 +171,9 @@ public class VersionsRestService {
                     @Override
                     public WhoisObject apply(final ObjectReference input) {
                         final WhoisObject whoisObject = new WhoisObject();
-                        whoisObject.setPrimaryKey(Lists.newArrayList(new Attribute(input.getRefObjectType().getName(), input.getRefPkey().toString())));
-                        whoisObject.setType(input.getRefObjectType().getName());
+// TODO: [ES] fix
+//                        whoisObject.setPrimaryKey(Lists.newArrayList(new Attribute(input.getRefObjectType().getName(), input.getRefPkey().toString())));
+//                        whoisObject.setType(input.getRefObjectType().getName());
                         return whoisObject;
                     }
                 })));

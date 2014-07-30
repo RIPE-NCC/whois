@@ -2,12 +2,10 @@ package net.ripe.db.whois.internal.api.rnd.dao;
 
 
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
-import net.ripe.db.whois.internal.api.rnd.domain.ReferenceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -29,18 +27,19 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     @Override
     public List<ObjectVersion> getObjectVersion(final ObjectType type, final String pkey, long timestamp) {
         return jdbcTemplate.query("" +
-                "SELECT version_id, " +
+                "SELECT id, " +
                 "       object_type, " +
                 "       pkey, " +
                 "       from_timestamp, " +
-                "       to_timestamp " +
+                "       to_timestamp," +
+                "       revision " +
                 "FROM object_version " +
                 "WHERE object_type = ? " +
                 "  AND pkey = ? " +
                 "  AND from_timestamp <= ? " +
                 "  AND (? <= to_timestamp " +
                 "       OR to_timestamp IS NULL) " +
-                "ORDER BY version_id DESC",
+                "ORDER BY id DESC",
                 new ObjectVersionRowMapper(),
                 ObjectTypeIds.getId(type),
                 pkey,
@@ -50,52 +49,59 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
 
     @Override
     public List<ObjectReference> getIncoming(final long versionId) {
-        return getReferences(versionId, ReferenceType.INCOMING);
+        // TODO: [ES] find incoming references from a version of an object
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<ObjectReference> getOutgoing(final long versionId) {
-        return getReferences(versionId, ReferenceType.OUTGOING);
-    }
-    public List<ObjectReference> getReferences(final long versionId, final ReferenceType referenceType) {
-        return jdbcTemplate.query(""+
-                "SELECT version_id," +
-                "       object_type," +
-                "       pkey," +
-                "       ref_type " +
-                "FROM object_reference " +
-                "WHERE version_id = ?" +
-                "  AND ref_type = ? " +
-                "ORDER BY object_type," +
-                "         pkey ASC",
-                new ObjectReferenceRowMapper(),
-                versionId,
-                referenceType.getTypeId());
+        // TODO: [ES] find outgoing references from a version of an object
+        throw new UnsupportedOperationException();
     }
 
+//    public List<ObjectReference> getReferences(final long versionId, final ReferenceType referenceType) {
+//        return jdbcTemplate.query(""+
+//                "SELECT version_id," +
+//                "       object_type," +
+//                "       pkey," +
+//                "       ref_type " +
+//                "FROM object_reference " +
+//                "WHERE version_id = ?" +
+//                "  AND ref_type = ? " +
+//                "ORDER BY object_type," +
+//                "         pkey ASC",
+//                new ObjectReferenceRowMapper(),
+//                versionId,
+//                referenceType.getTypeId());
+//    }
+//
+//    public List<ObjectReference> getReferences(final long versionId) {
+//        // TODO: [ES] find references for a versions.id
+//        throw new UnsupportedOperationException();
+//    }
 
     class ObjectVersionRowMapper implements RowMapper<ObjectVersion> {
         @Override
         public ObjectVersion mapRow(final ResultSet rs, final int rowNum) throws SQLException {
             return new ObjectVersion (
-                    rs.getLong(1), //versionId
-                    ObjectTypeIds.getType(rs.getInt(2)),
-                    rs.getString(3), //pkey
-                    rs.getLong(4),//fromTimestamp
-                    rs.getLong(5) == 0 ? Long.MAX_VALUE : rs.getLong(5)//toTimestamp
+                    rs.getLong(1),                          // id
+                    ObjectTypeIds.getType(rs.getInt(2)),    // object_type
+                    rs.getString(3),                        // pkey
+                    rs.getLong(4),                          // from_timestamp
+                    rs.getLong(5) == 0 ? Long.MAX_VALUE : rs.getLong(5),     //to_timestamp
+                    rs.getLong(6)                           // revision
             );
         }
     }
 
-    class ObjectReferenceRowMapper implements RowMapper<ObjectReference> {
-        @Override
-        public ObjectReference mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-            return new ObjectReference (
-                    rs.getLong(1), //versionId
-                    ObjectTypeIds.getType(rs.getInt(2)), //reftype
-                    CIString.ciString(rs.getString(3)), //refpkey
-                    ReferenceType.get(rs.getInt(4))
-            );
-        }
-    }
+//    class ObjectReferenceRowMapper implements RowMapper<ObjectReference> {
+//        @Override
+//        public ObjectReference mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+//            return new ObjectReference (
+//                    rs.getLong(1), //versionId
+//                    ObjectTypeIds.getType(rs.getInt(2)), //reftype
+//                    CIString.ciString(rs.getString(3)) //refpkey
+//            );
+//        }
+//    }
 }

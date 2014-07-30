@@ -47,66 +47,67 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
                         "(7, 6, 1, 1, 1),\n" +
                         "(8, 4, 3, 1, 1);\n"
                         );
-        whoisTemplate.execute("" +
-                        "INSERT INTO `object_version` (`version_id`, `object_type`, `pkey`, `from_timestamp`, `to_timestamp`, `revision`)\n" +
-                        "VALUES\n" +
-                        "(1, 9, 'TEST-MNT', 1406014033, NULL, 1),\n" +
-                        "(2, 10, 'TP1-TEST', 1406014033, NULL, 1),\n" +
-                        "(3, 10, 'OP1-TEST', 1406014033, NULL, 1),\n" +
-                        "(4, 18, 'ORG-TOL1-TEST', 1406014033, 1406446033, 1),\n" +
-                        "(5, 9, 'ORG-MNT', 1406446033, NULL, 1),\n" +
-                        "(6, 18, 'ORG-OTH1-TEST', 1406446033, NULL, 1),\n" +
-                        "(7, 18, 'ORG-TOL1-TEST', 1406446033, 1407137233, 2),\n" +
-                        "(8, 18, 'ORG-TOL1-TEST', 1407137233, NULL, 3);\n"
-                        );
-        whoisTemplate.execute("" +
-                        "INSERT INTO `object_reference` (`version_id`, `object_type`, `pkey`, `ref_type`)\n" +
-                        "VALUES\n" +
-                        "(1, 9, 'TEST-MNT', 0),\n" +
-                        "(1, 9, 'TEST-MNT', 1),\n" +
-                        "(2, 9, 'TEST-MNT', 0),\n" +
-                        "(3, 9, 'TEST-MNT', 0),\n" +
-                        "(4, 10, 'TP1-TEST', 0),\n" +
-                        "(4, 10, 'OP1-TEST', 0),\n" +
-                        "(4, 9, 'TEST-MNT', 0),\n" +
-                        "(4, 9, 'TEST-MNT', 0),\n" +
-                        "(5, 10, 'TP1-TEST', 1),\n" +
-                        "(5, 18, 'ORG-TOL1-TEST', 1),\n" +
-                        "(5, 9, 'ORG-MNT', 0),\n" +
-                        "(5, 9, 'ORG-MNT', 0),\n" +
-                        "(5, 9, 'ORG-MNT', 1),\n" +
-                        "(5, 9, 'ORG-MNT', 1),\n" +
-                        "(6, 18, 'ORG-TOL1-TEST', 1),\n" +
-                        "(6, 10, 'TP1-TEST', 1),\n" +
-                        "(6, 9, 'TEST-MNT', 1),\n" +
-                        "(6, 9, 'TEST-MNT', 1),\n" +
-                        "(7, 10, 'TP1-TEST', 0),\n" +
-                        "(7, 10, 'OP1-TEST', 0),\n" +
-                        "(7, 9, 'TEST-MNT', 0),\n" +
-                        "(7, 9, 'TEST-MNT', 0),\n" +
-                        "(8, 10, 'TP1-TEST', 0),\n" +
-                        "(8, 10, 'OP1-TEST', 0),\n" +
-                        "(8, 9, 'TEST-MNT', 0),\n" +
-                        "(8, 9, 'TEST-MNT', 0),\n" +
-                        "(2, 18, 'ORG-TOL1-TEST', 1),\n" +
-                        "(3, 18, 'ORG-TOL1-TEST', 1),\n" +
-                        "(1, 18, 'ORG-TOL1-TEST', 1),\n" +
-                        "(1, 18, 'ORG-TOL1-TEST', 1),\n" +
-                        "(1, 10, 'TP1-TEST', 1),\n" +
-                        "(1, 10, 'OP1-TEST', 1),\n" +
-                        "(5, 18, 'ORG-TOL1-TEST', 1),\n" +
-                        "(5, 10, 'TP1-TEST', 1),\n" +
-                        "(6, 18, 'ORG-TOL1-TEST', 1),\n" +
-                        "(6, 10, 'TP1-TEST', 1),\n" +
-                        "(6, 9, 'TEST-MNT', 1),\n" +
-                        "(6, 9, 'TEST-MNT', 1)," +
-                        "(4, 9, 'ORG-MNT', 1),\n" +
-                        "(7, 9, 'ORG-MNT', 1),\n" +
-                        "(8, 9, 'ORG-MNT', 1),\n" +
-                        "(4, 18, 'ORG-OTH1-TEST', 1),\n" +
-                        "(7, 18, 'ORG-OTH1-TEST', 1),\n" +
-                        "(8, 18, 'ORG-OTH1-TEST', 1);\n"
-        );
+// TODO: [ES] fix data
+//        whoisTemplate.execute("" +
+//                        "INSERT INTO `object_version` (`id`, `object_type`, `pkey`, `from_timestamp`, `to_timestamp`, `revision`)\n" +
+//                        "VALUES\n" +
+//                        "(1, 9, 'TEST-MNT', 1406014033, NULL, 1),\n" +
+//                        "(2, 10, 'TP1-TEST', 1406014033, NULL, 1),\n" +
+//                        "(3, 10, 'OP1-TEST', 1406014033, NULL, 1),\n" +
+//                        "(4, 18, 'ORG-TOL1-TEST', 1406014033, 1406446033, 1),\n" +
+//                        "(5, 9, 'ORG-MNT', 1406446033, NULL, 1),\n" +
+//                        "(6, 18, 'ORG-OTH1-TEST', 1406446033, NULL, 1),\n" +
+//                        "(7, 18, 'ORG-TOL1-TEST', 1406446033, 1407137233, 2),\n" +
+//                        "(8, 18, 'ORG-TOL1-TEST', 1407137233, NULL, 3);\n"
+//                        );
+//        whoisTemplate.execute("" +
+//                        "INSERT INTO `object_reference` (`id`, `object_type`, `pkey`, `ref_type`)\n" +
+//                        "VALUES\n" +
+//                        "(1, 9, 'TEST-MNT', 0),\n" +
+//                        "(1, 9, 'TEST-MNT', 1),\n" +
+//                        "(2, 9, 'TEST-MNT', 0),\n" +
+//                        "(3, 9, 'TEST-MNT', 0),\n" +
+//                        "(4, 10, 'TP1-TEST', 0),\n" +
+//                        "(4, 10, 'OP1-TEST', 0),\n" +
+//                        "(4, 9, 'TEST-MNT', 0),\n" +
+//                        "(4, 9, 'TEST-MNT', 0),\n" +
+//                        "(5, 10, 'TP1-TEST', 1),\n" +
+//                        "(5, 18, 'ORG-TOL1-TEST', 1),\n" +
+//                        "(5, 9, 'ORG-MNT', 0),\n" +
+//                        "(5, 9, 'ORG-MNT', 0),\n" +
+//                        "(5, 9, 'ORG-MNT', 1),\n" +
+//                        "(5, 9, 'ORG-MNT', 1),\n" +
+//                        "(6, 18, 'ORG-TOL1-TEST', 1),\n" +
+//                        "(6, 10, 'TP1-TEST', 1),\n" +
+//                        "(6, 9, 'TEST-MNT', 1),\n" +
+//                        "(6, 9, 'TEST-MNT', 1),\n" +
+//                        "(7, 10, 'TP1-TEST', 0),\n" +
+//                        "(7, 10, 'OP1-TEST', 0),\n" +
+//                        "(7, 9, 'TEST-MNT', 0),\n" +
+//                        "(7, 9, 'TEST-MNT', 0),\n" +
+//                        "(8, 10, 'TP1-TEST', 0),\n" +
+//                        "(8, 10, 'OP1-TEST', 0),\n" +
+//                        "(8, 9, 'TEST-MNT', 0),\n" +
+//                        "(8, 9, 'TEST-MNT', 0),\n" +
+//                        "(2, 18, 'ORG-TOL1-TEST', 1),\n" +
+//                        "(3, 18, 'ORG-TOL1-TEST', 1),\n" +
+//                        "(1, 18, 'ORG-TOL1-TEST', 1),\n" +
+//                        "(1, 18, 'ORG-TOL1-TEST', 1),\n" +
+//                        "(1, 10, 'TP1-TEST', 1),\n" +
+//                        "(1, 10, 'OP1-TEST', 1),\n" +
+//                        "(5, 18, 'ORG-TOL1-TEST', 1),\n" +
+//                        "(5, 10, 'TP1-TEST', 1),\n" +
+//                        "(6, 18, 'ORG-TOL1-TEST', 1),\n" +
+//                        "(6, 10, 'TP1-TEST', 1),\n" +
+//                        "(6, 9, 'TEST-MNT', 1),\n" +
+//                        "(6, 9, 'TEST-MNT', 1)," +
+//                        "(4, 9, 'ORG-MNT', 1),\n" +
+//                        "(7, 9, 'ORG-MNT', 1),\n" +
+//                        "(8, 9, 'ORG-MNT', 1),\n" +
+//                        "(4, 18, 'ORG-OTH1-TEST', 1),\n" +
+//                        "(7, 18, 'ORG-OTH1-TEST', 1),\n" +
+//                        "(8, 18, 'ORG-OTH1-TEST', 1);\n"
+//        );
     }
 
 
