@@ -58,7 +58,7 @@ public class RndVersionDao extends JdbcVersionBaseDao {
 
     @Nullable
     @Override
-    public List<VersionInfo> getVersionsBeforeTimestamp(ObjectType type, String searchKey, long timestampInMilliseconds) {
+    public List<VersionInfo> getVersionsForTimestamp(ObjectType type, String searchKey, long timestampInMilliseconds) {
         final List<Integer> objectIds = getObjectIds(type, searchKey);
         final long timestamp = timestampInMilliseconds / 1000L;
 
@@ -94,7 +94,7 @@ public class RndVersionDao extends JdbcVersionBaseDao {
                 "    WHERE serials.object_id IN (:objectIds) " +
                 "    ORDER BY timestamp DESC, serials.object_id DESC, serials.sequence_id DESC " +
                 "  ) AS temp " +
-                "WHERE temp.timestamp<=:cutofTime ", parameters, new VersionInfoRowMapper()));
+                "WHERE temp.timestamp=:cutofTime ", parameters, new VersionInfoRowMapper()));
         return versionInfos;
     }
 }

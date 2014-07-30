@@ -52,7 +52,7 @@ public class JdbcVersionDao extends JdbcVersionBaseDao {
 
     @Nullable
     @Override
-    public List<VersionInfo> getVersionsBeforeTimestamp(ObjectType type, String searchKey, long timestamp) {
+    public List<VersionInfo> getVersionsForTimestamp(ObjectType type, String searchKey, long timestamp) {
         throw new UnsupportedOperationException();
     }
 }
