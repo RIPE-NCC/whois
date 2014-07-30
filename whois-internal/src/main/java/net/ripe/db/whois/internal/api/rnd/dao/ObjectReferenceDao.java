@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface ObjectReferenceDao {
 
-    ObjectVersion getObjectVersion(final ObjectType objectType, final String pkey, final long revision);
     List<ObjectReference> getOutgoing(final long versionId);
     List<ObjectReference> getIncoming(final long versionId);
 
+    ObjectVersion getVersion(final ObjectType objectType, final String pkey, final int revision);
     List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType);
     void createVersion(final ObjectVersion objectVersion);
     void deleteVersion(final ObjectVersion objectVersion);

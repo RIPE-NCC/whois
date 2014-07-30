@@ -241,7 +241,7 @@ public class Query {
         return queryParser.hasOption(QueryFlag.SHOW_INTERNAL_VERSION);
     }
 
-    public long getObjectInternalVersion() {
+    public int getObjectInternalVersion() {
         return getObjectVersion(QueryFlag.SHOW_INTERNAL_VERSION);
     }
 
