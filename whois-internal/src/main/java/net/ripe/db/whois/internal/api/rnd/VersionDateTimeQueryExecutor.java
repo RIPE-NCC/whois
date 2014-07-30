@@ -46,7 +46,7 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
     @Override
     public boolean supports(final Query query) {
         return false;
-//        return query.isObjectTimestampVersion();
+//        return query.isObjectInternalVersion();
     }
 
     @Override
@@ -62,7 +62,7 @@ public class VersionDateTimeQueryExecutor implements QueryExecutor {
         final List<VersionInfo> versionInfos = versionDao.getVersionsBeforeTimestamp(
                 query.getObjectTypes().iterator().next(), // internal REST API will allow only one object type
                 query.getSearchValue(),
-                query.getObjectTimestamp());
+                query.getObjectInternalVersion());
 
         if (CollectionUtils.isEmpty(versionInfos)) {
             return makeListWithNoResultsMessage(query.getSearchValue());

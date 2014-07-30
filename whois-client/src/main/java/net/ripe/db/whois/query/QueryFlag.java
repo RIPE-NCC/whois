@@ -181,10 +181,10 @@ public enum QueryFlag {
             .describedAs("Returns historical version of the object")
             .requiresArgument(Integer.class)),
 
-    SHOW_TIMESTAMP_VERSION(new Builder("show-timestamp-version")
-        .withSearchKey("<timestamp-version-number>")
-        .describedAs("Returns historical version of the object")
-        .requiresArgument(Long.class));
+    SHOW_INTERNAL_VERSION(new Builder("show-internal-version")
+        .withSearchKey("<internal-version-number>")
+        .describedAs("Returns historical version of the object (initially for RnD)")
+        .requiresArgument(Integer.class));
 
 
     private static final class Builder {
