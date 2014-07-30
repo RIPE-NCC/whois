@@ -1,11 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -19,7 +15,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "version")
 public class WhoisVersionInternal {
     @XmlElement(name = "revision", required = false)
-    private Integer revision;
+    private int revision;
     @XmlElement(name = "from")
     private String from;
     @XmlElement(name = "to", required = false)
@@ -28,7 +24,7 @@ public class WhoisVersionInternal {
     private Link link;
 
 
-    public WhoisVersionInternal(final Integer revision, final String from, final String to, final Link link) {
+    public WhoisVersionInternal(final int revision, final String from, final String to, final Link link) {
         this.revision = revision;
         this.from = from;
         this.to = to;
@@ -39,7 +35,8 @@ public class WhoisVersionInternal {
         // required no-arg constructor
     }
 
-    public Integer getRevision() {
+
+    public int getRevision() {
         return revision;
     }
 
@@ -60,10 +57,11 @@ public class WhoisVersionInternal {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        WhoisVersionInternal that = (WhoisVersionInternal) o;
+        final WhoisVersionInternal that = (WhoisVersionInternal) o;
 
+        if (revision != that.revision) return false;
         if (from != null ? !from.equals(that.from) : that.from != null) return false;
-        if (revision != null ? !revision.equals(that.revision) : that.revision != null) return false;
+        if (link != null ? !link.equals(that.link) : that.link != null) return false;
         if (to != null ? !to.equals(that.to) : that.to != null) return false;
 
         return true;
@@ -71,10 +69,10 @@ public class WhoisVersionInternal {
 
     @Override
     public int hashCode() {
-        int result = revision != null ? revision.hashCode() : 0;
+        int result = revision;
         result = 31 * result + (from != null ? from.hashCode() : 0);
         result = 31 * result + (to != null ? to.hashCode() : 0);
+        result = 31 * result + (link != null ? link.hashCode() : 0);
         return result;
     }
-
 }

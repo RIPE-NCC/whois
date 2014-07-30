@@ -2,11 +2,7 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
-import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
-import net.ripe.db.whois.api.rest.domain.WhoisVersion;
+import net.ripe.db.whois.api.rest.domain.*;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.domain.serials.Operation;
@@ -28,12 +24,7 @@ import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -54,7 +45,7 @@ public class WhoisObjectServerMapperTest {
                 new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL),
                 new FormattedClientAttributeMapper()
         });
-        whoisObjectServerMapper = new WhoisObjectServerMapper("test", whoisObjectMapper);
+        whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper);
     }
 
     @Test
