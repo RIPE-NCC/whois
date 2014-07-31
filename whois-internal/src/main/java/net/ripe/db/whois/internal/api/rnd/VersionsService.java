@@ -9,6 +9,7 @@ import net.ripe.db.whois.api.rest.StreamingMarshal;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.domain.serials.Operation;
@@ -22,6 +23,7 @@ import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectWithReferences;
 import net.ripe.db.whois.query.VersionDateTime;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,12 +45,14 @@ public class VersionsService {
     private final ObjectReferenceDao objectReferenceDao;
     private final VersionDao versionDao;
     private final VersionObjectMapper versionObjectMapper;
+    private final WhoisObjectServerMapper whoisObjectMapper;
 
     @Autowired
-    public VersionsService(final ObjectReferenceDao objectReferenceDao, final VersionDao versionDao, final VersionObjectMapper versionObjectMapper) {
+    public VersionsService(final ObjectReferenceDao objectReferenceDao, final VersionDao versionDao, final VersionObjectMapper versionObjectMapper, final WhoisObjectServerMapper whoisObjectMapper) {
         this.objectReferenceDao = objectReferenceDao;
         this.versionDao = versionDao;
         this.versionObjectMapper = versionObjectMapper;
+        this.whoisObjectMapper = whoisObjectMapper;
     }
 
     public StreamingOutput streamVersions(final String key, final ObjectType type, final String source, final HttpServletRequest request) {
@@ -56,18 +60,50 @@ public class VersionsService {
             @Override
             public void write(final OutputStream output) throws IOException, WebApplicationException {
                 final StreamingMarshal marshal = StreamingHelper.getStreamingMarshal(request, output);
-                final StreamHandler streamHandler = new StreamHandler(marshal, source, versionObjectMapper);
-                objectReferenceDao.streamVersions(key, type, streamHandler);
-                if (!streamHandler.flushHasStreamedObjects()) {
-                    final WhoisResources whoisResources = new WhoisResources();
-                    whoisResources.setErrorMessages(Lists.newArrayList(new ErrorMessage(InternalMessages.noVersions(key))));
-                    whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
-                    whoisResources.includeTermsAndConditions();
-
-                    throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(whoisResources).build());
+                final VersionsStreamHandler versionsStreamHandler = new VersionsStreamHandler(marshal, source, versionObjectMapper);
+                objectReferenceDao.streamVersions(key, type, versionsStreamHandler);
+                if (!versionsStreamHandler.flushHasStreamedObjects()) {
+                    throwNotFoundException(key, request);
                 }
             }
         };
+    }
+
+    public StreamingOutput streamVersion(final ObjectType type, final String key, final String source, final Integer revision, final HttpServletRequest request) {
+        return new StreamingOutput() {
+            @Override
+            public void write(final OutputStream output) throws IOException, WebApplicationException {
+                final StreamingMarshal marshal = StreamingHelper.getStreamingMarshal(request, output);
+                final ReferenceStreamHandler streamHandler = new ReferenceStreamHandler(marshal, source, versionObjectMapper, whoisObjectMapper);
+                final ObjectVersion version = objectReferenceDao.getVersion(type, key, revision);
+                streamHandler.streamWhoisObject(getObject(version));
+
+                objectReferenceDao.streamIncoming(version, streamHandler);
+                streamHandler.endStreamingIncoming();
+                objectReferenceDao.streamOutgoing(version, streamHandler);
+                streamHandler.flush();
+            }
+
+            private RpslObject getObject(final ObjectVersion version) {
+                RpslObject rpslObject = null;
+                try {
+                    final List<VersionInfo> entriesInSameVersion = lookupRpslObjectByVersion(version);
+                    rpslObject = versionDao.getRpslObject(entriesInSameVersion.get(0)); //latest is first
+                } catch (DataAccessException e) {
+                    throwNotFoundException(key, request);
+                }
+                return rpslObject;
+            }
+        };
+    }
+
+    private void throwNotFoundException(final String key, final HttpServletRequest request) {
+        final WhoisResources whoisResources = new WhoisResources();
+        whoisResources.setErrorMessages(Lists.newArrayList(new ErrorMessage(InternalMessages.noVersions(key))));
+        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
+        whoisResources.includeTermsAndConditions();
+
+        throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(whoisResources).build());
     }
 
     public RpslObjectWithReferences getRpslObjectWithReferences(final ObjectType type, final String key, final Integer revision) {

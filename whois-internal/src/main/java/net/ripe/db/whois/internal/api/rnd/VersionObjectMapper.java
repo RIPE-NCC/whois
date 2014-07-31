@@ -52,6 +52,8 @@ public class VersionObjectMapper {
 
         return new WhoisVersionInternal(
                 objectVersion.getRevision(),
+                objectVersion.getType().getName().toUpperCase(),
+                objectVersion.getPkey().toString(),
                 ISO8601_FORMATTER.print(interval.getStart()),
                 interval.getEnd().getMillis() != Long.MAX_VALUE ? ISO8601_FORMATTER.print(interval.getEnd()) : null,
                 createWhoisVersionInternalLink(source, objectVersion.getType().getName().toUpperCase(), objectVersion.getPkey() + "/" + objectVersion.getRevision()));

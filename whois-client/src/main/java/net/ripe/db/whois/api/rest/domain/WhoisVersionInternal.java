@@ -1,7 +1,11 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -30,6 +34,15 @@ public class WhoisVersionInternal {
 
 
     public WhoisVersionInternal(final int revision, final String from, final String to, final Link link) {
+        this.revision = revision;
+        this.from = from;
+        this.to = to;
+        this.link = link;
+    }
+
+    public WhoisVersionInternal(final int revision, String type, String key, final String from, final String to, Link link) {
+        this.type = type;
+        this.key = key;
         this.revision = revision;
         this.from = from;
         this.to = to;
