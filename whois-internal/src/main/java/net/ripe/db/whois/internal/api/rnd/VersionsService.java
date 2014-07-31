@@ -3,11 +3,14 @@ package net.ripe.db.whois.internal.api.rnd;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.api.rest.StreamingMarshal;
 import net.ripe.db.whois.api.rest.WhoisRestService;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.Link;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
-import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -17,7 +20,6 @@ import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import net.ripe.db.whois.query.VersionDateTime;
-import net.ripe.db.whois.query.domain.MessageObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,10 +27,10 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,7 +62,14 @@ public class VersionsService {
                 final StreamingMarshal marshal = WhoisRestService.getStreamingMarshal(request, output);
                 final StreamHandler streamHandler = new StreamHandler(marshal, source, versionObjectMapper);
                 objectReferenceDao.streamVersions(key, type, streamHandler);
-                streamHandler.flushAndGetErrors();
+                if (!streamHandler.flushHasStreamedObjects()) {
+                    final WhoisResources whoisResources = new WhoisResources();
+                    whoisResources.setErrorMessages(Lists.newArrayList(new ErrorMessage(InternalMessages.noVersions(key))));
+                    whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
+                    whoisResources.includeTermsAndConditions();
+
+                    throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(whoisResources).build());
+                }
             }
         };
     }
@@ -122,9 +131,5 @@ public class VersionsService {
 
     private RpslObject decorateRpslObject(final RpslObject rpslObject) {
         return FILTER_EMAIL_FUNCTION.apply(FILTER_AUTH_FUNCTION.apply(rpslObject));
-    }
-
-    private Collection<? extends ResponseObject> makeListWithNoResultsMessage(final String key) {
-        return Collections.singletonList(new MessageObject(InternalMessages.noVersion(key)));
     }
 }

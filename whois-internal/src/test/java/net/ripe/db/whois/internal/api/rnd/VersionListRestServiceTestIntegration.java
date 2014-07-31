@@ -5,19 +5,13 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersionInternal;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.joda.time.LocalDateTime;
-import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -30,11 +24,10 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
+import static junit.framework.TestCase.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.joda.time.LocalDateTime.parse;
 
 
 @Category(IntegrationTest.class)
@@ -44,7 +37,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
     DataSource dataSource;
     @Autowired
     WhoisObjectMapper whoisObjectMapper;
-    private DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+    final DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTimeNoMillis();
 
     @Before
     public void setUp() throws Exception {
@@ -71,7 +64,6 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
         assertThat(versions, hasSize(2));
 
-        final DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTimeNoMillis();
         final DateTime fromFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getFrom());
         final DateTime toFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getTo());
         final DateTime fromLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getFrom());
@@ -80,73 +72,40 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         assertThat(fromFirstDateTime, is(start));
         assertThat(toFirstDateTime, is(end));
         assertThat(fromLastDateTime, is(toFirstDateTime));
-        assertThat(new Period(fromLastDateTime, toLastDateTime).getYears(), is(1));
         assertThat(toLastDateTime, is(newEnd));
     }
 
     @Test
-    public void listVersions_created_deleted() {
-        final RpslObjectUpdateInfo add = updateDao.createObject(RpslObject.parse("" +
-                "aut-num: AS3333\n" +
-                "source: TEST"));
-
-        LocalDateTime deleteDate = new LocalDateTime().plusDays(3);
-        testDateTimeProvider.setTime(deleteDate);
-        updateDao.deleteObject(add.getObjectId(), "AS3333");
-
-        final WhoisResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(WhoisResources.class);
-
-        assertThat(result.getErrorMessages(), hasSize(0));
-        final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
-        assertThat(versions, hasSize(1));
-
-        LocalDateTime fromDate = parse(versions.get(0).getFrom(), DEFAULT_DATE_TIME_FORMATTER);
-        LocalDateTime toDate = parse(versions.get(0).getTo(), DEFAULT_DATE_TIME_FORMATTER);
-
-        assertThat(new Period(fromDate, toDate).getDays(), is(3));
-    }
-
-
-    @Test
     public void listVersions_created_deleted_recreated() {
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "aut-num: AS3335\n" +
-                "source: TEST");
-        final RpslObject person = RpslObject.parse("" +
-                "person: First Last\n" +
-                "nic-hdl: AA1-RIPE\n" +
-                "remarks: Some remark\n" +
-                "source: TEST");
-
-        final RpslObjectUpdateInfo add = updateDao.createObject(rpslObject);
-
-        updateDao.createObject(person);
-        testDateTimeProvider.setTime(new LocalDateTime().plusDays(3));
-        updateDao.deleteObject(add.getObjectId(), "AS3335");
-        testDateTimeProvider.setTime(new LocalDateTime().plusDays(5));
-        updateDao.createObject(rpslObject);
+        DateTime start = new DateTime(2006, 6, 15, 0, 0, 0, 0);
+        DateTime end = new DateTime(2006, 6, 20, 0, 0, 0, 0);
+        DateTime newStart = new DateTime(2006, 7, 12, 0, 0, 0, 0);
+        DateTime newEnd = new DateTime(2006, 8, 30, 0, 0, 0, 0);
+        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", new Interval(start, end), 1));
+        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", new Interval(newStart, newEnd), 2));
 
         final WhoisResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
 
-        String baseHref = "http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3335/";
-
         assertThat(result.getErrorMessages(), hasSize(0));
         final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
         assertThat(versions, hasSize(2));
 
-        LocalDateTime fromDateFirst = parse(versions.get(0).getFrom(), DEFAULT_DATE_TIME_FORMATTER);
-        LocalDateTime toDateFirst = parse(versions.get(0).getTo(), DEFAULT_DATE_TIME_FORMATTER);
-        assertThat(new Period(fromDateFirst, toDateFirst).getDays(), is(3));
-        assertThat(versions.get(0).getLink().toString(), containsString(baseHref + "1"));
+        String baseHref = "http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3335/";
 
-        LocalDateTime fromDateLast = parse(versions.get(1).getFrom(), DEFAULT_DATE_TIME_FORMATTER);
-        assertThat(new Period(toDateFirst, fromDateLast).getDays(), is(2));
-        assertThat(versions.get(1).getTo(), is(""));
-        assertThat(versions.get(1).getLink().toString(), containsString(baseHref + "2"));
+        final DateTime fromFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getFrom());
+        final DateTime toFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getTo());
+        final DateTime fromLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getFrom());
+        final DateTime toLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getTo());
+
+        assertThat(versions.get(0).getLink().getHref(), is(baseHref + "1"));
+        assertThat(versions.get(1).getLink().getHref(), is(baseHref + "2"));
+
+        assertThat(fromFirstDateTime, is(start));
+        assertThat(toFirstDateTime, is(end));
+        assertThat(fromLastDateTime, is(newStart));
+        assertThat(toLastDateTime, is(newEnd));
     }
 
     @Test
@@ -155,7 +114,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
             RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3336/versions", null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .get(WhoisResources.class);
-
+            fail();
         } catch (ClientErrorException e) {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             assertThat(whoisResources.getErrorMessages().get(0).toString(), is("No entries found for object AS3336"));
@@ -165,9 +124,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
 
     @Test
     public void listVersions_objecttype_in_lowercase() throws Exception {
-        updateDao.createObject(RpslObject.parse("" +
-                "aut-num: AS3333\n" +
-                "source: TEST"));
+        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", new Interval(new DateTime(2006, 6, 20, 0, 0, 0, 0), new DateTime(2006, 7, 12, 0, 0, 0, 0)), 1));
         final WhoisResources result = RestTest.target(getPort(), "api/rnd/test/aut-num/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
@@ -176,12 +133,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
 
     @Test
     public void allow_person_query() {
-        final RpslObject person = RpslObject.parse("person: First Last\n" +
-                "nic-hdl: AA1-RIPE\n" +
-                "remarks: Some remark\n" +
-                "source: TEST");
-        updateDao.createObject(person);
-
+        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.PERSON, "AA1-RIPE", new Interval(new DateTime(2006, 6, 20, 0, 0, 0, 0), new DateTime(2006, 7, 12, 0, 0, 0, 0)), 1));
         final WhoisResources result = RestTest.target(getPort(), "api/rnd/test/person/AA1-RIPE/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisResources.class);
@@ -192,78 +144,57 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
 
     }
 
-    //TODO [TP]: update test when output is formatted
     @Test
     public void listVersions_created_deleted_expected_xml() {
-        final RpslObjectUpdateInfo add = updateDao.createObject(RpslObject.parse("" +
-                "aut-num: AS3333\n" +
-                "source: TEST"));
-
-        final LocalDateTime createdDate = new LocalDateTime();
-        final LocalDateTime deleteDate = createdDate.plusDays(3);
-        testDateTimeProvider.setTime(deleteDate);
-        updateDao.deleteObject(add.getObjectId(), "AS3333");
-
+        final DateTime start = new DateTime(2006, 6, 20, 0, 0, 0, 0);
+        final DateTime end = new DateTime(2006, 7, 12, 0, 0, 0, 0);
+        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", new Interval(start, end), 1));
         final String response = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .get(String.class);
 
-        assertThat(response, is(String.format(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                        "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
-                        "<errormessages/>" +
-                        "<versionsInternal type=\"AUT-NUM\" key=\"AS3333\">" +
-                        "<version>" +
-                        "<revision>1</revision>" +
-                        "<from>%s</from>" +
-                        "<to>%s</to>" +
-                        "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"/>" +
-                        "</version>" +
-                        "</versionsInternal>" +
-                        "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
-                        "</whois-resources>", createdDate.toString(DEFAULT_DATE_TIME_FORMATTER), deleteDate.toString(DEFAULT_DATE_TIME_FORMATTER)
+        assertThat(response.trim(), is(String.format(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                        "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                        "<versionsInternal>\n" +
+                        "<object>\n" +
+                        "    <revision>1</revision>\n" +
+                        "    <from>%s</from>\n" +
+                        "    <to>%s</to>\n" +
+                        "    <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"/>\n" +
+                        "</object>\n" +
+                        "</versionsInternal>\n" +
+                        "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                        "</whois-resources>", dateTimeFormatter.print(start), dateTimeFormatter.print(end)
         )));
     }
 
-    //TODO [TP]: update test when output is formatted
     @Test
     public void listVersions_created_deleted_expected_json() {
-        final RpslObjectUpdateInfo add = updateDao.createObject(RpslObject.parse("" +
-                "aut-num: AS3333\n" +
-                "source: TEST"));
-
-        final LocalDateTime createdDate = new LocalDateTime();
-        final LocalDateTime deleteDate = createdDate.plusDays(3);
-        testDateTimeProvider.setTime(deleteDate);
-        updateDao.deleteObject(add.getObjectId(), "AS3333");
+        final DateTime start = new DateTime(2008, 2, 20, 0, 0, 0, 0);
+        final DateTime end = new DateTime(2008, 2, 21, 0, 0, 0, 0);
+        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", new Interval(start, end), 1));
 
         final String response = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
 
         assertThat(response, is(String.format(
-                        "{\"errormessages\":{\"errormessage\":[]}," +
-                        "\"versionsInternal\":{\"type\":\"AUT-NUM\",\"key\":\"AS3333\"," +
-                            "\"version\":[{" +
-                                "\"revision\":1," +
-                                "\"from\":\"%s\"," +
-                                "\"to\":\"%s\"," +
-                                "\"link\":{\"type\":\"locator\",\"href\":\"http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"}}]}," +
-                        "\"terms-and-conditions\":{\"type\":\"locator\",\"href\":\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"}}",
-                    createdDate.toString(DEFAULT_DATE_TIME_FORMATTER), deleteDate.toString(DEFAULT_DATE_TIME_FORMATTER))));
-    }
-
-    @Test  //TODO [TP]: remove empty errormessages
-    public void search_no_empty_errormessages_in_xml_response() {
-        updateDao.createObject(RpslObject.parse("" +
-                "aut-num: AS3333\n" +
-                "source: TEST"));
-
-        final String result = RestTest.target(getPort(), "api/rnd/test/aut-num/AS3333/versions", null, apiKey)
-                .request(MediaType.APPLICATION_XML_TYPE)
-                .get(String.class);
-
-        Assert.assertThat(result, containsString("<errormessages"));
-        Assert.assertThat(result, containsString("<revision>1</revision>"));
+                        "{\"versionsInternal\":{\"version\":[ {\n" +
+                                "  \"revision\" : 1,\n" +
+                                "  \"from\" : \"%s\",\n" +
+                                "  \"to\" : \"%s\",\n" +
+                                "  \"link\" : {\n" +
+                                "    \"type\" : \"locator\",\n" +
+                                "    \"href\" : \"http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"\n" +
+                                "  }\n" +
+                                "} ]\n" +
+                                "},\n" +
+                                "\"terms-and-conditions\" : {\n" +
+                                "\"type\" : \"locator\",\n" +
+                                "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                                "}\n" +
+                                "}",
+                    dateTimeFormatter.print(start), dateTimeFormatter.print(end))));
     }
 }
