@@ -78,6 +78,7 @@ public class VersionObjectMapper {
                     @Override
                     public WhoisObject apply(final ObjectVersion input) {
                         final WhoisObject whoisObject = new WhoisObject();
+                        whoisObject.setType(input.getType().getName());
                         whoisObject.setPrimaryKey(Lists.newArrayList(new Attribute(input.getType().getName(), input.getPkey().toString())));
                         return whoisObject;
                     }
