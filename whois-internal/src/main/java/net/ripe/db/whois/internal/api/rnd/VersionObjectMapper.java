@@ -1,11 +1,17 @@
 package net.ripe.db.whois.internal.api.rnd;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
+import net.ripe.db.whois.api.rest.domain.WhoisObjects;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersionInternal;
 import net.ripe.db.whois.api.rest.domain.WhoisVersionsInternal;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
+import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormatter;
@@ -60,5 +66,21 @@ public class VersionObjectMapper {
 
     private Link createWhoisVersionInternalLink(String source, String type, String versionId) {
         return new Link("locator", String.format("%s/api/rnd/%s/%s/%s", baseUrl, source, type, versionId));
+    }
+
+    public WhoisObjects mapObjectReferences(final List<ObjectVersion> references) {
+        if (CollectionUtils.isEmpty(references)) {
+            return null;
+        }
+
+        return new WhoisObjects(
+                Lists.newArrayList(Iterables.transform(references, new Function<ObjectVersion, WhoisObject>() {
+                    @Override
+                    public WhoisObject apply(final ObjectVersion input) {
+                        final WhoisObject whoisObject = new WhoisObject();
+                        whoisObject.setPrimaryKey(Lists.newArrayList(new Attribute(input.getType().getName(), input.getPkey().toString())));
+                        return whoisObject;
+                    }
+                })));
     }
 }
