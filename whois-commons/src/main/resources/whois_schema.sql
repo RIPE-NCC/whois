@@ -670,7 +670,9 @@ CREATE TABLE `object_version` (
   `from_timestamp` int(10) unsigned NOT NULL,
   `to_timestamp` int(10) unsigned DEFAULT NULL,
   `revision` int(10) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `pkey` (`pkey`),
+  KEY `object_type` (`object_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
