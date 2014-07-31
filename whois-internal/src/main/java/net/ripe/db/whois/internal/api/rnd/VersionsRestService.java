@@ -26,6 +26,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.util.Collections;
+import static net.ripe.db.whois.internal.api.rnd.VersionObjectMapper.ISO8601_FORMATTER;
 
 @Component
 @Path("/rnd")
@@ -86,7 +87,7 @@ public class VersionsRestService {
 
         final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObjectWithTimestamp.getRpslObject(), null, FormattedClientAttributeMapper.class);
         if (rpslObjectWithTimestamp.getVersionDateTime() != null) {
-            whoisObject.setVersionDateTime(rpslObjectWithTimestamp.getVersionDateTime().toString());
+            whoisObject.setVersionDateTime(ISO8601_FORMATTER.print(rpslObjectWithTimestamp.getVersionDateTime().getTimestamp()));
         }
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         whoisResources.setOutgoing(versionObjectMapper.mapObjectReferences(rpslObjectWithTimestamp.getOutgoing()));
