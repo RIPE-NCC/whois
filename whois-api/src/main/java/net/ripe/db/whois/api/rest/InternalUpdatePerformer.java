@@ -109,7 +109,7 @@ public class InternalUpdatePerformer {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 final WhoisResources result = createResponse(request, updateContext, update);
-                WhoisRestService.getStreamingMarshal(request, output).singleton(result);
+                StreamingHelper.getStreamingMarshal(request, output).singleton(result);
             }
         }).build();
     }
