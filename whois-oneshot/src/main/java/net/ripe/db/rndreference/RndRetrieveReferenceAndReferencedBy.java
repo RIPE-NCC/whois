@@ -23,7 +23,6 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectKey;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectReference;
-import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectWithReferences;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -63,6 +62,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.IFADDR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IRT_NFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_NFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NSERVER;
 import static net.ripe.db.whois.common.rpsl.AttributeType.REF_NFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.UPD_TO;
 import static org.joda.time.DateTime.now;
@@ -100,13 +100,16 @@ public class RndRetrieveReferenceAndReferencedBy {
     // end date far in the future, indicates interval that does not have end dates
     public static final DateTime INFINITE_END_DATE = now().plusYears(100);
 
-    private static final Set<AttributeType> RELATED_TO_ATTRIBUTES;
+    private static final Set<AttributeType> OBJECT_REFERENCE_ATTRIBUTES;
     private static final String PASSWORD_OPTION = "password";
     private static final String DBURL_OPTION = "url";
     private static final String START = "start";           // starting timestamp in seconds
     private static final String TO_DB_OPTION = "to-db";
+    private static final String MAX_TIMESTAMP_OPTION = "max-timestamp";
     private static final Long FROM_BEGINNING = -1L;
     public static final Integer DUMMY_OBJECT_TYPE_ID = 999;
+
+    private static Integer MAX_TIMESTAMP = null;
 
 
     private final JdbcTemplate jdbcTemplate;
@@ -122,8 +125,13 @@ public class RndRetrieveReferenceAndReferencedBy {
         parser.accepts(TO_DB_OPTION);
 
         parser.accepts(START).withRequiredArg().ofType(Long.class);
+        parser.accepts(MAX_TIMESTAMP_OPTION).withRequiredArg().ofType(Integer.class);
+
         final OptionSet options = parser.parse(argv);
 
+        if (options.has(MAX_TIMESTAMP_OPTION)) {
+            MAX_TIMESTAMP = (Integer) options.valueOf(MAX_TIMESTAMP_OPTION);
+        }
         // instantiate app
         final RndRetrieveReferenceAndReferencedBy app =
                 new RndRetrieveReferenceAndReferencedBy(
@@ -139,21 +147,22 @@ public class RndRetrieveReferenceAndReferencedBy {
     }
 
     static {
-        RELATED_TO_ATTRIBUTES = Sets.newHashSet();
+        OBJECT_REFERENCE_ATTRIBUTES = Sets.newHashSet();
         for (ObjectTemplate template : ObjectTemplate.getTemplates()) {
-            RELATED_TO_ATTRIBUTES.addAll(template.getInverseLookupAttributes());
+            OBJECT_REFERENCE_ATTRIBUTES.addAll(template.getInverseLookupAttributes());
         }
         // excluded from standard lookups, but refers to an object
-        RELATED_TO_ATTRIBUTES.add(AttributeType.SPONSORING_ORG);
+        OBJECT_REFERENCE_ATTRIBUTES.add(AttributeType.SPONSORING_ORG);
 
-        RELATED_TO_ATTRIBUTES.remove(NOTIFY);
-        RELATED_TO_ATTRIBUTES.remove(IFADDR);
-        RELATED_TO_ATTRIBUTES.remove(ABUSE_MAILBOX);
-        RELATED_TO_ATTRIBUTES.remove(IRT_NFY);
-        RELATED_TO_ATTRIBUTES.remove(FINGERPR);
-        RELATED_TO_ATTRIBUTES.remove(UPD_TO);
-        RELATED_TO_ATTRIBUTES.remove(MNT_NFY);
-        RELATED_TO_ATTRIBUTES.remove(REF_NFY);
+        OBJECT_REFERENCE_ATTRIBUTES.remove(NOTIFY);
+        OBJECT_REFERENCE_ATTRIBUTES.remove(IFADDR);
+        OBJECT_REFERENCE_ATTRIBUTES.remove(ABUSE_MAILBOX);
+        OBJECT_REFERENCE_ATTRIBUTES.remove(IRT_NFY);
+        OBJECT_REFERENCE_ATTRIBUTES.remove(FINGERPR);
+        OBJECT_REFERENCE_ATTRIBUTES.remove(UPD_TO);
+        OBJECT_REFERENCE_ATTRIBUTES.remove(MNT_NFY);
+        OBJECT_REFERENCE_ATTRIBUTES.remove(REF_NFY);
+        OBJECT_REFERENCE_ATTRIBUTES.remove(NSERVER);
     }
 
     public RndRetrieveReferenceAndReferencedBy(final String password, final String url) throws SQLException {
@@ -169,19 +178,31 @@ public class RndRetrieveReferenceAndReferencedBy {
     }
 
     private void run(final Long start, final boolean toDburl) {
+
+        final Integer maxTimestamp = MAX_TIMESTAMP == null ? new Long(now().minusSeconds(5).getMillis() / 1000L).intValue() : MAX_TIMESTAMP;
+        LOGGER.info("maximum timestamp {}", maxTimestamp);
+
         redisTemplate.clearAndExecute(new RedisRunner() { // store all "events" in the last table in redis
             @Override
             public void run(final Jedis jedis) {
                 if (start.equals(FROM_BEGINNING)) {
                     JdbcStreamingHelper.executeStreaming(jdbcTemplate,
-                            "SELECT pkey, timestamp, object_type, object, sequence_id FROM last LIMIT 100", new RpslObjectLastEventsRowMapper());
+                            "SELECT pkey, timestamp, object_type, object, sequence_id FROM last where timestamp < ?",
+                            new PreparedStatementSetter() {
+                                @Override
+                                public void setValues(PreparedStatement ps) throws SQLException {
+                                    ps.setInt(1, maxTimestamp);
+                                }
+                            },
+                            new RpslObjectLastEventsRowMapper());
                 } else {
                     JdbcStreamingHelper.executeStreaming(jdbcTemplate,
-                            "SELECT pkey, timestamp, object_type, object, sequence_id FROM last WHERE timestamp > ? LIMIT 100",
+                            "SELECT pkey, timestamp, object_type, object, sequence_id FROM last WHERE timestamp > ? AND TIMESTAMP < ?",
                             new PreparedStatementSetter() {
                                 @Override
                                 public void setValues(final PreparedStatement ps) throws SQLException {
                                     ps.setLong(1, start);
+                                    ps.setInt(2, maxTimestamp);
                                 }
                             },
                             new RpslObjectLastEventsRowMapper());
@@ -461,7 +482,7 @@ public class RndRetrieveReferenceAndReferencedBy {
     private Set<RpslObjectReference> getReferencingObjects(final RpslObject rpslObject) {
         final Set<RpslObjectReference> referencing = Sets.newHashSet();
 
-        for (final RpslAttribute attribute : rpslObject.findAttributes(RELATED_TO_ATTRIBUTES)) {
+        for (final RpslAttribute attribute : rpslObject.findAttributes(OBJECT_REFERENCE_ATTRIBUTES)) {
             for (final CIString referenceValue : attribute.getReferenceValues()) {
                 Set<ObjectType> objectTypes = attribute.getType().getReferences(referenceValue);
 
