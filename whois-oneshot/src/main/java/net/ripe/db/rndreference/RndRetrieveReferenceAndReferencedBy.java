@@ -23,6 +23,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectKey;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectReference;
+import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectWithReferences;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -294,11 +295,11 @@ public class RndRetrieveReferenceAndReferencedBy {
 
     private int setCorrectObjectType(final Map<String, List<RefObject>> cache, final RpslObjectTimeLine timeline) {
         for (Map.Entry<Interval, RevisionWithReferences> entry : timeline.getRpslObjectIntervals().entrySet()) {
-            final RevisionWithReferences rpslObjectWithReferences = entry.getValue();
-            if (!rpslObjectWithReferences.isDeleted()) {
+            final RevisionWithReferences revisionWithReferences = entry.getValue();
+            if (!revisionWithReferences.isDeleted()) {
                 final Set<RpslObjectReference> fixedSet = new HashSet<>();
 
-                for (RpslObjectReference base : rpslObjectWithReferences.getOutgoingReferences()) {
+                for (RpslObjectReference base : revisionWithReferences.getOutgoingReferences()) {
                     RpslObjectKey baseKey = base.getKey();
                     if (!baseKey.getObjectType().equals(DUMMY_OBJECT_TYPE_ID)) {
                         fixedSet.add(base);
@@ -331,7 +332,7 @@ public class RndRetrieveReferenceAndReferencedBy {
                     }
                     processed++;
                 }
-                rpslObjectWithReferences.setOutgoingReferences(fixedSet);
+                revisionWithReferences.setOutgoingReferences(fixedSet);
             }
         }
         return processed;
@@ -535,8 +536,8 @@ public class RndRetrieveReferenceAndReferencedBy {
         int insertions = 0;
         for (String key : jedis.keys("*")) {
             final RpslObjectTimeLine timeLine = gson.fromJson(jedis.get(key), RpslObjectTimeLine.class);
-            for (Map.Entry<Interval, RpslObjectWithReferences> entry : timeLine.getRpslObjectIntervals().entrySet()) {
-                final RpslObjectWithReferences current = entry.getValue();
+            for (Map.Entry<Interval, RevisionWithReferences> entry : timeLine.getRpslObjectIntervals().entrySet()) {
+                final RevisionWithReferences current = entry.getValue();
                 final Interval interval = entry.getKey();
 
                 KeyHolder holder = new GeneratedKeyHolder();
@@ -570,7 +571,7 @@ public class RndRetrieveReferenceAndReferencedBy {
 
         for (String key : jedis.keys("*")) {
             final RpslObjectTimeLine timeLine = gson.fromJson(jedis.get(key), RpslObjectTimeLine.class);
-            for (Map.Entry<Interval, RpslObjectWithReferences> entry : timeLine.getRpslObjectIntervals().entrySet()) {
+            for (Map.Entry<Interval, RevisionWithReferences> entry : timeLine.getRpslObjectIntervals().entrySet()) {
                 if (!entry.getValue().isDeleted()) {
                     int objectRevision = entry.getValue().getRevision();
                     for (RpslObjectReference reference : entry.getValue().getOutgoingReferences()) {
