@@ -3,17 +3,12 @@ package net.ripe.db.whois.internal.api.rnd;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.api.rest.WhoisService;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisVersionsInternal;
-import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.BasicSourceContext;
-import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectWithReferences;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,8 +22,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
-import java.util.Collections;
-import static net.ripe.db.whois.internal.api.rnd.VersionObjectMapper.ISO8601_FORMATTER;
 
 @Component
 @Path("/rnd")
@@ -77,27 +70,7 @@ public class VersionsRestService {
 
         validate(request, source);
 
-        final RpslObjectWithReferences rpslObjectWithReferences = versionsService.getRpslObjectWithReferences(ObjectType.getByName(objectType), key, revision);
-        if (rpslObjectWithReferences == null) {
-            throw new WebApplicationException(Response
-                    .status(Response.Status.NOT_FOUND)
-                    .entity(whoisService.createErrorEntity(request, Collections.singletonList(InternalMessages.noVersion(key))))
-                    .build());
-        }
-
-        final WhoisResources whoisResources = new WhoisResources();
-
-        final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObjectWithReferences.getRpslObject(), null, FormattedClientAttributeMapper.class);
-        if (rpslObjectWithReferences.getVersionDateTime() != null) {
-            whoisObject.setVersionDateTime(ISO8601_FORMATTER.print(rpslObjectWithReferences.getVersionDateTime().getTimestamp()));
-        }
-
-        whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        whoisResources.setOutgoing(new WhoisVersionsInternal(null, null, versionObjectMapper.mapObjectReferences(rpslObjectWithReferences.getOutgoing(), source)));
-        whoisResources.setIncoming(new WhoisVersionsInternal(null, null, versionObjectMapper.mapObjectReferences(rpslObjectWithReferences.getIncoming(), source)));
-        whoisResources.includeTermsAndConditions();
-
-        return Response.ok(whoisResources).build();
+        return Response.ok(versionsService.streamVersion(ObjectType.getByName(objectType), key, source, revision, request)).build();
     }
 
     private void validate(final HttpServletRequest request, final String source) {

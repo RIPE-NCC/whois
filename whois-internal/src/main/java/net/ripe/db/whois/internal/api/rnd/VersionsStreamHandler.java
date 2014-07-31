@@ -10,14 +10,14 @@ import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class StreamHandler {
+public class VersionsStreamHandler {
     private final Queue<ObjectVersion> queue = new ArrayDeque<>(1);
     private boolean versionFound;
     private StreamingMarshal marshal;
     private String source;
     private VersionObjectMapper objectMapper;
 
-    public StreamHandler(final StreamingMarshal marshal, final String source, final VersionObjectMapper objectMapper) {
+    public VersionsStreamHandler(final StreamingMarshal marshal, final String source, final VersionObjectMapper objectMapper) {
         this.marshal = marshal;
         this.source = source;
         this.objectMapper = objectMapper;
