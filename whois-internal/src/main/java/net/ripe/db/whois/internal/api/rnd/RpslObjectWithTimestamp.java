@@ -2,7 +2,7 @@ package net.ripe.db.whois.internal.api.rnd;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.internal.api.rnd.domain.ObjectReference;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import net.ripe.db.whois.query.VersionDateTime;
 
 import java.io.IOException;
@@ -13,8 +13,8 @@ public class RpslObjectWithTimestamp implements ResponseObject {
     private final RpslObject rpslObject;
     private final int sameTimestampCount;
     private final VersionDateTime versionDateTime;
-    private List<ObjectReference> outgoing;
-    private List<ObjectReference> incoming;
+    private List<ObjectVersion> outgoing;
+    private List<ObjectVersion> incoming;
 
     public RpslObjectWithTimestamp(final RpslObject rpslObject, final int sameTimestampCount, final VersionDateTime versionDateTime) {
         this.rpslObject = rpslObject;
@@ -23,7 +23,7 @@ public class RpslObjectWithTimestamp implements ResponseObject {
     }
 
     public RpslObjectWithTimestamp(final RpslObject rpslObject, final int sameTimestampCount, final VersionDateTime versionDateTime,
-                                   final List<ObjectReference> outgoing, List<ObjectReference> incoming) {
+                                   final List<ObjectVersion> outgoing, List<ObjectVersion> incoming) {
         this(rpslObject, sameTimestampCount, versionDateTime);
         this.outgoing = outgoing;
         this.incoming = incoming;
@@ -51,11 +51,11 @@ public class RpslObjectWithTimestamp implements ResponseObject {
         return rpslObject.toByteArray();
     }
 
-    public List<ObjectReference> getOutgoing() {
+    public List<ObjectVersion> getOutgoing() {
         return outgoing;
     }
 
-    public List<ObjectReference> getIncoming() {
+    public List<ObjectVersion> getIncoming() {
         return incoming;
     }
 }
