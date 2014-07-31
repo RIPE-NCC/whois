@@ -43,10 +43,10 @@ public class WhoisResources {
     private WhoisObjects objects;
     @XmlElement(name = "incoming")
     @JsonProperty(value = "incoming")
-    private WhoisObjects incoming;
+    private WhoisVersionsInternal incoming;
     @XmlElement(name = "outgoing")
     @JsonProperty(value = "outgoing")
-    private WhoisObjects outgoing;
+    private WhoisVersionsInternal outgoing;
     @XmlElement(name = "sources")
     private Sources sources;
     @XmlElement
@@ -118,19 +118,19 @@ public class WhoisResources {
         return this;
     }
 
-    public WhoisObjects getIncoming() {
+    public WhoisVersionsInternal getIncoming() {
         return incoming;
     }
 
-    public void setIncoming(final WhoisObjects incoming) {
+    public void setIncoming(final WhoisVersionsInternal incoming) {
         this.incoming = incoming;
     }
 
-    public WhoisObjects getOutgoing() {
+    public WhoisVersionsInternal getOutgoing() {
         return outgoing;
     }
 
-    public void setOutgoing(final WhoisObjects outgoing) {
+    public void setOutgoing(final WhoisVersionsInternal outgoing) {
         this.outgoing = outgoing;
     }
 

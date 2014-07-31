@@ -81,14 +81,5 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .get(String.class));
 
-//        final WhoisResources result = RestTest.target(getPort(), String.format("api/rnd/test/organisation/ORG-TOL1-TEST/versions/%s", randomTimestamp), null, apiKey)
-//                .request(MediaType.APPLICATION_JSON_TYPE)
-//                .get(WhoisResources.class);
-
-//        assertThat(result.getWhoisObjects().get(0).getAttributes().get(3).getValue(), is("one line address"));
-//        assertThat(result.getReferencing().getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
-//        assertThat(result.getReferencing().getWhoisObjects().get(1).getPrimaryKey().get(0).getValue(), is("OP1-TEST"));
-//        assertThat(result.getReferencedBy().getWhoisObjects().get(0).getType(), is("MNTNER"));
-//        assertThat(result.getReferencedBy().getWhoisObjects().get(1).getType(), is("ORGANISATION"));
     }
 }

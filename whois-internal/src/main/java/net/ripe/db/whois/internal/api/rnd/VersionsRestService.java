@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.api.rest.WhoisService;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.domain.WhoisVersionsInternal;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.domain.CIString;
@@ -90,9 +91,10 @@ public class VersionsRestService {
         if (rpslObjectWithReferences.getVersionDateTime() != null) {
             whoisObject.setVersionDateTime(ISO8601_FORMATTER.print(rpslObjectWithReferences.getVersionDateTime().getTimestamp()));
         }
+
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        whoisResources.setOutgoing(versionObjectMapper.mapObjectReferences(rpslObjectWithReferences.getOutgoing()));
-        whoisResources.setIncoming(versionObjectMapper.mapObjectReferences(rpslObjectWithReferences.getIncoming()));
+        whoisResources.setOutgoing(new WhoisVersionsInternal(null, null, versionObjectMapper.mapObjectReferences(rpslObjectWithReferences.getOutgoing(), source)));
+        whoisResources.setIncoming(new WhoisVersionsInternal(null, null, versionObjectMapper.mapObjectReferences(rpslObjectWithReferences.getIncoming(), source)));
         whoisResources.includeTermsAndConditions();
 
         return Response.ok(whoisResources).build();
