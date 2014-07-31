@@ -19,10 +19,10 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
         databaseHelper.insertApiKey(apiKey, "/api/rnd", "rnd api key");
         /*
             The following statements create 3 objects in DB:
-            mntner TEST-MNT
+            mntner: TEST-MNT
                     mnt-by: TEST-MNT
 
-            person TP1-TEST
+            person: TP1-TEST
                     mnt-by: TEST-MNT
 
             organisation: ORG-AB1-TEST
@@ -73,9 +73,16 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
 
     @Test
     public void versionWithIncomingAndOutgoingReferences() {
+        //test locator link
+        //test no end date
+        //test TEST-MNT
+        //test ORG
+
         System.out.println(RestTest.target(getPort(), "api/rnd/test/organisation/ORG-AB1-TEST/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .get(String.class));
+
+
         System.out.println("\n==========================\n");
         System.out.println(RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_XML_TYPE)

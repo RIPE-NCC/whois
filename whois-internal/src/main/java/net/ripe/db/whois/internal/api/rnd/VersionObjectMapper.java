@@ -49,10 +49,11 @@ public class VersionObjectMapper {
 
     public WhoisVersionInternal mapVersion(final ObjectVersion objectVersion, final String source) {
         final Interval interval = objectVersion.getInterval();
+
         return new WhoisVersionInternal(
                 objectVersion.getRevision(),
                 ISO8601_FORMATTER.print(interval.getStart()),
-                ISO8601_FORMATTER.print(interval.getEnd()),
+                interval.getEnd().getMillis() != Long.MAX_VALUE ? ISO8601_FORMATTER.print(interval.getEnd()) : null,
                 createWhoisVersionInternalLink(source, objectVersion.getType().getName().toUpperCase(), objectVersion.getPkey() + "/" + objectVersion.getRevision()));
     }
 
