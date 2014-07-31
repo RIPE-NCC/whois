@@ -10,24 +10,32 @@ import javax.annotation.concurrent.Immutable;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
-public class ObjectVersion {
+public class ObjectVersion implements Comparable<ObjectVersion> {
+
     private final long versionId;
     private final CIString pkey;
     private final ObjectType type;
     private final Interval interval;
     private final int revision;
 
-    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final Interval interval, final int revision) {
+    public ObjectVersion(final long versionId, final ObjectType type, final CIString pkey, final Interval interval, final int revision) {
         this.versionId = versionId;
         this.type = type;
-        this.pkey = ciString(pkey);
+        this.pkey = pkey;
         this.interval = interval;
         this.revision = revision;
     }
 
-    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final long fromTimestamp,
-                         final long toTimestamp, final int revision) {
+    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final Interval interval, final int revision) {
+        this(versionId, type, ciString(pkey), interval, revision);
+    }
 
+    public ObjectVersion(final long versionId, final ObjectType type, final String pkey, final long fromTimestamp, final long toTimestamp, final int revision) {
+        this(versionId, type, ciString(pkey), new Interval(new DateTime(fromTimestamp*1000L),
+                                        new DateTime(toTimestamp == Long.MAX_VALUE ? Long.MAX_VALUE : toTimestamp*1000L)), revision);
+    }
+
+    public ObjectVersion(final long versionId, final ObjectType type, final CIString pkey, final long fromTimestamp, final long toTimestamp, final int revision) {
         this(versionId, type, pkey, new Interval(new DateTime(fromTimestamp*1000L),
                                                  new DateTime(toTimestamp == Long.MAX_VALUE ? Long.MAX_VALUE : toTimestamp*1000L)), revision);
     }
@@ -87,5 +95,10 @@ public class ObjectVersion {
                 ", interval=" + interval +
                 ", revision=" + revision +
                 '}';
+    }
+
+    @Override
+    public int compareTo(ObjectVersion o) {
+        return Integer.compare(o.revision, revision);
     }
 }

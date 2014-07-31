@@ -16,6 +16,7 @@ public interface ObjectReferenceDao {
     void streamVersions(final String pkey, final ObjectType objectType, final StreamHandler streamHandler);
 
     void createVersion(final ObjectVersion objectVersion);
+    void updateVersionToTimestamp(final ObjectVersion objectVersion, final long endTimestamp);
     void deleteVersion(final ObjectVersion objectVersion);
 
 }
