@@ -1,37 +1,61 @@
 package net.ripe.db.whois.internal.api.rnd.domain;
 
-import net.ripe.db.whois.internal.api.rnd.InternalMessages;
+import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
+import net.ripe.db.whois.query.VersionDateTime;
 
-import javax.annotation.CheckForNull;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
-import java.util.Set;
 
-public class RpslObjectWithReferences {
-    private final boolean isDeleted;
-    private Set<RpslObjectReference> outgoingReferences;
-    private int revision;
+public class RpslObjectWithReferences implements ResponseObject {
+    private final RpslObject rpslObject;
+    private final int sameTimestampCount;
+    private final VersionDateTime versionDateTime;
+    private List<ObjectVersion> outgoing;
+    private List<ObjectVersion> incoming;
 
-    public RpslObjectWithReferences(final boolean isDeleted, @CheckForNull final Set<RpslObjectReference> outgoingReferences, int revision) {
-        this.isDeleted = isDeleted;
-        this.outgoingReferences = outgoingReferences;
-        this.revision = revision;
+    public RpslObjectWithReferences(final RpslObject rpslObject, final int sameTimestampCount, final VersionDateTime versionDateTime) {
+        this.rpslObject = rpslObject;
+        this.sameTimestampCount = sameTimestampCount;
+        this.versionDateTime = versionDateTime;
     }
 
-
-    public void setOutgoingReferences(final Set<RpslObjectReference> outgoingReferences) {
-        this.outgoingReferences = outgoingReferences;
+    public RpslObjectWithReferences(final RpslObject rpslObject, final int sameTimestampCount, final VersionDateTime versionDateTime,
+                                    final List<ObjectVersion> outgoing, List<ObjectVersion> incoming) {
+        this(rpslObject, sameTimestampCount, versionDateTime);
+        this.outgoing = outgoing;
+        this.incoming = incoming;
     }
 
-    public Set<RpslObjectReference> getOutgoingReferences() {
-        return outgoingReferences;
+    public RpslObject getRpslObject() {
+        return rpslObject;
     }
 
-    public boolean isDeleted() {
-        return isDeleted;
+    public int getSameTimestampCount() {
+        return sameTimestampCount;
     }
 
-    public int getRevision() {
-        return revision;
+    public VersionDateTime getVersionDateTime() {
+        return versionDateTime;
     }
 
+    @Override
+    public void writeTo(final OutputStream out) throws IOException {
+        rpslObject.writeTo(out);
+    }
+
+    @Override
+    public byte[] toByteArray() {
+        return rpslObject.toByteArray();
+    }
+
+    public List<ObjectVersion> getOutgoing() {
+        return outgoing;
+    }
+
+    public List<ObjectVersion> getIncoming() {
+        return incoming;
+    }
 }

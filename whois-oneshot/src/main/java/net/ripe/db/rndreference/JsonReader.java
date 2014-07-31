@@ -1,11 +1,8 @@
-package net.ripe.db.whois.internal.api.rnd;
+package net.ripe.db.rndreference;
 
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import net.ripe.db.whois.internal.api.rnd.dao.JdbcObjectReferenceDao;
-import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectKey;
-import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectTimeLine;
-import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectWithReferences;
 import org.joda.time.Interval;
 
 import java.io.BufferedReader;
@@ -37,11 +34,11 @@ public class JsonReader {
             String line = null;
             while ((line = reader.readLine()) != null) {
                 final RpslObjectTimeLine timeLine = gson.fromJson(line, RpslObjectTimeLine.class);
-                final Map<Interval, RpslObjectWithReferences> rpslObjectIntervals = timeLine.getRpslObjectIntervals();
+                final Map<Interval, RevisionWithReferences> rpslObjectIntervals = timeLine.getRpslObjectIntervals();
 
                 for (Interval interval : rpslObjectIntervals.keySet()) {
 //                    int versionId = referenceDao.addObjectVersion(timeLine.getObjectType(), timeLine.getKey(), interval.getStart(), interval.getEnd());
-                    final RpslObjectWithReferences references = rpslObjectIntervals.get(interval);
+                    final RevisionWithReferences references = rpslObjectIntervals.get(interval);
 
 //                    for (RpslObjectKey referencing : references.getOutgoing()) {
 //                        referenceDao.addReferencing(versionId, referencing.getObjectType(), referencing.getPkey());
