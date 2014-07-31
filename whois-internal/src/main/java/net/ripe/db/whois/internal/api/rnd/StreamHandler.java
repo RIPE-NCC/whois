@@ -1,18 +1,13 @@
 package net.ripe.db.whois.internal.api.rnd;
 
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.StreamingMarshal;
-import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisVersionInternal;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
-import net.ripe.db.whois.query.QueryMessages;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Queue;
 
 public class StreamHandler {
@@ -45,10 +40,7 @@ public class StreamHandler {
             return;
         }
 
-        final WhoisVersionInternal internal = objectMapper.mapVersion(version, source);
-//            final WhoisObject whoisObject = whoisObjectServerMapper.map(version, tagResponseObject, attributeMapper);
-
-        marshal.writeArray(internal);
+        marshal.writeArray(objectMapper.mapVersion(version, source));
     }
 
     private void startStreaming() {
@@ -58,27 +50,19 @@ public class StreamHandler {
         marshal.startArray("version");
     }
 
+    public boolean flushHasStreamedObjects() {
+        if (!versionFound) {
+            return versionFound;
+        }
 
-    public boolean versionFound() {
-        return versionFound;
-    }
-
-    public void flushAndGetErrors() {
-//            if (!versionFound) {
-//                return errors;
-//            }
         streamObject(queue.poll());
 
         marshal.endArray();
-
         marshal.end("versionsInternal");
-        if (!versionFound) {
-            final List<ErrorMessage> errorMessages = Lists.newArrayList(new ErrorMessage(QueryMessages.noResults(source)));
-            marshal.write("errormessages", errorMessages);
-        }
 
         marshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
         marshal.end("whois-resources");
         marshal.close();
+        return true;
     }
 }

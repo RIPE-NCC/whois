@@ -55,7 +55,7 @@ public class VersionObjectMapper {
                 objectVersion.getRevision(),
                 ISO8601_FORMATTER.print(start),
                 ISO8601_FORMATTER.print(end),
-                createWhoisVersionInternalLink(source, objectVersion.getType().getName(), objectVersion.getPkey() + "/" + objectVersion.getRevision()));
+                createWhoisVersionInternalLink(source, objectVersion.getType().getName().toUpperCase(), objectVersion.getPkey() + "/" + objectVersion.getRevision()));
     }
 
     private Link createWhoisVersionInternalLink(String source, String type, String versionId) {
