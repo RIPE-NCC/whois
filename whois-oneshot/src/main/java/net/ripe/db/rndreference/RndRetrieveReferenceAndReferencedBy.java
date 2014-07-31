@@ -14,8 +14,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectKey;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectReference;
-import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectTimeLine;
-import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectWithReferences;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -178,7 +176,7 @@ public class RndRetrieveReferenceAndReferencedBy {
     }
 
     private void setRevisionsOfReferences(RpslObjectTimeLine timeline, Jedis jedis) {
-        for (Map.Entry<Interval, RpslObjectWithReferences> entry : timeline.getRpslObjectIntervals().entrySet()) {
+        for (Map.Entry<Interval, RevisionWithReferences> entry : timeline.getRpslObjectIntervals().entrySet()) {
             if (!entry.getValue().isDeleted()) {
                 Interval objectInterval = entry.getKey();
                 for (final RpslObjectReference reference : entry.getValue().getOutgoingReferences()) {
@@ -250,8 +248,8 @@ public class RndRetrieveReferenceAndReferencedBy {
     }
 
     private int setCorrectObjectType(final Map<String, List<RefObject>> cache, final RpslObjectTimeLine timeline) {
-        for (Map.Entry<Interval, RpslObjectWithReferences> entry : timeline.getRpslObjectIntervals().entrySet()) {
-            final RpslObjectWithReferences rpslObjectWithReferences = entry.getValue();
+        for (Map.Entry<Interval, RevisionWithReferences> entry : timeline.getRpslObjectIntervals().entrySet()) {
+            final RevisionWithReferences rpslObjectWithReferences = entry.getValue();
             if (!rpslObjectWithReferences.isDeleted()) {
                 final Set<RpslObjectReference> fixedSet = new HashSet<>();
 
@@ -333,8 +331,8 @@ public class RndRetrieveReferenceAndReferencedBy {
         }
     }
 
-    private Map<Interval, RpslObjectWithReferences> constructTimeLine(final String key, final List<DatabaseRpslObject> allEvents) {
-        final Map<Interval, RpslObjectWithReferences> rpslObjectTimeline = new HashMap<>();
+    private Map<Interval, RevisionWithReferences> constructTimeLine(final String key, final List<DatabaseRpslObject> allEvents) {
+        final Map<Interval, RevisionWithReferences> rpslObjectTimeline = new HashMap<>();
 
         int revision = 0;
         for (int i = 0; i < allEvents.size(); i++) {
@@ -351,7 +349,7 @@ public class RndRetrieveReferenceAndReferencedBy {
             if (!interval.getEnd().equals(interval.getStart())) {
                 if (databaseRpslObject instanceof LastEvent && ((LastEvent) databaseRpslObject).isDeleteEvent()) {
                     revision++;
-                    rpslObjectTimeline.put(interval, new RpslObjectWithReferences(true, null, revision));
+                    rpslObjectTimeline.put(interval, new RevisionWithReferences(true, null, revision));
                 } else {
                     try {
                         final RpslObject rpslObject =
@@ -359,12 +357,12 @@ public class RndRetrieveReferenceAndReferencedBy {
                                         ((LastEvent) databaseRpslObject).getRpslObject() :
                                         RpslObject.parse(((HistoricRpslObject) databaseRpslObject).getObjectBytes()));
                         revision++;
-                        rpslObjectTimeline.put(interval, new RpslObjectWithReferences(false, getReferencingObjects(rpslObject), revision));
+                        rpslObjectTimeline.put(interval, new RevisionWithReferences(false, getReferencingObjects(rpslObject), revision));
                     } catch (Exception ex) {
                         LOGGER.error("ERROR: object {}: unable to parse object data but not a delete event.", key);
                         LOGGER.error("ERROR: object {}: not deleted object with no data in timeline", key);
                         revision++;
-                        rpslObjectTimeline.put(interval, new RpslObjectWithReferences(false, null, revision));
+                        rpslObjectTimeline.put(interval, new RevisionWithReferences(false, null, revision));
                     }
                 }
             }

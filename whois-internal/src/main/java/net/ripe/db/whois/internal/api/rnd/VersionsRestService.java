@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.BasicSourceContext;
+import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectWithReferences;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -75,8 +76,8 @@ public class VersionsRestService {
 
         validate(request, source);
 
-        final RpslObjectWithTimestamp rpslObjectWithTimestamp = versionsService.getRpslObjectWithTimestamp(ObjectType.getByName(objectType), key, revision);
-        if (rpslObjectWithTimestamp == null) {
+        final RpslObjectWithReferences rpslObjectWithReferences = versionsService.getRpslObjectWithReferences(ObjectType.getByName(objectType), key, revision);
+        if (rpslObjectWithReferences == null) {
             throw new WebApplicationException(Response
                     .status(Response.Status.NOT_FOUND)
                     .entity(whoisService.createErrorEntity(request, Collections.singletonList(InternalMessages.noVersion(key))))
@@ -85,13 +86,13 @@ public class VersionsRestService {
 
         final WhoisResources whoisResources = new WhoisResources();
 
-        final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObjectWithTimestamp.getRpslObject(), null, FormattedClientAttributeMapper.class);
-        if (rpslObjectWithTimestamp.getVersionDateTime() != null) {
-            whoisObject.setVersionDateTime(ISO8601_FORMATTER.print(rpslObjectWithTimestamp.getVersionDateTime().getTimestamp()));
+        final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObjectWithReferences.getRpslObject(), null, FormattedClientAttributeMapper.class);
+        if (rpslObjectWithReferences.getVersionDateTime() != null) {
+            whoisObject.setVersionDateTime(ISO8601_FORMATTER.print(rpslObjectWithReferences.getVersionDateTime().getTimestamp()));
         }
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
-        whoisResources.setOutgoing(versionObjectMapper.mapObjectReferences(rpslObjectWithTimestamp.getOutgoing()));
-        whoisResources.setIncoming(versionObjectMapper.mapObjectReferences(rpslObjectWithTimestamp.getIncoming()));
+        whoisResources.setOutgoing(versionObjectMapper.mapObjectReferences(rpslObjectWithReferences.getOutgoing()));
+        whoisResources.setIncoming(versionObjectMapper.mapObjectReferences(rpslObjectWithReferences.getIncoming()));
         whoisResources.includeTermsAndConditions();
 
         return Response.ok(whoisResources).build();

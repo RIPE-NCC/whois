@@ -18,6 +18,7 @@ import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
+import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectWithReferences;
 import net.ripe.db.whois.query.VersionDateTime;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,7 @@ public class VersionsService {
         };
     }
 
-    public RpslObjectWithTimestamp getRpslObjectWithTimestamp(final ObjectType type, final String key, final Integer revision) {
+    public RpslObjectWithReferences getRpslObjectWithReferences(final ObjectType type, final String key, final Integer revision) {
 
         final ObjectVersion version = objectReferenceDao.getVersion(type, key, revision);
 
@@ -82,7 +83,7 @@ public class VersionsService {
         final List<ObjectVersion> outgoing = objectReferenceDao.getOutgoing(version);
         final List<ObjectVersion> incoming = objectReferenceDao.getIncoming(version);
 
-        return new RpslObjectWithTimestamp(
+        return new RpslObjectWithReferences(
                 decorateRpslObject(rpslObject),
                 entriesInSameVersion.size(),
                 new VersionDateTime(version.getInterval().getStartMillis()/1000L),
