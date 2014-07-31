@@ -3,7 +3,12 @@ package net.ripe.db.rndreference;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonWriter;
 import com.mysql.jdbc.Driver;
 import joptsimple.OptionParser;
@@ -11,7 +16,11 @@ import joptsimple.OptionSet;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectKey;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectReference;
 import org.joda.time.DateTime;
@@ -19,10 +28,13 @@ import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import redis.clients.jedis.Jedis;
 
 import javax.annotation.Nullable;
@@ -30,12 +42,28 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.sql.Statement;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static net.ripe.db.whois.common.rpsl.AttributeType.*;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FINGERPR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IFADDR;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IRT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.REF_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.UPD_TO;
 import static org.joda.time.DateTime.now;
 
 /**
@@ -75,6 +103,7 @@ public class RndRetrieveReferenceAndReferencedBy {
     private static final String PASSWORD_OPTION = "password";
     private static final String DBURL_OPTION = "url";
     private static final String START = "start";           // starting timestamp in seconds
+    private static final String TO_DB_OPTION = "to-db";
     private static final Long FROM_BEGINNING = -1L;
     public static final Integer DUMMY_OBJECT_TYPE_ID = 999;
 
@@ -89,6 +118,8 @@ public class RndRetrieveReferenceAndReferencedBy {
         final OptionParser parser = new OptionParser();
         parser.accepts(PASSWORD_OPTION).withRequiredArg().required();
         parser.accepts(DBURL_OPTION).withRequiredArg().required();
+        parser.accepts(TO_DB_OPTION);
+
         parser.accepts(START).withRequiredArg().ofType(Long.class);
         final OptionSet options = parser.parse(argv);
 
@@ -100,9 +131,9 @@ public class RndRetrieveReferenceAndReferencedBy {
 
         // run app
         if (options.has(START)) {
-            app.run((Long) options.valueOf(START));
+            app.run((Long) options.valueOf(START), options.has(TO_DB_OPTION));
         } else {
-            app.run(FROM_BEGINNING);
+            app.run(FROM_BEGINNING, options.has(TO_DB_OPTION));
         }
     }
 
@@ -136,7 +167,7 @@ public class RndRetrieveReferenceAndReferencedBy {
                 }).create();
     }
 
-    private void run(final Long start) {
+    private void run(final Long start, final boolean toDburl) {
         redisTemplate.clearAndExecute(new RedisRunner() { // store all "events" in the last table in redis
             @Override
             public void run(final Jedis jedis) {
@@ -145,7 +176,7 @@ public class RndRetrieveReferenceAndReferencedBy {
                             "SELECT pkey, timestamp, object_type, object, sequence_id FROM last LIMIT 100", new RpslObjectLastEventsRowMapper());
                 } else {
                     JdbcStreamingHelper.executeStreaming(jdbcTemplate,
-                            "SELECT pkey, timestamp, object_type, object, sequence_id FROM last WHERE timestamp > ? LIMIT 10",
+                            "SELECT pkey, timestamp, object_type, object, sequence_id FROM last WHERE timestamp > ? LIMIT 100",
                             new PreparedStatementSetter() {
                                 @Override
                                 public void setValues(final PreparedStatement ps) throws SQLException {
@@ -156,24 +187,38 @@ public class RndRetrieveReferenceAndReferencedBy {
                 }
 
                 // add the events from the history table
+                LOGGER.info("total objects read from last table: {}", jedis.dbSize());
+
+                LOGGER.info("constructing timelines for all objects");
                 createTimelines(start);
+                LOGGER.info("all timelines constructed");
 
                 // because person/role is interchangeable, we need to do some fancy footwork ot get the right types for the timeperiods.
                 // additionally we need to set the right revisions for the references.
                 final Map<String, List<RefObject>> refObjectsCache = new HashMap<>();
 
+                LOGGER.info("fixing all role/person references and add revision information");
                 for (String key : jedis.keys("*")) {
                     final RpslObjectTimeLine timeline = gson.fromJson(jedis.get(key), RpslObjectTimeLine.class);
                     processed = setCorrectObjectType(refObjectsCache, timeline);
                     setRevisionsOfReferences(timeline, jedis);
                     jedis.set(key, gson.toJson(timeline));
+                    if (processed % 1000 == 0) {
+                        LOGGER.info("fixed {} person/role references", processed);
+                    }
                 }
 
-                writeJson(jedis);
+
+                if (toDburl) {
+                    writeToDb(jedis);
+                } else {
+                    writeJson(jedis);
+                }
             }
         });
         RedisTemplate.shutdown();
     }
+
 
     private void setRevisionsOfReferences(RpslObjectTimeLine timeline, Jedis jedis) {
         for (Map.Entry<Interval, RevisionWithReferences> entry : timeline.getRpslObjectIntervals().entrySet()) {
@@ -191,7 +236,7 @@ public class RndRetrieveReferenceAndReferencedBy {
                                         ps.setString(2, reference.getKey().getPkey());
                                     }
                                 }, new RpslObjectLastEventsRowMapper());
-                        createSingleTimeline(FROM_BEGINNING, reference.getKey().toString(), jedis);
+                        createSingleTimeline(FROM_BEGINNING, reference.getKey().toString(), true, jedis);
                     }
                     RpslObjectTimeLine referenceTimeline = gson.fromJson(jedis.get(reference.getKey().toString()), RpslObjectTimeLine.class);
                     for (Interval referenceInterval : referenceTimeline.getRpslObjectIntervals().keySet()) {
@@ -204,7 +249,7 @@ public class RndRetrieveReferenceAndReferencedBy {
         }
     }
 
-    private void createSingleTimeline(Long start, String key, Jedis jedis) {
+    private void createSingleTimeline(Long start, String key, boolean ignoreReferences, Jedis jedis) {
         final List<HistoricRpslObject> historicRpslObjects = new ArrayList<>();
         final Gson gson = new Gson();
 
@@ -237,7 +282,7 @@ public class RndRetrieveReferenceAndReferencedBy {
             @Override
             public void run(final Jedis jedis) {
                 for (String key : jedis.keys("*")) {
-                    createSingleTimeline(start, key, jedis);
+                    createSingleTimeline(start, key, false, jedis);
                     if (processed % 10 == 0) {
                         LOGGER.info("processed {} timelines", processed);
                     }
@@ -476,5 +521,72 @@ public class RndRetrieveReferenceAndReferencedBy {
         } catch (IOException ex) {
             LOGGER.error("Unable to write: {}", ex.getMessage());
         }
+    }
+
+    private void writeToDb(Jedis jedis) {
+        Map<String, Long> cache = new HashMap<>();
+        // truncate the tables
+        jdbcTemplate.execute("TRUNCATE TABLE object_reference");
+        jdbcTemplate.execute("TRUNCATE TABLE object_version");
+
+        // store the objects and cache primary key
+        LOGGER.info("storing objects in database");
+
+        int insertions = 0;
+        for (String key : jedis.keys("*")) {
+            final RpslObjectTimeLine timeLine = gson.fromJson(jedis.get(key), RpslObjectTimeLine.class);
+            for (Map.Entry<Interval, RpslObjectWithReferences> entry : timeLine.getRpslObjectIntervals().entrySet()) {
+                final RpslObjectWithReferences current = entry.getValue();
+                final Interval interval = entry.getKey();
+
+                KeyHolder holder = new GeneratedKeyHolder();
+                jdbcTemplate.update(new PreparedStatementCreator() {
+                    @Override
+                    public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                        PreparedStatement ps = con.prepareStatement(
+                                "INSERT INTO object_version (pkey, object_type, from_timestamp, to_timestamp, revision) VALUES (?,?,?,?,?)",
+                                Statement.RETURN_GENERATED_KEYS);
+                        ps.setString(1, timeLine.getKey());
+                        ps.setInt(2, timeLine.getObjectType());
+                        ps.setInt(3, new Long(interval.getStartMillis() / 1000L).intValue());
+                        if (interval.getEnd().equals(INFINITE_END_DATE)) {
+                            ps.setNull(4, Types.INTEGER);
+                        } else {
+                            ps.setInt(4, new Long(interval.getEndMillis() / 1000L).intValue());
+
+                        }
+                        ps.setInt(5, current.getRevision());
+                        return ps;
+                    }
+                }, holder);
+                cache.put(current.getRevision() + RpslObjectTimeLine.KEY_SEPERATOR + key, holder.getKey().longValue());
+                insertions++;
+            }
+        }
+        LOGGER.info("{} object insertions", insertions);
+
+        LOGGER.info("inserting references");
+        insertions = 0;
+
+        for (String key : jedis.keys("*")) {
+            final RpslObjectTimeLine timeLine = gson.fromJson(jedis.get(key), RpslObjectTimeLine.class);
+            for (Map.Entry<Interval, RpslObjectWithReferences> entry : timeLine.getRpslObjectIntervals().entrySet()) {
+                if (!entry.getValue().isDeleted()) {
+                    int objectRevision = entry.getValue().getRevision();
+                    for (RpslObjectReference reference : entry.getValue().getOutgoingReferences()) {
+                        if (reference.getKey().getObjectType() != 999) {
+                            for (int referenceRevision : reference.getRevisions()) {
+                                jdbcTemplate.update(
+                                        "INSERT INTO object_reference (from_version, to_version) VALUES (?, ?)",
+                                        cache.get(objectRevision + RpslObjectTimeLine.KEY_SEPERATOR + key),
+                                        cache.get(referenceRevision + RpslObjectTimeLine.KEY_SEPERATOR + reference.getKey().toString()));
+                                insertions++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        LOGGER.info("{} references inserted", insertions);
     }
 }
