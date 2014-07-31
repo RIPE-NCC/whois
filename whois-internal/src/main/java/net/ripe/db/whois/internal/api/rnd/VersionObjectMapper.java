@@ -24,7 +24,7 @@ import java.util.List;
 
 @Component
 public class VersionObjectMapper {
-    private static final DateTimeFormatter ISO8601_FORMATTER = ISODateTimeFormat.dateTimeNoMillis();
+    public static final DateTimeFormatter ISO8601_FORMATTER = ISODateTimeFormat.dateTimeNoMillis();
     private final String baseUrl;
 
     @Autowired
