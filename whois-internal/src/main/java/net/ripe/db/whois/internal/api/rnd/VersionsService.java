@@ -4,8 +4,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
+import net.ripe.db.whois.api.rest.StreamingHelper;
 import net.ripe.db.whois.api.rest.StreamingMarshal;
-import net.ripe.db.whois.api.rest.WhoisRestService;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -51,15 +51,11 @@ public class VersionsService {
         this.versionObjectMapper = versionObjectMapper;
     }
 
-    public List<ObjectVersion> getVersions(final String key, final ObjectType type) {
-        return objectReferenceDao.getVersions(key, type);
-    }
-
     public StreamingOutput streamVersions(final String key, final ObjectType type, final String source, final HttpServletRequest request) {
         return new StreamingOutput() {
             @Override
             public void write(final OutputStream output) throws IOException, WebApplicationException {
-                final StreamingMarshal marshal = WhoisRestService.getStreamingMarshal(request, output);
+                final StreamingMarshal marshal = StreamingHelper.getStreamingMarshal(request, output);
                 final StreamHandler streamHandler = new StreamHandler(marshal, source, versionObjectMapper);
                 objectReferenceDao.streamVersions(key, type, streamHandler);
                 if (!streamHandler.flushHasStreamedObjects()) {
