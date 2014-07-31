@@ -6,14 +6,19 @@ import javax.xml.bind.annotation.*;
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
+        "type",
+        "key",
         "revision",
         "from",
         "to",
         "link"
-
 })
 @XmlRootElement(name = "version")
 public class WhoisVersionInternal {
+    @XmlElement(name = "type", required = false)
+    private String type;
+    @XmlElement(name = "key", required = false)
+    private String key;
     @XmlElement(name = "revision", required = false)
     private int revision;
     @XmlElement(name = "from")
@@ -35,7 +40,6 @@ public class WhoisVersionInternal {
         // required no-arg constructor
     }
 
-
     public int getRevision() {
         return revision;
     }
@@ -52,27 +56,47 @@ public class WhoisVersionInternal {
         return link;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof WhoisVersionInternal)) return false;
 
-        final WhoisVersionInternal that = (WhoisVersionInternal) o;
+        WhoisVersionInternal that = (WhoisVersionInternal) o;
 
         if (revision != that.revision) return false;
-        if (from != null ? !from.equals(that.from) : that.from != null) return false;
-        if (link != null ? !link.equals(that.link) : that.link != null) return false;
-        if (to != null ? !to.equals(that.to) : that.to != null) return false;
+        if (!from.equals(that.from)) return false;
+        if (key != null ? !key.equals(that.key) : that.key != null) return false;
+        if (!link.equals(that.link)) return false;
+        if (!to.equals(that.to)) return false;
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = revision;
-        result = 31 * result + (from != null ? from.hashCode() : 0);
-        result = 31 * result + (to != null ? to.hashCode() : 0);
-        result = 31 * result + (link != null ? link.hashCode() : 0);
+        int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + (key != null ? key.hashCode() : 0);
+        result = 31 * result + revision;
+        result = 31 * result + from.hashCode();
+        result = 31 * result + to.hashCode();
+        result = 31 * result + link.hashCode();
         return result;
     }
 }

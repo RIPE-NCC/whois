@@ -1,18 +1,12 @@
 package net.ripe.db.whois.internal.api.rnd;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisObjects;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersionInternal;
 import net.ripe.db.whois.api.rest.domain.WhoisVersionsInternal;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import org.apache.commons.collections.CollectionUtils;
-import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -55,12 +49,10 @@ public class VersionObjectMapper {
 
     public WhoisVersionInternal mapVersion(final ObjectVersion objectVersion, final String source) {
         final Interval interval = objectVersion.getInterval();
-        final DateTime start = interval.getStart();
-        final DateTime end = interval.getEnd();
         return new WhoisVersionInternal(
                 objectVersion.getRevision(),
-                ISO8601_FORMATTER.print(start),
-                ISO8601_FORMATTER.print(end),
+                ISO8601_FORMATTER.print(interval.getStart()),
+                ISO8601_FORMATTER.print(interval.getEnd()),
                 createWhoisVersionInternalLink(source, objectVersion.getType().getName().toUpperCase(), objectVersion.getPkey() + "/" + objectVersion.getRevision()));
     }
 
@@ -68,20 +60,22 @@ public class VersionObjectMapper {
         return new Link("locator", String.format("%s/api/rnd/%s/%s/%s", baseUrl, source, type, versionId));
     }
 
-    public WhoisObjects mapObjectReferences(final List<ObjectVersion> references) {
-        if (CollectionUtils.isEmpty(references)) {
+    public List<WhoisVersionInternal> mapObjectReferences(final List<ObjectVersion> versions, String source) {
+        if (CollectionUtils.isEmpty(versions)) {
             return null;
         }
 
-        return new WhoisObjects(
-                Lists.newArrayList(Iterables.transform(references, new Function<ObjectVersion, WhoisObject>() {
-                    @Override
-                    public WhoisObject apply(final ObjectVersion input) {
-                        final WhoisObject whoisObject = new WhoisObject();
-                        whoisObject.setType(input.getType().getName());
-                        whoisObject.setPrimaryKey(Lists.newArrayList(new Attribute(input.getType().getName(), input.getPkey().toString())));
-                        return whoisObject;
-                    }
-                })));
+        final List<WhoisVersionInternal> whoisVersions = Lists.newArrayList();
+        for (ObjectVersion version : versions) {
+            whoisVersions.add(mapVersionWithTypeAndKey(version, source));
+        }
+        return whoisVersions;
+    }
+
+    public WhoisVersionInternal mapVersionWithTypeAndKey(final ObjectVersion objectVersion, final String source) {
+        final WhoisVersionInternal version = mapVersion(objectVersion, source);
+        version.setType(objectVersion.getType().getName());
+        version.setKey(objectVersion.getPkey().toString());
+        return version;
     }
 }
