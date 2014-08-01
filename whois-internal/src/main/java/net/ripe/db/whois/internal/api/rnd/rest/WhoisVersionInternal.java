@@ -1,4 +1,6 @@
-package net.ripe.db.whois.api.rest.domain;
+package net.ripe.db.whois.internal.api.rnd.rest;
+
+import net.ripe.db.whois.api.rest.domain.Link;
 
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;

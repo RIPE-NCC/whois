@@ -1,7 +1,7 @@
 package net.ripe.db.whois.internal.api.rnd;
 
 import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.WhoisVersionInternal;
+import net.ripe.db.whois.internal.api.rnd.rest.WhoisVersionInternal;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormatter;

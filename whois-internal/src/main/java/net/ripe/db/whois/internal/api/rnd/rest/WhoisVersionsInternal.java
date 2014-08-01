@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rest.domain;
+package net.ripe.db.whois.internal.api.rnd.rest;
 
 import com.google.common.collect.Lists;
 
