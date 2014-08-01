@@ -1,10 +1,10 @@
 package net.ripe.db.rndreference;
 
 import com.google.common.collect.ImmutableMap;
-import com.sun.istack.NotNull;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectKey;
 import org.joda.time.Interval;
 
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 public class RpslObjectTimeLine {
