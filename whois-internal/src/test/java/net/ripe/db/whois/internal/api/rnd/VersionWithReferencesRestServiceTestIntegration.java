@@ -8,8 +8,6 @@ import net.ripe.db.whois.internal.AbstractInternalTest;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisVersionInternal;
 import org.hamcrest.core.Is;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -170,13 +168,5 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
         System.out.println(RestTest.target(getPort(), "api/rnd/test/organisation/ORG-AB1-TEST/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class));
-    }
-
-    @Test
-    public void testName() throws Exception {
-        System.out.println("LOCALDATETIME = " + VersionObjectMapper.ISO8601_FORMATTER.print(new LocalDateTime()));
-        System.out.println("     DATETIME = " + VersionObjectMapper.ISO8601_FORMATTER.print(new DateTime()));
-
-        System.out.println("LOCAL to DATE = " + VersionObjectMapper.ISO8601_FORMATTER.print(new LocalDateTime().toDateTime()));
     }
 }
