@@ -9,7 +9,6 @@ import net.ripe.db.whois.api.rest.StreamingMarshal;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.domain.serials.Operation;
@@ -44,14 +43,12 @@ public class VersionsService {
     private final ObjectReferenceDao objectReferenceDao;
     private final VersionDao versionDao;
     private final VersionObjectMapper versionObjectMapper;
-    private final WhoisObjectServerMapper whoisObjectMapper;
 
     @Autowired
-    public VersionsService(final ObjectReferenceDao objectReferenceDao, final VersionDao versionDao, final VersionObjectMapper versionObjectMapper, final WhoisObjectServerMapper whoisObjectMapper) {
+    public VersionsService(final ObjectReferenceDao objectReferenceDao, final VersionDao versionDao, final VersionObjectMapper versionObjectMapper) {
         this.objectReferenceDao = objectReferenceDao;
         this.versionDao = versionDao;
         this.versionObjectMapper = versionObjectMapper;
-        this.whoisObjectMapper = whoisObjectMapper;
     }
 
     public StreamingOutput streamVersions(final String key, final ObjectType type, final String source, final HttpServletRequest request) {
@@ -73,7 +70,7 @@ public class VersionsService {
             @Override
             public void write(final OutputStream output) throws IOException, WebApplicationException {
                 final StreamingMarshal marshal = StreamingHelper.getStreamingMarshal(request, output);
-                final ReferenceStreamHandler streamHandler = new ReferenceStreamHandler(marshal, source, versionObjectMapper, whoisObjectMapper);
+                final ReferenceStreamHandler streamHandler = new ReferenceStreamHandler(marshal, source, versionObjectMapper);
 
                 ObjectVersion version = null;
                 RpslObject rpslObject = null;
