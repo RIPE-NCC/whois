@@ -29,6 +29,6 @@ public class RpslObjectKey {
 
     @Override
     public String toString() {
-        return objectType + "::" + pkey;
+        return objectType + "::" + pkey.toUpperCase();
     }
 }
