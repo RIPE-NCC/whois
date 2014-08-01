@@ -96,15 +96,15 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
                 .get(WhoisInternalResources.class);
 
         assertThat(whoisResources.getObject().getAttributes(), hasSize(greaterThan(1)));
-        assertThat(whoisResources.getIncoming().getKey(), is(nullValue()));
-        assertThat(whoisResources.getOutgoing().getType(), is(nullValue()));
+        assertThat(whoisResources.getIncoming(), is(nullValue()));
+        assertThat(whoisResources.getOutgoing(), is(nullValue()));
         //TODO [TP]: test that focus object includes version information
 
         final WhoisVersionInternal expectedMntnerVersion = new WhoisVersionInternal(
                 1, "mntner", "TEST-MNT", "2014-07-31T14:07:23+02:00", null, new Link("locator", "http://" + API_REST_RND_BASEURL + "/api/rnd/test/MNTNER/TEST-MNT/1"));
 
-        assertThat(whoisResources.getOutgoing().getVersions().get(0), is(expectedMntnerVersion));
-        assertThat(whoisResources.getIncoming().getVersions(), containsInAnyOrder(
+        assertThat(whoisResources.getOutgoing().get(0), is(expectedMntnerVersion));
+        assertThat(whoisResources.getIncoming(), containsInAnyOrder(
                 expectedMntnerVersion,
                 new WhoisVersionInternal
                         (1, "person", "TP1-TEST", "2014-08-01T14:07:23+02:00", null, new Link("locator", "http://" + API_REST_RND_BASEURL + "/api/rnd/test/PERSON/TP1-TEST/1")),
@@ -158,5 +158,4 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
             assertThat(whoisResources.getErrorMessages().get(0).toString(), Is.is("There is no entry for object TEST-MNT for the supplied version."));
         }
     }
-
 }
