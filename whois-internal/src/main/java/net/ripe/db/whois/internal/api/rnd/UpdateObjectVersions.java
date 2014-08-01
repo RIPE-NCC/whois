@@ -2,8 +2,16 @@ package net.ripe.db.whois.internal.api.rnd;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.dao.VersionDao;
+import net.ripe.db.whois.common.dao.VersionInfo;
+import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import org.slf4j.Logger;
@@ -18,11 +26,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
@@ -31,6 +42,7 @@ public class UpdateObjectVersions {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateObjectVersions.class);
 
     private final ObjectReferenceDao objectReferenceDao;
+    private final VersionDao versionDao;
     private final JdbcTemplate jdbcTemplate;
 
     private final AtomicBoolean inProgress = new AtomicBoolean();
@@ -38,8 +50,10 @@ public class UpdateObjectVersions {
     @Autowired
     public UpdateObjectVersions(
             final ObjectReferenceDao objectReferenceDao,
+            final VersionDao versionDao,
             @Qualifier("whoisReadOnlySlaveDataSource") final DataSource dataSource) {
         this.objectReferenceDao = objectReferenceDao;
+        this.versionDao = versionDao;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
@@ -52,11 +66,11 @@ public class UpdateObjectVersions {
         }
 
         try {
-            final long timestamp = getMaxTimestamp();
+            final long timestamp = 0;//getMaxTimestamp();
 
             updateObjectVersionsTable(timestamp);
             updateOutgoingReferences(timestamp);
-            updateIncomingReferences(timestamp);
+//            updateIncomingReferences(timestamp);
 
         } finally {
             if (!inProgress.compareAndSet(true, false)) {
@@ -70,6 +84,7 @@ public class UpdateObjectVersions {
 
         final List<ObjectData> updates = Lists.newArrayList();
 
+        // TODO: move to DAO
         jdbcTemplate.query(
                     "(SELECT pkey, object_type, timestamp, object_id, sequence_id FROM history WHERE timestamp > ?) " +
                     "UNION ALL " +
@@ -123,15 +138,94 @@ public class UpdateObjectVersions {
             }
         }
 
-        LOGGER.info("Updated object_versions table in {}", stopwatch.stop());
+//        LOGGER.info("Updated versions table in {}", stopwatch.stop());
+        System.out.println("Updated versions table in " + stopwatch.stop());
     }
 
     private void updateOutgoingReferences(final long timestamp) {
-        // TODO
+        final Stopwatch stopwatch = Stopwatch.createStarted();
+
+        System.out.println("update outgoing references from " + timestamp);
+
+        for (final ObjectVersion next : objectReferenceDao.getVersions(timestamp, Long.MAX_VALUE)) {
+            LOGGER.info("Looking for outgoing references for {} (id={})", next.getPkey(), next.getVersionId());
+
+            final RpslObject rpslObject = findRpslObject(next);
+
+            if (rpslObject != null) {
+                // for each object version, find all outgoing object references for the duration of that revision
+                // (revision may have been subsequently deleted)
+
+                // find all outgoing references from the object (removing duplicates)
+
+                Map<CIString,Set<ObjectType>> references = Maps.newHashMap();
+                for (RpslAttribute attribute : rpslObject.getAttributes()) {
+                    for (ObjectType objectType : attribute.getType().getReferences()) {
+                        if (references.containsKey(attribute.getValue())) {
+                            references.get(attribute.getCleanValue()).add(objectType);
+                        } else {
+                            references.put(attribute.getCleanValue(), Sets.newHashSet(objectType));
+                        }
+                    }
+                }
+
+                // resolve references (all versions of the reference over the duration of the source object)
+
+                for (Map.Entry<CIString, Set<ObjectType>> entry : references.entrySet()) {
+                    for (ObjectType nextObjectType : entry.getValue()) {
+
+                        final List<ObjectVersion> versions = objectReferenceDao.getVersions(
+                                entry.getKey().toString(),
+                                nextObjectType,
+                                next.getInterval().getStartMillis() / 1000,
+                                next.getInterval().getEndMillis() == Long.MAX_VALUE ? 0 : next.getInterval().getEndMillis() / 1000);
+
+                        for (ObjectVersion version : versions) {
+                            objectReferenceDao.createReference(next, version);
+                        }
+                    }
+                }
+            }
+        }
+
+//        LOGGER.info("Updated outgoing references table in {}", stopwatch.stop());
+        System.out.println("Updated outgoing references table in " + stopwatch.stop());
     }
 
     private void updateIncomingReferences(final long timestamp) {
-        // TODO
+        final Stopwatch stopwatch = Stopwatch.createStarted();
+
+        System.out.println("update incoming references from " + timestamp);
+
+//        LOGGER.info("Updated outgoing references table in {}", stopwatch.stop());
+        System.out.println("Updated outgoing references table in " + stopwatch.stop());
+    }
+
+
+    // map from a specific revision of an object, to the rpsl object itself
+    @Nullable
+    private RpslObject findRpslObject(final ObjectVersion objectVersion) {
+        final VersionLookupResult result = versionDao.findByKey(objectVersion.getType(), objectVersion.getPkey().toString());
+        if (result != null) {
+            int revision = 0;
+            for (VersionInfo versionInfo : result.getAllVersions()) {
+                if (versionInfo.getSequenceId() == 0) {
+                    // deletes are not revisions
+                    continue;
+                }
+                revision++;
+                if (revision == objectVersion.getRevision()) {
+//                    LOGGER.info("Found versionInfo ({} {} {}) matches objectVersion ({} {} {})",
+//                            versionInfo.getObjectId(), versionInfo.getSequenceId(), versionInfo.getTimestamp(),
+//                            objectVersion.getPkey(), objectVersion.getType(), revision);
+
+                    return versionDao.getRpslObject(versionInfo);
+                }
+            }
+        }
+
+        LOGGER.warn("Couldn't find RPSL object for " + objectVersion.getPkey() + " id=" + objectVersion.getVersionId());
+        return null;
     }
 
     // get timestamp of the most recent object version

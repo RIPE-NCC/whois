@@ -33,6 +33,8 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    // versions
+
     @Override
     public ObjectVersion getVersion(final ObjectType type, final String pkey, final int revision) {
         return jdbcTemplate.queryForObject(
@@ -62,6 +64,44 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                     "WHERE pkey = ? AND object_type = ? " +
                     "ORDER BY from_timestamp,to_timestamp ASC",
                     new Object[]{pkey, ObjectTypeIds.getId(objectType)},
+                    new ObjectVersionRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return Collections.EMPTY_LIST;
+        }
+    }
+
+    // get versions of a specific object within a time range
+    @Override
+    public List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType, final long fromTimestamp, final long toTimestamp) {
+        try {
+            // if row.from_timestamp <= from_timestamp && (row.to_timestamp >= from_timestamp || row.to_timestamp = 0 || to_timestamp = 0)
+            // if row.from_timestamp > from_timestamp && (row.from_timestamp <= to_timestamp || to_timestamp = 0)
+            return jdbcTemplate.query(
+                    "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
+                    "WHERE ((from_timestamp <= ? AND (to_timestamp >= ? OR to_timestamp = 0 OR ? = 0)) " +
+                    "OR (from_timestamp > ? AND (from_timestamp <= ? OR ? = 0))) " +
+                    "AND pkey = ? AND object_type = ? " +
+                    "ORDER BY from_timestamp,to_timestamp ASC",
+                    new Object[]{
+                            fromTimestamp, fromTimestamp, toTimestamp,  // from_timestamp <= fromTimestamp
+                            fromTimestamp, toTimestamp, toTimestamp,    // from_timestamp > fromTimestamp
+                            pkey, ObjectTypeIds.getId(objectType)
+                    },
+                    new ObjectVersionRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return Collections.EMPTY_LIST;
+        }
+    }
+
+    // get all object versions within a time range
+    @Override
+    public List<ObjectVersion> getVersions(final long fromTimestamp, final long toTimestamp) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
+                    "WHERE from_timestamp >= ? and to_timestamp <= ? " +
+                    "ORDER BY from_timestamp,to_timestamp ASC",
+                    new Object[]{fromTimestamp, toTimestamp},
                     new ObjectVersionRowMapper());
         } catch (EmptyResultDataAccessException e) {
             return Collections.EMPTY_LIST;
@@ -200,19 +240,29 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
         );
     }
 
+    // references
+
+    public void createReference(final ObjectVersion from, final ObjectVersion to) {
+        jdbcTemplate.update(
+                "INSERT INTO object_reference (from_version, to_version) VALUES (?, ?)",
+                from.getVersionId(),
+                to.getVersionId());
+    }
+
+    // helper methods
+
     private static long getFromTimestamp(final Interval interval) {
         return interval.getStart().getMillis() / 1000L;
     }
 
     private static long getToTimestamp(final Interval interval) {
-        if (interval.getStart().equals(interval.getEnd())) {
-            // by convention, an interval with Long.MAX_VALUE is used to represent a revision with no end timestamp
+        if (interval.getEndMillis() == Long.MAX_VALUE) {
+            // by convention, an interval ending in Long.MAX_VALUE is used to represent a revision with no end timestamp
             return 0;
         } else {
-            return interval.getEnd().getMillis() / 1000;
+            return interval.getEnd().getMillis() / 1000L;
         }
     }
-
 
     class ObjectVersionRowMapper implements RowMapper<ObjectVersion> {
         @Override

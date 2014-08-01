@@ -12,11 +12,16 @@ public interface ObjectReferenceDao {
     void streamOutgoing(final ObjectVersion objectVersion, final ReferenceStreamHandler streamHandler);
 
     ObjectVersion getVersion(final ObjectType objectType, final String pkey, final int revision);
+    List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType, final long fromTimestamp, final long toTimestamp);
     List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType);
+    List<ObjectVersion> getVersions(final long fromTimestamp, final long toTimestamp);
     void streamVersions(final String pkey, final ObjectType objectType, final VersionsStreamHandler versionsStreamHandler);
 
     void createVersion(final ObjectVersion objectVersion);
     void updateVersionToTimestamp(final ObjectVersion objectVersion, final long endTimestamp);
     void deleteVersion(final ObjectVersion objectVersion);
+
+    void createReference(final ObjectVersion from, final ObjectVersion to);
+
 
 }
