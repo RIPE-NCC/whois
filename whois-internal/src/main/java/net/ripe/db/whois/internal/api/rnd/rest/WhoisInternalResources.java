@@ -23,7 +23,9 @@ public class WhoisInternalResources {
     private List<WhoisVersionInternal> incoming;
     private List<WhoisVersionInternal> outgoing;
     private ErrorMessages errorMessages;
+    @JsonProperty(value = "versions")
     private List<WhoisVersionInternal> versions;
+    @JsonProperty(value = "terms-and-conditions")
     private Link termsAndConditions;
 
     public void setErrorMessages(final List<ErrorMessage> errorMessages) {

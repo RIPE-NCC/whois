@@ -36,8 +36,6 @@ public class ReferenceStreamHandler {
 
     private void startStreamingObject() {
         marshal.open();
-
-//        marshal.startArray("object");
     }
 
     private void streamObject(@Nullable final RpslObject object) {
@@ -46,8 +44,6 @@ public class ReferenceStreamHandler {
         }
 
         marshal.write("object", objectMapper.mapObject(object, source));
-//        marshal.writeArray(objectMapper.mapObject(object, source));
-//        marshal.endArray();
     }
 
     private void startStreamingVersions(final String direction) {
@@ -98,6 +94,6 @@ public class ReferenceStreamHandler {
     }
 
     public void streamVersion(final ObjectVersion version) {
-        marshal.write("version", version);
+        marshal.write("version", objectMapper.mapVersion(version, source));
     }
 }
