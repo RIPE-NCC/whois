@@ -35,6 +35,22 @@ public class WhoisInternalResources {
         return errorMessages != null ? errorMessages.getErrorMessages() : Collections.<ErrorMessage>emptyList();
     }
 
+    public Link getTermsAndConditions() {
+        return termsAndConditions;
+    }
+
+    public void includeTermsAndConditions() {
+        this.termsAndConditions = new Link("locator", TERMS_AND_CONDITIONS);
+    }
+
+    public WhoisVersionInternal getWhoisVersionInternal() {
+        return whoisVersionInternal;
+    }
+
+    public void setWhoisVersionInternal(final WhoisVersionInternal whoisVersionInternal) {
+        this.whoisVersionInternal = whoisVersionInternal;
+    }
+
     public WhoisObject getObject() {
         return object;
     }
@@ -63,11 +79,7 @@ public class WhoisInternalResources {
         return versionsInternal;
     }
 
-    public Link getTermsAndConditions() {
-        return termsAndConditions;
-    }
-
-    public void includeTermsAndConditions() {
-        this.termsAndConditions = new Link("locator", TERMS_AND_CONDITIONS);
+    public void setVersionsInternal(final WhoisVersionsInternal versionsInternal) {
+        this.versionsInternal = versionsInternal;
     }
 }
