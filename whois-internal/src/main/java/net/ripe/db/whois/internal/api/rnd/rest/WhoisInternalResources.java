@@ -22,11 +22,13 @@ public class WhoisInternalResources {
     private WhoisObject object;
     private List<WhoisVersionInternal> incoming;
     private List<WhoisVersionInternal> outgoing;
+    @JsonProperty(value = "errormessages")
     private ErrorMessages errorMessages;
     @JsonProperty(value = "versions")
     private List<WhoisVersionInternal> versions;
     @JsonProperty(value = "terms-and-conditions")
     private Link termsAndConditions;
+    private Link link;
 
     public void setErrorMessages(final List<ErrorMessage> errorMessages) {
         if (errorMessages.size() > 1) {
@@ -37,6 +39,14 @@ public class WhoisInternalResources {
 
     public List<ErrorMessage> getErrorMessages() {
         return errorMessages != null ? errorMessages.getErrorMessages() : Collections.<ErrorMessage>emptyList();
+    }
+
+    public Link getLink() {
+        return link;
+    }
+
+    public void setLink(final Link link) {
+        this.link = link;
     }
 
     public Link getTermsAndConditions() {

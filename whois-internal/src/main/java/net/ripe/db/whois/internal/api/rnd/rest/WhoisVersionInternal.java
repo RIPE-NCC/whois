@@ -89,18 +89,18 @@ public class WhoisVersionInternal {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof WhoisVersionInternal)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         WhoisVersionInternal that = (WhoisVersionInternal) o;
 
         if (revision != that.revision) return false;
-        if (!from.equals(that.from)) return false;
+        if (from != null ? !from.equals(that.from) : that.from != null) return false;
         if (key != null ? !key.equals(that.key) : that.key != null) return false;
-        if (!link.equals(that.link)) return false;
-        if (!to.equals(that.to)) return false;
-        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+        if (link != null ? !link.equals(that.link) : that.link != null) return false;
+        if (to != null ? !to.equals(that.to) : that.to != null) return false;
+        if (type != null ? !type.equalsIgnoreCase(that.type) : that.type != null) return false;
 
         return true;
     }
@@ -110,9 +110,9 @@ public class WhoisVersionInternal {
         int result = type != null ? type.hashCode() : 0;
         result = 31 * result + (key != null ? key.hashCode() : 0);
         result = 31 * result + revision;
-        result = 31 * result + from.hashCode();
-        result = 31 * result + to.hashCode();
-        result = 31 * result + link.hashCode();
+        result = 31 * result + (from != null ? from.hashCode() : 0);
+        result = 31 * result + (to != null ? to.hashCode() : 0);
+        result = 31 * result + (link != null ? link.hashCode() : 0);
         return result;
     }
 }
