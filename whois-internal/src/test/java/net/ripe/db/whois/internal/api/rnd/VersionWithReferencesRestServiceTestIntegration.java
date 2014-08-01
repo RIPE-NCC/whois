@@ -1,6 +1,7 @@
 package net.ripe.db.whois.internal.api.rnd;
 
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.AbstractInternalTest;
@@ -18,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -43,8 +45,8 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
             organisation: ORG-AB1-TEST
                     mnt-by: TEST-MNT
                     admin-c:TP1-TEST
-
-            the organisation has been updated with only the address attribute changed.
+                    address: street
+            the organisation has been updated with only the address attribute changed to "new address".
          */
         whoisTemplate.execute("" +
                         "INSERT INTO `last` (`object_id`, `sequence_id`, `timestamp`, `object_type`, `object`, `pkey`) " +
@@ -115,6 +117,22 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
     }
 
     @Test
+    public void correct_versions_of_an_object_is_returned() {
+
+        final WhoisInternalResources orgInHistory = RestTest.target(getPort(), "api/rnd/test/organisation/ORG-AB1-TEST/versions/1", null, apiKey)
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisInternalResources.class);
+
+        assertThat(orgInHistory.getObject().getAttributes(), hasItem(new Attribute("address", "street")));
+
+        final WhoisInternalResources orgInLast = RestTest.target(getPort(), "api/rnd/test/organisation/ORG-AB1-TEST/versions/2", null, apiKey)
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisInternalResources.class);
+
+        assertThat(orgInLast.getObject().getAttributes(), hasItem(new Attribute("address", "new address")));
+    }
+
+    @Test
     public void no_incoming_or_outgoing_references() {
 
         JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference");
@@ -139,16 +157,6 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
             assertThat(whoisResources.getErrorMessages().get(0).toString(), Is.is("There is no entry for object TEST-MNT for the supplied version."));
         }
-
-    }
-
-    @Test
-    public void dfsa() {
-
-        System.out.println(RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
-                .request(MediaType.APPLICATION_XML_TYPE)
-                .get(String.class));
-
     }
 
 }
