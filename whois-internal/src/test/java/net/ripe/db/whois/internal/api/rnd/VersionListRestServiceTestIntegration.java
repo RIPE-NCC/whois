@@ -17,6 +17,7 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.jdbc.JdbcTestUtils;
 
 import javax.sql.DataSource;
 import javax.ws.rs.ClientErrorException;
@@ -44,6 +45,8 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
 
         databaseHelper.setupWhoisDatabase(new JdbcTemplate(dataSource));
         databaseHelper.insertApiKey(apiKey, "/api/rnd", "rnd api key");
+        JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference");
+        JdbcTestUtils.deleteFromTables(whoisTemplate, "object_version");
     }
 
 
@@ -115,6 +118,9 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
                     .get(WhoisInternalResources.class);
             fail();
         } catch (ClientErrorException e) {
+            final String str = e.getResponse().readEntity(String.class);
+            System.out.println(str);
+
             final WhoisInternalResources whoisResources = e.getResponse().readEntity(WhoisInternalResources.class);
             assertThat(whoisResources.getErrorMessages().get(0).toString(), is("No entries found for object AS3336"));
             assertThat(e.getResponse().getStatus(), is(404));
@@ -152,22 +158,24 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         final String response = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
-
+        System.out.println(response);
         assertThat(response, is(String.format("" +
                         "{\"versions\":[ {\n" +
-                                "  \"revision\" : 1,\n" +
-                                "  \"from\" : \"%s\",\n" +
-                                "  \"to\" : \"%s\",\n" +
-                                "  \"link\" : {\n" +
-                                "    \"type\" : \"locator\",\n" +
-                                "    \"href\" : \"http://int.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"\n" +
-                                "  }\n" +
-                                "} ]\n" +
-                                "},\n" +
-                                "\"terms-and-conditions\" : {\n" +
-                                "\"type\" : \"locator\",\n" +
-                                "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                                "}",
+                        "  \"type\" : \"AUT-NUM\",\n" +
+                        "  \"pkey\" : \"AS3333\",\n" +
+                        "  \"revision\" : 1,\n" +
+                        "  \"from\" : \"%s\",\n" +
+                        "  \"to\" : \"%s\",\n" +
+                        "  \"link\" : {\n" +
+                        "    \"type\" : \"locator\",\n" +
+                        "    \"href\" : \"http://int.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"\n" +
+                        "  }\n" +
+                        "} ],\n" +
+                        "\"terms-and-conditions\" : {\n" +
+                        "  \"type\" : \"locator\",\n" +
+                        "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "}\n" +
+                        "}",
                     dateTimeFormatter.print(start), dateTimeFormatter.print(end))));
     }
 }

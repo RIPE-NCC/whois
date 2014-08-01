@@ -81,12 +81,10 @@ public class ReferenceStreamHandler {
     }
 
     public void flush() {
-        if (!outgoingFound) {
-            return;
+        if (outgoingFound) {
+            streamObjectVersion(queue.poll());
+            marshal.endArray();
         }
-
-        streamObjectVersion(queue.poll());
-        marshal.endArray();
 
         marshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
         marshal.end("whois-resources");

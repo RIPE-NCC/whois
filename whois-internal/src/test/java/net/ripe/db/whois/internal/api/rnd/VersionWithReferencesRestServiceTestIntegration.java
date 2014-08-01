@@ -32,8 +32,12 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
     @Before
     public void setUp() throws Exception {
         testDateTimeProvider.reset();
-        databaseHelper.setupWhoisDatabase(whoisTemplate);
         databaseHelper.insertApiKey(apiKey, "/api/rnd", "rnd api key");
+        JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference");
+        JdbcTestUtils.deleteFromTables(whoisTemplate, "history");
+        JdbcTestUtils.deleteFromTables(whoisTemplate, "last");
+        JdbcTestUtils.deleteFromTables(whoisTemplate, "serials");
+        JdbcTestUtils.deleteFromTables(whoisTemplate, "object_version");
         /*
             The following statements create 3 objects in DB:
             mntner: TEST-MNT
@@ -90,18 +94,11 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
 
     @Test
     public void references_for_self_referenced_maintainer() {
-//        final String whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
-//                .request(MediaType.APPLICATION_JSON)
-//                .get(String.class);
-//        System.out.println(whoisResources);
-
         final WhoisInternalResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_JSON)
                 .get(WhoisInternalResources.class);
 
         assertThat(whoisResources.getObject().getAttributes(), hasSize(greaterThan(1)));
-        assertThat(whoisResources.getIncoming(), is(nullValue()));
-        assertThat(whoisResources.getOutgoing(), is(nullValue()));
         //TODO [TP]: test that focus object includes version information
 
         final WhoisVersionInternal expectedMntnerVersion = new WhoisVersionInternal(
@@ -117,7 +114,6 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
                 new WhoisVersionInternal
                         (2, "organisation", "ORG-AB1-TEST", "2014-08-05T14:07:23+02:00", null, new Link("locator", "http://" + API_REST_RND_BASEURL + "/api/rnd/test/ORGANISATION/ORG-AB1-TEST/2"))
         ));
-        //TODO [TP]: fix locator links in test
     }
 
     @Test
@@ -161,12 +157,5 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
             assertThat(whoisResources.getErrorMessages().get(0).toString(), Is.is("There is no entry for object TEST-MNT for the supplied version."));
         }
-    }
-
-    @Test
-    public void bla() {
-        System.out.println(RestTest.target(getPort(), "api/rnd/test/organisation/ORG-AB1-TEST/versions/1", null, apiKey)
-                .request(MediaType.APPLICATION_JSON)
-                .get(String.class));
     }
 }
