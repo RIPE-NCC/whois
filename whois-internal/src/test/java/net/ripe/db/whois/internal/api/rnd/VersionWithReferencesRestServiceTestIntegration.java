@@ -92,7 +92,7 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
     public void references_for_self_referenced_maintainer() {
 
         final WhoisInternalResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
-                .request(MediaType.APPLICATION_XML_TYPE)
+                .request(MediaType.APPLICATION_JSON)
                 .get(WhoisInternalResources.class);
 
         assertThat(whoisResources.getObject().getAttributes(), hasSize(greaterThan(1)));
@@ -120,13 +120,13 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
     public void correct_versions_of_an_object_is_returned() {
 
         final WhoisInternalResources orgInHistory = RestTest.target(getPort(), "api/rnd/test/organisation/ORG-AB1-TEST/versions/1", null, apiKey)
-                .request(MediaType.APPLICATION_XML_TYPE)
+                .request(MediaType.APPLICATION_JSON)
                 .get(WhoisInternalResources.class);
 
         assertThat(orgInHistory.getObject().getAttributes(), hasItem(new Attribute("address", "street")));
 
         final WhoisInternalResources orgInLast = RestTest.target(getPort(), "api/rnd/test/organisation/ORG-AB1-TEST/versions/2", null, apiKey)
-                .request(MediaType.APPLICATION_XML_TYPE)
+                .request(MediaType.APPLICATION_JSON)
                 .get(WhoisInternalResources.class);
 
         assertThat(orgInLast.getObject().getAttributes(), hasItem(new Attribute("address", "new address")));
@@ -138,7 +138,7 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
         JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference");
 
         final WhoisInternalResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
-                .request(MediaType.APPLICATION_XML_TYPE)
+                .request(MediaType.APPLICATION_JSON)
                 .get(WhoisInternalResources.class);
 
         assertThat(whoisResources.getObject().getAttributes(), hasSize(greaterThan(1)));
@@ -150,7 +150,7 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
         JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference", "object_version");
         try {
             RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
-                    .request(MediaType.APPLICATION_XML_TYPE)
+                    .request(MediaType.APPLICATION_JSON)
                     .get(WhoisInternalResources.class);
         } catch (NotFoundException e) {
             WhoisInternalResources whoisResources = e.getResponse().readEntity(WhoisInternalResources.class);
