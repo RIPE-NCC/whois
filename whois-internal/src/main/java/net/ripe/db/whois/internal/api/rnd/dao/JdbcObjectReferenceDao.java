@@ -124,7 +124,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 }, new RowCallbackHandler() {
                     @Override
                     public void processRow(final ResultSet rs) throws SQLException {
-                        versionsStreamHandler.streamObjectVersion(new ObjectVersionRowMapper().mapRow(rs, rs.getRow()));
+                        versionsStreamHandler.streamObjectVersion(createObjectVersion(rs));
                     }
                 });
     }
@@ -218,7 +218,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 new RowCallbackHandler() {
                     @Override
                     public void processRow(final ResultSet rs) throws SQLException {
-                        handler.streamReference(isIncoming, new ObjectVersionRowMapper().mapRow(rs, rs.getRow()));
+                        handler.streamReference(isIncoming, createObjectVersion(rs));
                     }
                 }
         );
@@ -243,14 +243,18 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     class ObjectVersionRowMapper implements RowMapper<ObjectVersion> {
         @Override
         public ObjectVersion mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-            return new ObjectVersion (
-                    rs.getLong(1),                          // id
-                    ObjectTypeIds.getType(rs.getInt(2)),    // object_type
-                    rs.getString(3),                        // pkey
-                    rs.getLong(4),                          // from_timestamp
-                    rs.getLong(5), //to_timestamp
-                    rs.getInt(6)                           // revision
-            );
+            return createObjectVersion(rs);
         }
+    }
+
+    private static ObjectVersion createObjectVersion(final ResultSet rs) throws SQLException {
+        return new ObjectVersion(
+                rs.getLong(1),                          // id
+                ObjectTypeIds.getType(rs.getInt(2)),    // object_type
+                rs.getString(3),                        // pkey
+                rs.getLong(4),                          // from_timestamp
+                rs.getLong(5),                          //to_timestamp
+                rs.getInt(6)                            // revision
+        );
     }
 }
