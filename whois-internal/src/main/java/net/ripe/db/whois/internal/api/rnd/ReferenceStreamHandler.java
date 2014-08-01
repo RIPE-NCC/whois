@@ -37,7 +37,6 @@ public class ReferenceStreamHandler {
     private void startStreaming() {
         marshal.open();
 
-        marshal.start("objects");
         marshal.startArray("object");
     }
 
@@ -48,7 +47,6 @@ public class ReferenceStreamHandler {
 
         marshal.writeArray(objectMapper.mapObject(object, source));
         marshal.endArray();
-        marshal.end("objects");
     }
 
     private void startStreamingVersions(final String direction) {
