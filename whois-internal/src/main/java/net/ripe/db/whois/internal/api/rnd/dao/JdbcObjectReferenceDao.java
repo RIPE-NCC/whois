@@ -138,26 +138,10 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     }
 
     @Override
-    public List<ObjectVersion> getIncoming(final ObjectVersion focusObjectVersion) {
-        return jdbcTemplate.query(""+
-                "SELECT " +
-                "  v.id, " +
-                "  v.object_type, " +
-                "  v.pkey, " +
-                "  v.from_timestamp, " +
-                "  v.to_timestamp, " +
-                "  v.revision " +
-                "FROM object_version v " +
-                "INNER JOIN object_reference ref " +
-                "  ON v.id = ref.from_version " +
-                "WHERE ref.to_version = ? " +
-                "ORDER BY v.id ASC ",
-                new ObjectVersionRowMapper(),
-                focusObjectVersion.getVersionId());
-    }
     public void streamIncoming(final ObjectVersion focusObjectVersion, final ReferenceStreamHandler streamHandler) {
         streamReference(true, focusObjectVersion, streamHandler);
     }
+    @Override
     public void streamOutgoing(final ObjectVersion focusObjectVersion, final ReferenceStreamHandler streamHandler) {
         streamReference(false, focusObjectVersion, streamHandler);
     }
@@ -197,25 +181,6 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                     }
                 }
         );
-    }
-
-    @Override
-    public List<ObjectVersion> getOutgoing(final ObjectVersion focusObjectVersion) {
-        return jdbcTemplate.query(""+
-                "SELECT " +
-                "  v.id, " +
-                "  v.object_type, " +
-                "  v.pkey, " +
-                "  v.from_timestamp, " +
-                "  v.to_timestamp, " +
-                "  v.revision " +
-                "FROM object_version v " +
-                "INNER JOIN object_reference ref " +
-                "  ON v.id = ref.to_version " +
-                "WHERE ref.from_version = ? " +
-                "ORDER BY v.id ASC ",
-                new ObjectVersionRowMapper(),
-                focusObjectVersion.getVersionId());
     }
 
     private static long getFromTimestamp(final Interval interval) {
