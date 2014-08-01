@@ -27,10 +27,10 @@ class RpslObjectLastEventsRowMapper implements RowCallbackHandler {
             @Override
             public void run(final Jedis jedis) {
                 if (!deleteEvent) {
-                    jedis.rpush(key, gson.toJson(new LastEventForRedis(eventTimestampInMillis, RpslObject.parse(object), deleteEvent)));
+                    jedis.rpush(key.toUpperCase(), gson.toJson(new LastEventForRedis(eventTimestampInMillis, RpslObject.parse(object), deleteEvent)));
                     processed++;
                 } else {
-                    jedis.rpush(key, gson.toJson(new LastEventForRedis(eventTimestampInMillis, null, deleteEvent)));
+                    jedis.rpush(key.toUpperCase(), gson.toJson(new LastEventForRedis(eventTimestampInMillis, null, deleteEvent)));
                     processed++;
                 }
                 if (processed % 10000 == 0) {

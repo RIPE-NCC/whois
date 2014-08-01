@@ -36,6 +36,8 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 
 import javax.annotation.Nullable;
 import java.io.FileOutputStream;
@@ -116,6 +118,7 @@ public class RndRetrieveReferenceAndReferencedBy {
     private final Gson gson;
     private final RedisTemplate redisTemplate;
     int processed = 0;
+    Integer maxTimestamp = 0;
 
     public static void main(final String[] argv) throws Exception {
         // read options
@@ -178,8 +181,7 @@ public class RndRetrieveReferenceAndReferencedBy {
     }
 
     private void run(final Long start, final boolean toDburl) {
-
-        final Integer maxTimestamp = MAX_TIMESTAMP == null ? new Long(now().minusSeconds(5).getMillis() / 1000L).intValue() : MAX_TIMESTAMP;
+        maxTimestamp = MAX_TIMESTAMP == null ? new Long(now().minusSeconds(5).getMillis() / 1000L).intValue() : MAX_TIMESTAMP;
         LOGGER.info("maximum timestamp {}", maxTimestamp);
 
         redisTemplate.clearAndExecute(new RedisRunner() { // store all "events" in the last table in redis
@@ -220,16 +222,31 @@ public class RndRetrieveReferenceAndReferencedBy {
                 final Map<String, List<RefObject>> refObjectsCache = new HashMap<>();
 
                 LOGGER.info("fixing all role/person references and add revision information");
-                for (String key : jedis.keys("*")) {
-                    final RpslObjectTimeLine timeline = gson.fromJson(jedis.get(key), RpslObjectTimeLine.class);
-                    processed = setCorrectObjectType(refObjectsCache, timeline);
-                    setRevisionsOfReferences(timeline, jedis);
-                    jedis.set(key, gson.toJson(timeline));
-                    if (processed % 1000 == 0) {
-                        LOGGER.info("fixed {} person/role references", processed);
+                boolean scanningDone = false;
+                String cursor = ScanParams.SCAN_POINTER_START;
+                Set<String> keyCache = new HashSet<String>();      // necessary because scan does not guarantee no duplicates
+
+                while (!scanningDone) {
+                    ScanResult<String> scanResult = jedis.scan(cursor);
+                    for (String key : scanResult.getResult()) {
+                        if (!keyCache.contains(key)) {
+                            RpslObjectTimeLine timeline = gson.fromJson(jedis.get(key), RpslObjectTimeLine.class);
+                            processed = setCorrectObjectType(refObjectsCache, timeline);
+                            setRevisionsOfReferences(timeline, jedis);
+                            jedis.set(key, gson.toJson(timeline));
+                            if (processed % 1000 == 0) {
+                                LOGGER.info("fixed {} person/role references", processed);
+                            }
+                            keyCache.add(key);
+                        }
+                    }
+                    if (scanResult.getStringCursor().equalsIgnoreCase("0")) {
+                        scanningDone = true;
+                    } else {
+                        cursor = scanResult.getStringCursor();
                     }
                 }
-
+                keyCache.clear();
 
                 if (toDburl) {
                     writeToDb(jedis);
@@ -248,7 +265,8 @@ public class RndRetrieveReferenceAndReferencedBy {
                 Interval objectInterval = entry.getKey();
                 for (final RpslObjectReference reference : entry.getValue().getOutgoingReferences()) {
                     if (!jedis.exists(reference.getKey().toString())) {
-                        // get the timeline for this object
+                        // get the timeline for this object: on a full run this should noot be called!
+                        LOGGER.info("retrieving timeline for reference {}", reference.getKey().toString());
                         JdbcStreamingHelper.executeStreaming(jdbcTemplate,
                                 "SELECT pkey, timestamp, object_type, object, sequence_id FROM last where object_type=? and pkey=?",
                                 new PreparedStatementSetter() {
@@ -303,12 +321,27 @@ public class RndRetrieveReferenceAndReferencedBy {
         redisTemplate.execute(new RedisRunner() {
             @Override
             public void run(final Jedis jedis) {
-                for (String key : jedis.keys("*")) {
-                    createSingleTimeline(start, key, false, jedis);
-                    if (processed % 10 == 0) {
-                        LOGGER.info("processed {} timelines", processed);
+                boolean scanningDone = false;
+                String cursor = ScanParams.SCAN_POINTER_START;
+                Set<String> keyCache = new HashSet<String>();
+
+                while (!scanningDone) {
+                    ScanResult<String> scanResult = jedis.scan(cursor);
+                    for (String key : scanResult.getResult()) {
+                        if (! keyCache.contains(key)) {
+                            createSingleTimeline(start, key, false, jedis);
+                            if (processed % 10 == 0) {
+                                LOGGER.info("processed {} timelines", processed);
+                            }
+                            processed++;
+                            keyCache.add(key);
+                        }
                     }
-                    processed++;
+                    if (scanResult.getStringCursor().equalsIgnoreCase("0")) {
+                        scanningDone = true;
+                    } else {
+                        cursor = scanResult.getStringCursor();
+                    }
                 }
             }
         });
@@ -326,11 +359,11 @@ public class RndRetrieveReferenceAndReferencedBy {
                         fixedSet.add(base);
                     } else {
                         final String primaryKey = baseKey.getPkey();
-                        if (!cache.containsKey(primaryKey)) {
-                            cache.put(primaryKey, findRefObjects(primaryKey));
+                        if (!cache.containsKey(primaryKey.toUpperCase())) {
+                            cache.put(primaryKey.toUpperCase(), findRefObjects(primaryKey));
                         }
 
-                        final List<RefObject> refObjects = cache.get(primaryKey);
+                        final List<RefObject> refObjects = cache.get(primaryKey.toUpperCase());
                         switch (refObjects.size()) {
                             case 0:
                                 LOGGER.error("Unable to find entry for key {} in object {}", primaryKey, timeline.getKey());
@@ -531,12 +564,27 @@ public class RndRetrieveReferenceAndReferencedBy {
             final JsonWriter writer = new JsonWriter(new OutputStreamWriter(
                     new FileOutputStream("/tmp/data.json"), "utf-8"));
             writer.beginArray();
-            for (String key : jedis.keys("*")) {
-                // we have to do this, otherwise we write a string instead of an object
-                //gson.toJson(gson.fromJson(jedis.get(key), RpslObjectTimeLine.class), writer);
-                LOGGER.info("key {}", key);
-                JsonElement element = gson.fromJson(jedis.get(key), JsonElement.class);
-                gson.toJson(element, writer);
+            boolean scanningDone = false;
+            String cursor = ScanParams.SCAN_POINTER_START;
+
+            Set<String> keyCache = new HashSet<>();
+            while (!scanningDone) {
+                ScanResult<String> scanResult = jedis.scan(cursor);
+                for (String key : scanResult.getResult()) {
+                    if (!keyCache.contains(key)) {
+                        // we have to do this, otherwise we write a string instead of an object
+                        //gson.toJson(gson.fromJson(jedis.get(key), RpslObjectTimeLine.class), writer);
+                        LOGGER.info("key {}", key);
+                        JsonElement element = gson.fromJson(jedis.get(key), JsonElement.class);
+                        gson.toJson(element, writer);
+                        keyCache.add(key);
+                    }
+                }
+                if (scanResult.getStringCursor().equalsIgnoreCase("0")) {
+                    scanningDone = true;
+                } else {
+                    cursor = scanResult.getStringCursor();
+                }
             }
             writer.endArray();
             writer.close();
@@ -546,7 +594,7 @@ public class RndRetrieveReferenceAndReferencedBy {
     }
 
     private void writeToDb(Jedis jedis) {
-        Map<String, Long> cache = new HashMap<>();
+        Map<String, Long> dbPrimaryKeyCache = new HashMap<>();
         // truncate the tables
         jdbcTemplate.execute("TRUNCATE TABLE object_reference");
         jdbcTemplate.execute("TRUNCATE TABLE object_version");
@@ -555,58 +603,86 @@ public class RndRetrieveReferenceAndReferencedBy {
         LOGGER.info("storing objects in database");
 
         int insertions = 0;
-        for (String key : jedis.keys("*")) {
-            final RpslObjectTimeLine timeLine = gson.fromJson(jedis.get(key), RpslObjectTimeLine.class);
-            for (Map.Entry<Interval, RevisionWithReferences> entry : timeLine.getRpslObjectIntervals().entrySet()) {
-                final RevisionWithReferences current = entry.getValue();
-                final Interval interval = entry.getKey();
+        boolean scanningDone = false;
+        String cursor = ScanParams.SCAN_POINTER_START;
+        Set<String> redisKeyCache = new HashSet<>();
 
-                KeyHolder holder = new GeneratedKeyHolder();
-                jdbcTemplate.update(new PreparedStatementCreator() {
-                    @Override
-                    public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                        PreparedStatement ps = con.prepareStatement(
-                                "INSERT INTO object_version (pkey, object_type, from_timestamp, to_timestamp, revision) VALUES (?,?,?,?,?)",
-                                Statement.RETURN_GENERATED_KEYS);
-                        ps.setString(1, timeLine.getKey());
-                        ps.setInt(2, timeLine.getObjectType());
-                        ps.setInt(3, new Long(interval.getStartMillis() / 1000L).intValue());
-                        if (interval.getEnd().equals(INFINITE_END_DATE)) {
-                            ps.setNull(4, Types.INTEGER);
-                        } else {
-                            ps.setInt(4, new Long(interval.getEndMillis() / 1000L).intValue());
+        while (!scanningDone) {
+            ScanResult<String> scanResult = jedis.scan(cursor);
+            for (String redisKey : scanResult.getResult()) {
+                if (! redisKeyCache.contains(redisKey)) {
+                    final RpslObjectTimeLine timeLine = gson.fromJson(jedis.get(redisKey), RpslObjectTimeLine.class);
+                    for (Map.Entry<Interval, RevisionWithReferences> entry : timeLine.getRpslObjectIntervals().entrySet()) {
+                        final RevisionWithReferences current = entry.getValue();
+                        final Interval interval = entry.getKey();
 
-                        }
-                        ps.setInt(5, current.getRevision());
-                        return ps;
+                        KeyHolder holder = new GeneratedKeyHolder();
+                        jdbcTemplate.update(new PreparedStatementCreator() {
+                            @Override
+                            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                                PreparedStatement ps = con.prepareStatement(
+                                        "INSERT INTO object_version (pkey, object_type, from_timestamp, to_timestamp, revision) VALUES (?,?,?,?,?)",
+                                        Statement.RETURN_GENERATED_KEYS);
+                                ps.setString(1, timeLine.getKey());
+                                ps.setInt(2, timeLine.getObjectType());
+                                ps.setInt(3, new Long(interval.getStartMillis() / 1000L).intValue());
+                                if (interval.getEnd().equals(INFINITE_END_DATE)) {
+                                    ps.setNull(4, Types.INTEGER);
+                                } else {
+                                    ps.setInt(4, new Long(interval.getEndMillis() / 1000L).intValue());
+
+                                }
+                                ps.setInt(5, current.getRevision());
+                                return ps;
+                            }
+                        }, holder);
+                        dbPrimaryKeyCache.put(current.getRevision() + RpslObjectTimeLine.KEY_SEPERATOR + redisKey, holder.getKey().longValue());
+                        redisKeyCache.add(redisKey);
+                        insertions++;
                     }
-                }, holder);
-                cache.put(current.getRevision() + RpslObjectTimeLine.KEY_SEPERATOR + key, holder.getKey().longValue());
-                insertions++;
+                }
+            }
+            if (scanResult.getStringCursor().equalsIgnoreCase("0")) {
+                scanningDone = true;
+            } else {
+                cursor = scanResult.getStringCursor();
             }
         }
         LOGGER.info("{} object insertions", insertions);
+        redisKeyCache.clear();
 
         LOGGER.info("inserting references");
         insertions = 0;
-
-        for (String key : jedis.keys("*")) {
-            final RpslObjectTimeLine timeLine = gson.fromJson(jedis.get(key), RpslObjectTimeLine.class);
-            for (Map.Entry<Interval, RevisionWithReferences> entry : timeLine.getRpslObjectIntervals().entrySet()) {
-                if (!entry.getValue().isDeleted()) {
-                    int objectRevision = entry.getValue().getRevision();
-                    for (RpslObjectReference reference : entry.getValue().getOutgoingReferences()) {
-                        if (reference.getKey().getObjectType() != 999) {
-                            for (int referenceRevision : reference.getRevisions()) {
-                                jdbcTemplate.update(
-                                        "INSERT INTO object_reference (from_version, to_version) VALUES (?, ?)",
-                                        cache.get(objectRevision + RpslObjectTimeLine.KEY_SEPERATOR + key),
-                                        cache.get(referenceRevision + RpslObjectTimeLine.KEY_SEPERATOR + reference.getKey().toString()));
-                                insertions++;
+        scanningDone = false;
+        cursor = ScanParams.SCAN_POINTER_START;
+        while (!scanningDone) {
+            ScanResult<String> scanResult = jedis.scan(cursor);
+            for (String key : scanResult.getResult()) {
+                if (! redisKeyCache.contains(key)) {
+                    final RpslObjectTimeLine timeLine = gson.fromJson(jedis.get(key), RpslObjectTimeLine.class);
+                    for (Map.Entry<Interval, RevisionWithReferences> entry : timeLine.getRpslObjectIntervals().entrySet()) {
+                        if (!entry.getValue().isDeleted()) {
+                            int objectRevision = entry.getValue().getRevision();
+                            for (RpslObjectReference reference : entry.getValue().getOutgoingReferences()) {
+                                if (reference.getKey().getObjectType() != 999) {
+                                    for (int referenceRevision : reference.getRevisions()) {
+                                        jdbcTemplate.update(
+                                                "INSERT INTO object_reference (from_version, to_version) VALUES (?, ?)",
+                                                dbPrimaryKeyCache.get(objectRevision + RpslObjectTimeLine.KEY_SEPERATOR + key),
+                                                dbPrimaryKeyCache.get(referenceRevision + RpslObjectTimeLine.KEY_SEPERATOR + reference.getKey().toString()));
+                                        insertions++;
+                                    }
+                                }
                             }
                         }
                     }
+                    redisKeyCache.add(key);
                 }
+            }
+            if (scanResult.getStringCursor().equalsIgnoreCase("0")) {
+                scanningDone = true;
+            } else {
+                cursor = scanResult.getStringCursor();
             }
         }
         LOGGER.info("{} references inserted", insertions);
