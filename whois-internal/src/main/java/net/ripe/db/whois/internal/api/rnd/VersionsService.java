@@ -19,7 +19,6 @@ import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
-import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectWithReferences;
 import net.ripe.db.whois.query.VersionDateTime;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,6 +88,7 @@ public class VersionsService {
                 try {
                     final List<VersionInfo> entriesInSameVersion = lookupRpslObjectByVersion(version);
                     rpslObject = versionDao.getRpslObject(entriesInSameVersion.get(0)); //latest is first
+                    rpslObject = decorateRpslObject(rpslObject);
                 } catch (DataAccessException e) {
                     throwNotFoundException(key, request);
                 }
@@ -106,30 +106,7 @@ public class VersionsService {
         throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(whoisResources).build());
     }
 
-    public RpslObjectWithReferences getRpslObjectWithReferences(final ObjectType type, final String key, final Integer revision) {
-
-        final ObjectVersion version = objectReferenceDao.getVersion(type, key, revision);
-
-        if (version == null) {
-            return null;
-        }
-
-        final List<VersionInfo> entriesInSameVersion = lookupRpslObjectByVersion(version);
-        final RpslObject rpslObject = versionDao.getRpslObject(entriesInSameVersion.get(0)); //latest is first
-        final List<ObjectVersion> outgoing = objectReferenceDao.getOutgoing(version);
-        final List<ObjectVersion> incoming = objectReferenceDao.getIncoming(version);
-
-        return new RpslObjectWithReferences(
-                decorateRpslObject(rpslObject),
-                entriesInSameVersion.size(),
-                new VersionDateTime(version.getInterval().getStartMillis()/1000L),
-                outgoing,
-                incoming);
-    }
-
     private List<VersionInfo> lookupRpslObjectByVersion(final ObjectVersion version) {
-       //TODO: [TP] A list is returned because there may be multiple modifications of an object on the same timestamp.
-
         final List<VersionInfo> versionInfos = versionDao.getVersionsForTimestamp(
                 version.getType(),
                 version.getPkey().toString(),

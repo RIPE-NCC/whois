@@ -8,9 +8,6 @@ import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import java.util.List;
 
 public interface ObjectReferenceDao {
-
-    List<ObjectVersion> getOutgoing(final ObjectVersion focusObjectVersion);
-    List<ObjectVersion> getIncoming(final ObjectVersion focusObjectVersion);
     void streamIncoming(final ObjectVersion objectVersion, final ReferenceStreamHandler streamHandler);
     void streamOutgoing(final ObjectVersion objectVersion, final ReferenceStreamHandler streamHandler);
 
