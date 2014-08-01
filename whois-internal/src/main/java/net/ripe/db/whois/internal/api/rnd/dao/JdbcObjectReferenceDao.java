@@ -139,27 +139,44 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
 
     @Override
     public void streamIncoming(final ObjectVersion focusObjectVersion, final ReferenceStreamHandler streamHandler) {
-        streamReference(true, focusObjectVersion, streamHandler);
+        final String query = "" +
+                "SELECT " +
+                "  v.id, " +
+                "  v.object_type, " +
+                "  v.pkey, " +
+                "  v.from_timestamp, " +
+                "  v.to_timestamp, " +
+                "  v.revision " +
+                "FROM object_version v " +
+                "INNER JOIN object_reference ref " +
+                "  ON v.id = ref.from_version " +
+                "WHERE ref.to_version = ? " +
+                "ORDER BY v.id ASC ";
+        streamReference(true, query, focusObjectVersion, streamHandler);
     }
+
     @Override
     public void streamOutgoing(final ObjectVersion focusObjectVersion, final ReferenceStreamHandler streamHandler) {
-        streamReference(false, focusObjectVersion, streamHandler);
+        final String query = "" +
+                "SELECT " +
+                "  v.id, " +
+                "  v.object_type, " +
+                "  v.pkey, " +
+                "  v.from_timestamp, " +
+                "  v.to_timestamp, " +
+                "  v.revision " +
+                "FROM object_version v " +
+                "INNER JOIN object_reference ref " +
+                "  ON v.id = ref.to_version " +
+                "WHERE ref.from_version = ? " +
+                "ORDER BY v.id ASC ";
+        streamReference(false, query, focusObjectVersion, streamHandler);
     }
-    private void streamReference(final boolean isIncoming, final ObjectVersion objectVersion, final ReferenceStreamHandler handler) {
+
+    private void streamReference(final boolean isIncoming, final String query, final ObjectVersion objectVersion, final ReferenceStreamHandler handler) {
         JdbcStreamingHelper.executeStreaming(
                 jdbcTemplate,
-                "SELECT " +
-                        "  v.id, " +
-                        "  v.object_type, " +
-                        "  v.pkey, " +
-                        "  v.from_timestamp, " +
-                        "  v.to_timestamp, " +
-                        "  v.revision " +
-                        "FROM object_version v " +
-                        "INNER JOIN object_reference ref " +
-                        "  ON v.id = ref.from_version " +
-                        "WHERE ref.to_version = ? " +
-                        "ORDER BY v.id ASC ",
+                query,
                 new PreparedStatementSetter() {
                     @Override
                     public void setValues(final PreparedStatement ps) throws SQLException {
