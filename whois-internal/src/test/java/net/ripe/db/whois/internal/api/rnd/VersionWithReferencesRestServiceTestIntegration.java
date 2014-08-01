@@ -9,7 +9,9 @@ import net.ripe.db.whois.internal.AbstractInternalTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.springframework.test.jdbc.JdbcTestUtils;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -81,7 +83,7 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
     }
 
     @Test
-    public void test_references_for_self_referenced_maintainer() {
+    public void references_for_self_referenced_maintainer() {
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_XML_TYPE)
@@ -106,5 +108,28 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
                         (2, "organisation", "ORG-AB1-TEST", "2014-08-05T14:07:23+02:00", null, new Link("locator", "http://rest.db.ripe.net/api/rnd/test/ORGANISATION/ORG-AB1-TEST/2"))
         ));
         //TODO [TP]: fix locator links in test
+    }
+
+    @Test
+    public void no_incoming_or_outgoing_references() {
+
+        JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getIncoming(), is(nullValue()));
+        assertThat(whoisResources.getOutgoing(), is(nullValue()));
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void version_not_found() {
+        JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference", "object_version");
+
+        RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
     }
 }
