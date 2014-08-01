@@ -2,9 +2,7 @@ package net.ripe.db.whois.internal.api.rnd;
 
 import net.ripe.db.whois.api.rest.StreamingMarshal;
 import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 
@@ -20,9 +18,8 @@ public class ReferenceStreamHandler {
     private StreamingMarshal marshal;
     private String source;
     private VersionObjectMapper objectMapper;
-    private WhoisObjectServerMapper whoisObjectMapper;
 
-    public ReferenceStreamHandler(final StreamingMarshal marshal, final String source, final VersionObjectMapper objectMapper, final WhoisObjectServerMapper whoisObjectMapper) {
+    public ReferenceStreamHandler(final StreamingMarshal marshal, final String source, final VersionObjectMapper objectMapper) {
         this.marshal = marshal;
         this.source = source;
         this.objectMapper = objectMapper;
@@ -33,6 +30,8 @@ public class ReferenceStreamHandler {
             versionFound = true;
             startStreaming();
         }
+
+        streamObject(object);
     }
 
     private void startStreaming() {
@@ -47,8 +46,7 @@ public class ReferenceStreamHandler {
             return;
         }
 
-        final WhoisObject whoisObject = new WhoisObject();//TODO whoisObjectMapper.map(object, FormattedServerAttributeMapper.class);
-        marshal.writeArray(whoisObject);
+        marshal.writeArray(objectMapper.mapObject(object, source));
         marshal.endArray();
         marshal.end("objects");
     }
