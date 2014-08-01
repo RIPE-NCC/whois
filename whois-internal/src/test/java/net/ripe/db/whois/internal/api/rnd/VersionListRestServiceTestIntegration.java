@@ -61,7 +61,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
                 .get(WhoisInternalResources.class);
 
         assertThat(result.getErrorMessages(), hasSize(0));
-        final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
+        final List<WhoisVersionInternal> versions = result.getVersions();
         assertThat(versions, hasSize(2));
 
         final DateTime fromFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getFrom());
@@ -89,7 +89,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
                 .get(WhoisInternalResources.class);
 
         assertThat(result.getErrorMessages(), hasSize(0));
-        final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
+        final List<WhoisVersionInternal> versions = result.getVersions();
         assertThat(versions, hasSize(2));
 
         String baseHref = "http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3335/";
@@ -128,7 +128,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/aut-num/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisInternalResources.class);
-        assertThat(result.getVersionsInternal().getVersions(), hasSize(1));
+        assertThat(result.getVersions(), hasSize(1));
     }
 
     @Test
@@ -139,34 +139,9 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
                 .get(WhoisInternalResources.class);
 
         assertThat(result.getErrorMessages(), hasSize(0));
-        final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
+        final List<WhoisVersionInternal> versions = result.getVersions();
         assertThat(versions, hasSize(1));
 
-    }
-
-    @Test
-    public void listVersions_created_deleted_expected_xml() {
-        final DateTime start = new DateTime(2006, 6, 20, 0, 0, 0, 0);
-        final DateTime end = new DateTime(2006, 7, 12, 0, 0, 0, 0);
-        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", new Interval(start, end), 1));
-        final String response = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
-                .request(MediaType.APPLICATION_XML_TYPE)
-                .get(String.class);
-
-        assertThat(response.trim(), is(String.format(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
-                        "<versionsInternal>\n" +
-                        "<object>\n" +
-                        "    <revision>1</revision>\n" +
-                        "    <from>%s</from>\n" +
-                        "    <to>%s</to>\n" +
-                        "    <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"/>\n" +
-                        "</object>\n" +
-                        "</versionsInternal>\n" +
-                        "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
-                        "</whois-resources>", dateTimeFormatter.print(start), dateTimeFormatter.print(end)
-        )));
     }
 
     @Test
@@ -180,7 +155,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
                 .get(String.class);
 
         assertThat(response, is(String.format(
-                        "{\"versionsInternal\":{\"version\":[ {\n" +
+                        "{\"version\":[ {\n" +
                                 "  \"revision\" : 1,\n" +
                                 "  \"from\" : \"%s\",\n" +
                                 "  \"to\" : \"%s\",\n" +
@@ -193,7 +168,6 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
                                 "\"terms-and-conditions\" : {\n" +
                                 "\"type\" : \"locator\",\n" +
                                 "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
-                                "}\n" +
                                 "}",
                     dateTimeFormatter.print(start), dateTimeFormatter.print(end))));
     }
