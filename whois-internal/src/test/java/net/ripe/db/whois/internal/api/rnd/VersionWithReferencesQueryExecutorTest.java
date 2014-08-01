@@ -1,5 +1,6 @@
 package net.ripe.db.whois.internal.api.rnd;
 
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -13,10 +14,10 @@ public class VersionWithReferencesQueryExecutorTest {
 //    @InjectMocks
 //    VersionWithReferencesQueryExecutor subject;
 //
-//    @Test
-//    public void aclNotSupported() {
+    @Test
+    public void aclNotSupported() {
 //        assertThat(subject.isAclSupported(), is(false));
-//    }
+    }
 //
 //    @Test
 //    public void supports() {
