@@ -12,7 +12,7 @@ import java.util.Queue;
 
 public class ReferenceStreamHandler {
     private final Queue<ObjectVersion> queue = new ArrayDeque<>(1);
-    private boolean versionFound;
+    private boolean objectFound;
     private boolean incomingFound;
     private boolean outgoingFound;
     private StreamingMarshal marshal;
@@ -26,18 +26,18 @@ public class ReferenceStreamHandler {
     }
 
     public void streamWhoisObject(final RpslObject object) {
-        if (!versionFound) {
-            versionFound = true;
-            startStreaming();
+        if (!objectFound) {
+            objectFound = true;
+            startStreamingObject();
         }
 
         streamObject(object);
     }
 
-    private void startStreaming() {
+    private void startStreamingObject() {
         marshal.open();
 
-        marshal.startArray("object");
+//        marshal.startArray("object");
     }
 
     private void streamObject(@Nullable final RpslObject object) {
@@ -45,15 +45,13 @@ public class ReferenceStreamHandler {
             return;
         }
 
-        marshal.writeArray(objectMapper.mapObject(object, source));
-        marshal.endArray();
+        marshal.write("object", objectMapper.mapObject(object, source));
+//        marshal.writeArray(objectMapper.mapObject(object, source));
+//        marshal.endArray();
     }
 
     private void startStreamingVersions(final String direction) {
-        marshal.open();
-
-        marshal.start(direction);
-        marshal.startArray("version");
+        marshal.startArray(direction);
     }
 
     public void streamReference(final boolean isIncoming, final ObjectVersion version) {
@@ -65,11 +63,11 @@ public class ReferenceStreamHandler {
             startStreamingVersions("outgoing");
         }
 
-        streamObject(queue.poll());
+        streamObjectVersion(queue.poll());
         queue.add(version);
     }
 
-    private void streamObject(@Nullable final ObjectVersion version) {
+    private void streamObjectVersion(@Nullable final ObjectVersion version) {
         if (version == null) {
             return;
         }
@@ -82,9 +80,8 @@ public class ReferenceStreamHandler {
             return;
         }
 
-        streamObject(queue.poll());
+        streamObjectVersion(queue.poll());
         marshal.endArray();
-        marshal.end("incoming");
     }
 
     public void flush() {
@@ -92,13 +89,15 @@ public class ReferenceStreamHandler {
             return;
         }
 
-        streamObject(queue.poll());
-
+        streamObjectVersion(queue.poll());
         marshal.endArray();
-        marshal.end("outgoing");
 
         marshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
         marshal.end("whois-resources");
         marshal.close();
+    }
+
+    public void streamVersion(final ObjectVersion version) {
+        marshal.write("version", version);
     }
 }

@@ -90,6 +90,10 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
 
     @Test
     public void references_for_self_referenced_maintainer() {
+//        final String whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
+//                .request(MediaType.APPLICATION_JSON)
+//                .get(String.class);
+//        System.out.println(whoisResources);
 
         final WhoisInternalResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_JSON)

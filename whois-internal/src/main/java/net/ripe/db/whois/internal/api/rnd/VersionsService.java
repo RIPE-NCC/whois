@@ -82,7 +82,14 @@ public class VersionsService {
                 } catch (DataAccessException e) {
                     throwNotFoundException(key, request);
                 }
+
                 streamHandler.streamWhoisObject(rpslObject);
+                final ObjectVersion newVersion = new ObjectVersion(version.getVersionId(),
+                        version.getType(),
+                        version.getPkey(),
+                        null,
+                        version.getRevision());
+                streamHandler.streamVersion(newVersion);
 
                 objectReferenceDao.streamIncoming(version, streamHandler);
                 streamHandler.endStreamingIncoming();

@@ -5,7 +5,7 @@ import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
@@ -28,7 +28,7 @@ public class VersionObjectMapper {
     @Autowired
     public VersionObjectMapper(@Value("${api.rest.rnd.baseurl}") final String baseUrl) {
         this.baseUrl = baseUrl;
-        attributeMapper = new DirtyClientAttributeMapper();
+        attributeMapper = new FormattedClientAttributeMapper();
     }
 
     public WhoisVersionInternal mapVersion(final ObjectVersion objectVersion, final String source) {
