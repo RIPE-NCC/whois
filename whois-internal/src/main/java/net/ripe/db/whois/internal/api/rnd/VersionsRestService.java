@@ -3,7 +3,6 @@ package net.ripe.db.whois.internal.api.rnd;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.rest.RestMessages;
 import net.ripe.db.whois.api.rest.WhoisService;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
@@ -23,28 +22,27 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 
+/**
+ * Specially tailored class for RND (internal use). RND is only interested in JSON.
+ */
 @Component
 @Path("/rnd")
 public class VersionsRestService {
     private final WhoisService whoisService;
-    private final WhoisObjectServerMapper whoisObjectServerMapper;
-    private final VersionObjectMapper versionObjectMapper;
     private final BasicSourceContext sourceContext;
     private final IpRanges ipRanges;
     private final VersionsService versionsService;
 
     @Autowired
-    public VersionsRestService(final WhoisService whoisService, final WhoisObjectServerMapper whoisObjectServerMapper, final VersionObjectMapper versionObjectMapper, final BasicSourceContext basicSourceContext, final IpRanges ipRanges, final VersionsService versionsService) {
+    public VersionsRestService(final WhoisService whoisService, final BasicSourceContext basicSourceContext, final IpRanges ipRanges, final VersionsService versionsService) {
         this.whoisService = whoisService;
-        this.whoisObjectServerMapper = whoisObjectServerMapper;
-        this.versionObjectMapper = versionObjectMapper;
         this.sourceContext = basicSourceContext;
         this.ipRanges = ipRanges;
         this.versionsService = versionsService;
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}/versions")
     public Response versions(
             @Context final HttpServletRequest request,
@@ -58,7 +56,7 @@ public class VersionsRestService {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}/versions/{revision:.*}")
     public Response version(
             @Context final HttpServletRequest request,
