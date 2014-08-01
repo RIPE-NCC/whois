@@ -74,25 +74,23 @@ public class VersionsService {
             public void write(final OutputStream output) throws IOException, WebApplicationException {
                 final StreamingMarshal marshal = StreamingHelper.getStreamingMarshal(request, output);
                 final ReferenceStreamHandler streamHandler = new ReferenceStreamHandler(marshal, source, versionObjectMapper, whoisObjectMapper);
-                final ObjectVersion version = objectReferenceDao.getVersion(type, key, revision);
-                streamHandler.streamWhoisObject(getObject(version));
 
-                objectReferenceDao.streamIncoming(version, streamHandler);
-                streamHandler.endStreamingIncoming();
-                objectReferenceDao.streamOutgoing(version, streamHandler);
-                streamHandler.flush();
-            }
-
-            private RpslObject getObject(final ObjectVersion version) {
+                ObjectVersion version = null;
                 RpslObject rpslObject = null;
                 try {
+                    version = objectReferenceDao.getVersion(type, key, revision);
                     final List<VersionInfo> entriesInSameVersion = lookupRpslObjectByVersion(version);
                     rpslObject = versionDao.getRpslObject(entriesInSameVersion.get(0)); //latest is first
                     rpslObject = decorateRpslObject(rpslObject);
                 } catch (DataAccessException e) {
                     throwNotFoundException(key, request);
                 }
-                return rpslObject;
+                streamHandler.streamWhoisObject(rpslObject);
+
+                objectReferenceDao.streamIncoming(version, streamHandler);
+                streamHandler.endStreamingIncoming();
+                objectReferenceDao.streamOutgoing(version, streamHandler);
+                streamHandler.flush();
             }
         };
     }

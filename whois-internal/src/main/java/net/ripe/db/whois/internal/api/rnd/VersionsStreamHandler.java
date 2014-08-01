@@ -22,11 +22,8 @@ public class VersionsStreamHandler {
         this.source = source;
         this.objectMapper = objectMapper;
     }
-    public void handleStreamEvent(final ObjectVersion version) {
-        streamVersionObject(version);
-    }
 
-    private void streamVersionObject(final ObjectVersion version) {
+    public void streamObjectVersion(final ObjectVersion version) {
         if (!versionFound) {
             versionFound = true;
             startStreaming();
