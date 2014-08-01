@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
+import net.ripe.db.whois.internal.api.rnd.rest.WhoisVersionInternal;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -20,6 +21,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -58,51 +60,51 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
                 .get(WhoisInternalResources.class);
 
         assertThat(result.getErrorMessages(), hasSize(0));
-//        final List<WhoisVersionInternal> versions = result.getVersions();
-//        assertThat(versions, hasSize(2));
-//
-//        final DateTime fromFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getFrom());
-//        final DateTime toFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getTo());
-//        final DateTime fromLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getFrom());
-//        final DateTime toLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getTo());
-//
-//        assertThat(fromFirstDateTime, is(start));
-//        assertThat(toFirstDateTime, is(end));
-//        assertThat(fromLastDateTime, is(toFirstDateTime));
-//        assertThat(toLastDateTime, is(newEnd));
+        final List<WhoisVersionInternal> versions = result.getVersions();
+        assertThat(versions, hasSize(2));
+
+        final DateTime fromFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getFrom());
+        final DateTime toFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getTo());
+        final DateTime fromLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getFrom());
+        final DateTime toLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getTo());
+
+        assertThat(fromFirstDateTime, is(start));
+        assertThat(toFirstDateTime, is(end));
+        assertThat(fromLastDateTime, is(toFirstDateTime));
+        assertThat(toLastDateTime, is(newEnd));
     }
 
     @Test
     public void listVersions_created_deleted_recreated() {
-//        DateTime start = new DateTime(2006, 6, 15, 0, 0, 0, 0);
-//        DateTime end = new DateTime(2006, 6, 20, 0, 0, 0, 0);
-//        DateTime newStart = new DateTime(2006, 7, 12, 0, 0, 0, 0);
-//        DateTime newEnd = new DateTime(2006, 8, 30, 0, 0, 0, 0);
-//        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", start, end, 1));
-//        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", newStart, newEnd, 2));
-//
-//        final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
-//                .request(MediaType.APPLICATION_JSON_TYPE)
-//                .get(WhoisInternalResources.class);
-//
-//        assertThat(result.getErrorMessages(), hasSize(0));
-//        final List<WhoisVersionInternal> versions = result.getVersions();
-//        assertThat(versions, hasSize(2));
-//
-//        String baseHref = "http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3335/";
-//
-//        final DateTime fromFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getFrom());
-//        final DateTime toFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getTo());
-//        final DateTime fromLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getFrom());
-//        final DateTime toLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getTo());
-//
-//        assertThat(versions.get(0).getLink().getHref(), is(baseHref + "1"));
-//        assertThat(versions.get(1).getLink().getHref(), is(baseHref + "2"));
-//
-//        assertThat(fromFirstDateTime, is(start));
-//        assertThat(toFirstDateTime, is(end));
-//        assertThat(fromLastDateTime, is(newStart));
-//        assertThat(toLastDateTime, is(newEnd));
+        DateTime start = new DateTime(2006, 6, 15, 0, 0, 0, 0);
+        DateTime end = new DateTime(2006, 6, 20, 0, 0, 0, 0);
+        DateTime newStart = new DateTime(2006, 7, 12, 0, 0, 0, 0);
+        DateTime newEnd = new DateTime(2006, 8, 30, 0, 0, 0, 0);
+        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", start, end, 1));
+        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", newStart, newEnd, 2));
+
+        final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisInternalResources.class);
+
+        assertThat(result.getErrorMessages(), hasSize(0));
+        final List<WhoisVersionInternal> versions = result.getVersions();
+        assertThat(versions, hasSize(2));
+
+        String baseHref = "http://int.db.ripe.net/api/rnd/test/AUT-NUM/AS3335/";
+
+        final DateTime fromFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getFrom());
+        final DateTime toFirstDateTime = dateTimeFormatter.parseDateTime(versions.get(0).getTo());
+        final DateTime fromLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getFrom());
+        final DateTime toLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getTo());
+
+        assertThat(versions.get(0).getLink().getHref(), is(baseHref + "1"));
+        assertThat(versions.get(1).getLink().getHref(), is(baseHref + "2"));
+
+        assertThat(fromFirstDateTime, is(start));
+        assertThat(toFirstDateTime, is(end));
+        assertThat(fromLastDateTime, is(newStart));
+        assertThat(toLastDateTime, is(newEnd));
     }
 
     @Test
@@ -125,7 +127,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/aut-num/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisInternalResources.class);
-//        assertThat(result.getVersions(), hasSize(1));
+        assertThat(result.getVersions(), hasSize(1));
     }
 
     @Test
@@ -136,8 +138,8 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
                 .get(WhoisInternalResources.class);
 
         assertThat(result.getErrorMessages(), hasSize(0));
-//        final List<WhoisVersionInternal> versions = result.getVersions();
-//        assertThat(versions, hasSize(1));
+        final List<WhoisVersionInternal> versions = result.getVersions();
+        assertThat(versions, hasSize(1));
 
     }
 
@@ -151,14 +153,14 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
 
-        assertThat(response, is(String.format(
-                        "{\"version\":[ {\n" +
+        assertThat(response, is(String.format("" +
+                        "{\"versions\":[ {\n" +
                                 "  \"revision\" : 1,\n" +
                                 "  \"from\" : \"%s\",\n" +
                                 "  \"to\" : \"%s\",\n" +
                                 "  \"link\" : {\n" +
                                 "    \"type\" : \"locator\",\n" +
-                                "    \"href\" : \"http://rest.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"\n" +
+                                "    \"href\" : \"http://int.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"\n" +
                                 "  }\n" +
                                 "} ]\n" +
                                 "},\n" +

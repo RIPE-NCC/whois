@@ -43,8 +43,7 @@ public class VersionsStreamHandler {
     private void startStreaming() {
         marshal.open();
 
-        marshal.start("versionsInternal");
-        marshal.startArray("version");
+        marshal.startArray("versions");
     }
 
     public boolean flushHasStreamedObjects() {
@@ -55,7 +54,6 @@ public class VersionsStreamHandler {
         streamObject(queue.poll());
 
         marshal.endArray();
-        marshal.end("versionsInternal");
 
         marshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
         marshal.end("whois-resources");

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.internal.api.rnd.rest;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.ripe.db.whois.api.rest.domain.Link;
 
@@ -36,9 +35,6 @@ public class WhoisVersionInternal {
     private String to;
     @XmlElement
     private Link link;
-    @JsonIgnoreProperties
-    private int versionId;
-
 
     public WhoisVersionInternal(final int revision, final String from, final String to, final Link link) {
         this.revision = revision;
