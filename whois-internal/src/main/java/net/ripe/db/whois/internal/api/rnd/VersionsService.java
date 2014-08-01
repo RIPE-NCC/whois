@@ -84,12 +84,7 @@ public class VersionsService {
                 }
 
                 streamHandler.streamWhoisObject(rpslObject);
-                final ObjectVersion newVersion = new ObjectVersion(version.getVersionId(),
-                        version.getType(),
-                        version.getPkey(),
-                        null,
-                        version.getRevision());
-                streamHandler.streamVersion(newVersion);
+                streamHandler.streamVersion(version);
 
                 objectReferenceDao.streamIncoming(version, streamHandler);
                 streamHandler.endStreamingIncoming();
@@ -112,7 +107,7 @@ public class VersionsService {
         final List<VersionInfo> versionInfos = versionDao.getVersionsForTimestamp(
                 version.getType(),
                 version.getPkey().toString(),
-                version.getInterval().getStart().getMillis());
+                version.getFromDate().getMillis());
 
         if (CollectionUtils.isEmpty(versionInfos)) {
             throw new IllegalStateException("There should be one or more objects");

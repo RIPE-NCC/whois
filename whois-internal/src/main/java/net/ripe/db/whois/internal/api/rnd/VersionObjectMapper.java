@@ -10,7 +10,6 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisVersionInternal;
-import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +31,12 @@ public class VersionObjectMapper {
     }
 
     public WhoisVersionInternal mapVersion(final ObjectVersion objectVersion, final String source) {
-        final Interval interval = objectVersion.getInterval();
-
         return new WhoisVersionInternal(
                 objectVersion.getRevision(),
                 objectVersion.getType().getName().toUpperCase(),
                 objectVersion.getPkey().toString(),
-                ISO8601_FORMATTER.print(interval.getStart()),
-                interval.getEnd().getMillis() != Long.MAX_VALUE ? ISO8601_FORMATTER.print(interval.getEnd()) : null,
+                ISO8601_FORMATTER.print(objectVersion.getFromDate()),
+                objectVersion.getToDate() != null ? ISO8601_FORMATTER.print(objectVersion.getToDate()) : null,
                 createWhoisVersionInternalLink(source, objectVersion.getType().getName().toUpperCase(), objectVersion.getPkey() + "/" + objectVersion.getRevision()));
     }
 

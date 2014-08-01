@@ -132,7 +132,7 @@ public class UpdateObjectVersions {
                         objectData.objectType,
                         objectData.pkey,
                         objectData.timestamp,
-                        Long.MAX_VALUE,
+                        0,
                         versions.isEmpty() ? 1 : versions.get(versions.size() - 1).getRevision() + 1);
                 objectReferenceDao.createVersion(newVersion);
             }
@@ -177,8 +177,10 @@ public class UpdateObjectVersions {
                         final List<ObjectVersion> versions = objectReferenceDao.getVersions(
                                 entry.getKey().toString(),
                                 nextObjectType,
-                                next.getInterval().getStartMillis() / 1000,
-                                next.getInterval().getEndMillis() == Long.MAX_VALUE ? 0 : next.getInterval().getEndMillis() / 1000);
+                                next.getFromDate().getMillis() / 1000,
+//                                next.getInterval().getEndMillis() == Long.MAX_VALUE ? 0 : next.getInterval().getEndMillis() / 1000);
+                                next.getToDate() == null ? 0 : next.getToDate().getMillis() / 1000);
+                                //TODO [TP] Ed review please the line above
 
                         for (ObjectVersion version : versions) {
                             objectReferenceDao.createReference(next, version);
