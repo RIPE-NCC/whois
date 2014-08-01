@@ -1,5 +1,7 @@
 package net.ripe.db.whois.internal.api.rnd.rest;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import net.ripe.db.whois.api.rest.domain.Link;
 
 import javax.annotation.concurrent.Immutable;
@@ -23,6 +25,7 @@ import javax.xml.bind.annotation.XmlType;
 public class WhoisVersionInternal {
     @XmlElement(name = "type", required = false)
     private String type;
+    @JsonProperty("pkey")
     @XmlElement(name = "key", required = false)
     private String key;
     @XmlElement(name = "revision", required = false)
@@ -33,6 +36,8 @@ public class WhoisVersionInternal {
     private String to;
     @XmlElement
     private Link link;
+    @JsonIgnoreProperties
+    private int versionId;
 
 
     public WhoisVersionInternal(final int revision, final String from, final String to, final Link link) {
@@ -42,7 +47,7 @@ public class WhoisVersionInternal {
         this.link = link;
     }
 
-    public WhoisVersionInternal(final int revision, String type, String key, final String from, final String to, Link link) {
+    public WhoisVersionInternal(final int revision, final String type, final String key, final String from, final String to, Link link) {
         this.type = type;
         this.key = key;
         this.revision = revision;

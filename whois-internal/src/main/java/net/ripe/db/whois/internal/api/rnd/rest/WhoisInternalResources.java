@@ -1,6 +1,7 @@
 package net.ripe.db.whois.internal.api.rnd.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.ErrorMessages;
 import net.ripe.db.whois.api.rest.domain.Link;
@@ -16,6 +17,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 public class WhoisInternalResources {
     public static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/db/support/db-terms-conditions.pdf";
 
+    @JsonProperty(value = "version")
     private WhoisVersionInternal version;
     private WhoisObject object;
     private List<WhoisVersionInternal> incoming;
