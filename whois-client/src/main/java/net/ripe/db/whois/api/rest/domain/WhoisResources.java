@@ -20,13 +20,10 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "service",
         "parameters",
         "objects",
-        "outgoing",
-        "incoming",
         "sources",
         "errorMessages",
         "geolocationAttributes",
         "versions",
-        "versionsInternal",
         "termsAndConditions"
 })
 @JsonInclude(NON_EMPTY)
@@ -41,12 +38,6 @@ public class WhoisResources {
     @XmlElement(name = "objects", required = true)
     @JsonProperty(value = "objects", required = true)
     private WhoisObjects objects;
-    @XmlElement(name = "incoming")
-    @JsonProperty(value = "incoming")
-    private WhoisVersionsInternal incoming;
-    @XmlElement(name = "outgoing")
-    @JsonProperty(value = "outgoing")
-    private WhoisVersionsInternal outgoing;
     @XmlElement(name = "sources")
     private Sources sources;
     @XmlElement
@@ -57,8 +48,6 @@ public class WhoisResources {
     private ErrorMessages errorMessages;
     @XmlElement(name = "versions")
     private WhoisVersions versions;
-    @XmlElement(name = "versionsInternal")
-    private WhoisVersionsInternal versionsInternal;
     @XmlElement(name = "terms-and-conditions")
     private Link termsAndConditions;
 
@@ -118,22 +107,6 @@ public class WhoisResources {
         return this;
     }
 
-    public WhoisVersionsInternal getIncoming() {
-        return incoming;
-    }
-
-    public void setIncoming(final WhoisVersionsInternal incoming) {
-        this.incoming = incoming;
-    }
-
-    public WhoisVersionsInternal getOutgoing() {
-        return outgoing;
-    }
-
-    public void setOutgoing(final WhoisVersionsInternal outgoing) {
-        this.outgoing = outgoing;
-    }
-
     public WhoisResources setGeolocationAttributes(final GeolocationAttributes geolocationAttributes) {
         this.geolocationAttributes = geolocationAttributes;
         return this;
@@ -143,17 +116,8 @@ public class WhoisResources {
         return versions;
     }
 
-    public WhoisVersionsInternal getVersionsInternal() {
-        return versionsInternal;
-    }
-
     public WhoisResources setVersions(final WhoisVersions versions) {
         this.versions = versions;
-        return this;
-    }
-
-    public WhoisResources setVersions(final WhoisVersionsInternal versions) {
-        this.versionsInternal = versions;
         return this;
     }
 

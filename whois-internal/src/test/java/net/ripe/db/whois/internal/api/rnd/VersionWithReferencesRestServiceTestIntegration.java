@@ -2,10 +2,11 @@ package net.ripe.db.whois.internal.api.rnd;
 
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisVersionInternal;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.AbstractInternalTest;
+import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
+import net.ripe.db.whois.internal.api.rnd.rest.WhoisVersionInternal;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -16,12 +17,15 @@ import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
 @Category(IntegrationTest.class)
 public class VersionWithReferencesRestServiceTestIntegration extends AbstractInternalTest {
+
+    public static final String API_REST_RND_BASEURL = "int.db.ripe.net";
 
     @Before
     public void setUp() throws Exception {
@@ -85,27 +89,27 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
     @Test
     public void references_for_self_referenced_maintainer() {
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
+        final WhoisInternalResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_XML_TYPE)
-                .get(WhoisResources.class);
+                .get(WhoisInternalResources.class);
 
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getObject().getAttributes(), hasSize(greaterThan(1)));
         assertThat(whoisResources.getIncoming().getKey(), is(nullValue()));
         assertThat(whoisResources.getOutgoing().getType(), is(nullValue()));
         //TODO [TP]: test that focus object includes version information
 
         final WhoisVersionInternal expectedMntnerVersion = new WhoisVersionInternal(
-                1, "mntner", "TEST-MNT", "2014-07-31T14:07:23+02:00", null, new Link("locator", "http://rest.db.ripe.net/api/rnd/test/MNTNER/TEST-MNT/1"));
+                1, "mntner", "TEST-MNT", "2014-07-31T14:07:23+02:00", null, new Link("locator", "http://" + API_REST_RND_BASEURL + "/api/rnd/test/MNTNER/TEST-MNT/1"));
 
         assertThat(whoisResources.getOutgoing().getVersions().get(0), is(expectedMntnerVersion));
         assertThat(whoisResources.getIncoming().getVersions(), containsInAnyOrder(
                 expectedMntnerVersion,
                 new WhoisVersionInternal
-                        (1, "person", "TP1-TEST", "2014-08-01T14:07:23+02:00", null, new Link("locator", "http://rest.db.ripe.net/api/rnd/test/PERSON/TP1-TEST/1")),
+                        (1, "person", "TP1-TEST", "2014-08-01T14:07:23+02:00", null, new Link("locator", "http://" + API_REST_RND_BASEURL + "/api/rnd/test/PERSON/TP1-TEST/1")),
                 new WhoisVersionInternal
-                        (1, "organisation", "ORG-AB1-TEST", "2014-08-01T14:07:23+02:00", "2014-08-05T14:07:23+02:00", new Link("locator", "http://rest.db.ripe.net/api/rnd/test/ORGANISATION/ORG-AB1-TEST/1")),
+                        (1, "organisation", "ORG-AB1-TEST", "2014-08-01T14:07:23+02:00", "2014-08-05T14:07:23+02:00", new Link("locator", "http://" + API_REST_RND_BASEURL + "/api/rnd/test/ORGANISATION/ORG-AB1-TEST/1")),
                 new WhoisVersionInternal
-                        (2, "organisation", "ORG-AB1-TEST", "2014-08-05T14:07:23+02:00", null, new Link("locator", "http://rest.db.ripe.net/api/rnd/test/ORGANISATION/ORG-AB1-TEST/2"))
+                        (2, "organisation", "ORG-AB1-TEST", "2014-08-05T14:07:23+02:00", null, new Link("locator", "http://" + API_REST_RND_BASEURL + "/api/rnd/test/ORGANISATION/ORG-AB1-TEST/2"))
         ));
         //TODO [TP]: fix locator links in test
     }
@@ -115,21 +119,36 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
 
         JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference");
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
+        final WhoisInternalResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_XML_TYPE)
-                .get(WhoisResources.class);
+                .get(WhoisInternalResources.class);
 
-        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getObject().getAttributes(), hasSize(greaterThan(1)));
         assertThat(whoisResources.getIncoming(), is(nullValue()));
         assertThat(whoisResources.getOutgoing(), is(nullValue()));
     }
 
-    @Test(expected = NotFoundException.class)
     public void version_not_found() {
         JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference", "object_version");
+        try {
+            RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
+                    .request(MediaType.APPLICATION_XML_TYPE)
+                    .get(WhoisInternalResources.class);
+        } catch (NotFoundException e) {
+            WhoisInternalResources whoisResources = e.getResponse().readEntity(WhoisInternalResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), Is.is("There is no entry for object TEST-MNT for the supplied version."));
+        }
 
-        RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
-                .request(MediaType.APPLICATION_XML_TYPE)
-                .get(WhoisResources.class);
     }
+
+    @Test
+    public void dfsa() {
+
+        System.out.println(RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(String.class));
+
+    }
+
 }

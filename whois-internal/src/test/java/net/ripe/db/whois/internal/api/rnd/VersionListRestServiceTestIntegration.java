@@ -1,13 +1,13 @@
 package net.ripe.db.whois.internal.api.rnd;
 
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisVersionInternal;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
+import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
+import net.ripe.db.whois.internal.api.rnd.rest.WhoisVersionInternal;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormatter;
@@ -56,9 +56,9 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", new Interval(start, end), 1));
         objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", new Interval(end, newEnd), 2));
 
-        final WhoisResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
+        final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(WhoisResources.class);
+                .get(WhoisInternalResources.class);
 
         assertThat(result.getErrorMessages(), hasSize(0));
         final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
@@ -84,9 +84,9 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", new Interval(start, end), 1));
         objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", new Interval(newStart, newEnd), 2));
 
-        final WhoisResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
+        final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(WhoisResources.class);
+                .get(WhoisInternalResources.class);
 
         assertThat(result.getErrorMessages(), hasSize(0));
         final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();
@@ -113,10 +113,10 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         try {
             RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3336/versions", null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
-                    .get(WhoisResources.class);
+                    .get(WhoisInternalResources.class);
             fail();
         } catch (ClientErrorException e) {
-            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            final WhoisInternalResources whoisResources = e.getResponse().readEntity(WhoisInternalResources.class);
             assertThat(whoisResources.getErrorMessages().get(0).toString(), is("No entries found for object AS3336"));
             assertThat(e.getResponse().getStatus(), is(404));
         }
@@ -125,18 +125,18 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
     @Test
     public void listVersions_objecttype_in_lowercase() throws Exception {
         objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", new Interval(new DateTime(2006, 6, 20, 0, 0, 0, 0), new DateTime(2006, 7, 12, 0, 0, 0, 0)), 1));
-        final WhoisResources result = RestTest.target(getPort(), "api/rnd/test/aut-num/AS3333/versions", null, apiKey)
+        final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/aut-num/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(WhoisResources.class);
+                .get(WhoisInternalResources.class);
         assertThat(result.getVersionsInternal().getVersions(), hasSize(1));
     }
 
     @Test
     public void allow_person_query() {
         objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.PERSON, "AA1-RIPE", new Interval(new DateTime(2006, 6, 20, 0, 0, 0, 0), new DateTime(2006, 7, 12, 0, 0, 0, 0)), 1));
-        final WhoisResources result = RestTest.target(getPort(), "api/rnd/test/person/AA1-RIPE/versions", null, apiKey)
+        final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/person/AA1-RIPE/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(WhoisResources.class);
+                .get(WhoisInternalResources.class);
 
         assertThat(result.getErrorMessages(), hasSize(0));
         final List<WhoisVersionInternal> versions = result.getVersionsInternal().getVersions();

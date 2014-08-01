@@ -1,4 +1,4 @@
-package net.ripe.db.whois.internal.api.rnd;
+package net.ripe.db.whois.internal.api.rnd.rest;
 
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.rest.RestMessages;
@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.BasicSourceContext;
+import net.ripe.db.whois.internal.api.rnd.VersionsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
