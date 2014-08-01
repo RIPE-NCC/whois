@@ -92,7 +92,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                                 rs.getLong(5) == 0 ? Long.MAX_VALUE : rs.getLong(5),     //to_timestamp
                                 rs.getInt(6)                           // revision
                         );
-                        versionsStreamHandler.handleStreamEvent(objectVersion);
+                        versionsStreamHandler.streamObjectVersion(objectVersion);
                     }
                 });
     }
