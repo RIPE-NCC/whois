@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.internal.api.rnd.ReferenceStreamHandler;
 import net.ripe.db.whois.internal.api.rnd.VersionsStreamHandler;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
-import org.joda.time.Interval;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -124,15 +124,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 }, new RowCallbackHandler() {
                     @Override
                     public void processRow(final ResultSet rs) throws SQLException {
-                        final ObjectVersion objectVersion = new ObjectVersion(
-                                rs.getLong(1),                          // id
-                                ObjectTypeIds.getType(rs.getInt(2)),    // object_type
-                                rs.getString(3),                        // pkey
-                                rs.getLong(4),                          // from_timestamp
-                                rs.getLong(5) == 0 ? Long.MAX_VALUE : rs.getLong(5),     //to_timestamp
-                                rs.getInt(6)                           // revision
-                        );
-                        versionsStreamHandler.streamObjectVersion(objectVersion);
+                        versionsStreamHandler.streamObjectVersion(new ObjectVersionRowMapper().mapRow(rs, rs.getRow()));
                     }
                 });
     }
@@ -143,8 +135,8 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 "INSERT INTO object_version (pkey, object_type, from_timestamp, to_timestamp, revision) VALUES (?, ?, ?, ?, ?)",
                 objectVersion.getPkey(),
                 ObjectTypeIds.getId(objectVersion.getType()),
-                getFromTimestamp(objectVersion.getInterval()),
-                getToTimestamp(objectVersion.getInterval()),
+                convertToTimestamp(objectVersion.getFromDate()),
+                convertToTimestamp(objectVersion.getToDate()), //TODO [TP]: it should write null instead of zeros in case of open end date.
                 objectVersion.getRevision());
     }
 
@@ -155,7 +147,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 endTimestamp,
                 objectVersion.getPkey(),
                 ObjectTypeIds.getId(objectVersion.getType()),
-                getFromTimestamp(objectVersion.getInterval()),
+                convertToTimestamp(objectVersion.getFromDate()),
                 objectVersion.getRevision());
         if (rows != 1) {
             throw new IllegalStateException("Updated " + rows + " rows for " + objectVersion.toString());
@@ -169,8 +161,8 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 "pkey = ? AND object_type = ? AND from_timestamp = ? AND to_timestamp = ? AND revision = ?",
                 objectVersion.getPkey(),
                 ObjectTypeIds.getId(objectVersion.getType()),
-                getFromTimestamp(objectVersion.getInterval()),
-                getToTimestamp(objectVersion.getInterval()),
+                convertToTimestamp(objectVersion.getFromDate()),
+                convertToTimestamp(objectVersion.getToDate()),
                 objectVersion.getRevision());
         if (rows != 1) {
             throw new IllegalStateException("Updated " + rows + " rows for " + objectVersion.toString());
@@ -226,21 +218,11 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 new RowCallbackHandler() {
                     @Override
                     public void processRow(final ResultSet rs) throws SQLException {
-                        final ObjectVersion objectVersion = new ObjectVersion(
-                                rs.getLong(1),                          // id
-                                ObjectTypeIds.getType(rs.getInt(2)),    // object_type
-                                rs.getString(3),                        // pkey
-                                rs.getLong(4),                          // from_timestamp
-                                rs.getLong(5) == 0 ? Long.MAX_VALUE : rs.getLong(5),     //to_timestamp
-                                rs.getInt(6)                           // revision
-                        );
-                        handler.streamReference(isIncoming, objectVersion);
+                        handler.streamReference(isIncoming, new ObjectVersionRowMapper().mapRow(rs, rs.getRow()));
                     }
                 }
         );
     }
-
-    // references
 
     public void createReference(final ObjectVersion from, final ObjectVersion to) {
         jdbcTemplate.update(
@@ -248,21 +230,15 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 from.getVersionId(),
                 to.getVersionId());
     }
-
-    // helper methods
-
-    private static long getFromTimestamp(final Interval interval) {
-        return interval.getStart().getMillis() / 1000L;
-    }
-
-    private static long getToTimestamp(final Interval interval) {
-        if (interval.getEndMillis() == Long.MAX_VALUE) {
-            // by convention, an interval ending in Long.MAX_VALUE is used to represent a revision with no end timestamp
+    
+    private static long convertToTimestamp(final DateTime dateTime) {
+        if (dateTime == null) {
             return 0;
         } else {
-            return interval.getEnd().getMillis() / 1000L;
+            return dateTime.getMillis() / 1000;
         }
     }
+
 
     class ObjectVersionRowMapper implements RowMapper<ObjectVersion> {
         @Override
@@ -272,7 +248,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                     ObjectTypeIds.getType(rs.getInt(2)),    // object_type
                     rs.getString(3),                        // pkey
                     rs.getLong(4),                          // from_timestamp
-                    rs.getLong(5) == 0 ? Long.MAX_VALUE : rs.getLong(5), //to_timestamp
+                    rs.getLong(5), //to_timestamp
                     rs.getInt(6)                           // revision
             );
         }
