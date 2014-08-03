@@ -3,6 +3,7 @@ package net.ripe.db.rndreference;
 import net.ripe.db.whois.internal.api.rnd.domain.RpslObjectReference;
 
 import javax.annotation.CheckForNull;
+import java.util.HashSet;
 import java.util.Set;
 
 public class RevisionWithReferences {
@@ -12,7 +13,11 @@ public class RevisionWithReferences {
 
     public RevisionWithReferences(final boolean isDeleted, @CheckForNull final Set<RpslObjectReference> outgoingReferences, int revision) {
         this.isDeleted = isDeleted;
-        this.outgoingReferences = outgoingReferences;
+        if (outgoingReferences != null) {
+            this.outgoingReferences = outgoingReferences;
+        } else {
+            this.outgoingReferences = new HashSet<>();
+        }
         this.revision = revision;
     }
 
