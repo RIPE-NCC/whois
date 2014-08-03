@@ -184,9 +184,10 @@ public class RndRetrieveReferenceAndReferencedBy {
         maxTimestamp = MAX_TIMESTAMP == null ? new Long(now().minusSeconds(5).getMillis() / 1000L).intValue() : MAX_TIMESTAMP;
         LOGGER.info("maximum timestamp {}", maxTimestamp);
 
-        redisTemplate.clearAndExecute(new RedisRunner() { // store all "events" in the last table in redis
+        redisTemplate.execute(new RedisRunner() { // store all "events" in the last table in redis
             @Override
             public void run(final Jedis jedis) {
+/*
                 if (start.equals(FROM_BEGINNING)) {
                     JdbcStreamingHelper.executeStreaming(jdbcTemplate,
                             "SELECT pkey, timestamp, object_type, object, sequence_id FROM last where timestamp < ?",
@@ -219,13 +220,15 @@ public class RndRetrieveReferenceAndReferencedBy {
 
                 // because person/role is interchangeable, we need to do some fancy footwork ot get the right types for the timeperiods.
                 // additionally we need to set the right revisions for the references.
+*/
                 final Map<String, List<RefObject>> refObjectsCache = new HashMap<>();
 
                 LOGGER.info("fixing all role/person references and add revision information");
                 boolean scanningDone = false;
                 String cursor = ScanParams.SCAN_POINTER_START;
-                Set<String> keyCache = new HashSet<String>();      // necessary because scan does not guarantee no duplicates
+                Set<String> keyCache = new HashSet<>();      // necessary because redis scan does not guarantee no duplicates
 
+                int processedObjects = 0;
                 while (!scanningDone) {
                     ScanResult<String> scanResult = jedis.scan(cursor);
                     for (String key : scanResult.getResult()) {
@@ -234,8 +237,9 @@ public class RndRetrieveReferenceAndReferencedBy {
                             processed = setCorrectObjectType(refObjectsCache, timeline);
                             setRevisionsOfReferences(timeline, jedis);
                             jedis.set(key, gson.toJson(timeline));
-                            if (processed % 1000 == 0) {
-                                LOGGER.info("fixed {} person/role references", processed);
+                            processedObjects++;
+                            if (processedObjects % 1000 == 0) {
+                                LOGGER.info("fixed {} person/role references and added reference revisions", processedObjects);
                             }
                             keyCache.add(key);
                         }
@@ -278,6 +282,10 @@ public class RndRetrieveReferenceAndReferencedBy {
                                 }, new RpslObjectLastEventsRowMapper());
                         createSingleTimeline(FROM_BEGINNING, reference.getKey().toString(), true, jedis);
                     }
+
+                    // make sure that we do not get duplicates when this gets called twice.
+                    // TODO turn reference revisions from list to set
+                    reference.clearRevisions();
                     RpslObjectTimeLine referenceTimeline = gson.fromJson(jedis.get(reference.getKey().toString()), RpslObjectTimeLine.class);
                     for (Interval referenceInterval : referenceTimeline.getRpslObjectIntervals().keySet()) {
                         if (referenceInterval.overlaps(objectInterval)) {
@@ -352,7 +360,10 @@ public class RndRetrieveReferenceAndReferencedBy {
             final RevisionWithReferences revisionWithReferences = entry.getValue();
             if (!revisionWithReferences.isDeleted()) {
                 final Set<RpslObjectReference> fixedSet = new HashSet<>();
-
+                if (revisionWithReferences.getOutgoingReferences() == null) {
+                    LOGGER.error("timeline for {} contains null value for outgoing references for revision {}", timeline.getKey(), entry.getKey());
+                    revisionWithReferences.setOutgoingReferences(new HashSet<RpslObjectReference>());
+                }
                 for (RpslObjectReference base : revisionWithReferences.getOutgoingReferences()) {
                     RpslObjectKey baseKey = base.getKey();
                     if (!baseKey.getObjectType().equals(DUMMY_OBJECT_TYPE_ID)) {

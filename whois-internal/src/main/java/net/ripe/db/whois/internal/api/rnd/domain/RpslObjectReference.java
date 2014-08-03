@@ -23,4 +23,8 @@ public class RpslObjectReference {
     public void addRevision(int revision) {
         revisions.add(revision);
     }
+
+    public void clearRevisions() {
+        revisions.clear();
+    }
 }
