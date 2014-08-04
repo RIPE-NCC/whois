@@ -18,6 +18,7 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Nullable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -79,22 +80,29 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     @Override
     public List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType, final long fromTimestamp, final long toTimestamp) {
         try {
-            System.out.println("getVersions: " + pkey + ": " + fromTimestamp + "-" + toTimestamp);
-
-            // if row.from_timestamp <= from_timestamp && (row.to_timestamp >= from_timestamp || row.to_timestamp = 0 || to_timestamp = 0)
-            // if row.from_timestamp > from_timestamp && (row.from_timestamp <= to_timestamp || to_timestamp = 0)
-            return jdbcTemplate.query(
-                    "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
-                    "WHERE ((from_timestamp <= ? AND (to_timestamp >= ? OR to_timestamp = NULL OR ? = 0)) " +
-                    "OR (from_timestamp > ? AND (from_timestamp <= ? OR ? = 0))) " +
-                    "AND pkey = ? AND object_type = ? " +
-                    "ORDER BY from_timestamp,to_timestamp ASC",
-                    new Object[]{
-                            fromTimestamp, fromTimestamp, toTimestamp,  // from_timestamp <= fromTimestamp
-                            fromTimestamp, toTimestamp, toTimestamp,    // from_timestamp > fromTimestamp
-                            pkey, ObjectTypeIds.getId(objectType)
-                    },
-                    new ObjectVersionRowMapper());
+            if (toTimestamp == 0) {
+                // open-ended range
+                return jdbcTemplate.query(
+                        "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
+                        "WHERE pkey = ? AND object_type = ? " +
+                        "AND from_timestamp > ? " +
+                        "ORDER BY from_timestamp,to_timestamp ASC",
+                        new Object[]{
+                            pkey, ObjectTypeIds.getId(objectType), fromTimestamp
+                        },
+                        new ObjectVersionRowMapper());
+            } else {
+                // closed range
+                return jdbcTemplate.query(
+                        "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
+                        "WHERE pkey = ? AND object_type = ? " +
+                        "AND from_timestamp <= ? AND (to_timestamp >= ? OR to_timestamp = NULL) " +
+                        "ORDER BY from_timestamp,to_timestamp ASC",
+                        new Object[]{
+                            pkey, ObjectTypeIds.getId(objectType), fromTimestamp, toTimestamp
+                        },
+                        new ObjectVersionRowMapper());
+            }
         } catch (EmptyResultDataAccessException e) {
             return Collections.EMPTY_LIST;
         }
@@ -106,7 +114,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
         try {
             return jdbcTemplate.query(
                     "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
-                    "WHERE from_timestamp >= ?" +
+                    "WHERE from_timestamp >= ? " +
                     "ORDER BY from_timestamp ASC",
                     new Object[]{fromTimestamp},
                     new ObjectVersionRowMapper());
@@ -143,7 +151,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 objectVersion.getPkey(),
                 ObjectTypeIds.getId(objectVersion.getType()),
                 convertToTimestamp(objectVersion.getFromDate()),
-                convertToTimestamp(objectVersion.getToDate()), //TODO [TP]: it should write null instead of zeros in case of open end date.
+                convertToTimestamp(objectVersion.getToDate()),
                 objectVersion.getRevision());
     }
 
@@ -157,7 +165,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 convertToTimestamp(objectVersion.getFromDate()),
                 objectVersion.getRevision());
         if (rows != 1) {
-            throw new IllegalStateException("Updated " + rows + " rows for " + objectVersion.toString());
+            throw new IllegalStateException("Updated " + rows + " rows for UPDATE operation on " + objectVersion.toString());
         }
     }
 
@@ -172,7 +180,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 convertToTimestamp(objectVersion.getToDate()),
                 objectVersion.getRevision());
         if (rows != 1) {
-            throw new IllegalStateException("Updated " + rows + " rows for " + objectVersion.toString());
+            throw new IllegalStateException("Updated " + rows + " rows for DELETE operation on " + objectVersion.toString());
         }
     }
 
@@ -271,11 +279,12 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
 
     // helper methods
 
-    private static long convertToTimestamp(final DateTime dateTime) {
+    @Nullable
+    private static Long convertToTimestamp(final DateTime dateTime) {
         if (dateTime == null) {
-            return 0;
+            return null;        // by convention, an unspecified date is represented by NULL
         } else {
-            return dateTime.getMillis() / 1000;
+            return dateTime.getMillis() / 1000;     // database timestamp has seconds resolution
         }
     }
 
