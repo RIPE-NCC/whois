@@ -8,7 +8,7 @@ import net.ripe.db.whois.api.rest.StreamingHelper;
 import net.ripe.db.whois.api.rest.StreamingMarshal;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.domain.serials.Operation;
@@ -18,6 +18,7 @@ import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
+import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
 import net.ripe.db.whois.query.VersionDateTime;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class VersionsService {
                 final VersionsStreamHandler versionsStreamHandler = new VersionsStreamHandler(marshal, source, versionObjectMapper);
                 objectReferenceDao.streamVersions(key, type, versionsStreamHandler);
                 if (!versionsStreamHandler.flushHasStreamedObjects()) {
-                    throwNotFoundException(key, request);
+                    throwNotFoundException(request, InternalMessages.noVersions(key));
                 }
             }
         };
@@ -80,11 +81,11 @@ public class VersionsService {
                     rpslObject = versionDao.getRpslObject(entriesInSameVersion.get(0)); //latest is first
                     rpslObject = decorateRpslObject(rpslObject);
                 } catch (DataAccessException e) {
-                    throwNotFoundException(key, request);
+                    throwNotFoundException(request, InternalMessages.noVersion(key));
                 }
-
                 streamHandler.streamWhoisObject(rpslObject);
                 streamHandler.streamVersion(version);
+                //TODO [TP]: if entriesInSameVersion > 1, we need to write the InternalMessages.multipleVersionsForTimestamp() in the stream
 
                 objectReferenceDao.streamIncoming(version, streamHandler);
                 streamHandler.endStreamingIncoming();
@@ -94,9 +95,9 @@ public class VersionsService {
         };
     }
 
-    private void throwNotFoundException(final String key, final HttpServletRequest request) {
-        final WhoisResources whoisResources = new WhoisResources();
-        whoisResources.setErrorMessages(Lists.newArrayList(new ErrorMessage(InternalMessages.noVersions(key))));
+    private void throwNotFoundException(final HttpServletRequest request, Message message) {
+        final WhoisInternalResources whoisResources = new WhoisInternalResources();
+        whoisResources.setErrorMessages(Lists.newArrayList(new ErrorMessage(message)));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
         whoisResources.includeTermsAndConditions();
 
