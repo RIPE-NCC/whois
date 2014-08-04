@@ -118,12 +118,9 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
                     .get(WhoisInternalResources.class);
             fail();
         } catch (ClientErrorException e) {
-            final String str = e.getResponse().readEntity(String.class);
-            System.out.println(str);
-
             final WhoisInternalResources whoisResources = e.getResponse().readEntity(WhoisInternalResources.class);
-            assertThat(whoisResources.getErrorMessages().get(0).toString(), is("No entries found for object AS3336"));
             assertThat(e.getResponse().getStatus(), is(404));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), is("No entries found for object AS3336"));
         }
     }
 
@@ -158,7 +155,6 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         final String response = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
-        System.out.println(response);
         assertThat(response, is(String.format("" +
                         "{\"versions\":[ {\n" +
                         "  \"type\" : \"AUT-NUM\",\n" +

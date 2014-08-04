@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisVersionInternal;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -16,10 +15,12 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 
+import static junit.framework.TestCase.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -98,11 +99,15 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
                 .request(MediaType.APPLICATION_JSON)
                 .get(WhoisInternalResources.class);
 
-        assertThat(whoisResources.getObject().getAttributes(), hasSize(greaterThan(1)));
-        //TODO [TP]: test that focus object includes version information
+        assertThat(whoisResources.getObject().getAttributes(), hasItems(
+                                            new Attribute("auth", "SSO", "Filtered", null, null),
+                                            new Attribute("auth", "MD5-PW", "Filtered", null, null)
+                                            ));
 
         final WhoisVersionInternal expectedMntnerVersion = new WhoisVersionInternal(
                 1, "mntner", "TEST-MNT", "2014-07-31T14:07:23+02:00", null, new Link("locator", "http://" + API_REST_RND_BASEURL + "/api/rnd/test/MNTNER/TEST-MNT/1"));
+
+        assertThat(whoisResources.getVersion(), is(expectedMntnerVersion));
 
         assertThat(whoisResources.getOutgoing().get(0), is(expectedMntnerVersion));
         assertThat(whoisResources.getIncoming(), containsInAnyOrder(
@@ -117,7 +122,7 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
     }
 
     @Test
-    public void correct_versions_of_an_object_is_returned() {
+    public void correct_version_of_an_object_is_returned() {
 
         final WhoisInternalResources orgInHistory = RestTest.target(getPort(), "api/rnd/test/organisation/ORG-AB1-TEST/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_JSON)
@@ -146,16 +151,19 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
         assertThat(whoisResources.getOutgoing(), is(nullValue()));
     }
 
+    @Test
     public void version_not_found() {
         JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference", "object_version");
         try {
             RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .get(WhoisInternalResources.class);
+            fail();
         } catch (NotFoundException e) {
             WhoisInternalResources whoisResources = e.getResponse().readEntity(WhoisInternalResources.class);
+            assertThat(e.getResponse().getStatus(), is(404));
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            assertThat(whoisResources.getErrorMessages().get(0).toString(), Is.is("There is no entry for object TEST-MNT for the supplied version."));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), is("There is no entry for object TEST-MNT for the supplied version."));
         }
     }
 }
