@@ -66,7 +66,7 @@ public class UpdateObjectVersions {
         }
 
         try {
-            final long timestamp = 0;//getMaxTimestamp();
+            final long timestamp = getMaxTimestamp();
 
             updateObjectVersionsTable(timestamp);
             updateOutgoingReferences(timestamp);
@@ -74,7 +74,7 @@ public class UpdateObjectVersions {
 
         } finally {
             if (!inProgress.compareAndSet(true, false)) {
-                LOGGER.warn("inProgress unexpectedly false?");
+                LOGGER.warn("unexpectedly not in progress?");
             }
         }
     }
@@ -180,7 +180,6 @@ public class UpdateObjectVersions {
                                 nextObjectType,
                                 next.getFromDate().getMillis() / 1000,
                                 next.getToDate() == null ? 0 : next.getToDate().getMillis() / 1000);
-                                //TODO [TP] Ed review please the line above
 
                         for (ObjectVersion version : versions) {
                             objectReferenceDao.createReference(next, version);
@@ -252,7 +251,6 @@ public class UpdateObjectVersions {
     }
 
     // get timestamp of the most recent object version
-    // TODO: time consuming call
     private long getMaxTimestamp() {
         try {
             return jdbcTemplate.queryForObject(
@@ -264,8 +262,8 @@ public class UpdateObjectVersions {
                         }
                     });
         } catch (EmptyResultDataAccessException e) {
-            LOGGER.warn("Unable to determine latest timestamp, not updating object references.");
-            throw new IllegalStateException();
+            LOGGER.warn("Unable to determine latest timestamp, updating ALL object versions...");
+            return 0;
         }
     }
 
