@@ -60,7 +60,10 @@ public class VersionsService {
                 final VersionsStreamHandler versionsStreamHandler = new VersionsStreamHandler(marshal, source, versionObjectMapper);
                 objectReferenceDao.streamVersions(key, type, versionsStreamHandler);
                 if (!versionsStreamHandler.flushHasStreamedObjects()) {
-                    throwNotFoundException(request, InternalMessages.noVersions(key));
+                    throw new WebApplicationException(Response
+                            .status(Response.Status.NOT_FOUND)
+                            .entity(notFoundWhoisInternalResources(request, InternalMessages.noVersion(key)))
+                            .build());
                 }
             }
         };
@@ -81,8 +84,12 @@ public class VersionsService {
                     rpslObject = versionDao.getRpslObject(entriesInSameVersion.get(0)); //latest is first
                     rpslObject = decorateRpslObject(rpslObject);
                 } catch (DataAccessException e) {
-                    throwNotFoundException(request, InternalMessages.noVersion(key));
+                    throw new WebApplicationException(Response
+                            .status(Response.Status.NOT_FOUND)
+                            .entity(notFoundWhoisInternalResources(request, InternalMessages.noVersion(key)))
+                            .build());
                 }
+
                 streamHandler.streamWhoisObject(rpslObject);
                 streamHandler.streamVersion(version);
                 //TODO [TP]: if entriesInSameVersion > 1, we need to write the InternalMessages.multipleVersionsForTimestamp() in the stream
@@ -95,13 +102,13 @@ public class VersionsService {
         };
     }
 
-    private void throwNotFoundException(final HttpServletRequest request, Message message) {
+    private WhoisInternalResources notFoundWhoisInternalResources(final HttpServletRequest request, Message message) {
         final WhoisInternalResources whoisResources = new WhoisInternalResources();
         whoisResources.setErrorMessages(Lists.newArrayList(new ErrorMessage(message)));
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request)));
         whoisResources.includeTermsAndConditions();
 
-        throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(whoisResources).build());
+        return whoisResources;
     }
 
     private List<VersionInfo> lookupRpslObjectByVersion(final ObjectVersion version) {
