@@ -13,6 +13,9 @@ import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+import static net.ripe.db.whois.internal.api.rnd.ReferenceType.INCOMING;
+import static net.ripe.db.whois.internal.api.rnd.ReferenceType.OUTGOING;
+
 public class ReferenceStreamHandler {
     private final Queue<ObjectVersion> queue = new ArrayDeque<>(1);
     private boolean objectFound;
@@ -49,17 +52,15 @@ public class ReferenceStreamHandler {
         marshal.write("object", objectMapper.mapObject(object, source));
     }
 
-    private void startStreamingVersions(final String direction) {
-        marshal.startArray(direction);
-    }
-
-    public void streamReference(final boolean isIncoming, final ObjectVersion version) {
-        if (isIncoming && !incomingFound) {
+    public void streamReference(final ReferenceType referenceType, final ObjectVersion version) {
+        if (referenceType == INCOMING && !incomingFound) {
             incomingFound = true;
-            startStreamingVersions("incoming");
-        } else if (!isIncoming && !outgoingFound) {
+            marshal.startArray(referenceType.getOutputName());
+        }
+
+        if (referenceType == OUTGOING && !outgoingFound) {
             outgoingFound = true;
-            startStreamingVersions("outgoing");
+            marshal.startArray(referenceType.getOutputName());
         }
 
         streamObjectVersion(queue.poll());

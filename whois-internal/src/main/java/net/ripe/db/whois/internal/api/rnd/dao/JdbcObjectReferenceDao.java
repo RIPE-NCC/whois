@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.internal.api.rnd.ReferenceStreamHandler;
+import net.ripe.db.whois.internal.api.rnd.ReferenceType;
 import net.ripe.db.whois.internal.api.rnd.VersionsStreamHandler;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import org.joda.time.DateTime;
@@ -22,6 +23,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+
+import static net.ripe.db.whois.internal.api.rnd.ReferenceType.INCOMING;
+import static net.ripe.db.whois.internal.api.rnd.ReferenceType.OUTGOING;
 
 // TODO: [ES] add update master data source
 @Repository
@@ -187,7 +191,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 "  ON v.id = ref.from_version " +
                 "WHERE ref.to_version = ? " +
                 "ORDER BY v.id ASC ";
-        streamReference(true, query, focusObjectVersion, streamHandler);
+        streamReference(INCOMING, query, focusObjectVersion, streamHandler);
     }
 
     @Override
@@ -205,10 +209,10 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 "  ON v.id = ref.to_version " +
                 "WHERE ref.from_version = ? " +
                 "ORDER BY v.id ASC ";
-        streamReference(false, query, focusObjectVersion, streamHandler);
+        streamReference(OUTGOING, query, focusObjectVersion, streamHandler);
     }
 
-    private void streamReference(final boolean isIncoming, final String query, final ObjectVersion objectVersion, final ReferenceStreamHandler handler) {
+    private void streamReference(final ReferenceType referenceType, final String query, final ObjectVersion objectVersion, final ReferenceStreamHandler handler) {
         JdbcStreamingHelper.executeStreaming(
                 jdbcTemplate,
                 query,
@@ -221,7 +225,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 new RowCallbackHandler() {
                     @Override
                     public void processRow(final ResultSet rs) throws SQLException {
-                        handler.streamReference(isIncoming, createObjectVersion(rs));
+                        handler.streamReference(referenceType, createObjectVersion(rs));
                     }
                 }
         );
