@@ -1,6 +1,5 @@
 package net.ripe.db.whois.internal.api.rnd;
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.StreamingMarshal;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
@@ -11,6 +10,7 @@ import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Queue;
 
 import static net.ripe.db.whois.internal.api.rnd.ReferenceType.INCOMING;
@@ -100,6 +100,6 @@ public class ReferenceStreamHandler {
     }
 
     public void streamErrorMessage(final Message message) {
-        marshal.write("errormessages", Lists.newArrayList(new ErrorMessage(message)));
+        marshal.write("errormessages", Collections.singletonList(new ErrorMessage(message)));
     }
 }
