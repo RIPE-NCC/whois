@@ -78,9 +78,10 @@ public class VersionsService {
 
                 ObjectVersion version = null;
                 RpslObject rpslObject = null;
+                List<VersionInfo> entriesInSameVersion = null;
                 try {
                     version = objectReferenceDao.getVersion(type, key, revision);
-                    final List<VersionInfo> entriesInSameVersion = lookupRpslObjectByVersion(version);
+                    entriesInSameVersion = lookupRpslObjectByVersion(version);
                     rpslObject = versionDao.getRpslObject(entriesInSameVersion.get(0)); //latest is first
                     rpslObject = decorateRpslObject(rpslObject);
                 } catch (DataAccessException e) {
@@ -92,8 +93,10 @@ public class VersionsService {
 
                 streamHandler.streamWhoisObject(rpslObject);
                 streamHandler.streamVersion(version);
-                //TODO [TP]: if entriesInSameVersion > 1, we need to write the InternalMessages.multipleVersionsForTimestamp() in the stream
 
+                if (entriesInSameVersion.size() > 1){
+                    streamHandler.streamErrorMessage(InternalMessages.multipleVersionsForTimestamp(entriesInSameVersion.size()));
+                }
                 objectReferenceDao.streamIncoming(version, streamHandler);
                 streamHandler.endStreamingIncoming();
                 objectReferenceDao.streamOutgoing(version, streamHandler);

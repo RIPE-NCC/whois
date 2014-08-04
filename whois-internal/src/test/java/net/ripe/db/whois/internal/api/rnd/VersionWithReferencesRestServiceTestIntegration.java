@@ -2,8 +2,11 @@ package net.ripe.db.whois.internal.api.rnd;
 
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.internal.AbstractInternalTest;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisVersionInternal;
@@ -18,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
@@ -62,8 +66,7 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
         );
         whoisTemplate.execute("" +
                         "INSERT INTO `history` (`object_id`, `sequence_id`, `timestamp`, `object_type`, `object`, `pkey`) " +
-                        "VALUES " +
-                        "        (3, 1, 1406894843, 18, X'6F7267616E69736174696F6E3A2020204F52472D4142312D544553540A6F72672D6E616D653A2020202020202041636D6520636172706574730A6F72672D747970653A202020202020204F544845520A616464726573733A20202020202020207374726565740A61646D696E2D633A20202020202020205450312D544553540A652D6D61696C3A20202020202020202074657374406465762E6E65740A6D6E742D62793A202020202020202020544553542D4D4E540A6368616E6765643A20202020202020207465737440746573742E6E65740A736F757263653A202020202020202020544553540A', 'ORG-AB1-TEST');"
+                        "VALUES  (3, 1, 1406894843, 18, X'6F7267616E69736174696F6E3A2020204F52472D4142312D544553540A6F72672D6E616D653A2020202020202041636D6520636172706574730A6F72672D747970653A202020202020204F544845520A616464726573733A20202020202020207374726565740A61646D696E2D633A20202020202020205450312D544553540A652D6D61696C3A20202020202020202074657374406465762E6E65740A6D6E742D62793A202020202020202020544553542D4D4E540A6368616E6765643A20202020202020207465737440746573742E6E65740A736F757263653A202020202020202020544553540A', 'ORG-AB1-TEST');"
         );
         whoisTemplate.execute("" +
                         "INSERT INTO `serials` (`serial_id`, `object_id`, `sequence_id`, `atlast`, `operation`) " +
@@ -109,6 +112,7 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
 
         assertThat(whoisResources.getVersion(), is(expectedMntnerVersion));
 
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getOutgoing().get(0), is(expectedMntnerVersion));
         assertThat(whoisResources.getIncoming(), containsInAnyOrder(
                 expectedMntnerVersion,
@@ -165,5 +169,22 @@ public class VersionWithReferencesRestServiceTestIntegration extends AbstractInt
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
             assertThat(whoisResources.getErrorMessages().get(0).toString(), is("There is no entry for object TEST-MNT for the supplied version."));
         }
+    }
+
+    @Test
+    public void multiple_updates_in_same_second_adds_warning_message() {
+        whoisTemplate.execute("UPDATE last SET sequence_id=3 WHERE object_id=3 AND sequence_id=2");
+        whoisTemplate.execute("INSERT INTO serials (object_id, sequence_id, atlast, operation) VALUES (3, 3, 1, 1)");
+        whoisTemplate.execute("INSERT INTO `history` (`object_id`, `sequence_id`, `timestamp`, `object_type`, `object`, `pkey`) " +
+                        "VALUES  (3, 3, 1406894843, 18, X'6F7267616E69736174696F6E3A2020204F52472D4142312D544553540A6F72672D6E616D653A2020202020202041636D6520636172706574730A6F72672D747970653A202020202020204F544845520A616464726573733A20202020202020207374726565740A61646D696E2D633A20202020202020205450312D544553540A652D6D61696C3A20202020202020202074657374406465762E6E65740A6D6E742D62793A202020202020202020544553542D4D4E540A6368616E6765643A20202020202020207465737440746573742E6E65740A736F757263653A202020202020202020544553540A', 'ORG-AB1-TEST');"
+        );
+
+        final WhoisInternalResources whoisResources = RestTest.target(getPort(), "api/rnd/test/organisation/ORG-AB1-TEST/versions/1", null, apiKey)
+                .request(MediaType.APPLICATION_JSON)
+                .get(WhoisInternalResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().get(0), is(new ErrorMessage(
+                new Message(Messages.Type.WARNING, "There are %s versions of the object for this interval. The last one is displayed.", 2))));
     }
 }

@@ -1,8 +1,11 @@
 package net.ripe.db.whois.internal.api.rnd;
 
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.StreamingMarshal;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 
@@ -93,5 +96,9 @@ public class ReferenceStreamHandler {
 
     public void streamVersion(final ObjectVersion version) {
         marshal.write("version", objectMapper.mapVersion(version, source));
+    }
+
+    public void streamErrorMessage(final Message message) {
+        marshal.write("errormessages", Lists.newArrayList(new ErrorMessage(message)));
     }
 }

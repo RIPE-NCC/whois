@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.Messages;
 public class InternalMessages {
 
     public static Message multipleVersionsForTimestamp(final int count) {
-        return new Message(Messages.Type.WARNING, "There are actually %s versions on this interval.", count);
+        return new Message(Messages.Type.WARNING, "There are %s versions of the object for this interval. The last one is displayed.", count);
     }
 
     public static Message noVersion(final CharSequence key) {
