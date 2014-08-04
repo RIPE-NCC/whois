@@ -62,7 +62,7 @@ public class VersionsService {
                 if (!versionsStreamHandler.flushHasStreamedObjects()) {
                     throw new WebApplicationException(Response
                             .status(Response.Status.NOT_FOUND)
-                            .entity(notFoundWhoisInternalResources(request, InternalMessages.noVersion(key)))
+                            .entity(notFoundWhoisInternalResources(request, InternalMessages.noVersions(key)))
                             .build());
                 }
             }
@@ -76,8 +76,9 @@ public class VersionsService {
                 final StreamingMarshal marshal = StreamingHelper.getStreamingMarshal(request, output);
                 final ReferenceStreamHandler streamHandler = new ReferenceStreamHandler(marshal, source, versionObjectMapper);
 
-                ObjectVersion version = null;
-                RpslObject rpslObject = null;
+                ObjectVersion version;
+                RpslObject rpslObject;
+                
                 List<VersionInfo> entriesInSameVersion = null;
                 try {
                     version = objectReferenceDao.getVersion(type, key, revision);
