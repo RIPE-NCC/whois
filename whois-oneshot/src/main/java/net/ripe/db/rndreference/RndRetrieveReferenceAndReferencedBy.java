@@ -184,10 +184,9 @@ public class RndRetrieveReferenceAndReferencedBy {
         maxTimestamp = MAX_TIMESTAMP == null ? new Long(now().minusSeconds(5).getMillis() / 1000L).intValue() : MAX_TIMESTAMP;
         LOGGER.info("maximum timestamp {}", maxTimestamp);
 
-        redisTemplate.execute(new RedisRunner() { // store all "events" in the last table in redis
+        redisTemplate.clearAndExecute(new RedisRunner() { // store all "events" in the last table in redis
             @Override
             public void run(final Jedis jedis) {
-/*
                 if (start.equals(FROM_BEGINNING)) {
                     JdbcStreamingHelper.executeStreaming(jdbcTemplate,
                             "SELECT pkey, timestamp, object_type, object, sequence_id FROM last where timestamp < ?",
@@ -220,7 +219,7 @@ public class RndRetrieveReferenceAndReferencedBy {
 
                 // because person/role is interchangeable, we need to do some fancy footwork ot get the right types for the timeperiods.
                 // additionally we need to set the right revisions for the references.
-*/
+
                 final Map<String, List<RefObject>> refObjectsCache = new HashMap<>();
 
                 LOGGER.info("fixing all role/person references and add revision information");
