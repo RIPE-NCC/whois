@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
+// TODO: [ES] add update master data source
 @Repository
 public class JdbcObjectReferenceDao implements ObjectReferenceDao {
 
@@ -74,11 +75,13 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     @Override
     public List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType, final long fromTimestamp, final long toTimestamp) {
         try {
+            System.out.println("getVersions: " + pkey + ": " + fromTimestamp + "-" + toTimestamp);
+
             // if row.from_timestamp <= from_timestamp && (row.to_timestamp >= from_timestamp || row.to_timestamp = 0 || to_timestamp = 0)
             // if row.from_timestamp > from_timestamp && (row.from_timestamp <= to_timestamp || to_timestamp = 0)
             return jdbcTemplate.query(
                     "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
-                    "WHERE ((from_timestamp <= ? AND (to_timestamp >= ? OR to_timestamp = 0 OR ? = 0)) " +
+                    "WHERE ((from_timestamp <= ? AND (to_timestamp >= ? OR to_timestamp = NULL OR ? = 0)) " +
                     "OR (from_timestamp > ? AND (from_timestamp <= ? OR ? = 0))) " +
                     "AND pkey = ? AND object_type = ? " +
                     "ORDER BY from_timestamp,to_timestamp ASC",
@@ -93,15 +96,15 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
         }
     }
 
-    // get all object versions within a time range
+    // get all object versions from a given timestamp onwards
     @Override
-    public List<ObjectVersion> getVersions(final long fromTimestamp, final long toTimestamp) {
+    public List<ObjectVersion> getVersions(final long fromTimestamp) {
         try {
             return jdbcTemplate.query(
                     "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
-                    "WHERE from_timestamp >= ? and to_timestamp <= ? " +
-                    "ORDER BY from_timestamp,to_timestamp ASC",
-                    new Object[]{fromTimestamp, toTimestamp},
+                    "WHERE from_timestamp >= ?" +
+                    "ORDER BY from_timestamp ASC",
+                    new Object[]{fromTimestamp},
                     new ObjectVersionRowMapper());
         } catch (EmptyResultDataAccessException e) {
             return Collections.EMPTY_LIST;
@@ -224,13 +227,46 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
         );
     }
 
+    // references
+
+    @Override
     public void createReference(final ObjectVersion from, final ObjectVersion to) {
         jdbcTemplate.update(
                 "INSERT INTO object_reference (from_version, to_version) VALUES (?, ?)",
                 from.getVersionId(),
                 to.getVersionId());
     }
-    
+
+    @Override
+    public List<ObjectVersion> findIncomingReferences(final ObjectVersion objectVersion) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT v.id, v.object_type, v.pkey, v.from_timestamp, v.to_timestamp, v.revision FROM object_reference r " +
+                    "JOIN object_version v ON v.id = r.from_version " +
+                    "WHERE r.to_version = ?",
+                    new Object[]{objectVersion.getVersionId()},
+                    new ObjectVersionRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return Collections.EMPTY_LIST;
+        }
+    }
+
+    @Override
+    public List<ObjectVersion> findOutgoingReferences(final ObjectVersion objectVersion) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT v.id, v.object_type, v.pkey, v.from_timestamp, v.to_timestamp, v.revision FROM object_reference r " +
+                    "JOIN object_version v ON v.id = r.to_version " +
+                    "WHERE r.from_version = ?",
+                    new Object[]{objectVersion.getVersionId()},
+                    new ObjectVersionRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return Collections.EMPTY_LIST;
+        }
+    }
+
+    // helper methods
+
     private static long convertToTimestamp(final DateTime dateTime) {
         if (dateTime == null) {
             return 0;
@@ -238,7 +274,6 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
             return dateTime.getMillis() / 1000;
         }
     }
-
 
     class ObjectVersionRowMapper implements RowMapper<ObjectVersion> {
         @Override
@@ -253,7 +288,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 ObjectTypeIds.getType(rs.getInt(2)),    // object_type
                 rs.getString(3),                        // pkey
                 rs.getLong(4),                          // from_timestamp
-                rs.getLong(5),                          //to_timestamp
+                rs.getLong(5),                          // to_timestamp
                 rs.getInt(6)                            // revision
         );
     }

@@ -70,7 +70,7 @@ public class UpdateObjectVersions {
 
             updateObjectVersionsTable(timestamp);
             updateOutgoingReferences(timestamp);
-//            updateIncomingReferences(timestamp);
+            updateIncomingReferences(timestamp);
 
         } finally {
             if (!inProgress.compareAndSet(true, false)) {
@@ -98,7 +98,7 @@ public class UpdateObjectVersions {
                             final ObjectType type = ObjectTypeIds.getType(rs.getInt(2));
                             final long timestamp = rs.getLong(3);
                             final int objectId = rs.getInt(4);
-                            final int sequenceId = rs.getInt(5);        // if 0 then delete event
+                            final int sequenceId = rs.getInt(5);
 
                             updates.add(new ObjectData(pkey, type, timestamp, objectId, sequenceId));
                         } catch (IllegalArgumentException e) {
@@ -132,14 +132,14 @@ public class UpdateObjectVersions {
                         objectData.objectType,
                         objectData.pkey,
                         objectData.timestamp,
-                        0,
+                        0,                                                                                              // TODO: 0 == NULL
                         versions.isEmpty() ? 1 : versions.get(versions.size() - 1).getRevision() + 1);
                 objectReferenceDao.createVersion(newVersion);
             }
         }
 
 //        LOGGER.info("Updated versions table in {}", stopwatch.stop());
-        System.out.println("Updated versions table in " + stopwatch.stop());
+        System.out.println("Updated versions in " + stopwatch.stop());
     }
 
     private void updateOutgoingReferences(final long timestamp) {
@@ -147,7 +147,8 @@ public class UpdateObjectVersions {
 
         System.out.println("update outgoing references from " + timestamp);
 
-        for (final ObjectVersion next : objectReferenceDao.getVersions(timestamp, Long.MAX_VALUE)) {
+        for (final ObjectVersion next : objectReferenceDao.getVersions(timestamp)) {
+
             LOGGER.info("Looking for outgoing references for {} (id={})", next.getPkey(), next.getVersionId());
 
             final RpslObject rpslObject = findRpslObject(next);
@@ -178,7 +179,6 @@ public class UpdateObjectVersions {
                                 entry.getKey().toString(),
                                 nextObjectType,
                                 next.getFromDate().getMillis() / 1000,
-//                                next.getInterval().getEndMillis() == Long.MAX_VALUE ? 0 : next.getInterval().getEndMillis() / 1000);
                                 next.getToDate() == null ? 0 : next.getToDate().getMillis() / 1000);
                                 //TODO [TP] Ed review please the line above
 
@@ -191,7 +191,7 @@ public class UpdateObjectVersions {
         }
 
 //        LOGGER.info("Updated outgoing references table in {}", stopwatch.stop());
-        System.out.println("Updated outgoing references table in " + stopwatch.stop());
+        System.out.println("Updated outgoing references in " + stopwatch.stop());
     }
 
     private void updateIncomingReferences(final long timestamp) {
@@ -199,8 +199,32 @@ public class UpdateObjectVersions {
 
         System.out.println("update incoming references from " + timestamp);
 
+        for (final ObjectVersion next : objectReferenceDao.getVersions(timestamp)) {
+
+            if (next.getRevision() > 1) {
+                // find previous revision
+                final ObjectVersion previousVersion = objectReferenceDao.getVersion(next.getType(), next.getPkey().toString(), next.getRevision() - 1);
+
+                // find if incoming references to the previous version need to be duplicated
+
+                for (ObjectVersion incomingReference : objectReferenceDao.findIncomingReferences(previousVersion)) {
+                    if ((incomingReference.getToDate() == null) ||
+                            (incomingReference.getToDate().getMillis() > next.getFromDate().getMillis())) {             // TODO
+                        // we have an overlap, create a new reference
+
+                        // TODO: avoid creating duplicates
+
+                        System.out.println("creating a new incoming reference: from " +incomingReference.getPkey() + " id=" +incomingReference.getVersionId() +
+                                            " to " + next.getPkey() + " id=" + next.getVersionId());
+
+                        objectReferenceDao.createReference(incomingReference, next);
+                    }
+                }
+            }
+        }
+
 //        LOGGER.info("Updated outgoing references table in {}", stopwatch.stop());
-        System.out.println("Updated outgoing references table in " + stopwatch.stop());
+        System.out.println("Updated incoming references in " + stopwatch.stop());
     }
 
 
@@ -217,15 +241,12 @@ public class UpdateObjectVersions {
                 }
                 revision++;
                 if (revision == objectVersion.getRevision()) {
-//                    LOGGER.info("Found versionInfo ({} {} {}) matches objectVersion ({} {} {})",
-//                            versionInfo.getObjectId(), versionInfo.getSequenceId(), versionInfo.getTimestamp(),
-//                            objectVersion.getPkey(), objectVersion.getType(), revision);
-
                     return versionDao.getRpslObject(versionInfo);
                 }
             }
         }
 
+        // TODO: fail
         LOGGER.warn("Couldn't find RPSL object for " + objectVersion.getPkey() + " id=" + objectVersion.getVersionId());
         return null;
     }
@@ -243,7 +264,8 @@ public class UpdateObjectVersions {
                         }
                     });
         } catch (EmptyResultDataAccessException e) {
-            return 0L;
+            LOGGER.warn("Unable to determine latest timestamp, not updating object references.");
+            throw new IllegalStateException();
         }
     }
 

@@ -14,7 +14,7 @@ public interface ObjectReferenceDao {
     ObjectVersion getVersion(final ObjectType objectType, final String pkey, final int revision);
     List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType, final long fromTimestamp, final long toTimestamp);
     List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType);
-    List<ObjectVersion> getVersions(final long fromTimestamp, final long toTimestamp);
+    List<ObjectVersion> getVersions(final long fromTimestamp);
     void streamVersions(final String pkey, final ObjectType objectType, final VersionsStreamHandler versionsStreamHandler);
 
     void createVersion(final ObjectVersion objectVersion);
@@ -22,6 +22,6 @@ public interface ObjectReferenceDao {
     void deleteVersion(final ObjectVersion objectVersion);
 
     void createReference(final ObjectVersion from, final ObjectVersion to);
-
-
+    List<ObjectVersion> findIncomingReferences(final ObjectVersion objectVersion);
+    List<ObjectVersion> findOutgoingReferences(final ObjectVersion objectVersion);
 }
