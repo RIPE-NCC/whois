@@ -20,6 +20,7 @@ import javax.xml.bind.annotation.XmlType;
         "to",
         "link"
 })
+
 @XmlRootElement(name = "version")
 public class WhoisVersionInternal {
     @XmlElement(name = "type", required = false)
