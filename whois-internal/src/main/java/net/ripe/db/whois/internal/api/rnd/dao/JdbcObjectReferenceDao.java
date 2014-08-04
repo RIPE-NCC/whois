@@ -85,7 +85,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
                 return jdbcTemplate.query(
                         "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
                         "WHERE pkey = ? AND object_type = ? " +
-                        "AND from_timestamp > ? " +
+                        "AND from_timestamp >= ? " +
                         "ORDER BY from_timestamp,to_timestamp ASC",
                         new Object[]{
                             pkey, ObjectTypeIds.getId(objectType), fromTimestamp
