@@ -65,8 +65,6 @@ public class UpdateObjectVersions {
             LOGGER.info("run already in progress, returning...");
         }
 
-        System.out.println("started");
-
         try {
             final long timestamp = getMaxTimestamp();
 
@@ -140,22 +138,15 @@ public class UpdateObjectVersions {
             }
         }
 
-//        LOGGER.info("Updated versions table in {}", stopwatch.stop());
-        System.out.println("Updated versions in " + stopwatch.stop());
+        LOGGER.info("Updated versions table in {}", stopwatch.stop());
     }
 
     private void updateOutgoingReferences(final long timestamp) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        System.out.println("update outgoing references from " + timestamp);
-
-        final List<ObjectVersion> versions1 = objectReferenceUpdateDao.getVersions(timestamp);
-
-        System.out.println("getVersions in " + stopwatch);
+        final List<ObjectVersion> versions1 = objectReferenceUpdateDao.getVersions(timestamp);          // TODO: only make one call, pass to this method
 
         for (final ObjectVersion next : versions1) {
-
-            final Stopwatch offset = Stopwatch.createStarted();
 
             final RpslObject rpslObject = findRpslObject(next);
 
@@ -184,54 +175,45 @@ public class UpdateObjectVersions {
                         final List<ObjectVersion> versions = objectReferenceUpdateDao.getVersions(
                                 entry.getKey().toString(),
                                 nextObjectType,
-                                next.getFromDate().getMillis() / 1000,
+                                next.getFromDate().getMillis() / 1000,          // TODO: move logic to DAO
                                 next.getToDate() == null ? 0 : next.getToDate().getMillis() / 1000);
 
                         for (ObjectVersion version : versions) {
+                            // TODO: check for existing references first
                             objectReferenceUpdateDao.createReference(next, version);
                         }
                     }
                 }
             }
-
-            System.out.println("Looked for outgoing references for " + next.getPkey() + " (id=" + next.getVersionId() + ") in " + offset.stop());
         }
 
-//        LOGGER.info("Updated outgoing references table in {}", stopwatch.stop());
-        System.out.println("Updated outgoing references in " + stopwatch.stop());
+        LOGGER.info("Updated outgoing references table in {}", stopwatch.stop());
     }
 
     private void updateIncomingReferences(final long timestamp) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        System.out.println("update incoming references from " + timestamp);
-
         for (final ObjectVersion next : objectReferenceUpdateDao.getVersions(timestamp)) {
 
             if (next.getRevision() > 1) {
+
                 // find previous revision
                 final ObjectVersion previousVersion = objectReferenceUpdateDao.getVersion(next.getType(), next.getPkey().toString(), next.getRevision() - 1);
 
                 // find if incoming references to the previous version need to be duplicated
 
                 for (ObjectVersion incomingReference : objectReferenceUpdateDao.findIncomingReferences(previousVersion)) {
+
                     if ((incomingReference.getToDate() == null) ||
                             (incomingReference.getToDate().getMillis() > next.getFromDate().getMillis())) {             // TODO
                         // we have an overlap, create a new reference
-
-                        // TODO: avoid creating duplicates
-
-//                        System.out.println("creating a new incoming reference: from " +incomingReference.getPkey() + " id=" +incomingReference.getVersionId() +
-//                                            " to " + next.getPkey() + " id=" + next.getVersionId());
-//
-//                        objectReferenceDao.createReference(incomingReference, next);
+                        objectReferenceUpdateDao.createReference(incomingReference, next);
                     }
                 }
             }
         }
 
-//        LOGGER.info("Updated outgoing references table in {}", stopwatch.stop());
-        System.out.println("Updated incoming references in " + stopwatch.stop());
+        LOGGER.info("Updated outgoing references table in {}", stopwatch.stop());
     }
 
 
