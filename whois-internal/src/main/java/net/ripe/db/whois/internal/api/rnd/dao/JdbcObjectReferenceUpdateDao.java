@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -42,7 +43,7 @@ public class JdbcObjectReferenceUpdateDao implements ObjectReferenceUpdateDao {
                     objectVersion.getFromDate().getMillis() / 1000,
                     objectVersion.getToDate() == null ? null : (objectVersion.getToDate().getMillis() / 1000),
                     objectVersion.getRevision());
-        } catch (DuplicateKeyException e) {
+        } catch (DuplicateKeyException | UncategorizedSQLException e) {
             LOGGER.debug("Duplicate version pkey={} type={} revision={}", objectVersion.getPkey(), objectVersion.getType(), objectVersion.getRevision());
         }
     }
@@ -54,7 +55,7 @@ public class JdbcObjectReferenceUpdateDao implements ObjectReferenceUpdateDao {
                     "INSERT INTO object_reference (from_version, to_version) VALUES (?, ?)",
                     from.getVersionId(),
                     to.getVersionId());
-        } catch (DuplicateKeyException e) {
+        } catch (DuplicateKeyException | UncategorizedSQLException e) {
             LOGGER.debug("Duplicate reference from={} to={}", from.getVersionId(), to.getVersionId());
         }
     }
