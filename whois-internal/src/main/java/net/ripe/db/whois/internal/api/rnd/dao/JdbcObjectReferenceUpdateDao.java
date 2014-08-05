@@ -121,27 +121,27 @@ public class JdbcObjectReferenceUpdateDao implements ObjectReferenceUpdateDao {
                 // open-ended range
                 return jdbcTemplate.query(
                         "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
-                        "WHERE pkey = ? AND object_type = ? " +
-                        "AND from_timestamp >= ? " +
-                        "ORDER BY from_timestamp,to_timestamp ASC",
+                                "WHERE pkey = ? AND object_type = ? " +
+                                "AND from_timestamp <= ? " +
+                                "ORDER BY from_timestamp,to_timestamp ASC",
                         new Object[]{
-                            pkey,
-                            ObjectTypeIds.getId(objectType),
-                            fromDate.getMillis() / 1000
+                                pkey,
+                                ObjectTypeIds.getId(objectType),
+                                fromDate.getMillis() / 1000
                         },
                         new ObjectVersionRowMapper());
             } else {
                 // closed range
                 return jdbcTemplate.query(
                         "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
-                        "WHERE pkey = ? AND object_type = ? " +
-                        "AND from_timestamp <= ? AND (to_timestamp >= ? OR to_timestamp = NULL) " +
-                        "ORDER BY from_timestamp,to_timestamp ASC",
+                                "WHERE pkey = ? AND object_type = ? " +
+                                "AND from_timestamp <= ? AND (to_timestamp >= ? OR to_timestamp IS NULL) " +
+                                "ORDER BY from_timestamp,to_timestamp ASC",
                         new Object[]{
-                            pkey,
-                            ObjectTypeIds.getId(objectType),
-                            fromDate.getMillis() / 1000,
-                            toDate.getMillis() / 1000
+                                pkey,
+                                ObjectTypeIds.getId(objectType),
+                                fromDate.getMillis() / 1000,
+                                toDate.getMillis() / 1000
                         },
                         new ObjectVersionRowMapper());
             }
