@@ -52,9 +52,8 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
         databaseHelper.insertApiKey(apiKey, "/api/rnd", "rnd api key");
         databaseHelper.setSourceAwareDataSource(sourceAwareDataSource);
 
-        new UpdateObjectVersions(objectReferenceUpdateDao, jdbcVersionDao, whoisUpdateDataSource).run();
-
         setupObjects();
+        new UpdateObjectVersions(objectReferenceUpdateDao, jdbcVersionDao, whoisUpdateDataSource).run();
     }
 
     private void setupObjects(){
