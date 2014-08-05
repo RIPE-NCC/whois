@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
+import net.ripe.db.whois.common.dao.jdbc.JdbcVersionDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -48,7 +49,7 @@ public class UpdateObjectVersions {
     @Autowired
     public UpdateObjectVersions(
             final ObjectReferenceUpdateDao objectReferenceUpdateDao,
-            final VersionDao versionDao,
+            final JdbcVersionDao versionDao,
             @Qualifier("whoisUpdateMasterDataSource") final DataSource dataSource) {
         this.objectReferenceUpdateDao = objectReferenceUpdateDao;
         this.versionDao = versionDao;
@@ -250,7 +251,7 @@ public class UpdateObjectVersions {
         }
 
         @Override
-        public int compareTo(ObjectData o) {
+        public int compareTo(final ObjectData o) {
             final int c1 = Long.compare(timestamp, o.timestamp);
             if (c1 != 0) {
                 // order by date
