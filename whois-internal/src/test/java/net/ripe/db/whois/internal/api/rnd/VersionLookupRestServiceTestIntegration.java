@@ -50,9 +50,11 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
 
         testDateTimeProvider.reset();
         databaseHelper.insertApiKey(apiKey, "/api/rnd", "rnd api key");
+        databaseHelper.setSourceAwareDataSource(sourceAwareDataSource);
+
+        new UpdateObjectVersions(objectReferenceUpdateDao, jdbcVersionDao, whoisUpdateDataSource).run();
 
         setupObjects();
-        new UpdateObjectVersions(objectReferenceUpdateDao, jdbcVersionDao, whoisUpdateDataSource).run();
     }
 
     private void setupObjects(){
@@ -88,6 +90,7 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
 
         updateDao.createObject(mntner);
         updateDao.createObject(person);
+
         final RpslObjectUpdateInfo objectInfo = updateDao.createObject(organisation);
 
         final LocalDateTime localDateTime = new LocalDateTime();
