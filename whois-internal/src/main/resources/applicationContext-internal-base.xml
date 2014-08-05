@@ -23,6 +23,7 @@
     <bean class="net.ripe.db.whois.api.rest.WhoisService"/>
     <bean class="net.ripe.db.whois.query.handler.WhoisLog"/>
     <bean class="net.ripe.db.whois.common.source.SourceAwareDataSource"/>
+    <bean class="net.ripe.db.whois.common.jdbc.driver.LoggingDriver" />
 
     <!--datasource bean definitions copied from applicationContext-common.xml-->
 
