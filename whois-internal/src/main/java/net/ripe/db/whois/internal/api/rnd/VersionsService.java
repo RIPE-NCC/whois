@@ -79,7 +79,7 @@ public class VersionsService {
                 ObjectVersion version;
                 RpslObject rpslObject;
                 
-                List<VersionInfo> entriesInSameVersion = null;
+                List<VersionInfo> entriesInSameVersion;
                 try {
                     version = objectReferenceDao.getVersion(type, key, revision);
                     entriesInSameVersion = lookupRpslObjectByVersion(version);
