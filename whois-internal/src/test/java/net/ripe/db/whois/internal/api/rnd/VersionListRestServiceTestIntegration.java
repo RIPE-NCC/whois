@@ -55,8 +55,8 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         DateTime start = new DateTime(2004, 12, 25, 0, 0, 0, 0);
         DateTime end = new DateTime(2005, 1, 1, 0, 0, 0, 0);
         DateTime newEnd = new DateTime(2006, 1, 1, 0, 0, 0, 0);
-        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", start, end, 1));
-        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", end, newEnd, 2));
+        objectReferenceUpdateDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", start, end, 1));
+        objectReferenceUpdateDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", end, newEnd, 2));
 
         final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -83,8 +83,8 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         DateTime end = new DateTime(2006, 6, 20, 0, 0, 0, 0);
         DateTime newStart = new DateTime(2006, 7, 12, 0, 0, 0, 0);
         DateTime newEnd = new DateTime(2006, 8, 30, 0, 0, 0, 0);
-        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", start, end, 1));
-        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", newStart, newEnd, 2));
+        objectReferenceUpdateDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", start, end, 1));
+        objectReferenceUpdateDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3335", newStart, newEnd, 2));
 
         final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3335/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -126,7 +126,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
 
     @Test
     public void listVersions_objecttype_in_lowercase() throws Exception {
-        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", new DateTime(2006, 6, 20, 0, 0, 0, 0), new DateTime(2006, 7, 12, 0, 0, 0, 0), 1));
+        objectReferenceUpdateDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", new DateTime(2006, 6, 20, 0, 0, 0, 0), new DateTime(2006, 7, 12, 0, 0, 0, 0), 1));
         final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/aut-num/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisInternalResources.class);
@@ -135,7 +135,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
 
     @Test
     public void allow_person_query() {
-        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.PERSON, "AA1-RIPE", new DateTime(2006, 6, 20, 0, 0, 0, 0), new DateTime(2006, 7, 12, 0, 0, 0, 0), 1));
+        objectReferenceUpdateDao.createVersion(new ObjectVersion(1l, ObjectType.PERSON, "AA1-RIPE", new DateTime(2006, 6, 20, 0, 0, 0, 0), new DateTime(2006, 7, 12, 0, 0, 0, 0), 1));
         final WhoisInternalResources result = RestTest.target(getPort(), "api/rnd/test/person/AA1-RIPE/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(WhoisInternalResources.class);
@@ -150,7 +150,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
     public void listVersions_created_deleted_expected_json() {
         final DateTime start = new DateTime(2008, 2, 20, 0, 0, 0, 0);
         final DateTime end = new DateTime(2008, 2, 21, 0, 0, 0, 0);
-        objectReferenceDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", start, end, 1));
+        objectReferenceUpdateDao.createVersion(new ObjectVersion(1l, ObjectType.AUT_NUM, "AS3333", start, end, 1));
 
         final String response = RestTest.target(getPort(), "api/rnd/test/AUT-NUM/AS3333/versions", null, apiKey)
                 .request(MediaType.APPLICATION_JSON_TYPE)
