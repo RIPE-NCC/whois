@@ -116,4 +116,16 @@ public class WhoisVersionInternal {
         result = 31 * result + (link != null ? link.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "WhoisVersionInternal{" +
+                "type='" + type + '\'' +
+                ", key='" + key + '\'' +
+                ", revision=" + revision +
+                ", from='" + from + '\'' +
+                ", to='" + to + '\'' +
+                ", link=" + link +
+                '}';
+    }
 }
