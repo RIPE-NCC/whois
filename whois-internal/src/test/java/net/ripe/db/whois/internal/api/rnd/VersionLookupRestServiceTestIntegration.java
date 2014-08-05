@@ -3,10 +3,13 @@ package net.ripe.db.whois.internal.api.rnd;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.common.ClockDateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectDao;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -29,7 +32,6 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
@@ -45,15 +47,16 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
 
     @Before
     public void setUp() {
-        //TODO [TP] : when we stabilise the tests, the following line (deleteFromTables) can be deleted.
-        JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference", "object_version", "serials", "last", "history");
-
         testDateTimeProvider.reset();
         databaseHelper.insertApiKey(apiKey, "/api/rnd", "rnd api key");
         databaseHelper.setSourceAwareDataSource(sourceAwareDataSource);
 
+        // TODO: drop this once we have proper wiring in whois-internal
+        databaseHelper.setRpslObjectDao(new JdbcRpslObjectDao(whoisUpdateDataSource, null));
+        databaseHelper.setRpslObjectUpdateDao(new JdbcRpslObjectUpdateDao(whoisUpdateDataSource, new ClockDateTimeProvider()));
+
         setupObjects();
-        new UpdateObjectVersions(objectReferenceUpdateDao, jdbcVersionDao, whoisUpdateDataSource).run();
+        runUpdateObjectVersions();
     }
 
     private void setupObjects(){
@@ -65,6 +68,10 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
                 "mnt-by:         TEST-MNT\n" +
                 "upd-to:         noreply@ripe.net\n" +
                 "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST");
+
+        final RpslObject unrefMntner = RpslObject.parse("" +
+                "mntner:         UNREF-MNT\n" +
                 "source:         TEST");
 
         final RpslObject organisation = RpslObject.parse("" +
@@ -88,6 +95,7 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
                 "source: TEST");
 
         updateDao.createObject(mntner);
+        updateDao.createObject(unrefMntner);
         updateDao.createObject(person);
 
         final RpslObjectUpdateInfo objectInfo = updateDao.createObject(organisation);
@@ -99,6 +107,12 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
                         .removeAttributeType(ADDRESS)
                         .addAttributeSorted(new RpslAttribute(ADDRESS, "new address"))
                         .get());
+    }
+
+    private void runUpdateObjectVersions() {
+        JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference", "object_version");
+        final UpdateObjectVersions updateObjectVersions = new UpdateObjectVersions(objectReferenceUpdateDao, jdbcVersionDao, whoisUpdateDataSource);
+        updateObjectVersions.run();
     }
 
     @Test
@@ -145,30 +159,39 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
     }
 
     @Test
-    public void no_incoming_or_outgoing_references() {
-
-        JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference");
-
-        final WhoisInternalResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
+    public void no_incoming_or_outgoing_references() throws Exception {
+        final WhoisInternalResources whoisResources = RestTest.target(getPort(), "api/rnd/test/mntner/UNREF-MNT/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_JSON)
                 .get(WhoisInternalResources.class);
 
-        assertThat(whoisResources.getObject().getAttributes(), hasSize(greaterThan(1)));
+        assertThat(whoisResources.getObject().getAttributes(), hasSize(2));
         assertThat(whoisResources.getIncoming(), is(nullValue()));
         assertThat(whoisResources.getOutgoing(), is(nullValue()));
     }
 
     @Test
-    public void version_not_found() {
-        JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference", "object_version");
+    public void object_not_found() {
         try {
-            RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/1", null, apiKey)
+            RestTest.target(getPort(), "api/rnd/test/mntner/NONEXISTANT/versions/1", null, apiKey)
                     .request(MediaType.APPLICATION_JSON)
                     .get(WhoisInternalResources.class);
             fail();
         } catch (NotFoundException e) {
-            WhoisInternalResources whoisResources = e.getResponse().readEntity(WhoisInternalResources.class);
-            assertThat(e.getResponse().getStatus(), is(404));
+            final WhoisInternalResources whoisResources = e.getResponse().readEntity(WhoisInternalResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), is("There is no entry for object NONEXISTANT for the supplied version."));
+        }
+    }
+
+    @Test
+    public void version_not_found() {
+        try {
+            RestTest.target(getPort(), "api/rnd/test/mntner/TEST-MNT/versions/0", null, apiKey)
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(WhoisInternalResources.class);
+            fail();
+        } catch (NotFoundException e) {
+            final WhoisInternalResources whoisResources = e.getResponse().readEntity(WhoisInternalResources.class);
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
             assertThat(whoisResources.getErrorMessages().get(0).toString(), is("There is no entry for object TEST-MNT for the supplied version."));
         }
@@ -176,8 +199,7 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
 
     @Test
     public void multiple_updates_in_same_second_adds_warning_message() {
-        whoisTemplate.execute(
-                "UPDATE last SET timestamp = (SELECT timestamp FROM history where pkey='ORG-AB1-TEST') WHERE pkey='ORG-AB1-TEST' ");
+        whoisTemplate.execute("UPDATE last SET timestamp = (SELECT timestamp FROM history where pkey='ORG-AB1-TEST') WHERE pkey='ORG-AB1-TEST' ");
 
         final WhoisInternalResources whoisResources = RestTest.target(getPort(), "api/rnd/test/organisation/ORG-AB1-TEST/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_JSON)
