@@ -5,12 +5,14 @@ import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectUpdateDao;
+import net.ripe.db.whois.common.dao.jdbc.JdbcVersionDao;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.internal.api.rnd.dao.JdbcObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.dao.JdbcObjectReferenceUpdateDao;
 import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceUpdateDao;
+import net.ripe.db.whois.internal.api.rnd.dao.RndVersionDao;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -47,6 +49,8 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
     protected JdbcRpslObjectUpdateDao updateDao;
     protected ObjectReferenceDao objectReferenceDao;
     protected ObjectReferenceUpdateDao objectReferenceUpdateDao;
+    protected JdbcVersionDao jdbcVersionDao;
+    protected RndVersionDao rndVersionDao;
 
     protected DatabaseHelper databaseHelper;
     protected JdbcTemplate whoisTemplate;
@@ -62,10 +66,14 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
     public void setDatabaseHelper() {
         databaseHelper = new DatabaseHelper();
         databaseHelper.setAclDataSource(aclDataSource);
-        updateDao = new JdbcRpslObjectUpdateDao(whoisDataSource, testDateTimeProvider);
+
+        updateDao = new JdbcRpslObjectUpdateDao(whoisUpdateDataSource, testDateTimeProvider);
         objectReferenceDao = new JdbcObjectReferenceDao(sourceAwareDataSource);
         objectReferenceUpdateDao = new JdbcObjectReferenceUpdateDao(whoisUpdateDataSource);
-        whoisTemplate = new JdbcTemplate(whoisDataSource);
+        rndVersionDao = new RndVersionDao(sourceAwareDataSource);
+        jdbcVersionDao = new JdbcVersionDao(sourceAwareDataSource);
+
+        whoisTemplate = new JdbcTemplate(whoisUpdateDataSource);
         setupWhoisDatabase(whoisTemplate);
     }
 
