@@ -22,7 +22,7 @@ import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
 import net.ripe.db.whois.query.VersionDateTime;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -77,27 +77,25 @@ public class VersionsService {
                 final ReferenceStreamHandler streamHandler = new ReferenceStreamHandler(marshal, source, versionObjectMapper);
 
                 ObjectVersion version;
-                RpslObject rpslObject;
-                
-                List<VersionInfo> entriesInSameVersion;
                 try {
                     version = objectReferenceDao.getVersion(type, key, revision);
-                    entriesInSameVersion = lookupRpslObjectByVersion(version);
-                    rpslObject = versionDao.getRpslObject(entriesInSameVersion.get(0)); //latest is first
-                    rpslObject = decorateRpslObject(rpslObject);
-                } catch (DataAccessException e) {
+                } catch (EmptyResultDataAccessException e) {
                     throw new WebApplicationException(Response
                             .status(Response.Status.NOT_FOUND)
                             .entity(notFoundWhoisInternalResources(request, InternalMessages.noVersion(key)))
                             .build());
                 }
 
+                final List<VersionInfo> entriesInSameVersion = lookupRpslObjectByVersion(version);
+                final RpslObject rpslObject = decorateRpslObject(versionDao.getRpslObject(entriesInSameVersion.get(0))); //latest is first
+
                 streamHandler.streamWhoisObject(rpslObject);
                 streamHandler.streamVersion(version);
 
-                if (entriesInSameVersion.size() > 1){
+                if (entriesInSameVersion.size() > 1) {
                     streamHandler.streamErrorMessage(InternalMessages.multipleVersionsForTimestamp(entriesInSameVersion.size()));
                 }
+
                 objectReferenceDao.streamIncoming(version, streamHandler);
                 streamHandler.endStreamingIncoming();
                 objectReferenceDao.streamOutgoing(version, streamHandler);
