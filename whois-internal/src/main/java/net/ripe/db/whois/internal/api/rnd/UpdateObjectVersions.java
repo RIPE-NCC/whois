@@ -18,10 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,19 +57,16 @@ public class UpdateObjectVersions {
 
     // periodically update the object_version and object_reference tables
     @Scheduled(fixedDelay = 60 * 1000)
-    @Transactional // TODO - consider two separate transactional methods (1) update versions (2) update references
+    @Transactional
     public void run() {
         if (!inProgress.compareAndSet(false, true)) {
             LOGGER.info("run already in progress, returning...");
         }
 
         try {
-            final long timestamp = getMaxTimestamp();
-
-            updateObjectVersionsTable(timestamp);
-            updateOutgoingReferences(timestamp);
-            updateIncomingReferences(timestamp);
-
+            final List<ObjectVersion> versions = updateObjectVersionsTable(objectReferenceUpdateDao.getLatestVersionTimestamp());
+            updateOutgoingReferences(versions);
+            updateIncomingReferences(versions);
         } finally {
             if (!inProgress.compareAndSet(true, false)) {
                 LOGGER.warn("unexpectedly not in progress?");
@@ -79,12 +74,11 @@ public class UpdateObjectVersions {
         }
     }
 
-    private void updateObjectVersionsTable(final long timestamp) {
+    private List<ObjectVersion> updateObjectVersionsTable(final long timestamp) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         final List<ObjectData> updates = Lists.newArrayList();
 
-        // TODO: move to DAO
         jdbcTemplate.query(
                     "(SELECT pkey, object_type, timestamp, object_id, sequence_id FROM history WHERE timestamp > ?) " +
                     "UNION ALL " +
@@ -132,23 +126,23 @@ public class UpdateObjectVersions {
                         objectData.objectType,
                         objectData.pkey,
                         objectData.timestamp,
-                        0,                                                                                              // TODO: 0 == NULL
+                        0,
                         versions.isEmpty() ? 1 : versions.get(versions.size() - 1).getRevision() + 1);
                 objectReferenceUpdateDao.createVersion(newVersion);
             }
         }
 
         LOGGER.info("Updated versions table in {}", stopwatch.stop());
+
+        return objectReferenceUpdateDao.getVersions(timestamp);
     }
 
-    private void updateOutgoingReferences(final long timestamp) {
+    private void updateOutgoingReferences(final List<ObjectVersion> versions) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        final List<ObjectVersion> versions1 = objectReferenceUpdateDao.getVersions(timestamp);          // TODO: only make one call, pass to this method
+        for (final ObjectVersion version : versions) {
 
-        for (final ObjectVersion next : versions1) {
-
-            final RpslObject rpslObject = findRpslObject(next);
+            final RpslObject rpslObject = findRpslObject(version);
 
             if (rpslObject != null) {
                 // for each object version, find all outgoing object references for the duration of that revision
@@ -170,17 +164,16 @@ public class UpdateObjectVersions {
                 // resolve references (all versions of the reference over the duration of the source object)
 
                 for (Map.Entry<CIString, Set<ObjectType>> entry : references.entrySet()) {
-                    for (ObjectType nextObjectType : entry.getValue()) {
+                    for (ObjectType entryValue : entry.getValue()) {
 
-                        final List<ObjectVersion> versions = objectReferenceUpdateDao.getVersions(
+                        final List<ObjectVersion> entryVersions = objectReferenceUpdateDao.getVersions(
                                 entry.getKey().toString(),
-                                nextObjectType,
-                                next.getFromDate().getMillis() / 1000,          // TODO: move logic to DAO
-                                next.getToDate() == null ? 0 : next.getToDate().getMillis() / 1000);
+                                entryValue,
+                                version.getFromDate(),
+                                version.getToDate());
 
-                        for (ObjectVersion version : versions) {
-                            // TODO: check for existing references first
-                            objectReferenceUpdateDao.createReference(next, version);
+                        for (ObjectVersion entryVersion : entryVersions) {
+                            objectReferenceUpdateDao.createReference(version, entryVersion);
                         }
                     }
                 }
@@ -190,24 +183,26 @@ public class UpdateObjectVersions {
         LOGGER.info("Updated outgoing references table in {}", stopwatch.stop());
     }
 
-    private void updateIncomingReferences(final long timestamp) {
+    private void updateIncomingReferences(final List<ObjectVersion> versions) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        for (final ObjectVersion next : objectReferenceUpdateDao.getVersions(timestamp)) {
+        for (final ObjectVersion version : versions) {
 
-            if (next.getRevision() > 1) {
+            if (version.getRevision() > 1) {
 
                 // find previous revision
-                final ObjectVersion previousVersion = objectReferenceUpdateDao.getVersion(next.getType(), next.getPkey().toString(), next.getRevision() - 1);
+                final ObjectVersion previousVersion = objectReferenceUpdateDao.getVersion(
+                        version.getType(),
+                        version.getPkey().toString(),
+                        version.getRevision() - 1);
 
-                // find if incoming references to the previous version need to be duplicated
-
+                // duplicate versions for the new version
                 for (ObjectVersion incomingReference : objectReferenceUpdateDao.findIncomingReferences(previousVersion)) {
 
                     if ((incomingReference.getToDate() == null) ||
-                            (incomingReference.getToDate().getMillis() > next.getFromDate().getMillis())) {             // TODO
-                        // we have an overlap, create a new reference
-                        objectReferenceUpdateDao.createReference(incomingReference, next);
+                            (incomingReference.getToDate().getMillis() > version.getFromDate().getMillis())) {
+                        LOGGER.info("Create reference from {} to {}", incomingReference.getVersionId(), version.getVersionId());
+                        objectReferenceUpdateDao.createReference(incomingReference, version);
                     }
                 }
             }
@@ -215,7 +210,6 @@ public class UpdateObjectVersions {
 
         LOGGER.info("Updated outgoing references table in {}", stopwatch.stop());
     }
-
 
     // map from a specific revision of an object, to the rpsl object itself
     @Nullable
@@ -235,26 +229,7 @@ public class UpdateObjectVersions {
             }
         }
 
-        // TODO: fail
-        LOGGER.warn("Couldn't find RPSL object for " + objectVersion.getPkey() + " id=" + objectVersion.getVersionId());
-        return null;
-    }
-
-    // get timestamp of the most recent object version
-    private long getMaxTimestamp() {
-        try {
-            return jdbcTemplate.queryForObject(
-                        "SELECT greatest(max(from_timestamp),max(to_timestamp)) FROM object_version",
-                    new RowMapper<Long>() {
-                        @Override
-                        public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
-                            return rs.getLong(1);
-                        }
-                    });
-        } catch (EmptyResultDataAccessException e) {
-            LOGGER.warn("Unable to determine latest timestamp, updating ALL object versions...");
-            return 0;
-        }
+        throw new IllegalStateException("Couldn't find RPSL object for " + objectVersion.getPkey() + " revision=" + objectVersion.getRevision());
     }
 
     ///
