@@ -41,7 +41,6 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
 
     public static final String API_REST_RND_BASEURL = "http://int.db.ripe.net";
 
-    private UpdateObjectVersions updateObjectVersions;
     private VersionObjectMapper versionMapper = new VersionObjectMapper(API_REST_RND_BASEURL);
 
     @Before
