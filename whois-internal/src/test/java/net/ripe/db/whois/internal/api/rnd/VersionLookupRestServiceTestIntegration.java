@@ -44,7 +44,7 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
     private VersionObjectMapper versionMapper = new VersionObjectMapper(API_REST_RND_BASEURL);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         //TODO [TP] : when we stabilise the tests, the following line (deleteFromTables) can be deleted.
         JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference", "object_version", "serials", "last", "history");
 
@@ -100,8 +100,6 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
                         .addAttributeSorted(new RpslAttribute(ADDRESS, "new address"))
                         .get());
     }
-    //TODO [TP]: test versionMapper
-    //TODO [TP]: test DAO
 
     @Test
     public void references_for_self_referenced_maintainer() {
