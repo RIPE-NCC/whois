@@ -674,7 +674,7 @@ CREATE TABLE `object_version` (
   UNIQUE KEY `unique_version` (`pkey`,`object_type`,`revision`),
   KEY `pkey` (`pkey`),
   KEY `object_type` (`object_type`),
-  KEY `revision` (`revision`),
+  KEY `revision` (`revision`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -694,7 +694,7 @@ CREATE TABLE `object_reference` (
   KEY `from_version` (`from_version`),
   KEY `to_version` (`to_version`),
   CONSTRAINT FOREIGN KEY (`from_version`) REFERENCES `object_version` (`id`),
-  CONSTRAINT FOREIGN KEY (`to_version`) REFERENCES `object_version` (`id`),
+  CONSTRAINT FOREIGN KEY (`to_version`) REFERENCES `object_version` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
