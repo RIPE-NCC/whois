@@ -66,7 +66,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     public List<ObjectVersion> getVersions(final String pkey, final ObjectType objectType) {
         try {
             return jdbcTemplate.query(
-                    "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
+                    "SELECT id, object_type, pkey, from_timestamp, to_timestamp, revision FROM object_version " +
                     "WHERE pkey = ? AND object_type = ? " +
                     "ORDER BY from_timestamp,to_timestamp ASC",
                     new Object[]{pkey, ObjectTypeIds.getId(objectType)},
@@ -83,7 +83,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
             if (toTimestamp == 0) {
                 // open-ended range
                 return jdbcTemplate.query(
-                        "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
+                        "SELECT id, object_type, pkey, from_timestamp, to_timestamp, revision FROM object_version " +
                         "WHERE pkey = ? AND object_type = ? " +
                         "AND from_timestamp >= ? " +
                         "ORDER BY from_timestamp,to_timestamp ASC",
@@ -94,7 +94,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
             } else {
                 // closed range
                 return jdbcTemplate.query(
-                        "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
+                        "SELECT id, object_type, pkey, from_timestamp, to_timestamp, revision FROM object_version " +
                         "WHERE pkey = ? AND object_type = ? " +
                         "AND from_timestamp <= ? AND (to_timestamp >= ? OR to_timestamp = NULL) " +
                         "ORDER BY from_timestamp,to_timestamp ASC",
@@ -113,7 +113,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     public List<ObjectVersion> getVersions(final long fromTimestamp) {
         try {
             return jdbcTemplate.query(
-                    "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
+                    "SELECT id, object_type, pkey, from_timestamp, to_timestamp, revision FROM object_version " +
                     "WHERE from_timestamp >= ? " +
                     "ORDER BY from_timestamp ASC",
                     new Object[]{fromTimestamp},
@@ -127,7 +127,7 @@ public class JdbcObjectReferenceDao implements ObjectReferenceDao {
     public void streamVersions(final String pkey, final ObjectType objectType, final VersionsStreamHandler versionsStreamHandler) {
         JdbcStreamingHelper.executeStreaming(
                 jdbcTemplate,
-                "SELECT id,object_type,pkey,from_timestamp,to_timestamp,revision FROM object_version " +
+                "SELECT id, object_type, pkey, from_timestamp, to_timestamp, revision FROM object_version " +
                         "WHERE pkey = ? AND object_type = ? " +
                         "ORDER BY from_timestamp,to_timestamp ASC",
                 new PreparedStatementSetter() {
