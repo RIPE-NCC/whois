@@ -187,6 +187,7 @@ public class RndRetrieveReferenceAndReferencedBy {
         redisTemplate.clearAndExecute(new RedisRunner() { // store all "events" in the last table in redis
             @Override
             public void run(final Jedis jedis) {
+
                 if (start.equals(FROM_BEGINNING)) {
                     JdbcStreamingHelper.executeStreaming(jdbcTemplate,
                             "SELECT pkey, timestamp, object_type, object, sequence_id FROM last where timestamp < ?",
@@ -604,7 +605,6 @@ public class RndRetrieveReferenceAndReferencedBy {
     }
 
     private void writeToDb(Jedis jedis) {
-        Map<String, Long> dbPrimaryKeyCache = new HashMap<>();
         // truncate the tables
         jdbcTemplate.execute("TRUNCATE TABLE object_reference");
         jdbcTemplate.execute("TRUNCATE TABLE object_version");
@@ -615,7 +615,8 @@ public class RndRetrieveReferenceAndReferencedBy {
         int insertions = 0;
         boolean scanningDone = false;
         String cursor = ScanParams.SCAN_POINTER_START;
-        Set<String> redisKeyCache = new HashSet<>();
+        final Set<String> redisKeyCache = new HashSet<>();
+        final Map<String, Long> dbPrimaryKeyCache = new HashMap<>();
 
         while (!scanningDone) {
             ScanResult<String> scanResult = jedis.scan(cursor);
@@ -636,7 +637,7 @@ public class RndRetrieveReferenceAndReferencedBy {
                                 ps.setString(1, timeLine.getKey());
                                 ps.setInt(2, timeLine.getObjectType());
                                 ps.setInt(3, new Long(interval.getStartMillis() / 1000L).intValue());
-                                if (interval.getEnd().equals(INFINITE_END_DATE)) {
+                                if (interval.getEnd().isAfter(now())) {
                                     ps.setNull(4, Types.INTEGER);
                                 } else {
                                     ps.setInt(4, new Long(interval.getEndMillis() / 1000L).intValue());
