@@ -6,6 +6,7 @@ import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -70,10 +71,14 @@ public class JdbcObjectReferenceUpdateDao implements ObjectReferenceUpdateDao {
 
     @Override
     public void createReference(final ObjectVersion from, final ObjectVersion to) {
-        jdbcTemplate.update(
-                "INSERT INTO object_reference (from_version, to_version) VALUES (?, ?)",
-                from.getVersionId(),
-                to.getVersionId());
+        try {
+            jdbcTemplate.update(
+                    "INSERT INTO object_reference (from_version, to_version) VALUES (?, ?)",
+                    from.getVersionId(),
+                    to.getVersionId());
+        } catch (DuplicateKeyException e) {
+            // ignore
+        }
     }
 
     @Override
