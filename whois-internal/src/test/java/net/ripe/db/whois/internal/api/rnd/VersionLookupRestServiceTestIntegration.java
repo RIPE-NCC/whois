@@ -15,7 +15,6 @@ import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisVersionInternal;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -52,10 +51,9 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
 
         testDateTimeProvider.reset();
         databaseHelper.insertApiKey(apiKey, "/api/rnd", "rnd api key");
-        updateObjectVersions = new UpdateObjectVersions(objectReferenceUpdateDao, jdbcVersionDao, whoisUpdateDataSource);
 
         setupObjects();
-        updateObjectVersions.run();
+        new UpdateObjectVersions(objectReferenceUpdateDao, jdbcVersionDao, whoisUpdateDataSource).run();
     }
 
     private void setupObjects(){
@@ -178,13 +176,9 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
     }
 
     @Test
-    @Ignore("Still need to make it work with the normal daos.")
     public void multiple_updates_in_same_second_adds_warning_message() {
-        whoisTemplate.execute("UPDATE last SET sequence_id=3 WHERE object_id=3 AND sequence_id=2");
-        whoisTemplate.execute("INSERT INTO serials (object_id, sequence_id, atlast, operation) VALUES (3, 3, 1, 1)");
-        whoisTemplate.execute("INSERT INTO `history` (`object_id`, `sequence_id`, `timestamp`, `object_type`, `object`, `pkey`) " +
-                        "VALUES  (3, 3, 1406894843, 18, X'6F7267616E69736174696F6E3A2020204F52472D4142312D544553540A6F72672D6E616D653A2020202020202041636D6520636172706574730A6F72672D747970653A202020202020204F544845520A616464726573733A20202020202020207374726565740A61646D696E2D633A20202020202020205450312D544553540A652D6D61696C3A20202020202020202074657374406465762E6E65740A6D6E742D62793A202020202020202020544553542D4D4E540A6368616E6765643A20202020202020207465737440746573742E6E65740A736F757263653A202020202020202020544553540A', 'ORG-AB1-TEST');"
-        );
+        whoisTemplate.execute(
+                "UPDATE last SET timestamp = (SELECT timestamp FROM history where pkey='ORG-AB1-TEST') WHERE pkey='ORG-AB1-TEST' ");
 
         final WhoisInternalResources whoisResources = RestTest.target(getPort(), "api/rnd/test/organisation/ORG-AB1-TEST/versions/1", null, apiKey)
                 .request(MediaType.APPLICATION_JSON)
