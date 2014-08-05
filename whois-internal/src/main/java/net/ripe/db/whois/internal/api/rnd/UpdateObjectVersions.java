@@ -153,7 +153,7 @@ public class UpdateObjectVersions {
                 Map<CIString,Set<ObjectType>> references = Maps.newHashMap();
                 for (RpslAttribute attribute : rpslObject.getAttributes()) {
                     for (ObjectType objectType : attribute.getType().getReferences()) {
-                        if (references.containsKey(attribute.getValue())) {
+                        if (references.containsKey(attribute.getCleanValue())) {
                             references.get(attribute.getCleanValue()).add(objectType);
                         } else {
                             references.put(attribute.getCleanValue(), Sets.newHashSet(objectType));
