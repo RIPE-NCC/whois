@@ -2,7 +2,7 @@
 -- Table structure for table `object_version`
 --
 
-DROP TABLE  IF EXISTS `object_version`;
+DROP TABLE IF EXISTS `object_version`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `object_version` (
@@ -24,7 +24,7 @@ CREATE TABLE `object_version` (
 -- Table structure for table `object_reference`
 --
 
-DROP TABLE  IF EXISTS `object_reference`;
+DROP TABLE IF EXISTS `object_reference`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `object_reference` (
