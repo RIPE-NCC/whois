@@ -21,6 +21,8 @@ import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
 import net.ripe.db.whois.query.VersionDateTime;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -38,6 +40,8 @@ import java.util.List;
 @Component
 public class VersionsService {
 
+    private static final Logger logger = LoggerFactory.getLogger(VersionsService.class);
+
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
 
@@ -53,6 +57,7 @@ public class VersionsService {
     }
 
     public StreamingOutput streamVersions(final String key, final ObjectType type, final String source, final HttpServletRequest request) {
+        logger.info(String.format("versions key=%s type=%s", key, type.getName()));
         return new StreamingOutput() {
             @Override
             public void write(final OutputStream output) throws IOException, WebApplicationException {
@@ -70,6 +75,7 @@ public class VersionsService {
     }
 
     public StreamingOutput streamVersion(final ObjectType type, final String key, final String source, final Integer revision, final HttpServletRequest request) {
+        logger.info(String.format("version key=%s type=%s revision=%s", key, type.getName(), revision));
         return new StreamingOutput() {
             @Override
             public void write(final OutputStream output) throws IOException, WebApplicationException {
