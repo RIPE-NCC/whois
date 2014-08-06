@@ -3,6 +3,7 @@ package net.ripe.db.whois.internal;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.TestDateTimeProvider;
+import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.jdbc.JdbcVersionDao;
@@ -12,7 +13,6 @@ import net.ripe.db.whois.internal.api.rnd.dao.JdbcObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.dao.JdbcObjectReferenceUpdateDao;
 import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceUpdateDao;
-import net.ripe.db.whois.internal.api.rnd.dao.RndVersionDao;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -49,8 +49,7 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
     protected JdbcRpslObjectUpdateDao updateDao;
     protected ObjectReferenceDao objectReferenceDao;
     protected ObjectReferenceUpdateDao objectReferenceUpdateDao;
-    protected JdbcVersionDao jdbcVersionDao;
-    protected RndVersionDao rndVersionDao;
+    protected VersionDao versionDao;
 
     protected DatabaseHelper databaseHelper;
     protected JdbcTemplate whoisTemplate;
@@ -70,8 +69,7 @@ public abstract class AbstractInternalTest extends AbstractJUnit4SpringContextTe
         updateDao = new JdbcRpslObjectUpdateDao(whoisUpdateDataSource, testDateTimeProvider);
         objectReferenceDao = new JdbcObjectReferenceDao(sourceAwareDataSource);
         objectReferenceUpdateDao = new JdbcObjectReferenceUpdateDao(whoisUpdateDataSource);
-        rndVersionDao = new RndVersionDao(sourceAwareDataSource);
-        jdbcVersionDao = new JdbcVersionDao(sourceAwareDataSource);
+        versionDao = new JdbcVersionDao(sourceAwareDataSource);
 
         whoisTemplate = new JdbcTemplate(whoisUpdateDataSource);
         setupWhoisDatabase(whoisTemplate);

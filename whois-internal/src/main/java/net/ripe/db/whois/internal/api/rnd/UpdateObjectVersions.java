@@ -7,7 +7,6 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
-import net.ripe.db.whois.common.dao.jdbc.JdbcVersionDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -49,7 +48,7 @@ public class UpdateObjectVersions {
     @Autowired
     public UpdateObjectVersions(
             final ObjectReferenceUpdateDao objectReferenceUpdateDao,
-            final JdbcVersionDao versionDao,
+            final VersionDao versionDao,
             @Qualifier("whoisUpdateMasterDataSource") final DataSource dataSource) {
         this.objectReferenceUpdateDao = objectReferenceUpdateDao;
         this.versionDao = versionDao;

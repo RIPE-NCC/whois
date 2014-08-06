@@ -17,7 +17,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
-import net.ripe.db.whois.internal.api.rnd.dao.RndVersionDao;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
 import net.ripe.db.whois.query.VersionDateTime;
@@ -47,7 +46,7 @@ public class VersionsService {
     private final VersionObjectMapper versionObjectMapper;
 
     @Autowired
-    public VersionsService(final ObjectReferenceDao objectReferenceDao, final RndVersionDao versionDao, final VersionObjectMapper versionObjectMapper) {
+    public VersionsService(final ObjectReferenceDao objectReferenceDao, final VersionDao versionDao, final VersionObjectMapper versionObjectMapper) {
         this.objectReferenceDao = objectReferenceDao;
         this.versionDao = versionDao;
         this.versionObjectMapper = versionObjectMapper;

@@ -111,7 +111,7 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
 
     private void runUpdateObjectVersions() {
         JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference", "object_version");
-        final UpdateObjectVersions updateObjectVersions = new UpdateObjectVersions(objectReferenceUpdateDao, jdbcVersionDao, whoisUpdateDataSource);
+        final UpdateObjectVersions updateObjectVersions = new UpdateObjectVersions(objectReferenceUpdateDao, versionDao, whoisUpdateDataSource);
         updateObjectVersions.run();
     }
 
