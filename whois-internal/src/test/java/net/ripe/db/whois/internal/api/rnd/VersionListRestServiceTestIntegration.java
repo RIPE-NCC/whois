@@ -101,8 +101,8 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
         final DateTime fromLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getFrom());
         final DateTime toLastDateTime = dateTimeFormatter.parseDateTime(versions.get(1).getTo());
 
-        assertThat(versions.get(0).getLink().getHref(), is(baseHref + "1"));
-        assertThat(versions.get(1).getLink().getHref(), is(baseHref + "2"));
+        assertThat(versions.get(0).getLink().getHref(), is(baseHref + "versions/1"));
+        assertThat(versions.get(1).getLink().getHref(), is(baseHref + "versions/2"));
 
         assertThat(fromFirstDateTime, is(start));
         assertThat(toFirstDateTime, is(end));
@@ -164,7 +164,7 @@ public class VersionListRestServiceTestIntegration extends AbstractInternalTest 
                         "  \"to\" : \"%s\",\n" +
                         "  \"link\" : {\n" +
                         "    \"type\" : \"locator\",\n" +
-                        "    \"href\" : \"http://int.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/1\"\n" +
+                        "    \"href\" : \"http://int.db.ripe.net/api/rnd/test/AUT-NUM/AS3333/versions/1\"\n" +
                         "  }\n" +
                         "} ],\n" +
                         "\"terms-and-conditions\" : {\n" +

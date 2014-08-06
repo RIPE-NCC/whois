@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
@@ -37,11 +38,11 @@ public class VersionObjectMapper {
                 objectVersion.getPkey().toString(),
                 ISO8601_FORMATTER.print(objectVersion.getFromDate()),
                 objectVersion.getToDate() != null ? ISO8601_FORMATTER.print(objectVersion.getToDate()) : null,
-                createWhoisVersionInternalLink(source, objectVersion.getType().getName().toUpperCase(), objectVersion.getPkey() + "/" + objectVersion.getRevision()));
+                createWhoisVersionInternalLink(source, objectVersion.getType().getName().toUpperCase(), objectVersion.getPkey(), objectVersion.getRevision()));
     }
 
-    private Link createWhoisVersionInternalLink(String source, String type, String versionId) {
-        return new Link("locator", String.format("%s/api/rnd/%s/%s/%s", baseUrl, source, type, versionId));
+    private Link createWhoisVersionInternalLink(final String source, final String type, final CIString pkey, final int versionId) {
+        return new Link("locator", String.format("%s/api/rnd/%s/%s/%s/versions/%s", baseUrl, source, type, pkey, versionId));
     }
 
     public WhoisObject mapObject(final RpslObject rpslObject, final String source) {
