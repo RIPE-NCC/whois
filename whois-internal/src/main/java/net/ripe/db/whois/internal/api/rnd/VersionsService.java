@@ -19,7 +19,6 @@ import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.internal.api.rnd.dao.ObjectReferenceDao;
 import net.ripe.db.whois.internal.api.rnd.domain.ObjectVersion;
 import net.ripe.db.whois.internal.api.rnd.rest.WhoisInternalResources;
-import net.ripe.db.whois.query.VersionDateTime;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -123,26 +122,22 @@ public class VersionsService {
             throw new IllegalStateException("There should be one or more objects");
         }
 
-        final VersionDateTime maxTimestamp = versionInfos.get(0).getTimestamp();
-
-        final List<VersionInfo> latestVersionInfos = Lists.newArrayList(
+        final List<VersionInfo> versionInfosForTimestamp = Lists.newArrayList(
                 Iterables.filter(versionInfos, new Predicate<VersionInfo>() {
                     @Override
                     public boolean apply(@NotNull VersionInfo input) {
-                        return input.getTimestamp().getTimestamp().
-                                equals(maxTimestamp.getTimestamp())
-                                && input.getOperation() != Operation.DELETE;
+                        return input.getOperation() != Operation.DELETE;
                     }
                 }));
 
-        if (latestVersionInfos.isEmpty()) {
+        if (versionInfosForTimestamp.isEmpty()) {
             throw new IllegalStateException("There should be one or more objects");
         }
 
         // sort in reverse order, so that first item is the object with the highest timestamp.
-        Collections.sort(latestVersionInfos, Collections.reverseOrder());
+        Collections.sort(versionInfosForTimestamp, Collections.reverseOrder());
 
-        return latestVersionInfos;
+        return versionInfosForTimestamp;
     }
 
     private RpslObject decorateRpslObject(final RpslObject rpslObject) {
