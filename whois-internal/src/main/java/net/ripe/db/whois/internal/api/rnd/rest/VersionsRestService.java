@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -43,6 +44,7 @@ public class VersionsRestService {
     }
 
     @GET
+    @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}/versions")
     public Response versions(
@@ -57,6 +59,7 @@ public class VersionsRestService {
     }
 
     @GET
+    @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}/versions/{revision:.*}")
     public Response version(
