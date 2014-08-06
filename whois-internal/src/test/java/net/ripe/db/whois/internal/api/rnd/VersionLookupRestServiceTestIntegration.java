@@ -31,6 +31,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
@@ -136,11 +137,9 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getOutgoing().get(0), is(mntnerV1));
-//        assertThat(whoisResources.getIncoming(), containsInAnyOrder(mntnerV1, personV1, orgV1, orgV2));
+        assertThat(whoisResources.getIncoming(), containsInAnyOrder(mntnerV1, personV1, orgV1, orgV2));
         assertThat(whoisResources.getIncoming(), hasItem(personV1));
         assertThat(whoisResources.getIncoming(), hasItem(mntnerV1));
-//        assertThat(whoisResources.getIncoming(), hasItem(orgV2));
-//        assertThat(whoisResources.getIncoming(), hasItem(orgV1));
     }
 
     @Test
