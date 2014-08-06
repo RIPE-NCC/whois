@@ -1047,7 +1047,6 @@ class SponsorSpec extends BaseQueryUpdateSpec {
         "ALLOCATED-BY-LIR"  | ""
         "AGGREGATED-BY-LIR" | "\nassignment-size: 96"
         "ASSIGNED"          | ""
-        "ASSIGNED ANYCAST"  | ""
     }
 
     def "remove sponsoring-org without override without RS maintainer is NOOP"() {
