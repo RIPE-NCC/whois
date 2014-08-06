@@ -3,13 +3,10 @@ package net.ripe.db.whois.internal.api.rnd;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
-import net.ripe.db.whois.common.ClockDateTimeProvider;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectDao;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -51,10 +48,6 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
         testDateTimeProvider.reset();
         databaseHelper.insertApiKey(apiKey, "/api/rnd", "rnd api key");
         databaseHelper.setSourceAwareDataSource(sourceAwareDataSource);
-
-        // TODO: drop this once we have proper wiring in whois-internal
-        databaseHelper.setRpslObjectDao(new JdbcRpslObjectDao(whoisUpdateDataSource, null));
-        databaseHelper.setRpslObjectUpdateDao(new JdbcRpslObjectUpdateDao(whoisUpdateDataSource, new ClockDateTimeProvider()));
 
         setupObjects();
         runUpdateObjectVersions();
@@ -112,8 +105,7 @@ public class VersionLookupRestServiceTestIntegration extends AbstractInternalTes
 
     private void runUpdateObjectVersions() {
         JdbcTestUtils.deleteFromTables(whoisTemplate, "object_reference", "object_version");
-        final UpdateObjectVersions updateObjectVersions = new UpdateObjectVersions(objectReferenceUpdateDao, versionDao, whoisUpdateDataSource);
-        updateObjectVersions.run();
+        new UpdateObjectVersions(objectReferenceUpdateDao, versionDao, whoisUpdateDataSource).run();
     }
 
     @Test
