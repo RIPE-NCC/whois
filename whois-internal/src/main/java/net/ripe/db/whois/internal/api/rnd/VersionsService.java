@@ -60,7 +60,7 @@ public class VersionsService {
         return new StreamingOutput() {
             @Override
             public void write(final OutputStream output) throws IOException, WebApplicationException {
-                final StreamingMarshal marshal = StreamingHelper.getStreamingMarshal(request, output);
+                final StreamingMarshal marshal = StreamingHelper.getStreamingMarshalJson(output);
                 final VersionsStreamHandler versionsStreamHandler = new VersionsStreamHandler(marshal, source, versionObjectMapper);
                 objectReferenceDao.streamVersions(key, type, versionsStreamHandler);
                 if (!versionsStreamHandler.flushHasStreamedObjects()) {
@@ -78,7 +78,7 @@ public class VersionsService {
         return new StreamingOutput() {
             @Override
             public void write(final OutputStream output) throws IOException, WebApplicationException {
-                final StreamingMarshal marshal = StreamingHelper.getStreamingMarshal(request, output);
+                final StreamingMarshal marshal = StreamingHelper.getStreamingMarshalJson(output);
                 final ReferenceStreamHandler streamHandler = new ReferenceStreamHandler(marshal, source, versionObjectMapper);
 
                 ObjectVersion version;

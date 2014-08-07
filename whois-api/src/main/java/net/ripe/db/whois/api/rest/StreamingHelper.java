@@ -28,4 +28,8 @@ public class StreamingHelper {
 
         return new StreamingMarshalXml(outputStream, "whois-resources");
     }
+
+    public static StreamingMarshal getStreamingMarshalJson(final OutputStream outputStream){
+        return new StreamingMarshalJson(outputStream);
+    }
 }
