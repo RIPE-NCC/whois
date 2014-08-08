@@ -813,13 +813,6 @@ public class QueryTest {
     }
 
     @Test
-    public void versionTimestampQuery() {
-        Query query = Query.parse("--show-timestamp-version 12345567888907 10.0.0.0");
-        assertThat(query.hasOption(QueryFlag.SHOW_TIMESTAMP_VERSION), is(true));
-        assertThat(query.isObjectTimestampVersion(), is(true));
-    }
-
-    @Test
     public void allow_only_k_T_and_V_options_for_version_queries() {
         final String[] validQueries = {
                 "--show-version 1 AS12 -k",

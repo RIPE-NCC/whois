@@ -16,5 +16,5 @@ public interface VersionDao {
     Set<ObjectType> getObjectType(String searchKey);
 
     @NotNull
-    java.util.List<VersionInfo> getVersionsBeforeTimestamp(ObjectType type, String searchKey, long timestamp);
+    java.util.List<VersionInfo> getVersionsForTimestamp(ObjectType type, String searchKey, long timestamp);
 }

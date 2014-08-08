@@ -82,7 +82,7 @@ public class AbuseContactService {
         return Response.ok(new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
-                WhoisRestService.getStreamingMarshal(request, output).singleton(result);
+                StreamingHelper.getStreamingMarshal(request, output).singleton(result);
             }
         }).build();
     }

@@ -214,21 +214,6 @@ public class Query {
         return -1;
     }
 
-    public boolean isObjectTimestampVersion() {
-        return queryParser.hasOption(QueryFlag.SHOW_TIMESTAMP_VERSION);
-    }
-
-    public long getObjectTimestamp() {
-        if (queryParser.hasOption(QueryFlag.SHOW_TIMESTAMP_VERSION)) {
-            final long version = Long.parseLong(getOnlyValue(QueryFlag.SHOW_TIMESTAMP_VERSION));
-            if (version < 1L) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery("version flag number must be greater than 0"));
-            }
-            return version;
-        }
-        return -1L;
-    }
-
     public int[] getObjectVersions() {
         if (queryParser.hasOption(QueryFlag.DIFF_VERSIONS)) {
             final String[] values = StringUtils.split(getOnlyValue(QueryFlag.DIFF_VERSIONS), ':');
