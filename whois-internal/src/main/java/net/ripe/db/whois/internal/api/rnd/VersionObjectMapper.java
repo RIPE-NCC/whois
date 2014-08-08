@@ -26,7 +26,7 @@ public class VersionObjectMapper {
     private final AttributeMapper attributeMapper;
 
     @Autowired
-    public VersionObjectMapper(@Value("${api.rest.rnd.baseurl}") final String baseUrl) {
+    public VersionObjectMapper(@Value("${api.rest.int.baseurl}") final String baseUrl) {
         this.baseUrl = baseUrl;
         attributeMapper = new FormattedClientAttributeMapper();
     }
