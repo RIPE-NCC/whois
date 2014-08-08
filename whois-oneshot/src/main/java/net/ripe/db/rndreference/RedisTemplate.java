@@ -5,12 +5,12 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisTemplate {
-    private static final JedisPool pool = new JedisPool(new JedisPoolConfig(), "localhost");
+    private static final JedisPool pool = new JedisPool(new JedisPoolConfig(), "localhost", 6379, 0);
 
     public void clearAndExecute(final RedisRunner runner) {
         final Jedis jedis = pool.getResource();
         jedis.flushAll();
-        jedis.close();
+        pool.returnResource(jedis);
 
         runner.run(pool.getResource());
 

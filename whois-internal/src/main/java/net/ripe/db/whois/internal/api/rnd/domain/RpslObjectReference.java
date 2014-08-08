@@ -27,4 +27,20 @@ public class RpslObjectReference {
     public void clearRevisions() {
         revisions.clear();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof RpslObjectReference)) {
+            return false;
+        }
+
+        return obj == this || ((RpslObjectReference) obj).key.toString().equals(this.key.toString());
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return key.toString().hashCode();
+    }
 }
