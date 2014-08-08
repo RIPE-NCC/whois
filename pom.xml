@@ -63,7 +63,6 @@
         <module>whois-scheduler</module>
         <module>whois-db</module>
         <module>whois-endtoend</module>
-        <module>whois-internal</module>
     </modules>
 
     <dependencyManagement>
@@ -120,11 +119,6 @@
             <dependency>
                 <groupId>net.ripe.db</groupId>
                 <artifactId>whois-query</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.ripe.db</groupId>
-                <artifactId>whois-internal</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
