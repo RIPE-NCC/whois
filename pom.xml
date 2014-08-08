@@ -32,7 +32,6 @@
         <lucene.version>4.4.0</lucene.version>
         <jetty.version>8.1.12.v20130726</jetty.version>
         <whois.main>OVERRIDE</whois.main>
-        <sonar.skippedModules>whois-oneshot</sonar.skippedModules>
         <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
         <sonar.jdbc.driver>com.mysql.jdbc.Driver</sonar.jdbc.driver>
         <sonar.jdbc.username>dbint</sonar.jdbc.username>
@@ -64,7 +63,6 @@
         <module>whois-scheduler</module>
         <module>whois-db</module>
         <module>whois-endtoend</module>
-        <module>whois-oneshot</module>
         <module>whois-internal</module>
     </modules>
 
