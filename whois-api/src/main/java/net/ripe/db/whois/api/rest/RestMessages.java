@@ -46,6 +46,6 @@ public class RestMessages {
     }
 
     public static Message invalidRequestIp() {
-        return new Message(Messages.Type.ERROR, "This call is only allowed from within RIPE");
+        return new Message(Messages.Type.ERROR, "This request is only allowed from within the RIPE NCC network");
     }
 }
