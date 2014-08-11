@@ -45,11 +45,11 @@ DROP TABLE IF EXISTS `email_links`;
 CREATE TABLE `email_links` (
   `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `hash` varchar(256) NOT NULL,
-  `data` varchar(256) NOT NULL,
+  `value` varchar(256) NOT NULL,
   `creation_date` int(10) unsigned NOT NULL DEFAULT '0',
   `expiry_date` int(10) unsigned NOT NULL DEFAULT '0',
   `created_by` varchar(256),
   `expired_by` varchar(256),
   PRIMARY KEY (`id`),
-  KEY(`hash`)
+  UNIQUE KEY `unique_key` (`hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
