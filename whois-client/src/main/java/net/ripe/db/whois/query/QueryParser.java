@@ -137,7 +137,7 @@ public class QueryParser {
     }
 
     public static boolean hasFlags(final String queryString) {
-        return !PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class)).specs().isEmpty();
+        return PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class)).hasOptions();
     }
 
     static class QueryFlagParser extends OptionParser {
