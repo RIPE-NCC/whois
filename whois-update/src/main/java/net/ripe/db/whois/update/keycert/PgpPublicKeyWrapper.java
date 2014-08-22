@@ -14,10 +14,10 @@ import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyFlags;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPPublicKeyRing;
-import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.PGPSignature;
 import org.bouncycastle.openpgp.PGPSignatureSubpacketVector;
 import org.bouncycastle.openpgp.PGPUtil;
+import org.bouncycastle.openpgp.bc.BcPGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
 import org.joda.time.LocalDateTime;
 
@@ -56,7 +56,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
             List<PGPPublicKey> subKeys = Lists.newArrayList();
 
             @SuppressWarnings("unchecked")
-            final Iterator<PGPPublicKeyRing> keyRingsIterator = new PGPPublicKeyRingCollection(armoredInputStream).getKeyRings();
+            final Iterator<PGPPublicKeyRing> keyRingsIterator = new BcPGPPublicKeyRingCollection(armoredInputStream).getKeyRings();
             while (keyRingsIterator.hasNext()) {
                 @SuppressWarnings("unchecked")
                 final Iterator<PGPPublicKey> keyIterator = keyRingsIterator.next().getPublicKeys();
