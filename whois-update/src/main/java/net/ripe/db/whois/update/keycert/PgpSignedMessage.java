@@ -7,6 +7,7 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSignature;
 import org.bouncycastle.openpgp.PGPSignatureList;
 import org.bouncycastle.openpgp.PGPUtil;
+import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.joda.time.LocalDateTime;
 import org.springframework.util.FileCopyUtils;
@@ -196,7 +197,7 @@ public final class PgpSignedMessage {
     private PGPSignature getPgpSignature() {
         try {
             final InputStream decoderStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(signature));
-            final PGPObjectFactory objectFactory = new PGPObjectFactory(decoderStream);
+            final PGPObjectFactory objectFactory = new BcPGPObjectFactory(decoderStream);
 
             final PGPSignatureList signatureList = (PGPSignatureList) objectFactory.nextObject();
             if ((signatureList == null) || (signatureList.size() != 1)) {
