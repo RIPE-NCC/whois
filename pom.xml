@@ -29,7 +29,7 @@
         <java.version>1.7</java.version>
         <jersey.version>2.11</jersey.version>
         <lucene.version>4.4.0</lucene.version>
-        <jetty.version>8.1.12.v20130726</jetty.version>
+        <jetty.version>8.1.15.v20140411</jetty.version>
         <whois.main>OVERRIDE</whois.main>
         <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
         <sonar.jdbc.driver>com.mysql.jdbc.Driver</sonar.jdbc.driver>
