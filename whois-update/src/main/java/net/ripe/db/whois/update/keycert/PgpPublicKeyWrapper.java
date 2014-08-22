@@ -24,7 +24,6 @@ import org.joda.time.LocalDateTime;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.Provider;
-import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -98,7 +97,8 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
                                 if (signature.verifyCertification(masterKey, key)) {
                                     subKeys.add(key);
                                 }
-                            } catch (SignatureException ignored) {
+                            } catch (PGPException e) {
+                                throw new IllegalStateException(e);
                             }
                         }
                     }

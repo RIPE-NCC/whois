@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -201,13 +200,11 @@ public final class PgpSignedMessage {
 
             final PGPSignatureList signatureList = (PGPSignatureList) objectFactory.nextObject();
             if ((signatureList == null) || (signatureList.size() != 1)) {
-                throw new SignatureException("Couldn't read PGP signature");
+                throw new IllegalArgumentException("Couldn't read PGP signature");
             }
 
             return signatureList.get(0);
         } catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        } catch (SignatureException e) {
             throw new IllegalArgumentException(e);
         }
     }
