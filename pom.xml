@@ -27,7 +27,7 @@
         <spring.version>3.2.10.RELEASE</spring.version>
         <aspectj.version>1.7.4</aspectj.version>
         <java.version>1.7</java.version>
-        <jersey.version>2.7</jersey.version>
+        <jersey.version>2.11</jersey.version>
         <lucene.version>4.4.0</lucene.version>
         <jetty.version>8.1.12.v20130726</jetty.version>
         <whois.main>OVERRIDE</whois.main>
