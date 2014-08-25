@@ -1,8 +1,6 @@
 package net.ripe.db.whois.api.rest.compare;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -81,13 +79,7 @@ public class RestExecutor implements ComparisonExecutor {
     }
 
     public static String compactJson(final String response) {
-        try {
-            final ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(response.getBytes(), JsonNode.class).toString();
-        } catch (IOException e) {
-            LOGGER.debug("Could not process JSON response.", e);
-            return response;
-        }
+        return response.replaceAll("\\s+", "");
     }
 
     static private class RestCaller {
