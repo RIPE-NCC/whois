@@ -54,3 +54,15 @@ CREATE TABLE `email_links` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_key` (`hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `forgot_password_audit_log`;
+CREATE TABLE `forgot_password_audit_log` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `timestamp` int(10) UNSIGNED NOT NULL DEFAULT '0',
+  `mntner` varchar(256),
+  `email` varchar(256),
+  `hash`  varchar(256),
+  `entry` varchar(256) NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT FOREIGN KEY (`hash`) REFERENCES `email_links` (`hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
