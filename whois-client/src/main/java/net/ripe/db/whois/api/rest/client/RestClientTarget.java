@@ -13,6 +13,8 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.net.www.protocol.http.HttpURLConnection;
 
 import javax.ws.rs.ClientErrorException;
@@ -35,6 +37,9 @@ import java.util.List;
 import java.util.Map;
 
 public class RestClientTarget {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestClientTarget.class);
+
     private Client client;
     private String baseUrl;
     private String source;
@@ -334,10 +339,14 @@ public class RestClientTarget {
 
             return new StreamingRestClient(urlConnection.getInputStream());
         } catch (IOException e) {
+            LOGGER.error("Caught exception while streaming", e);
             try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
+                urlConnection.setReadTimeout(60 * 1000);
+                LOGGER.info("Read timeout = {}", urlConnection.getReadTimeout());
                 final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
                 throw new RestClientException(whoisResources.getErrorMessages());
             } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
+                LOGGER.error("Caught exception while unmarshalling error", e);
                 throw new RestClientException(e1.getCause());
             }
         }
