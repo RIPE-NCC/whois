@@ -624,7 +624,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
+                status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
