@@ -13,7 +13,12 @@ import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.AttributeTemplate;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -39,7 +44,7 @@ import java.util.Set;
 @Component
 public class JdbcRpslObjectOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcRpslObjectOperations.class);
-    private static final Set<String> UNTRUNCATABLE_TABLES = Sets.newHashSet("version", "object_version", "object_reference");
+    private static final Set<String> UNTRUNCATABLE_TABLES = Sets.newHashSet("version", "object_version", "object_reference", "email_links");
 
     public static void insertIntoTables(final JdbcTemplate jdbcTemplate, final RpslObjectInfo rpslObjectInfo, final RpslObject rpslObject) {
         final Set<CIString> missing = insertIntoTablesIgnoreMissing(jdbcTemplate, rpslObjectInfo, rpslObject);
