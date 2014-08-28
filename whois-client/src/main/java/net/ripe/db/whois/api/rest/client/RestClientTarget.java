@@ -339,15 +339,16 @@ public class RestClientTarget {
 
             return new StreamingRestClient(urlConnection.getInputStream());
         } catch (IOException e) {
-            LOGGER.error("Caught exception while streaming", e);
             try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
                 urlConnection.setReadTimeout(60 * 1000);
-                LOGGER.info("Read timeout = {}", urlConnection.getReadTimeout());
                 final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
                 throw new RestClientException(whoisResources.getErrorMessages());
             } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
                 LOGGER.error("Caught exception while unmarshalling error", e);
                 throw new RestClientException(e1.getCause());
+            } catch (Exception e2) {
+                LOGGER.error("Unexpected exception while unmarshalling error", e);
+                throw new RestClientException(e2.getCause());
             }
         }
     }
