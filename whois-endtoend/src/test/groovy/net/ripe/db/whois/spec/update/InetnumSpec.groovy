@@ -391,93 +391,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    // Create 0/0 without override
-    @Ignore
-    def "create 0/0 without override"() {
-      expect:
-        queryObjectNotFound("-r -T inetnum 0/0", "inetnum", "0/0")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      0.0.0.0 - 255.255.255.255
-                netname:      IANA-BLK
-                descr:        The whole IPv4 address space
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                remarks:      The country is really worldwide.
-                remarks:      This address space is assigned at various other places in
-                remarks:      the world and might therefore not be in the RIPE database.
-                mnt-by:       OWNER-MNT
-                mnt-lower:    OWNER-MNT
-                mnt-routes:   owner-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: owner
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-        ack.failed
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 0.0.0.0 - 255.255.255.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 0.0.0.0 - 255.255.255.255") == [
-                "There is no parent object"]
-
-        queryObjectNotFound("-r -T inetnum 0/0", "inetnum", "0/0")
-    }
-
-    // Create 0/0 with override
-    @Ignore
-    def "create 0/0 with override"() {
-      expect:
-        queryObjectNotFound("-r -T inetnum 0/0", "inetnum", "0/0")
-
-      when:
-        def message = syncUpdate("""\
-                inetnum:      0.0.0.0 - 255.255.255.255
-                netname:      IANA-BLK
-                descr:        The whole IPv4 address space
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED UNSPECIFIED
-                remarks:      The country is really worldwide.
-                remarks:      This address space is assigned at various other places in
-                remarks:      the world and might therefore not be in the RIPE database.
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
-                mnt-routes:   owner-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                override: denis,override1
-
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 0.0.0.0 - 255.255.255.255" }
-
-        queryObject("-r -T inetnum 0/0", "inetnum", "0/0")
-    }
-
     def "create ALLOCATED UNSPECIFIED, with RS mntner"() {
       expect:
         queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
@@ -595,6 +508,145 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+    }
+
+    def "create allocation with single IP address, parent with mnt-lower, parent mnt-lower pw supplied"() {
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.128.0", "inetnum", "192.168.128.0 - 192.168.128.0")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.128.0 - 192.168.128.0
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.128.0" }
+
+        queryObject("-rGBT inetnum 192.168.128.0 - 192.168.128.0", "inetnum", "192.168.128.0 - 192.168.128.0")
+    }
+
+    def "create allocation with 3 IP addresses, create 2 partitions with 1 and 2 IPs, create assignments from partition parent with mnt-lower, parent mnt-lower pw supplied"() {
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.128.2", "inetnum", "192.168.128.0 - 192.168.128.2")
+        queryObjectNotFound("-r -T inetnum 192.168.128.0 - 192.168.128.0", "inetnum", "192.168.128.0 - 192.168.128.0")
+        queryObjectNotFound("-r -T inetnum 192.168.128.1 - 192.168.128.2", "inetnum", "192.168.128.1 - 192.168.128.2")
+        queryObjectNotFound("-r -T inetnum 192.168.128.1 - 192.168.128.1", "inetnum", "192.168.128.1 - 192.168.128.1")
+        queryObjectNotFound("-r -T inetnum 192.168.128.2 - 192.168.128.2", "inetnum", "192.168.128.2 - 192.168.128.2")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.128.0 - 192.168.128.2
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.128.0 - 192.168.128.0
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LIR-PARTITIONED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.128.1 - 192.168.128.2
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LIR-PARTITIONED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.128.1 - 192.168.128.1
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.128.2 - 192.168.128.2
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: hm
+                password: lir
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 5
+        ack.summary.assertSuccess(5, 5, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.128.2" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.128.0" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.1 - 192.168.128.2" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.1 - 192.168.128.1" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.2 - 192.168.128.2" }
+
+        queryObject("-r -T inetnum 192.168.128.0 - 192.168.128.2", "inetnum", "192.168.128.0 - 192.168.128.2")
+        queryObject("-r -T inetnum 192.168.128.0 - 192.168.128.0", "inetnum", "192.168.128.0 - 192.168.128.0")
+        queryObject("-r -T inetnum 192.168.128.1 - 192.168.128.2", "inetnum", "192.168.128.1 - 192.168.128.2")
+        queryObject("-r -T inetnum 192.168.128.1 - 192.168.128.1", "inetnum", "192.168.128.1 - 192.168.128.1")
+        queryObject("-r -T inetnum 192.168.128.2 - 192.168.128.2", "inetnum", "192.168.128.2 - 192.168.128.2")
     }
 
     def "create allocation, parent with mnt-lower, parent mnt-lower pw supplied, mnt-by using second alloc mntner"() {
@@ -898,6 +950,45 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "create assignment with single IP address, parent no mnt-lower, parent mnt-by pw supplied"() {
+        given:
+        syncUpdate(getTransient("P-NO-LOW") + "password: hm\npassword: owner3")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.200.0 - 192.168.200.0
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       END-USER-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: hm
+                password: end
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.0" }
+
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
     }
 
     def "create assignment, parent with mnt-lower, diff pw to mnt-by, parent mnt-lower pw supplied"() {
@@ -1543,6 +1634,49 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
+    def "create LIR-PARTITIONED PA with single IP address, parent and child with mnt-lower, pw supplied for parent mnt-lower and child mnt-by"() {
+        given:
+        syncUpdate(getTransient("P-LOW") + "password: hm\npassword: owner3")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.200.0 - 192.168.200.0
+                netname:      RIPE-NET1
+                descr:        /24 partition
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LIR-PARTITIONED PA
+                mnt-by:       LIR2-MNT
+                mnt-lower:    LIR3-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: lir
+                password: lir2
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.0" }
+
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
+    }
+
     def "create SUB-ALLOCATED PA, parent and child with mnt-lower, pw supplied for parent and child mnt-lower"() {
       given:
         syncUpdate(getTransient("P-LOW") + "password: hm\npassword: owner3")
@@ -1584,6 +1718,48 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "", "inetnum", "192.168.200.0 - 192.168.200.255", "mnt-by", "LIR2-MNT")
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "create SUB-ALLOCATED PA with single IP address, parent and child with mnt-lower, pw supplied for parent mnt-lower and child mnt-by"() {
+        given:
+        syncUpdate(getTransient("P-LOW") + "password: hm\npassword: owner3")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.200.0 - 192.168.200.0
+                netname:      RIPE-NET1
+                descr:        /24 partition
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       SUB-ALLOCATED PA
+                mnt-by:       LIR2-MNT
+                mnt-lower:    LIR3-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: lir
+                password: lir2
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.0" }
+
+        queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
     }
 
     def "create assignment, parent with mnt-lower mnt-routes, pw supplied parent mnt-routes object mnt-by"() {
@@ -4475,7 +4651,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
     def "modify 3 objects, change status"() {
       given:
-        syncUpdate(getTransient("EARLY") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("LEGACY-USER-ONLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         syncUpdate(getTransient("PART-PA") + "password: lir")
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255")
@@ -4518,7 +4694,8 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
@@ -4533,28 +4710,32 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 3
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(3, 0, 3, 0)
+        ack.summary.assertSuccess(2, 0, 0, 0, 2)
+        ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(1, 2, 2)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["status value cannot be changed, you must delete and re-create the object"]
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.255.255") ==
-                ["status value cannot be changed, you must delete and re-create the object"]
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["status value cannot be changed, you must delete and re-create the object"]
+        ack.successes.any { it.operation == "No operation" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
+        ack.warningSuccessMessagesFor("No operation", "[inetnum] 192.168.200.0 - 192.168.255.255") ==
+                ["Submitted object identical to database object"]
+        ack.infoSuccessMessagesFor("No operation", "[inetnum] 192.168.200.0 - 192.168.255.255") ==
+                ["Value SUB-ALLOCATED PA converted to LEGACY"]
+        ack.successes.any { it.operation == "No operation" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.warningSuccessMessagesFor("No operation", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Submitted object identical to database object"]
+        ack.infoSuccessMessagesFor("No operation", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Value LIR-PARTITIONED PA converted to LEGACY"]
 
-        query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "EARLY-REGISTRATION")
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255", "LIR-PARTITIONED PA")
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "ASSIGNED PA")
+        query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LEGACY")
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255", "LEGACY")
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "LEGACY")
     }
 
     def "modify 3 objects, change status, with override"() {
       given:
-        syncUpdate(getTransient("EARLY") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("LEGACY-USER-ONLY") + "override: denis,override1")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
         syncUpdate(getTransient("PART-PA") + "password: lir")
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255")
@@ -4566,6 +4747,19 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
       when:
         def message = syncUpdate("""\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override: denis,override1
+
                 inetnum:      192.168.200.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -4587,19 +4781,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LIR-PARTITIONED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                override: denis,override1
-
-                inetnum:      192.168.0.0 - 192.168.255.255
-                netname:      RIPE-NET1
-                descr:        /16 ERX
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override: denis,override1
@@ -4869,49 +5050,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
     }
 
-    // Modify assignment, user mnt-by, add RS mntner with RS auth
-    @Ignore
-    def "modify assignment, user mnt-by, add RS mntner with RS auth"() {
-      given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASS") + "password: lir\npassword: end")
-        queryObject("-GBr -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.168.200.0 - 192.168.200.255
-                netname:      RIPE-NET1
-                descr:        /24 assigned
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PA
-                mnt-by:       END-USER-MNT
-                mnt-by:       RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: end
-                password: hm
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
-    }
-
     def "modify assignment, user mnt-by, add DB mntner without DB auth"() {
       given:
         syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
@@ -4952,49 +5090,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 ["Adding or removing a RIPE NCC maintainer requires administrative authorisation"]
 
         query_object_not_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-DBM-MNT")
-    }
-
-    // Modify assignment, user mnt-by, add DB mntner with DB auth
-    @Ignore
-    def "modify assignment, user mnt-by, add DB mntner with DB auth"() {
-      given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASS") + "password: lir\npassword: end")
-        queryObject("-GBr -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      192.168.200.0 - 192.168.200.255
-                netname:      RIPE-NET1
-                descr:        /24 assigned
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PA
-                mnt-by:       END-USER-MNT
-                mnt-by:       RIPE-DBM-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: end
-                password: dbm
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-DBM-MNT")
     }
 
     def "Remove mnt-routes, inverse lookup"() {

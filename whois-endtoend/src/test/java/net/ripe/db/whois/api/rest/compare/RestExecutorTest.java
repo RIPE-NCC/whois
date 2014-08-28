@@ -18,6 +18,7 @@ public class RestExecutorTest {
     @Test
     public void test_compactJson() throws Exception {
         String compact = RestExecutor.compactJson(getJson());
+
         assertThat(compact, not(containsString("\n")));
         assertThat(compact, not(containsString("\t")));
     }
@@ -68,85 +69,85 @@ public class RestExecutorTest {
     private String getJson(){
         return "" +
                 "{\n" +
-                "   \"terms-and-conditions\": {\t\t\t\t \n" +
-                "      \"type\": \"locator\",\n" +
-                "      \"href\": \"http://server/db/support/db-terms-conditions.pdf\"\n" +
-                "   },\n" +
-                "   \"objects\": {\n" +
-                "      \"object\": [\n" +
-                "         {\n" +
-                "            \"source\": {\n" +
-                "               \"id\": \"ripe\"\n" +
-                "            },\n" +
-                "            \"link\": {\n" +
-                "               \"type\": \"locator\",\n" +
-                "               \"href\": \"http://server/ripe/person/DW-RIPE\"\n" +
-                "            },\n" +
-                "            \"primary-key\": {\n" +
-                "               \"attribute\": [\n" +
-                "                  {\n" +
-                "                     \"name\": \"nic-hdl\",\n" +
-                "                     \"value\": \"DW-RIPE\"\n" +
-                "                  }\n" +
-                "               ]\n" +
-                "            },\n" +
-                "            \"attributes\": {\n" +
-                "               \"attribute\": [\n" +
-                "                  {\n" +
-                "                     \"name\": \"person\",\n" +
-                "                     \"value\": \"Denis Walker\"\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                     \"name\": \"address\",\n" +
-                "                     \"value\": \"RIPE Network Coordination Centre (NCC)\"\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                     \"name\": \"address\",\n" +
-                "                     \"value\": \"P.O. Box 10096\"\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                     \"name\": \"address\",\n" +
-                "                     \"value\": \"1001 EB Amsterdam\"\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                     \"name\": \"address\",\n" +
-                "                     \"value\": \"The Netherlands\"\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                     \"name\": \"phone\",\n" +
-                "                     \"value\": \"+31 20 535 4444\"\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                     \"name\": \"fax-no\",\n" +
-                "                     \"value\": \"+31 20 535 4445\"\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                     \"name\": \"nic-hdl\",\n" +
-                "                     \"value\": \"DW-RIPE\"\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                     \"name\": \"mnt-by\",\n" +
-                "                     \"link\": {\n" +
-                "                        \"type\": \"locator\",\n" +
-                "                        \"href\": \"http://server/ripe/mntner/aardvark-mnt\"\n" +
-                "                     },\n" +
-                "                     \"value\": \"aardvark-mnt\",\n" +
-                "                     \"referenced-type\": \"mntner\"\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                     \"name\": \"remarks\"\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                     \"name\": \"source\",\n" +
-                "                     \"value\": \"RIPE\",\n" +
-                "                     \"comment\": \"Filtered\"\n" +
-                "                  }\n" +
-                "               ]\n" +
-                "            },\n" +
-                "            \"type\": \"person\"\n" +
-                "         }\n" +
-                "      ]\n" +
-                "   }\n" +
+                "   \"terms-and-conditions\": {\t\t\t\t \n" +
+                "      \"type\": \"locator\",\n" +
+                "      \"href\": \"http://server/db/support/db-terms-conditions.pdf\"\n" +
+                "   },\n" +
+                "   \"objects\": {\n" +
+                "      \"object\": [\n" +
+                "         {\n" +
+                "            \"source\": {\n" +
+                "               \"id\": \"ripe\"\n" +
+                "            },\n" +
+                "            \"link\": {\n" +
+                "               \"type\": \"locator\",\n" +
+                "               \"href\": \"http://server/ripe/person/DW-RIPE\"\n" +
+                "            },\n" +
+                "            \"primary-key\": {\n" +
+                "               \"attribute\": [\n" +
+                "                  {\n" +
+                "                     \"name\": \"nic-hdl\",\n" +
+                "                     \"value\": \"DW-RIPE\"\n" +
+                "                  }\n" +
+                "               ]\n" +
+                "            },\n" +
+                "            \"attributes\": {\n" +
+                "               \"attribute\": [\n" +
+                "                  {\n" +
+                "                     \"name\": \"person\",\n" +
+                "                     \"value\": \"Denis Walker\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"name\": \"address\",\n" +
+                "                     \"value\": \"RIPE Network Coordination Centre (NCC)\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"name\": \"address\",\n" +
+                "                     \"value\": \"P.O. Box 10096\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"name\": \"address\",\n" +
+                "                     \"value\": \"1001 EB Amsterdam\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"name\": \"address\",\n" +
+                "                     \"value\": \"The Netherlands\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"name\": \"phone\",\n" +
+                "                     \"value\": \"+31 20 535 4444\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"name\": \"fax-no\",\n" +
+                "                     \"value\": \"+31 20 535 4445\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"name\": \"nic-hdl\",\n" +
+                "                     \"value\": \"DW-RIPE\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"name\": \"mnt-by\",\n" +
+                "                     \"link\": {\n" +
+                "                        \"type\": \"locator\",\n" +
+                "                        \"href\": \"http://server/ripe/mntner/aardvark-mnt\"\n" +
+                "                     },\n" +
+                "                     \"value\": \"aardvark-mnt\",\n" +
+                "                     \"referenced-type\": \"mntner\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"name\": \"remarks\"\n" +
+                "                  },\n" +
+                "                  {\n" +
+                "                     \"name\": \"source\",\n" +
+                "                     \"value\": \"RIPE\",\n" +
+                "                     \"comment\": \"Filtered\"\n" +
+                "                  }\n" +
+                "               ]\n" +
+                "            },\n" +
+                "            \"type\": \"person\"\n" +
+                "         }\n" +
+                "      ]\n" +
+                "   }\n" +
                 "}";
     }
 

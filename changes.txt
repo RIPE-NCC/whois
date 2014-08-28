@@ -1,3 +1,7 @@
+## 1.75
+[update] Suballocations smaller than /24 is now allowed
+[update] Reverse domain objects with single IP address now allowed
+
 ## 1.74
 [all] Fixed issues listed in GitHub: https://github.com/RIPE-NCC/whois/issues?milestone=12&state=closed
 [update] Users can now remove the remarks about status in an aut-num object

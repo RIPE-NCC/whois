@@ -390,7 +390,7 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
     private void assertCreate_simple(final ObjectType objectType) {
         final String info = objectType.toString();
-        truncateTables(new Database(whoisTemplate).getTableNames());
+        JdbcRpslObjectOperations.truncateTables(whoisTemplate);
 
         final Database before = new Database(whoisTemplate);
 

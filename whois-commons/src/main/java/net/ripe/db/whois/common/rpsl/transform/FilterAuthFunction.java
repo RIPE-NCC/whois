@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -60,7 +61,7 @@ public class FilterAuthFunction implements FilterFunction {
     public FilterAuthFunction() {
     }
 
-    @Override
+    @Override @NotNull
     public RpslObject apply(final RpslObject rpslObject) {
         final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
         if (authAttributes.isEmpty()) {

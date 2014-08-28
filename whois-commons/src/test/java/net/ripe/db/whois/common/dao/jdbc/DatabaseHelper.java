@@ -78,10 +78,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private JdbcTemplate aclTemplate;
     private JdbcTemplate mailupdatesTemplate;
     private JdbcTemplate internalsTemplate;
+    private SourceAwareDataSource sourceAwareDataSource;
 
     @Autowired ApplicationContext applicationContext;
     @Autowired AttributeSanitizer attributeSanitizer;
-    @Autowired SourceAwareDataSource sourceAwareDataSource;
     @Autowired SourceContext sourceContext;
 
     RpslObjectDao rpslObjectDao;
@@ -125,6 +125,13 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     @Autowired
+    @Qualifier("sourceAwareDataSource")
+    public void setSourceAwareDataSource(final SourceAwareDataSource sourceAwareDataSource) {
+        this.sourceAwareDataSource = sourceAwareDataSource;
+    }
+
+
+    @Autowired
     public void setRpslObjectDao(RpslObjectDao rpslObjectDao) {
         this.rpslObjectDao = rpslObjectDao;
     }
@@ -138,6 +145,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     public void setEmbeddedValueResolver(final StringValueResolver valueResolver) {
         this.valueResolver = valueResolver;
     }
+
+
 
     private static String dbBaseName;
     private static Map<String, String> grsDatabaseNames = Maps.newHashMap();

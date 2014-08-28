@@ -1,10 +1,8 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class Inet6numSpec extends BaseQueryUpdateSpec {
@@ -227,16 +225,9 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    // Create 0::/0 without override
-    @Ignore
-    def "create 0::/0 without override"() {
-        expect:
-        queryObjectNotFound("-r -T inet6num ::/0", "inet6num", "::/0")
-
+    def "modify 0::/0 without override"() {
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""\
                 inet6num:     0::/0
                 netname:      IANA-BLK
                 descr:        The whole IPv6 address space
@@ -260,31 +251,21 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
-        ack.failed
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 1, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] ::/0" }
-        ack.errorMessagesFor("Create", "[inet6num] ::/0") == [
-                "There is no parent object"]
-        ack.infoMessagesFor("Create", "[inet6num] ::/0") == [
-                "Value 0::/0 converted to ::/0"]
-
-        queryObjectNotFound("-r -T inet6num ::/0", "inet6num", "::/0")
+            ack.countErrorWarnInfo(0, 0, 1)
+            ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
+            ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == ["Value 0::/0 converted to ::/0"]
     }
 
-    // Create 0::/0 with override
-    @Ignore
-    def "create 0::/0 with override"() {
+    def "modify 0::/0 with override"() {
         expect:
-        queryObjectNotFound("-r -T inet6num 0::/0", "inetnum", "0::/0")
+            queryObject("-r -T inet6num ::/0", "inet6num", "::/0")
 
         when:
-        def message = syncUpdate("""\
+            def ack = syncUpdateWithResponse("""
                 inet6num:      0::/0
                 netname:      IANA-BLK
                 descr:        The whole IPv6 address space
@@ -307,16 +288,13 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = new AckResponse("", message)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 0.0.0.0 - 255.255.255.255" }
-
-        queryObject("-r -T inetnum 0/0", "inetnum", "0/0")
+            ack.countErrorWarnInfo(0, 0, 2)
+            ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
+            ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == ["Value 0::/0 converted to ::/0", "Authorisation override used"]
     }
 
     def "modify with invalid prefix 1::/0"() {

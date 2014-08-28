@@ -24,14 +24,16 @@ public class AbuseContactMapper {
 
         final Parameters parameters = new Parameters(null, null, null, null, null, new AbusePKey(foundKey));
 
-        final AbuseResources abuseResources = new AbuseResources(
+        return new AbuseResources(
                 "abuse-contact",
                 new Link("locator", String.format("http://rest.db.ripe.net/abuse-contact/%s", key)),
                 parameters,
                 new AbuseContact(abuseEmail),
                 new Link("locator", WhoisResources.TERMS_AND_CONDITIONS)
         );
+    }
 
-        return abuseResources;
+    public static AbuseResources mapAbuseContactError(final String errorMessage) {
+        return new AbuseResources(errorMessage);
     }
 }

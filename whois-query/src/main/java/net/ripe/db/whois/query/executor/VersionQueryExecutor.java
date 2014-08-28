@@ -94,7 +94,7 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     // TODO: [AH] make this streaming, too; objects could have thousands of versions
-    private Iterable<? extends ResponseObject> getResponseObjects(final Query query) {
+    protected Iterable<? extends ResponseObject> getResponseObjects(final Query query) {
         Collection<VersionLookupResult> versionLookupResults = getVersionInfo(query);
 
         // common & sanity checks
