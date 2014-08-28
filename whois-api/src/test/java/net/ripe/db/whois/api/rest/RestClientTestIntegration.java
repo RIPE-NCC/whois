@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -233,8 +233,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .addParam("password", "test")
                 .lookup(SECOND_MNT.getType(), SECOND_MNT.getKey().toString());
 
-        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), startsWith("MD5-PW"));
-        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), not(is("MD5-PW")));
+        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), is("MD5-PW $1$1ZnhrEYU$h8QUAsDPLZYOYVjm3uGQr1"));
     }
 
     @Test
@@ -258,8 +257,28 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .addParam("password", "secondmnt")
                 .lookup(THIRD_MNT.getType(), THIRD_MNT.getKey().toString());
 
-        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), startsWith("MD5-PW"));
-        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), not(is("MD5-PW")));
+        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), is("MD5-PW $1$L9a6Y39t$wuu.ykzgp596KK56tpJm31"));
+    }
+
+    @Ignore("TODO: [ES] Ref. #262 rest client does not encode query parameters")
+    @Test
+    public void lookup_maintainer_password_parameter_must_be_encoded() throws Exception {
+        databaseHelper.addObject(
+                "mntner:        AA1-MNT\n" +
+                "descr:         testing\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$DOWJm2mz$mR5YRmd14FlKgyQd0A2kB. # pass%95word\n" +
+                "mnt-by:        AA1-MNT\n" +
+                "referral-by:   AA1-MNT\n" +
+                "changed:       noreply@ripe.net\n" +
+                "source:        TEST");
+
+        final RpslObject object = restClient.request()
+                .addParam("password", "pass%95word")
+                .lookup(ObjectType.MNTNER, "AA1-MNT");
+
+        assertThat(object.findAttribute(AttributeType.AUTH).getCleanValue().toString(), is("MD5-PW $1$DOWJm2mz$mR5YRmd14FlKgyQd0A2kB."));
     }
 
     @Test
@@ -310,7 +329,11 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             restClient.request().lookupAbuseContact("10.0.0.1");
             fail();
         } catch (RestClientException e) {
-            assertThat(e.getErrorMessages().get(0).getText(), is("No abuse contact found for 10.0.0.1"));
+            assertThat(e.getErrorMessages().get(0).getText(), is(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                    "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
+                    "<message>No abuse contact found for 10.0.0.1</message>" +
+                    "</abuse-resources>"));
         }
     }
 
@@ -387,7 +410,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         // return nothing on partial primary key
         try {
-            final RpslObject responseNoOrigin = restClient.request().lookup(ObjectType.ROUTE, "193.0.0.0/21");
+            restClient.request().lookup(ObjectType.ROUTE, "193.0.0.0/21");
             fail("no result on partial primary key");
         } catch (RestClientException e){
             assertThat(e.getErrorMessages().get(0).toString(), is("ERROR:101: no entries found\n\nNo entries found in source TEST.\n"));
@@ -471,6 +494,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void streaming_search_shows_correct_message_in_empty_result() {
         try {
             restClient.request().addParam("query-string", "bla").streamingSearch();
+            fail();
         } catch (RestClientException e){
             assertThat(e.getErrorMessages().get(0).toString(), is("ERROR:101: no entries found\n\nNo entries found in source TEST.\n"));
         }
@@ -480,6 +504,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void streaming_search_shows_correct_message_in_bad_request() {
         try {
             restClient.request().addParam("query-ng", "bla").streamingSearch();
+            fail();
         } catch (RestClientException e){
             assertThat(e.getErrorMessages().get(0).toString(), is("Query param 'query-string' cannot be empty"));
         }

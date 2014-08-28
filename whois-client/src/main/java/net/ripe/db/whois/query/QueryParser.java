@@ -7,12 +7,14 @@ import com.google.common.collect.Sets;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import joptsimple.OptionSpecBuilder;
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.domain.CIString;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -133,11 +135,12 @@ public class QueryParser {
     }
 
     public boolean hasOnlyQueryFlag(final QueryFlag queryFlag) {
-        return options.specs().size() == 1 && queryFlag.getFlags().contains(options.specs().get(0).options().iterator().next());
+        final List<OptionSpec<?>> specs = options.specs();
+        return specs.size() == 1 && queryFlag.getFlags().contains(specs.get(0).options().iterator().next());
     }
 
     public static boolean hasFlags(final String queryString) {
-        return !PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class)).specs().isEmpty();
+        return PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class)).hasOptions();
     }
 
     static class QueryFlagParser extends OptionParser {

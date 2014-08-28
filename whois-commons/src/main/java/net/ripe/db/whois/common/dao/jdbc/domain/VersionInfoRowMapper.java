@@ -11,10 +11,10 @@ public class VersionInfoRowMapper implements RowMapper<VersionInfo> {
     @Override
     public VersionInfo mapRow(final ResultSet rs, final int rowNum) throws SQLException {
         return new VersionInfo(
-                rs.getBoolean(1),
-                rs.getInt(2),
-                rs.getInt(3),
-                rs.getLong(5),
-                Operation.getByCode(rs.getInt(4)));
+                rs.getBoolean(1), //inLast
+                rs.getInt(2), // objectId
+                rs.getInt(3), //sequenceId
+                rs.getLong(5), //timestamp
+                Operation.getByCode(rs.getInt(4))); //operation
     }
 }

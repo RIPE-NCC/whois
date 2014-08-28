@@ -7,6 +7,7 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSignature;
 import org.bouncycastle.openpgp.PGPSignatureList;
 import org.bouncycastle.openpgp.PGPUtil;
+import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.joda.time.LocalDateTime;
 import org.springframework.util.FileCopyUtils;
@@ -18,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -197,17 +197,15 @@ public final class PgpSignedMessage {
     private PGPSignature getPgpSignature() {
         try {
             final InputStream decoderStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(signature));
-            final PGPObjectFactory objectFactory = new PGPObjectFactory(decoderStream);
+            final PGPObjectFactory objectFactory = new BcPGPObjectFactory(decoderStream);
 
             final PGPSignatureList signatureList = (PGPSignatureList) objectFactory.nextObject();
             if ((signatureList == null) || (signatureList.size() != 1)) {
-                throw new SignatureException("Couldn't read PGP signature");
+                throw new IllegalArgumentException("Couldn't read PGP signature");
             }
 
             return signatureList.get(0);
         } catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        } catch (SignatureException e) {
             throw new IllegalArgumentException(e);
         }
     }

@@ -1,12 +1,12 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
+import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,12 +32,14 @@ import static net.ripe.db.whois.common.collect.CollectionHelper.uniqueResult;
 public class AbuseValidator implements BusinessRuleValidator {
 
     private final RpslObjectDao objectDao;
+    private final RpslObjectUpdateDao updateDao;
     private Maintainers maintainers;
 
     @Autowired
-    public AbuseValidator(final RpslObjectDao objectDao, final Maintainers maintainers) {
+    public AbuseValidator(final RpslObjectDao objectDao, final RpslObjectUpdateDao updateDao, final Maintainers maintainers) {
         this.objectDao = objectDao;
         this.maintainers = maintainers;
+        this.updateDao = updateDao;
     }
 
     @Override
@@ -85,14 +86,15 @@ public class AbuseValidator implements BusinessRuleValidator {
 
             if (isAllowedToUpdate) {
                 Collection<RpslObjectInfo> rpslObjectInfos = FluentIterable
-                        .from(objectDao.relatedTo(update.getReferenceObject(), new HashSet<ObjectType>()))
+                        .from(updateDao.getReferences(update.getReferenceObject()))
                         .filter(new Predicate<RpslObjectInfo>() {
                             @Override
                             public boolean apply(@Nullable RpslObjectInfo input) {
-                                return input != null && input.getObjectType().isResourceType();
+                                return input != null && ObjectType.RESOURCE_TYPES.contains(input.getObjectType());
                             }
                         })
                         .toList();
+
                 for (RpslObjectInfo rpslObjectInfo : rpslObjectInfos) {
                     final RpslObject referencingObject = objectDao.getById(rpslObjectInfo.getObjectId());
                     final Set<CIString> objectMaintainers = referencingObject.getValuesForAttribute(AttributeType.MNT_BY);

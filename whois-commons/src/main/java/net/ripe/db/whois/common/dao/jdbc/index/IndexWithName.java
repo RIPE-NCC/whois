@@ -33,7 +33,7 @@ class IndexWithName extends IndexStrategyWithSingleLookupTable {
 
     protected static String getObjectQueryByName(String table, String[] names) {
         Validate.notEmpty(names, "no name");
-        Validate.isTrue(names.length <= MYSQL_MAX_JOINS, "reached join limit");
+        Validate.isTrue(names.length < MYSQL_MAX_JOINS, "reached join limit");
 
         StringBuilder query = new StringBuilder();
         query.append("SELECT l.object_id, l.object_type, l.pkey FROM last l JOIN ");

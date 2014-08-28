@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -69,7 +68,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -626,7 +624,7 @@ public class WhoisRestService {
 
         @Override
         public void write(final OutputStream output) throws IOException, WebApplicationException {
-            streamingMarshal = getStreamingMarshal(request, output);
+            streamingMarshal = StreamingHelper.getStreamingMarshal(request, output);
 
             final SearchResponseHandler responseHandler = new SearchResponseHandler();
             try {
@@ -735,25 +733,5 @@ public class WhoisRestService {
                 return errors;
             }
         }
-    }
-
-    public static final StreamingMarshal getStreamingMarshal(final HttpServletRequest request, final OutputStream outputStream) {
-        final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
-        if (acceptHeader != null) {
-            for (final String accept : Splitter.on(',').split(acceptHeader)) {
-                try {
-                    final MediaType mediaType = MediaType.valueOf(accept);
-                    final String subtype = mediaType.getSubtype().toLowerCase();
-                    if (subtype.equals("json") || subtype.endsWith("+json")) {
-                        return new StreamingMarshalJson(outputStream);
-                    } else if (subtype.equals("xml") || subtype.endsWith("+xml")) {
-                        return new StreamingMarshalXml(outputStream, "whois-resources");
-                    }
-                } catch (IllegalArgumentException ignored) {
-                }
-            }
-        }
-
-        return new StreamingMarshalXml(outputStream, "whois-resources");
     }
 }

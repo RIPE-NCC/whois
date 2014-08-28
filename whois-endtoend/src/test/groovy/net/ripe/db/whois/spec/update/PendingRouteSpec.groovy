@@ -1,7 +1,7 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.scheduler.task.update.PendingUpdatesCleanup
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -583,6 +583,60 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
 
+    def "second noop pending update is not deleted after route is successfully created"() {
+      given:
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
+
+      expect:
+        queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+      when:
+        syncUpdate(new SyncUpdate(data: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   as
+                """.stripIndent()))
+      then:
+        syncUpdate(new SyncUpdate(data: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   as
+                """.stripIndent()))
+      then:
+        def response = syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   as
+                password:   pinet
+                """.stripIndent()))
+      then:
+        response =~ /SUCCESS/
+      then:
+        // TODO: [ES] entry remains in internals PENDING_UPDATE table
+        DatabaseHelper.dumpSchema(databaseHelper.internalsTemplate.dataSource)
+    }
+
     def "create route, mnt-by & ASN pw supplied, then same ASN pw supplied, then inet pw supplied"() {
         given:
         syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
@@ -839,7 +893,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
       when:
         whoisFixture.getTestDateTimeProvider().reset()
-//        DatabaseHelper.dumpSchema(databaseHelper.getInternalsTemplate().getDataSource())
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
       then:

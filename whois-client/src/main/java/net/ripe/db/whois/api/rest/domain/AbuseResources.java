@@ -20,6 +20,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
         "link",
         "parameters",
         "abuseContact",
+        "message",
         "termsAndConditions"
 })
 @JsonInclude(NON_EMPTY)
@@ -33,6 +34,8 @@ public class AbuseResources {
     private Parameters parameters;
     @XmlElement(name = "abuse-contacts")
     private AbuseContact abuseContact;
+    @XmlElement(name = "message")
+    private String message;
     @XmlElement(name = "terms-and-conditions")
     private Link termsAndConditions;
 
@@ -42,6 +45,10 @@ public class AbuseResources {
         this.parameters = parameters;
         this.abuseContact = abuseContact;
         this.termsAndConditions = termsAndConditions;
+    }
+
+    public AbuseResources(final String message) {
+        this.message = message;
     }
 
     public AbuseResources() {
@@ -60,7 +67,9 @@ public class AbuseResources {
     public AbuseContact getAbuseContact() {
         return abuseContact;
     }
-
+    public String getMessage() {
+        return message;
+    }
     public Link getTermsAndConditions() {
         return termsAndConditions;
     }
