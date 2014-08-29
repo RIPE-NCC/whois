@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -1273,5 +1272,46 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 "Authorisation override used"]
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    //@Ignore
+    def "create assignment, parent with mnt-lower, diff pw to mnt-by, no pw supplied, override separate from object"() {
+      given:
+        syncUpdate(getTransient("P-LOW") + "password: hm\npassword: owner3")
+
+      expect:
+        queryObject("-GBr -T inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+      when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       END-USER-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+
+                override: denis,override1
+
+                """.stripIndent()
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 }
