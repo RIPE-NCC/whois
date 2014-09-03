@@ -1330,6 +1330,37 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_password_attribute_in_body() throws Exception {
+        try {
+            RestTest.target(getPort(), "whois/test/person")
+                    .request()
+                    .post(Entity.entity("<whois-resources>\n" +
+                            "    <objects>\n" +
+                            "        <object type=\"person\">\n" +
+                            "            <source id=\"RIPE\"/>\n" +
+                            "            <attributes>\n" +
+                            "                <attribute name=\"person\" value=\"Pauleth Palthen\"/>\n" +
+                            "                <attribute name=\"address\" value=\"Singel 258\"/>\n" +
+                            "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                            "                <attribute name=\"e-mail\" value=\"noreply@ripe.net\"/>\n" +
+                            "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                            "                <attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>\n" +
+                            "                <attribute name=\"changed\" value=\"ppalse@ripe.net 20101228\"/>\n" +
+                            "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                            "                <attribute name=\"password\" value=\"test\"/>\n" +
+                            "            </attributes>\n" +
+                            "        </object>\n" +
+                            "    </objects>\n" +
+                            "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), is("\"password\" is not a known RPSL attribute"));
+        }
+    }
+
+    @Test
     public void create_person_invalid_source_in_request_body() {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "person:  Pauleth Palthen\n" +
