@@ -114,7 +114,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     @Autowired(required = false)
     @Qualifier("internalsDataSource")
-    public void setPendingDataSource(DataSource pendingDataSource) {
+    public void setInternalsDataSource(DataSource pendingDataSource) {
         internalsTemplate = new JdbcTemplate(pendingDataSource);
     }
 
