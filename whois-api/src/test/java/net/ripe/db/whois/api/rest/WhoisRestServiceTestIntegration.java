@@ -58,7 +58,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Variant;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -4154,7 +4156,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .get(WhoisResources.class);
             fail();
         } catch (NotFoundException e) {
+            // ensure no stack trace in response
             assertThat(e.getResponse().readEntity(String.class), not(containsString("Caused by:")));
+        }
+    }
+
+    @Test(expected = FileNotFoundException.class)
+    public void search_illegal_character_encoding_in_query_param() throws Exception {
+        try (
+            final InputStream inputStream = new URL(
+                    String.format("http://localhost:%d/whois/search?flags=rB&source=TEST&type-filter=mntner&query-string=AA1-MNT+{+192.168.0.0/16+}",
+                            getPort())).openStream()) {
+            fail();
         }
     }
 
