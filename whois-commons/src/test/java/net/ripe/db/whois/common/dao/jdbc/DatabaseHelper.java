@@ -114,8 +114,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     @Autowired(required = false)
     @Qualifier("internalsDataSource")
-    public void setInternalsDataSource(DataSource pendingDataSource) {
-        internalsTemplate = new JdbcTemplate(pendingDataSource);
+    public void setInternalsDataSource(DataSource internalsDataSource) {
+        internalsTemplate = new JdbcTemplate(internalsDataSource);
     }
 
     // TODO: [AH] autowire these fields once whois-internals has proper wiring set up
