@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
@@ -40,6 +39,17 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             referral-by: RIPE-NCC-HM-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$tnG/zrDw\$nps8tg76q4jgg5zg5o6os. # hm
+            changed: dbtest@ripe.net 20120707
+            source:  TEST
+            """,
+                "LEGACY-MNT"  : """\
+            mntner:  RIPE-NCC-LEGACY-MNT
+            descr:   description
+            admin-c: AP1-TEST
+            mnt-by:  RIPE-NCC-LEGACY-MNT
+            referral-by: RIPE-NCC-LEGACY-MNT
+            upd-to:  dbtest@ripe.net
+            auth:    MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
             changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
@@ -1379,5 +1389,58 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         delete =~ /Delete SUCCEEDED: \[aut-num\] AS400/
+    }
+
+    def "create aut-num, legacy maintainer reference cannot be added by enduser maintainer"() {
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num:        AS103
+                as-name:        End-User
+                status:         LEGACY
+                descr:          description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                mnt-by:         RIPE-NCC-LEGACY-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: update
+                """.stripIndent())
+      then:
+        response =~ /Create FAILED: \[aut-num\] AS103/
+        response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+    }
+
+    def "modify aut-num, legacy maintainer reference cannot be added by enduser maintainer"() {
+      given:
+        syncUpdate new SyncUpdate(data: """\
+                aut-num:        AS103
+                as-name:        End-User
+                status:         LEGACY
+                descr:          description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: update
+                """.stripIndent())
+      when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                aut-num:        AS103
+                as-name:        End-User
+                status:         LEGACY
+                descr:          description
+                admin-c:        AP1-TEST
+                tech-c:         AP1-TEST
+                mnt-by:         UPD-MNT
+                mnt-by:         RIPE-NCC-LEGACY-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password: update
+                """.stripIndent())
+      then:
+        response =~ /Modify FAILED: \[aut-num\] AS103/
+        response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
     }
 }

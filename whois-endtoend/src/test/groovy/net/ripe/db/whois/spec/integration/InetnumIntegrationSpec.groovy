@@ -56,6 +56,17 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
+            "LEGACY-MNT"  : """\
+                    mntner:  RIPE-NCC-LEGACY-MNT
+                    descr:   description
+                    admin-c: TEST-PN
+                    mnt-by:  RIPE-NCC-LEGACY-MNT
+                    referral-by: RIPE-NCC-LEGACY-MNT
+                    upd-to:  dbtest@ripe.net
+                    auth:    MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
+                    changed: dbtest@ripe.net 20120707
+                    source:  TEST
+                """,
             "ORG1"     : """\
                     organisation: ORG-TOL1-TEST
                     org-name:     Test Organisation Ltd
@@ -907,6 +918,42 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       insertResponse =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
+  def "create status LEGACY, legacy maintainer reference cannot be added by enduser maintainer"() {
+    given:
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.255.255.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-lower:  TEST-MNT
+                    mnt-by:     RIPE-NCC-HM-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password:hm
+                """.stripIndent()))
+    when:
+      def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-LEGACY-MNT
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    then:
+      insertResponse =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      insertResponse =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+  }
+
   def "create status LEGACY, parent not legacy or allocated unspecified, RS"() {
     given:
       databaseHelper.addObject("" +
@@ -1295,6 +1342,403 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
     then:
       response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
       response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+  }
+
+ def "modify ALLOCATED UNSPECIFIED status, cannot be changed to LEGACY by enduser maintainer"() {
+    given:
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.255.255.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    org:        ORG-TOL2-TEST
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     ASSIGNED PI
+                    mnt-by:     RIPE-NCC-HM-MNT
+                    mnt-lower:  TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    override:denis,override1
+                """.stripIndent()))
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    org:        ORG-TOL2-TEST
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     ALLOCATED UNSPECIFIED
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    override:denis,override1
+                """.stripIndent()))
+    when:
+      def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    org:        ORG-TOL2-TEST
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    then:
+      response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /\*\*\*Error:   status value cannot be changed, you must delete and re-create the\n\s+object/
+  }
+
+ def "modify LEGACY status, cannot be changed to ASSIGNED PI by enduser maintainer"() {
+    given:
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.255.255.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-HM-MNT
+                    mnt-lower:  TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password:hm
+                """.stripIndent()))
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    when:
+      def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     ASSIGNED PI
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    then:
+      response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+  }
+
+ def "modify LEGACY status, legacy maintainer mnt-by reference cannot be added by enduser maintainer"() {
+    given:
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.255.255.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-HM-MNT
+                    mnt-lower:  TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password:hm
+                """.stripIndent()))
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    when:
+      def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-LEGACY-MNT
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    then:
+      response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+  }
+
+ def "modify LEGACY status, legacy maintainer mnt-lower reference cannot be added by enduser maintainer"() {
+    given:
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.255.255.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-HM-MNT
+                    mnt-lower:  TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password:hm
+                """.stripIndent()))
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    when:
+      def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-lower:  RIPE-NCC-LEGACY-MNT
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    then:
+      response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+  }
+
+  def "modify LEGACY status, legacy maintainer mnt-by reference cannot be removed by enduser maintainer"() {
+    given:
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.255.255.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-HM-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password:hm
+                """.stripIndent()))
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    mnt-by:     RIPE-NCC-LEGACY-MNT
+                    mnt-by:     TEST-MNT
+                    status:     LEGACY
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    override:denis,override1
+                """.stripIndent()))
+    when:
+      def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    then:
+      response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+  }
+
+  def "modify LEGACY status, add legacy maintainer mnt-by reference with override"() {
+    given:
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.255.255.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-HM-MNT
+                    mnt-lower:  TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password:hm
+                """.stripIndent()))
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    mnt-by:     TEST-MNT
+                    status:     LEGACY
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password:update
+                """.stripIndent()))
+    when:
+      def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-LEGACY-MNT
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    override:denis,override1
+                """.stripIndent()))
+    then:
+      response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /\*\*\*Info:    Authorisation override used/
+  }
+
+  def "modify LEGACY status, with legacy maintainer mnt-by, org reference cannot be removed by enduser maintainer"() {
+    given:
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.255.255.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-HM-MNT
+                    mnt-lower:  TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password:hm
+                """.stripIndent()))
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    org:        ORG-TOL1-TEST
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-LEGACY-MNT
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    override:denis,override1
+                """.stripIndent()))
+    when:
+      def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-LEGACY-MNT
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    then:
+      response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /\*\*\*Error:   Referenced organisation can only be removed by the RIPE NCC for this\n\s+resource/
+  }
+
+  def "modify LEGACY status, with legacy maintainer mnt-by, org reference cannot be changed by enduser maintainer"() {
+    given:
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.255.255.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-HM-MNT
+                    mnt-lower:  TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password:hm
+                """.stripIndent()))
+      syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    org:        ORG-TOL1-TEST
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-LEGACY-MNT
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    override:denis,override1
+                """.stripIndent()))
+    when:
+      def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.0.0.0 - 192.0.0.255
+                    netname:    RIPE-NCC
+                    descr:      description
+                    org:        ORG-TOL2-TEST
+                    country:    DK
+                    admin-c:    TEST-PN
+                    tech-c:     TEST-PN
+                    status:     LEGACY
+                    mnt-by:     RIPE-NCC-LEGACY-MNT
+                    mnt-by:     TEST-MNT
+                    changed:    ripe@test.net 20120505
+                    source:     TEST
+                    password: update
+                """.stripIndent()))
+    then:
+      response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /\*\*\*Error:   Referenced organisation can only be changed by the RIPE NCC for this\n\s+resource/
   }
 
   def "adding mnt-irt fails if not authenticated against IRT"() {
