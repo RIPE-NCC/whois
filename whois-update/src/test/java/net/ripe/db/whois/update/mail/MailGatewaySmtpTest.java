@@ -6,13 +6,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.mail.SendFailedException;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MailGatewaySmtpTest {
@@ -39,5 +49,22 @@ public class MailGatewaySmtpTest {
         subject.sendEmail("to", "subject", "test");
 
         verifyZeroInteractions(mailSender);
+    }
+
+    @Test
+    public void send_invoked_only_once_on_permanent_negative_response() {
+        Mockito.doAnswer(new Answer<Void>() {
+            @Override public Void answer(InvocationOnMock invocation) throws Throwable {
+                throw new SendFailedException("550 rejected: mail rejected for policy reasons");
+            }
+        }).when(mailSender).send(any(MimeMessagePreparator.class));
+
+        try {
+            subject.sendEmail("to", "subject", "test");
+            fail();
+        } catch (Exception e) {
+            assertThat(e, instanceOf(SendFailedException.class));
+            verify(mailSender, times(1)).send(any(MimeMessagePreparator.class));
+        }
     }
 }
