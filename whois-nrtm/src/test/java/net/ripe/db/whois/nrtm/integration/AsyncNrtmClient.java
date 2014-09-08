@@ -1,6 +1,6 @@
 package net.ripe.db.whois.nrtm.integration;
 
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -14,7 +14,7 @@ public class AsyncNrtmClient {
     public AsyncNrtmClient(final int port, final String query, final int timeout) {
         task = new FutureTask<>(new Callable<String>() {
             public String call() {
-                String result = DummyWhoisClient.query(port, query, timeout * 1000);
+                String result = TelnetWhoisClient.queryLocalhost(port, query, timeout * 1000);
                 return result;
             }
          });

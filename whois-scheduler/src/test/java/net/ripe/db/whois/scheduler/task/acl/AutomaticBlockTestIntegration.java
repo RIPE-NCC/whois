@@ -2,7 +2,7 @@ package net.ripe.db.whois.scheduler.task.acl;
 
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
@@ -110,6 +110,6 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     }
 
     private String query(final String query) throws Exception {
-        return DummyWhoisClient.query(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
 }
