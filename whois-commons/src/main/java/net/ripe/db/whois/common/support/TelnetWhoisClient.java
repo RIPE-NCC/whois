@@ -2,7 +2,6 @@ package net.ripe.db.whois.common.support;
 
 import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.aspects.RetryFor;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
@@ -17,16 +16,16 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 
-public class DummyWhoisClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DummyWhoisClient.class);
+public class TelnetWhoisClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TelnetWhoisClient.class);
 
     private String host;
     private int port;
 
-    public static String query(final int port, final String query) {
+    public static String queryLocalhost(final int port, final String query) {
         for (int attempt = 1; attempt <= 3; attempt++) {
             LOGGER.info("Query {} attempt {}", query, attempt);
-            DummyWhoisClient client = new DummyWhoisClient("127.0.0.1", port);
+            TelnetWhoisClient client = new TelnetWhoisClient("127.0.0.1", port);
             try {
                 return client.sendQuery(query);
             } catch (IOException e) {
@@ -37,21 +36,21 @@ public class DummyWhoisClient {
         throw new IllegalStateException("Unable to execute query");
     }
 
-    public static String query(final int port, final String query, final int timeoutMs) {
+    public static String queryLocalhost(final int port, final String query, final int timeoutMs) {
         try {
-            return new DummyWhoisClient("127.0.0.1", port).sendQuery(query, Charsets.ISO_8859_1, timeoutMs);
+            return new TelnetWhoisClient("127.0.0.1", port).sendQuery(query, Charsets.ISO_8859_1, timeoutMs);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to execute query");
         }
     }
 
 
-    public DummyWhoisClient(final int port) {
+    public TelnetWhoisClient(final int port) {
         this.port = port;
         this.host = "localhost";
     }
 
-    public DummyWhoisClient(final String host, final int port) {
+    public TelnetWhoisClient(final String host, final int port) {
         this.port = port;
         this.host = host;
     }
@@ -66,25 +65,22 @@ public class DummyWhoisClient {
 
     @RetryFor(IOException.class)
     public String sendQuery(final String query, final Charset charset, final int timeoutMs) throws IOException {
-        final Socket socket = new Socket(host, port);
-        if (timeoutMs > 0) {
-            socket.setSoTimeout(timeoutMs);
-        }
-
-        final PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
-        final BufferedReader serverReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), charset));
         final StringWriter responseWriter = new StringWriter();
 
-        serverWriter.println(query);
+        try (final Socket socket = new Socket(host, port);
+             final PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
+             final BufferedReader serverReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), charset))) {
 
-        try {
+            if (timeoutMs > 0) {
+                socket.setSoTimeout(timeoutMs);
+            }
+
+            serverWriter.println(query);
+
             FileCopyUtils.copy(serverReader, responseWriter);
-        } catch (SocketTimeoutException | SocketException ignored) {
-            LOGGER.warn("IO error", ignored);
-        } finally {
-            IOUtils.closeQuietly(serverWriter);
-            IOUtils.closeQuietly(serverReader);
-            IOUtils.closeQuietly(socket);
+        } catch (SocketTimeoutException | SocketException e) {
+            LOGGER.warn("Error querying for {}: {}", query, e.getMessage());
+            throw e;
         }
 
         return responseWriter.toString();

@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
@@ -93,6 +93,6 @@ public class GrsImporterLacnicManualTest extends AbstractSchedulerIntegrationTes
     }
 
     private String query(final String query) throws Exception {
-        return DummyWhoisClient.query(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
 }
