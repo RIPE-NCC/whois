@@ -316,6 +316,19 @@ class BasicFixtures {
                 referral-by: RIPE-DBM-MNT
                 source:      TEST
                 """,
+            "RIPE-NCC-LEGACY-MNT": """\
+                mntner:      RIPE-NCC-LEGACY-MNT
+                descr:       RIPE NCC LEGACY resource maintainer
+                upd-to:      updto_legacy@ripe.net
+                mnt-nfy:     mntnfy_legacy@ripe.net
+                notify:      notify_legacy@ripe.net
+                auth:        MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
+                org:         ORG-OTO1-TEST
+                mnt-by:      RIPE-NCC-LEGACY-MNT
+                changed:     dbtest@ripe.net
+                referral-by: RIPE-DBM-MNT
+                source:      TEST
+                """,
             "TST-MNT2": """\
                 mntner:      TST-MNT2
                 descr:       MNTNER for test
