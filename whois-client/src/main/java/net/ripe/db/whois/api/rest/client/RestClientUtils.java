@@ -19,7 +19,7 @@ public class RestClientUtils {
     // encode a query parameter
     // DO NOT use to encode form parameters
     public static final String encode(final String param) {
-        return UrlEscapers.urlFragmentEscaper().escape(param);
+        return UrlEscapers.urlPathSegmentEscaper().escape(param);
     }
 
     // encode a list of query parameters

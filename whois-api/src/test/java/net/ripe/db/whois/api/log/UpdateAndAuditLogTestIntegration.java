@@ -7,7 +7,7 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
-import net.ripe.db.whois.api.rest.client.RestClientUtils;
+import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
@@ -168,7 +168,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     @Test
     public void syncupdate_gets_logged() throws Exception {
         final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
-        RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(secondPerson + "\npassword: test") + "&NEW=yes")
+        RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(secondPerson + "\npassword: test") + "&NEW=yes")
                 .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
                 .get(String.class);
