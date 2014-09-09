@@ -346,9 +346,6 @@ public class RestClientTarget {
             } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
                 LOGGER.error("Caught exception while unmarshalling error", e);
                 throw new RestClientException(e1.getCause());
-            } catch (Exception e2) {
-                LOGGER.error("Unexpected exception while unmarshalling error", e);
-                throw new RestClientException(e2.getCause());
             }
         }
     }
