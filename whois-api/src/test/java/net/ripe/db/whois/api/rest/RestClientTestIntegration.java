@@ -13,7 +13,6 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +27,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -123,6 +123,17 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW # Filtered"));
         assertThat(object.findAttribute(AttributeType.AUTH).getCleanComment(), is("Filtered"));
+    }
+
+    @Test
+    public void lookup_not_found() throws Exception {
+        try {
+            restClient.request().lookup(ObjectType.MNTNER, "NON-EXISTANT");
+            fail();
+        } catch (RestClientException e) {
+            assertThat(e.getErrorMessages(), hasSize(1));
+            assertThat(e.getErrorMessages().get(0).getText(), containsString("ERROR:101: no entries found"));
+        }
     }
 
     @Test
@@ -260,7 +271,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), is("MD5-PW $1$L9a6Y39t$wuu.ykzgp596KK56tpJm31"));
     }
 
-    @Ignore("TODO: [ES] Ref. #262 rest client does not encode query parameters")
     @Test
     public void lookup_maintainer_password_parameter_must_be_encoded() throws Exception {
         databaseHelper.addObject(
@@ -268,17 +278,17 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "descr:         testing\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
-                "auth:          MD5-PW $1$DOWJm2mz$mR5YRmd14FlKgyQd0A2kB. # pass%95word\n" +
+                "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
                 "mnt-by:        AA1-MNT\n" +
                 "referral-by:   AA1-MNT\n" +
                 "changed:       noreply@ripe.net\n" +
                 "source:        TEST");
 
         final RpslObject object = restClient.request()
-                .addParam("password", "pass%95word")
+                .addParam("password", "pass %95{word}?")
                 .lookup(ObjectType.MNTNER, "AA1-MNT");
 
-        assertThat(object.findAttribute(AttributeType.AUTH).getCleanValue().toString(), is("MD5-PW $1$DOWJm2mz$mR5YRmd14FlKgyQd0A2kB."));
+        assertThat(object.findAttribute(AttributeType.AUTH).getCleanValue().toString(), is("MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1"));
     }
 
     @Test
