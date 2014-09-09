@@ -30,25 +30,12 @@ public class TelnetWhoisClient {
     private final int port;
 
     public static String queryLocalhost(final int port, final String query) {
-        for (int attempt = 1; attempt <= 3; attempt++) {
-            LOGGER.info("Query {} attempt {}", query, attempt);
-            TelnetWhoisClient client = new TelnetWhoisClient("127.0.0.1", port);
-            try {
-                return client.sendQuery(query);
-            } catch (IOException e) {
-                LOGGER.warn("Query {} attempt {} failed", query, attempt);
-            }
-        }
-
-        throw new IllegalStateException("Unable to execute query");
+        TelnetWhoisClient client = new TelnetWhoisClient("127.0.0.1", port);
+        return client.sendQuery(query);
     }
 
     public static String queryLocalhost(final int port, final String query, final int timeoutMs) {
-        try {
-            return new TelnetWhoisClient("127.0.0.1", port).sendQuery(query, DEFAULT_CHARSET, timeoutMs);
-        } catch (IOException e) {
-            throw new IllegalStateException("Unable to execute query");
-        }
+        return new TelnetWhoisClient("127.0.0.1", port).sendQuery(query, DEFAULT_CHARSET, timeoutMs);
     }
 
     public TelnetWhoisClient(final String host) {
@@ -66,15 +53,15 @@ public class TelnetWhoisClient {
         this.host = host;
     }
 
-    public String sendQuery(final String query) throws IOException {
+    public String sendQuery(final String query) {
         return sendQuery(query, DEFAULT_CHARSET);
     }
 
-    public String sendQuery(final String query, final Charset charset) throws IOException {
+    public String sendQuery(final String query, final Charset charset) {
         return sendQuery(query, charset, DEFAULT_TIMEOUT);
     }
 
-    public String sendQuery(final String query, final Charset charset, final int timeoutMs) throws IOException {
+    public String sendQuery(final String query, final Charset charset, final int timeoutMs) {
         return sendQuery(query, passThroughFunction, charset, timeoutMs).orNull();
     }
 
@@ -86,13 +73,22 @@ public class TelnetWhoisClient {
                 FileCopyUtils.copy(input, responseWriter);
                 return Optional.of(responseWriter.toString());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         }
     };
 
+    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function, final Charset charset, final int timeoutMs) {
+        try {
+            return sendQueryWithRetry(query, function, charset, timeoutMs);
+        } catch (IOException e) {
+            final String message = String.format("Error querying for '%s' at '%s': %s", query, host, e.getMessage());
+            throw new IllegalStateException(message, e);
+        }
+    }
+
     @RetryFor(IOException.class)
-    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function, final Charset charset, final int timeoutMs) throws IOException {
+    private Optional<String> sendQueryWithRetry(final String query, final Function<BufferedReader, Optional<String>> function, final Charset charset, final int timeoutMs) throws IOException {
 
         try (final Socket socket = new Socket(host, port);
              final PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
@@ -109,11 +105,11 @@ public class TelnetWhoisClient {
         }
     }
 
-    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function, final Charset charset) throws IOException {
+    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function, final Charset charset) {
         return sendQuery(query, function, charset, DEFAULT_TIMEOUT);
     }
 
-    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function) throws IOException {
+    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function) {
         return sendQuery(query, function, DEFAULT_CHARSET);
     }
 
