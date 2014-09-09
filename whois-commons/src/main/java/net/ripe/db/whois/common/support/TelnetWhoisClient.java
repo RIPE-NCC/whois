@@ -21,11 +21,13 @@ import java.nio.charset.Charset;
 public class TelnetWhoisClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TelnetWhoisClient.class);
 
+    public static final int DEFAULT_PORT = 43;
+    public static final String DEFAULT_HOST = "localhost";
     public static final Charset DEFAULT_CHARSET = Charsets.ISO_8859_1;
     private static final int DEFAULT_TIMEOUT = -1;
 
-    private String host;
-    private int port;
+    private final String host;
+    private final int port;
 
     public static String queryLocalhost(final int port, final String query) {
         for (int attempt = 1; attempt <= 3; attempt++) {
@@ -49,10 +51,14 @@ public class TelnetWhoisClient {
         }
     }
 
+    public TelnetWhoisClient(final String host) {
+        this.port = DEFAULT_PORT;
+        this.host = host;
+    }
 
     public TelnetWhoisClient(final int port) {
         this.port = port;
-        this.host = "localhost";
+        this.host = DEFAULT_HOST;
     }
 
     public TelnetWhoisClient(final String host, final int port) {
