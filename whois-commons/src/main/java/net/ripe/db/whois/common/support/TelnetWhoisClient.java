@@ -1,6 +1,8 @@
 package net.ripe.db.whois.common.support;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,9 @@ import java.nio.charset.Charset;
 
 public class TelnetWhoisClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TelnetWhoisClient.class);
+
+    public static final Charset DEFAULT_CHARSET = Charsets.ISO_8859_1;
+    private static final int DEFAULT_TIMEOUT = -1;
 
     private String host;
     private int port;
@@ -38,7 +43,7 @@ public class TelnetWhoisClient {
 
     public static String queryLocalhost(final int port, final String query, final int timeoutMs) {
         try {
-            return new TelnetWhoisClient("127.0.0.1", port).sendQuery(query, Charsets.ISO_8859_1, timeoutMs);
+            return new TelnetWhoisClient("127.0.0.1", port).sendQuery(query, DEFAULT_CHARSET, timeoutMs);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to execute query");
         }
@@ -56,33 +61,54 @@ public class TelnetWhoisClient {
     }
 
     public String sendQuery(final String query) throws IOException {
-        return sendQuery(query, Charsets.ISO_8859_1);
+        return sendQuery(query, DEFAULT_CHARSET);
     }
 
     public String sendQuery(final String query, final Charset charset) throws IOException {
-        return sendQuery(query, charset, -1);
+        return sendQuery(query, charset, DEFAULT_TIMEOUT);
     }
 
-    @RetryFor(IOException.class)
     public String sendQuery(final String query, final Charset charset, final int timeoutMs) throws IOException {
-        final StringWriter responseWriter = new StringWriter();
+        return sendQuery(query, passThroughFunction, charset, timeoutMs).orNull();
+    }
+
+    private final Function<BufferedReader, Optional<String>> passThroughFunction = new Function<BufferedReader, Optional<String>>() {
+        @Override
+        public Optional<String> apply(final BufferedReader input) {
+            final StringWriter responseWriter = new StringWriter();
+            try {
+                FileCopyUtils.copy(input, responseWriter);
+                return Optional.of(responseWriter.toString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    };
+
+    @RetryFor(IOException.class)
+    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function, final Charset charset, final int timeoutMs) throws IOException {
 
         try (final Socket socket = new Socket(host, port);
              final PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
              final BufferedReader serverReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), charset))) {
 
-            if (timeoutMs > 0) {
-                socket.setSoTimeout(timeoutMs);
-            }
+            if (timeoutMs > 0) socket.setSoTimeout(timeoutMs);
 
             serverWriter.println(query);
+            return function.apply(serverReader);
 
-            FileCopyUtils.copy(serverReader, responseWriter);
         } catch (SocketTimeoutException | SocketException e) {
             LOGGER.warn("Error querying for {}: {}", query, e.getMessage());
             throw e;
         }
-
-        return responseWriter.toString();
     }
+
+    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function, final Charset charset) throws IOException {
+        return sendQuery(query, function, charset, DEFAULT_TIMEOUT);
+    }
+
+    public Optional<String> sendQuery(final String query, final Function<BufferedReader, Optional<String>> function) throws IOException {
+        return sendQuery(query, function, DEFAULT_CHARSET);
+    }
+
 }
