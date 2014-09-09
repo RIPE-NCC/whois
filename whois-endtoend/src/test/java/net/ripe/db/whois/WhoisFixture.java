@@ -91,6 +91,7 @@ public class WhoisFixture {
         System.setProperty("mail.dequeue.interval", "10");
         System.setProperty("whois.maintainers.power", "RIPE-NCC-HM-MNT");
         System.setProperty("whois.maintainers.enduser", "RIPE-NCC-END-MNT");
+        System.setProperty("whois.maintainers.legacy", "RIPE-NCC-LEGACY-MNT");
         System.setProperty("whois.maintainers.alloc", "RIPE-NCC-HM-MNT,RIPE-NCC-HM2-MNT");
         System.setProperty("whois.maintainers.enum", "RIPE-GII-MNT,RIPE-NCC-MNT");
         System.setProperty("whois.maintainers.dbm", "RIPE-NCC-LOCKED-MNT,RIPE-DBM-MNT");
