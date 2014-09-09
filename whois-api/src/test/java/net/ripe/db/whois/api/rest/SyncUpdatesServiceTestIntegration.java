@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.client.RestClientUtils;
+import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
@@ -124,7 +124,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
         try {
-            RestTest.target(getPort(), "whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + RestClientUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+            RestTest.target(getPort(), "whois/syncupdates/test?" +
+                    "REDIRECT=yes&DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
             fail();
@@ -140,7 +141,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         ipRanges.setTrusted("0/0", "::0/0");
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "REDIRECT=yes&DATA=" + RestClientUtils.encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "REDIRECT=yes&DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
                 .request()
                 .get(String.class);
 
@@ -154,7 +156,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
                 .request()
                 .get(String.class);
 
@@ -168,7 +171,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     public void create_object_only_data_parameter() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                 .request()
                 .get(String.class);
 
@@ -198,7 +202,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:   noreply@ripe.net 20130102\n" +
                 "source:    TEST";
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(person))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person))
                 .request()
                 .cookie("crowd.token_key", "valid-token")
                 .get(String.class);
@@ -229,7 +233,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:   noreply@ripe.net 20130102\n" +
                 "source:    TEST";
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(person))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person))
                 .request()
                 .cookie("crowd.token_key", "invalid-token")
                 .get(String.class);
@@ -257,13 +261,15 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST";
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(mntner + "\npassword: emptypassword"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(mntner + "\npassword: emptypassword"))
                 .request()
                 .cookie("crowd.token_key", "valid-token")
                 .get(String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] SSO-MNT"));
-        assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT").getValueForAttribute(AttributeType.AUTH), is(CIString.ciString("SSO 906635c2-0405-429a-800b-0602bd716124")));
+        assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT").getValueForAttribute(AttributeType.AUTH),
+                is(CIString.ciString("SSO 906635c2-0405-429a-800b-0602bd716124")));
     }
 
     @Test
@@ -281,7 +287,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST";
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(mntner) + "&NEW=yes")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(mntner) + "&NEW=yes")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
                 .get(String.class);
@@ -299,15 +306,38 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "descr:         description\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
-                "auth:          MD5-PW $1$k7nLmORx$v82Me.9cMflk81tcEr6FJ/ # quick brown fox\n" +
+                "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
                 "mnt-by:        TESTING-MNT\n" +
                 "referral-by:   TESTING-MNT\n" +
                 "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST";
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(mntner + "\npassword: quick brown fox"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(mntner + "\npassword: pass %95{word}?\n"))
                 .request()
                 .get(String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [mntner] TESTING-MNT"));
+    }
+
+    @Test
+    public void create_selfreferencing_maintainer_post_url_encoded_data() {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
+                                "mntner:        TESTING-MNT\n" +
+                                "descr:         description\n" +
+                                "admin-c:       TP1-TEST\n" +
+                                "upd-to:        noreply@ripe.net\n" +
+                                "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
+                                "mnt-by:        TESTING-MNT\n" +
+                                "referral-by:   TESTING-MNT\n" +
+                                "changed:       noreply@ripe.net 20130102\n" +
+                                "source:        TEST\n" +
+                                "password: pass %95{word}?\n"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] TESTING-MNT"));
     }
@@ -327,7 +357,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST";
         databaseHelper.addObject(mntner);
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(mntner + "\nremarks: updated"))
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(mntner + "\nremarks: updated"))
                 .request()
                 .cookie("crowd.token_key", "valid-token")
                 .get(String.class);
@@ -338,7 +369,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void create_maintainer_invalid_source_in_url() throws Exception {
         try {
-            RestTest.target(getPort(), "whois/syncupdates/invalid?DATA=" + RestClientUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
+            RestTest.target(getPort(), "whois/syncupdates/invalid?" +
+                    "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
                     .get(String.class);
             fail();
@@ -352,7 +384,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         final String mntnerInvalidSource = MNTNER_TEST_MNTNER.replaceAll("source:\\s+TEST", "source: invalid");
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(mntnerInvalidSource + "\npassword: emptypassword"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(mntnerInvalidSource + "\npassword: emptypassword"))
                 .request()
                 .get(String.class);
 
@@ -364,7 +397,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword"))
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword"))
                 .request()
                 .get(String.class);
 
@@ -386,7 +420,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     public void new_and_data_parameters_get_request() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes")
                 .request()
                 .get(String.class);
 
@@ -398,7 +433,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + RestClientUtils.encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword") + "&NEW=yes")
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\nremarks: new" + "\npassword: emptypassword") + "&NEW=yes")
                 .request()
                 .get(String.class);
 
@@ -413,7 +449,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + RestClientUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword") + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
+                .post(Entity.entity(
+                        "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER +
+                        "\npassword: emptypassword") + "&NEW=yes", MediaType.APPLICATION_FORM_URLENCODED), String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
     }
@@ -431,22 +469,46 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void post_url_encoded_data_with_charset() throws Exception {
+    public void post_url_encoded_data() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity("DATA=" + RestClientUtils.encode(
-                        "person:     Test Person\n" +
-                        "address:    Flughafenstraße 109/a\n" +
-                        "phone:      +49 282 411141\n" +
-                        "fax-no:     +49 282 411140\n" +
-                        "nic-hdl:    TP1-TEST\n" +
-                        "changed:    dbtest@ripe.net 20120101\n" +
-                        "mnt-by:     mntner\n" +
-                        "source:     INVALID\n" +
-                        "password: emptypassword", "ISO-8859-1"), MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
+                                "person:     Test Person\n" +
+                                "address:    Flughafenstraße 109/a\n" +
+                                "phone:      +49 282 411141\n" +
+                                "fax-no:     +49 282 411140\n" +
+                                "nic-hdl:    TP1-TEST\n" +
+                                "changed:    dbtest@ripe.net 20120101\n" +
+                                "mnt-by:     mntner\n" +
+                                "source:     INVALID\n" +
+                                "password: emptypassword"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
+        assertThat(response, containsString("Flughafenstraße 109/a"));
+    }
+
+    @Test
+    public void post_url_encoded_data_with_latin1_charset() throws Exception {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+        rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
+                                "person:     Test Person\n" +
+                                "address:    Flughafenstraße 109/a\n" +
+                                "phone:      +49 282 411141\n" +
+                                "fax-no:     +49 282 411140\n" +
+                                "nic-hdl:    TP1-TEST\n" +
+                                "changed:    dbtest@ripe.net 20120101\n" +
+                                "mnt-by:     mntner\n" +
+                                "source:     INVALID\n" +
+                                "password: emptypassword", "ISO-8859-1"),
+                        MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
         assertThat(response, containsString("Flughafenstraße 109/a"));

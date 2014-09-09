@@ -1,26 +1,20 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.collect.Iterables;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import org.junit.Test;
 
-import java.util.Arrays;
-
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class RestClientUtilsTest {
 
     @Test
     public void encode_curly_braces() {
-        assertThat(encode(""), contains(""));
-        assertThat(encode("123"), contains("123"));
-        assertThat(encode("{}"), contains("%7B%7D"));
-        assertThat(encode("{"), contains("%7B"));
-        assertThat(encode("{%7D"), contains("%7B%7D"));
-    }
-
-    private Iterable<String> encode(String... input) {
-        return Iterables.transform(Arrays.asList(input), RestClientUtils.CURLY_BRACES_ENCODING_FUNCTION);
+        assertThat(RestClientUtils.encode(""), is(""));
+        assertThat(RestClientUtils.encode("123"), is("123"));
+        assertThat(RestClientUtils.encode("{}"), is("%7B%7D"));
+        assertThat(RestClientUtils.encode("{"), is("%7B"));
+        assertThat(RestClientUtils.encode("{%7D"), is("%7B%257D"));
     }
 }
+
