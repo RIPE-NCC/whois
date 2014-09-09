@@ -73,7 +73,10 @@ public class TelnetWhoisClient {
                 FileCopyUtils.copy(input, responseWriter);
                 return Optional.of(responseWriter.toString());
             } catch (IOException e) {
-                throw new IllegalStateException(e);
+                // will not be retried in case of error while reading reply
+                // also supports keep-alive mode (-k, NRTM), by returning what has been received so far upon SocketTimeoutException
+                LOGGER.info(e.getMessage());
+                return Optional.of(responseWriter.toString());
             }
         }
     };
@@ -98,10 +101,6 @@ public class TelnetWhoisClient {
 
             serverWriter.println(query);
             return function.apply(serverReader);
-
-        } catch (SocketTimeoutException | SocketException e) {
-            LOGGER.warn("Error querying for {}: {}", query, e.getMessage());
-            throw e;
         }
     }
 
