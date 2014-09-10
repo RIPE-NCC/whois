@@ -358,6 +358,45 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_failure_with_xml_extension() {
+        try {
+            RestTest.target(getPort(), "whois/test/inet6num/No%20clue%20what%20the%20range%20is.xml")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getLink().getHref(), stringMatchesRegexp("http://localhost:\\d+/test/inet6num/No%20clue%20what%20the%20range%20is\\.xml"));
+            assertThat(whoisResources.getLink().getType(), is("locator"));
+        }
+    }
+
+    @Test
+    public void lookup_success_with_xml_extension() {
+        databaseHelper.addObject(
+            "mntner:      A-MNTNER-WITH-A-VERY-VERY-LONG-NAME-MNT\n" +
+            "descr:       Owner Maintainer\n" +
+            "admin-c:     TP1-TEST\n" +
+            "upd-to:      noreply@ripe.net\n" +
+            "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+            "auth:        SSO person@net.net\n" +
+            "mnt-by:      OWNER-MNT\n" +
+            "referral-by: OWNER-MNT\n" +
+            "changed:     dbtest@ripe.net 20120101\n" +
+            "source:      TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/A-MNTNER-WITH-A-VERY-VERY-LONG-NAME-MNT.xml")
+                .request()
+                .get(WhoisResources.class);
+
+        // TODO: [ES] xlink is not set to request URL on success
+        assertThat(whoisResources.getLink(), is(nullValue()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getLink().getHref(), stringMatchesRegexp("http://rest-test.db.ripe.net/test/mntner/A-MNTNER-WITH-A-VERY-VERY-LONG-NAME-MNT"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getLink().getType(), is("locator"));
+    }
+
+    @Test
     public void lookup_inet6num() throws Exception {
         final RpslObject inet6num = RpslObject.parse("" +
                 "inet6num: 2001::/48\n" +
