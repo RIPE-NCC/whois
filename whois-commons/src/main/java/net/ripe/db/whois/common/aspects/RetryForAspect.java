@@ -37,7 +37,7 @@ public class RetryForAspect {
                     }
 
                     final Logger logger = LoggerFactory.getLogger(pjp.getSignature().getDeclaringType());
-                    final String signature = pjp.getSignature().toShortString().replaceFirst("\\.\\.", StringUtils.join(pjp.getArgs(), ", "));
+                    final String signature = StringUtils.replaceOnce(pjp.getSignature().toShortString(), "..", StringUtils.join(pjp.getArgs(), ", "));
 
                     final int attempts = retryFor.attempts();
                     if (++attempt < attempts) {
