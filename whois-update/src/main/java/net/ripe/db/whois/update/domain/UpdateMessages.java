@@ -309,10 +309,6 @@ public final class UpdateMessages {
         return interval.toString();
     }
 
-    public static Message rangeTooSmallForStatus(final InetStatus inetStatus, final int maxPrefixLength) {
-        return new Message(Type.ERROR, "%s cannot be smaller than /%s", inetStatus.toString(), maxPrefixLength);
-    }
-
     public static Message createFirstPersonMntnerForOrganisation() {
         return new Message(Type.INFO, "To create the first person/mntner pair of objects for an organisation see https://apps.db.ripe.net/startup/");
     }
