@@ -41,10 +41,10 @@ public class RetryForAspect {
 
                     final int attempts = retryFor.attempts();
                     if (++attempt < attempts) {
-                        logger.error("{} attempt {}/{} failed, retrying in {} ms", signature, attempt, attempts, retryFor.intervalMs(), e);
+                        logger.debug("{} attempt {}/{} failed, retrying in {} ms", signature, attempt, attempts, retryFor.intervalMs(), e);
                         Thread.sleep(retryFor.intervalMs());
                     } else {
-                        logger.error("{} attempt {}/{} failed, giving up", signature, attempt, attempts, e);
+                        logger.debug("{} attempt {}/{} failed, giving up", signature, attempt, attempts, e);
                         throw originalException;
                     }
                 } else {
