@@ -14,9 +14,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 
 public class TelnetWhoisClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TelnetWhoisClient.class);
@@ -24,7 +23,7 @@ public class TelnetWhoisClient {
     public static final int DEFAULT_PORT = 43;
     public static final String DEFAULT_HOST = "localhost";
     public static final Charset DEFAULT_CHARSET = Charsets.ISO_8859_1;
-    private static final int DEFAULT_TIMEOUT = -1;
+    private static final int DEFAULT_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(5);
 
     private final String host;
     private final int port;
@@ -61,6 +60,13 @@ public class TelnetWhoisClient {
         return sendQuery(query, charset, DEFAULT_TIMEOUT);
     }
 
+    /**
+     * Sends query, reads server's reply using specified charset and socket timeout (SO_TIMEOUT), and returns it as a String.
+     * @param query string to send to the server (without trailing <CR><LF>)
+     * @param charset charset to use when reading server's reply
+     * @param timeoutMs timeout in milliseconds. 0 means never time out. Specify -1 to use system timeout.
+     * @return
+     */
     public String sendQuery(final String query, final Charset charset, final int timeoutMs) {
         return sendQuery(query, passThroughFunction, charset, timeoutMs).orNull();
     }
@@ -97,7 +103,7 @@ public class TelnetWhoisClient {
              final PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
              final BufferedReader serverReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), charset))) {
 
-            if (timeoutMs > 0) socket.setSoTimeout(timeoutMs);
+            if (timeoutMs >= 0) socket.setSoTimeout(timeoutMs);
 
             serverWriter.println(query);
             return function.apply(serverReader);
