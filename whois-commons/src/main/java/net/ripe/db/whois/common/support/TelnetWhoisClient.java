@@ -105,7 +105,7 @@ public class TelnetWhoisClient {
 
             if (timeoutMs >= 0) socket.setSoTimeout(timeoutMs);
 
-            serverWriter.println(query);
+            serverWriter.print(query + "\r\n");
             return function.apply(serverReader);
         }
     }
