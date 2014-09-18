@@ -29,6 +29,12 @@ $update.action REQUESTED FOR:
 
 $update.referenceObject
 
+#if ($update.replacement)
+>>>>>
+$update.diff
+<<<<<
+#end
+
 $!update.reason
 
 #end
