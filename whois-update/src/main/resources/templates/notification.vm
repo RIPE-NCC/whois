@@ -30,6 +30,9 @@ $update.action REQUESTED FOR:
 $update.referenceObject
 
 #if ($update.replacement)
+---
+OBJECT MODIFICATION REQUESTED:
+
 >>>>>
 $update.diff
 <<<<<
