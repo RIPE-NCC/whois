@@ -5,4 +5,8 @@ before_install:
  - sudo apt-get update
  - sudo apt-get install byacc git maven openjdk-7-doc openjdk-7-jdk openjdk-7-source mysql-server mysql-client
 
+branches:
+  only:
+    - master
+
 script: mvn install -Ptravis
