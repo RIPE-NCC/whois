@@ -1,7 +1,6 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.scheduler.task.update.PendingUpdatesCleanup
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -583,7 +582,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
 
-    def "second noop pending update is not deleted after route is successfully created"() {
+    def "second noop pending update is deleted after route is successfully created"() {
       given:
         syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
         syncUpdate(getTransient("AS100") + "override: denis,override1")
@@ -605,6 +604,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 password:   owner
                 password:   as
                 """.stripIndent()))
+
       then:
         syncUpdate(new SyncUpdate(data: """\
                 route:          192.168.0.0/16
@@ -617,6 +617,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 password:   owner
                 password:   as
                 """.stripIndent()))
+
       then:
         def response = syncUpdate(new SyncUpdate(data: """
                 route:          192.168.0.0/16
@@ -627,15 +628,73 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   owner
-                password:   as
+                password:   hm
                 password:   pinet
                 """.stripIndent()))
       then:
         response =~ /SUCCESS/
+
       then:
-        // TODO: [ES] entry remains in internals PENDING_UPDATE table
-        DatabaseHelper.dumpSchema(databaseHelper.internalsTemplate.dataSource)
+        databaseHelper.internalsTemplate.queryForInt("SELECT count(*) FROM PENDING_UPDATES WHERE pkey = '192.168.0.0/16AS100'") == 0
     }
+
+    def "same pkey different objects pending update is deleted after route is successfully created"() {
+        given:
+        syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
+        syncUpdate(getTransient("AS100") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+        syncUpdate(new SyncUpdate(data: """\
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   as
+                """.stripIndent()))
+        then:
+        syncUpdate(new SyncUpdate(data: """\
+                route:          192.168.0.0/16
+                descr:          Route 2
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120111
+                source:         TEST
+
+                password:   owner
+                password:   as
+                """.stripIndent()))
+        then:
+            databaseHelper.internalsTemplate.queryForInt("SELECT count(*) FROM PENDING_UPDATES WHERE pkey = '192.168.0.0/16AS100'") == 2
+
+        then:
+        def response = syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route
+                origin:         AS100
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   hm
+                password:   pinet
+                """.stripIndent()))
+        then:
+        response =~ /SUCCESS/
+
+        then:
+        databaseHelper.internalsTemplate.queryForInt("SELECT count(*) FROM PENDING_UPDATES WHERE pkey = '192.168.0.0/16AS100'") == 0
+    }
+
 
     def "create route, mnt-by & ASN pw supplied, then same ASN pw supplied, then inet pw supplied"() {
         given:
@@ -1482,5 +1541,4 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16", "just added")
     }
-
 }
