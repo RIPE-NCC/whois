@@ -8,7 +8,6 @@ import org.apache.lucene.analysis.core.StopFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
 import org.apache.lucene.analysis.util.CharArraySet;
-import org.apache.lucene.util.Version;
 
 import java.io.Reader;
 import java.util.List;
@@ -23,22 +22,20 @@ class FreeTextAnalyzer extends Analyzer {
             "such", "t", "that", "the", "their", "then",
             "there", "these", "they", "this", "to", "was", "will", "with");
 
-    private final Version matchVersion;
     private final Operation operation;
 
-    public FreeTextAnalyzer(final Version matchVersion, final Operation operation) {
-        this.matchVersion = matchVersion;
+    public FreeTextAnalyzer(final Operation operation) {
         this.operation = operation;
     }
 
     @Override
     protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-        final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer(matchVersion, reader);
+        final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer(reader);
 
-        final CharArraySet stopSet = new CharArraySet(matchVersion, STOP_WORDS.size(), true);
+        final CharArraySet stopSet = new CharArraySet(STOP_WORDS.size(), true);
         stopSet.addAll(STOP_WORDS);
 
-        TokenStream tok = new StopFilter(matchVersion, tokenizer, stopSet);
+        TokenStream tok = new StopFilter(tokenizer, stopSet);
 
         tok = new WordDelimiterFilter(
                 tok,
@@ -51,7 +48,7 @@ class FreeTextAnalyzer extends Analyzer {
                                 WordDelimiterFilter.PRESERVE_ORIGINAL),
                 CharArraySet.EMPTY_SET);
 
-        tok = new LowerCaseFilter(matchVersion, tok);
+        tok = new LowerCaseFilter(tok);
 
         if (operation.equals(Operation.INDEX)) {
             tok = new PatternFilter(tok);
