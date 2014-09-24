@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.integration;
 
+import com.google.common.base.Strings;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
@@ -9,7 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
@@ -74,5 +77,26 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(response, containsString("nic-hdl:        ASAK"));
         assertThat(response.indexOf("person:         ASAK"), is(response.lastIndexOf("person:         ASAK")));
         assertThat(response, not(containsString("# Filtered")));
+    }
+
+    @Test
+    public void tooManyArguments() {
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person " + Strings.repeat("arg ", 62));
+
+        assertThat(response, containsString("" +
+                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "\n" +
+                "%ERROR:118: too many arguments used\n" +
+                "%\n" +
+                "% Too many arguments used.\n" +
+                "\n" +
+                "% This query was served by"));
+    }
+
+    @Test
+    public void almostTooManyArguments() {
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person " + Strings.repeat("arg ", 61));
+
+        assertThat(response, containsString("%ERROR:101: no entries found"));
     }
 }
