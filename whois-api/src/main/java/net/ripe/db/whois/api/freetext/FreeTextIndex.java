@@ -61,8 +61,8 @@ public class FreeTextIndex extends RebuildableIndex {
     static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
     static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
 
-    static final Analyzer QUERY_ANALYZER = new FreeTextAnalyzer(Version.LUCENE_4_10_0, FreeTextAnalyzer.Operation.QUERY);
-    static final Analyzer INDEX_ANALYZER = new FreeTextAnalyzer(Version.LUCENE_4_10_0, FreeTextAnalyzer.Operation.INDEX);
+    static final Analyzer QUERY_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY);
+    static final Analyzer INDEX_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.INDEX);
 
     static final String[] FIELD_NAMES;
 
