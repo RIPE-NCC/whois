@@ -86,16 +86,16 @@ public class NamedQueryTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(response, containsString("" +
                 "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
                 "\n" +
-                "%ERROR:118: too many arguments used\n" +
+                "%ERROR:118: too many arguments supplied\n" +
                 "%\n" +
-                "% Too many arguments used.\n" +
+                "% Too many arguments supplied.\n" +
                 "\n" +
                 "% This query was served by"));
     }
 
     @Test
     public void almostTooManyArguments() {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person " + Strings.repeat("arg ", 61));
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person " + Strings.repeat("arg ", 60));
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
     }
