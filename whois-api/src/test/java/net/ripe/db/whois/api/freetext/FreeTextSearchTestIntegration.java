@@ -138,11 +138,14 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "mntner: DEV1-MNT\n" +
                 "remarks: Some remark\n" +
                 "source: RIPE"));
-
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner: DEV2-MNT\n" +
+                "remarks: Another remark\n" +
+                "source: RIPE"));
         databaseHelper.addObject(RpslObject.parse("" +
                 "person: First Last\n" +
                 "nic-hdl: AA1-RIPE\n" +
-                "remarks: Some remark\n" +
+                "remarks: Other remark\n" +
                 "source: RIPE"));
 
         freeTextIndex.rebuild();
@@ -153,14 +156,14 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         final QueryResponse queryResponse = new QueryResponse();
         queryResponse.setResponse(namedList);
         assertThat(queryResponse.getStatus(), is(0));
-        assertThat(queryResponse.getResults().getNumFound(), is(2L));
+        assertThat(queryResponse.getResults().getNumFound(), is(3L));
 
         final List<FacetField> facets = queryResponse.getFacetFields();
         assertThat(facets.size(), is(1));
         final FacetField facet = facets.get(0);
         assertThat(facet.getName(), is("object-type"));
         assertThat(facet.getValueCount(), is(2));
-        assertThat(facet.getValues().toString(), containsString("mntner (1)"));
+        assertThat(facet.getValues().toString(), containsString("mntner (2)"));
         assertThat(facet.getValues().toString(), containsString("person (1)"));
     }
 

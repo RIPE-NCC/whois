@@ -4,24 +4,30 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.search.IndexTemplate;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.facet.search.FacetsCollector;
-import org.apache.lucene.facet.search.CountFacetRequest;
-import org.apache.lucene.facet.params.FacetSearchParams;
-import org.apache.lucene.facet.search.FacetResult;
-import org.apache.lucene.facet.search.FacetResultNode;
-import org.apache.lucene.facet.taxonomy.CategoryPath;
+import org.apache.lucene.facet.FacetResult;
+import org.apache.lucene.facet.Facets;
+import org.apache.lucene.facet.FacetsCollector;
+import org.apache.lucene.facet.FacetsConfig;
+import org.apache.lucene.facet.LabelAndValue;
+import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MultiCollector;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopFieldCollector;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleFragmenter;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +49,6 @@ class FreeTextSearch {
     private static final Logger LOGGER = LoggerFactory.getLogger(FreeTextSearch.class);
 
     static final Sort SORT_BY_OBJECT_TYPE = new Sort(new SortField(FreeTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING));
-    static final FacetSearchParams FACET_SEARCH_PARAMS = new FacetSearchParams(new CountFacetRequest(new CategoryPath(FreeTextIndex.OBJECT_TYPE_FIELD_NAME), Integer.MAX_VALUE));
 
     private final FreeTextIndex freeTextIndex;
     private final Marshaller marshaller;
@@ -78,16 +83,17 @@ class FreeTextSearch {
     private void search(final SearchRequest searchRequest, final Writer writer) throws IOException, ParseException {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        final QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_44, FreeTextIndex.FIELD_NAMES, FreeTextIndex.QUERY_ANALYZER);
+        final QueryParser queryParser = new MultiFieldQueryParser(FreeTextIndex.FIELD_NAMES, FreeTextIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
         final Query query = queryParser.parse(searchRequest.getQuery());
 
         freeTextIndex.search(new IndexTemplate.SearchCallback<Void>() {
             @Override
             public Void search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
+
                 final int maxResults = Math.max(100, indexReader.numDocs());
                 final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, false);
-                final FacetsCollector facetsCollector = FacetsCollector.create(FACET_SEARCH_PARAMS, indexReader, taxonomyReader);
+                final FacetsCollector facetsCollector = new FacetsCollector();
 
                 indexSearcher.search(query, MultiCollector.wrap(topFieldCollector, facetsCollector));
 
@@ -101,7 +107,6 @@ class FreeTextSearch {
                     documents.add(indexSearcher.doc(scoreDoc.doc));
                 }
 
-                final List<FacetResult> facetResults = facetsCollector.getFacetResults();
                 final List<SearchResponse.Lst> responseLstList = Lists.newArrayList();
                 responseLstList.add(getResponseHeader(searchRequest, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
 
@@ -110,7 +115,10 @@ class FreeTextSearch {
                 }
 
                 if (searchRequest.isFacet()) {
-                    responseLstList.add(getFacet(facetResults));
+                    final FacetsConfig facetsConfig = new FacetsConfig();
+                    final Facets facets = new FastTaxonomyFacetCounts(taxonomyReader, facetsConfig, facetsCollector);
+
+                    responseLstList.add(getFacet(facets));
                 }
 
                 final SearchResponse searchResponse = new SearchResponse();
@@ -193,23 +201,22 @@ class FreeTextSearch {
         return highlight;
     }
 
-    private SearchResponse.Lst getFacet(final List<FacetResult> facetResults) {
+    private SearchResponse.Lst getFacet(final Facets facets) throws IOException {
         final SearchResponse.Lst facetCounts = new SearchResponse.Lst("facet_counts");
         final List<SearchResponse.Lst> facetCountsList = Lists.newArrayList();
 
         final SearchResponse.Lst facetFields = new SearchResponse.Lst("facet_fields");
         final List<SearchResponse.Lst> facetFieldsList = Lists.newArrayList();
 
-        for (final FacetResult facetResult : facetResults) {
-            final String label = facetResult.getFacetResultNode().label.toString();
+        for (FacetResult facetResult : facets.getAllDims(Integer.MAX_VALUE)) {
+
+            final String label = facetResult.dim;
 
             final SearchResponse.Lst facetLst = new SearchResponse.Lst(label);
             final List<SearchResponse.Int> facetInts = Lists.newArrayList();
 
-            for (final FacetResultNode facetResultNode : facetResult.getFacetResultNode().subResults) {
-                final String name = facetResultNode.label.toString();
-                final String value = Integer.toString(Double.valueOf(facetResultNode.value).intValue());
-                facetInts.add(new SearchResponse.Int(name.substring(name.indexOf('/') + 1), value));
+            for (LabelAndValue labelValue : facetResult.labelValues) {
+                facetInts.add(new SearchResponse.Int(labelValue.label, labelValue.value.toString()));
             }
 
             facetLst.setInts(facetInts);
