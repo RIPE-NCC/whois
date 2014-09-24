@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.freetext;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -252,13 +253,17 @@ public class FreeTextIndex extends RebuildableIndex {
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                document.add(new Field(attribute.getKey(), attribute.getValue().trim(), INDEXED_AND_TOKENIZED));
+                document.add(new Field(attribute.getKey(), sanitise(attribute.getValue().trim()), INDEXED_AND_TOKENIZED));
             }
         }
 
         document.add(new FacetField(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName()));
 
         indexWriter.addDocument(facetsConfig.build(taxonomyWriter, document));
+    }
+
+    private static String sanitise(final String value) {
+        return CharMatcher.JAVA_ISO_CONTROL.removeFrom(value);
     }
 
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {

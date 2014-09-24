@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -168,11 +169,26 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_object_contains_control_character() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner: DEV1-MNT\n" +
+                "descr: acc\u0003\u0028s 4 Mbps\n" +
+                "source: RIPE"));
+        freeTextIndex.rebuild();
+
+        final String searchResult = query("q=DEV1-MNT&facet=true");
+
+        assertThat(searchResult, not(containsString("\u0003")));
+        final QueryResponse queryResponse = parseResponse(searchResult);
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
+    @Test
     public void no_exact_match_for_highlighting() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner:  AARD-MNT\n" +
                 "source: RIPE"));
-
         databaseHelper.addObject(RpslObject.parse("" +
                 "domain:          198.76.217.in-addr.arpa\n" +
                 "descr:           T.E.S.T. Ltd\n" +
@@ -625,9 +641,18 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(query("q=test.com"), containsString("numFound=\"1\""));
     }
 
+    // helper methods
+    
     private String query(final String queryString) {
-        return RestTest.target(getPort(), "search?" + queryString)
+        return RestTest.target(getPort(), String.format("search?%s",queryString))
                 .request()
                 .get(String.class);
+    }
+
+    private QueryResponse parseResponse(final String response) {
+        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(response));
+        final QueryResponse queryResponse = new QueryResponse();
+        queryResponse.setResponse(namedList);
+        return queryResponse;
     }
 }
