@@ -27,6 +27,7 @@ public class QueryParser {
     private static final Joiner SPACE_JOINER = Joiner.on(' ');
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings();
+    protected static final int MAX_QUERY_ARGUMENTS = 61;
 
     private static final QueryFlagParser PARSER = new QueryFlagParser();
 
@@ -37,7 +38,13 @@ public class QueryParser {
     public QueryParser(final String query) {
         originalStringQuery = query;
         options = PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(query), String.class));
-        searchKey = SPACE_JOINER.join(options.nonOptionArguments());
+
+
+        final List<?> searchKeys = options.nonOptionArguments();
+        if (searchKeys.size() >= MAX_QUERY_ARGUMENTS) {
+            throw new IllegalArgumentExceptionMessage(QueryMessages.tooManyArguments());
+        }
+        searchKey = SPACE_JOINER.join(searchKeys);
     }
 
     public String getSearchKey() {
