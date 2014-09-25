@@ -31,8 +31,10 @@ public class DatabaseDummifierJmxTest {
         assertThat(PasswordHelper.authenticateMd5Passwords(authAttr.getCleanValue().toString(), "NINJA"), is(true));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void replacePgpPasswordTest() {
-        DatabaseDummifierJmx.DatabaseObjectProcessor.replaceWithMntnerNamePassword(mntnerWithPgp);
+        final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceWithMntnerNamePassword(mntnerWithPgp);
+        final RpslAttribute authAttr = rpslObject.findAttribute(AttributeType.AUTH);
+        assertThat(PasswordHelper.authenticateMd5Passwords(authAttr.getCleanValue().toString(), "NINJA"), is(true));
     }
 }
