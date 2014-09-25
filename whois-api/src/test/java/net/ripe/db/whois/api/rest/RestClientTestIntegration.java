@@ -457,6 +457,95 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    private static final RpslObject INET_NUM = RpslObject.parse("" +
+            "inetnum:         193.0.0.0 - 193.0.0.255\n"+
+            "netname:         RIPE-NCC\n"+
+            "descr:           description\n"+
+            "country:         DK\n"+
+            "admin-c:         TP1-TEST\n"+
+            "tech-c:          TP1-TEST\n"+
+            "status:          SUB-ALLOCATED PA\n"+
+            "mnt-by:          OWNER-MNT\n"+
+            "changed:         ripe@test.net 20120505\n"+
+            "source:          TEST\n" );
+
+    @Test
+    public void create_domain_with_insane_key()  {
+        databaseHelper.addObject(INET_NUM);
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:         0.0.193.in-addr.arpa.\n"+
+                "descr:          Testing\n"+
+                "admin-c:        TP1-TEST\n"+
+                "tech-c:         TP1-TEST\n"+
+                "zone-c:         TP1-TEST\n"+
+                "mnt-by:         OWNER-MNT\n"+
+                "nserver:        ns1.sefiber.dk\n"+
+                "nserver:        ns2.sefiber.dk\n"+
+                "changed:        noreply@ripe.net\n"+
+                "source:         TEST\n");
+
+        final RpslObject updatedResult = restClient.request()
+                .addParam("password", "test")
+                .create(domain);
+
+        databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa");
+        try {
+            databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa.");
+            fail();
+        } catch( Exception ignored ) {
+            // expected
+        }
+
+        restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa");
+        restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa.");
+    }
+
+    @Test
+    public void update_domain_with_insane_key()  {
+        databaseHelper.addObject(INET_NUM);
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:         0.0.193.in-addr.arpa\n"+
+                "descr:          Testing\n"+
+                "admin-c:        TP1-TEST\n"+
+                "tech-c:         TP1-TEST\n"+
+                "zone-c:         TP1-TEST\n"+
+                "mnt-by:         OWNER-MNT\n"+
+                "nserver:        ns1.sefiber.dk\n"+
+                "nserver:        ns2.sefiber.dk\n"+
+                "changed:        noreply@ripe.net\n"+
+                "source:         TEST\n" );
+        databaseHelper.addObject(domain);
+
+        final RpslObject updatedDomain = RpslObject.parse("" +
+                "domain:         0.0.193.in-addr.arpa.\n"+
+                "descr:          Testing\n"+
+                "admin-c:        TP1-TEST\n"+
+                "tech-c:         TP1-TEST\n"+
+                "zone-c:         TP1-TEST\n"+
+                "mnt-by:         OWNER-MNT\n"+
+                "nserver:        ns1.sefiber.dk\n"+
+                "nserver:        ns2.sefiber.dk\n"+
+                "changed:        noreply@ripe.net\n"+
+                "source:         TEST\n");
+
+        final RpslObject updatedResult = restClient.request()
+                .addParam("password", "test")
+                .update(updatedDomain);
+
+        databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa");
+        try {
+            databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa.");
+            fail();
+        } catch( Exception ignored ) {
+            // expected
+        }
+
+       restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa");
+       restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa.");
+    }
+
     @Test
     public void delete_without_reason() {
         final RpslObject person = RpslObject.parse("" +
