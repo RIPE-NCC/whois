@@ -138,6 +138,7 @@ public class AttributeSanitizerTest {
         verifyZeroInteractions(objectMessages);
     }
 
+
     @Test
     public void transform_inetnum_leading_zeroes() {
         final RpslObject rpslObject = RpslObject.parse("inetnum: 010.0.0.01 - 193.255.255.098");
@@ -247,6 +248,14 @@ public class AttributeSanitizerTest {
         verify(objectMessages).addMessage(result.getTypeAttribute(), ValidationMessages.attributeValueConverted("2001::/8", "2000::/8"));
 
         verifyNoMoreInteractions(objectMessages);
+    }
+
+    @Test
+    public void transform_inet6num_change_key() {
+        final RpslObject rpslObject = RpslObject.parse("inet6num: 2001:0600:0000:0000:0000:0000:0000:0000 - 2001:0600:0000:0000:ffff:ffff:ffff:ffff");
+
+        final CIString resultKey = attributeSanitizer.sanitizeKey(rpslObject);
+        assertThat(resultKey.toString(), is("2001:0600:0000:0000:0000:0000:0000:0000 - 2001:0600:0000:0000:ffff:ffff:ffff:ffff"));
     }
 
     @Test
