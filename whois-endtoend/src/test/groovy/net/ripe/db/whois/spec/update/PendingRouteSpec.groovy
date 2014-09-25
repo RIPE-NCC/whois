@@ -1,11 +1,13 @@
 package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.scheduler.task.update.PendingUpdatesCleanup
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import net.ripe.db.whois.update.dao.PendingUpdateDao
 import org.joda.time.LocalDateTime
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
@@ -633,9 +635,10 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 """.stripIndent()))
       then:
         response =~ /SUCCESS/
+        response =~ /\*\*\*Info:    This update concludes a pending update on route 192.168.0.0\/16AS100/
 
       then:
-        databaseHelper.internalsTemplate.queryForInt("SELECT count(*) FROM PENDING_UPDATES WHERE pkey = '192.168.0.0/16AS100'") == 0
+        ((PendingUpdateDao)applicationContext.getBean("pendingUpdateDao")).findByTypeAndKey(ObjectType.ROUTE, "192.168.0.0/16AS100").isEmpty()
     }
 
     def "same pkey different objects pending update is deleted after route is successfully created"() {
@@ -673,7 +676,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 password:   as
                 """.stripIndent()))
         then:
-            databaseHelper.internalsTemplate.queryForInt("SELECT count(*) FROM PENDING_UPDATES WHERE pkey = '192.168.0.0/16AS100'") == 2
+            ((PendingUpdateDao)applicationContext.getBean("pendingUpdateDao")).findByTypeAndKey(ObjectType.ROUTE, "192.168.0.0/16AS100").size() == 2
 
         then:
         def response = syncUpdate(new SyncUpdate(data: """
@@ -692,7 +695,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         response =~ /SUCCESS/
 
         then:
-        databaseHelper.internalsTemplate.queryForInt("SELECT count(*) FROM PENDING_UPDATES WHERE pkey = '192.168.0.0/16AS100'") == 0
+        ((PendingUpdateDao)applicationContext.getBean("pendingUpdateDao")).findByTypeAndKey(ObjectType.ROUTE, "192.168.0.0/16AS100").isEmpty()
     }
 
 
