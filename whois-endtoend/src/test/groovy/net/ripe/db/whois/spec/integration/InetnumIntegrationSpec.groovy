@@ -1395,7 +1395,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /\*\*\*Error:   status value cannot be changed, you must delete and re-create the\n\s+object/
   }
 
- def "modify LEGACY status, cannot be changed to ASSIGNED PI by enduser maintainer"() {
+ def "modify LEGACY status, status converted automatically"() {
     given:
       syncUpdate(new SyncUpdate(data: """\
                     inetnum:    192.0.0.0 - 192.255.255.255
@@ -1439,8 +1439,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     password: update
                 """.stripIndent()))
     then:
-      response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-      response =~ /\*\*\*Error:   Adding or removing a RIPE NCC maintainer requires administrative\n\s+authorisation/
+      response =~ /No operation: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+      response =~ /\*\*\*Info:    Value ASSIGNED PI converted to LEGACY/
   }
 
  def "modify LEGACY status, legacy maintainer mnt-by reference cannot be added by enduser maintainer"() {
