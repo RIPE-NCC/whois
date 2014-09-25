@@ -1622,7 +1622,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 ".+?For assistance or clarification please contact:"
         notif.contents =~ regExp
         !(notif.contents =~ /(?ms)OBJECT BELOW MODIFIED:/)
-        !(notif.contents =~ /(?ms)@@.+@@/)
+        (notif.contents =~ /(?ms)@@.+@@/)
         !(notif.contents =~ /(?ms)The old object can be seen in the history using the query options --list-versions and --show-version/)
 
         query_object_not_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")
