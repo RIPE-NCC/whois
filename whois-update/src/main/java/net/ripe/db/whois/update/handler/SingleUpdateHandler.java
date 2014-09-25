@@ -172,7 +172,7 @@ public class SingleUpdateHandler {
                 return null;
             }
         } else {
-            final CIString key = update.getSubmittedObject().getKey();
+            final CIString key = attributeSanitizer.sanitizeKey(update.getSubmittedObject());
 
             try {
                 originalObject = rpslObjectDao.getByKey(update.getSubmittedObject().getType(), key);
