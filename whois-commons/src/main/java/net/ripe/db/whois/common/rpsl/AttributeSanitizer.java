@@ -81,13 +81,13 @@ public class AttributeSanitizer {
         keyRelatedAttributes.add(originalObject.getTypeAttribute());
 
         // get primary-key related attributes for this particular object
-        Set<AttributeType> keyAttributesOfType = ObjectTemplate.getTemplate(originalObject.getType()).getKeyAttributes();
+        Set<AttributeType> keyAttributeTypesForObject = ObjectTemplate.getTemplate(originalObject.getType()).getKeyAttributes();
 
         // add key-related attributes to list
         for (final RpslAttribute attr : originalObject.getAttributes()) {
-            if( keyAttributesOfType.contains(attr.getType())) {
+            if( keyAttributeTypesForObject.contains(attr.getType())) {
                 // prevent adding type-attribute again
-                if( ! existsInList( keyRelatedAttributes, attr.getType())) {
+                if( existsInList( keyRelatedAttributes, attr.getType()) == false ) {
                     keyRelatedAttributes.add(attr);
                 }
             }
@@ -100,21 +100,22 @@ public class AttributeSanitizer {
         List<RpslAttribute> sanitizedAttributes = Lists.newArrayList();
 
         for( RpslAttribute orgAttr : originalAttributes ) {
+            String cleanValue = null;
 
             Sanitizer sanitizer = SANITIZER_MAP.get(orgAttr.getType());
             if (sanitizer != null) {
-
-                String cleanValue = null;
                 try {
                     cleanValue = sanitizer.sanitize(orgAttr);
-                    if (cleanValue == null) {
-                        // sanitizer returns null if original value is 'sane'
-                        cleanValue = orgAttr.getValue();
-                    }
-                    sanitizedAttributes.add(new RpslAttribute(orgAttr.getKey(), cleanValue));
+                    // sanitizer returns null if original value is 'sane'
                 } catch (IllegalArgumentException ignored) {
                 } // no break on syntactically broken objects
             }
+
+            if (cleanValue == null) {
+                // keep original value of not sanitizable
+                cleanValue = orgAttr.getValue();
+            }
+            sanitizedAttributes.add(new RpslAttribute(orgAttr.getKey(), cleanValue));
         }
 
         return sanitizedAttributes;
