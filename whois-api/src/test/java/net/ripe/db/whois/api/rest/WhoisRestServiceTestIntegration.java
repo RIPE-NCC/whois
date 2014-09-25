@@ -4648,6 +4648,22 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources, not(containsString("versions")));
     }
 
+    @Test
+    public void search_too_many_arguments() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=" +
+                    "d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
+                    "%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
+                    "%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
+                    "%20d%20d%20d%20d")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            RestTest.assertOnlyErrorMessage(e, "Error", "ERROR:118: too many arguments supplied\n\nToo many arguments supplied.\n");
+        }
+    }
+
     // maintenance mode
 
     // TODO: [AH] also test origin, i.e. maintenanceMode.set("NONE,READONLY")
