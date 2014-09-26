@@ -23,6 +23,12 @@ public class ContentWithCredentials {
         this.charset = null;
     }
 
+    public ContentWithCredentials(final String content, final Charset charset) {
+        this.content = content;
+        this.charset = charset;
+        this.credentials = Collections.EMPTY_LIST;
+    }
+
     public ContentWithCredentials(final String content, final List<Credential> credentials, final Charset charset) {
         this.content = content;
         this.credentials = Collections.unmodifiableList(credentials);
