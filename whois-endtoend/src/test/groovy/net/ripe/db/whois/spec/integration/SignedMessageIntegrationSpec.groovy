@@ -3993,7 +3993,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack =~ /\*\*\*Error:   No valid update found/
   }
 
-//  @Ignore("failing test for GitHub issue #254")
   def "PGP signed mailupdate with non-ASCII character fails"() {
     when:
       syncUpdate new SyncUpdate(data: """
