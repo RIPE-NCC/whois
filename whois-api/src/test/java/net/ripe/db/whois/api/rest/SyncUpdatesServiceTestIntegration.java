@@ -180,6 +180,33 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
     }
 
+    @Test
+    public void update_object_only_data_parameter() throws Exception {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+        rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\nremarks: updated" + "\npassword: emptypassword"))
+                .request()
+                .get(String.class);
+
+        assertThat(response, containsString("Modify SUCCEEDED: [mntner] mntner"));
+    }
+
+    @Test
+    public void update_object_dryrun_parameter() throws Exception {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+        rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword" + "\ndry-run: TEST"))
+                .request()
+                .get(String.class);
+
+        assertThat(response, containsString("No operation: [mntner] mntner"));
+        assertThat(response, containsString("***Info:    Dry-run performed, no changes to the database have been made"));
+    }
+
     @Ignore("TODO: [ES] #269 Syncupdates doesn't return 403 Forbidden on Authorisation Failed")
     @Test
     public void create_object_only_data_parameter_authentication_failed() throws Exception {
