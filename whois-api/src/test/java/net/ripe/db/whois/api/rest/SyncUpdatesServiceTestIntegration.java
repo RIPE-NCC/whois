@@ -11,7 +11,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -205,27 +204,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, containsString("No operation: [mntner] mntner"));
         assertThat(response, containsString("***Info:    Dry-run performed, no changes to the database have been made"));
-    }
-
-    @Ignore("TODO: [ES] #269 Syncupdates doesn't return 403 Forbidden on Authorisation Failed")
-    @Test
-    public void create_object_only_data_parameter_authentication_failed() throws Exception {
-        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
-
-        try {
-            RestTest.target(getPort(), "whois/syncupdates/test?" +
-                    "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER))
-                    .request()
-                    .get(String.class);
-            fail();
-        } catch (ForbiddenException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, containsString("Create FAILED: [mntner] mntner"));
-            assertThat(response, containsString(
-                    "***Error:   Authorisation for [mntner] mntner failed\n" +
-                    "            using \"mnt-by:\"\n" +
-                    "            not authenticated by: mntner"));
-        }
     }
 
     @Test
