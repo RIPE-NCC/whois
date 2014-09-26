@@ -109,7 +109,7 @@ public class SyncUpdatesService {
                 .setSource(source)
                 .setSsoToken(crowdTokenKey)
                 .build();
-        return doSyncUpdate(httpServletRequest, request);
+        return doSyncUpdate(httpServletRequest, request, getCharset(contentType));
     }
 
     @POST
@@ -123,6 +123,7 @@ public class SyncUpdatesService {
             @FormParam(Command.NEW) final String nnew,
             @FormParam(Command.DIFF) final String diff,
             @FormParam(Command.REDIRECT) final String redirect,
+            @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
@@ -134,7 +135,7 @@ public class SyncUpdatesService {
                 .setSource(source)
                 .setSsoToken(crowdTokenKey)
                 .build();
-        return doSyncUpdate(httpServletRequest, request);
+        return doSyncUpdate(httpServletRequest, request, getCharset(contentType));
     }
 
     @POST
@@ -148,6 +149,7 @@ public class SyncUpdatesService {
             @FormDataParam(Command.NEW) final String nnew,
             @FormDataParam(Command.DIFF) final String diff,
             @FormDataParam(Command.REDIRECT) final String redirect,
+            @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
@@ -159,10 +161,10 @@ public class SyncUpdatesService {
                 .setSource(source)
                 .setSsoToken(crowdTokenKey)
                 .build();
-        return doSyncUpdate(httpServletRequest, request);
+        return doSyncUpdate(httpServletRequest, request, getCharset(contentType));
     }
 
-    private Response doSyncUpdate(final HttpServletRequest httpServletRequest, final Request request) {
+    private Response doSyncUpdate(final HttpServletRequest httpServletRequest, final Request request, final Charset charset) {
         loggerContext.init(getRequestId(request.getRemoteAddress()));
 
         try {
@@ -206,7 +208,7 @@ public class SyncUpdatesService {
                     new SyncUpdate(dateTimeProvider, request.getRemoteAddress()),
                     getKeyword(request),
                     content,
-                    updatesParser.parse(updateContext, Lists.newArrayList(new ContentWithCredentials(content))),
+                    updatesParser.parse(updateContext, Lists.newArrayList(new ContentWithCredentials(content, null, charset))),
                     notificationsEnabled);
 
             final UpdateResponse updateResponse = updateRequestHandler.handle(updateRequest, updateContext);
