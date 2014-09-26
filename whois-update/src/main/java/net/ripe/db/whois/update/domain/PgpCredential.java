@@ -29,10 +29,6 @@ public class PgpCredential implements Credential {
     public static PgpCredential createOfferedCredential(@Nullable final String clearText, final Charset charset) {
         return new PgpCredential(PgpSignedMessage.parse(clearText, charset));
     }
-               //TODO : DELETE
-    public static PgpCredential createOfferedCredential(@Nullable final String clearText) {
-        return new PgpCredential(PgpSignedMessage.parse(clearText));
-    }
 
     public static PgpCredential createOfferedCredential(final String signedData, final String signature, final Charset charset) {
         return new PgpCredential(PgpSignedMessage.parse(signedData, signature, charset));
