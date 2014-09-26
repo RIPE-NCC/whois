@@ -51,10 +51,10 @@ public final class PgpSignedMessage {
         this.clearText = clearText;
     }
 
-    public static PgpSignedMessage parse(final String signedContent, final String signature) {
+    public static PgpSignedMessage parse(final String signedContent, final String signature, final Charset charset) {
         try {
             final byte[] content = canonicalise(signedContent.getBytes());
-            final ByteArrayInputStream signatureIn = new ByteArrayInputStream(signature.getBytes());
+            final ByteArrayInputStream signatureIn = new ByteArrayInputStream(signature.getBytes(charset));
             final InputStream decoderStream = PGPUtil.getDecoderStream(signatureIn);
             if (decoderStream instanceof ArmoredInputStream) {
                 final ArmoredInputStream armoredInputStream = (ArmoredInputStream) decoderStream;
