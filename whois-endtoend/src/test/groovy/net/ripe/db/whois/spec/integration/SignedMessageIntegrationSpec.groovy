@@ -3992,4 +3992,92 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.nrFound == 0
       ack =~ /\*\*\*Error:   No valid update found/
   }
+
+  def "PGP signed mailupdate with non-ASCII character fails"() {
+    when:
+      syncUpdate new SyncUpdate(data: """
+                key-cert:       PGPKEY-5763950D
+                method:         PGP
+                owner:          noreply@ripe.net <noreply@ripe.net>
+                fingerpr:       884F 8E23 69E5 E6F1 9FB3  63F4 BBCC BB2D 5763 950D
+                certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:         Version: GnuPG v1.4.12 (Darwin)
+                certif:         Comment: GPGTools - http://gpgtools.org
+                certif:
+                certif:         mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+
+                certif:         yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH
+                certif:         2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN
+                certif:         E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L
+                certif:         A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd
+                certif:         YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u
+                certif:         ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV
+                certif:         CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF
+                certif:         Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB
+                certif:         0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe
+                certif:         xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt
+                certif:         0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z
+                certif:         xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA
+                certif:         uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv
+                certif:         eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12
+                certif:         pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck
+                certif:         xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec
+                certif:         YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4
+                certif:         dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC
+                certif:         GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4
+                certif:         HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3
+                certif:         eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y
+                certif:         6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC
+                certif:         RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip
+                certif:         a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ==
+                certif:         =HQmg
+                certif:         -----END PGP PUBLIC KEY BLOCK-----
+                notify:         noreply@ripe.net
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20010101
+                source:         TEST
+                password:       owner
+             """.stripIndent())
+    then:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "From: personupdatex@ripe.net\n" +
+              "To: auto-dbm@ripe.net\n" +
+              "Subject: NEW\n" +
+              "Message-ID: <20121204141256.GM1426@f17.test.net>\n" +
+              "Mime-Version: 1.0\n" +
+              "Content-Type: text/plain; charset=\"ISO-8859-1\"\n" +
+              "Content-Transfer-Encoding: quoted-printable\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+              "Hash: SHA1\n" +
+              "\n" +
+              "person:  First Person\n" +
+              "address: Sl=FCnstrasse 10\n" +
+              "phone:   +49 123456\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by:  OWNER-MNT\n" +
+              "changed: noreply@ripe.net 20121016\n" +
+              "source:  TEST\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "Version: GnuPG v1\n" +
+              "Comment: GPGTools - http://gpgtools.org\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJTsUDjAAoJELvMuy1XY5UNW28H/isQgDeFQbnZY3UtI5UoObCc\n" +
+              "VOWFud24PhB+KanBG29qw8cRzkrhfwm+3H2sOcwJHXPKY/svQi8dx+7FfA+awuFK\n" +
+              "/2mtXboVL37W8GimZGt3Yx7Ecdgt4y9S+uKqb2s5MvPkAxKFCO6cUiXeO6dsHPvn\n" +
+              "AXn6dcV0dOhNDrPuQLJQdcUw8JtJLhVbNNnceccEUhtLLCa8kItfNq71RYCgJDep\n" +
+              "IZxiaQr0udN/ktQ+a1HmkXx+2TaGAShXb1TcxMbxs/8Sq/RrVU/d+b82831Ov/iC\n" +
+              "4WqKdU+Vx704cq3VzfK0SjC2xYwaPg+5GrqNm+2xmynyDw4tA1RDTc8v5ZZAfy8\n" +
+              "=3D=3DlGM8\n" +
+              "-----END PGP SIGNATURE-----"
+    then:
+      def ack = ackFor message
+      ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
+  }
+
+
+
 }

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.authentication.credential;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Charsets;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
@@ -24,7 +23,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -115,7 +116,7 @@ public class PgpCredentialValidatorTest {
                 "=tOGn\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
+        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charsets.ISO_8859_1);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-67ABAB48");
 
 
@@ -138,7 +139,7 @@ public class PgpCredentialValidatorTest {
                 "iEYEARECAAYFAk+r2BgACgkQesVNFxdpXQoLPQCgq4dt/+PymmQZ8/AX+0HJfbGL\n" +
                 "LEwAn2zxSKmMKSLZVbRLxwgVhDQGn+5o\n" +
                 "=g9vN\n" +
-                "-----END PGP SIGNATURE-----\n");
+                "-----END PGP SIGNATURE-----\n", Charsets.ISO_8859_1);
 
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-67ABAB48");
 
@@ -180,7 +181,7 @@ public class PgpCredentialValidatorTest {
                 "=tOGn\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
+        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charsets.ISO_8859_1);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-67ABAB48");
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenThrow(new EmptyResultDataAccessException(1));
@@ -221,7 +222,7 @@ public class PgpCredentialValidatorTest {
                 "=tOGn\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
+        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charsets.ISO_8859_1);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-67ABAB48");
 
         keycertObject = new RpslObjectBuilder(keycertObject).removeAttributeType(AttributeType.CERTIF).get();
@@ -247,8 +248,8 @@ public class PgpCredentialValidatorTest {
 
     @Test
     public void offeredCredentialEqualsAndHashCode() {
-        PgpCredential first = PgpCredential.createOfferedCredential("signedData1", "signature1");
-        PgpCredential second = PgpCredential.createOfferedCredential("signedData2", "signature2");
+        PgpCredential first = PgpCredential.createOfferedCredential("signedData1", "signature1", Charsets.ISO_8859_1);
+        PgpCredential second = PgpCredential.createOfferedCredential("signedData2", "signature2", Charsets.ISO_8859_1);
 
         assertTrue(first.equals(first));
         assertFalse(first.equals(second));
@@ -260,7 +261,7 @@ public class PgpCredentialValidatorTest {
     @Test
     public void offeredAndKnownCredentialsEqualsAndHashCode() {
         PgpCredential known = PgpCredential.createKnownCredential("X509-1");
-        PgpCredential offered = PgpCredential.createOfferedCredential("signedData", "signature");
+        PgpCredential offered = PgpCredential.createOfferedCredential("signedData", "signature", Charsets.ISO_8859_1);
 
         assertFalse(known.equals(offered));
         assertFalse(known.hashCode() == offered.hashCode());
@@ -297,7 +298,7 @@ public class PgpCredentialValidatorTest {
                 "=tOGn\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
+        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charsets.ISO_8859_1);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-67ABAB48");
 
         RpslObject keycertObject = RpslObject.parse("key-cert: PGPKEY-67ABAB48");

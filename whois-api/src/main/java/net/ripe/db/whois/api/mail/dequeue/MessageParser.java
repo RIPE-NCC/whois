@@ -146,20 +146,23 @@ public class MessageParser {
                 throw new ParseException("Multiple credentials for text content");
             }
 
-            messageBuilder.addContentWithCredentials(new ContentWithCredentials(messagePart.text, credentials));
+            final Charset charset = getCharset(new ContentType(message.getContentType()));
+
+            messageBuilder.addContentWithCredentials(new ContentWithCredentials(messagePart.text, credentials, charset));
         }
     }
 
     private void parseContents(@Nonnull final MessageParts messageParts, @Nonnull final Part part, @Nullable final Part parentPart) throws MessagingException, IOException {
         final ContentType contentType = new ContentType(part.getContentType());
         final Object content = getContent(part, contentType);
+        final Charset charset = getCharset(contentType);
 
         if (isPlainText(contentType)) {
             String text;
             if (content instanceof String) {
                 text = (String) content;
             } else if (content instanceof InputStream) {
-                text = new String(ByteStreams.toByteArray((InputStream) content), getCharset(contentType));
+                text = new String(ByteStreams.toByteArray((InputStream) content), charset);
             } else {
                 throw new ParseException("Unexpected content: " + content);
             }
@@ -177,10 +180,10 @@ public class MessageParser {
 
                     if (isBase64(bodyPart)) {
                         final String signature = getContent(bodyPart);
-                        last.addCredential(PgpCredential.createOfferedCredential(signedData, signature));
+                        last.addCredential(PgpCredential.createOfferedCredential(signedData, signature, charset));
                     } else {
                         final String signature = getRawContent(bodyPart);
-                        last.addCredential(PgpCredential.createOfferedCredential(signedData, signature));
+                        last.addCredential(PgpCredential.createOfferedCredential(signedData, signature, charset));
                     }
                 } else if (bodyPartContentType.getBaseType().equals("application/pkcs7-signature") || bodyPartContentType.getBaseType().equals("application/x-pkcs7-signature")) {
                     final MessagePart last = messageParts.getLast();
