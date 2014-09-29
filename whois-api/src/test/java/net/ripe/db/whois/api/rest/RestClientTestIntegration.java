@@ -118,6 +118,21 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void update_role_with_non_latin_chars() throws Exception {
+        final RpslObject object =
+                new RpslObjectBuilder(TEST_PERSON)
+                        .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS),
+                                new RpslAttribute(AttributeType.ADDRESS, "Тверская улица,москва")).sort().get();
+
+        final RpslObject updatedResult = restClient.request()
+                .addParam("password", "test")
+                .update(object);
+        System.err.println("resp:"+ updatedResult );
+
+        //databaseHelper.lookupObject(ObjectType.DOMAIN, "Test Person");
+    }
+
+    @Test
     public void lookup_without_password() throws Exception {
         final RpslObject object = restClient.request().lookup(ObjectType.MNTNER, OWNER_MNT.getKey().toString());
 
