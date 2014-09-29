@@ -1944,6 +1944,36 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void update_person_with_non_latin_chars() throws Exception {
+
+        {
+            final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                    .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS),
+                            new RpslAttribute(AttributeType.ADDRESS, "address: Тверская улица,москва")).sort().get();
+            WhoisResources response =
+                    RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                            .request()
+                            .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
+                                    WhoisResources.class);
+            assertThat(response.getErrorMessages().size(), is(1));
+            assertThat(response.getErrorMessages().get(0).getSeverity(), is("Warning"));
+            assertThat(response.getErrorMessages().get(0).getText(), containsString("has information loss due to conversion into latin1 character-set"));
+            assertThat(response.getErrorMessages().get(0).getArgs().get(0).getValue(), is(AttributeType.ADDRESS.getName()));
+
+            final RpslObject stored = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
+            assertThat(stored.findAttribute(AttributeType.ADDRESS).getValue(), is("        address: ???????? ?????,??????"));
+        }
+        {
+            WhoisResources response =
+                    RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                            .request()
+                            .get(WhoisResources.class);
+            assertThat(response.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("address", "address: ???????? ?????,??????")));
+            System.err.println("resp:"+ response );
+        }
+    }
+
+    @Test
     public void create_gzip_compressed_request_and_response() throws Exception {
         final Response response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .property(ClientProperties.USE_ENCODING, "gzip")
@@ -4696,6 +4726,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         maintenanceMode.set("NONE,NONE");
         RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
     }
+
+
+
 
     // helper methods
 

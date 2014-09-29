@@ -595,4 +595,8 @@ public final class UpdateMessages {
     public static Message sponsoringOrgMustBePresent() {
         return new Message(Type.ERROR, "This resource object must be created with a sponsoring-org attribute");
     }
+
+    public static Message informationLosDueToLatin1Conversion( String attributeName) {
+        return new Message(Type.WARNING, "Attribute \"%s\" has information loss due to conversion into latin1 character-set", attributeName);
+    }
 }
