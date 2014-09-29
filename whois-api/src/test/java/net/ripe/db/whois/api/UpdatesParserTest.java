@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -273,7 +274,7 @@ public class UpdatesParserTest {
 
         assertParagraphNoDryRun(
                 paragraphs.get(0), "mntner: DEV-MNT",
-                PgpCredential.createOfferedCredential(content),
+                PgpCredential.createOfferedCredential(content, Charsets.ISO_8859_1),
                 new PasswordCredential("pass"));
     }
 
@@ -286,7 +287,7 @@ public class UpdatesParserTest {
         assertThat(paragraphs, hasSize(2));
 
         for (final Paragraph paragraph : paragraphs) {
-            assertParagraphNoDryRun(paragraph, "mntner: DEV-MNT", new PasswordCredential("pass"), PgpCredential.createOfferedCredential(content));
+            assertParagraphNoDryRun(paragraph, "mntner: DEV-MNT", new PasswordCredential("pass"), PgpCredential.createOfferedCredential(content, Charsets.ISO_8859_1));
         }
     }
 
@@ -310,7 +311,7 @@ public class UpdatesParserTest {
         final PasswordCredential pass = new PasswordCredential("pass");
         final PasswordCredential pw = new PasswordCredential("pw");
         final PgpCredential pgpCredential = PgpCredential.createOfferedCredential(
-                "-----BEGIN PGP SIGNED MESSAGE-----\n" + "Hash: SHA1\n\n" + INPUT + "\n" + SIGNATURE + "\n\n");
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" + "Hash: SHA1\n\n" + INPUT + "\n" + SIGNATURE + "\n\n", Charsets.ISO_8859_1);
 
         assertParagraphNoDryRun(paragraphs.get(0), "mntner: DEV-MNT", pass, pw, pgpCredential);
         assertParagraphNoDryRun(paragraphs.get(1), "mntner: DEV1-MNT", pass, pw);
@@ -715,7 +716,7 @@ public class UpdatesParserTest {
 
         assertThat(paragraphs.get(0).getCredentials().all(), hasSize(1));
         assertThat(paragraphs.get(0).getCredentials().all(),
-                containsInAnyOrder((Credential) PgpCredential.createOfferedCredential(content)));
+                containsInAnyOrder((Credential) PgpCredential.createOfferedCredential(content, Charsets.ISO_8859_1)));
     }
 
     @Test
