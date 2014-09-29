@@ -57,7 +57,7 @@ public class AttributeSanitizer {
             keyAttributes.add(objectTemplate.getAttributeTemplates().get(0).getAttributeType());
         }
 
-        Sanitizer defaultSanitizer = new DefaultSanitizer();
+        final Sanitizer defaultSanitizer = new DefaultSanitizer();
         for (AttributeType attributeType : keyAttributes) {
             if (!SANITIZER_MAP.containsKey(attributeType)) {
                 SANITIZER_MAP.put(attributeType, defaultSanitizer);
@@ -65,29 +65,24 @@ public class AttributeSanitizer {
         }
     }
 
-    private boolean existsInList( final List<RpslAttribute> attributes, final AttributeType attributeType ) {
-        for( RpslAttribute attr: attributes ) {
-            if( attr.getType().equals( attributeType)) {
+    private boolean existsInList(final List<RpslAttribute> attributes, final AttributeType attributeType) {
+        for (RpslAttribute attr : attributes) {
+            if (attr.getType().equals(attributeType)) {
                 return true;
             }
         }
         return false;
     }
 
-    private List<RpslAttribute> getKeyRelatedAttributes( final RpslObject originalObject) {
-        List<RpslAttribute> keyRelatedAttributes = Lists.newArrayList();
-
-        // first attribute in list MUST indicate the object type
+    private List<RpslAttribute> getKeyRelatedAttributes(final RpslObject originalObject) {
+        final List<RpslAttribute> keyRelatedAttributes = Lists.newArrayList();
         keyRelatedAttributes.add(originalObject.getTypeAttribute());
 
-        // get primary-key related attributes for this particular object
-        Set<AttributeType> keyAttributeTypesForObject = ObjectTemplate.getTemplate(originalObject.getType()).getKeyAttributes();
+        final Set<AttributeType> keyAttributeTypesForObject = ObjectTemplate.getTemplate(originalObject.getType()).getKeyAttributes();
 
-        // add key-related attributes to list
         for (final RpslAttribute attr : originalObject.getAttributes()) {
-            if( keyAttributeTypesForObject.contains(attr.getType())) {
-                // prevent adding type-attribute again
-                if( existsInList( keyRelatedAttributes, attr.getType()) == false ) {
+            if (keyAttributeTypesForObject.contains(attr.getType())) {
+                if (existsInList(keyRelatedAttributes, attr.getType()) == false) {
                     keyRelatedAttributes.add(attr);
                 }
             }
@@ -97,22 +92,21 @@ public class AttributeSanitizer {
     }
 
     private List<RpslAttribute> sanitizeKeyAttributes(final List<RpslAttribute> originalAttributes) {
-        List<RpslAttribute> sanitizedAttributes = Lists.newArrayList();
+        final List<RpslAttribute> sanitizedAttributes = Lists.newArrayList();
 
-        for( RpslAttribute orgAttr : originalAttributes ) {
+        for (RpslAttribute orgAttr : originalAttributes) {
             String cleanValue = null;
 
-            Sanitizer sanitizer = SANITIZER_MAP.get(orgAttr.getType());
+            final Sanitizer sanitizer = SANITIZER_MAP.get(orgAttr.getType());
             if (sanitizer != null) {
                 try {
                     cleanValue = sanitizer.sanitize(orgAttr);
-                    // sanitizer returns null if original value is 'sane'
                 } catch (IllegalArgumentException ignored) {
-                } // no break on syntactically broken objects
+                    // no break on syntactically broken objects
+                }
             }
 
             if (cleanValue == null) {
-                // keep original value of not sanitizable
                 cleanValue = orgAttr.getValue();
             }
             sanitizedAttributes.add(new RpslAttribute(orgAttr.getKey(), cleanValue));
@@ -122,10 +116,8 @@ public class AttributeSanitizer {
     }
 
     public CIString sanitizeKey(final RpslObject originalObject) {
-        List<RpslAttribute> keyRelatedAttributes = getKeyRelatedAttributes(originalObject);
-        List<RpslAttribute> sanitizedKeyAttributes = sanitizeKeyAttributes(keyRelatedAttributes);
-        // Let the RpslObject-constructor generate the actual key
-        return new RpslObject(sanitizedKeyAttributes).getKey();
+        final List<RpslAttribute> keyRelatedAttributes = getKeyRelatedAttributes(originalObject);
+        return new RpslObject(sanitizeKeyAttributes(keyRelatedAttributes)).getKey();
     }
 
     public RpslObject sanitize(final RpslObject object, final ObjectMessages objectMessages) {
@@ -134,7 +126,7 @@ public class AttributeSanitizer {
             final AttributeType type = attribute.getType();
             String newValue = null;
 
-            Sanitizer sanitizer = SANITIZER_MAP.get(type);
+            final Sanitizer sanitizer = SANITIZER_MAP.get(type);
 
             if (sanitizer == null) {
                 continue;
@@ -142,7 +134,9 @@ public class AttributeSanitizer {
 
             try {
                 newValue = sanitizer.sanitize(attribute);
-            } catch (IllegalArgumentException ignored) {} // no break on syntactically broken objects
+            } catch (IllegalArgumentException ignored) {
+                // no break on syntactically broken objects
+            }
 
             if (newValue == null) {
                 continue;
