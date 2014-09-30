@@ -1,9 +1,11 @@
 package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.rest.client.NotifierCallback;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -22,6 +24,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import javax.ws.rs.core.Cookie;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -115,21 +118,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .update(object);
 
         assertThat(updatedResult.findAttributes(AttributeType.REMARKS), hasSize(1));
-    }
-
-    @Test
-    public void update_role_with_non_latin_chars() throws Exception {
-        final RpslObject object =
-                new RpslObjectBuilder(TEST_PERSON)
-                        .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS),
-                                new RpslAttribute(AttributeType.ADDRESS, "Тверская улица,москва")).sort().get();
-
-        final RpslObject updatedResult = restClient.request()
-                .addParam("password", "test")
-                .update(object);
-        System.err.println("resp:"+ updatedResult );
-
-        //databaseHelper.lookupObject(ObjectType.DOMAIN, "Test Person");
     }
 
     @Test
