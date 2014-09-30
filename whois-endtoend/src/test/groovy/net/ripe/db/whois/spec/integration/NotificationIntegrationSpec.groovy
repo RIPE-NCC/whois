@@ -366,10 +366,10 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: update
         """
+        def create = send new Message(body: first)
 
         then:
-            send new Message(body: first)
-
+            def ack = ackFor create
 
         when:
         def person = """\
