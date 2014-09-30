@@ -26,6 +26,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.util.List;
 
+import static net.ripe.db.whois.update.domain.ContentWithCredentials.contentWithCredentialsInIso88591;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
@@ -59,7 +60,7 @@ public class UpdatesParserTest {
     @Test
     public void single_paragraph() {
         List<ContentWithCredentials> content = Lists.newArrayList();
-        content.add(new ContentWithCredentials(MNTNER_DEV_MNT));
+        content.add(contentWithCredentialsInIso88591(MNTNER_DEV_MNT));
 
         final List<Update> updates = subject.parse(updateContext, content);
 
@@ -76,8 +77,8 @@ public class UpdatesParserTest {
     @Test
     public void multiple_paragraphs() {
         List<ContentWithCredentials> content = Lists.newArrayList();
-        content.add(new ContentWithCredentials(MNTNER_DEV_MNT));
-        content.add(new ContentWithCredentials(MNTNER_DEV_MNT));
+        content.add(contentWithCredentialsInIso88591(MNTNER_DEV_MNT));
+        content.add(contentWithCredentialsInIso88591(MNTNER_DEV_MNT));
 
         final List<Update> updates = subject.parse(updateContext, content);
         assertThat(updates, hasSize(2));
@@ -88,7 +89,7 @@ public class UpdatesParserTest {
     @Test
     public void delete_before() {
         List<ContentWithCredentials> content = Lists.newArrayList();
-        content.add(new ContentWithCredentials("delete: reason\n" + MNTNER_DEV_MNT));
+        content.add(contentWithCredentialsInIso88591("delete: reason\n" + MNTNER_DEV_MNT));
 
         final List<Update> updates = subject.parse(updateContext, content);
         assertThat(updates, hasSize(1));
@@ -105,7 +106,7 @@ public class UpdatesParserTest {
     @Test
     public void delete_after() {
         List<ContentWithCredentials> content = Lists.newArrayList();
-        content.add(new ContentWithCredentials(MNTNER_DEV_MNT + "\ndelete: reason"));
+        content.add(contentWithCredentialsInIso88591(MNTNER_DEV_MNT + "\ndelete: reason"));
 
         final List<Update> updates = subject.parse(updateContext, content);
         assertThat(updates, hasSize(1));
@@ -122,7 +123,7 @@ public class UpdatesParserTest {
     @Test
     public void delete_middle() {
         List<ContentWithCredentials> content = Lists.newArrayList();
-        content.add(new ContentWithCredentials(
+        content.add(contentWithCredentialsInIso88591(
                 "mntner: UPD-MNT\n" +
                         "descr: description\n" +
                         "admin-c: TEST-RIPE\n" +
@@ -158,7 +159,7 @@ public class UpdatesParserTest {
     @Test
     public void delete_multiple() {
         List<ContentWithCredentials> content = Lists.newArrayList();
-        content.add(new ContentWithCredentials(MNTNER_DEV_MNT + "\ndelete: reason1\ndelete: reason2"));
+        content.add(contentWithCredentialsInIso88591(MNTNER_DEV_MNT + "\ndelete: reason1\ndelete: reason2"));
 
         final List<Update> updates = subject.parse(updateContext, content);
 
@@ -174,7 +175,7 @@ public class UpdatesParserTest {
     public void broken_override_and_delete_multiple() {
         final String input = MNTNER_DEV_MNT + "\n delete: reason\n override: pw";
         List<ContentWithCredentials> content = Lists.newArrayList();
-        content.add(new ContentWithCredentials(input));
+        content.add(contentWithCredentialsInIso88591(input));
 
         final List<Update> updates = subject.parse(updateContext, content);
 
@@ -189,7 +190,7 @@ public class UpdatesParserTest {
     @Test
     public void no_object() {
         List<ContentWithCredentials> content = Lists.newArrayList();
-        content.add(new ContentWithCredentials("some text"));
+        content.add(contentWithCredentialsInIso88591("some text"));
 
         final List<Update> updates = subject.parse(updateContext, content);
         assertThat(updates, hasSize(0));
@@ -200,7 +201,7 @@ public class UpdatesParserTest {
     @Test
     public void invalid_object() {
         List<ContentWithCredentials> content = Lists.newArrayList();
-        content.add(new ContentWithCredentials("1234:5678"));
+        content.add(contentWithCredentialsInIso88591("1234:5678"));
 
         final List<Update> updates = subject.parse(updateContext, content);
         assertThat(updates, hasSize(0));
@@ -211,7 +212,7 @@ public class UpdatesParserTest {
     @Test
     public void no_source_still_parses() {
         List<ContentWithCredentials> content = Lists.newArrayList();
-        content.add(new ContentWithCredentials("mntner: DEV-MNT"));
+        content.add(contentWithCredentialsInIso88591("mntner: DEV-MNT"));
 
         final List<Update> updates = subject.parse(updateContext, content);
 
@@ -231,14 +232,14 @@ public class UpdatesParserTest {
 
     @Test
     public void empty_message() {
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(""), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(""), updateContext);
 
         assertThat(paragraphs, hasSize(0));
     }
 
     @Test
     public void single_paragraph_unsigned() {
-        final ContentWithCredentials contentWithCredentials = new ContentWithCredentials("" +
+        final ContentWithCredentials contentWithCredentials = contentWithCredentialsInIso88591(
                 "mntner: DEV-MNT\n" +
                 "password: pass\n");
 
@@ -256,7 +257,7 @@ public class UpdatesParserTest {
 
         final String content2 = "mntner: DEV2-MNT";
 
-        final ContentWithCredentials contentWithCredentials = new ContentWithCredentials(content1 + "\n\n" + content2);
+        final ContentWithCredentials contentWithCredentials = contentWithCredentialsInIso88591(content1 + "\n\n" + content2);
 
         final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentials, updateContext);
 
@@ -269,7 +270,7 @@ public class UpdatesParserTest {
     public void single_paragraph_signed() {
         final String content = "-----BEGIN PGP SIGNED MESSAGE-----\n" + "Hash: SHA1\n\n" + INPUT + "\n" + SIGNATURE;
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
         assertThat(paragraphs, hasSize(1));
 
         assertParagraphNoDryRun(
@@ -281,7 +282,7 @@ public class UpdatesParserTest {
     @Test
     public void multiple_paragraphs_signed() {
         final String content = "-----BEGIN PGP SIGNED MESSAGE-----\n" + "Hash: SHA1\n\n" + INPUT + "\n" + SIGNATURE;
-        final ContentWithCredentials contentWithCredentials = new ContentWithCredentials(content + "\n\n" + content);
+        final ContentWithCredentials contentWithCredentials = new ContentWithCredentials(content + "\n\n" + content, Charsets.ISO_8859_1);
 
         final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentials, updateContext);
         assertThat(paragraphs, hasSize(2));
@@ -305,7 +306,7 @@ public class UpdatesParserTest {
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" + "Hash: SHA1\n\n" + INPUT + "\n" + SIGNATURE + "\n\n" +
                 content2;
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
         assertThat(paragraphs, hasSize(4));
 
         final PasswordCredential pass = new PasswordCredential("pass");
@@ -325,7 +326,7 @@ public class UpdatesParserTest {
                 "mntner: DEV-MNT\n" +
                 "override: some override";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
         assertThat(paragraphs, hasSize(1));
         assertParagraphNoDryRun(paragraphs.get(0), "mntner: DEV-MNT", OverrideCredential.parse("some override"));
     }
@@ -337,7 +338,7 @@ public class UpdatesParserTest {
                 "dry-run: some\n" +
                 "override: some override";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
         assertThat(paragraphs, hasSize(1));
         final Paragraph paragraph = paragraphs.get(0);
         assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
@@ -352,7 +353,7 @@ public class UpdatesParserTest {
                 "mntner: DEV-MNT\n" +
                 "dry-run: some dry run";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
         assertThat(paragraphs, hasSize(1));
         final Paragraph paragraph = paragraphs.get(0);
         assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
@@ -369,7 +370,7 @@ public class UpdatesParserTest {
                 "\n" +
                 "dry-run: some dry run";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
         assertThat(paragraphs, hasSize(2));
 
         final Paragraph paragraph1 = paragraphs.get(0);
@@ -391,7 +392,7 @@ public class UpdatesParserTest {
                 "dry-run: some dry run\n" +
                 "dry-run: some dry run";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
         assertThat(paragraphs, hasSize(1));
         final Paragraph paragraph = paragraphs.get(0);
         assertThat(paragraph.getContent(), is("mntner: DEV-MNT"));
@@ -407,7 +408,7 @@ public class UpdatesParserTest {
                 "\n" +
                 "mntner: DEV2-MNT\n";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
         assertThat(paragraphs, hasSize(2));
 
         final Paragraph paragraph1 = paragraphs.get(0);
@@ -428,7 +429,7 @@ public class UpdatesParserTest {
                 "mntner: DEV1-MNT\n" +
                 "password:pwd\n";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
         assertThat(paragraphs, hasSize(1));
 
         final Paragraph paragraph = paragraphs.get(0);
@@ -448,7 +449,7 @@ public class UpdatesParserTest {
                 "\n" +
                 "password:   owner";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("person:  First Person\n" +
                 "address: Burnley\n" +
@@ -463,7 +464,7 @@ public class UpdatesParserTest {
                 "mntner: DEV-MNT\n" +
                 "password:    \t     123 and something   \t \r\n";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
 
         assertThat(paragraphs, hasSize(1));
         assertParagraphNoDryRun(paragraphs.get(0), "mntner: DEV-MNT", new PasswordCredential("123 and something"));
@@ -472,7 +473,7 @@ public class UpdatesParserTest {
     @Test
     public void single_content_multiple_passwords() {
         final List<Paragraph> paragraphs = subject.createParagraphs(
-                new ContentWithCredentials("" +
+                contentWithCredentialsInIso88591("" +
                         "mntner: DEV-MNT\n" +
                         "descr: DEV maintainer\n" +
                         "password: pass1\n" +
@@ -488,7 +489,7 @@ public class UpdatesParserTest {
     @Test
     public void invalid_password() {
         final List<Paragraph> paragraphs = subject.createParagraphs(
-                new ContentWithCredentials("" +
+                contentWithCredentialsInIso88591("" +
                         "mntner: DEV-MNT\n" +
                         "descr: DEV maintainer\n" +
                         " password: pass1\n"), updateContext);
@@ -501,7 +502,7 @@ public class UpdatesParserTest {
     @Test
     public void multiple_passwords_in_different_paragraphs() {
         final List<Paragraph> paragraphs = subject.createParagraphs(
-                new ContentWithCredentials("" +
+                contentWithCredentialsInIso88591("" +
                         "mntner: DEV-MNT\n" +
                         "password: password1\n\n" +
                         "mntner: DEV-MNT2\n" +
@@ -517,7 +518,7 @@ public class UpdatesParserTest {
     @Test
     public void override_before() {
         final List<Paragraph> paragraphs = subject.createParagraphs(
-                new ContentWithCredentials("override: override\nmntner: DEV-MNT\n\nmntner: DEV-MNT"), updateContext);
+                contentWithCredentialsInIso88591("override: override\nmntner: DEV-MNT\n\nmntner: DEV-MNT"), updateContext);
 
         assertThat(paragraphs, hasSize(2));
         assertThat(paragraphs.get(0).getContent(), is("mntner: DEV-MNT"));
@@ -527,7 +528,7 @@ public class UpdatesParserTest {
 
     @Test
     public void override_after() {
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials("" +
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591("" +
                 "mntner: DEV-MNT\n" +
                 "override: override\n" +
                 "\n" +
@@ -542,7 +543,7 @@ public class UpdatesParserTest {
     @Test
     public void override_multiple() {
         final List<Paragraph> paragraphs = subject.createParagraphs(
-                new ContentWithCredentials("" +
+                contentWithCredentialsInIso88591("" +
                         "mntner: DEV-MNT\n" +
                         "override: denis,override1\n" +
                         "override: override2\n" +
@@ -558,7 +559,7 @@ public class UpdatesParserTest {
     @Test
     public void override_multiple_paragraphs() {
         final List<Paragraph> paragraphs = subject.createParagraphs(
-                new ContentWithCredentials("" +
+                contentWithCredentialsInIso88591("" +
                         "mntner: DEV-MNT1\n" +
                         "override: denis,override1\n" +
                         "override: override2\n" +
@@ -577,7 +578,7 @@ public class UpdatesParserTest {
         // Note: prevously, we had a regexp matcher that took unacceptable time to finish (>10 minutes).
         // Hint: don't try to match massive input with DOTALL and .*? - it will be too slow
         final String content = IOUtils.toString(new ClassPathResource("testMail/giantRawUnsignedObject").getInputStream());
-        subject.createParagraphs(new ContentWithCredentials(content + "\n\n" + content), updateContext);
+        subject.createParagraphs(contentWithCredentialsInIso88591(content + "\n\n" + content), updateContext);
     }
 
     private void assertParagraphNoDryRun(final Paragraph paragraph, final String content, final Credential... credentials) {
@@ -604,7 +605,7 @@ public class UpdatesParserTest {
                 "source:RIPE\n" +
                 "password:four";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
 
         assertThat(paragraphs.size(), is(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
@@ -631,7 +632,7 @@ public class UpdatesParserTest {
                 "source:RIPE\r\n" +
                 "password:four";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
 
         assertThat(paragraphs.size(), is(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
@@ -657,7 +658,7 @@ public class UpdatesParserTest {
                 "source:RIPE\n" +
                 "override:three";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
 
         assertThat(paragraphs.size(), is(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
@@ -698,7 +699,7 @@ public class UpdatesParserTest {
                 "=5MfA\n" +
                 "-----END PGP SIGNATURE-----\n";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
 
         assertThat(paragraphs.size(), is(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
@@ -764,7 +765,7 @@ public class UpdatesParserTest {
                 "=Dowb\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(secondSigned), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(secondSigned), updateContext);
 
         assertThat(paragraphs.size(), is(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
@@ -841,7 +842,7 @@ public class UpdatesParserTest {
                 "=o4kj\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(thirdSigned), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(thirdSigned), updateContext);
 
         assertThat(paragraphs.size(), is(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
@@ -884,7 +885,7 @@ public class UpdatesParserTest {
                 "=it26\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(contentWithCredentialsInIso88591(content), updateContext);
 
         assertThat(paragraphs.size(), is(1));
         assertThat(paragraphs.get(0).getContent(), is(content));
