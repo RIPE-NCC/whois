@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -534,11 +535,36 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "changed:    dbtest@ripe.net 20120101\n" +
                                 "mnt-by:     mntner\n" +
                                 "source:     INVALID\n" +
-                                "password: emptypassword", "ISO-8859-1"),
+                                "password:   emptypassword", "ISO-8859-1"),
                         MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
         assertThat(response, containsString("Flughafenstraße 109/a"));
+    }
+
+    @Test
+    public void post_url_encoded_data_with_non_latin1_address() throws Exception {
+        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
+        rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
+                    "person:    Test Person again\n" +
+                    "address:   Тверская улица,москва\n" +
+                    "phone:     +31-6-123456\n" +
+                    "nic-hdl:   TP2-TEST\n" +
+                    "mnt-by:    mntner\n" +
+                    "changed:   noreply@ripe.net 20130102\n" +
+                    "source:    TEST\n" +
+                    "password:  emptypassword"),
+                  MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
+
+        // TODO we should return a informational warning indicating less of information due to conversion into latin1
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST")
+                        .getValueForAttribute(AttributeType.ADDRESS),
+                is(CIString.ciString("???????? ?????,??????")));
+
     }
 
     // helper methods
