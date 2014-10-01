@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
+import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -24,6 +25,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class QueryLogTestIntegration extends AbstractIntegrationTest {
@@ -104,4 +106,21 @@ public class QueryLogTestIntegration extends AbstractIntegrationTest {
         assertThat(queryLog.getMessage(0), containsString(" PW-API-INFO <1+1+0> "));
         assertThat(queryLog.getMessage(0), containsString("ms [10.20.30.40] -- "));
     }
+
+    @Test
+    public void streaming_search_nothing_found() {
+        try {
+            final Iterator<WhoisObject> objects = restClient.request()
+                    .addParam("query-string", "NONEXISTING")
+                    .addParam("type-filter", "mntner")
+                    .addParam("flags", "B")
+                    .streamingSearch();
+            final List<WhoisObject> whoisObjects = Lists.newArrayList(objects);
+            fail();
+            // TODO shouldn't this return a list of zero or a NotFound?
+        } catch(RestClientException ignored) {
+           // this should happen
+        }
+    }
+
 }
