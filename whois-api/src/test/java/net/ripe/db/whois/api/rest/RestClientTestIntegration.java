@@ -1,11 +1,9 @@
 package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.rest.client.NotifierCallback;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
-import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -24,7 +22,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import javax.ws.rs.core.Cookie;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -488,16 +485,15 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "changed:        noreply@ripe.net\n"+
                 "source:         TEST\n");
 
-        final RpslObject updatedResult = restClient.request()
-                .addParam("password", "test")
-                .create(domain);
+        restClient.request().addParam("password", "test").create(domain);
 
         databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa");
         try {
             databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa.");
             fail();
         } catch( Exception ignored ) {
-            // expected
+            // In DB the object is saved after being sanitised,
+            // therefore the databaseHelper.lookup with unsanitised key fails.
         }
 
         restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa");
@@ -505,7 +501,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_domain_with_insane_key()  {
+    public void update_domain_with_unsanitised_key()  {
         databaseHelper.addObject(INET_NUM);
 
         final RpslObject domain = RpslObject.parse("" +
@@ -536,17 +532,65 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         final RpslObject updatedResult = restClient.request()
                 .addParam("password", "test")
                 .update(updatedDomain);
-
+        assertThat(updatedResult.getKey().toString(), is("0.0.193.in-addr.arpa"));
         databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa");
         try {
             databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa.");
             fail();
         } catch( Exception ignored ) {
-            // expected
+            // In DB the object is saved after being sanitised,
+            // therefore the databaseHelper.lookup with unsanitised key fails.
         }
 
        restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa");
        restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa.");
+    }
+
+    @Test
+    public void update_domain_with_existing_unsanitised_key_creates_new_object()  {
+        databaseHelper.addObject(INET_NUM);
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "domain:         0.0.193.in-addr.arpa.\n"+
+                "descr:          Testing\n"+
+                "admin-c:        TP1-TEST\n"+
+                "tech-c:         TP1-TEST\n"+
+                "zone-c:         TP1-TEST\n"+
+                "mnt-by:         OWNER-MNT\n"+
+                "nserver:        ns1.sefiber.dk\n"+
+                "nserver:        ns2.sefiber.dk\n"+
+                "changed:        noreply@ripe.net\n"+
+                "source:         TEST\n" ));
+
+        final RpslObject toBeUpdatedDomain = RpslObject.parse("" +
+                "domain:         0.0.193.in-addr.arpa\n"+
+                "descr:          Testing 2\n"+
+                "admin-c:        TP1-TEST\n"+
+                "tech-c:         TP1-TEST\n"+
+                "zone-c:         TP1-TEST\n"+
+                "mnt-by:         OWNER-MNT\n"+
+                "nserver:        ns1.sefiber.dk\n"+
+                "nserver:        ns2.sefiber.dk\n"+
+                "changed:        noreply@ripe.net\n"+
+                "source:         TEST\n");
+
+        final RpslObject updatedResult = restClient.request()
+                .addParam("password", "test")
+                .update(toBeUpdatedDomain);
+
+
+        final RpslObject domainWithoutDot = databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa");
+        final RpslObject domainWithDot = databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa.");
+
+        assertThat(updatedResult.getKey(), is(domainWithoutDot.getKey()));
+
+        //There are both objects in the database
+        assertThat(domainWithoutDot.getKey().toString(), is("0.0.193.in-addr.arpa"));
+        assertThat(domainWithDot.getKey().toString(), is("0.0.193.in-addr.arpa."));
+
+        //Only the sanitised object is returned
+        assertThat(restClient.request().lookup(ObjectType.DOMAIN, "0.0.193.in-addr.arpa").getKey(), is(domainWithoutDot.getKey()));
+        assertThat(restClient.request().lookup(ObjectType.DOMAIN, "0.0.193.in-addr.arpa.").getKey(), is(domainWithoutDot.getKey()));
     }
 
     @Test

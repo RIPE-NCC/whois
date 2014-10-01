@@ -251,14 +251,6 @@ public class AttributeSanitizerTest {
     }
 
     @Test
-    public void transform_inet6num_change_key() {
-        final RpslObject rpslObject = RpslObject.parse("inet6num: 2001:0600:0000:0000:0000:0000:0000:0000 - 2001:0600:0000:0000:ffff:ffff:ffff:ffff");
-
-        final CIString resultKey = attributeSanitizer.sanitizeKey(rpslObject);
-        assertThat(resultKey.toString(), is("2001:0600:0000:0000:0000:0000:0000:0000 - 2001:0600:0000:0000:ffff:ffff:ffff:ffff"));
-    }
-
-    @Test
     public void transform_nserver_no_not() {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "domain:          17.45.212.in-addr.arpa\n" +
