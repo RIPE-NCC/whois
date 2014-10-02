@@ -1957,7 +1957,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                                     WhoisResources.class);
             assertThat(response.getErrorMessages().size(), is(1));
             assertThat(response.getErrorMessages().get(0).getSeverity(), is("Warning"));
-            assertThat(response.getErrorMessages().get(0).getText(), containsString("has information loss due to conversion into latin1 character-set"));
+            assertThat(response.getErrorMessages().get(0).getText(), containsString("has information loss due to conversion"));
             assertThat(response.getErrorMessages().get(0).getArgs().get(0).getValue(), is(AttributeType.ADDRESS.getName()));
 
             final RpslObject stored = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
