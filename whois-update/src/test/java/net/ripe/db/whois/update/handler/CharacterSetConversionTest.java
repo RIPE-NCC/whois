@@ -1,24 +1,17 @@
 package net.ripe.db.whois.update.handler;
 
-import org.aspectj.lang.annotation.After;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.test.AssertThrows;
 
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CharacterSetConversionTest {
 
     @Test
-    public void testStraightforwardLatin1Text() {
+    public void should_convert_ascci() {
         assertThat(CharacterSetConversion.isConvertableIntoLatin1(" !\":#$%&'()*+,-./"), is(true) );
         assertThat(CharacterSetConversion.isConvertableIntoLatin1("0123456789"), is(true) );
         assertThat(CharacterSetConversion.isConvertableIntoLatin1(":;<=>?@"), is(true) );
@@ -29,15 +22,21 @@ public class CharacterSetConversionTest {
     }
 
     @Test
-    public void testStrangeLatin1Text() {
-        assertThat(CharacterSetConversion.isConvertableIntoLatin1("£ © ß ä û ö ü é è Ç"), is(true) );
+    public void should_convert_latin1() {
+        assertThat(CharacterSetConversion.isConvertableIntoLatin1(" ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"), is(true));
     }
 
     @Test
-    public void testNonLatin() {
+    public void should_not_convert_other_charsets() {
         assertThat(CharacterSetConversion.isConvertableIntoLatin1("привет"), is(false) );
         assertThat(CharacterSetConversion.isConvertableIntoLatin1("مرحبا"), is(false) );
         assertThat(CharacterSetConversion.isConvertableIntoLatin1("你好ا"), is(false) );
+    }
+
+    @Test
+    public void should_not_choke_on_empty_input() {
+        assertThat(CharacterSetConversion.isConvertableIntoLatin1(""), is(true) );
+        assertThat(CharacterSetConversion.isConvertableIntoLatin1(null), is(true) );
     }
 
 }
