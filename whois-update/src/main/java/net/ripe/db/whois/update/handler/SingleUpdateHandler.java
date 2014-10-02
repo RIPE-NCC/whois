@@ -38,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.nio.charset.Charset;
 
 
 @Component
@@ -165,7 +164,7 @@ public class SingleUpdateHandler {
         RpslObject submittedObject = update.getSubmittedObject();
         for( RpslAttribute attribute: submittedObject.getAttributes() ) {
             if( ! CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue() )) {
-                updateContext.addMessage(update, UpdateMessages.informationLosDueToLatin1Conversion(attribute.getKey()) );
+                updateContext.addMessage(update, UpdateMessages.informationLostDueToLatin1Conversion(attribute.getKey()) );
             }
         }
     }

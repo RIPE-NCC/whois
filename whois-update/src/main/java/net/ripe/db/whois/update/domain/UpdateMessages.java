@@ -12,7 +12,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
-import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 
 import java.util.Set;
@@ -596,7 +595,7 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This resource object must be created with a sponsoring-org attribute");
     }
 
-    public static Message informationLosDueToLatin1Conversion( String attributeName) {
-        return new Message(Type.WARNING, "Attribute \"%s\" has information loss due to conversion into latin1 character-set", attributeName);
+    public static Message informationLostDueToLatin1Conversion(String attributeName) {
+        return new Message(Type.WARNING, "Attribute \"%s\" has information loss due to conversion into ISO-8859-1 (Latin-1) character-set", attributeName);
     }
 }
