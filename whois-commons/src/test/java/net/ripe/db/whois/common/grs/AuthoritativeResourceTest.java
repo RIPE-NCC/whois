@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -400,5 +401,90 @@ public class AuthoritativeResourceTest {
     private Scanner getScanner(final String resourceName) throws IOException {
         final Resource resource = new ClassPathResource(String.format("grs/%s.gz", resourceName));
         return new Scanner(new GZIPInputStream(resource.getInputStream()));
+    }
+
+    @Test
+    public void test_frankenranges_using_maintained_in_rir_space() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner(
+                "ripencc|GB|ipv4|100.0.0.0|2097152|20101228|allocated|4f57450f330f499cbf4a11c1b0f22fc3\n" +
+                "ripencc|GB|ipv4|100.32.0.0|524288|20101228|allocated|4f57450f330f499cbf4a11c1b0f22fc3\n" +
+                "ripencc|GB|ipv4|100.40.0.0|131072|20101228|allocated|4f57450f330f499cbf4a11c1b0f22fc3\n"));
+
+        // outside range
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("99.255.255.255")), is(false));
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.42.0.0")), is(false));
+
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.0.0.0 - 100.31.255.255")), is(true));
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.0.0.1 - 100.31.255.254")), is(true));
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.0.0.0")), is(true));
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.39.255.255")), is(true));
+
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.40.0.0 - 100.41.255.255")), is(true));
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.40.0.0")), is(true));
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.41.255.255")), is(true));
+
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.40.0.0 - 100.41.255.255")), is(true));
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.40.0.0")), is(true));
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.41.255.255")), is(true));
+
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.0.0.1 - 100.41.255.254")), is(false));
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("100.0.0.0 - 100.41.255.255")), is(false));
+    }
+
+    @Test
+    public void test_frankenranges_using_maintained_by_rir() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner(
+                "ripencc|GB|ipv4|100.0.0.0|2097152|20101228|allocated|4f57450f330f499cbf4a11c1b0f22fc3\n" +
+                "ripencc|GB|ipv4|100.32.0.0|524288|20101228|allocated|4f57450f330f499cbf4a11c1b0f22fc3\n" +
+                 "ripencc|GB|ipv4|100.40.0.0|131072|20101228|allocated|4f57450f330f499cbf4a11c1b0f22fc3\n"));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("99.255.255.255")), is(false));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.42.0.0")), is(false));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.0.0.0 - 100.31.255.255")), is(true));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.0.0.1 - 100.31.255.254")), is(false));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.0.0.0")), is(false));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.39.255.255")), is(false));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.40.0.0 - 100.41.255.255")), is(true));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.40.0.0")), is(false));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.41.255.255")), is(false));
+
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.40.0.0 - 100.41.255.255")), is(true));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.40.0.0")), is(false));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.41.255.255")), is(false));
+
+        // TODO this the one we want to fix
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.0.0.1 - 100.41.255.254")), is(false));
+        assertThat(resourceData.isMaintainedByRir(ObjectType.INETNUM, ciString("100.0.0.0 - 100.41.255.255")), is(true));
+    }
+
+    @Ignore
+    @Test
+    public void test_frankenranges_using_combined_approach() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner(
+                "ripencc|GB|ipv4|100.0.0.0|2097152|20101228|allocated|4f57450f330f499cbf4a11c1b0f22fc3\n" +
+                "ripencc|GB|ipv4|100.32.0.0|524288|20101228|allocated|4f57450f330f499cbf4a11c1b0f22fc3\n" +
+                "ripencc|GB|ipv4|100.40.0.0|131072|20101228|allocated|4f57450f330f499cbf4a11c1b0f22fc3\n"));
+
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("99.255.255.255")), is(false));
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.42.0.0")), is(false));
+
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.0.0.0 - 100.31.255.255")), is(true));
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.0.0.1 - 100.31.255.254")), is(true));
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.0.0.0")), is(true));
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.39.255.255")), is(true));
+
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.40.0.0 - 100.41.255.255")), is(true));
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.40.0.0")), is(true));
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.41.255.255")), is(true));
+
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.40.0.0 - 100.41.255.255")), is(true));
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.40.0.0")), is(true));
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.41.255.255")), is(true));
+
+        // TODO this the one we want to fix
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.0.0.1 - 100.41.255.254")), is(true));
+        assertThat(resourceData.isMaintainedByRirCombined(ObjectType.INETNUM, ciString("100.0.0.0 - 100.41.255.255")), is(true));
     }
 }
