@@ -1,10 +1,8 @@
 package net.ripe.db.whois.common.support;
 
 public class QueryExecutorConfiguration {
-    public static QueryExecutorConfiguration DEV1 = new QueryExecutorConfiguration("dev1", "dbc-dev1", 1043, 1044);
-    public static QueryExecutorConfiguration DEV2 = new QueryExecutorConfiguration("dev2", "dbc-dev2", 1043, 1044);
-    public static QueryExecutorConfiguration PRE1 = new QueryExecutorConfiguration("pre1", "dbc-pre1", 1043, 1044);
-    public static QueryExecutorConfiguration PRE2 = new QueryExecutorConfiguration("pre2", "dbc-pre2", 1043, 1044);
+    public static QueryExecutorConfiguration PRE1 = new QueryExecutorConfiguration("pre1", "db-pre-1", 1043, 1044);
+    public static QueryExecutorConfiguration PRE2 = new QueryExecutorConfiguration("pre2", "db-pre-2", 1043, 1044);
 
     final String identifier;
     final String host;

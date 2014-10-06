@@ -5,8 +5,6 @@ import net.ripe.db.whois.query.endtoend.compare.ComparisonConfiguration;
 public class RestExecutorConfiguration implements ComparisonConfiguration {
     public enum ResponseFormat {COMPACT, DEFAULT}
 
-    public static RestExecutorConfiguration DEV1 = new RestExecutorConfiguration("db-dev-1", 1080, 1081, ResponseFormat.COMPACT);
-    public static RestExecutorConfiguration DEV2 = new RestExecutorConfiguration("db-dev-2", 1080, 1081, ResponseFormat.COMPACT);
     public static RestExecutorConfiguration PRE1 = new RestExecutorConfiguration("db-pre-1", 1080, 1081, ResponseFormat.DEFAULT);
     public static RestExecutorConfiguration PRE2 = new RestExecutorConfiguration("db-pre-2", 1080, 1081, ResponseFormat.DEFAULT);
 
