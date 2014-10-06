@@ -1,22 +1,28 @@
 package net.ripe.db.whois.api.search;
 
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.facet.taxonomy.FacetLabel;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
 import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyReader;
 import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyWriter;
-import org.apache.lucene.index.*;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.ReaderManager;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import static org.apache.lucene.util.IOUtils.closeWhileHandlingException;
@@ -26,12 +32,12 @@ public class IndexTemplate implements Closeable {
 
     private final Directory taxonomy;
     private final Directory index;
-    private final IndexWriterConfig config;
     private final Semaphore updateLock = new Semaphore(1);
 
     private IndexWriter indexWriter;
     private ReaderManager readerManager;
     private DirectoryTaxonomyWriter taxonomyWriter;
+    private IndexWriterConfig config;
 
     public IndexTemplate(final String directory, final IndexWriterConfig config) throws IOException {
         if (StringUtils.isEmpty(directory)) {
@@ -107,12 +113,22 @@ public class IndexTemplate implements Closeable {
     private void createNewWriters() throws IOException {
         closeWhileHandlingException(taxonomyWriter, indexWriter);
         taxonomyWriter = new DirectoryTaxonomyWriter(taxonomy);
+        addFacetCategories(taxonomyWriter);
+
+        config = new IndexWriterConfig(Version.LUCENE_4_10_0, config.getAnalyzer());
         indexWriter = new IndexWriter(index, config);
 
         taxonomyWriter.commit();
         indexWriter.commit();
 
         readerManager = new ReaderManager(indexWriter, true);
+    }
+
+    private static void addFacetCategories(final TaxonomyWriter taxonomyWriter) throws IOException {
+        for (ObjectType objectType : ObjectType.values()) {
+            final FacetLabel facetLabel = new FacetLabel("object-type", objectType.getName());
+            taxonomyWriter.addCategory(facetLabel);
+        }
     }
 
     public <T> T read(final ReadCallback<T> readCallback) throws IOException {
@@ -138,24 +154,6 @@ public class IndexTemplate implements Closeable {
                 return searchCallback.search(indexReader, taxonomyReader, indexSearcher);
             }
         });
-    }
-
-    public Map<String, String> getCommitData() throws IOException {
-        class GetCommitData implements WriteCallback {
-            private Map<String, String> commitData;
-
-            @Override
-            public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                commitData = indexWriter.getCommitData();
-            }
-
-            public Map<String, String> getCommitData() {
-                return commitData;
-            }
-        }
-        GetCommitData getCommitData = new GetCommitData();
-        write(getCommitData);
-        return getCommitData.getCommitData();
     }
 
     public interface WriteCallback {

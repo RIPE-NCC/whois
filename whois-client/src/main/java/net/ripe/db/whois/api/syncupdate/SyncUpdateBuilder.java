@@ -10,12 +10,10 @@ import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -129,7 +127,7 @@ public class SyncUpdateBuilder {
             this.isDiff = isDiff;
             this.isNew = isNew;
             this.isRedirect = isRedirect;
-       }
+        }
 
         public String post() {
             try {
@@ -161,7 +159,7 @@ public class SyncUpdateBuilder {
         private String getBody() {
             final Map<String, String> params = Maps.newHashMap();
             if ((data != null) && (data.length() > 0)) {
-                params.put("DATA", encode(data));
+                params.put("DATA", SyncUpdateUtils.encode(data, CHARSET));
             }
             if (isHelp) {
                 params.put("HELP", "yes");
@@ -176,14 +174,6 @@ public class SyncUpdateBuilder {
                 params.put("REDIRECT", "yes");
             }
             return PARAM_JOINER.join(params);
-        }
-
-        private static String encode(final String data) {
-            try {
-                return URLEncoder.encode(data, CHARSET);
-            } catch (UnsupportedEncodingException e) {
-                throw new IllegalStateException(e);
-            }
         }
 
         private static String readResponse(final HttpURLConnection connection) {

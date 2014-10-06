@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static net.ripe.db.whois.update.domain.ContentWithCredentials.contentWithCredentialsInIso88591;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -17,21 +18,21 @@ public class ContentWithCredentialsTest {
 
     @Test
     public void no_credentials() {
-        final ContentWithCredentials subject = new ContentWithCredentials("test");
+        final ContentWithCredentials subject = contentWithCredentialsInIso88591("test");
         assertThat(subject.getContent(), is("test"));
         assertThat(subject.getCredentials(), hasSize(0));
     }
 
     @Test
     public void one_credentials() {
-        final ContentWithCredentials subject = new ContentWithCredentials("test", Lists.newArrayList(credential));
+        final ContentWithCredentials subject = contentWithCredentialsInIso88591("test", Lists.newArrayList(credential));
         assertThat(subject.getContent(), is("test"));
         assertThat(subject.getCredentials(), hasSize(1));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void credentials_are_immutable() {
-        final ContentWithCredentials subject = new ContentWithCredentials("test", Lists.newArrayList(credential));
+        final ContentWithCredentials subject = contentWithCredentialsInIso88591("test", Lists.newArrayList(credential));
         subject.getCredentials().add(mock(Credential.class));
     }
 }

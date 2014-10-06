@@ -240,6 +240,27 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
         dnsCheckedFor "0.0.193.in-addr.arpa"
     }
 
+    def "create ipv4 domain primary key contains trailing dot"() {
+      when:
+        def insertResponse = syncUpdate new SyncUpdate(data: """\
+                domain:          0.0.193.in-addr.arpa.
+                descr:           Test domain
+                admin-c:         TEST-PN
+                tech-c:          TEST-PN
+                zone-c:          TEST-PN
+                nserver:         ns.foo.net
+                nserver:         ns.bar.net
+                mnt-by:          TEST-MNT
+                changed:         test@ripe.net 20120505
+                source:          TEST
+                password:        update
+                """.stripIndent())
+
+      then:
+        insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
+        insertResponse.contains("***Info:    Value 0.0.193.in-addr.arpa. converted to 0.0.193.in-addr.arpa")
+    }
+
     def "create ipv4 domain parent auth failed"() {
       when:
         def insertResponse = syncUpdate new SyncUpdate(data: """\
@@ -414,6 +435,42 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 "            ns.foo.net.0.0.193.in-addr.arpa 10.0.0.0")
 
         dnsCheckedFor "0.0.193.in-addr.arpa"
+    }
+
+    def "modify ipv4 domain primary key contains trailing dot"() {
+      when:
+        def insertResponse = syncUpdate new SyncUpdate(data: """\
+                domain:          0.0.193.in-addr.arpa
+                descr:           Test domain
+                admin-c:         TEST-PN
+                tech-c:          TEST-PN
+                zone-c:          TEST-PN
+                nserver:         ns.foo.net
+                nserver:         ns.bar.net
+                mnt-by:          TEST-MNT
+                changed:         test@ripe.net 20120505
+                source:          TEST
+                password:        update
+                """.stripIndent())
+      then:
+        insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
+      when:
+        def updateResponse = syncUpdate new SyncUpdate(data: """\
+                domain:          0.0.193.in-addr.arpa.
+                descr:           Test domain
+                admin-c:         TEST-PN
+                tech-c:          TEST-PN
+                zone-c:          TEST-PN
+                nserver:         ns.foo.net.0.0.193.in-addr.arpa. 10.0.0.0/32
+                nserver:         ns.bar.net
+                mnt-by:          TEST-MNT
+                changed:         test@ripe.net 20120505
+                source:          TEST
+                password:        update
+                """.stripIndent())
+      then:
+        updateResponse.contains("Modify SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
+        updateResponse.contains("***Info:    Value 0.0.193.in-addr.arpa. converted to 0.0.193.in-addr.arpa")
     }
 
     def "add ipv4 domain with parent should fail"() {

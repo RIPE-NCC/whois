@@ -19,13 +19,13 @@ MEM="-Xms1024m -Xmx8g"
 ### JMX
 JMX="-Dcom.sun.management.jmxremote -Dhazelcast.jmx=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=${JMXPORT}"
 
-### Final assembled command line
-COMMAND="$JAVA -D${SERVICE} $JMX $SNMP $MEM -Dwhois.config=properties -Dhazelcast.config=hazelcast.xml -Dlog4j.configuration=file:log4j.xml -jar whois.jar"
-COMMAND_REGEXP="$JAVA -D${SERVICE}"'.*'" -jar whois.jar"
-
 # location of console.log
 LOG=var/console.log
 SERVICE=whois
+
+### Final assembled command line
+COMMAND="$JAVA -D${SERVICE} $JMX $SNMP $MEM -Dwhois.config=properties -Dhazelcast.config=hazelcast.xml -Dlog4j.configuration=file:log4j.xml -jar whois.jar"
+COMMAND_REGEXP="$JAVA -D${SERVICE}"'.*'" -jar whois.jar"
 
 ##############################################################################################
 # become role user (drop root)

@@ -5,6 +5,7 @@ import net.ripe.db.whois.update.keycert.PgpSignedMessage;
 import org.bouncycastle.openpgp.PGPPublicKey;
 
 import javax.annotation.Nullable;
+import java.nio.charset.Charset;
 
 public class PgpCredential implements Credential {
 
@@ -25,12 +26,12 @@ public class PgpCredential implements Credential {
         return new PgpCredential(keyId);
     }
 
-    public static PgpCredential createOfferedCredential(@Nullable final String clearText) {
-        return new PgpCredential(PgpSignedMessage.parse(clearText));           // TODO: also specify the encoding from email / syncupdates / REST API request
+    public static PgpCredential createOfferedCredential(@Nullable final String clearText, final Charset charset) {
+        return new PgpCredential(PgpSignedMessage.parse(clearText, charset));
     }
 
-    public static PgpCredential createOfferedCredential(final String signedData, final String signature) {
-        return new PgpCredential(PgpSignedMessage.parse(signedData, signature));
+    public static PgpCredential createOfferedCredential(final String signedData, final String signature, final Charset charset) {
+        return new PgpCredential(PgpSignedMessage.parse(signedData, signature, charset));
     }
 
     @Nullable

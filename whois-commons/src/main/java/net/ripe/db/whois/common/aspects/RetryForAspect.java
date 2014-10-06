@@ -37,14 +37,14 @@ public class RetryForAspect {
                     }
 
                     final Logger logger = LoggerFactory.getLogger(pjp.getSignature().getDeclaringType());
-                    final String signature = pjp.getSignature().toShortString().replaceFirst("\\.\\.", StringUtils.join(pjp.getArgs(), ", "));
+                    final String signature = StringUtils.replaceOnce(pjp.getSignature().toShortString(), "..", StringUtils.join(pjp.getArgs(), ", "));
 
                     final int attempts = retryFor.attempts();
                     if (++attempt < attempts) {
-                        logger.error("{} attempt {}/{} failed, retrying in {} ms", signature, attempt, attempts, retryFor.intervalMs(), e);
+                        logger.debug("{} attempt {}/{} failed, retrying in {} ms", signature, attempt, attempts, retryFor.intervalMs(), e);
                         Thread.sleep(retryFor.intervalMs());
                     } else {
-                        logger.error("{} attempt {}/{} failed, giving up", signature, attempt, attempts, e);
+                        logger.debug("{} attempt {}/{} failed, giving up", signature, attempt, attempts, e);
                         throw originalException;
                     }
                 } else {

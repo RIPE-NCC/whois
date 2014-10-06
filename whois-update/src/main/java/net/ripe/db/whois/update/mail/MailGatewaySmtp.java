@@ -33,6 +33,8 @@ public class MailGatewaySmtp implements MailGateway {
     @Value("${mail.smtp.enabled}")
     private boolean outgoingMailEnabled;
 
+    @Value("${mail.smtp.retrySending:true}")
+    private boolean retrySending;
 
     @Autowired
     public MailGatewaySmtp(final LoggerContext loggerContext, final MailConfiguration mailConfiguration, final JavaMailSender mailSender) {
@@ -77,20 +79,28 @@ public class MailGatewaySmtp implements MailGateway {
 
     @RetryFor(value = MailSendException.class, attempts = 20, intervalMs = 10000)
     private void sendEmailAttempt(final String to, final String subject, final String text) {
-        mailSender.send(new MimeMessagePreparator() {
-            @Override
-            public void prepare(final MimeMessage mimeMessage) throws MessagingException {
-                final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
-                message.setFrom(mailConfiguration.getFrom());
-                message.setTo(to);
-                message.setSubject(subject);
-                message.setText(text);
+        try {
+            mailSender.send(new MimeMessagePreparator() {
+                @Override
+                public void prepare(final MimeMessage mimeMessage) throws MessagingException {
+                    final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_NO, "UTF-8");
+                    message.setFrom(mailConfiguration.getFrom());
+                    message.setTo(to);
+                    message.setSubject(subject);
+                    message.setText(text);
 
-                mimeMessage.addHeader("Precedence", "bulk");
-                mimeMessage.addHeader("Auto-Submitted", "auto-generated");
+                    mimeMessage.addHeader("Precedence", "bulk");
+                    mimeMessage.addHeader("Auto-Submitted", "auto-generated");
 
-                loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
+                    loggerContext.log("msg-out.txt", new MailMessageLogCallback(mimeMessage));
+                }
+            });
+        } catch (MailSendException e) {
+            if (retrySending) {
+                throw e;
+            } else {
+                LOGGER.info("not retrying sending mail to {}", to);
             }
-        });
+        }
     }
 }

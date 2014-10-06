@@ -6,7 +6,7 @@ import difflib.Delta;
 import difflib.DiffUtils;
 import difflib.Patch;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.query.endtoend.compare.CompareResults;
 import net.ripe.db.whois.query.endtoend.compare.ComparisonExecutor;
@@ -117,7 +117,7 @@ public class CompareQueryResults implements CompareResults {
     }
 
     private void logVersion(final QueryExecutorConfiguration configuration) throws IOException {
-        final DummyWhoisClient client = new DummyWhoisClient(configuration.getHost(), configuration.getQueryPort());
+        final TelnetWhoisClient client = new TelnetWhoisClient(configuration.getHost(), configuration.getQueryPort());
         final String response = client.sendQuery("-q version");
         final Matcher matcher = VERSION_PATTERN.matcher(response);
         if (!matcher.find()) {
@@ -127,7 +127,7 @@ public class CompareQueryResults implements CompareResults {
     }
 
     private long logSerial(final QueryExecutorConfiguration configuration) throws IOException {
-        final DummyWhoisClient client = new DummyWhoisClient(configuration.getHost(), configuration.getNrtmPort());
+        final TelnetWhoisClient client = new TelnetWhoisClient(configuration.getHost(), configuration.getNrtmPort());
         final String response = client.sendQuery("-q sources");
         final Matcher matcher = SERIAL_PATTERN.matcher(response);
         if (!matcher.find()) {

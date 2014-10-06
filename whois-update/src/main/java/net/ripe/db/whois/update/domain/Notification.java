@@ -70,7 +70,7 @@ public final class Notification {
         private final PreparedUpdate update;
         private final int versionId;
 
-        public Update(final PreparedUpdate update, UpdateContext updateContext) {
+        public Update(final PreparedUpdate update, final UpdateContext updateContext) {
             this.referenceObject = filterAuthFunction.apply(update.getReferenceObject());
             this.updatedObject = filterAuthFunction.apply(update.getUpdatedObject());
             this.action = update.getAction().name();

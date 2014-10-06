@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.freetext;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -16,8 +17,8 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.facet.index.FacetFields;
-import org.apache.lucene.facet.taxonomy.CategoryPath;
+import org.apache.lucene.facet.FacetField;
+import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -47,7 +48,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithExpectedSize;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -62,8 +62,8 @@ public class FreeTextIndex extends RebuildableIndex {
     static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
     static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
 
-    static final Analyzer QUERY_ANALYZER = new FreeTextAnalyzer(Version.LUCENE_44, FreeTextAnalyzer.Operation.QUERY);
-    static final Analyzer INDEX_ANALYZER = new FreeTextAnalyzer(Version.LUCENE_44, FreeTextAnalyzer.Operation.INDEX);
+    static final Analyzer QUERY_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY);
+    static final Analyzer INDEX_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.INDEX);
 
     static final String[] FIELD_NAMES;
 
@@ -97,6 +97,7 @@ public class FreeTextIndex extends RebuildableIndex {
 
     private final JdbcTemplate jdbcTemplate;
     private final String source;
+    private final FacetsConfig facetsConfig;
 
     @Autowired
     FreeTextIndex(
@@ -108,12 +109,13 @@ public class FreeTextIndex extends RebuildableIndex {
 
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.source = source;
+        this.facetsConfig = new FacetsConfig();
     }
 
     @PostConstruct
     public void init() {
         if (StringUtils.isBlank(indexDir)) return;
-        super.init(new IndexWriterConfig(Version.LUCENE_44, INDEX_ANALYZER)
+        super.init(new IndexWriterConfig(Version.LUCENE_4_10_0, INDEX_ANALYZER)
                         .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
                 new IndexTemplate.WriteCallback() {
                     @Override
@@ -251,15 +253,17 @@ public class FreeTextIndex extends RebuildableIndex {
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
-                document.add(new Field(attribute.getKey(), attribute.getValue().trim(), INDEXED_AND_TOKENIZED));
+                document.add(new Field(attribute.getKey(), sanitise(attribute.getValue().trim()), INDEXED_AND_TOKENIZED));
             }
         }
 
-        final CategoryPath categoryPath = new CategoryPath(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName());
-        final FacetFields facetFields = new FacetFields(taxonomyWriter);
-        facetFields.addFields(document, newArrayList(categoryPath));
+        document.add(new FacetField(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName()));
 
-        indexWriter.addDocument(document);
+        indexWriter.addDocument(facetsConfig.build(taxonomyWriter, document));
+    }
+
+    private static String sanitise(final String value) {
+        return CharMatcher.JAVA_ISO_CONTROL.removeFrom(value);
     }
 
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {
