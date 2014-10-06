@@ -777,8 +777,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate modify
 
       then:
-        response =~ /Modify FAILED: \[person\] TP2-TEST/
-        response =~ /Person\/Role name cannot be changed automatically/
+        response =~ /Modify SUCCEEDED: \[person\] TP2-TEST   Modify Person/
     }
 
     def "date changed error should not appear on when there's only 1 date"() {

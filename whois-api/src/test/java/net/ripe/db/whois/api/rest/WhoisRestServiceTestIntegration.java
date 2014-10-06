@@ -33,7 +33,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
@@ -206,7 +206,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_without_accepts_header() throws Exception {
-        final String query = DummyWhoisClient.query(getPort(), "GET /whois/test/mntner/owner-mnt HTTP/1.1\nHost: localhost\nConnection: close\n");
+        final String query = TelnetWhoisClient.queryLocalhost(getPort(), "GET /whois/test/mntner/owner-mnt HTTP/1.1\nHost: localhost\nConnection: close\n");
 
         assertThat(query, containsString("HTTP/1.1 200 OK"));
         assertThat(query, containsString("<whois-resources xmlns"));
@@ -355,6 +355,45 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_xml_text_not_contains_root_level_locator() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
         assertThat(whoisResources.getLink(), nullValue());
+    }
+
+    @Test
+    public void lookup_failure_with_xml_extension() {
+        try {
+            RestTest.target(getPort(), "whois/test/inet6num/No%20clue%20what%20the%20range%20is.xml")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getLink().getHref(), stringMatchesRegexp("http://localhost:\\d+/test/inet6num/No%20clue%20what%20the%20range%20is"));
+            assertThat(whoisResources.getLink().getType(), is("locator"));
+        }
+    }
+
+    @Test
+    public void lookup_success_with_xml_extension() {
+        databaseHelper.addObject(
+            "mntner:      A-MNTNER-WITH-A-VERY-VERY-LONG-NAME-MNT\n" +
+            "descr:       Owner Maintainer\n" +
+            "admin-c:     TP1-TEST\n" +
+            "upd-to:      noreply@ripe.net\n" +
+            "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+            "auth:        SSO person@net.net\n" +
+            "mnt-by:      OWNER-MNT\n" +
+            "referral-by: OWNER-MNT\n" +
+            "changed:     dbtest@ripe.net 20120101\n" +
+            "source:      TEST");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/A-MNTNER-WITH-A-VERY-VERY-LONG-NAME-MNT.xml")
+                .request()
+                .get(WhoisResources.class);
+
+        // TODO: [ES] xlink is not set to request URL on success
+        assertThat(whoisResources.getLink(), is(nullValue()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getLink().getHref(), stringMatchesRegexp("http://rest-test.db.ripe.net/test/mntner/A-MNTNER-WITH-A-VERY-VERY-LONG-NAME-MNT"));
+        assertThat(whoisResources.getWhoisObjects().get(0).getLink().getType(), is("locator"));
     }
 
     @Test
@@ -1902,6 +1941,36 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        ] }\n" +
                         "    }] \n" +
                         "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+    }
+
+    @Test
+    public void update_person_with_non_latin_chars() throws Exception {
+
+        {
+            final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                    .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS),
+                            new RpslAttribute(AttributeType.ADDRESS, "address: Тверская улица,москва")).sort().get();
+            WhoisResources response =
+                    RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                            .request()
+                            .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
+                                    WhoisResources.class);
+            assertThat(response.getErrorMessages().size(), is(1));
+            assertThat(response.getErrorMessages().get(0).getSeverity(), is("Warning"));
+            assertThat(response.getErrorMessages().get(0).getText(), containsString("has information loss due to conversion"));
+            assertThat(response.getErrorMessages().get(0).getArgs().get(0).getValue(), is(AttributeType.ADDRESS.getName()));
+
+            final RpslObject stored = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
+            assertThat(stored.findAttribute(AttributeType.ADDRESS).getValue(), is("        address: ???????? ?????,??????"));
+        }
+        {
+            WhoisResources response =
+                    RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                            .request()
+                            .get(WhoisResources.class);
+            assertThat(response.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("address", "address: ???????? ?????,??????")));
+            System.err.println("resp:"+ response );
+        }
     }
 
     @Test
@@ -4609,6 +4678,22 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources, not(containsString("versions")));
     }
 
+    @Test
+    public void search_too_many_arguments() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=" +
+                    "d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
+                    "%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
+                    "%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d%20d" +
+                    "%20d%20d%20d%20d")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            RestTest.assertOnlyErrorMessage(e, "Error", "ERROR:118: too many arguments supplied\n\nToo many arguments supplied.\n");
+        }
+    }
+
     // maintenance mode
 
     // TODO: [AH] also test origin, i.e. maintenanceMode.set("NONE,READONLY")
@@ -4641,6 +4726,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         maintenanceMode.set("NONE,NONE");
         RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
     }
+
+
+
 
     // helper methods
 

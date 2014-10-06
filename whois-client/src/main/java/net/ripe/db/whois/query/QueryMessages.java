@@ -2,7 +2,6 @@ package net.ripe.db.whois.query;
 
 import com.google.common.base.Joiner;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.QueryMessage;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Hosts;
@@ -242,6 +241,13 @@ public final class QueryMessages {
                 "Versions are numbers greater or equal to 1\n" +
                 "but cannot exceed the object's current version number.",
                 max);
+    }
+
+    public static Message tooManyArguments() {
+        return new QueryMessage(Type.ERROR, ""
+                + "ERROR:118: too many arguments supplied\n"
+                + "\n"
+                + "Too many arguments supplied.");
     }
 
     public static Message accessDeniedPermanently(final InetAddress remoteAddress) {

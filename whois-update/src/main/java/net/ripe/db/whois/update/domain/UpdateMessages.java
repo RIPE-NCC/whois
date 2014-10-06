@@ -12,7 +12,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
-import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 
 import java.util.Set;
@@ -309,10 +308,6 @@ public final class UpdateMessages {
         return interval.toString();
     }
 
-    public static Message rangeTooSmallForStatus(final InetStatus inetStatus, final int maxPrefixLength) {
-        return new Message(Type.ERROR, "%s cannot be smaller than /%s", inetStatus.toString(), maxPrefixLength);
-    }
-
     public static Message createFirstPersonMntnerForOrganisation() {
         return new Message(Type.INFO, "To create the first person/mntner pair of objects for an organisation see https://apps.db.ripe.net/startup/");
     }
@@ -598,5 +593,9 @@ public final class UpdateMessages {
 
     public static Message sponsoringOrgMustBePresent() {
         return new Message(Type.ERROR, "This resource object must be created with a sponsoring-org attribute");
+    }
+
+    public static Message informationLostDueToLatin1Conversion(String attributeName) {
+        return new Message(Type.WARNING, "Attribute \"%s\" has information loss due to conversion into ISO-8859-1 (Latin-1) character-set", attributeName);
     }
 }

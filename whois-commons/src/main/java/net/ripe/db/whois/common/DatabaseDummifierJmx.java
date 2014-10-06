@@ -175,15 +175,20 @@ public class DatabaseDummifierJmx extends JmxBase {
             });
         }
 
-        static RpslObject replaceWithMntnerNamePassword(RpslObject rpslObject) {
+        static RpslObject replaceWithMntnerNamePassword(final RpslObject rpslObject) {
             boolean foundPassword = false;
             RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
             for (int i = 0; i < builder.size(); i++) {
                 RpslAttribute attribute = builder.get(i);
-                if (AttributeType.AUTH.equals(attribute.getType()) && (attribute.getCleanValue().startsWith("md5-pw"))) {
-                    if (foundPassword) {
-                        builder.remove(i);
-                    } else {
+                if (AttributeType.AUTH.equals(attribute.getType())) {
+                    if (attribute.getCleanValue().startsWith("md5-pw")) {
+                        if (foundPassword) {
+                            builder.remove(i);
+                        } else {
+                            builder.set(i, new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toString())));
+                            foundPassword = true;
+                        }
+                    } else if (!foundPassword) {
                         builder.set(i, new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toString())));
                         foundPassword = true;
                     }

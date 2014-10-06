@@ -269,21 +269,15 @@ class RoleSpec extends BaseQueryUpdateSpec {
         then:
         def ack = ackFor message
 
-        ack.failed
+        ack.success
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   Second Role" }
-        ack.errorMessagesFor("Modify", "[role] FR1-TEST   Second Role") ==
-                ["Person/Role name cannot be changed automatically. Please create " +
-                        "another Person/Role object and modify any references to the old " +
-                        "object, then delete the old object"]
-        ack.objErrorContains("Modify", "FAILED", "role", "FR1-TEST   Second Role",
-                "Person/Role name cannot be changed automatically. Please create")
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   Second Role" }
 
-        queryObject("-rBT role FR1-TEST", "role", "First Role")
+        queryObject("-rBT role FR1-TEST", "role", "Second Role")
     }
 
     def "modify role to change name and object type to PERSON"() {

@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
-import org.joda.time.LocalDateTime
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import org.joda.time.LocalDateTime
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
@@ -17,6 +17,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     notify: test_test@ripe.net
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    auth: SSO ssotest@ripe.net
                     source: TEST
                 """,
                 "TEST-PN": """\
@@ -174,7 +175,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
         def updateNotif = notificationFor "test_test@ripe.net"
         updateNotif.subject =~ "Notification of RIPE Database changes"
-        updateNotif.contents =~ /OBJECT BELOW MODIFIED:\n\n@@ -1,8 \+1,10 @@\n mntner:         TEST-MNT/
+        updateNotif.contents =~ /OBJECT BELOW MODIFIED:\n\n@@ -1,9 \+1,10 @@\n mntner:         TEST-MNT/
         updateNotif.contents =~ /THIS IS THE NEW VERSION OF THE OBJECT:\n\nmntner:         TEST-MNT\ndescr:          description/
         updateNotif.contents =~ /--show-version 2 TEST-MNT/
 
@@ -347,8 +348,97 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
         notif.modified.any { it.type == "person" && it.key == "some one" }
 
         notif.contents !=~ /--show-version 1 OLW-PN/
+        notif.contents =~ /\+notify/
 
         noMoreMessages()
+    }
+
+    def "update single object fail, notification contains diff"() {
+        when:
+        def first = """\
+                    person: some one
+                    nic-hdl: OLW-PN
+                    address: street
+                    phone: +42 33 81394393
+                    mnt-by: TEST-MNT
+                    notify: modify_test@ripe.net
+                    changed: ripe@test.net
+                    source: TEST
+                    password: update
+        """
+        def create = send new Message(body: first)
+
+        then:
+            def ack = ackFor create
+
+        when:
+        def person = """\
+                    person: some one
+                    nic-hdl: OLW-PN
+                    address: streetwise
+                    phone: +42 33 81394393
+                    mnt-by: TEST-MNT
+                    notify: test_test@ripe.net
+                    changed: ripe@test.net
+                    source: TEST
+
+                    password: fail
+        """
+        def update = send new Message(body: person)
+
+        then:
+        ackFor update
+
+        def notif = notificationFor "dbtest@ripe.net"
+
+        notif.subject =~ "RIPE Database updates, auth error notification"
+
+        notif.contents.contains("-notify:         modify_test@ripe.net\n" +
+                "+notify:         test_test@ripe.net")
+    }
+
+    def "update single maintainer fail, notification contains diff and no auth details"() {
+        when:
+        databaseHelper.addObject("" +
+                "mntner: UPD-MNT\n" +
+                "admin-c: TEST-PN\n" +
+                "descr: descr\n" +
+                "mnt-by: TEST-MNT\n" +
+                "mnt-nfy: notif_test@ripe.net\n" +
+                "referral-by: UPD-MNT\n" +
+                "notify: notif_test@ripe.net\n" +
+                "upd-to: dbtest@ripe.net\n" +
+                "auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+                "auth: SSO ssotest@ripe.net\n" +
+                "changed: test@test.net\n" +
+                "source: TEST")
+
+        def upd = """\
+                    mntner: UPD-MNT
+                    admin-c: TEST-PN
+                    mnt-by: TEST-MNT
+                    descr: test
+                    referral-by: TEST-MNT
+                    notify: notif_test@ripe.net
+                    upd-to: dbtest@ripe.net
+                    auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    changed: test@test.net 20140404
+                    source: TEST
+                    password: fail
+        """
+        syncUpdate(new SyncUpdate(data: upd))
+
+        then:
+        def notif = notificationFor "dbtest@ripe.net"
+
+        notif.subject =~ "RIPE Database updates, auth error notification"
+
+        notif.contents.contains("-referral-by:    UPD-MNT\n" +
+                "+descr:          test")
+        !notif.contents.contains("auth: SSO ssotest@ripe.net")
+        notif.contents.contains("@@ -9,4 +8,3 @@\n" +
+                " auth:           MD5-PW # Filtered\n" +
+                "-auth:           SSO # Filtered")
     }
 
     def "update, single object, multiple times"() {

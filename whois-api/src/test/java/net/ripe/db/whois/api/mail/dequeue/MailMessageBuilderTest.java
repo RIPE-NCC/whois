@@ -1,12 +1,14 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 import net.ripe.db.whois.api.mail.MailMessage;
-import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Keyword;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
+import static net.ripe.db.whois.update.domain.ContentWithCredentials.contentWithCredentialsInIso88591;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class MailMessageBuilderTest {
@@ -36,7 +38,7 @@ public class MailMessageBuilderTest {
     @Test
     public void help() {
         subject.keyword(Keyword.HELP);
-        subject.addContentWithCredentials(new ContentWithCredentials("mntner: DEV-MNT\n"));
+        subject.addContentWithCredentials(contentWithCredentialsInIso88591("mntner: DEV-MNT\n"));
         final MailMessage message = subject.build();
 
         assertThat(message.getKeyword(), is(Keyword.HELP));
@@ -46,7 +48,7 @@ public class MailMessageBuilderTest {
     @Test
     public void single_content_with_password() {
         subject.addContentWithCredentials(
-                new ContentWithCredentials(
+                contentWithCredentialsInIso88591(
                         "mntner: DEV-MNT\n" +
                                 "descr: DEV maintainer\n" +
                                 "password: pass\n"));
@@ -58,9 +60,9 @@ public class MailMessageBuilderTest {
 
     @Test
     public void multiple_content_separate_parts() {
-        subject.addContentWithCredentials(new ContentWithCredentials("mntner: DEV-MNT1\npassword: password1"));
-        subject.addContentWithCredentials(new ContentWithCredentials("mntner: DEV-MNT2\npassword: password2"));
-        subject.addContentWithCredentials(new ContentWithCredentials("mntner: DEV-MNT3\npassword: password3"));
+        subject.addContentWithCredentials(contentWithCredentialsInIso88591("mntner: DEV-MNT1\npassword: password1"));
+        subject.addContentWithCredentials(contentWithCredentialsInIso88591("mntner: DEV-MNT2\npassword: password2"));
+        subject.addContentWithCredentials(contentWithCredentialsInIso88591("mntner: DEV-MNT3\npassword: password3"));
 
         final MailMessage message = subject.build();
         assertThat(message.getContentWithCredentials(), hasSize(3));
