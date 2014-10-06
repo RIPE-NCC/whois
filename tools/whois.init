@@ -1,14 +1,14 @@
 #!/bin/bash
 # Init script for RIPE Database
 
-# Email address of operator
-OPEREMAIL=unread@ripe.net
+SERVICE=whois-dev-bootstrap
 
-# user to run whois.jar (non-root!)
-ROLE_USER=dbase
+# Path to jmxterm-<version>-uber.jar
+JMXTERMPATH=jmxterm-1.0.0-SNAPSHOT-uber.jar
 
-### JVM to use to start whois
+### The path to the java executables from JVM to start whois
 JAVA="java"
+JMAP="jmap"
 
 ### Port number to listen on
 JMXPORT="1099"
@@ -16,27 +16,22 @@ JMXPORT="1099"
 # Default memory
 MEM="-Xms1024m -Xmx8g"
 
+### Java Options
+JAVA_OPT="-XX:-HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/export/tmp -XX:MaxPermSize=128m -XX:ErrorFile=var/hs_err_pid%p.log -Djsse.enableSNIExtension=false"
+GC_LOG="-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintHeapAtGC -Xloggc:var/gc.log"
+
 ### JMX
 JMX="-Dcom.sun.management.jmxremote -Dhazelcast.jmx=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=${JMXPORT}"
 
-# location of console.log
-LOG=var/console.log
-SERVICE=whois
-
 ### Final assembled command line
-COMMAND="$JAVA -D${SERVICE} $JMX $SNMP $MEM -Dwhois.config=properties -Dhazelcast.config=hazelcast.xml -Dlog4j.configuration=file:log4j.xml -jar whois.jar"
+COMMAND="$JAVA -D${SERVICE} $JAVA_OPT $JMX $SNMP $MEM -Dwhois.config=properties -Dhazelcast.config=hazelcast.xml -Dlog4j.configuration=file:log4j.xml -jar whois.jar"
 COMMAND_REGEXP="$JAVA -D${SERVICE}"'.*'" -jar whois.jar"
 
-##############################################################################################
-# become role user (drop root)
-if [[ $UID -eq 0 ]]; then
-	exec su - $ROLE_USER -c "$0 $1"
-fi
+# location of console.log
+LOG=var/console.log
 
-if [[ $USER != $ROLE_USER ]]; then
-        echo "You must run this service as user $ROLE_USER"
-        exit 1
-fi
+# Email address of operator
+OPEREMAIL=unread@ripe.net
 
 ##############################################################################################
 # set COLUMNS
@@ -110,81 +105,28 @@ function check_server() {
 }
 
 ##############################################################################################
-# check console log for updates; email differences
-function check_log() {
-	# kill child sleep process on exit to avoid them stacking up
-	trap "pkill -P $BASHPID; exit 0" TERM HUP
-	WHOIS_PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
-	
-	# let whois finish startup
-	sleep 3
-	
-	while true; do
-		sleep 4h &
-		wait	# so bash responds to signals, like the one above
-		
-		# exit if server already exited
-		PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
-		if [[ $PID -ne $WHOIS_PID ]]; then
-			exit 1
-		fi
-		
-		NEWLOGPOS=$(stat -c %s $LOG)
-		DIFF=$[NEWLOGPOS-LOGPOS]
-		
-		if [[ $DIFF -gt 0 ]]; then
-			# we rely on sendmail for sending mail in raw format, as mailx was trying to be smart and
-			# switch to base64 encoding randomly, without adding a MIME header - agoston, 2012-03-29
-			if [[ $DIFF -gt 40960 ]]; then
-				/usr/lib/sendmail -t <<-__EOF__
-				To: $OPEREMAIL
-				Subject: $HOSTNAME  $SERVICE
-				
-				*** SIZE OF NEW ENTRIES SURPASSES 40K, LISTING LAST 200 LINES ONLY
-				
-				$(tail -200 $LOG)
-				__EOF__
-			else
-				/usr/lib/sendmail -t <<-__EOF__
-				To: $OPEREMAIL
-				Subject: $HOSTNAME  $SERVICE
-				
-				$(dd if=$LOG bs=1 skip=$LOGPOS count=$[NEWLOGPOS-LOGPOS])
-				__EOF__
-			fi
-		fi
-		LOGPOS=$NEWLOGPOS
-	done
-}
-
-##############################################################################################
 # MAIN
 case "$1" in
 	start)
-		PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
+		PID=$(pgrep -f "$COMMAND_REGEXP")
 		if [[ $PID ]]; then
 			echo "$SERVICE is already running"
 			exit 1
 		fi
-		
+
 		echo "Starting $SERVICE..."
-		# rotate console.log
-		/usr/sbin/logrotate -f -s `mktemp` logrotate.conf
 		# start server
 		$COMMAND >>var/console.log 2>&1 </dev/null &
-		# check if server startup successful
-		check_server
-		check_log </dev/null &>/dev/null &
 		;;
 	stop)
 		# kill log checker process (if running)
-		PID=$(pgrep -f -u dbase "$SERVICE start")
+		PID=$(pgrep -f "$SERVICE start")
 		if [[ $PID ]]; then
 			kill $PID	# also kills sleep
 		fi
 		
 		# kill jvm
-		PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
+		PID=$(pgrep -f "$COMMAND_REGEXP")
 		if [[ $PID ]]; then
 			echo " *** If there is a long update running, $SERVICE can take up to 2 hours to exit gracefully!"
 			echo -n "Stopping $SERVICE"
@@ -192,7 +134,7 @@ case "$1" in
 			while true; do
 				sleep 1
 				echo -n "."
-				PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
+				PID=$(pgrep -f "$COMMAND_REGEXP")
 				if ! [[ $PID ]]; then
 					echo
 					break
@@ -206,20 +148,24 @@ case "$1" in
 		fi
 		;;
         jmx)
-                # drop into JMX console
-                PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
-                if [[ $PID ]]; then
-                    # only-digits URL is handled specially, as a process id of a JVM to connect to
-                    java -jar jmxterm-1.0-alpha-4-uber.jar --url $PID
-                    exit 0
-                else
+                PID=$(pgrep -f "$COMMAND_REGEXP")
+                if ! [[ $PID ]]; then
                     echo "$SERVICE does not seem to be running"
                     exit 1
-                    fi
+                fi
+
+        	if [[ $# -gt 1 ]]; then
+			echo -e "$2" | java -jar $JMXTERMPATH --url $PID
+        	else
+	                # drop into JMX console
+                    	# only-digits URL is handled specially, as a process id of a JVM to connect to
+                    	java -jar $JMXTERMPATH --url $PID
+                fi
+		        exit 0
                 ;;
         threaddump)
                 # dump thread state to the console
-                PID=$(pgrep -f -u dbase "$COMMAND_REGEXP")
+                PID=$(pgrep -f "$COMMAND_REGEXP")
                 if [[ $PID ]]; then
                         echo "Sending signal to $SERVICE to dump thread state to console."
                         kill -3 $PID
@@ -233,7 +179,7 @@ case "$1" in
 		$0 start
 		;;
 	*)
-		echo "Usage: $0 {start|stop|restart|threaddump}"
+		echo "Usage: $0 {start|stop|restart|jmx|threaddump}"
 		exit 1
 		;;
 esac
