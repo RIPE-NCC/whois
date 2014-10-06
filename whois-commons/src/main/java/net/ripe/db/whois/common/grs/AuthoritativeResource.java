@@ -100,6 +100,28 @@ public class AuthoritativeResource {
         return new Ipv6Resource(resources.get(0).begin(), resources.get(resources.size() - 1).end());
     }
 
+    public boolean isMaintainedByRirCombined(final RpslObject rpslObject) {
+        return isMaintainedByRirCombined( rpslObject.getType(), rpslObject.getKey());
+    }
+
+    public boolean isMaintainedByRirCombined(final ObjectType objectType, final CIString pkey) {
+        boolean status = false;
+        status = isMaintainedByRir(objectType, pkey);
+        if (status == false) {
+            status = isMaintainedInRirSpace(objectType, pkey);
+        }
+        return status;
+    }
+
+    public boolean isMaintainedByRir(final RpslObject rpslObject) {
+        boolean status = false;
+        status = isMaintainedByRir(rpslObject.getType(), rpslObject.getKey());
+        if (status == false) {
+            status = isMaintainedInRirSpace(rpslObject);
+        }
+        return status;
+    }
+
     // TODO: since authresource is a dumb container of resources, perhaps containsExactly() would be a better name for this
     public boolean isMaintainedByRir(final ObjectType objectType, final CIString pkey) {
         try {
