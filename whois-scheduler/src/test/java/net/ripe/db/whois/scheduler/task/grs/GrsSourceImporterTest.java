@@ -26,7 +26,14 @@ import java.nio.file.Path;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GrsSourceImporterTest {
@@ -151,7 +158,7 @@ public class GrsSourceImporterTest {
     @Test
     public void handle_object_create() throws IOException {
         when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
-        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+        when(authoritativeResource.isMaintainedByRirCombined(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
@@ -214,7 +221,7 @@ public class GrsSourceImporterTest {
     @Test
     public void handle_lines_create_with_unknown_attribute() throws IOException {
         when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
-        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+        when(authoritativeResource.isMaintainedByRirCombined(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
@@ -255,7 +262,7 @@ public class GrsSourceImporterTest {
     @Test
     public void handle_lines_no_source_managed_by_rir() throws IOException {
         when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
-        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+        when(authoritativeResource.isMaintainedByRirCombined(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
@@ -311,7 +318,7 @@ public class GrsSourceImporterTest {
     public void run_create_update_delete() throws IOException {
         when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
         when(grsDao.getCurrentObjectIds()).thenReturn(Lists.newArrayList(1, 2, 3));
-        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
+        when(authoritativeResource.isMaintainedByRirCombined(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
