@@ -24,7 +24,7 @@ public class ContentWithCredentials {
     public ContentWithCredentials(final String content, final Charset charset) {
         this.content = content;
         this.charset = charset;
-        this.credentials = Collections.EMPTY_LIST;
+        this.credentials = Collections.emptyList();
     }
 
     public ContentWithCredentials(final String content, final List<Credential> credentials, final Charset charset) {
