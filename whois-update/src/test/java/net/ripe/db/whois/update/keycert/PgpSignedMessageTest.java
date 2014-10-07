@@ -304,7 +304,7 @@ public class PgpSignedMessageTest {
         assertThat(subject.verify(getPublicKey_28F6CD6C()), Matchers.is(true));
     }
 
-    // TODO: latin1 extended characters are not encoded into bytes properly, unless the original charset is specified.
+    // latin1 extended characters are not encoded into bytes properly, unless the original charset is specified.
     @Test
     public void verify_latin1_encoded_message_with_umlaut_character() {
         final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
