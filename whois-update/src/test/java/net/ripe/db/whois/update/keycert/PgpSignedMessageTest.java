@@ -265,7 +265,7 @@ public class PgpSignedMessageTest {
                 "3fIZWxWJJtBjzdFxvgLN7KqPFLI6tcBFB5oW5V5RAI+4zLJUg7goLLZRe3CYkDc=\n" +
                 "=8tAB\n";
 
-        PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature, Charsets.ISO_8859_1);
+        PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
         assertThat(subject.verify(getPublicKey_28F6CD6C()), Matchers.is(true));
     }
 
@@ -300,7 +300,7 @@ public class PgpSignedMessageTest {
                 "40N9PpN3W9m96pl2m3mI6UwRtW3GZzasup4FnsdkXRpt73rFwUmn5UyiWFbK1Xo=\n" +
                 "=IifW\n";
 
-        PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature, Charsets.ISO_8859_1);
+        PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
         assertThat(subject.verify(getPublicKey_28F6CD6C()), Matchers.is(true));
     }
 

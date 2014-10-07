@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static net.ripe.db.whois.update.domain.ContentWithCredentials.contentWithCredentialsInIso88591;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -15,8 +14,8 @@ public class MailMessageTest {
     @Test
     public void getUpdateMessage() {
         List<ContentWithCredentials> contentWithCredentialsList = Lists.newArrayList();
-        contentWithCredentialsList.add(contentWithCredentialsInIso88591("password: some password\nmntner: TST-MNT"));
-        contentWithCredentialsList.add(contentWithCredentialsInIso88591("password: another password\nmntner: TST2-MNT"));
+        contentWithCredentialsList.add(new ContentWithCredentials("password: some password\nmntner: TST-MNT"));
+        contentWithCredentialsList.add(new ContentWithCredentials("password: another password\nmntner: TST2-MNT"));
 
         final MailMessage subject = new MailMessage("id", "from", "subject", "date", "replyTo", "replyToEmail", Keyword.NONE, contentWithCredentialsList);
 

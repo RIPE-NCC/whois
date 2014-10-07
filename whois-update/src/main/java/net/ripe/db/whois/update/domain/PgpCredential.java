@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.domain;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -24,6 +25,10 @@ public class PgpCredential implements Credential {
 
     public static PgpCredential createKnownCredential(@Nullable final String keyId) {
         return new PgpCredential(keyId);
+    }
+
+    public static PgpCredential createOfferedCredential(@Nullable final String clearText) {
+        return createOfferedCredential(clearText, Charsets.ISO_8859_1);
     }
 
     public static PgpCredential createOfferedCredential(@Nullable final String clearText, final Charset charset) {
