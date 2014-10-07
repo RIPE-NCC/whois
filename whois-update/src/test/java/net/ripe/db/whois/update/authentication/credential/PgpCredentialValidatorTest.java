@@ -156,7 +156,7 @@ public class PgpCredentialValidatorTest {
                 "=rP64\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charset.forName("ISO-8859-1"));
+        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charset.forName("ISO-8859-7"));
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
 
