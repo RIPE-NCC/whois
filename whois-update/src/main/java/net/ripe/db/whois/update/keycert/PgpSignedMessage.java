@@ -78,12 +78,7 @@ public final class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String clearText) {
-        final Matcher matcher = SIGNED_MESSAGE_PATTERN.matcher(clearText);
-        if (matcher.find()) {
-            return parse(matcher.group(0).getBytes());
-        } else {
-            throw new IllegalArgumentException("no signed message found");
-        }
+        return parse(clearText, Charsets.ISO_8859_1);
     }
 
     public static PgpSignedMessage parse(final String clearText, final Charset charset) {

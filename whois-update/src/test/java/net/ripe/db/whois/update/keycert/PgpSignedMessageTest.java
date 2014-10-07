@@ -6,6 +6,8 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import java.nio.charset.Charset;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -360,7 +362,7 @@ public class PgpSignedMessageTest {
                 "1HhK30519VbgNE9LNxCDYM9W+R6x7jJ0NxF5+Ptw9Qzov9qOpMSqfovBe5yB77s6\n" +
                 "8qQjytv2LE8VHEC3WqQAJMLrFrsgBgcWsm1L0TL3iWsmgwXGF6Q02kWgUzei/ao=\n" +
                 "=KFEI\n" +
-                "-----END PGP SIGNATURE-----");
+                "-----END PGP SIGNATURE-----", Charsets.UTF_8);
 
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
     }
