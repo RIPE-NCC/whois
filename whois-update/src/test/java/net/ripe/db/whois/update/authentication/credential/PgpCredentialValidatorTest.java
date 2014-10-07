@@ -116,7 +116,7 @@ public class PgpCredentialValidatorTest {
                 "=tOGn\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charsets.ISO_8859_1);
+        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-67ABAB48");
 
 
@@ -139,7 +139,7 @@ public class PgpCredentialValidatorTest {
                 "iEYEARECAAYFAk+r2BgACgkQesVNFxdpXQoLPQCgq4dt/+PymmQZ8/AX+0HJfbGL\n" +
                 "LEwAn2zxSKmMKSLZVbRLxwgVhDQGn+5o\n" +
                 "=g9vN\n" +
-                "-----END PGP SIGNATURE-----\n", Charsets.ISO_8859_1);
+                "-----END PGP SIGNATURE-----\n");
 
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-67ABAB48");
 
@@ -181,7 +181,7 @@ public class PgpCredentialValidatorTest {
                 "=tOGn\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charsets.ISO_8859_1);
+        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-67ABAB48");
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenThrow(new EmptyResultDataAccessException(1));
@@ -222,7 +222,7 @@ public class PgpCredentialValidatorTest {
                 "=tOGn\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charsets.ISO_8859_1);
+        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-67ABAB48");
 
         keycertObject = new RpslObjectBuilder(keycertObject).removeAttributeType(AttributeType.CERTIF).get();
@@ -298,7 +298,7 @@ public class PgpCredentialValidatorTest {
                 "=tOGn\n" +
                 "-----END PGP SIGNATURE-----";
 
-        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charsets.ISO_8859_1);
+        final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-67ABAB48");
 
         RpslObject keycertObject = RpslObject.parse("key-cert: PGPKEY-67ABAB48");

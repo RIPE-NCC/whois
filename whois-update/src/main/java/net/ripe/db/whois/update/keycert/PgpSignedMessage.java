@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.keycert;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.openpgp.PGPObjectFactory;
@@ -49,6 +50,10 @@ public final class PgpSignedMessage {
         this.content = content;
         this.signature = signature;
         this.clearText = clearText;
+    }
+
+    public static PgpSignedMessage parse(final String signedContent, final String signature) {
+        return parse(signedContent, signature, Charsets.ISO_8859_1);
     }
 
     public static PgpSignedMessage parse(final String signedContent, final String signature, final Charset charset) {
