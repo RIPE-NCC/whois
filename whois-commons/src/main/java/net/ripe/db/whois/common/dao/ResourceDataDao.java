@@ -1,12 +1,13 @@
 package net.ripe.db.whois.common.dao;
 
-import com.google.common.collect.Sets;
+import net.ripe.commons.ip.Asn;
+import net.ripe.commons.ip.AsnRange;
+import net.ripe.commons.ip.Ipv4;
+import net.ripe.commons.ip.Ipv4Range;
+import net.ripe.commons.ip.Ipv6;
+import net.ripe.commons.ip.Ipv6Range;
+import net.ripe.commons.ip.SortedRangeSet;
 import net.ripe.db.whois.common.aspects.RetryFor;
-import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.etree.IntervalMap;
-import net.ripe.db.whois.common.etree.NestedIntervalMap;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,7 +24,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)
@@ -37,24 +37,23 @@ public class ResourceDataDao {
     }
 
     public AuthoritativeResource load(final String source) {
-        final Set<CIString> autNums = Sets.newHashSet();
-        final IntervalMap<Ipv4Resource, Ipv4Resource> inetnums = new NestedIntervalMap<>();
-        final IntervalMap<Ipv6Resource, Ipv6Resource> inet6nums = new NestedIntervalMap<>();
+        final SortedRangeSet<Asn, AsnRange> autNums = new SortedRangeSet<>();
+        final SortedRangeSet<Ipv4, Ipv4Range> inetnums = new SortedRangeSet<>();
+        final SortedRangeSet<Ipv6, Ipv6Range> inet6nums = new SortedRangeSet<>();
 
         jdbcTemplate.query("SELECT resource FROM authoritative_resource WHERE source = ?", new RowCallbackHandler() {
             @Override
             public void processRow(ResultSet rs) throws SQLException {
                 String resource = rs.getString(1);
                 if (resource.startsWith("AS")) {
-                    autNums.add(CIString.ciString(resource));
+                    autNums.add(resource.contains("-") ? AsnRange.parse(resource) : Asn.parse(resource).asRange());
                 } else if (resource.indexOf(':') >= 0) {
-                    Ipv6Resource ipv6Resource = Ipv6Resource.parseIPv6Resource(resource);
-                    inet6nums.put(ipv6Resource, ipv6Resource);
+                    inet6nums.add(Ipv6Range.parse(resource));
                 } else {
-                    Ipv4Resource ipv4Resource = Ipv4Resource.parseIPv4Resource(resource);
-                    inetnums.put(ipv4Resource, ipv4Resource);
+                    inetnums.add(Ipv4Range.parse(resource));
                 }
             }
+
         }, source);
         return new AuthoritativeResource(autNums, inetnums, inet6nums);
     }

@@ -151,7 +151,7 @@ class GrsSourceImporter {
                             if (messages.hasErrors()) {
                                 logger.debug("Errors for object with key {}: {}", typeAttribute, messages);
                                 nrIgnored++;
-                            } else if (authoritativeData.isMaintainedByRirCombined(cleanObject)) {
+                            } else if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {
                                 createOrUpdate(cleanObject);
                             }
                         }

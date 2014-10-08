@@ -158,7 +158,7 @@ public class GrsSourceImporterTest {
     @Test
     public void handle_object_create() throws IOException {
         when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
-        when(authoritativeResource.isMaintainedByRirCombined(any(RpslObject.class))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
@@ -221,7 +221,7 @@ public class GrsSourceImporterTest {
     @Test
     public void handle_lines_create_with_unknown_attribute() throws IOException {
         when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
-        when(authoritativeResource.isMaintainedByRirCombined(any(RpslObject.class))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
@@ -262,7 +262,7 @@ public class GrsSourceImporterTest {
     @Test
     public void handle_lines_no_source_managed_by_rir() throws IOException {
         when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
-        when(authoritativeResource.isMaintainedByRirCombined(any(RpslObject.class))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
@@ -318,7 +318,7 @@ public class GrsSourceImporterTest {
     public void run_create_update_delete() throws IOException {
         when(grsSource.getName()).thenReturn(ciString("APNIC-GRS"));
         when(grsDao.getCurrentObjectIds()).thenReturn(Lists.newArrayList(1, 2, 3));
-        when(authoritativeResource.isMaintainedByRirCombined(any(RpslObject.class))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(true);
 
         doAnswer(new Answer() {
             @Override
