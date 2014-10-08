@@ -101,8 +101,8 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
                 )
         ));
 
-        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS7"))).thenReturn(true);
-        when(authoritativeResource.isMaintainedByRir(ObjectType.INETNUM, ciString("193.0.0.0 - 193.0.7.255"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS7"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("193.0.0.0 - 193.0.7.255"))).thenReturn(true);
         when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2a01:4f8:191:34f1::/64"))).thenReturn(true);
         when(authoritativeResource.isMaintainedInRirSpace(ObjectType.PERSON, ciString("TP1-TEST"))).thenReturn(true);
 
@@ -146,7 +146,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
 
     @Test
     public void tagRouteNone() {
-        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(false);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(false);
         when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("193.1.0.0/24"))).thenReturn(false);
         databaseHelper.addObjects(Lists.newArrayList(
                 RpslObject.parse("" +
@@ -173,7 +173,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
 
     @Test
     public void tagRoutePrefixOnly() {
-        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(false);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(false);
         when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("193.1.0.0/24"))).thenReturn(true);
         databaseHelper.addObjects(Lists.newArrayList(
                 RpslObject.parse("" +
@@ -200,7 +200,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
 
     @Test
     public void tagRouteASNOnly() {
-        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(true);
         when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("193.1.0.0/24"))).thenReturn(false);
         databaseHelper.addObjects(Lists.newArrayList(
                 RpslObject.parse("" +
@@ -227,7 +227,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
 
     @Test
     public void tagRouteBothPrefixAndASN() {
-        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(true);
         when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("193.1.0.0/24"))).thenReturn(true);
         databaseHelper.addObjects(Lists.newArrayList(
                 RpslObject.parse("" +
@@ -254,7 +254,7 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
 
     @Test
     public void tagRoute6BothPrefixAndASN() {
-        when(authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(true);
+        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS1"))).thenReturn(true);
         when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:2002::/64"))).thenReturn(true);
         databaseHelper.addObjects(Lists.newArrayList(
                 RpslObject.parse("" +
