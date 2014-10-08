@@ -29,7 +29,6 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -72,76 +71,6 @@ public class ResourceTaggerJdbcTest extends AbstractSchedulerIntegrationTest {
             void handleObjects(final File file, final ObjectHandler handler) throws IOException {
             }
         };
-    }
-
-    @Test
-    public void tagObjects() {
-        databaseHelper.addObjects(Lists.newArrayList(
-                RpslObject.parse("" +
-                        "inetnum:        193.0.0.0 - 193.0.7.255\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "source:         TEST-GRS\n"),
-                RpslObject.parse("" +
-                        "inet6num:       2a01:4f8:191:34f1::/64\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "source:         TEST-GRS\n"
-                ),
-                RpslObject.parse("" +
-                        "aut-num:        AS7\n" +
-                        "source:         TEST-GRS\n"
-                ),
-                RpslObject.parse("" +
-                        "aut-num:        AS8\n" +
-                        "source:         TEST-GRS\n"
-                ),
-                RpslObject.parse("" +
-                        "person:         Test person\n" +
-                        "nic-hdl:        TP1-TEST\n" +
-                        "source:         TEST-GRS\n"
-                )
-        ));
-
-        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS7"))).thenReturn(true);
-        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("193.0.0.0 - 193.0.7.255"))).thenReturn(true);
-        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2a01:4f8:191:34f1::/64"))).thenReturn(true);
-        when(authoritativeResource.isMaintainedInRirSpace(ObjectType.PERSON, ciString("TP1-TEST"))).thenReturn(true);
-
-        subject.tagObjects(testGrsSource);
-
-        final List<Tag> registryResources = tagsDao.getTagsOfType(ciString("TEST-REGISTRY-RESOURCE"));
-        assertThat(registryResources, hasSize(2));
-        for (final Tag tag : registryResources) {
-            assertThat(tag.getType(), is(ciString("TEST-REGISTRY-RESOURCE")));
-
-            final RpslObject rpslObject = objectDao.getById(tag.getObjectId());
-            switch (rpslObject.getType()) {
-                case AUT_NUM:
-                    assertThat(rpslObject.getKey(), is(ciString("AS7")));
-                    break;
-                case INETNUM:
-                    assertThat(rpslObject.getKey(), is(ciString("193.0.0.0 - 193.0.7.255")));
-                    break;
-                default:
-                    fail("Unexpected type: " + rpslObject.getType());
-                    break;
-            }
-        }
-
-        final List<Tag> userResources = tagsDao.getTagsOfType(ciString("TEST-USER-RESOURCE"));
-        assertThat(userResources, hasSize(1));
-        for (final Tag tag : userResources) {
-            assertThat(tag.getType(), is(ciString("TEST-USER-RESOURCE")));
-
-            final RpslObject rpslObject = objectDao.getById(tag.getObjectId());
-            switch (rpslObject.getType()) {
-                case INET6NUM:
-                    assertThat(rpslObject.getKey(), is(ciString("2a01:4f8:191:34f1::/64")));
-                    break;
-                default:
-                    fail("Unexpected type: " + rpslObject.getType());
-                    break;
-            }
-        }
     }
 
     @Test
