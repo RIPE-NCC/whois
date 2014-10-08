@@ -166,7 +166,7 @@
             <dependency>
                 <groupId>net.ripe.commons</groupId>
                 <artifactId>commons-ip-math</artifactId>
-                <version>1.10-SNAPSHOT</version>
+                <version>1.10</version>
             </dependency>
             <dependency>
                 <groupId>de.jflex</groupId>
