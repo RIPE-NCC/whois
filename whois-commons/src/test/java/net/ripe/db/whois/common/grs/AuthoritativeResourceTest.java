@@ -1,12 +1,7 @@
 package net.ripe.db.whois.common.grs;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -18,12 +13,13 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Scanner;
 import java.util.zip.GZIPInputStream;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -172,6 +168,18 @@ public class AuthoritativeResourceTest {
         assertThat(resourceData.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS37")), is(true));
         assertThat(resourceData.isMaintainedInRirSpace(RpslObject.parse("aut-num: AS38")), is(false));
         assertThat(resourceData.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS38")), is(false));
+    }
+
+    @Test
+    public void concatenated_ipv6_multiple_prefixes() throws Exception {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "AFRINIC-GRS", new Scanner(
+                "afrinic|ZA|ipv6|2001:4200::|32|20051021|allocated|F36B9F4B\n" +
+                "afrinic|ZZ|ipv6|2001:4201::|32||reserved|\n" +
+                "afrinic|ZZ|ipv6|2001:4202::|31||reserved|\n" +
+                "afrinic|ZZ|ipv6|2001:4204::|30||reserved|\n" +
+                "afrinic|ZZ|ipv6|2001:4208::|32||available|\n"));
+
+        assertThat(resourceData.getResources(), contains("2001:4200::/29", "2001:4208::/32"));
     }
 
     @Test
