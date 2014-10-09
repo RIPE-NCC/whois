@@ -176,13 +176,19 @@ public class AuthoritativeResource {
                         return input.toStringInRangeNotation();
                     }
                 }),
-                Iterables.transform(inet6Ranges, new Function<Ipv6Range, String>() {
-                    @Override
-                    public String apply(Ipv6Range input) {
-                        return input.toStringInCidrNotation();
-                    }
-                })
-        ));
+                Iterables.transform(
+                        Iterables.concat(Iterables.transform(inet6Ranges, new Function<Ipv6Range, List<Ipv6Range>>() {
+                            @Override
+                            public List<Ipv6Range> apply(Ipv6Range input) {
+                                return input.splitToPrefixes();
+                            }
+                        })), new Function<Ipv6Range, String>() {
+                            @Override
+                            public String apply(Ipv6Range input) {
+                                return input.toStringInCidrNotation();
+                            }
+                        })
+                ));
     }
 }
 
