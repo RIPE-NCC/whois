@@ -35,6 +35,12 @@ public class JdbcSerialDao implements SerialDao {
     }
 
     @Override
+    @CheckForNull
+    public SerialEntry getByIdForNrtm(final int serialId) {
+        return JdbcRpslObjectOperations.getSerialEntryForNrtm(jdbcTemplate, serialId);
+    }
+
+    @Override
     public int getSerialAge(final int serialId) {
         return JdbcRpslObjectOperations.getSerialAge(dateTimeProvider, jdbcTemplate, serialId);
     }
