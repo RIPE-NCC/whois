@@ -530,8 +530,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT mntner CRE-MNT", "mntner", "CRE-MNT", "MD5-PW # Filtered")
     }
 
-    // modify maintainer add pgp auth
-    //@Ignore("TODO: Need to discuss with Denis, it is failing because of the Unknown Object Reference")
     def "modify maintainer add pgp auth"() {
       given:
         dbfixture(getTransient("UPD-MNT"))
@@ -544,14 +542,14 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "update UPD-MNT",
                 body: """\
-                mntner: UPD-MNT
-                descr: description
-                admin-c: TP1-TEST
-                mnt-by: owner-MNT
+                mntner:      UPD-MNT
+                descr:       description
+                admin-c:     TP1-TEST
+                mnt-by:      owner-MNT
                 referral-by: UPD-MNT
-                upd-to: dbtest@ripe.net
-                auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                auth:   PGPKEY-1290F9D2
+                upd-to:      dbtest@ripe.net
+                auth:        MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                auth:        PGPKEY-D83C3FBD
                 changed:     dbtest@ripe.net 20121109
                 source:      TEST
 
@@ -569,7 +567,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 2, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] UPD-MNT"}
-        query_object_matches("-r -T mntner UPD-MNT", "mntner", "UPD-MNT", "PGPKEY-1290F9D2")
+        query_object_matches("-r -T mntner UPD-MNT", "mntner", "UPD-MNT", "PGPKEY-D83C3FBD")
     }
 
     def "create maintainer object with disallowed name"() {
