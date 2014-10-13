@@ -1274,7 +1274,6 @@ class AuthSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
-    //@Ignore
     def "create assignment, parent with mnt-lower, diff pw to mnt-by, no pw supplied, override separate from object"() {
       given:
         syncUpdate(getTransient("P-LOW") + "password: hm\npassword: owner3")
@@ -1309,8 +1308,10 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 1)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        ack.contents =~ /\*\*\*Warning: An override password was found not attached to an object and was\n\s+ignored/
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
