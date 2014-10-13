@@ -1,10 +1,8 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.EndToEndTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
-import spock.lang.Ignore
 
 // TODO: [AH] switch this to IntegrationTest once we got the crowd server dummy instead of the real thing in testlab/prepdev
 @org.junit.experimental.categories.Category(EndToEndTest.class)
@@ -82,7 +80,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
         print(fullObj)
     }
 
-    //@Ignore
     def "replace pw with SSO in mntner"() {
         given:
         syncUpdate(getTransient("NO-SSO-MNT") + "password: sso")
@@ -107,7 +104,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def objLU = restLookup(ObjectType.MNTNER, "NO-SSO-MNT", "sso");
+        def objLU = restLookup(ObjectType.MNTNER, "NO-SSO-MNT");
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
@@ -117,7 +114,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] NO-SSO-MNT"}
 
-        hasAttribute(objLU, "auth", "SSO db-test@ripe.net", null);
+        hasAttribute(objLU, "auth", "SSO", "Filtered");
 
         query_object_matches("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT", "auth:\\s*SSO")
         query_object_not_matches("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT", "auth:\\s*MD5")
@@ -170,7 +167,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
         print(fullObj)
     }
 
-    //@Ignore
     def "replace pw with SSO in mntner with existing SSO"() {
         given:
         syncUpdate(getTransient("ONE-SSO-MNT") + "password: sso")
@@ -196,7 +192,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def objLU = restLookup(ObjectType.MNTNER, "ONE-SSO-MNT", "sso");
+        def objLU = restLookup(ObjectType.MNTNER, "ONE-SSO-MNT");
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
@@ -206,8 +202,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
 
-        hasAttribute(objLU, "auth", "SSO test@ripe.net", null);
-        hasAttribute(objLU, "auth", "SSO db-test@ripe.net", null);
+        hasAttribute(objLU, "auth", "SSO", "Filtered");
 
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
         query_object_not_matches("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT", "auth:\\s*MD5")
@@ -302,7 +297,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
         print(fullObj)
     }
 
-    //@Ignore
     def "remove pw from mntner with existing SSO"() {
         given:
         syncUpdate(getTransient("ONE-SSO-MNT") + "password: sso")
@@ -328,7 +322,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def objLU = restLookup(ObjectType.MNTNER, "ONE-SSO-MNT", "sso");
+        def objLU = restLookup(ObjectType.MNTNER, "ONE-SSO-MNT");
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
@@ -338,7 +332,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
 
-        hasAttribute(objLU, "auth", "SSO db-test@ripe.net", null);
+        hasAttribute(objLU, "auth", "SSO", "Filtered");
 
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
         query_object_not_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*MD5")
@@ -346,7 +340,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
         print(fullObj)
     }
 
-    //@Ignore
     def "remove pw, replace SSO from mntner with existing SSO"() {
         given:
         syncUpdate(getTransient("ONE-SSO-MNT") + "password: sso")
@@ -372,7 +365,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def objLU = restLookup(ObjectType.MNTNER, "ONE-SSO-MNT", "sso");
+        def objLU = restLookup(ObjectType.MNTNER, "ONE-SSO-MNT");
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
@@ -382,7 +375,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
 
-        hasAttribute(objLU, "auth", "SSO db-test@ripe.net", null);
+        hasAttribute(objLU, "auth", "SSO", "Filtered");
 
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
         query_object_not_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*MD5")
