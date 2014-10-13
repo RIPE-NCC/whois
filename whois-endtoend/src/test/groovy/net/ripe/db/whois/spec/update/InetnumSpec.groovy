@@ -1,11 +1,9 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class InetnumSpec extends BaseQueryUpdateSpec {
@@ -389,93 +387,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 """
         ]
-    }
-
-    // Create 0/0 without override
-    //@Ignore
-    def "create 0/0 without override"() {
-      expect:
-        queryObjectNotFound("-r -T inetnum 0/0", "inetnum", "0/0")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                inetnum:      0.0.0.0 - 255.255.255.255
-                netname:      IANA-BLK
-                descr:        The whole IPv4 address space
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                remarks:      The country is really worldwide.
-                remarks:      This address space is assigned at various other places in
-                remarks:      the world and might therefore not be in the RIPE database.
-                mnt-by:       OWNER-MNT
-                mnt-lower:    OWNER-MNT
-                mnt-routes:   owner-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-
-                password: owner
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-        ack.failed
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 0.0.0.0 - 255.255.255.255" }
-        ack.errorMessagesFor("Create", "[inetnum] 0.0.0.0 - 255.255.255.255") == [
-                "There is no parent object"]
-
-        queryObjectNotFound("-r -T inetnum 0/0", "inetnum", "0/0")
-    }
-
-    // Create 0/0 with override
-    //@Ignore
-    def "create 0/0 with override"() {
-      expect:
-        queryObjectNotFound("-r -T inetnum 0/0", "inetnum", "0/0")
-
-      when:
-        def message = syncUpdate("""\
-                inetnum:      0.0.0.0 - 255.255.255.255
-                netname:      IANA-BLK
-                descr:        The whole IPv4 address space
-                country:      NL
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED UNSPECIFIED
-                remarks:      The country is really worldwide.
-                remarks:      This address space is assigned at various other places in
-                remarks:      the world and might therefore not be in the RIPE database.
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
-                mnt-routes:   owner-MNT
-                changed:      dbtest@ripe.net 20020101
-                source:       TEST
-                override: denis,override1
-
-                """.stripIndent()
-        )
-
-      then:
-        def ack = new AckResponse("", message)
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 0.0.0.0 - 255.255.255.255" }
-
-        queryObject("-r -T inetnum 0/0", "inetnum", "0/0")
     }
 
     def "create ALLOCATED UNSPECIFIED, with RS mntner"() {
