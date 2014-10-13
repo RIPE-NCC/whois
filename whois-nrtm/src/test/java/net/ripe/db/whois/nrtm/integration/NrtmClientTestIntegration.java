@@ -180,6 +180,42 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         objectMatches(mntner);
     }
 
+    @Test
+    public void ensure_all_changes_of_object_are_imported_with_no_missing_references() {
+
+        final RpslObject test1mntA = RpslObject.parse("" +
+                "mntner: TEST1-MNT\n" +
+                "mnt-ref: OWNER-MNT\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST");
+
+        final RpslObject test2mnt = RpslObject.parse("" +
+                "mntner: TEST2-MNT\n" +
+                "mnt-ref: OWNER-MNT\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST");
+
+        final RpslObject test1mntB = RpslObject.parse("" +
+                "mntner: TEST1-MNT\n" +
+                "mnt-ref: TEST2-MNT\n" +
+                "mnt-by: TEST2-MNT\n" +
+                "source: TEST");
+
+        nrtmImporter.stop(true);
+        nrtmServer.stop(true);
+
+        databaseHelper.addObject(test1mntA);
+        databaseHelper.addObject(test2mnt);
+        databaseHelper.updateObject(test1mntB);
+
+        nrtmServer.start();
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        nrtmImporter.start();
+
+        objectExists(ObjectType.MNTNER, "TEST2-MNT", true);
+    }
+
+
     private void objectExists(final ObjectType type, final String key, final boolean exists) {
         Awaitility.waitAtMost(Duration.FOREVER).until(new Callable<Boolean>() {
             @Override

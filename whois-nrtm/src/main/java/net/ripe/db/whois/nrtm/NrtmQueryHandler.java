@@ -176,8 +176,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             if (PENDING_WRITES.get(channel).get() > MAX_PENDING_WRITES) {
                 break;
             }
-
-            final SerialEntry serialEntry = serialDao.getById(serial);
+            final SerialEntry serialEntry = serialDao.getByIdForNrtm(serial);
 
             if (serialEntry != null) {
                 if (dummifier.isAllowed(version, serialEntry.getRpslObject())) {
