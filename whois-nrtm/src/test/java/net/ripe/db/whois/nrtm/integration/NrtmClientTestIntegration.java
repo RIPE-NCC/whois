@@ -18,13 +18,16 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.concurrent.Callable;
 
 import static org.hamcrest.Matchers.is;
 
 @Category(IntegrationTest.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
+
     private static final RpslObject MNTNER = RpslObject.parse("" +
             "mntner: OWNER-MNT\n" +
             "source: TEST");
@@ -213,24 +216,6 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         nrtmImporter.start();
 
         objectExists(ObjectType.MNTNER, "TEST2-MNT", true);
-    }
-
-
-    private void objectExists(final ObjectType type, final String key, final boolean exists) {
-        Awaitility.waitAtMost(Duration.FOREVER).until(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                try {
-                    sourceContext.setCurrent(Source.master("1-GRS"));
-                    databaseHelper.lookupObject(type, key);
-                    return Boolean.TRUE;
-                } catch (EmptyResultDataAccessException e) {
-                    return Boolean.FALSE;
-                } finally {
-                    sourceContext.removeCurrentSource();
-                }
-            }
-        }, is(exists));
     }
 
     private void objectMatches(final RpslObject rpslObject) {
