@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -139,8 +138,6 @@ class NrtmClientFactory {
         }
 
         private void writeMirrorCommand() throws IOException {
-            final SerialRange serials = serialDao.getSerials();
-            System.out.println("last serial = " + serials.getEnd());
             final String mirrorCommand = String.format("-g %s:3:%d-LAST -k",
                     nrtmSource.getOriginSource(),
                     serialDao.getSerials().getEnd());   // TODO: [ES] off-by-one bug (need to add 1 to end serial)
@@ -177,9 +174,6 @@ class NrtmClientFactory {
                     case UPDATE:
                         try {
                             final RpslObjectUpdateInfo updateInfo = rpslObjectUpdateDao.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());
-                            System.out.println("serial_id = " + serialId);
-                            System.out.println("updateInfo = " + updateInfo);
-                            System.out.println("nrtmClientDao.objectExistsWithSerial(serialId) = " + nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId()));
 
                             if (!nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId())) {
                                 nrtmClientDao.updateObject(rpslObject, updateInfo, serialId);
@@ -194,9 +188,6 @@ class NrtmClientFactory {
                     case DELETE:
                         try {
                             final RpslObjectUpdateInfo updateInfo = rpslObjectUpdateDao.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());
-                            System.out.println("serial_id = " + serialId);
-                            System.out.println("updateInfo = " + updateInfo);
-                            System.out.println("nrtmClientDao.objectExistsWithSerial(serialId) = " + nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId()));
                             if (!nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId())) {
                                 nrtmClientDao.deleteObject(updateInfo, serialId);
                             } else {
