@@ -191,6 +191,6 @@ public class AutnumAttributeGeneratorTest {
     // helper methods
 
     private void isMaintainedByRir(final boolean maintained) {
-        when(authoritativeResource.isMaintainedByRir(any(ObjectType.class), any(CIString.class))).thenReturn(maintained);
+        when(authoritativeResource.isMaintainedInRirSpace(any(ObjectType.class), any(CIString.class))).thenReturn(maintained);
     }
 }

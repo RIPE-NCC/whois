@@ -1,31 +1,30 @@
 package net.ripe.db.whois.common.grs;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.commons.ip.Asn;
+import net.ripe.commons.ip.AsnRange;
+import net.ripe.commons.ip.Ipv4;
+import net.ripe.commons.ip.Ipv4Range;
+import net.ripe.commons.ip.Ipv6;
+import net.ripe.commons.ip.Ipv6Range;
+import net.ripe.commons.ip.SortedRangeSet;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.etree.IntervalMap;
-import net.ripe.db.whois.common.etree.NestedIntervalMap;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 public class AuthoritativeResourceLoader {
-    private static final Pattern RESOURCELINE = Pattern.compile("^([a-zA-Z]+)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)(?:\\|.*|$)");
-
     private final Logger logger;
     private final String name;
     private final Scanner scanner;
     private final Set<String> allowedStatus;
 
-    private final Set<CIString> autNums = Sets.newHashSet();
-    private final IntervalMap<Ipv4Resource, Ipv4Resource> inetnums = new NestedIntervalMap<>();
-    private final IntervalMap<Ipv6Resource, Ipv6Resource> inet6nums = new NestedIntervalMap<>();
+    private final SortedRangeSet<Asn, AsnRange> autNums = new SortedRangeSet<>();
+    private final SortedRangeSet<Ipv4, Ipv4Range> ipv4Space = new SortedRangeSet<>();
+    private final SortedRangeSet<Ipv6, Ipv6Range> ipv6Space = new SortedRangeSet<>();
 
     public AuthoritativeResourceLoader(final Logger logger, final String name, final Scanner scanner) {
         this(logger, name, scanner, Sets.newHashSet("allocated", "assigned", "available", "reserved"));
@@ -48,22 +47,24 @@ public class AuthoritativeResourceLoader {
             handleLine(expectedSource, line);
         }
 
-        return new AuthoritativeResource(autNums, inetnums, inet6nums);
+        return new AuthoritativeResource(autNums, ipv4Space, ipv6Space);
     }
 
     private void handleLine(final String expectedSource, final String line) {
-        final Matcher matcher = RESOURCELINE.matcher(line);
-        if (!matcher.matches()) {
-            logger.debug("Skipping: {}", line);
+
+        final List<String> columns = Splitter.on('|').splitToList(line);
+
+        if (columns.size() < 7) {
+            logger.debug("Skipping, not enough columns: {}", line);
             return;
         }
 
-        final String source = matcher.group(1);
-        final String cc = matcher.group(2);
-        final String type = matcher.group(3).toLowerCase();
-        final String start = matcher.group(4);
-        final String value = matcher.group(5);
-        final String status = matcher.group(7).toLowerCase();
+        final String source = columns.get(0);
+        final String cc = columns.get(1);
+        final String type = columns.get(2).toLowerCase();
+        final String start = columns.get(3);
+        final String value = columns.get(4);
+        final String status = columns.get(6).toLowerCase();
 
         if (!source.toLowerCase().contains(expectedSource)) {
             logger.debug("Ignoring source '{}': {}", source, line);
@@ -101,23 +102,19 @@ public class AuthoritativeResourceLoader {
     }
 
     private void createAutNum(final String start, final String value) {
-        final int startNum = Integer.parseInt(start);
-        final int count = Integer.parseInt(value);
-        for (int i = 0; i < count; i++) {
-            autNums.add(ciString(String.format("AS%s", startNum + i)));
-        }
+        final long startNum = Long.parseLong(start);
+        final long count = Long.parseLong(value);
+        autNums.add(AsnRange.from(startNum).to(startNum + count - 1));
     }
 
     private void createIpv4Resource(final String start, final String value) {
         final long begin = Ipv4Resource.parse(start).begin();
         final long end = begin + (Long.parseLong(value) - 1);
-        final Ipv4Resource ipv4Resource = new Ipv4Resource(begin, end);
-        inetnums.put(ipv4Resource, ipv4Resource);
+        ipv4Space.add(Ipv4Range.from(begin).to(end));
     }
 
     private void createIpv6Resource(final String start, final String value) {
-        final Ipv6Resource ipv6Resource = Ipv6Resource.parse(String.format("%s/%s", start, value));
-        inet6nums.put(ipv6Resource, ipv6Resource);
+        ipv6Space.add(Ipv6Range.from(start).andPrefixLength(value));
     }
 }
 
