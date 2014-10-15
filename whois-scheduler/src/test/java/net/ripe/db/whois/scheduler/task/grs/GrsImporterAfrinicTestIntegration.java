@@ -52,11 +52,13 @@ public class GrsImporterAfrinicTestIntegration extends AbstractSchedulerIntegrat
                 "afrinic|*|asn|*|2303|summary\n" +
                 "afrinic|*|ipv4|*|2792|summary\n" +
                 "afrinic|*|ipv6|*|1798|summary\n" +
-                "afrinic|ZA|ipv4|66.18.0.0|65536|20140414|allocated|35073");
+                "afrinic|ZA|ipv4|66.18.0.0|65536|20140414|allocated|35073\n" +
+                "afrinic|ZA|ipv4|88.202.208.0|4096|20140414|allocated|35073\n"  + // franken-range part 1
+                "afrinic|ZA|ipv4|88.202.224.0|4096|20140414|allocated|35073\n" );   // franken-range part 2
 
         final File dumpFile = FileHelper.addToGZipFile(
                 tempDirectory,
-                "APNIC-GRS-DMP.tmp",
+                "AFRINIC-GRS-DMP.tmp",
                 "#\n" +
                 "# The contents of this file are subject to\n" +
                 "# AFRINIC Database Terms and Conditions\n" +
@@ -84,7 +86,19 @@ public class GrsImporterAfrinicTestIntegration extends AbstractSchedulerIntegrat
                 "status:         ALLOCATED PA\n" +
                 "mnt-by:         AFRINIC-HM-MNT\n" +
                 "changed:        ***@afrinic.net 20130704\n" +
-                "source:         AFRINIC\n"
+                "source:         AFRINIC\n" +
+                "\n" +
+                "inetnum:        88.202.208.0 - 88.202.239.255\n" +
+                "netname:        SENTECH-ZA\n" +
+                "descr:          Sentech Ltd\n" +
+                "country:        ZA\n" +
+                "admin-c:        NM9-AFRINIC\n" +
+                "tech-c:         NM9-AFRINIC\n" +
+                "status:         ALLOCATED PA\n" +
+                "mnt-by:         AFRINIC-HM-MNT\n" +
+                "changed:        ***@afrinic.net 20130704\n" +
+                "source:         AFRINIC\n" +
+                "\n"
         );
 
         System.setProperty("grs.import.afrinic.source", "AFRINIC-GRS");
@@ -119,6 +133,8 @@ public class GrsImporterAfrinicTestIntegration extends AbstractSchedulerIntegrat
         assertThat(query("-s AFRINIC-GRS -i mnt-by AFRINIC-HM-MNT"), containsString("mntner:         AFRINIC-HM-MNT"));
         assertThat(query("-s AFRINIC-GRS 66.18.64.0"), containsString("status:         ALLOCATED PA"));
         assertThat(query("--resource 66.18.64.0"), containsString("status:         ALLOCATED PA"));
+        assertThat(query("-s AFRINIC-GRS 88.202.240.0"), containsString("No entries found"));
+        assertThat(query("-s ARIN-GRS 88.202.224.0 - 88.202.239.255"),  containsString("unknown source"));
     }
 
     // helper methods

@@ -1,5 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
@@ -28,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -145,7 +146,27 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
 
                 checkAuthorizationForStatusInHierarchy(update, updateContext, ipTree, ipInterval, UpdateMessages.incorrectParentStatus(updatedObject.getType(), parentStatus.toString()));
             }
+
+            if (statusIsSomeAssigned(currentStatus) && statusIsSomeAssigned(parentStatus) && hasParentWithStatus(InetnumStatus.ALLOCATED_UNSPECIFIED, ipTree, ipInterval)) {
+                updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(updatedObject.getType(), InetnumStatus.ALLOCATED_UNSPECIFIED.toString()));
+            }
         }
+    }
+
+    private boolean statusIsSomeAssigned(final InetStatus status) {
+        return status == InetnumStatus.ASSIGNED_PI || status == InetnumStatus.ASSIGNED_PA || status == InetnumStatus.ASSIGNED_ANYCAST;
+    }
+
+    private boolean hasParentWithStatus(final InetnumStatus status, final IpTree ipTree, final IpInterval ipInterval) {
+        final List allLessSpecific = ipTree.findFirstLessSpecific(ipInterval);
+        return Iterables.any(allLessSpecific, new Predicate<IpEntry>() {
+            @Override
+            public boolean apply(final IpEntry parent) {
+                final RpslObject parentObject = objectDao.getById(parent.getObjectId());
+                final CIString parentStatus = parentObject.getValueOrNullForAttribute(AttributeType.STATUS);
+                return Objects.equals(InetnumStatus.getStatusFor(parentStatus), status);
+            }
+        });
     }
 
     private boolean authByRsOrOverride(final Subject subject) {

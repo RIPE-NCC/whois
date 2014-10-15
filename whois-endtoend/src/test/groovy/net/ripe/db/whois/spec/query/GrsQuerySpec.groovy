@@ -206,6 +206,24 @@ class GrsQuerySpec extends BaseEndToEndSpec {
         response !=~ "mntner"
     }
 
+    def "Query grs frankenranges"() {
+        when:
+        databaseHelper.addObjectToSource("1-GRS", "inetnum: 132.95.0.0 - 132.95.255.255\nnetname: test")
+        databaseHelper.addObjectToSource("1-GRS", "inetnum: 132.96.0.0 - 132.103.255.255\nnetname: test")
+        databaseHelper.addObjectToSource("1-GRS", "inetnum: 132.104.0.0 - 132.107.255.255\nnetname: test")
+        databaseHelper.addObjectToSource("1-GRS", "inetnum: 132.108.0.0 - 132.108.255.255\nnetname: test")
+
+        // query exact match
+        def response = query("--resource -x 132.95.0.0 - 132.95.255.255")
+        then:
+        response =~ "inetnum"
+
+        // query more specific
+        def response2 = query("--resource -m 132.95.0.0 - 132.108.255.255")
+        then:
+        response2 =~ "inetnum"
+    }
+
     def "--all-sources found in both"() {
       given:
         databaseHelper.addObject("" +

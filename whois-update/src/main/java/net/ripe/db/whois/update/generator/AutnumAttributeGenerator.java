@@ -73,7 +73,7 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
     private boolean isMaintainedByRir(final RpslObject object) {
         try {
             final AuthoritativeResource authoritativeResource = authoritativeResourceData.getAuthoritativeResource(sourceContext.getCurrentSource().getName());
-            return authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, object.getKey());
+            return authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, object.getKey());
         } catch (IllegalSourceException e) {
             return false;
         }

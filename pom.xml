@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.76-SNAPSHOT</version>
+    <version>1.77-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -163,7 +163,11 @@
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
-
+            <dependency>
+                <groupId>net.ripe.commons</groupId>
+                <artifactId>commons-ip-math</artifactId>
+                <version>1.20</version>
+            </dependency>
             <dependency>
                 <groupId>de.jflex</groupId>
                 <artifactId>jflex</artifactId>
@@ -703,6 +707,7 @@
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
+                    <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
                 </configuration>
                 <executions>
                     <execution>
@@ -779,6 +784,16 @@
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
+            </properties>
+        </profile>
+        <profile>
+            <id>comparison</id>
+            <properties>
+                <test.redirectOutput>false</test.redirectOutput>
+                <test.ignoreFailure>false</test.ignoreFailure>
+                <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
+                <test.files.unit>None</test.files.unit>
+                <test.files.integration>**/CompareTwoQueryInstancesByComparisonFile.class,**/RestCompareTwoInstancesByComparisonFile.class</test.files.integration>
             </properties>
         </profile>
         <profile>

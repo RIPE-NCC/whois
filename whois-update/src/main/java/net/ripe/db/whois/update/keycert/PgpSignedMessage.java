@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.keycert;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.openpgp.PGPObjectFactory;
@@ -51,6 +52,10 @@ public final class PgpSignedMessage {
         this.clearText = clearText;
     }
 
+    public static PgpSignedMessage parse(final String signedContent, final String signature) {
+        return parse(signedContent, signature, Charsets.ISO_8859_1);
+    }
+
     public static PgpSignedMessage parse(final String signedContent, final String signature, final Charset charset) {
         try {
             final byte[] content = canonicalise(signedContent.getBytes());
@@ -73,12 +78,7 @@ public final class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String clearText) {
-        final Matcher matcher = SIGNED_MESSAGE_PATTERN.matcher(clearText);
-        if (matcher.find()) {
-            return parse(matcher.group(0).getBytes());
-        } else {
-            throw new IllegalArgumentException("no signed message found");
-        }
+        return parse(clearText, Charsets.ISO_8859_1);
     }
 
     public static PgpSignedMessage parse(final String clearText, final Charset charset) {

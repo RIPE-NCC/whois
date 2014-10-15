@@ -4,19 +4,23 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.76-SNAPSHOT</version>
+        <version>1.77-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois-commons</artifactId>
-    <version>1.76-SNAPSHOT</version>
+    <version>1.77-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.commons</groupId>
+            <artifactId>commons-ip-math</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
