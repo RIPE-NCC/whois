@@ -158,7 +158,7 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
     }
 
     private boolean hasParentWithStatus(final InetnumStatus status, final IpTree ipTree, final IpInterval ipInterval) {
-        final List allLessSpecific = ipTree.findAllLessSpecific(ipInterval);
+        final List allLessSpecific = ipTree.findFirstLessSpecific(ipInterval);
         return Iterables.any(allLessSpecific, new Predicate<IpEntry>() {
             @Override
             public boolean apply(final IpEntry parent) {
