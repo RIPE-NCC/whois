@@ -28,16 +28,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -213,33 +209,6 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INETNUM, "ASSIGNED PA"));
-    }
-
-    @Test
-    public void parent_of_assigned_is_assigned_and_grandparent_is_allocated_unspecified() {
-        final List<String> assignedTypes = Arrays.asList("PI", "PA", "ANYCAST");
-        for (String parentType : assignedTypes) {
-            for (String childType : assignedTypes) {
-                expect_incorrect_parent_status_under_allocated_unspecified(childType, parentType);
-                Mockito.validateMockitoUsage();
-            }
-        }
-    }
-
-    private void expect_incorrect_parent_status_under_allocated_unspecified(final String childType, final String parentType) {
-        when(update.getType()).thenReturn(ObjectType.INETNUM);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.168.1.0/24\nstatus: ASSIGNED " + childType));
-
-        Ipv4Entry parentEntry = new Ipv4Entry(Ipv4Resource.parse("192.168/16"), 1);
-        when(objectDao.getById(1)).thenReturn(RpslObject.parse("inetnum: 192.168/16\nstatus: ASSIGNED " + parentType));
-        Ipv4Entry grandParentEntry = new Ipv4Entry(Ipv4Resource.parse("192/8"), 2);
-        when(objectDao.getById(2)).thenReturn(RpslObject.parse("inetnum: 192/8\nstatus: ALLOCATED UNSPECIFIED"));
-        when(ipv4Tree.findAllLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry, grandParentEntry));
-        when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(parentEntry));
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext, atLeastOnce()).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INETNUM, "ALLOCATED UNSPECIFIED"));
     }
 
     @Test
