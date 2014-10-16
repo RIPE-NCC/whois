@@ -2,6 +2,7 @@ package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.Message
+import spock.lang.Ignore;
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
@@ -592,4 +593,34 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.contents =~ /\*\*\*Warning: Invalid keyword\(s\) found: update/
         ack.contents =~ /\*\*\*Warning: All keywords were ignored/
     }
+
+    @Ignore
+    def "warning on conversion of non latin-1 address"() {
+      when:
+        def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: NEW\n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: UTF-8\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: Тверская улица,москва\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "changed: denis@ripe.net 20121016\n" +
+                "source:  TEST\n" +
+                "password: owner\n"
+        "\n"
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.contents =~ /\*\*\*Warning: Attribute "address" value changed due to conversion into the ISO-8859-1 (Latin-1) character set/
+    }
+
 }
