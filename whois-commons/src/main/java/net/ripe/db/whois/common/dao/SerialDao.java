@@ -11,5 +11,5 @@ public interface SerialDao {
 
     SerialEntry getByIdForNrtm(int serialId);
 
-    int getSerialAge(int serialId);
+    Integer getAgeOfExactOrNextExistingSerial(int serialId);
 }

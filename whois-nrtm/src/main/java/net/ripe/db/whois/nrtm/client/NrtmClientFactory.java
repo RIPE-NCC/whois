@@ -81,8 +81,7 @@ class NrtmClientFactory {
                         writer = SocketChannelFactory.createWriter(socketChannel);
 
                         readHeader();
-                        writeMirrorCommand();
-                        readMirrorResult();
+                        writeMirrorCommandAndReadResponse();
                         readUpdates();
                     } catch (ClosedByInterruptException e) {
                         LOGGER.info("Interrupted, stopping.");
@@ -137,19 +136,32 @@ class NrtmClientFactory {
             return line;
         }
 
-        private void writeMirrorCommand() throws IOException {
+        //[TP] Do not use only the error code. There are two errors with code 401.
+        private static final String RESPONSE_INVALID_RANGE="%ERROR:401: invalid range";
+        private static final String RESPONSE_START="%START";
+        private static final int SLEEP_TIME_IF_NO_UPDATES_AVAILABLE_IN_SECONDS = 1;
+
+        private void writeMirrorCommandAndReadResponse() throws IOException {
+
             final String mirrorCommand = String.format("-g %s:3:%d-LAST -k",
                     nrtmSource.getOriginSource(),
-                    serialDao.getSerials().getEnd());   // TODO: [ES] off-by-one bug (need to add 1 to end serial)
-            writeLine(mirrorCommand);
-        }
+                    serialDao.getSerials().getEnd()+1);
 
-        // TODO: [ES] handle error in response (expect %START, but can be %ERROR:401: invalid range: Not within X-Y"
-        private void readMirrorResult() throws IOException {
+            while (true) {
+                writeLine(mirrorCommand);
 
-            final String result = readLineWithExpected("%START");
-            readEmptyLine();
-            LOGGER.info(result);
+                final String line = reader.readLine();
+                if (line.startsWith(RESPONSE_START)) {
+                    readEmptyLine();
+                    LOGGER.info(line);
+                    return;
+                } else if (line.startsWith(RESPONSE_INVALID_RANGE)){
+                    readEmptyLine();
+                    Uninterruptibles.sleepUninterruptibly(SLEEP_TIME_IF_NO_UPDATES_AVAILABLE_IN_SECONDS, TimeUnit.SECONDS);
+                } else {
+                    throw new IllegalStateException(String.format("Expected to read: '%s' or %s, but actually read: '%s'.", RESPONSE_START, RESPONSE_INVALID_RANGE, line));
+                }
+            }
         }
 
         private void writeLine(final String line) throws IOException {

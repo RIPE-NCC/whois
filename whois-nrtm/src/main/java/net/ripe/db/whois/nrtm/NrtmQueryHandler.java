@@ -85,7 +85,9 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
                 throw new IllegalArgumentException("%ERROR:401: invalid range: Not within " + range.getBegin() + "-" + range.getEnd());
             }
 
-            if (serialDao.getSerialAge(query.getSerialBegin()) > HISTORY_AGE_LIMIT) {
+            final Integer serialAge = serialDao.getAgeOfExactOrNextExistingSerial(query.getSerialBegin());
+
+            if (serialAge == null || serialAge > HISTORY_AGE_LIMIT) {
                 throw new IllegalArgumentException(String.format("%%ERROR:401: (Requesting serials older than %d days will be rejected)", HISTORY_AGE_LIMIT / SECONDS_PER_DAY));
             }
 
