@@ -1607,7 +1607,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
             fail();
         } catch (NotAuthorizedException e) {
-            System.err.println(e.getResponse().readEntity(String.class));
             RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
@@ -1616,14 +1615,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void create_mntner_encoded_password() {
         final RpslObject rpslObject = RpslObject.parse(
                 "mntner:         TEST-MNT\n" +
-                        "descr:          Test Organisation\n" +
-                        "admin-c:        TP1-TEST\n" +
-                        "upd-to:         noreply@ripe.net\n" +
-                        "auth:           MD5-PW $1$GVXqt/5m$TaeN0iPr84mNoz8j3IDs//  # auth?auth \n" +
-                        "mnt-by:         TEST-MNT\n" +
-                        "referral-by:    TEST-MNT\n" +
-                        "changed:        noreply@ripe.net 20140303\n" +
-                        "source:         TEST"
+                "descr:          Test Organisation\n" +
+                "admin-c:        TP1-TEST\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "auth:           MD5-PW $1$GVXqt/5m$TaeN0iPr84mNoz8j3IDs//  # auth?auth \n" +
+                "mnt-by:         TEST-MNT\n" +
+                "referral-by:    TEST-MNT\n" +
+                "changed:        noreply@ripe.net 20140303\n" +
+                "source:         TEST"
         );
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner?password=auth%3Fauth")
@@ -1794,6 +1793,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "}", getPort())));
     }
 
+    // TODO: [ES] no warning on conversion of \u03A3 to ? in latin-1 charset
     @Test
     public void create_utf8_character_encoding() {
         final RpslObject person = RpslObject.parse("" +
@@ -1945,31 +1945,30 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_person_with_non_latin_chars() throws Exception {
-
         {
             final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
                     .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS),
                             new RpslAttribute(AttributeType.ADDRESS, "address: Тверская улица,москва")).sort().get();
-            WhoisResources response =
+
+            final WhoisResources response =
                     RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
                             .request()
                             .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
                                     WhoisResources.class);
-            assertThat(response.getErrorMessages().size(), is(1));
-            assertThat(response.getErrorMessages().get(0).getSeverity(), is("Warning"));
-            assertThat(response.getErrorMessages().get(0).getText(), containsString("has information loss due to conversion"));
-            assertThat(response.getErrorMessages().get(0).getArgs().get(0).getValue(), is(AttributeType.ADDRESS.getName()));
 
-            final RpslObject stored = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
-            assertThat(stored.findAttribute(AttributeType.ADDRESS).getValue(), is("        address: ???????? ?????,??????"));
+            RestTest.assertErrorCount(response, 1);
+            RestTest.assertErrorMessage(response, 0, "Warning", "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", "address");
+
+            final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
+            assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getValue(), is("        address: ???????? ?????,??????"));
         }
         {
-            WhoisResources response =
+            final WhoisResources response =
                     RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
                             .request()
                             .get(WhoisResources.class);
+
             assertThat(response.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("address", "address: ???????? ?????,??????")));
-            System.err.println("resp:"+ response );
         }
     }
 

@@ -542,12 +542,14 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("Flughafenstraße 109/a"));
     }
 
+    // TODO we should return a informational warning indicating less of information due to conversion into latin1
+    @Ignore
     @Test
     public void post_url_encoded_data_with_non_latin1_address() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        String response = RestTest.target(getPort(), "whois/syncupdates/test")
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
                     "person:    Test Person again\n" +
@@ -560,11 +562,32 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
-        // TODO we should return a informational warning indicating less of information due to conversion into latin1
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST")
-                        .getValueForAttribute(AttributeType.ADDRESS),
-                is(CIString.ciString("???????? ?????,??????")));
+        assertThat(response, containsString("Attribute \"address\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set"));
+    }
 
+    // TODO: [ES] no warning on conversion of cyrillic characters to latin-1 charset
+    @Ignore
+    @Test
+    public void post_multipart_data_with_non_latin1_address() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final FormDataMultiPart multipart = new FormDataMultiPart()
+                .field("DATA",
+                        "person:         Test Person\n" +
+                        "address:        Тверская улица,москва\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "changed:        dbtest@ripe.net 20120101\n" +
+                        "source:         TEST\n" +
+                        "password: emptypassword")
+                .field("NEW", "yes");
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
+
+        assertThat(response, containsString("Attribute \"address\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set"));
     }
 
     // helper methods
