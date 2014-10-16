@@ -179,7 +179,7 @@ public class NrtmQueryHandlerTest {
 
     @Test
     public void gFlagRequestOutOfDateSerial() {
-        when(serialDaoMock.getSerialAge(1)).thenReturn(NrtmQueryHandler.HISTORY_AGE_LIMIT + 1);
+        when(serialDaoMock.getAgeOfExactOrNextExistingSerial(1)).thenReturn(Integer.valueOf(NrtmQueryHandler.HISTORY_AGE_LIMIT + 1));
         when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-2");
 
         try {
