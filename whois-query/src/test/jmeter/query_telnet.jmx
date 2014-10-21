@@ -17,8 +17,8 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">100</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">4</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">20</stringProp>
+        <stringProp name="ThreadGroup.num_threads">3</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <longProp name="ThreadGroup.start_time">1330420257000</longProp>
         <longProp name="ThreadGroup.end_time">1330420257000</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
@@ -42,7 +42,7 @@
         </Arguments>
         <hashTree/>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config - QryLog" enabled="true">
-          <stringProp name="delimiter">--  </stringProp>
+          <stringProp name="delimiter"> -- </stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="filename">querylog.test</stringProp>
           <boolProp name="quotedData">false</boolProp>
@@ -81,9 +81,14 @@ try {
     int port = Integer.parseInt(vars.get(&quot;port&quot;));
     String command = vars.get(&quot;command&quot;);
 
+
     final String DEFAULT_COMMAND = &quot;-rT mntner RIPE-DBM-MNT&quot;;
-    if(command.contains(&quot; -k&quot;) || command.startsWith(&quot;-k&quot;) || command.contains(&quot;--persistent-connection&quot;)){
-       command=DEFAULT_COMMAND;
+
+    net.ripe.db.whois.query.QueryParser parser = new net.ripe.db.whois.query.QueryParser(command);
+    net.ripe.db.whois.query.QueryFlag pc = net.ripe.db.whois.query.QueryFlag.PERSISTENT_CONNECTION;
+    
+    if (parser.hasOption(pc)){
+        command=DEFAULT_COMMAND;
     }
 
     org.apache.commons.net.telnet.TelnetClient tc = new org.apache.commons.net.telnet.TelnetClient();
@@ -111,7 +116,7 @@ try {
     response = e.getMessage() + &quot;\n\n&quot; + swe.toString();
 }
 
-response;
+return response;
 </stringProp>
           <stringProp name="BeanShellSampler.filename"></stringProp>
           <stringProp name="BeanShellSampler.parameters">-Vjmeter,${GENPROXY} </stringProp>
