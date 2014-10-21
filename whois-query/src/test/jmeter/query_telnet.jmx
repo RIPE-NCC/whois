@@ -42,13 +42,13 @@
         </Arguments>
         <hashTree/>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config - QryLog" enabled="true">
-          <stringProp name="delimiter">--</stringProp>
+          <stringProp name="delimiter">--  </stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="filename">querylog.test</stringProp>
           <boolProp name="quotedData">false</boolProp>
-          <boolProp name="recycle">true</boolProp>
+          <boolProp name="recycle">false</boolProp>
           <stringProp name="shareMode">shareMode.all</stringProp>
-          <boolProp name="stopThread">false</boolProp>
+          <boolProp name="stopThread">true</boolProp>
           <stringProp name="variableNames">notinteresting,command</stringProp>
         </CSVDataSet>
         <hashTree/>
@@ -79,8 +79,12 @@ String response;
 try {
     String host = vars.get(&quot;hostname&quot;);
     int port = Integer.parseInt(vars.get(&quot;port&quot;));
-//    String command = org.apache.commons.lang.StringUtils.join(bsh.args, &apos; &apos;) + &quot; &quot; + vars.get(&quot;command&quot;);
     String command = vars.get(&quot;command&quot;);
+
+    final String DEFAULT_COMMAND = &quot;-rT mntner RIPE-DBM-MNT&quot;;
+    if(command.contains(&quot; -k&quot;) || command.startsWith(&quot;-k&quot;) || command.contains(&quot;--persistent-connection&quot;)){
+       command=DEFAULT_COMMAND;
+    }
 
     org.apache.commons.net.telnet.TelnetClient tc = new org.apache.commons.net.telnet.TelnetClient();
     tc.connect(host, port);
