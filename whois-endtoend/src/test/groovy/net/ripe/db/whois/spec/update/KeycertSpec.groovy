@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class KeycertSpec extends BaseQueryUpdateSpec {
@@ -91,7 +91,65 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 changed:      dbtest@ripe.net 20040101
                 source:       TEST
-                """
+                """,
+            "PGPKEY-F6A10C2D": """\
+                key-cert:     PGPKEY-F6A10C2D
+                method:       PGP
+                owner:        Michael Holzt <kju@kju.de>
+                fingerpr:     9D50 042E FF89 9543 64AF  01CF 5098 80E3 F6A1 0C2D
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Version: GnuPG v1.0.6 (GNU/Linux)
+                certif:       Comment: For info see http://www.gnupg.org
+                certif:
+                certif:       mQGiBDyVvpMRBADC78dTf/xLoq4DRMb3rKJw7oO93wHh9bd2cwvLNR6yWggNNE3g
+                certif:       Wvas4dFKSZB5KwnYXMLJyW21GIkaDKs3RCTnYfBmNag/JS22lJC0/Ok7Zprdyofc
+                certif:       OmiDF2iwIJ7wXrLV14PjjQINTByIWoEJzBBlMJQOTnxH/on6jnLc9CZJBwCg/3Ss
+                certif:       QxrVRwN7JJIz1vjQLh8TC7cD/jhgvj5MhBALmhVHxuLwf4uEGD1DaiZGvJQeHan3
+                certif:       5x3gXMkJrRzvHFJEscyYbA6yWgsjLHiUh56xuUvowpXR1XcVRmTzKfgaMAcUfg4j
+                certif:       Ww6aWD6ecf6RvdXOMgGjQ/Y2OP+pNkIEQrkQbqvtzmVD8PruLtZ/Su1E6gisvnvD
+                certif:       bKA5A/9rXhF0GQjVQoXphYSUs4ym1FHQcuQ5rhlqRaBABoj9IVTGYU4qYnILzbFp
+                certif:       sexdle3kotB2J/G2IzWveALUIeHumAl+p9FORE88B0aMKpbLsjct9cGwX33pxhE8
+                certif:       zJ5XxKQdKOAopqUXWFldG4sIQNz0rsUHI+MzFzbvnVauojD+cLQaTWljaGFlbCBI
+                certif:       b2x6dCA8a2p1QGtqdS5kZT6IXQQTEQIAHQUCPJY2oQUJA8O4gAULBwoDBAMVAwID
+                certif:       FgIBAheAAAoJEFCYgOP2oQwt1iYAn3a99ju/2wSYYMi/3JQn8CLkpnvvAKCXog/t
+                certif:       dMvoStUzt4t1NgQgkgWM77QcTWljaGFlbCBIb2x6dCA8a2p1QGZxZG4ub3JnPohd
+                certif:       BBMRAgAdBQI8lja1BQkDw7iABQsHCgMEAxUDAgMWAgECF4AACgkQUJiA4/ahDC14
+                certif:       YwCgr6qRVR+K0tdmYAgB9H2+MqQGWtQAoP3dsDLpeVi+BxiXW07qgqINUY0KtB1N
+                certif:       aWNoYWVsIEhvbHp0IDxwb3N0QGhvbHp0LmRlPohdBBMRAgAdBQI8ljbFBQkDw7iA
+                certif:       BQsHCgMEAxUDAgMWAgECF4AACgkQUJiA4/ahDC1IdgCgx9YhL792obiUopWQMD9y
+                certif:       nTUm+CkAoJXjJK9Ur5HJFQdQPVN7mTSqKL2/tB5NaWNoYWVsIEhvbHp0IDxranVA
+                certif:       ZGViaWFuLm9yZz6IXQQTEQIAHQUCPJY3GAUJA8O4gAULBwoDBAMVAwIDFgIBAheA
+                certif:       AAoJEFCYgOP2oQwtgaMAn0ydknekY6jW1X5f4dboFyhVik5CAJ4+GCyR9S+OADIq
+                certif:       l+N98OSajXBYJLkEDQQ8lb6TEBAA+RigfloGYXpDkJXcBWyHhuxh7M1FHw7Y4KN5
+                certif:       xsncegus5D/jRpS2MEpT13wCFkiAtRXlKZmpnwd00//jocWWIE6YZbjYDe4QXau2
+                certif:       FxxR2FDKIldDKb6V6FYrOHhcC9v4TE3V46pGzPvOF+gqnRRh44SpT9GDhKh5tu+P
+                certif:       p0NGCMbMHXdXJDhK4sTw6I4TZ5dOkhNh9tvrJQ4X/faY98h8ebByHTh1+/bBc8SD
+                certif:       ESYrQ2DD4+jWCv2hKCYLrqmus2UPogBTAaB81qujEh76DyrOH3SET8rzF/OkQOnX
+                certif:       0ne2Qi0CNsEmy2henXyYCQqNfi3t5F159dSST5sYjvwqp0t8MvZCV7cIfwgXcqK6
+                certif:       1qlC8wXo+VMROU+28W65Szgg2gGnVqMU6Y9AVfPQB8bLQ6mUrfdMZIZJ+AyDvWXp
+                certif:       F9Sh01D49Vlf3HZSTz09jdvOmeFXklnN/biudE/F/Ha8g8VHMGHOfMlm/xX5u/2R
+                certif:       XscBqtNbno2gpXI61Brwv0YAWCvl9Ij9WE5J280gtJ3kkQc2azNsOA1FHQ98iLMc
+                certif:       fFstjvbzySPAQ/ClWxiNjrtVjLhdONM0/XwXV0OjHRhs3jMhLLUq/zzhsSlAGBGN
+                certif:       fISnCnLWhsQDGcgHKXrKlQzZlp+r0ApQmwJG0wg9ZqRdQZ+cfL2JSyIZJrqrol7D
+                certif:       Ves91hcAAgIP/R5K8oZ1pxV86+JYprPNe/039jVBZJFUeIgnUuoj6p6J+ZMONYz2
+                certif:       QVJ0dzxMRaMdjkoE3o09j114U6m99YRp+RC7TJ3g7QhjlI4WbEpPVqyjG0CHqdI5
+                certif:       za44bWUoOzs2jrhzk9b6kjE0qEIJ4kSe6iyC+NFd1rGqZhPyq69PeQeH4SuzmDzQ
+                certif:       eW3dqyF44Vf62LbmNwKLAYjrJZ/+pqQ9lGRqyNhdn1xRBgoIjLCiHVKcL8TbWCA8
+                certif:       skegDe7sE+3bsNyyz+0P5fA+0U20sfz2dAoPkAcwF/ShEb4NBM4IeYJntqGs2uq1
+                certif:       B5mM9ULG/ESS2SAp6BIPKl1Vr2Dc1xx9ZuaOK9YlEdzODhrYDaDtsnO7NcKRttnq
+                certif:       7Rv0vi7JzRDr1GlL0GHBP6cL61MCf1fH2KWKXB3RDBUk4TRmJBsE/5QAdiF+PRgA
+                certif:       SpCN2hnAy72Qj0eOFhPoe37vST4kb8G4ox1myMW1nFX9Amjv2TmfXm5VXFICbsOa
+                certif:       jrPkacTiAYOxhRiYTrJZh1+3OX2klJUYcrUk7V4tVJeXuII0iAoUiYKAWFCGqczW
+                certif:       deKU1VSqysoLSu4XGtSO3gBEAXBD5gi9BW77M6BxCzrBnLhXN0sDIhhDI5Ye5vex
+                certif:       73nb/lnPwamLCaBZTK5kKRv43gOGunPDT3VPRfW0yLGfZjPWpAU8pu+piEwEGBEC
+                certif:       AAwFAjyVvpMFCQPDuIAACgkQUJiA4/ahDC3p2gCeLVkD/IAECJ/WShFOUS17iZhK
+                certif:       5noAn1Z5m4/1YrZBVKg5+kPg6ia0Y9Vk
+                certif:       =X7rJ
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                mnt-by:       LIR-MNT
+                changed:      kju@fqdn.org 20020516
+                source:       TEST
+                """,
     ]}
 
     def "create X509 key-cert object, no gen attrs, no X509 exists, X509-1 created"() {
@@ -2594,6 +2652,85 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 ["Syntax error in X509-99 (must be AUTO-nnn for create)"]
 
         queryObjectNotFound("-rGBT key-cert X509-99", "key-cert", "X509-99")
+    }
+
+    @Ignore // TODO: [ES]
+    def "#275 delete keycert object doesn't match version in database"() {
+      given:
+        syncUpdate(getTransient("PGPKEY-F6A10C2D") + "password: lir")
+        databaseHelper.whoisTemplate.update("UPDATE last SET object = ? WHERE pkey = ?", getTransient("PGPKEY-F6A10C2D"), "PGPKEY-F6A10C2D")
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                key-cert:     PGPKEY-F6A10C2D
+                method:       PGP
+                owner:        Michael Holzt <kju@kju.de>
+                fingerpr:     9D50 042E FF89 9543 64AF  01CF 5098 80E3 F6A1 0C2D
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Version: GnuPG v1.0.6 (GNU/Linux)
+                certif:       Comment: For info see http://www.gnupg.org
+                certif:
+                certif:       mQGiBDyVvpMRBADC78dTf/xLoq4DRMb3rKJw7oO93wHh9bd2cwvLNR6yWggNNE3g
+                certif:       Wvas4dFKSZB5KwnYXMLJyW21GIkaDKs3RCTnYfBmNag/JS22lJC0/Ok7Zprdyofc
+                certif:       OmiDF2iwIJ7wXrLV14PjjQINTByIWoEJzBBlMJQOTnxH/on6jnLc9CZJBwCg/3Ss
+                certif:       QxrVRwN7JJIz1vjQLh8TC7cD/jhgvj5MhBALmhVHxuLwf4uEGD1DaiZGvJQeHan3
+                certif:       5x3gXMkJrRzvHFJEscyYbA6yWgsjLHiUh56xuUvowpXR1XcVRmTzKfgaMAcUfg4j
+                certif:       Ww6aWD6ecf6RvdXOMgGjQ/Y2OP+pNkIEQrkQbqvtzmVD8PruLtZ/Su1E6gisvnvD
+                certif:       bKA5A/9rXhF0GQjVQoXphYSUs4ym1FHQcuQ5rhlqRaBABoj9IVTGYU4qYnILzbFp
+                certif:       sexdle3kotB2J/G2IzWveALUIeHumAl+p9FORE88B0aMKpbLsjct9cGwX33pxhE8
+                certif:       zJ5XxKQdKOAopqUXWFldG4sIQNz0rsUHI+MzFzbvnVauojD+cLQaTWljaGFlbCBI
+                certif:       b2x6dCA8a2p1QGtqdS5kZT6IXQQTEQIAHQUCPJY2oQUJA8O4gAULBwoDBAMVAwID
+                certif:       FgIBAheAAAoJEFCYgOP2oQwt1iYAn3a99ju/2wSYYMi/3JQn8CLkpnvvAKCXog/t
+                certif:       dMvoStUzt4t1NgQgkgWM77QcTWljaGFlbCBIb2x6dCA8a2p1QGZxZG4ub3JnPohd
+                certif:       BBMRAgAdBQI8lja1BQkDw7iABQsHCgMEAxUDAgMWAgECF4AACgkQUJiA4/ahDC14
+                certif:       YwCgr6qRVR+K0tdmYAgB9H2+MqQGWtQAoP3dsDLpeVi+BxiXW07qgqINUY0KtB1N
+                certif:       aWNoYWVsIEhvbHp0IDxwb3N0QGhvbHp0LmRlPohdBBMRAgAdBQI8ljbFBQkDw7iA
+                certif:       BQsHCgMEAxUDAgMWAgECF4AACgkQUJiA4/ahDC1IdgCgx9YhL792obiUopWQMD9y
+                certif:       nTUm+CkAoJXjJK9Ur5HJFQdQPVN7mTSqKL2/tB5NaWNoYWVsIEhvbHp0IDxranVA
+                certif:       ZGViaWFuLm9yZz6IXQQTEQIAHQUCPJY3GAUJA8O4gAULBwoDBAMVAwIDFgIBAheA
+                certif:       AAoJEFCYgOP2oQwtgaMAn0ydknekY6jW1X5f4dboFyhVik5CAJ4+GCyR9S+OADIq
+                certif:       l+N98OSajXBYJLkEDQQ8lb6TEBAA+RigfloGYXpDkJXcBWyHhuxh7M1FHw7Y4KN5
+                certif:       xsncegus5D/jRpS2MEpT13wCFkiAtRXlKZmpnwd00//jocWWIE6YZbjYDe4QXau2
+                certif:       FxxR2FDKIldDKb6V6FYrOHhcC9v4TE3V46pGzPvOF+gqnRRh44SpT9GDhKh5tu+P
+                certif:       p0NGCMbMHXdXJDhK4sTw6I4TZ5dOkhNh9tvrJQ4X/faY98h8ebByHTh1+/bBc8SD
+                certif:       ESYrQ2DD4+jWCv2hKCYLrqmus2UPogBTAaB81qujEh76DyrOH3SET8rzF/OkQOnX
+                certif:       0ne2Qi0CNsEmy2henXyYCQqNfi3t5F159dSST5sYjvwqp0t8MvZCV7cIfwgXcqK6
+                certif:       1qlC8wXo+VMROU+28W65Szgg2gGnVqMU6Y9AVfPQB8bLQ6mUrfdMZIZJ+AyDvWXp
+                certif:       F9Sh01D49Vlf3HZSTz09jdvOmeFXklnN/biudE/F/Ha8g8VHMGHOfMlm/xX5u/2R
+                certif:       XscBqtNbno2gpXI61Brwv0YAWCvl9Ij9WE5J280gtJ3kkQc2azNsOA1FHQ98iLMc
+                certif:       fFstjvbzySPAQ/ClWxiNjrtVjLhdONM0/XwXV0OjHRhs3jMhLLUq/zzhsSlAGBGN
+                certif:       fISnCnLWhsQDGcgHKXrKlQzZlp+r0ApQmwJG0wg9ZqRdQZ+cfL2JSyIZJrqrol7D
+                certif:       Ves91hcAAgIP/R5K8oZ1pxV86+JYprPNe/039jVBZJFUeIgnUuoj6p6J+ZMONYz2
+                certif:       QVJ0dzxMRaMdjkoE3o09j114U6m99YRp+RC7TJ3g7QhjlI4WbEpPVqyjG0CHqdI5
+                certif:       za44bWUoOzs2jrhzk9b6kjE0qEIJ4kSe6iyC+NFd1rGqZhPyq69PeQeH4SuzmDzQ
+                certif:       eW3dqyF44Vf62LbmNwKLAYjrJZ/+pqQ9lGRqyNhdn1xRBgoIjLCiHVKcL8TbWCA8
+                certif:       skegDe7sE+3bsNyyz+0P5fA+0U20sfz2dAoPkAcwF/ShEb4NBM4IeYJntqGs2uq1
+                certif:       B5mM9ULG/ESS2SAp6BIPKl1Vr2Dc1xx9ZuaOK9YlEdzODhrYDaDtsnO7NcKRttnq
+                certif:       7Rv0vi7JzRDr1GlL0GHBP6cL61MCf1fH2KWKXB3RDBUk4TRmJBsE/5QAdiF+PRgA
+                certif:       SpCN2hnAy72Qj0eOFhPoe37vST4kb8G4ox1myMW1nFX9Amjv2TmfXm5VXFICbsOa
+                certif:       jrPkacTiAYOxhRiYTrJZh1+3OX2klJUYcrUk7V4tVJeXuII0iAoUiYKAWFCGqczW
+                certif:       deKU1VSqysoLSu4XGtSO3gBEAXBD5gi9BW77M6BxCzrBnLhXN0sDIhhDI5Ye5vex
+                certif:       73nb/lnPwamLCaBZTK5kKRv43gOGunPDT3VPRfW0yLGfZjPWpAU8pu+piEwEGBEC
+                certif:       AAwFAjyVvpMFCQPDuIAACgkQUJiA4/ahDC3p2gCeLVkD/IAECJ/WShFOUS17iZhK
+                certif:       5noAn1Z5m4/1YrZBVKg5+kPg6ia0Y9Vk
+                certif:       =X7rJ
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                mnt-by:       LIR-MNT
+                changed:      noreply@ripe.net 20020516
+                source:       TEST
+                delete:  reason
+                password: lir
+            """.stripIndent())
+      then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[key-cert] PGPKEY-F6A10C2D" }
     }
 
 }
