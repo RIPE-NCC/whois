@@ -15,19 +15,17 @@
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">2</stringProp>
+          <stringProp name="LoopController.loops">408249</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">5</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
-        <longProp name="ThreadGroup.start_time">1413475898000</longProp>
-        <longProp name="ThreadGroup.end_time">1413475898000</longProp>
+        <stringProp name="ThreadGroup.num_threads">3</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">3</stringProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration">20</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
         <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Constant Timer" enabled="true">
-          <stringProp name="ConstantTimer.delay">2000</stringProp>
+          <stringProp name="ConstantTimer.delay">70</stringProp>
         </ConstantTimer>
         <hashTree/>
         <AccessLogSampler guiclass="TestBeanGUI" testclass="AccessLogSampler" testname="Access Log Sampler" enabled="true">
@@ -36,7 +34,7 @@
           </elementProp>
           <stringProp name="domain">rest-prepdev.db.ripe.net</stringProp>
           <boolProp name="imageParsing">false</boolProp>
-          <stringProp name="logFile">/Users/tpolychnia/apps/apache-jmeter-2.11/query_rest_input.log</stringProp>
+          <stringProp name="logFile">src/test/jmeter/rest_GET_access.log</stringProp>
           <stringProp name="parserClassName">org.apache.jmeter.protocol.http.util.accesslog.SharedTCLogParser</stringProp>
           <stringProp name="portString">80</stringProp>
         </AccessLogSampler>
@@ -70,7 +68,7 @@
               <bytes>true</bytes>
             </value>
           </objProp>
-          <stringProp name="filename"></stringProp>
+          <stringProp name="filename">target/jmeter/results/rest_results.jtl</stringProp>
         </ResultCollector>
         <hashTree/>
       </hashTree>
