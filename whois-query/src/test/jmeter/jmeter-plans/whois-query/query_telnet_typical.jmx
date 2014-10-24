@@ -28,7 +28,7 @@
           <collectionProp name="Arguments.arguments">
             <elementProp name="hostname" elementType="Argument">
               <stringProp name="Argument.name">hostname</stringProp>
-              <stringProp name="Argument.value">77.72.225.197</stringProp><!-- db-sthc-1 -->
+              <stringProp name="Argument.value">77.72.225.195</stringProp><!-- db-sthc-1 -->
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="port" elementType="Argument">

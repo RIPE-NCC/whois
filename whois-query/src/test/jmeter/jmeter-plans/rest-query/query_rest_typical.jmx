@@ -34,7 +34,7 @@
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="domain">77.72.225.197</stringProp>
+          <stringProp name="domain">77.72.225.195</stringProp>
           <boolProp name="imageParsing">false</boolProp>
           <stringProp name="logFile">rest_read_access_log_20141010</stringProp>
           <stringProp name="parserClassName">org.apache.jmeter.protocol.http.util.accesslog.SharedTCLogParser</stringProp>
