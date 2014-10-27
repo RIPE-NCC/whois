@@ -1,0 +1,11 @@
+Test plan for rest services
+
+[TP] create an input file using the apache access logs. They have the following format:
+10.0.0.1 rest.db.ripe.net - - [DATE TIME] "GET /search.json?query-string=XXXX HTTP/1.1" 200 6520 "-" "-"
+
+To have the access logs of a day as input: 
+- combine the ssl_access_log and the access_log from the httpd log directory of all PRD servers/proxies
+- check the date of the log statements in the file so as to use the logs only of one full day.
+- keep GET and HEAD requests
+- if necessary prepend the request with /whois e.g. the above quoted request would be GET /whois/search.json?.... 
+
