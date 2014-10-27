@@ -837,5 +837,29 @@
                 <test.files.integration>None</test.files.integration>
             </properties>
         </profile>
+        <profile>
+            <id>jmeter</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.lazerycode.jmeter</groupId>
+                        <artifactId>jmeter-maven-plugin</artifactId>
+                        <version>1.10.0</version>
+                        <configuration>
+                            <reportDir>${project.build.directory}/jmeter-reports</reportDir>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>jmeter</id>
+                                <phase>none</phase>
+                                <goals>
+                                    <goal>jmeter</goal>
+                                </goals>
+                           </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
