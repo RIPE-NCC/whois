@@ -146,7 +146,6 @@ class NrtmClientFactory {
 
         // TODO: [ES] handle error in response (expect %START, but can be %ERROR:401: invalid range: Not within X-Y"
         private void readMirrorResult() throws IOException {
-
             final String result = readLineWithExpected("%START");
             readEmptyLine();
             LOGGER.info(result);
@@ -219,7 +218,7 @@ class NrtmClientFactory {
         }
 
         private RpslObject readObject() throws IOException {
-            StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder();
             String line;
             while (!(line = reader.readLine()).isEmpty()) {
                 builder.append(line);

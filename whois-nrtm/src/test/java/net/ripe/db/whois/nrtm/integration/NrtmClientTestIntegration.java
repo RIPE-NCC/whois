@@ -185,7 +185,6 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void ensure_all_changes_of_object_are_imported_with_no_missing_references() {
-
         final RpslObject test1mntA = RpslObject.parse("" +
                 "mntner: TEST1-MNT\n" +
                 "mnt-ref: OWNER-MNT\n" +
@@ -216,6 +215,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         nrtmImporter.start();
 
         objectExists(ObjectType.MNTNER, "TEST2-MNT", true);
+        objectExists(ObjectType.MNTNER, "TEST1-MNT", true);
     }
 
     private void objectMatches(final RpslObject rpslObject) {
