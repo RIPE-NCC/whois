@@ -75,7 +75,7 @@ public class GrsSourceTest {
 
     @Test
     public void handleLines_start_of_line_comment() throws IOException {
-        final BufferedReader reader = new BufferedReader(new StringReader("line1\n#line2\nline3\n#line4\nline5"));
+        final BufferedReader reader = new BufferedReader(new StringReader("line1\n#line2\nline3\n%line4\nline5"));
         final GrsSource.LineHandler lineHandler = mock(GrsSource.LineHandler.class);
 
         subject.handleLines(reader, lineHandler);
