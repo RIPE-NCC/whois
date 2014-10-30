@@ -9,5 +9,7 @@ public interface SerialDao {
 
     SerialEntry getById(int serialId);
 
+    SerialEntry getByIdForNrtm(int serialId);
+
     int getSerialAge(int serialId);
 }

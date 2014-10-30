@@ -75,7 +75,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         final Channel channel = ctx.getChannel();
 
         if (query.isMirrorQuery()) {
-            SerialRange range = serialDao.getSerials();
+            final SerialRange range = serialDao.getSerials();
 
             if (query.getSerialEnd() == -1 || query.isKeepalive()) {
                 query.setSerialEnd(range.getEnd());
@@ -125,7 +125,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         return scheduledFuture != null;
     }
 
-    private Query parseQueryString(String queryString) {
+    private Query parseQueryString(final String queryString) {
         try {
             return new Query(source, queryString);
         } catch (OptionException e) {
@@ -136,7 +136,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     void handleMirrorQueryWithKeepalive(final Query query, final Channel channel) {
         final int version = query.getVersion();
 
-        Runnable instance = new Runnable() {
+        final Runnable instance = new Runnable() {
             private int serial = query.getSerialBegin();
 
             @Override
@@ -157,7 +157,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     private void handleMirrorQuery(final Query query, final Channel channel) {
-
         for (int serial = query.getSerialBegin(); serial <= query.getSerialEnd(); ) {
             serial = writeSerials(serial, query.getSerialEnd(), query.getVersion(), channel);
             if (serial <= query.getSerialEnd()) {
@@ -177,8 +176,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
                 break;
             }
 
-            final SerialEntry serialEntry = serialDao.getById(serial);
-
+            final SerialEntry serialEntry = serialDao.getByIdForNrtm(serial);
             if (serialEntry != null) {
                 if (dummifier.isAllowed(version, serialEntry.getRpslObject())) {
                     final String operation = serialEntry.getOperation().toString();
@@ -214,7 +212,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     @Override
-    public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+    public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         PENDING_WRITES.set(ctx.getChannel(), new AtomicInteger());
 
         writeMessage(ctx.getChannel(), TERMS_AND_CONDITIONS);
@@ -223,7 +221,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     @Override
-    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+    public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
@@ -237,17 +235,19 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         if (!channel.isOpen()) {
             throw new ChannelException();
         }
-        AtomicInteger pending = PENDING_WRITES.get(channel);
+
+        final AtomicInteger pending = PENDING_WRITES.get(channel);
         if (pending != null) {
             pending.incrementAndGet();
         }
+
         channel.write(message + "\n\n").addListener(LISTENER);
     }
 
     private static final ChannelFutureListener LISTENER = new ChannelFutureListener() {
         @Override
         public void operationComplete(ChannelFuture future) throws Exception {
-            AtomicInteger pending = PENDING_WRITES.get(future.getChannel());
+            final AtomicInteger pending = PENDING_WRITES.get(future.getChannel());
             if (pending != null) {
                 pending.decrementAndGet();
             }

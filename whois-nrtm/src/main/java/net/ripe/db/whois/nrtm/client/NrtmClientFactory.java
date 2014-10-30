@@ -103,6 +103,7 @@ class NrtmClientFactory {
             }
         }
 
+        // TODO: [ES] detect error on connect, and do not retry (e.g. %ERROR:402: not authorised to mirror the database from IP address x.y.z)
         @RetryFor(value = IOException.class, attempts = 100, intervalMs = 10 * 1000)
         private void connect() throws IOException {
             try {
@@ -139,11 +140,11 @@ class NrtmClientFactory {
         private void writeMirrorCommand() throws IOException {
             final String mirrorCommand = String.format("-g %s:3:%d-LAST -k",
                     nrtmSource.getOriginSource(),
-                    serialDao.getSerials().getEnd());
-
+                    serialDao.getSerials().getEnd());   // TODO: [ES] off-by-one bug (need to add 1 to end serial)
             writeLine(mirrorCommand);
         }
 
+        // TODO: [ES] handle error in response (expect %START, but can be %ERROR:401: invalid range: Not within X-Y"
         private void readMirrorResult() throws IOException {
             final String result = readLineWithExpected("%START");
             readEmptyLine();
@@ -172,8 +173,11 @@ class NrtmClientFactory {
                     case UPDATE:
                         try {
                             final RpslObjectUpdateInfo updateInfo = rpslObjectUpdateDao.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());
+
                             if (!nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId())) {
                                 nrtmClientDao.updateObject(rpslObject, updateInfo, serialId);
+                            } else {
+                                LOGGER.warn("Already applied serial {}", serialId);
                             }
                         } catch (EmptyResultDataAccessException e) {
                             nrtmClientDao.createObject(rpslObject, serialId);
@@ -185,6 +189,8 @@ class NrtmClientFactory {
                             final RpslObjectUpdateInfo updateInfo = rpslObjectUpdateDao.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());
                             if (!nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId())) {
                                 nrtmClientDao.deleteObject(updateInfo, serialId);
+                            } else {
+                                LOGGER.warn("Already applied serial {}", serialId);
                             }
                         } catch (EmptyResultDataAccessException e) {
                             throw new IllegalStateException("DELETE serial:" + serialId + " but object:" + rpslObject.getKey().toString() + " doesn't exist");
@@ -192,6 +198,7 @@ class NrtmClientFactory {
                         break;
                 }
             } catch (DataAccessException e) {
+                LOGGER.error(e.getMessage(), e);
                 throw new IllegalStateException("Unexpected error on " + operation + " " + serialId, e);
             }
         }
@@ -211,7 +218,7 @@ class NrtmClientFactory {
         }
 
         private RpslObject readObject() throws IOException {
-            StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder();
             String line;
             while (!(line = reader.readLine()).isEmpty()) {
                 builder.append(line);
