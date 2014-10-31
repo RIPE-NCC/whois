@@ -212,7 +212,6 @@ public class JdbcSerialDaoTest extends AbstractDaoTest {
 
     @Test
     public void getAgeOfExactOrNextExistingSerial_non_existent_serial() {
-
         databaseHelper.addObject("aut-num: AS1\ndescr: first");
 
         assertThat(subject.getAgeOfExactOrNextExistingSerial(10), is(nullValue()));
