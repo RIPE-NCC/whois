@@ -19,10 +19,6 @@ import org.springframework.test.annotation.DirtiesContext;
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase {
-    /*
-       The tests in this class assume that the last entry in GRS was 30 days ago
-       and the last serial was not updated.
-     */
 
     @Autowired private NrtmImporter nrtmImporter;
     @Autowired private SerialDao serialDao;
@@ -59,13 +55,10 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
 
     @Before
     public void before() throws Exception {
-        testDateTimeProvider.setTime(LocalDateTime.now().minusDays(30));
         databaseHelper.addObject(MNTNER);
         databaseHelper.updateObject(MNTNER_UPDATED);
 
         databaseHelper.addObjectToSource("1-GRS", MNTNER_UPDATED);
-
-        testDateTimeProvider.setTime(LocalDateTime.now());
 
         nrtmServer.start();
     }
@@ -84,24 +77,13 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
     }
 
     @Test
-    public void initial_dump_does_not_does_not_contain_serial_from_source() {
-        databaseHelper.getWhoisTemplate().execute("ALTER TABLE serials AUTO_INCREMENT = 100;");
-        databaseHelper.addObject(TEST1_MNT);
-        databaseHelper.addObject(TEST2_MNT);
-
-        startNrtmImporter();
-
-        objectExists(TEST1_MNT.getType(), TEST1_MNT.getKey().toString(), false);
-        objectExists(TEST2_MNT.getType(), TEST2_MNT.getKey().toString(), false);
-    }
-
-    @Test
     public void initial_dump_has_updated_serial_but_is_too_old() {
         updateGrsLastSerialIdFromSource();
 
-        startNrtmImporter();
-
         databaseHelper.addObject(TEST2_MNT);
+
+        testDateTimeProvider.setTime(LocalDateTime.now().plusDays(30));
+        startNrtmImporter();
 
         objectExists(TEST2_MNT.getType(), TEST2_MNT.getKey().toString(), false);
     }
