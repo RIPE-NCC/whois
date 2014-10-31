@@ -39,7 +39,7 @@ public class JdbcSerialDaoTest extends AbstractDaoTest {
         databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE");
         databaseHelper.addObject("mntner:DEV-MNT");
 
-        SerialRange range = subject.getSerials();
+        final SerialRange range = subject.getSerials();
 
         assertThat(range.getBegin(), is(1));
         assertThat(range.getEnd(), is(3));
@@ -47,21 +47,32 @@ public class JdbcSerialDaoTest extends AbstractDaoTest {
 
     @Test
     public void getSerialEntryById() {
-        RpslObject inetnum = RpslObject.parse("mntner:DEV-MNT");
+        final RpslObject inetnum = RpslObject.parse("mntner:DEV-MNT");
         databaseHelper.addObject(inetnum);
-        SerialEntry entry = subject.getById(1);
+
+        final SerialEntry entry = subject.getById(1);
+
         assertThat(entry.getRpslObject(), is(inetnum));
     }
 
     @Test
     public void getSerialCreateDelete() {
-        final RpslObject object = databaseHelper.addObject("aut-num: AS1");
+        final RpslObject autnum = RpslObject.parse("aut-num: AS1");
+        final RpslObject object = databaseHelper.addObject(autnum);
         databaseHelper.deleteObject(object);
-        databaseHelper.addObject("aut-num: AS1");
+        databaseHelper.addObject(autnum);
 
-        subject.getById(1);
-        subject.getById(2);
-        subject.getById(3);
+        final SerialEntry first = subject.getById(1);
+        assertThat(first.getOperation(), is(Operation.UPDATE));
+        assertThat(first.getRpslObject(), is(autnum));
+
+        final SerialEntry second = subject.getById(2);
+        assertThat(second.getOperation(), is(Operation.DELETE));
+        assertThat(second.getRpslObject(), is(autnum));
+
+        final SerialEntry third = subject.getById(3);
+        assertThat(third.getOperation(), is(Operation.UPDATE));
+        assertThat(third.getRpslObject(), is(autnum));
     }
 
     @Test
@@ -96,12 +107,11 @@ public class JdbcSerialDaoTest extends AbstractDaoTest {
         assertThat(subject.getById(3).getRpslObject(), is(object3));
     }
 
-
     @Test
     public void getSerialEntryForNrtm_just_created_object() {
-        final RpslObject object1 = databaseHelper.addObject("aut-num: AS1\ndescr: first");
+        final RpslObject object = databaseHelper.addObject("aut-num: AS1\ndescr: first");
 
-        assertThat(subject.getByIdForNrtm(1).getRpslObject(), is(object1));
+        assertThat(subject.getByIdForNrtm(1).getRpslObject(), is(object));
     }
 
     @Test
@@ -207,5 +217,4 @@ public class JdbcSerialDaoTest extends AbstractDaoTest {
 
         assertThat(subject.getAgeOfExactOrNextExistingSerial(10), is(nullValue()));
     }
-
 }

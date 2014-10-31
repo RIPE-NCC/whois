@@ -231,7 +231,7 @@ class NrtmClientFactory {
         }
 
         private RpslObject readObject() throws IOException {
-            StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder();
             String line;
             while (!(line = reader.readLine()).isEmpty()) {
                 builder.append(line);
