@@ -479,8 +479,8 @@ public class JdbcRpslObjectOperations {
                 "       serials.atlast, " +
                 "       serials.object_id, " +
                 "       last.timestamp, " +
-                "       coalesce(legacy_history.timestamp, rdp_history.timestamp), " +
-                "       IF(last.sequence_id, last.object, coalesce(legacy_history.object, " +
+                "       COALESCE(legacy_history.timestamp, rdp_history.timestamp), " +
+                "       IF(last.sequence_id, last.object, COALESCE(legacy_history.object, " +
                 "                                         rdp_history.object)) " +
                 "FROM   serials " +
                 "       LEFT JOIN last " +
