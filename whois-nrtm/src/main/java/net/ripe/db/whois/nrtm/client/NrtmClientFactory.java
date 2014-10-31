@@ -137,15 +137,15 @@ class NrtmClientFactory {
         }
 
         //[TP] Do not use only the error code. There are two errors with code 401.
-        private static final String RESPONSE_INVALID_RANGE="%ERROR:401: invalid range";
-        private static final String RESPONSE_START="%START";
+        private static final String RESPONSE_INVALID_RANGE = "%ERROR:401: invalid range";
+        private static final String RESPONSE_START = "%START";
         private static final int SLEEP_TIME_IF_NO_UPDATES_AVAILABLE_IN_SECONDS = 1;
 
         private void writeMirrorCommandAndReadResponse() throws IOException {
 
             final String mirrorCommand = String.format("-g %s:3:%d-LAST -k",
                     nrtmSource.getOriginSource(),
-                    serialDao.getSerials().getEnd()+1);
+                    serialDao.getSerials().getEnd() + 1);
 
             while (true) {
                 writeLine(mirrorCommand);
@@ -155,7 +155,7 @@ class NrtmClientFactory {
                     readEmptyLine();
                     LOGGER.info(line);
                     return;
-                } else if (line.startsWith(RESPONSE_INVALID_RANGE)){
+                } else if (line.startsWith(RESPONSE_INVALID_RANGE)) {
                     readEmptyLine();
                     Uninterruptibles.sleepUninterruptibly(SLEEP_TIME_IF_NO_UPDATES_AVAILABLE_IN_SECONDS, TimeUnit.SECONDS);
                 } else {
