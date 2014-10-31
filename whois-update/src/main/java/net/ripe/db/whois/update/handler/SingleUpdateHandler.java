@@ -164,7 +164,7 @@ public class SingleUpdateHandler {
         RpslObject submittedObject = update.getSubmittedObject();
         for( RpslAttribute attribute: submittedObject.getAttributes() ) {
             if( ! CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue() )) {
-                updateContext.addMessage(update, UpdateMessages.informationLostDueToLatin1Conversion(attribute.getKey()) );
+                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()) );
             }
         }
     }

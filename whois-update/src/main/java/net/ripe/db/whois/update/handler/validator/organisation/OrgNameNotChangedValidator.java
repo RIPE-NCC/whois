@@ -53,41 +53,47 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject originalObject = update.getReferenceObject();
-        final RpslObject newObject = update.getUpdatedObject();
-        if (orgNameDidntChange(originalObject, newObject)) return;
+        final RpslObject updatedObject = update.getUpdatedObject();
+        if (orgNameDidntChange(originalObject, updatedObject)) {
+            return;
+        }
 
         final Subject subject = updateContext.getSubject(update);
-        if (alreadyHasAllPossibleAuthorisations(subject)) return;
+        if (alreadyHasAllPossibleAuthorisations(subject)) {
+            return;
+        }
 
         if (isReferencedByRsMaintainedResource(originalObject)) {
-            final RpslAttribute orgNameAttribute = newObject.findAttribute(AttributeType.ORG_NAME);
+            final RpslAttribute orgNameAttribute = updatedObject.findAttribute(AttributeType.ORG_NAME);
             updateContext.addMessage(update, orgNameAttribute, UpdateMessages.cantChangeOrgName());
         }
     }
 
     private boolean isReferencedByRsMaintainedResource(final RpslObject rpslObject) {
-        for (RpslObjectInfo info : objectUpdateDao.getReferences(rpslObject)) {
-            if (RESOURCE_OBJECT_TYPES.contains(info.getObjectType())) {
-                final RpslObject resource = objectDao.getById(info.getObjectId());
-                if (isMaintainedByRs(resource)) return true;
+        for (RpslObjectInfo referencedObjectInfo : objectUpdateDao.getReferences(rpslObject)) {
+            if (RESOURCE_OBJECT_TYPES.contains(referencedObjectInfo.getObjectType())) {
+                final RpslObject referencedObject = objectDao.getById(referencedObjectInfo.getObjectId());
+                if (isMaintainedByRs(referencedObject)) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-    private boolean orgNameDidntChange(final RpslObject originalObject, final RpslObject newObject) {
-        final CIString oldOrgName = originalObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
-        final CIString newOrgName = newObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
+    private boolean orgNameDidntChange(final RpslObject originalObject, final RpslObject updatedObject) {
+        final CIString originalOrgName = originalObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
+        final CIString updatedOrgName = updatedObject.getValueOrNullForAttribute(AttributeType.ORG_NAME);
 
-        return Objects.equals(oldOrgName, newOrgName);
+        return Objects.equals(originalOrgName, updatedOrgName);
     }
 
     private boolean alreadyHasAllPossibleAuthorisations(final Subject subject) {
         return subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER);
     }
 
-    private boolean isMaintainedByRs(final RpslObject resourceObject) {
-        final Set<CIString> objectMaintainers = resourceObject.getValuesForAttribute(AttributeType.MNT_BY);
+    private boolean isMaintainedByRs(final RpslObject rpslObject) {
+        final Set<CIString> objectMaintainers = rpslObject.getValuesForAttribute(AttributeType.MNT_BY);
         return !Sets.intersection(this.maintainers.getRsMaintainers(), objectMaintainers).isEmpty();
     }
 }

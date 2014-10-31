@@ -1,7 +1,7 @@
 #!/bin/bash
 # Init script for RIPE Database
 
-SERVICE=whois-dev-bootstrap
+SERVICE=whois
 
 # Path to jmxterm-<version>-uber.jar
 JMXTERMPATH=jmxterm-1.0.0-SNAPSHOT-uber.jar
@@ -24,7 +24,7 @@ GC_LOG="-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintHeapAtGC -Xloggc:va
 JMX="-Dcom.sun.management.jmxremote -Dhazelcast.jmx=true -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=${JMXPORT}"
 
 ### Final assembled command line
-COMMAND="$JAVA -D${SERVICE} $JAVA_OPT $JMX $SNMP $MEM -Dwhois.config=properties -Dhazelcast.config=hazelcast.xml -Dlog4j.configuration=file:log4j.xml -jar whois.jar"
+COMMAND="$JAVA -D${SERVICE} $JAVA_OPT $JMX $MEM -Dwhois.config=properties -Dhazelcast.config=hazelcast.xml -Dlog4j.configuration=file:log4j.xml -jar whois.jar"
 COMMAND_REGEXP="$JAVA -D${SERVICE}"'.*'" -jar whois.jar"
 
 # location of console.log
@@ -58,13 +58,6 @@ function server_up() {
 my_log() {
         echo "$@"
         #echo "`date +'%y%m%d %H:%M:%S'` $@" >>$ERRLOG
-}
-
-function my_panic() {
-        SUBJECT=$1 ; shift
-        my_log "$@"
-        echo -e "$@" | mail -s "$SUBJECT" "$NOTIFY"
-        my_log "Email sent to $NOTIFY"
 }
 
 ##############################################################################################

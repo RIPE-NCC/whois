@@ -595,7 +595,7 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This resource object must be created with a sponsoring-org attribute");
     }
 
-    public static Message informationLostDueToLatin1Conversion(String attributeName) {
-        return new Message(Type.WARNING, "Attribute \"%s\" has information loss due to conversion into ISO-8859-1 (Latin-1) character-set", attributeName);
+    public static Message valueChangedDueToLatin1Conversion(String attributeName) {
+        return new Message(Type.WARNING, "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", attributeName);
     }
 }
