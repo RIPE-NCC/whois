@@ -259,7 +259,7 @@ public class DomainAuthenticationTest {
                 "mnt-by:    DEV-MNT\n" +
                 "mnt-lower: DEV-MNT\n");
 
-        authenticate_ipv6_domain_parent_failed(ipObject, AttributeType.MNT_BY);
+        authenticate_ipv6_domain_parent_failed(ipObject, AttributeType.MNT_LOWER);
     }
 
     @Test

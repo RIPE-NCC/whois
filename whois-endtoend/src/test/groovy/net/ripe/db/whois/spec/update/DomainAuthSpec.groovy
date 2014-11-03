@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -435,14 +434,14 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
     }
 
     def "create reverse domain, ripe space, exact match inetnum with mnt-lower no mnt-domains, lower pw supplied"() {
-      given:
+        given:
         syncUpdate(getTransient("ALLOC-PA-LOW-R") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
 
-      expect:
+        expect:
         queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 domain:         193.in-addr.arpa
                 descr:          reverse domain
@@ -460,18 +459,16 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
-        ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
-                ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT"]
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
 
-        queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
+        queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
     }
 
     def "create reverse domain, ripe space, exact match inetnum with mnt-lower no mnt-domains, routes pw supplied"() {
@@ -509,7 +506,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
-                ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT"]
+                ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-lower:\" not authenticated by: LIR-MNT"]
 
         queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
     }
@@ -544,12 +541,14 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
+        ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
+              ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-lower:\" not authenticated by: LIR-MNT"]
 
-        queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
+        queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
     }
 
     def "create reverse domain, ripe space, exact match inetnum with no mnt-lower no mnt-domains, -by pw supplied"() {
@@ -2049,10 +2048,11 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
-                ["Existing more specific domain object found 193.0.0.0/24"]
+            ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-lower:\" not authenticated by: LIR-MNT",
+             "Existing more specific domain object found 193.0.0.0/24"]
 
         queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
     }
