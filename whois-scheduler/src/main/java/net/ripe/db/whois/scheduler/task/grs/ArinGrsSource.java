@@ -188,26 +188,23 @@ class ArinGrsSource extends GrsSource {
                 {"Source", AttributeType.SOURCE},
         }) {
             addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-                @Nullable
                 @Override
-                public RpslAttribute apply(final @Nullable RpslAttribute input) {
+                public RpslAttribute apply(final RpslAttribute input) {
                     return new RpslAttribute((AttributeType) mapped[1], input.getValue());
                 }
             }, (String) mapped[0]);
         }
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Nullable
             @Override
-            public RpslAttribute apply(final @Nullable RpslAttribute input) {
+            public RpslAttribute apply(final RpslAttribute input) {
                 return new RpslAttribute(AttributeType.ADDRESS, String.format("%s # %s", input.getValue(), input.getKey()));
             }
         }, "City", "Country", "PostalCode", "Street", "State/Prov");
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Nullable
             @Override
-            public RpslAttribute apply(final @Nullable RpslAttribute input) {
+            public RpslAttribute apply(final RpslAttribute input) {
                 String date = input.getCleanValue().toString().replaceAll("[^0-9]", "");
                 final String value = String.format("unread@ripe.net %s", date);
                 return new RpslAttribute(AttributeType.CHANGED, value);
@@ -215,9 +212,8 @@ class ArinGrsSource extends GrsSource {
         }, "Updated");
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Nullable
             @Override
-            public RpslAttribute apply(final @Nullable RpslAttribute input) {
+            public RpslAttribute apply(final RpslAttribute input) {
                 final String value = input.getCleanValue().toString();
 
                 // Fix IPv6 syntax
