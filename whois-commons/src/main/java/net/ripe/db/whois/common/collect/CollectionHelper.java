@@ -12,15 +12,18 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Collection;
 
 public final class CollectionHelper {
+
     public static final IsBlankPredicate IS_BLANK_PREDICATE = new IsBlankPredicate();
+
     public static final byte[] EMPTY_BYTE_ARRAY = new byte[] {};
 
     private CollectionHelper() {
+        // do not instantiate
     }
 
     static class IsBlankPredicate implements Predicate<CIString> {
         @Override
-        public boolean apply(@javax.annotation.Nullable CIString input) {
+        public boolean apply(final CIString input) {
             return StringUtils.isBlank(input.toString());
         }
     }
