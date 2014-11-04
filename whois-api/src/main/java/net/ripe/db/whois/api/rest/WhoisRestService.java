@@ -504,10 +504,11 @@ public class WhoisRestService {
     }
 
     private RpslObject getSubmittedObject(final HttpServletRequest request, final WhoisResources whoisResources) {
-        final int size = (whoisResources == null || CollectionUtils.isEmpty(whoisResources.getWhoisObjects())) ? 0 :
-                whoisResources.getWhoisObjects().size();
+        final int size = (whoisResources == null || CollectionUtils.isEmpty(whoisResources.getWhoisObjects())) ? 0 : whoisResources.getWhoisObjects().size();
         if (size != 1) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.singleObjectExpected(whoisResources.getWhoisObjects().size()))).build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.singleObjectExpected(size)))
+                    .build());
         }
 
         return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), getServerAttributeMapper(request.getQueryString()));
