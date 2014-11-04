@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Set;
@@ -47,9 +46,8 @@ public class AuthoritativeResourceData {
         this.dailySchedulerDao = dailySchedulerDao;
         this.dateTimeProvider = dateTimeProvider;
         this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), new Function<String, String>() {
-            @Nullable
             @Override
-            public String apply(@Nullable String input) {
+            public String apply(final String input) {
                 return input.toLowerCase().replace("-grs", "");
             }
         }));

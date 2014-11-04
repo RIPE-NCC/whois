@@ -8,7 +8,6 @@ import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class RestClientUtils {
@@ -25,7 +24,8 @@ public class RestClientUtils {
     // encode a list of query parameters
     public static final List<String> encode(final List<String> params) {
         return Lists.transform(params, new Function<String, String>() {
-            @Nullable @Override public String apply(@Nullable String input) {
+            @Override
+            public String apply(final String input) {
                 return encode(input);
             }
         });
