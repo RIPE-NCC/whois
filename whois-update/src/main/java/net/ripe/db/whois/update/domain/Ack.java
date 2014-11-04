@@ -4,7 +4,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class Ack {
     public int getNrCreate() {
         return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
             @Override
-            public boolean apply(@Nullable UpdateResult input) {
+            public boolean apply(final UpdateResult input) {
                 return Action.CREATE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
             }
         }));
@@ -65,7 +64,7 @@ public class Ack {
     public int getNrUpdate() {
         return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
             @Override
-            public boolean apply(@Nullable UpdateResult input) {
+            public boolean apply(final UpdateResult input) {
                 return Action.MODIFY.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
             }
         }));
@@ -74,7 +73,7 @@ public class Ack {
     public int getNrDelete() {
         return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
             @Override
-            public boolean apply(@Nullable UpdateResult input) {
+            public boolean apply(final UpdateResult input) {
                 return Action.DELETE.equals(input.getAction()) && UpdateStatus.SUCCESS.equals(input.getStatus());
             }
         }));
@@ -83,7 +82,7 @@ public class Ack {
     public int getNrNoop() {
         return Iterables.size(Iterables.filter(succeededUpdates, new Predicate<UpdateResult>() {
             @Override
-            public boolean apply(@Nullable UpdateResult input) {
+            public boolean apply(final UpdateResult input) {
                 return Action.NOOP.equals(input.getAction()) || UpdateStatus.PENDING_AUTHENTICATION.equals(input.getStatus());
             }
         }));
@@ -96,7 +95,7 @@ public class Ack {
     public int getNrCreateErrors() {
         return Iterables.size(Iterables.filter(failedUpdates, new Predicate<UpdateResult>() {
             @Override
-            public boolean apply(@Nullable UpdateResult input) {
+            public boolean apply(final UpdateResult input) {
                 return Action.CREATE.equals(input.getAction());
             }
         }));
@@ -105,7 +104,7 @@ public class Ack {
     public int getNrUpdateErrors() {
         return Iterables.size(Iterables.filter(failedUpdates, new Predicate<UpdateResult>() {
             @Override
-            public boolean apply(@Nullable UpdateResult input) {
+            public boolean apply(final UpdateResult input) {
                 return Action.MODIFY.equals(input.getAction());
             }
         }));
@@ -114,7 +113,7 @@ public class Ack {
     public int getNrDeleteErrors() {
         return Iterables.size(Iterables.filter(failedUpdates, new Predicate<UpdateResult>() {
             @Override
-            public boolean apply(@Nullable UpdateResult input) {
+            public boolean apply(final UpdateResult input) {
                 return Action.DELETE.equals(input.getAction());
             }
         }));
