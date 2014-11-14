@@ -18,14 +18,13 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-
 import java.util.NoSuchElementException;
 
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdResponse;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdSession;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdUser;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -57,14 +56,16 @@ public class CrowdClientTest {
     @Test
     public void login_success() {
         final String token = "xyz";
-        when(builder.post(any(Entity.class), any(Class.class))).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", true), token, "2033-01-30T16:38:27.369+11:00"));
+        when(builder.<CrowdSession>post(any(Entity.class), any(Class.class))).thenReturn(
+                new CrowdSession(
+                        new CrowdUser("test@ripe.net", true), token, "2033-01-30T16:38:27.369+11:00"));
 
         assertThat(subject.login("test@ripe.net", "password"), is(token));
     }
 
     @Test
     public void login_not_authorized() {
-        when(builder.post(any(Entity.class), any(Class.class))).thenAnswer(new Answer<CrowdSession>() {
+        when(builder.<CrowdSession>post(any(Entity.class), any(Class.class))).thenAnswer(new Answer<CrowdSession>() {
             @Override
             public CrowdSession answer(InvocationOnMock invocation) throws Throwable {
                 when(response.getStatus()).thenReturn(401);
