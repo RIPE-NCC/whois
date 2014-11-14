@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
 
 import java.util.Collection;
@@ -46,6 +47,7 @@ public class AuthenticationModule {
         }
     }
 
+    @CallerSensitive
     public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> maintainers) {
         final Credentials offered = update.getCredentials();
 
