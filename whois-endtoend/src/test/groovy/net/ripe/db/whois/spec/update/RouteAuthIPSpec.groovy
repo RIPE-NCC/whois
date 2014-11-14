@@ -1,9 +1,11 @@
 package net.ripe.db.whois.spec.update
 
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -193,6 +195,30 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 """,
             "PARENT-INET3": """\
                 inetnum: 21.128.0.0 - 21.255.255.255
+                netname: EXACT-INETNUM
+                descr:   Exact match inetnum object
+                country: EU
+                admin-c: TP1-TEST
+                tech-c:  TP1-TEST
+                status:  ASSIGNED PA
+                mnt-by:  PARENT-INETNUM-MB-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+            "PARENT-INET4": """\
+                inetnum: 21.128.0.0 - 21.128.255.255
+                netname: EXACT-INETNUM
+                descr:   Exact match inetnum object
+                country: EU
+                admin-c: TP1-TEST
+                tech-c:  TP1-TEST
+                status:  LIR-PARTITIONED PA
+                mnt-by:  PARENT-INETNUM-MB-MNT
+                changed:     dbtest@ripe.net 20020101
+                source:      TEST
+                """,
+            "PARENT-INET5": """\
+                inetnum: 21.128.255.255 - 21.128.255.255
                 netname: EXACT-INETNUM
                 descr:   Exact match inetnum object
                 country: EU
@@ -1454,6 +1480,118 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-rGBT route 21.130.0.0/16", "route", "21.130.0.0/16", "AS2000")
     }
+
+    def "create route, single IP parent inet, parent inet pw supplied"() {
+        given:
+        syncUpdate(getTransient("PARENT-INET5") + "password: mbi-parent\npassword: hm")
+
+        expect:
+        queryObject("-rGBT inetnum 21.128.255.255 - 21.128.255.255", "inetnum", "21.128.255.255 - 21.128.255.255")
+        queryObjectNotFound("-rGBT route 21.130.0.0/16", "route", "21.130.0.0/16")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                route:          21.128.255.255/32
+                descr:          Route
+                origin:         AS2000
+                mnt-by:         CHILD-MB-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   mb-child
+                password:   mbi-parent
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[route] 21.128.255.255/32AS2000" }
+
+        query_object_matches("-rGBT route 21.128.255.255/32", "route", "21.128.255.255/32", "AS2000")
+    }
+
+    def "create route, split parent inet, parent inet pw supplied"() {
+        given:
+        syncUpdate(getTransient("PARENT-INET4") + "password: mbi-parent\npassword: hm")
+
+        expect:
+        queryObject("-rGBT inetnum 21.128.0.0 - 21.128.255.255", "inetnum", "21.128.0.0 - 21.128.255.255")
+        queryObjectNotFound("-rGBT route 21.130.0.0/16", "route", "21.130.0.0/16")
+
+        when:
+        def message = syncUpdate("""
+                route:          21.128.0.0/16
+                descr:          Route
+                origin:         AS2000
+                mnt-by:         CHILD-MB-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                inetnum: 21.128.0.0 - 21.128.255.255
+                netname: EXACT-INETNUM
+                descr:   Exact match inetnum object
+                country: EU
+                admin-c: TP1-TEST
+                tech-c:  TP1-TEST
+                status:  LIR-PARTITIONED PA
+                mnt-by:  PARENT-INETNUM-MB-MNT
+                changed:     dbtest@ripe.net 20020101
+                source:      TEST
+                delete: to be split
+
+                inetnum: 21.128.0.0 - 21.128.127.255
+                netname: EXACT-INETNUM
+                descr:   Exact match inetnum object
+                country: EU
+                admin-c: TP1-TEST
+                tech-c:  TP1-TEST
+                status:  LIR-PARTITIONED PA
+                mnt-by:  PARENT-INETNUM-MB-MNT
+                changed:     dbtest@ripe.net 20020101
+                source:      TEST
+
+                inetnum: 21.128.128.0 - 21.128.255.255
+                netname: EXACT-INETNUM
+                descr:   Exact match inetnum object
+                country: EU
+                admin-c: TP1-TEST
+                tech-c:  TP1-TEST
+                status:  LIR-PARTITIONED PA
+                mnt-by:  PARENT-INETNUM-MB-MNT
+                changed:     dbtest@ripe.net 20020101
+                source:      TEST
+
+                password:   hm
+                password:   mb-child
+                password:   mbi-parent
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 4
+        ack.summary.assertSuccess(4, 3, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[route] 21.128.0.0/16AS2000" }
+        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 21.128.0.0 - 21.128.255.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 21.128.0.0 - 21.128.127.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 21.128.128.0 - 21.128.255.255" }
+
+        query_object_matches("-rGBT route 21.128.0.0/16", "route", "21.128.0.0/16", "AS2000")
+        queryObject("-rGBT inetnum 21.128.0.0 - 21.128.127.255", "inetnum", "21.128.0.0 - 21.128.127.255")
+        queryObject("-rGBT inetnum 21.128.128.0 - 21.128.255.255", "inetnum", "21.128.128.0 - 21.128.255.255")
+        queryObjectNotFound("-rGBT inetnum 21.128.0.0 - 21.128.255.255", "inetnum", "21.128.0.0 - 21.128.255.255")
+    }
+
 
     def "create exact match route, mnt-routes test 1"() {
       given:

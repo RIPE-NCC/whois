@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -79,9 +80,10 @@ public class DomainTest {
         assertThat(domain.getType(), is(Domain.Type.IP6));
     }
 
-    @Test(expected = AttributeParseException.class)
-    public void ipv4_invalid_prefix_32() {
-        Domain.parse("200.193.193.193.in-addr.arpa.");
+    @Test
+    public void ipv4_prefix_32_allowed() {
+        Domain domain = Domain.parse("200.193.193.193.in-addr.arpa.");
+        assertThat(domain.getValue(), is(ciString("200.193.193.193.in-addr.arpa")));
     }
 
     @Test(expected = AttributeParseException.class)

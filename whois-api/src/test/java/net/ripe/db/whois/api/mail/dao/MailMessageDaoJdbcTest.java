@@ -25,8 +25,8 @@ public class MailMessageDaoJdbcTest extends AbstractIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        subject = new MailMessageDaoJdbc(databaseHelper.getMailupdatesDataSource(), dateTimeProvider);
-        messageDequeue.forceStopNow();
+        subject = new MailMessageDaoJdbc(databaseHelper.getMailupdatesDataSource(), testDateTimeProvider);
+        messageDequeue.stop(false);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -133,6 +133,6 @@ public class MailMessageDaoJdbcTest extends AbstractIntegrationTest {
     }
 
     private List<Map<String, Object>> getAllMessages() {
-        return mailUpdatesTemplate.queryForList("select * from mailupdates");
+        return databaseHelper.getMailupdatesTemplate().queryForList("select * from mailupdates");
     }
 }

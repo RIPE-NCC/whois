@@ -208,7 +208,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
     def "delete route6"() {
         when:
         def delete = new SyncUpdate(data: """\
-                route6: 2001:1578:0200::/40
+                route6: 2001:1578:200::/40
                 descr: TEST-ROUTE6
                 origin: AS12726
                 mnt-by: TEST-MNT
@@ -733,7 +733,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 route6: 5353::0/24
                 descr: Test route6
                 origin: AS123
-                pingable: 5353::0/32
+                pingable: 5353::
                 mnt-by: TEST-MNT
                 changed: ripe@test.net 20091015
                 source: TEST
@@ -754,7 +754,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 route6: 5353::0/24
                 descr: Test route6
                 origin: AS123
-                pingable: 5354::0/32
+                pingable: 5354::0
                 mnt-by: TEST-MNT
                 changed: ripe@test.net 20091015
                 source: TEST
@@ -766,7 +766,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         response =~ /FAIL/
-        response =~ /Error:   5354::0\/32 is outside the range of this object/
+        response =~ /Error:   5354::0 is outside the range of this object/
     }
 
     def "create route6 member-of exists in route-set"() {
@@ -893,14 +893,14 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         descr:          Test route
                         origin:         AS12726
                         mnt-by:         TEST-MNT
-                        pingable:       9998::/32
+                        pingable:       9998::
                         changed:        ripe@test.net 20091015
                         source:         TEST
                         password:       update
                         """.stripIndent())
         then:
         response =~ /FAIL/
-        response =~ /Error:   9998::\/32 is outside the range of this object/
+        response =~ /Error:   9998:: is outside the range of this object/
     }
 
     def "modify route6 fail on holes"() {
@@ -955,7 +955,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             route6: 5353::0/24
                             descr: Test route6
                             origin: AS12726
-                            pingable: 5353::0/32
+                            pingable: 5353::0
                             mnt-by: TEST-MNT
                             changed: ripe@test.net 20091015
                             source: TEST
@@ -988,10 +988,10 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
 
         when:
         def deleteRoute = new SyncUpdate(data: """\
-                            route6: 5353::0/24
+                            route6: 5353::/24
                             descr: Test route6
                             origin: AS12726
-                            pingable: 5353::0/32
+                            pingable: 5353::0
                             mnt-by: TEST-MNT
                             changed: ripe@test.net 20091015
                             source: TEST
@@ -1014,7 +1014,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             route6: 5353::0/24
                             descr: Test route6
                             origin: AS12726
-                            pingable: 5353::0/32
+                            pingable: 5353::0
                             mnt-by: TEST-MNT
                             changed: ripe@test.net 20091015
                             source: TEST
@@ -1050,7 +1050,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             route6: 5353::0/24
                             descr: Test route6 modified
                             origin: AS12726
-                            pingable: 5353::0/32
+                            pingable: 5353::
                             mnt-by: TEST-MNT
                             changed: ripe@test.net 20091015
                             source: TEST
@@ -1206,7 +1206,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         pendInetnum =~ /\*\*\*Warning:\s+This update has only passed one of the two required hierarchical/
         pendInetnum =~ /\*\*\*Info:\s+The route6 object 5353::\/24AS456 will be saved for one week/
 
-        notificationFor("dbtest@ripe.net") // TODO [AK] Notification contents
+        notificationFor("dbtest@ripe.net")
         noMoreMessages()
 
         pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1

@@ -26,19 +26,39 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
     @Before
     public void setup() {
         databaseHelper.addObject(
-                "mntner:  OWNER-MNT\n" +
-                        "descr:   Owner Maintainer\n" +
-                        "auth:    MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                        "changed: dbtest@ripe.net 20120101\n" +
-                        "source:  TEST");
+                "mntner:        OWNER-MNT\n" +
+                "descr:         Owner Maintainer\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST");
         databaseHelper.addObject(
-                "person:  Test Person\n" +
-                        "address: Singel 258\n" +
-                        "phone:   +31 6 12345678\n" +
-                        "nic-hdl: TP1-TEST\n" +
-                        "mnt-by:  OWNER-MNT\n" +
-                        "changed: dbtest@ripe.net 20120101\n" +
-                        "source:  TEST\n");
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "changed:       dbtest@ripe.net 20120101\n" +
+                "source:        TEST\n");
+        databaseHelper.addObject(
+               "inetnum:        0.0.0.0 - 255.255.255.255\n" +
+               "netname:        IANA-BLK" +
+               "descr:          The whole IPv4 address space\n" +
+               "country:        EU\n" +
+               "tech-c:         TP1-TEST\n" +
+               "status:         ALLOCATED UNSPECIFIED\n" +
+               "mnt-by:         OWNER-MNT\n" +
+               "mnt-lower:      OWNER-MNT\n" +
+               "source:         TEST");
+        databaseHelper.addObject(
+               "inet6num:       ::/0\n" +
+               "netname:        IANA-BLK" +
+               "descr:          The whole IPv6 address space\n" +
+               "country:        EU\n" +
+               "tech-c:         TP1-TEST\n" +
+               "status:         ALLOCATED-BY-RIR\n" +
+               "mnt-by:         OWNER-MNT\n" +
+               "mnt-lower:      OWNER-MNT\n" +
+               "source:         TEST");
     }
 
     @Test
@@ -176,16 +196,16 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                 "changed:       dbtest@ripe.net 20121016\n" +
                 "source:        TEST\n");
         databaseHelper.addObject(
-               "inetnum:        10.0.0.0 - 10.255.255.255\n" +
-               "netname:        RIPE-NCC\n" +
-               "org:            ORG-LIR1-TEST\n" +
-               "descr:          Private Network\n" +
-               "country:        NL\n" +
-               "tech-c:         TP1-TEST\n" +
-               "status:         ASSIGNED PA\n" +
-               "mnt-by:         OWNER-MNT\n" +
-               "mnt-lower:      OWNER-MNT\n" +
-               "source:         TEST");
+                "inetnum:        10.0.0.0 - 10.255.255.255\n" +
+                "netname:        RIPE-NCC\n" +
+                "org:            ORG-LIR1-TEST\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
 
         final String response = RestTest.target(getPort(), "whois/geolocation?ipkey=10.0.0.0")
@@ -216,14 +236,14 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                "source:         TEST");
         databaseHelper.addObject(
                 "inetnum:        10.1.0.0 - 10.1.255.255\n" +
-                        "netname:        RIPE-NCC\n" +
-                        "descr:          Private Network\n" +
-                        "country:        NL\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "status:         ASSIGNED PI\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "mnt-lower:      OWNER-MNT\n" +
-                        "source:         TEST");
+                "netname:        RIPE-NCC\n" +
+                "descr:          Private Network\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "status:         ASSIGNED PA\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST");
         ipTreeUpdater.rebuild();
 
         final String response = RestTest.target(getPort(), "whois/geolocation?ipkey=10.1.0.0%20-%2010.1.255.255")
@@ -281,7 +301,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                     .get(String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("ipkey is required"));
+            assertThat(e.getResponse().readEntity(String.class), containsString("ipkey is required"));
         }
     }
 }

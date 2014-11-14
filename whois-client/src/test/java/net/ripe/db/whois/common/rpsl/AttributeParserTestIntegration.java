@@ -150,7 +150,6 @@ public class AttributeParserTestIntegration {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
             StringBuilder builder = new StringBuilder();
-            boolean debug = false;
 
             try {
                 String line;

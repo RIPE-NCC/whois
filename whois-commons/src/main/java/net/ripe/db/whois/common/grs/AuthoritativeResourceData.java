@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.IllegalSourceException;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Set;
@@ -46,9 +46,8 @@ public class AuthoritativeResourceData {
         this.dailySchedulerDao = dailySchedulerDao;
         this.dateTimeProvider = dateTimeProvider;
         this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), new Function<String, String>() {
-            @Nullable
             @Override
-            public String apply(@Nullable String input) {
+            public String apply(final String input) {
                 return input.toLowerCase().replace("-grs", "");
             }
         }));
@@ -78,7 +77,7 @@ public class AuthoritativeResourceData {
     }
 
     public AuthoritativeResource getAuthoritativeResource(final CIString source) {
-        final String sourceName = source.toLowerCase().replace("-grs", "");
+        final String sourceName = StringUtils.removeEnd(source.toLowerCase(), "-grs");
         final AuthoritativeResource authoritativeResource = authoritativeResourceCache.get(sourceName);
         if (authoritativeResource == null) {
             throw new IllegalSourceException(source);

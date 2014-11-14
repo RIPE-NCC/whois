@@ -1,8 +1,10 @@
 package net.ripe.db.whois.spec.update
 
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class HelpSpec extends BaseQueryUpdateSpec {
 
     def "send a help message and check the response"() {
@@ -69,22 +71,18 @@ class HelpSpec extends BaseQueryUpdateSpec {
             """.stripIndent()
     }
 
-//    def "send a HeLp and HowTo message and check the response"() {
-//        when:
-//
-//        def message = send new Message(
-//                subject: "HeLp HowTo",
-//                body: ""
-//        )
-//
-//        then:
-//
-//        def ack = ackFor message
-//
-//        ack.subject == "Failed: HeLp HowTo"
-//        ack.contents =~ """\
-//            Subject: HELP
-//            """.stripIndent()
-//
-//    }
+    def "send a HeLp and HowTo message and check the response"() {
+      when:
+        def message = send new Message(
+            subject: "HeLp HowTo",
+            body: ""
+        )
+
+      then:
+        def ack = ackFor message
+        ack.subject == "FAILED: HeLp HowTo"
+        ack.contents =~ "Subject:    HeLp HowTo"
+        ack.contents =~ /\*\*\*Warning: Invalid keyword\(s\) found: HeLp HowTo/
+        ack.contents =~ /\*\*\*Warning: All keywords were ignored/
+    }
 }

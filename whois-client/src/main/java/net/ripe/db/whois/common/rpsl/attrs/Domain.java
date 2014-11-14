@@ -77,8 +77,8 @@ public class Domain {
         }
         final int lastDot = value.lastIndexOf('.');
         final int secondLastDot = value.lastIndexOf('.', lastDot - 1);
-        String suffix = value.substring(secondLastDot + 1);
-        Type type = Type.getType(suffix);
+        final String suffix = value.substring(secondLastDot + 1);
+        final Type type = Type.getType(suffix);
         if (type == null) {
             throw new AttributeParseException(String.format("Unknown suffix '%s'", suffix), value);
         }
@@ -88,7 +88,7 @@ public class Domain {
         try {
             switch (type) {
                 case INADDR:
-                    Ipv4Resource ipv4Resource = Ipv4Resource.parseReverseDomain(value);
+                    final Ipv4Resource ipv4Resource = Ipv4Resource.parseReverseDomain(value);
                     dashNotation = checkIpv4Domain(value, ipv4Resource);
                     reverseIp = ipv4Resource;
                     break;
@@ -108,11 +108,8 @@ public class Domain {
         return new Domain(ciString(value), reverseIp, type, dashNotation);
     }
 
-    private static boolean checkIpv4Domain(String value, Ipv4Resource ipv4Resource) {
+    private static boolean checkIpv4Domain(final String value, final Ipv4Resource ipv4Resource) {
         final long rangeLength = ipv4Resource.end() - ipv4Resource.begin();
-        if (rangeLength == 0) {
-            throw new AttributeParseException("Too many octets specified", value);
-        }
 
         final int firstDash = value.indexOf('-');
         if (firstDash > 0) {
@@ -142,7 +139,7 @@ public class Domain {
 
         private String suffix;
 
-        Type(String suffix) {
+        Type(final String suffix) {
             this.suffix = suffix;
         }
 
@@ -151,7 +148,7 @@ public class Domain {
         }
 
         @CheckForNull
-        public static Type getType(String suffix) {
+        public static Type getType(final String suffix) {
             return nameToType.get(suffix.toLowerCase());
         }
     }

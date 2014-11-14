@@ -3,14 +3,14 @@ package net.ripe.db.whois.query.integration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
+import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)
 @Category(IntegrationTest.class)
-public class SimpleWhoisServerTestIntegration extends AbstractWhoisIntegrationTest {
+public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired @ReplaceWithMock private QueryHandler queryHandler;
     @Autowired @ReplaceWithMock private AccessControlListManager accessControlListManager;
 
@@ -57,7 +57,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractWhoisIntegrationTe
 
     @Test
     public void performIncorrectQuery() throws IOException {
-        String response = new DummyWhoisClient(QueryServer.port).sendQuery("-W test");
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery("-W test");
 
         assertThat(stripHeader(response), containsString(trim(QueryMessages.malformedQuery())));
     }
@@ -76,7 +76,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractWhoisIntegrationTe
             }
         }).when(queryHandler).streamResults(any(Query.class), any(InetAddress.class), anyInt(), any(ResponseHandler.class));
 
-        String response = new DummyWhoisClient(QueryServer.port).sendQuery(queryString);
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery(queryString);
 
         assertThat(stripHeader(response), containsString(queryResult));
     }
@@ -85,7 +85,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractWhoisIntegrationTe
     public void whoisQueryGivesException() throws IOException {
         doThrow(IllegalStateException.class).when(queryHandler).streamResults(any(Query.class), any(InetAddress.class), anyInt(), any(ResponseHandler.class));
 
-        String response = new DummyWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
 
         assertThat(stripHeader(response), Matchers.containsString("% This query was served by the RIPE Database Query"));
         assertThat(stripHeader(response), Matchers.containsString(trim(QueryMessages.internalErroroccurred())));
@@ -95,7 +95,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractWhoisIntegrationTe
     public void end_of_transmission_exception() throws IOException {
         doThrow(IllegalStateException.class).when(queryHandler).streamResults(any(Query.class), any(InetAddress.class), anyInt(), any(ResponseHandler.class));
 
-        String response = new DummyWhoisClient(QueryServer.port).sendQuery("10.0.0.0");
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery("10.0.0.0");
 
         assertThat(response, Matchers.containsString("% This query was served by the RIPE Database Query"));
         assertThat(response, endsWith("\n\n\n"));
@@ -104,14 +104,14 @@ public class SimpleWhoisServerTestIntegration extends AbstractWhoisIntegrationTe
 
     @Test
     public void end_of_transmission_success() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "10.0.0.0");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "10.0.0.0");
         assertThat(response, endsWith("\n\n\n"));
         assertThat(response, not(endsWith("\n\n\n\n")));
     }
 
     @Test
     public void onConnectionShouldAlwaysGetHeaderMessage() throws IOException {
-        String response = new DummyWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery("-rBGxTinetnum 10.0.0.0");
         assertTrue(response.startsWith(trim(QueryMessages.termsAndConditions())));
     }
 
@@ -119,7 +119,7 @@ public class SimpleWhoisServerTestIntegration extends AbstractWhoisIntegrationTe
     public void sendALotOfDataShouldGiveErrorMessage() throws IOException {
         String bigString = StringUtils.repeat("Hello World!", 5000);
 
-        String response = new DummyWhoisClient(QueryServer.port).sendQuery(bigString);
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery(bigString);
 
         assertThat(response, containsString(trim(QueryMessages.inputTooLong())));
     }

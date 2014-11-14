@@ -2,17 +2,14 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
-import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
-import net.ripe.db.whois.api.rest.domain.WhoisVersion;
+import net.ripe.db.whois.api.rest.domain.*;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.VersionDateTime;
+import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
@@ -25,32 +22,38 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
+import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WhoisObjectServerMapperTest {
-
     private static final String BASE_URL = "http://rest.db.ripe.net/lookup";
 
     @Mock
     private ReferencedTypeResolver referencedTypeResolver;
-    private WhoisObjectServerMapper mapper;
+
+    private WhoisObjectServerMapper whoisObjectServerMapper;
+    private WhoisObjectMapper whoisObjectMapper;
 
     @Before
     public void setup() {
-        mapper = new WhoisObjectServerMapper(referencedTypeResolver, BASE_URL);
+        whoisObjectMapper = new WhoisObjectMapper(BASE_URL, new AttributeMapper [] {
+                new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL),
+                new FormattedClientAttributeMapper()
+        });
+        whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper);
     }
 
     @Test
     public void map_rpsl_mntner() throws Exception {
-        when(referencedTypeResolver.getReferencedType(AttributeType.ADMIN_C, CIString.ciString("TP1-TEST"))).thenReturn("person");
-        when(referencedTypeResolver.getReferencedType(AttributeType.AUTH, CIString.ciString("PGPKEY-28F6CD6C"))).thenReturn("key-cert");
-        when(referencedTypeResolver.getReferencedType(AttributeType.MNT_BY, CIString.ciString("TST-MNT"))).thenReturn("mntner");
-        when(referencedTypeResolver.getReferencedType(AttributeType.REFERRAL_BY, CIString.ciString("TST-MNT"))).thenReturn("mntner");
+        when(referencedTypeResolver.getReferencedType(AttributeType.ADMIN_C, ciString("TP1-TEST"))).thenReturn("person");
+        when(referencedTypeResolver.getReferencedType(AttributeType.AUTH, ciString("PGPKEY-28F6CD6C"))).thenReturn("key-cert");
+        when(referencedTypeResolver.getReferencedType(AttributeType.MNT_BY, ciString("TST-MNT"))).thenReturn("mntner");
+        when(referencedTypeResolver.getReferencedType(AttributeType.REFERRAL_BY, ciString("TST-MNT"))).thenReturn("mntner");
 
         final RpslObject rpslObject = RpslObject.parse(
                 "mntner:      TST-MNT\n" +
@@ -64,7 +67,7 @@ public class WhoisObjectServerMapperTest {
                         "changed:     dbtest@ripe.net\n" +
                         "source:      TEST\n");
 
-        final WhoisObject whoisObject = mapper.map(rpslObject);
+        final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, FormattedServerAttributeMapper.class);
 
         assertThat(whoisObject.getType(), is("mntner"));
         assertThat(whoisObject.getSource().getId(), is("test"));
@@ -106,7 +109,7 @@ public class WhoisObjectServerMapperTest {
                 "changed:   hostmaster@ripe.net 20121115\n" +
                 "source:    TEST");
 
-        final WhoisObject whoisObject = mapper.map(rpslObject);
+        final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, FormattedServerAttributeMapper.class);
 
         assertThat(whoisObject.getType(), is("as-set"));
         assertThat(whoisObject.getSource().getId(), is("test"));
@@ -138,7 +141,7 @@ public class WhoisObjectServerMapperTest {
                 new VersionResponseObject(2, Operation.UPDATE, 3, new VersionDateTime(new LocalDateTime()), ObjectType.AUT_NUM, "AS102"),
                 new VersionResponseObject(2, Operation.UPDATE, 4, new VersionDateTime(new LocalDateTime()), ObjectType.AUT_NUM, "AS102"));
 
-        final List<WhoisVersion> whoisVersions = mapper.mapVersions(Lists.newArrayList(deleted), versionInfos);
+        final List<WhoisVersion> whoisVersions = whoisObjectServerMapper.mapVersions(Lists.newArrayList(deleted), versionInfos);
 
         assertThat(whoisVersions, hasSize(3));
         final WhoisVersion deletedVersion = whoisVersions.get(0);
@@ -159,11 +162,15 @@ public class WhoisObjectServerMapperTest {
 
     @Test
     public void map_tags() {
-        final List<WhoisTag> tags = mapper.map(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"),
-                Lists.newArrayList(
-                        new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("foo"), "foo data"),
-                        new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("bar"), "bar data"),
-                        new TagResponseObject(CIString.ciString("TEST-DBM"), CIString.ciString("barf"), "barf data"))).getTags();
+        final List<WhoisTag> tags = whoisObjectServerMapper.map(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"),
+                new TagResponseObject(ciString("TEST-DBM"),
+                        Lists.newArrayList(
+                                new Tag(ciString("foo"), "foo data"),
+                                new Tag(ciString("bar"), "bar data"),
+                                new Tag(ciString("barf"), "barf data")
+                        )),
+                        FormattedServerAttributeMapper.class
+                ).getTags();
 
         assertThat(tags, hasSize(3));
         final WhoisTag tag1 = tags.get(0);

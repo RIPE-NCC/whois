@@ -1,13 +1,14 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
-import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.AbstractDaoTest;
+import net.ripe.db.whois.query.VersionDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -36,7 +41,7 @@ public class JdbcVersionDaoTest extends AbstractDaoTest {
     @Test
     public void noHistoryForObject() {
         VersionLookupResult result = subject.findByKey(ObjectType.AS_SET, "AS-TEST");
-        final List<VersionInfo> history = result.getVersionInfos();
+        final List<VersionInfo> history = result.getMostRecentlyCreatedVersions();
 
         assertThat(result.getObjectType(), is(ObjectType.AS_SET));
         assertThat(result.getPkey(), is("AS-TEST"));
@@ -60,7 +65,7 @@ public class JdbcVersionDaoTest extends AbstractDaoTest {
     @Test
     public void historyForDeletedObject() {
         VersionLookupResult result = subject.findByKey(ObjectType.DOMAIN, "test.sk");
-        final List<VersionInfo> history = result.getVersionInfos();
+        final List<VersionInfo> history = result.getMostRecentlyCreatedVersions();
 
         assertNotNull(history);
         assertThat(history, hasSize(0));
@@ -71,17 +76,17 @@ public class JdbcVersionDaoTest extends AbstractDaoTest {
         databaseHelper.updateObject("domain:test.sk\ndescr:description3\nsource:RIPE\n");
 
         VersionLookupResult rerun = subject.findByKey(ObjectType.DOMAIN, "test.sk");
-        final List<VersionInfo> recreated = rerun.getVersionInfos();
+        final List<VersionInfo> recreated = rerun.getMostRecentlyCreatedVersions();
         assertThat(recreated.size(), is(3));
-        for (int i = 0; i < recreated.size(); i++) {
-            assertThat(recreated.get(i).getOperation(), is(Operation.UPDATE));
+        for (VersionInfo aRecreated : recreated) {
+            assertThat(aRecreated.getOperation(), is(Operation.UPDATE));
         }
     }
 
     @Test
     public void longHistory() {
         VersionLookupResult result = subject.findByKey(ObjectType.AUT_NUM, "AS20507");
-        final List<VersionInfo> history = result.getVersionInfos();
+        final List<VersionInfo> history = result.getMostRecentlyCreatedVersions();
 
         assertNotNull(history);
         assertThat(history, hasSize(4));
@@ -89,6 +94,22 @@ public class JdbcVersionDaoTest extends AbstractDaoTest {
         isMatching(history.get(0), new VersionInfo(false, 4709, 81, 1032341936L, Operation.UPDATE));
         isMatching(history.get(2), new VersionInfo(false, 4709, 83, 1034602217L, Operation.UPDATE));
         isMatching(history.get(3), new VersionInfo(false, 4709, 84, 1034685022L, Operation.UPDATE));
+    }
+
+    @Test
+    public void get_versions_for_existing_object() {
+        testDateTimeProvider.reset();
+
+        databaseHelper.addObject("domain:test.sk\ndescr:description1\nsource:RIPE\n");
+        databaseHelper.updateObject("domain:test.sk\ndescr:description2\nsource:RIPE\n");
+        databaseHelper.updateObject("domain:test.sk\ndescr:description3\nsource:RIPE\n");
+
+        final VersionLookupResult legacyVersions = subject.findByKey(ObjectType.DOMAIN, "test.sk");
+        long millies = Iterables.getLast(legacyVersions.getAllVersions()).getTimestamp().getTimestamp().toDateTime().getMillis();
+
+        final List<VersionInfo> versions = subject.getVersionsForTimestamp(ObjectType.DOMAIN, "test.sk", millies);
+        assertThat(versions.size(), greaterThanOrEqualTo(1));
+        assertThat(versions.size(), lessThanOrEqualTo(3));
     }
 
     public void isMatching(VersionInfo got, VersionInfo expected) {

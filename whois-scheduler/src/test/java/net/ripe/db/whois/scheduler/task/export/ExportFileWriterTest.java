@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -91,8 +91,8 @@ public class ExportFileWriterTest {
                 checkFile(file, "" +
                         "route:          193.0.0.0 - 193.0.0.10\n" +
                         "origin:         AS12\n\n" +
-                        QueryMessages.tagInfoStart("193.0.0.0 - 193.0.0.10AS12") + "\n" +
-                        QueryMessages.tagInfo("foo", "bar") + "\n");
+                        QueryMessages.tagInfoStart("193.0.0.0 - 193.0.0.10AS12") +
+                        QueryMessages.tagInfo("foo", "bar"));
             }
         }
     }

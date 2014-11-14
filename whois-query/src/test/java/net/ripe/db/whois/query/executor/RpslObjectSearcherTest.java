@@ -14,7 +14,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.dao.Inet6numDao;
 import net.ripe.db.whois.query.dao.InetnumDao;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
 import org.junit.Before;

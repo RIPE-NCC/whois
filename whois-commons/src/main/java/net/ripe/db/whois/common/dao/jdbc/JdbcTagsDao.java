@@ -102,7 +102,7 @@ public class JdbcTagsDao implements TagsDao {
     }
 
     @Override
-    public void deleteTagsOfType(CIString type) {
+    public void deleteTagsOfType(final CIString type) {
         jdbcTemplate.update("DELETE FROM tags WHERE tag_id = ?", type.toString());
     }
 

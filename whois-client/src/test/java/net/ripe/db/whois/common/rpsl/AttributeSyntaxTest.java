@@ -196,6 +196,7 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "Amsterdam.in-addr.arpa");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "01-03.0.0.193.in-addr.arpa");
 
+        verifySuccess(ObjectType.DOMAIN, AttributeType.DOMAIN, "1.0.0.193.in-addr.arpa");
         verifySuccess(ObjectType.DOMAIN, AttributeType.DOMAIN, "36.116.62.in-addr.arpa");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopq.e164.arpa");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "alpha.e164.arpa.");
@@ -283,7 +284,12 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "afi ipv6.unicast AS88262 at 2001:67c:20d0:fffe:ffff:ffff:ffff:fffa to AS123986 action pref=100; announce AS-SU-LOCAL");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "                     AS12956  \t84.16.8.225 at 84.16.8.226\t to AS986 AS123 to AS234 announce AS-TEST AND NOT {0.0.0.0/0}");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "afi any AS9070 62.44.108.66 at 62.44.108.65 to AS456789 announce AS-SU-LOCAL");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "afi ipv4.unicast AS99070 to AS123456 action pref=100; pref=10; announce AS-SU-LOCAL");
 
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "ipv4.unicast AS99070 to AS123456 announce AS-SU-LOCAL");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "afi ipv4.unicast AS99070 to AS123456 to AS123457 announce AS-SU-LOCAL");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "ipv4.unicast AS99070 to AS123456 to AS123457 announce AS-SU-LOCAL");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "afi ipv4.unicast AS99070 to AS123456 action pref=100; action pref=10; announce AS-SU-LOCAL");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.EXPORT_VIA, "INVALID");
     }
 
@@ -436,7 +442,12 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "  afi ipv6.unicast AS15685 2001:7f8:14::6:1 at 2001:7f8:14::31:1 from AS-TEST action cost=50; accept ANY");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144 accept <^[AS9002 AS31133 AS24940]>");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144 accept <^[AS1002-AS1005]>");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144 accept ANY ;");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144 action next_hop = 10.0.0.1; next_hop = 10.0.0.10; accept ANY");
 
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "ipv6.unicast AS16777 from AS262144 accept ANY ;");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "afi ipv6.unicast AS16777 from AS262144 action next_hop = 10.0.0.1; action next_hop = 10.0.0.10; accept ANY");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, " afi ipv6.unicast  AS3248  AS39560");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, " afi wonttell  AS3248 accept AS39560");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.IMPORT_VIA, "INVALID");
@@ -1086,9 +1097,9 @@ public class AttributeSyntaxTest {
 
     @Test
     public void role() {
-        verifyFailure(ObjectType.ROLE, AttributeType.ROLE, "some [name]");
-        verifyFailure(ObjectType.ROLE, AttributeType.ROLE, "Mad 'Dog'");
-        verifyFailure(ObjectType.ROLE, AttributeType.ROLE, "1Big guy");
+        verifySuccess(ObjectType.ROLE, AttributeType.ROLE, "some [name]");
+        verifySuccess(ObjectType.ROLE, AttributeType.ROLE, "Mad 'Dog'");
+        verifySuccess(ObjectType.ROLE, AttributeType.ROLE, "1Big guy");
 
         verifySuccess(ObjectType.ROLE, AttributeType.ROLE, "Agoston Horvath");
         verifySuccess(ObjectType.ROLE, AttributeType.ROLE, "Andre Kampert");
@@ -1181,15 +1192,21 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.ROUTE, AttributeType.PINGABLE, "::0/0");
 
         verifyFailure(ObjectType.ROUTE, AttributeType.PINGABLE, "192.168.1.10,192.168.1.11");
-        verifySuccess(ObjectType.ROUTE, AttributeType.PINGABLE, "192.168.1.10");
-        verifySuccess(ObjectType.ROUTE, AttributeType.PINGABLE, "0/0");
+        verifyFailure(ObjectType.ROUTE, AttributeType.PINGABLE, "0/0");
+
+        verifySuccess(ObjectType.ROUTE, AttributeType.PINGABLE, "193.0.0.1");
+        verifySuccess(ObjectType.ROUTE, AttributeType.PINGABLE, "193.0.0.1/32");
+        verifyFailure(ObjectType.ROUTE, AttributeType.PINGABLE, "193.0.0.0/24");
 
         verifyFailure(ObjectType.ROUTE6, AttributeType.PINGABLE, "");
         verifyFailure(ObjectType.ROUTE6, AttributeType.PINGABLE, "100.100.100");
         verifyFailure(ObjectType.ROUTE6, AttributeType.PINGABLE, "0/0");
         verifyFailure(ObjectType.ROUTE6, AttributeType.PINGABLE, "2a00:c00::/48,2a00:c01::/48");
-        verifySuccess(ObjectType.ROUTE6, AttributeType.PINGABLE, "::0/0");
-        verifySuccess(ObjectType.ROUTE6, AttributeType.PINGABLE, "2a00:c00::/48");
+        verifyFailure(ObjectType.ROUTE6, AttributeType.PINGABLE, "::0/0");
+
+        verifySuccess(ObjectType.ROUTE, AttributeType.PINGABLE, "192.168.1.10");
+        verifySuccess(ObjectType.ROUTE6, AttributeType.PINGABLE, "2a00:c00::");
+        verifySuccess(ObjectType.ROUTE6, AttributeType.PINGABLE, "2a00:c01::1234/128");
     }
 
     @Test
@@ -1208,6 +1225,18 @@ public class AttributeSyntaxTest {
 
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ALLOCATED PI");
         verifyFailure(ObjectType.INET6NUM, AttributeType.STATUS, "ALLOCATED PI");
+    }
+
+    @Test
+    public void statusAutnum() {
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.STATUS, "OTHER");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.STATUS, "AssIgNed");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.STATUS, "legacy");
+
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "ALLOCATED PI");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "33546565465");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "PGPKEY-");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "whatever");
     }
 
     @Test

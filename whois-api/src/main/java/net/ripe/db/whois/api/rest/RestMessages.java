@@ -9,11 +9,15 @@ public class RestMessages {
         return new Message(Messages.Type.ERROR, "Object type and key specified in URI (%s: %s) do not match the WhoisResources contents", objectType, key);
     }
 
+    public static Message uriMismatch(final CharSequence objectType) {
+        return new Message(Messages.Type.ERROR, "Object type specified in URI (%s) does not match the WhoisResources contents", objectType);
+    }
+
     public static Message singleObjectExpected(final int found) {
         return new Message(Messages.Type.ERROR, "Single object expected in WhoisResources (found %d)", found);
     }
 
-    public static Message disallowedSeachFlag(QueryFlag flag) {
+    public static Message disallowedSearchFlag(final QueryFlag flag) {
         return new Message(Messages.Type.ERROR, "Disallowed search flag '%s'", flag.getName());
     }
 
@@ -31,5 +35,17 @@ public class RestMessages {
 
     public static Message flagsNotAllowedInQueryString() {
         return new Message(Messages.Type.ERROR, "Flags are not allowed in 'query-string'");
+    }
+
+    public static Message invalidTimestampFormat(final CharSequence timestamp) {
+        return new Message(Messages.Type.ERROR, "Timestamp parameter '%s' does not have the correct format", timestamp);
+    }
+
+    public static Message ssoAuthIgnored() {
+        return new Message(Messages.Type.INFO, "RIPE NCC Access token ignored");
+    }
+
+    public static Message invalidRequestIp() {
+        return new Message(Messages.Type.ERROR, "This request is only allowed from within the RIPE NCC network");
     }
 }

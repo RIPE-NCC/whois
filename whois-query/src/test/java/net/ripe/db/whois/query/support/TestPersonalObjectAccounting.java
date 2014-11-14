@@ -1,14 +1,15 @@
 package net.ripe.db.whois.query.support;
 
-import net.ripe.db.whois.common.profiles.TestingProfile;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.query.acl.PersonalObjectAccounting;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-@TestingProfile
+@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
 @Component
 public class TestPersonalObjectAccounting implements PersonalObjectAccounting {
     private Map<InetAddress, Integer> queriedPersonalObjects = new HashMap<>();

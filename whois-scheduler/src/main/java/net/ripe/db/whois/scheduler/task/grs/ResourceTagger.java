@@ -1,9 +1,6 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
@@ -19,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -41,74 +37,19 @@ class ResourceTagger {
     }
 
     void tagObjects(final GrsSource grsSource) {
-        final Stopwatch stopwatch = new Stopwatch().start();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         try {
             sourceContext.setCurrent(Source.master(grsSource.getName()));
-            tagObjectsInContext(grsSource);
 
             if (sourceContext.isTagRoutes()) {
                 tagRouteObjectsInContext(grsSource);
             }
 
+            tagsDao.deleteOrphanedTags();
         } finally {
             sourceContext.removeCurrentSource();
             grsSource.getLogger().info("Tagging objects complete in {}", stopwatch.stop());
         }
-    }
-
-    private void tagObjectsInContext(final GrsSource grsSource) {
-        final AuthoritativeResource authoritativeResource = grsSource.getAuthoritativeResource();
-        final String rirName = grsSource.getName().toUpperCase().replace("-GRS", "");
-        final CIString registryTagType = ciString(String.format("%s-REGISTRY-RESOURCE", rirName));
-        final CIString userTagType = ciString(String.format("%s-USER-RESOURCE", rirName));
-        final List<Integer> deletes = Lists.newArrayList();
-        final List<Tag> creates = Lists.newArrayList();
-        final List<CIString> tagTypes = Lists.newArrayList(registryTagType, userTagType);
-
-        executeStreaming(
-                sourceContext.getCurrentSourceConfiguration().getJdbcTemplate(),
-                String.format("" +
-                        "SELECT object_id, object_type, pkey " +
-                        "FROM last " +
-                        "WHERE object_type IN (%s) " +
-                        "AND sequence_id != 0 ",
-                        Joiner.on(',').join(Iterables.transform(authoritativeResource.getResourceTypes(), new Function<ObjectType, Integer>() {
-                            @Nullable
-                            @Override
-                            public Integer apply(final ObjectType input) {
-                                return ObjectTypeIds.getId(input);
-                            }
-                        }))),
-                new RowCallbackHandler() {
-
-                    @Override
-                    public void processRow(final ResultSet rs) throws SQLException {
-                        try {
-                            final int objectId = rs.getInt(1);
-                            final ObjectType objectType = ObjectTypeIds.getType(rs.getInt(2));
-                            final CIString pkey = ciString(rs.getString(3));
-
-                            deletes.add(objectId);
-
-                            if (authoritativeResource.isMaintainedByRir(objectType, pkey)) {
-                                creates.add(new Tag(registryTagType, objectId));
-                            } else if (authoritativeResource.isMaintainedInRirSpace(objectType, pkey)) {
-                                creates.add(new Tag(userTagType, objectId));
-                            }
-
-                            if (creates.size() > BATCH_SIZE) {
-                                updateTags(tagTypes, deletes, creates);
-                            }
-
-                        } catch (RuntimeException e) {
-                            grsSource.getLogger().error("Unexpected", e);
-                        }
-                    }
-                });
-
-        updateTags(tagTypes, deletes, creates);
-
-        tagsDao.deleteOrphanedTags();
     }
 
     private void tagRouteObjectsInContext(final GrsSource grsSource) {
@@ -161,7 +102,7 @@ class ResourceTagger {
                     }
 
                     private boolean isAutnumMaintainedByRir(final RpslObject object) {
-                        return authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, object.getValueForAttribute(AttributeType.ORIGIN));
+                        return authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, object.getValueForAttribute(AttributeType.ORIGIN));
                     }
 
                     private boolean isRouteMaintainedInRirSpace(final RpslObject object) {

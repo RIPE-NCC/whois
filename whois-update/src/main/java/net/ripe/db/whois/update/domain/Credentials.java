@@ -2,10 +2,12 @@ package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Sets;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+@Immutable
 public class Credentials {
     private final Set<Credential> credentials;
 

@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
-
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
-import spock.lang.Ignore
 
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class Inet6numSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -225,16 +225,9 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    // Create 0::/0 without override
-    @Ignore
-    def "create 0::/0 without override"() {
-        expect:
-        queryObjectNotFound("-r -T inet6num ::/0", "inet6num", "::/0")
-
+    def "modify 0::/0 without override"() {
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""\
                 inet6num:     0::/0
                 netname:      IANA-BLK
                 descr:        The whole IPv6 address space
@@ -258,31 +251,21 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
-        ack.failed
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 1, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] ::/0" }
-        ack.errorMessagesFor("Create", "[inet6num] ::/0") == [
-                "There is no parent object"]
-        ack.infoMessagesFor("Create", "[inet6num] ::/0") == [
-                "Value 0::/0 converted to ::/0"]
-
-        queryObjectNotFound("-r -T inet6num ::/0", "inet6num", "::/0")
+            ack.countErrorWarnInfo(0, 0, 1)
+            ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
+            ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == ["Value 0::/0 converted to ::/0"]
     }
 
-    // Create 0::/0 with override
-    @Ignore
-    def "create 0::/0 with override"() {
+    def "modify 0::/0 with override"() {
         expect:
-        queryObjectNotFound("-r -T inet6num 0::/0", "inetnum", "0::/0")
+            queryObject("-r -T inet6num ::/0", "inet6num", "::/0")
 
         when:
-        def message = syncUpdate("""\
+            def ack = syncUpdateWithResponse("""
                 inet6num:      0::/0
                 netname:      IANA-BLK
                 descr:        The whole IPv6 address space
@@ -305,26 +288,21 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = new AckResponse("", message)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 0.0.0.0 - 255.255.255.255" }
-
-        queryObject("-r -T inetnum 0/0", "inetnum", "0/0")
+            ack.countErrorWarnInfo(0, 0, 2)
+            ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
+            ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == ["Value 0::/0 converted to ::/0", "Authorisation override used"]
     }
 
     def "modify with invalid prefix 1::/0"() {
         expect:
-        queryObject("-r -T inet6num ::/0", "inet6num", "::/0")
+            queryObject("-r -T inet6num ::/0", "inet6num", "::/0")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     1::/0
                 netname:      IANA-BLK
                 descr:        The whole IPv6 address space
@@ -345,31 +323,27 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: hm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 1)
+            ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
+            ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == [
+                    "Value 1::/0 converted to ::/0"]
 
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
-        ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == [
-                "Value 1::/0 converted to ::/0"]
-
-        queryObject("-r -T inet6num ::/0", "inet6num", "::/0")
+            queryObject("-r -T inet6num ::/0", "inet6num", "::/0")
     }
 
     def "create allocation with leading zero"() {
         expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     2001:0600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -386,21 +360,19 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 1)
+            ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+            ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/25") ==
+                    ["Value 2001:0600::/25 converted to 2001:600::/25"]
 
-        ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
-        ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/25") ==
-                ["Value 2001:0600::/25 converted to 2001:600::/25"]
-
-        queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }
 
     def "create /64 assignment with all zeroes"() {
@@ -769,10 +741,10 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 1)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
-                ["Syntax error in frED"]
+                ["Syntax error in FRED"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }
@@ -820,12 +792,10 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
     def "create allocation, parent has invalid legacy status"() {
         expect:
-        queryObjectNotFound("-r -T inet6num 1981:600::/48", "inet6num", "1981:600::/48")
+            queryObjectNotFound("-r -T inet6num 1981:600::/48", "inet6num", "1981:600::/48")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     1981:600::/48
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -846,28 +816,24 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+            ack.countErrorWarnInfo(1, 0, 0)
+            ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 1981:600::/48" }
+            ack.errorMessagesFor("Create", "[inet6num] 1981:600::/48") ==
+                    ["Parent 1981:600::/25 has invalid status: SUBTLA"]
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 1981:600::/48" }
-        ack.errorMessagesFor("Create", "[inet6num] 1981:600::/48") ==
-                ["Parent 1981:600::/25 has invalid status: SUBTLA"]
-
-        queryObjectNotFound("-rGBT inet6num 1981:600::/48", "inet6num", "1981:600::/48")
+            queryObjectNotFound("-rGBT inet6num 1981:600::/48", "inet6num", "1981:600::/48")
     }
 
     def "create RIR allocation not mnt-by RS"() {
         expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -885,31 +851,27 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+            ack.countErrorWarnInfo(1, 0, 0)
+            ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
+            ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
+                    ["Status ALLOCATED-BY-RIR can only be created by the database administrator"]
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
-                ["Status ALLOCATED-BY-RIR can only be created by the database administrator"]
-
-        queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }
 
     def "create RIR allocation, mnt-by RS"() {
         expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -926,29 +888,25 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
-
-        queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }
 
     def "create RIR allocation, joint mnt-by RS & LIR, using RS password"() {
         expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            queryObjectNotFound("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -965,19 +923,17 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
-
-        queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }
 
     def "create RIR allocation, joint mnt-by RS & LIR, using LIR password"() {
@@ -1111,12 +1067,10 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
     def "delete with invalid legacy status"() {
         expect:
-        queryObject("-B -r -T inet6num 1981:600::/25", "inet6num", "1981:600::/25")
+            queryObject("-B -r -T inet6num 1981:600::/25", "inet6num", "1981:600::/25")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     1981:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1133,19 +1087,17 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 0, 1, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 1, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 1981:600::/25" }
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 1981:600::/25" }
-
-        queryObjectNotFound("-rGBT inet6num 1981:600::/25", "inet6num", "1981:600::/25")
+            queryObjectNotFound("-rGBT inet6num 1981:600::/25", "inet6num", "1981:600::/25")
     }
 
     def "delete assignment"() {
@@ -1237,15 +1189,13 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
     def "delete PI assignment, RS pw"() {
         given:
-        syncUpdate(getTransient("RIR-ALLOC-20") + "password: hm\npassword: owner3")
-        queryObject("-r -T inet6num 2001::/20", "inet6num", "2001::/20")
-        syncUpdate(getTransient("ASSPI-64") + "password: hm\npassword: owner3")
-        queryObject("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+            syncUpdate(getTransient("RIR-ALLOC-20") + "password: hm\npassword: owner3")
+            queryObject("-r -T inet6num 2001::/20", "inet6num", "2001::/20")
+            syncUpdate(getTransient("ASSPI-64") + "password: hm\npassword: owner3")
+            queryObject("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     2001:600::/64
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1262,19 +1212,17 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 0, 1, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 1, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/64" }
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/64" }
-
-        queryObjectNotFound("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+            queryObjectNotFound("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
     }
 
     def "delete allocation, lir pw"() {
@@ -1322,13 +1270,11 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
     def "delete allocation, RS pw"() {
         given:
-        syncUpdate(getTransient("USER-RIR-ALLOC-25") + "password: hm\npassword: owner3\noverride: denis,override1")
-        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            syncUpdate(getTransient("USER-RIR-ALLOC-25") + "password: hm\npassword: owner3\noverride: denis,override1")
+            queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     2001:600::/25
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1346,19 +1292,17 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 0, 1, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 1, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/25" }
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/25" }
-
-        queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
     }
 
     def "delete allocation, override"() {
@@ -1404,16 +1348,14 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
     def "create RIR allocation, joint mnt-by RS & LIR, using RS password, parent no mnt-lower"() {
         given:
-        syncUpdate(getTransient("RIR-ALLOC-25-NO-LOW") + "password: hm\npassword: owner3\n")
-        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            syncUpdate(getTransient("RIR-ALLOC-25-NO-LOW") + "password: hm\npassword: owner3\n")
+            queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+            queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     2001:600::/30
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1430,33 +1372,29 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
-
-        queryObject("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+            queryObject("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
     }
 
     def "create RIR allocation, joint mnt-by RS & LIR, using RS password, parent has mnt-lower, no mnt-lower pw supplied"() {
         given:
-        syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3\n")
-        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3\n")
+            queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+            queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     2001:600::/30
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1473,35 +1411,31 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+            ack.countErrorWarnInfo(1, 0, 0)
+            ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
+            ack.errorMessagesFor("Create", "[inet6num] 2001:600::/30") ==
+                    ["Authorisation for parent [inet6num] 2001:600::/25 failed using \"mnt-lower:\" not authenticated by: LIR-MNT"]
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/30") ==
-                ["Authorisation for parent [inet6num] 2001:600::/25 failed using \"mnt-lower:\" not authenticated by: LIR-MNT"]
-
-        queryObjectNotFound("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+            queryObjectNotFound("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
     }
 
     def "create RIR allocation, parent has mnt-lower, MNT-ROUTES, MNT-DOMAINS, mnt-ROUTES,MNT-DOMAINS pw supplied"() {
         given:
-        syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "password: hm\npassword: owner3\n")
-        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "password: hm\npassword: owner3\n")
+            queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+            queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     2001:600::/30
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1520,35 +1454,31 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: lir3
                 password: owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(0, 0, 0, 0, 0)
+            ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+            ack.countErrorWarnInfo(1, 0, 0)
+            ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
+            ack.errorMessagesFor("Create", "[inet6num] 2001:600::/30") ==
+                    ["Authorisation for parent [inet6num] 2001:600::/25 failed using \"mnt-lower:\" not authenticated by: LIR-MNT, OWNER2-MNT"]
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/30") ==
-                ["Authorisation for parent [inet6num] 2001:600::/25 failed using \"mnt-lower:\" not authenticated by: LIR-MNT, OWNER2-MNT"]
-
-        queryObjectNotFound("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+            queryObjectNotFound("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
     }
 
     def "create RIR allocation, parent has mnt-lower, MNT-ROUTES, MNT-DOMAINS, mnt-lower pw supplied"() {
         given:
-        syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "password: hm\npassword: owner3\n")
-        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "password: hm\npassword: owner3\n")
+            queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+            queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     2001:600::/30
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1566,33 +1496,29 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
-
-        queryObject("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+            queryObject("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
     }
 
     def "create RIR allocation, obj has 2 RS mnt-by, parent has 2 mnt-lower, MNT-ROUTES, MNT-DOMAINS, 2nd mnt-by and 2nd mnt-lower pw supplied"() {
         given:
-        syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "password: hm\npassword: owner3\n")
-        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+            syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "password: hm\npassword: owner3\n")
+            queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
 
         expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+            queryObjectNotFound("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+            def ack = syncUpdateWithResponse("""
                 inet6num:     2001:600::/30
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
@@ -1611,19 +1537,17 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 password: owner2
                 password: owner3
                 """.stripIndent()
-        )
+            )
 
         then:
-        def ack = ackFor message
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
-
-        queryObject("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+            queryObject("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
     }
 
     def "modify RIR allocation, obj has 2 RS mnt-by, parent has 2 mnt-lower, MNT-ROUTES, MNT-DOMAINS, 2nd lir mnt-by and no parent pw supplied"() {

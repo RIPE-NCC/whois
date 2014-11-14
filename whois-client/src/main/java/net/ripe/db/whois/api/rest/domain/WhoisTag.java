@@ -10,9 +10,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class WhoisTag {
 
     @XmlAttribute(name = "id")
-    protected String id;
+    private String id;
     @XmlAttribute(name = "data")
-    protected String data;
+    private String data;
 
     public WhoisTag(final String id, final String data) {
         this.id = id;

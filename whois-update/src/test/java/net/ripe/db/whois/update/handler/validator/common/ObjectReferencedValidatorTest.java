@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -19,7 +20,9 @@ import java.util.Set;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ObjectReferencedValidatorTest {
@@ -45,7 +48,7 @@ public class ObjectReferencedValidatorTest {
     public void validate_not_referenced() {
         final RpslObject object = RpslObject.parse("mntner: TST-MNT");
         when(update.getReferenceObject()).thenReturn(object);
-        when(rpslObjectUpdateDao.getInvalidReferences(object)).thenReturn(Collections.<RpslAttribute, Set<String>>emptyMap());
+        when(rpslObjectUpdateDao.getInvalidReferences(object)).thenReturn(Collections.<RpslAttribute, Set<CIString>>emptyMap());
         subject.validate(update, updateContext);
 
         verifyZeroInteractions(updateContext);

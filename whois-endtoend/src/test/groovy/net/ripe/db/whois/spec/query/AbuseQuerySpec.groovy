@@ -1,8 +1,8 @@
 package net.ripe.db.whois.spec.query
-
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
-import net.ripe.db.whois.spec.domain.Message
 
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class AbuseQuerySpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {
@@ -275,9 +275,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBG -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -297,8 +295,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -319,9 +315,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rBG -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 organisation: ORG-LIR2-TEST
                 org-type:     LIR
                 org-name:     Local Internet Registry
@@ -340,8 +334,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -367,9 +359,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -390,8 +380,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -416,9 +404,7 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -440,8 +426,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)

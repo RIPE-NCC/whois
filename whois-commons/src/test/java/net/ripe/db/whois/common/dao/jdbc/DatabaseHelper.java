@@ -5,7 +5,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -16,12 +15,17 @@ import net.ripe.db.whois.common.jdbc.driver.LoggingDriver;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthTranslator;
+import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.SsoHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.joda.time.LocalDateTime;
@@ -29,8 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.EmbeddedValueResolverAware;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -40,6 +44,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringValueResolver;
 
+import javax.annotation.CheckForNull;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -47,6 +52,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -65,7 +71,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String LOGGING_HANDLER = "net.ripe.db.whois.common.jdbc.driver.DelegatingLoggingHandler";
 
     private DataSource mailupdatesDataSource;
     private DataSource dnsCheckDataSource;
@@ -73,14 +78,15 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private JdbcTemplate aclTemplate;
     private JdbcTemplate mailupdatesTemplate;
     private JdbcTemplate internalsTemplate;
+    private SourceAwareDataSource sourceAwareDataSource;
 
-    @Autowired Environment environment;
-    @Autowired DateTimeProvider dateTimeProvider;
+    @Autowired ApplicationContext applicationContext;
     @Autowired AttributeSanitizer attributeSanitizer;
-    @Autowired RpslObjectDao rpslObjectDao;
-    @Autowired RpslObjectUpdateDao rpslObjectUpdateDao;
-    @Autowired SourceAwareDataSource sourceAwareDataSource;
     @Autowired SourceContext sourceContext;
+
+    RpslObjectDao rpslObjectDao;
+    RpslObjectUpdateDao rpslObjectUpdateDao;
+    CrowdClient crowdClient;
     private StringValueResolver valueResolver;
 
     @Autowired(required = false)
@@ -108,14 +114,39 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     @Autowired(required = false)
     @Qualifier("internalsDataSource")
-    public void setPendingDataSource(DataSource pendingDataSource) {
-        internalsTemplate = new JdbcTemplate(pendingDataSource);
+    public void setInternalsDataSource(DataSource internalsDataSource) {
+        internalsTemplate = new JdbcTemplate(internalsDataSource);
+    }
+
+    // TODO: [AH] autowire these fields once whois-internals has proper wiring set up
+    @Autowired
+    public void setCrowdClient(CrowdClient crowdClient) {
+        this.crowdClient = crowdClient;
+    }
+
+    @Autowired
+    @Qualifier("sourceAwareDataSource")
+    public void setSourceAwareDataSource(final SourceAwareDataSource sourceAwareDataSource) {
+        this.sourceAwareDataSource = sourceAwareDataSource;
+    }
+
+
+    @Autowired
+    public void setRpslObjectDao(RpslObjectDao rpslObjectDao) {
+        this.rpslObjectDao = rpslObjectDao;
+    }
+
+    @Autowired
+    public void setRpslObjectUpdateDao(RpslObjectUpdateDao rpslObjectUpdateDao) {
+        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
     }
 
     @Override
     public void setEmbeddedValueResolver(final StringValueResolver valueResolver) {
         this.valueResolver = valueResolver;
     }
+
+
 
     private static String dbBaseName;
     private static Map<String, String> grsDatabaseNames = Maps.newHashMap();
@@ -129,8 +160,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         ensureLocalhost(jdbcTemplate);
         cleanupOldTables(jdbcTemplate);
 
-        String uniqueForkId = System.getProperty("surefire.forkNumber");
-        if (StringUtils.isBlank(uniqueForkId)) {
+        String uniqueForkId = System.getProperty("jvmId");
+        if (StringUtils.isBlank(uniqueForkId) || !StringUtils.isAlphanumeric(uniqueForkId)) {
             uniqueForkId = DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
         }
         dbBaseName = "test_" + System.currentTimeMillis() + "_" + uniqueForkId;
@@ -141,13 +172,13 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
 
-        final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s;logger=%s", dbBaseName, JDBC_DRIVER, LOGGING_HANDLER);
-        System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
+        final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s", dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
+        System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
 
         final String slaveUrl = String.format("jdbc:mysql://localhost/%s_WHOIS", dbBaseName);
-        System.setProperty("whois.db.driver", JDBC_DRIVER);
         System.setProperty("whois.db.slave.url", slaveUrl);
+        System.setProperty("whois.db.driver", JDBC_DRIVER);
 
         final String grsSlaveUrl = String.format("jdbc:mysql://localhost/%s", dbBaseName);
         System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);
@@ -241,24 +272,41 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         for (final String source : sources) {
             try {
                 final JdbcTemplate jdbcTemplate = sourceContext.getSourceConfiguration(Source.master(source)).getJdbcTemplate();
-                truncateTables(jdbcTemplate);
-                loadScripts(jdbcTemplate, "whois_data.sql");
+                setupWhoisDatabase(jdbcTemplate);
             } catch (IllegalSourceException e) {
                 LOGGER.warn("Source not configured, check test: {}", source);
             }
         }
 
+        setupInternalsDatabase();
+        setupMailupdatesDatabase();
         setupAclDatabase();
-        truncateTables(mailupdatesTemplate, internalsTemplate);
-        loadScripts(internalsTemplate, "internals_data.sql");
+    }
+
+    public void setupWhoisDatabase(JdbcTemplate jdbcTemplate) {
+        truncateTables(jdbcTemplate);
+        loadScripts(jdbcTemplate, "whois_data.sql");
     }
 
     public void setupAclDatabase() {
         truncateTables(aclTemplate);
     }
 
+    public void setupMailupdatesDatabase() {
+        truncateTables(mailupdatesTemplate);
+    }
+
+    public void setupInternalsDatabase() {
+        truncateTables(internalsTemplate);
+        loadScripts(internalsTemplate, "internals_data.sql");
+    }
+
     public DataSource getMailupdatesDataSource() {
         return mailupdatesDataSource;
+    }
+
+    public JdbcTemplate getMailupdatesTemplate() {
+        return mailupdatesTemplate;
     }
 
     public DataSource getDnsCheckDataSource() {
@@ -285,9 +333,30 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return addObject(RpslObject.parse(rpslString));
     }
 
+    public RpslObject translateAuth(final RpslObject rpslObject) {
+        return SsoHelper.translateAuth(rpslObject, new AuthTranslator() {
+            @Override
+            @CheckForNull
+            public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
+                if (authType.equals("SSO")) {
+                    try {
+                        final String uuid = crowdClient.getUuid(authToken);
+                        return new RpslAttribute(originalAttribute.getKey(), "SSO " + uuid);
+                    } catch (CrowdClientException e) {
+                        LOGGER.info(e.getMessage());
+                    }
+                }
+                return null;
+            }
+        });
+    }
+
+    // TODO: [AH] we should sanitize when setting up test DB, like we do in production.
+    // TODO: [AH] use AttributeSanitizer here when the SQL DB is fully cleaned up
     public RpslObject addObject(final RpslObject rpslObject) {
-        final RpslObjectUpdateInfo objectUpdateInfo = rpslObjectUpdateDao.createObject(rpslObject);
-        return RpslObject.parse(objectUpdateInfo.getObjectId(), rpslObject.toByteArray());
+        final RpslObjectUpdateInfo objectUpdateInfo = rpslObjectUpdateDao.createObject(translateAuth(rpslObject));
+        claimId(rpslObject);
+        return new RpslObject(objectUpdateInfo.getObjectId(), rpslObject);
     }
 
     public RpslObject addObjectToSource(final String source, final String rpslString) {
@@ -303,17 +372,24 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         }
     }
 
-    // TODO: [AH] this is very similar to loader, should merge (also, claiming of IDs is missing from here)
+    public Map<RpslObject, RpslObjectUpdateInfo> addObjects(final RpslObject... rpslObjects) {
+        return addObjects(Arrays.asList(rpslObjects));
+    }
+
     public Map<RpslObject, RpslObjectUpdateInfo> addObjects(final Collection<RpslObject> rpslObjects) {
         final Map<RpslObject, RpslObjectUpdateInfo> transformedInfoMap = Maps.newHashMap();
         final Map<RpslObject, RpslObjectUpdateInfo> updateInfoMap = Maps.newHashMap();
 
         for (final RpslObject rpslObject : rpslObjects) {
             // create object with key attribute(s) only - without reference to other objects
-            RpslObject transformedObject = attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
-            final RpslObjectUpdateInfo updateInfo = addObjectWithoutReferences(transformedObject, rpslObjectUpdateDao);
+            RpslObject sanitizedObject = attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
+            sanitizedObject = translateAuth(sanitizedObject);
+            RpslObject keysOnlyObject = keepKeyAttributesOnly(new RpslObjectBuilder(sanitizedObject)).get();
+            final RpslObjectUpdateInfo updateInfo = addObjectWithoutReferences(keysOnlyObject, rpslObjectUpdateDao);
+            claimId(sanitizedObject);
+
             updateInfoMap.put(rpslObject, updateInfo);
-            transformedInfoMap.put(transformedObject, updateInfo);
+            transformedInfoMap.put(sanitizedObject, updateInfo);
         }
 
         for (RpslObject transformedObject : transformedInfoMap.keySet()) {
@@ -321,6 +397,16 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
             rpslObjectUpdateDao.updateObject(transformedInfoMap.get(transformedObject).getObjectId(), transformedObject);
         }
         return updateInfoMap;
+    }
+
+    // TODO: move claimIds from ObjectLoader to whois-commons
+    private void claimId(RpslObject rpslObject) {
+        // claim IDs. ugly, but ObjectLoader is in whois-update
+        try {
+            Object bean = applicationContext.getBean("objectLoader");
+            bean.getClass().getMethod("claimIds", RpslObject.class).invoke(bean, rpslObject);
+            LOGGER.info("Claimed IDs for " + rpslObject.getFormattedKey());
+        } catch (Exception ignored) {}
     }
 
     private RpslObjectUpdateInfo addObjectWithoutReferences(final RpslObject rpslObject, final RpslObjectUpdateDao rpslObjectUpdateDao) {
@@ -338,17 +424,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return RpslObject.parse(objectInfo.getObjectId(), rpslObject.toByteArray());
     }
 
-    public void updateObjects(final Collection<RpslObject> rpslObjects) {
-        for (final RpslObject rpslObject : rpslObjects) {
-            this.updateObject(rpslObject);
-        }
-    }
-
-    public RpslObjectUpdateInfo removeObject(final int id, final String rpslString) {
-        return removeObject(RpslObject.parse(id, rpslString.getBytes()));
-    }
-
-    public RpslObjectUpdateInfo removeObject(final RpslObject rpslObject) {
+    public RpslObjectUpdateInfo deleteObject(final RpslObject rpslObject) {
         final RpslObjectInfo objectInfo = rpslObjectDao.findByKey(rpslObject.getType(), rpslObject.getKey().toString());
         return rpslObjectUpdateDao.deleteObject(objectInfo.getObjectId(), objectInfo.getKey());
     }

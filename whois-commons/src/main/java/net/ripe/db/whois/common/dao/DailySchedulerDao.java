@@ -33,8 +33,8 @@ public class DailySchedulerDao {
     }
 
     public long getDailyTaskFinishTime(final LocalDate date, final Class taskClass) {
-        final List<Long> result = jdbcTemplate.queryForList("SELECT done FROM scheduler WHERE date = ? AND task = ?", Long.class, date.toString(), taskClass.getSimpleName());
-        return result.isEmpty() ? -1 : result.get(0) * 1000;
+        final List<Long> result = jdbcTemplate.queryForList("SELECT MAX(done) FROM scheduler WHERE date = ? AND task = ?", Long.class, date.toString(), taskClass.getSimpleName());
+        return result.isEmpty() || result.get(0) == null ? -1 : result.get(0) * 1000;
     }
 
     public void removeFinishedScheduledTasks() {
@@ -52,7 +52,7 @@ public class DailySchedulerDao {
     public boolean acquireDailyTask(final LocalDate date, final Class taskClass, final String hostName) {
         final List<Long> finishDate = jdbcTemplate.queryForList("SELECT done FROM scheduler WHERE date = ? AND task = ?", Long.class, date.minusDays(1).toString(), taskClass.getSimpleName());
         if (finishDate.size() > 0 && finishDate.get(0) == null) {
-            LOGGER.error("While trying to acquire ({}, {}, {}): previous day's run is not marked as finished!", date.toString(), taskClass.getSimpleName(), hostName);
+            LOGGER.error("While trying to acquire ({}, {}): previous day's run (by {}) is not marked as finished!", date.toString(), taskClass.getSimpleName(), hostName);
         }
 
         try {

@@ -1,25 +1,25 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import difflib.DiffUtils;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.io.ByteArrayOutput;
 import org.apache.commons.lang.Validate;
+import org.springframework.util.CollectionUtils;
 
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -29,13 +29,10 @@ import java.util.Set;
 
 @Immutable
 public class RpslObject implements Identifiable, ResponseObject {
-    private static final Splitter LINE_SPLITTER = Splitter.on('\n').trimResults();
-
     private final ObjectType type;
     private final RpslAttribute typeAttribute;
     private final CIString key;
 
-    // TODO: [AH] add sequence_id here too (to form the basis of versioning)
     private Integer objectId;
 
     private List<RpslAttribute> attributes;
@@ -51,6 +48,16 @@ public class RpslObject implements Identifiable, ResponseObject {
         this.objectId = objectId;
     }
 
+    public RpslObject(final Integer objectId, final RpslObject rpslObject) {
+        this.objectId = objectId;
+        this.attributes = rpslObject.attributes;
+        this.type = rpslObject.type;
+        this.typeAttribute = rpslObject.typeAttribute;
+        this.key = rpslObject.key;
+        this.typeCache = rpslObject.typeCache;
+        this.hash = rpslObject.hash;
+    }
+
     public RpslObject(final List<RpslAttribute> attributes) {
         Validate.notEmpty(attributes);
 
@@ -58,12 +65,12 @@ public class RpslObject implements Identifiable, ResponseObject {
         this.type = ObjectType.getByName(typeAttribute.getKey());
         this.attributes = Collections.unmodifiableList(attributes);
 
-        Set<AttributeType> keyAttributes = ObjectTemplate.getTemplate(type).getKeyAttributes();
+        final Set<AttributeType> keyAttributes = ObjectTemplate.getTemplate(type).getKeyAttributes();
         if (keyAttributes.size() == 1) {
             this.key = getValueForAttribute(keyAttributes.iterator().next());
             Validate.notEmpty(this.key.toString(), "key attributes must have value");
         } else {
-            StringBuilder keyBuilder = new StringBuilder(32);
+            final StringBuilder keyBuilder = new StringBuilder(32);
             for (AttributeType keyAttribute : keyAttributes) {
                 String key = getValueForAttribute(keyAttribute).toString();
                 Validate.notEmpty(key, "key attributes must have value");
@@ -94,7 +101,6 @@ public class RpslObject implements Identifiable, ResponseObject {
         return objectId;
     }
 
-    @CheckForNull
     public ObjectType getType() {
         return type;
     }
@@ -181,11 +187,11 @@ public class RpslObject implements Identifiable, ResponseObject {
         final List<RpslAttribute> foundAttributes = findAttributes(attributeType);
         switch (foundAttributes.size()) {
             case 0:
-                throw new IllegalArgumentException("No attribute of type: " + attributeType);
+                throw new IllegalArgumentException("No " + attributeType + ": found in " + key);
             case 1:
                 return foundAttributes.get(0);
             default:
-                throw new IllegalArgumentException("Multiple attributes of type: " + attributeType);
+                throw new IllegalArgumentException("Multiple " + attributeType + ": found in " + key);
         }
     }
 
@@ -205,16 +211,10 @@ public class RpslObject implements Identifiable, ResponseObject {
     }
 
     public List<RpslAttribute> findAttributes(final AttributeType... attributeTypes) {
-        final List<RpslAttribute> result = Lists.newArrayList();
-
-        for (AttributeType attributeType : attributeTypes) {
-            findCachedAttributes(result, attributeType);
-        }
-
-        return result;
+        return findAttributes(Arrays.asList(attributeTypes));
     }
 
-    private void findCachedAttributes(List<RpslAttribute> result, AttributeType attributeType) {
+    private void findCachedAttributes(final List<RpslAttribute> result, final AttributeType attributeType) {
         final List<RpslAttribute> list = getOrCreateCache().get(attributeType);
         if (list != null) {
             result.addAll(list);
@@ -276,6 +276,7 @@ public class RpslObject implements Identifiable, ResponseObject {
         return findAttribute(attributeType).getCleanValue();
     }
 
+    @Nullable
     public CIString getValueOrNullForAttribute(final AttributeType attributeType) {
         List<RpslAttribute> attributes = findAttributes(attributeType);
         if (attributes.isEmpty()) {
@@ -284,34 +285,16 @@ public class RpslObject implements Identifiable, ResponseObject {
         return attributes.get(0).getCleanValue();
     }
 
-    public Set<CIString> getValuesForAttribute(final AttributeType attributeType) {
-        final List<RpslAttribute> attributeList = findAttributes(attributeType);
-        if (attributeList.isEmpty()) {
-            return Collections.emptySet();
-        }
-
+    public Set<CIString> getValuesForAttribute(final AttributeType... attributeType) {
         final Set<CIString> values = Sets.newLinkedHashSet();
-        for (final RpslAttribute attribute : attributeList) {
-            values.addAll(attribute.getCleanValues());
+        for (AttributeType attrType : attributeType) {
+            final List<RpslAttribute> rpslAttributes = getOrCreateCache().get(attrType);
+            if (!CollectionUtils.isEmpty(rpslAttributes)) {
+                for (RpslAttribute rpslAttribute : rpslAttributes) {
+                    values.addAll(rpslAttribute.getCleanValues());
+                }
+            }
         }
-
         return values;
-    }
-
-    public String diff(final RpslObject rpslObject) {
-        final StringBuilder builder = new StringBuilder();
-
-        final List<String> originalLines = Lists.newArrayList(LINE_SPLITTER.split(rpslObject.toString()));
-        final List<String> revisedLines = Lists.newArrayList(LINE_SPLITTER.split(this.toString()));
-
-        final List<String> diff = DiffUtils.generateUnifiedDiff(null, null, originalLines, DiffUtils.diff(originalLines, revisedLines), 1);
-
-        for (int index = 2; index < diff.size(); index++) {
-            // skip unified diff header lines
-            builder.append(diff.get(index));
-            builder.append('\n');
-        }
-
-        return builder.toString();
     }
 }

@@ -1,22 +1,27 @@
 package net.ripe.db.whois.common;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import java.util.regex.Pattern;
 
 @Immutable
-public final class Message {
-    public static final Pattern BEGINNING_OF_LINE_PERCENT_SIGNS = Pattern.compile("^%+ ");
+public class Message {
 
-    private final Messages.Type type;
-    private final String text;
-    private final Object[] args;
-    private final String formattedText;
+    protected Messages.Type type;
+    protected String text;
+    protected Object[] args;
+    protected String formattedText;
+
+    protected Message() {}
 
     public Message(final Messages.Type type, final String text, final Object... args) {
         this.type = type;
         this.text = text;
         this.args = args;
-        this.formattedText = args.length == 0 ? text : String.format(text, args);
+        this.formattedText = formatMessage(text, args);
+    }
+
+    protected String formatMessage(final String text, final Object[] args) {
+        return args.length == 0 ? text : String.format(text, args);
     }
 
     @Override
@@ -25,7 +30,7 @@ public final class Message {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -45,18 +50,22 @@ public final class Message {
         return result;
     }
 
+    @Nullable
     public Messages.Type getType() {
         return type;
     }
 
+    @Nullable
     public String getFormattedText() {
         return formattedText;
     }
 
+    @Nullable
     public String getText() {
         return text;
     }
 
+    @Nullable
     public Object[] getArgs() {
         return args;
     }

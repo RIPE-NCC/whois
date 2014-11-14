@@ -1,9 +1,11 @@
 package net.ripe.db.whois.spec.update
 
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class InetrtrSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -36,7 +38,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 notify:         noreply@ripe.net
-                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         RIPE-NCC-HM-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
@@ -118,7 +120,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
             queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
         when:
-            def response2 = syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            def response2 = syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             println "Aut-num create status : ${response2}"
         then:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
@@ -160,7 +162,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "create inetrtr with all values"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
         expect:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
@@ -220,7 +222,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "create inetrtr, alias value with a trailing dot"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
         expect:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
@@ -268,7 +270,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
 
-            def response2 = syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            def response2 = syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             println "Aut-num create status : ${response2}"
         expect:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
@@ -311,7 +313,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "create inetrtr with member-of an rtr-set"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
 
             def response = syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             println "RTR-SET create status : ${response}"
@@ -358,7 +360,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "create inetrtr with member-of a non-existing rtr-set"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
         expect:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
         when:
@@ -401,7 +403,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         given:
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             def response1 = syncUpdate(getTransient("test2.net") + "password:test3")
             println "Inet-rtr object : ${response1}"
         expect:
@@ -443,7 +445,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         given:
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("test2.net") + "password:test3")
         expect:
             queryObject("-r -T rtr-set RTRS-TESTNET", "rtr-set", "RTRS-TESTNET")
@@ -485,7 +487,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "create inetrtr referencing hierarchial rtr-set"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
 
             def response = syncUpdate(getTransient("AS28816") + "password:test")
@@ -575,7 +577,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "create inetrtr, query non-existing ifaddr IP"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
 
             def response = syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             println "RTR-SET create status : ${response}"
@@ -622,7 +624,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "create inetrtr, query non-existing interface IP"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
 
             def response = syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             println "RTR-SET create status : ${response}"
@@ -670,7 +672,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "create inetrtr, query existing interface"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             syncUpdate(getTransient("INET6NUM-2001") + "password:test\npassword:hm")
         expect:
@@ -718,7 +720,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "create inetrtr, query non-existing interface"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
         expect:
             queryObject("-r -T as-block AS222", "as-block", "AS222 - AS333")
@@ -808,7 +810,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "create inetrtr with member-of an rtr-set which has NO mbrs-by-ref: TST-MNT"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
 
             def response = syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             println "RTR-SET create status : ${response}"
@@ -856,7 +858,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "modify inetrtr change description"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("test.net") + "password:test")
         expect:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
@@ -898,7 +900,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "modify inetrtr, change ifaddr value with invalid syntax"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             syncUpdate(getTransient("test2.net") + "password:test3")
         expect:
@@ -943,7 +945,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "modify inetrtr, change interface value with invalid syntax"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             syncUpdate(getTransient("test2.net") + "password:test3")
         expect:
@@ -988,7 +990,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "modify inetrtr, change peer value with invalid syntax"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             syncUpdate(getTransient("test2.net") + "password:test3")
         expect:
@@ -1033,7 +1035,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "modify inetrtr, change mp-peer value with invalid syntax"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             syncUpdate(getTransient("test2.net") + "password:test3")
         expect:
@@ -1082,7 +1084,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "modify inetrtr with valid syntax"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             syncUpdate(getTransient("test2.net") + "password:test3")
         expect:
@@ -1130,7 +1132,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "modify inetrtr remove mandatory attributes admin-c,tech-c"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("test.net") + "password:test")
         expect:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
@@ -1173,7 +1175,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "modify inetrtr change ifaddr"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("test.net") + "password:test")
         expect:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
@@ -1215,7 +1217,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "modify inetrtr change mnt-by, old mnt-by pw supplied"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-            syncUpdate(getTransient("AS250") + "password:nccend\npassword:locked\npassword:owner3")
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("test.net") + "password:test")
         expect:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")

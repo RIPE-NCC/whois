@@ -5,27 +5,40 @@ import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.update.domain.Credentials;
+import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.PgpCredential;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.SsoCredential;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.X509Credential;
+import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import sun.reflect.Reflection;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 public class AuthenticationModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationModule.class);
+    private static final AuthComparator AUTH_COMPARATOR = new AuthComparator();
 
     private final Map<Class<? extends Credential>, CredentialValidator> credentialValidatorMap;
-
+    private final LoggerContext loggerContext;
 
     @Autowired
-    public AuthenticationModule(final CredentialValidator<?>... credentialValidators) {
+    public AuthenticationModule(final LoggerContext loggerContext,
+                                final CredentialValidator<?>... credentialValidators) {
+
+        this.loggerContext = loggerContext;
         credentialValidatorMap = Maps.newHashMap();
 
         for (final CredentialValidator<?> credentialValidator : credentialValidators) {
@@ -33,21 +46,26 @@ public class AuthenticationModule {
         }
     }
 
-    public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> candidates) {
+    public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> maintainers) {
         final Credentials offered = update.getCredentials();
 
+        loggerContext.logAuthenticationStrategy(update.getUpdate(), Reflection.getCallerClass().getCanonicalName(), maintainers);
+
         final List<RpslObject> authenticatedCandidates = Lists.newArrayList();
-        for (final RpslObject candidate : candidates) {
-            if (hasValidCredentialForCandidate(update, updateContext, offered, candidate)) {
-                authenticatedCandidates.add(candidate);
+        for (final RpslObject maintainer : maintainers) {
+            if (hasValidCredentialForCandidate(update, updateContext, offered, maintainer)) {
+                authenticatedCandidates.add(maintainer);
             }
         }
 
         return authenticatedCandidates;
     }
 
-    private boolean hasValidCredentialForCandidate(final PreparedUpdate update, final UpdateContext updateContext, final Credentials offered, final RpslObject authenticationCandidate) {
-        for (final CIString auth : authenticationCandidate.getValuesForAttribute(AttributeType.AUTH)) {
+    private boolean hasValidCredentialForCandidate(final PreparedUpdate update, final UpdateContext updateContext, final Credentials offered, final RpslObject maintainer) {
+        final List<CIString> authAttributes = Lists.newArrayList(maintainer.getValuesForAttribute(AttributeType.AUTH));
+        Collections.sort(authAttributes, AUTH_COMPARATOR);
+
+        for (final CIString auth : authAttributes) {
             final Credential credential = getCredential(auth);
             if (credential == null) {
                 LOGGER.warn("Skipping unknown credential: {}", auth);
@@ -65,22 +83,40 @@ public class AuthenticationModule {
     }
 
     private Credential getCredential(final CIString auth) {
-        if (auth.toLowerCase().startsWith("md5-pw")) {
+        if (auth.startsWith("md5-pw")) {
             return new PasswordCredential(auth.toString());
         }
 
-        if (auth.toLowerCase().startsWith("pgpkey")) {
+        if (auth.startsWith("pgpkey")) {
             return PgpCredential.createKnownCredential(auth.toString());
         }
 
-        if (auth.toLowerCase().startsWith("x509")) {
+        if (auth.startsWith("x509")) {
             return X509Credential.createKnownCredential(auth.toString());
         }
 
-        if (auth.toLowerCase().startsWith("sso")) {
-            return new SSOCredential(auth.toString());
+        if (auth.startsWith("sso")) {
+            return SsoCredential.createKnownCredential(auth.toString());
         }
 
         return null;
+    }
+
+    private static class AuthComparator implements Comparator<CIString> {
+        private static final CIString SSO = CIString.ciString("SSO");
+
+        @Override
+        public int compare(final CIString o1, final CIString o2) {
+            final boolean o1Sso = o1.startsWith(SSO);
+            final boolean o2Sso = o2.startsWith(SSO);
+
+            if (o1Sso == o2Sso) {
+                return 0;
+            } else if (o1Sso) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
     }
 }

@@ -32,6 +32,7 @@ public enum ObjectType {
 
     private static final Map<CIString, ObjectType> TYPE_NAMES;
     private static final Set<ObjectType> SET_OBJECTS;
+    public static final Set<ObjectType> RESOURCE_TYPES;
 
     static {
         TYPE_NAMES = new HashMap<>(ObjectType.values().length * 2, 1);
@@ -49,6 +50,7 @@ public enum ObjectType {
         }
 
         SET_OBJECTS = Collections.unmodifiableSet(Sets.newEnumSet(setObjects, ObjectType.class));
+        RESOURCE_TYPES = Collections.unmodifiableSet(Sets.newHashSet(AUT_NUM, INETNUM, INET6NUM));
     }
 
     private final String name;

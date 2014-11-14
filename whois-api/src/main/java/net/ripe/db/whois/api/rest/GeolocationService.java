@@ -57,7 +57,6 @@ public class GeolocationService {
             Inet6numStatus.ASSIGNED_ANYCAST,
             Inet6numStatus.ALLOCATED_BY_RIR);
 
-
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final RpslObjectDao rpslObjectDao;
@@ -89,7 +88,7 @@ public class GeolocationService {
         try {
             final IpInterval interval = IpInterval.parse(ipkey);
             try {
-                for (IpEntry ipEntry : lookupEntries(interval)) {
+                for (IpEntry ipEntry : Lists.reverse(lookupEntries(interval))) {
                     final RpslObject rpslObject = lookup(ipEntry);
                     final RpslObject orgObject = lookupOrg(rpslObject);
 
@@ -121,14 +120,16 @@ public class GeolocationService {
         }
         catch (IllegalArgumentException e) {
             throw new WebApplicationException(
-                    Response.status(Response.Status.NOT_FOUND).
-                            entity("No inetnum/inet6num resource has been found").build());
+                    Response.status(Response.Status.NOT_FOUND)
+                            .entity("No inetnum/inet6num resource has been found")
+                            .build());
         }
 
         if (languages == null && location == null) {
             throw new WebApplicationException(
-                    Response.status(Response.Status.NOT_FOUND).
-                            entity("No geolocation data was found for the given ipkey: " + ipkey).build());
+                    Response.status(Response.Status.NOT_FOUND)
+                            .entity("No geolocation data was found for the given ipkey: " + ipkey)
+                            .build());
         }
 
         final WhoisResources whoisResources = new WhoisResources();

@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
@@ -37,6 +38,7 @@ public class UpdateContext {
 
     private int nrSinceRestart;
     private boolean dryRun;
+    private UserSession userSession;
 
     public UpdateContext(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
@@ -63,19 +65,24 @@ public class UpdateContext {
         }
     }
 
-    public void addSsoTranslationResult(String username, String uuid) {
-        String duplicateUuid = ssoTranslation.put(username, uuid);
-        String duplicateUsername = ssoTranslation.put(uuid, username);
-
+    public void addSsoTranslationResult(final String username, final String uuid) {
+        final String duplicateUuid = ssoTranslation.put(username, uuid);
         if (duplicateUuid != null) {
             throw new IllegalStateException("Duplicate UUID '" + duplicateUuid + "' in SSO translation! (" + username + "=" + uuid + ")");
         }
+
+        final String duplicateUsername = ssoTranslation.put(uuid, username);
         if (duplicateUsername != null) {
             throw new IllegalStateException("Duplicate username '" + duplicateUsername + "' in SSO translation! (" + username + "=" + uuid + ")");
         }
     }
 
-    public String getSsoTranslationResult(String usernameOrUuid) {
+    public boolean hasSsoTranslationResult(String usernameOrUuid) {
+        return ssoTranslation.containsKey(usernameOrUuid);
+    }
+
+    @CheckForNull
+    public String getSsoTranslationResult(final String usernameOrUuid) {
         return ssoTranslation.get(usernameOrUuid);
     }
 
@@ -116,6 +123,9 @@ public class UpdateContext {
         loggerContext.logAction(updateContainer, action);
     }
 
+    public Action getAction(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).action;
+    }
     public PreparedUpdate getPreparedUpdate(final UpdateContainer updateContainer) {
         return getOrCreateContext(updateContainer).preparedUpdate;
     }
@@ -162,6 +172,7 @@ public class UpdateContext {
     }
 
     public void setPreparedUpdate(final PreparedUpdate preparedUpdate) {
+        loggerContext.logPreparedUpdate(preparedUpdate);
         final Context context = getOrCreateContext(preparedUpdate);
         context.preparedUpdate = preparedUpdate;
     }
@@ -290,6 +301,14 @@ public class UpdateContext {
         }
 
         return context;
+    }
+
+    public void setUserSession(final UserSession userSession) {
+        this.userSession = userSession;
+    }
+
+    public UserSession getUserSession() {
+        return userSession;
     }
 
     private static class Context {

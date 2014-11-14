@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class ObjectMessages {
     private final Messages messages = new Messages();
-    private final Map<RpslAttribute, Messages> attributeMessages = Maps.newHashMap();
+    private final Map<RpslAttribute, Messages> attributeMessages = Maps.newLinkedHashMap();
 
     public Messages getMessages() {
         return messages;
@@ -93,7 +93,7 @@ public class ObjectMessages {
 
     @Override
     public String toString() {
-        StringBuilder ret = new StringBuilder();
+        final StringBuilder ret = new StringBuilder();
         for (Message message : messages.getMessages(Messages.Type.ERROR)) {
             ret.append(", ").append(message.toString());
         }

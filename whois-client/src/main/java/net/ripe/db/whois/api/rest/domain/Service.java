@@ -1,23 +1,25 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "service")
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(NON_EMPTY)
 public class Service {
 
     @XmlAttribute
     @JsonProperty
-    protected String name;
+    private String name;
 
-    public Service(String name) {
+    public Service(final String name) {
         this.name = name;
     }
 
@@ -27,7 +29,7 @@ public class Service {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 }

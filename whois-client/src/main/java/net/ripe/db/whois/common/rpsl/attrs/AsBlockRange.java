@@ -11,7 +11,7 @@ public final class AsBlockRange {
 
     private final long end;
 
-    private AsBlockRange(long begin, long end) {
+    private AsBlockRange(final long begin, final long end) {
         this.begin = begin;
         this.end = end;
     }
@@ -33,7 +33,7 @@ public final class AsBlockRange {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o){
             return true;
         }

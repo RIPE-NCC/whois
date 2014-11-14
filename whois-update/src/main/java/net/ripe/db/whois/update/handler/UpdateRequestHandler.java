@@ -2,8 +2,6 @@ package net.ripe.db.whois.update.handler;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.dns.DnsChecker;
 import net.ripe.db.whois.update.domain.Ack;
@@ -26,7 +24,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -100,7 +97,7 @@ public class UpdateRequestHandler {
         dnsChecker.checkAll(updateRequest, updateContext);
 
         for (final Update update : updateRequest.getUpdates()) {
-            ssoTranslator.populate(update, updateContext);
+            ssoTranslator.populateCacheAuthToUuid(updateContext, update);
         }
 
         processUpdateQueue(updateRequest, updateContext);
@@ -136,7 +133,7 @@ public class UpdateRequestHandler {
             attemptUpdates(updateRequest, updateContext, updates);
         } else {
             while (!updates.isEmpty()) {
-                List<Update> reattemptQueue = attemptUpdates(updateRequest, updateContext, updates);
+                final List<Update> reattemptQueue = attemptUpdates(updateRequest, updateContext, updates);
 
                 if (reattemptQueue.size() == updates.size()) {
                     break;
@@ -151,10 +148,10 @@ public class UpdateRequestHandler {
         }
     }
 
-    private List<Update> attemptUpdates(UpdateRequest updateRequest, UpdateContext updateContext, List<Update> updates) {
+    private List<Update> attemptUpdates(final UpdateRequest updateRequest, final UpdateContext updateContext, final List<Update> updates) {
         final List<Update> reattemptQueue = Lists.newArrayList();
         for (final Update update : updates) {
-            final Stopwatch stopwatch = new Stopwatch().start();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
 
             try {
                 loggerContext.logUpdateStarted(update);

@@ -1,9 +1,9 @@
 package net.ripe.db.whois.query;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import javax.annotation.CheckForNull;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -181,6 +181,7 @@ public enum QueryFlag {
             .describedAs("Returns historical version of the object")
             .requiresArgument(Integer.class));
 
+
     private static final class Builder {
         private List<String> flags = Collections.emptyList();
         private String searchKey;
@@ -188,7 +189,7 @@ public enum QueryFlag {
         private Class<?> requiredArgument;
 
         private Builder(final String... flags) {
-            this.flags = Lists.newArrayList(flags);
+            this.flags = Arrays.asList(flags);
         }
 
         Builder withSearchKey(final String searchKey) {
@@ -201,7 +202,7 @@ public enum QueryFlag {
             return this;
         }
 
-        Builder requiresArgument(Class<?> requiredArgument) {
+        Builder requiresArgument(final Class<?> requiredArgument) {
             this.requiredArgument = requiredArgument;
             return this;
         }
@@ -300,11 +301,11 @@ public enum QueryFlag {
         return VALID_SHORT_FLAGS.keySet();
     }
 
-    public static QueryFlag getForLongFlag(String longFlag) {
+    public static QueryFlag getForLongFlag(final String longFlag) {
         return VALID_LONG_FLAGS.get(longFlag);
     }
 
-    public static QueryFlag getForShortFlag(String shortFlag) {
+    public static QueryFlag getForShortFlag(final String shortFlag) {
         return VALID_SHORT_FLAGS.get(shortFlag);
     }
 }

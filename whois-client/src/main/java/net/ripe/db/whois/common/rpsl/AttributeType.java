@@ -5,10 +5,83 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 
 import javax.annotation.CheckForNull;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static net.ripe.db.whois.common.rpsl.AttributeSyntax.*;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AGGR_BNDRY_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AGGR_MTD_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ALIAS_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AS_BLOCK_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AS_NUMBER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AS_SET_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AUTH_SCHEME_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.CERTIF_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.CHANGED_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.COMPONENTS_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.COUNTRY_CODE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.DEFAULT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.DOMAIN_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.DS_RDATA_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.EMAIL_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.EXPORT_COMPS_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.EXPORT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.EXPORT_VIA_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FILTER_SET_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FILTER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.FREE_FORM_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GENERATED_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.GEOLOC_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.HOLES_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IFADDR_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IMPORT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IMPORT_VIA_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.INET_RTR_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.INJECT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.INTERFACE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IPV4_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IPV6_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.IRT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.KEY_CERT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.LANGUAGE_CODE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MBRS_BY_REF_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MEMBERS_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MEMBER_OF_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.METHOD_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MNT_ROUTES_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_DEFAULT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_EXPORT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_FILTER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_IMPORT_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_MEMBERS_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_PEERING_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.MP_PEER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.NETNAME_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.NIC_HANDLE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.NSERVER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.NUMBER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.OBJECT_NAME_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ORGANISATION_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ORG_NAME_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ORG_TYPE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PEERING_SET_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PEERING_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PEER_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PERSON_ROLE_NAME_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PHONE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PINGABLE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POEM_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POETIC_FORM_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.REFERRAL_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE6_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SET_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.RTR_SET_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.SOURCE_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.STATUS_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeValueType.LIST_VALUE;
 
 public enum AttributeType implements Documented {
@@ -246,7 +319,7 @@ public enum AttributeType implements Documented {
 
     MNTNER(new Builder("mntner", "mt")
             .doc("A unique identifier of the mntner object.")
-            .syntax(OBJECT_NAME_SYNTAX)),                                   // TODO: need to include reserved words in object name syntax
+            .syntax(OBJECT_NAME_SYNTAX)),
 
     MNT_BY(new Builder("mnt-by", "mb")
             .doc("Specifies the identifier of a registered mntner object used for authorisation of operations " +
@@ -407,8 +480,8 @@ public enum AttributeType implements Documented {
             .references(ObjectType.ORGANISATION)),
 
     ORG_NAME(new Builder("org-name", "on")
-            .doc("Specifies the name of the organisation that this organisation object represents in the whois" +
-                    "database. This is an ASCII-only text attribute. The restriction is because this attribute is" +
+            .doc("Specifies the name of the organisation that this organisation object represents in the RIPE " +
+                    "Database. This is an ASCII-only text attribute. The restriction is because this attribute is " +
                     "a look-up key and the whois protocol does not allow specifying character sets in queries. " +
                     "The user can put the name of the organisation in non-ASCII character sets in " +
                     "the \"descr:\" attribute if required.")
@@ -448,9 +521,7 @@ public enum AttributeType implements Documented {
 
     PERSON(new Builder("person", "pn")
             .doc("Specifies the full name of an administrative, technical or zone contact person for " +
-                    "other objects in the database." +
-                    "Person name cannot contain titles such as \"Dr.\", \"Prof.\", \"Mv.\", \"Ms.\", \"Mr.\", etc." +
-                    "It is composed of alphabetic characters.")
+                    "other objects in the database.")
             .syntax(PERSON_ROLE_NAME_SYNTAX)),
 
     PHONE(new Builder("phone", "ph")
@@ -478,10 +549,8 @@ public enum AttributeType implements Documented {
             .syntax(POETIC_FORM_SYNTAX)),
 
     REFERRAL_BY(new Builder("referral-by", "rb")
-            .doc("This attribute is required in the maintainer object. It may never be altered after the addition " +
-                    "of the maintainer. This attribute refers to the maintainer that created this maintainer. " +
-                    "It may be multiple if more than one signature appeared on the transaction creating the object.")
-            .syntax(OBJECT_NAME_SYNTAX)
+            .doc("Mandatory historical attribute referencing a mntner name. Not used. Suggest setting it to this mntner name.")
+            .syntax(REFERRAL_SYNTAX)
             .references(ObjectType.MNTNER)),
 
     REF_NFY(new Builder("ref-nfy", "rn")
@@ -496,7 +565,7 @@ public enum AttributeType implements Documented {
 
     ROLE(new Builder("role", "ro")
             .doc("Specifies the full name of a role entity, e.g. RIPE DBM.")
-            .syntax(PERSON_ROLE_NAME_SYNTAX)),
+            .syntax(ORG_NAME_SYNTAX)),
 
     ROUTE(new Builder("route", "rt")
             .doc("Specifies the prefix of the interAS route. Together with the \"origin:\" attribute, " +
@@ -525,8 +594,13 @@ public enum AttributeType implements Documented {
             .doc("Specifies the registry where the object is registered. Should be \"RIPE\" for the RIPE Database.")
             .syntax(SOURCE_SYNTAX)),
 
+    SPONSORING_ORG(new Builder("sponsoring-org", "sp")
+            .doc("Points to an existing organisation object representing the sponsoring organisation responsible for the resource.")
+            .syntax(GENERATED_SYNTAX)
+            .references(ObjectType.ORGANISATION)),
+
     STATUS(new Builder("status", "st")
-            .doc("Specifies the status of the address range represented by inetnum or inet6num object.")
+            .doc("Specifies the status of the resource.")
             .syntax(STATUS_SYNTAX)),
 
     TECH_C(new Builder("tech-c", "tc")
@@ -615,6 +689,10 @@ public enum AttributeType implements Documented {
         return this.name;
     }
 
+    public String toString() {
+        return this.name;
+    }
+
     public String getFlag() {
         return flag;
     }
@@ -644,7 +722,7 @@ public enum AttributeType implements Documented {
     }
 
     public Set<ObjectType> getReferences(final CIString value) {
-        if (this == AUTH && (value.toLowerCase().startsWith("md5-pw") || value.toLowerCase().startsWith("sso"))) {
+        if (this == AUTH && (value.startsWith("md5-pw") || value.startsWith("sso"))) {
             return Collections.emptySet();
         }
 

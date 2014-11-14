@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.ClientErrorException;
 import java.net.InetAddress;
 
-import static net.ripe.db.whois.api.rest.WhoisRestServiceTestIntegration.assertOnlyErrorMessage;
+import static net.ripe.db.whois.api.RestTest.assertOnlyErrorMessage;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

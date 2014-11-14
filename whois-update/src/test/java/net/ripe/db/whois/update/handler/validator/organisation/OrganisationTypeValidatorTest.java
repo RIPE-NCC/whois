@@ -1,25 +1,35 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OrganisationTypeValidatorTest {
@@ -34,6 +44,7 @@ public class OrganisationTypeValidatorTest {
     @Before
     public void setup() {
         when(maintainers.getPowerMaintainers()).thenReturn(ciSet("POWER-MNT"));
+        when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
     }
 
     @Test
@@ -50,65 +61,65 @@ public class OrganisationTypeValidatorTest {
     }
 
     @Test
-    public void has_not_only_powermaintainers() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TEST\norg-type: LIR\nmnt-by:TEST-MNT\nmnt-by: POWER-MNT"));
+    public void update_is_override() {
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(update);
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
-    public void has_not_only_powermaintainers_override() {
-        when(update.isOverride()).thenReturn(true);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TEST\norg-type: LIR\nmnt-by:TEST-MNT\nmnt-by: POWER-MNT"));
-
-        subject.validate(update, updateContext);
-
-        verifyZeroInteractions(updateContext);
-    }
-
-    @Test
-    public void status_other_and_only_powermaintainers_gives_no_error() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TEST\norg-type: OTHER\nmnt-by: POWER-MNT"));
+    public void status_other() {
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: other"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
-        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(true);
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
     }
 
     @Test
-    public void not_status_other_and_only_powermaintainers_but_no_authentication_fails() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TEST\norg-type: LIR\nmnt-by: POWER-MNT"));
+    public void orgtype_has_not_changed() {
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: RIR"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: RIR"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+    }
+
+    @Test
+    public void not_auth_by_powermntner() {
+        final RpslObject rpslObject = RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: RIR");
+        when(update.getUpdatedObject()).thenReturn(rpslObject);
+        when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: LIR"));
+        when(update.getAction()).thenReturn(Action.MODIFY);
         when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.ORG_TYPE), UpdateMessages.invalidMaintainerForOrganisationType("RIR"));
     }
 
     @Test
-    public void success() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TEST\norg-type: LIR\nmnt-by: POWER-MNT"));
+    public void orgtype_has_changed_auth_by_powermntner() {
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: RIR"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: LIR"));
+        when(update.getAction()).thenReturn(Action.MODIFY);
         when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(true);
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
-    }
-
-    @Test
-    public void success_different_casing() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TEST\norg-type: LIR\nmnt-by: power-mnt"));
-        when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
-        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(true);
-
-        subject.validate(update, updateContext);
-
-        verify(updateContext, never()).addMessage(update, UpdateMessages.invalidMaintainerForOrganisationType());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
     }
 }

@@ -4,9 +4,9 @@ package net.ripe.db.whois.query.integration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
+import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
-public class AbuseCTestIntegration extends AbstractWhoisIntegrationTest {
+public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
 
     private static final String[] BASE_OBJECTS = {
             "mntner:        TEST-MNT\n" +
@@ -90,6 +90,12 @@ public class AbuseCTestIntegration extends AbstractWhoisIntegrationTest {
             "tech-c:        NIC3-TEST\n" +
             "source:        TEST",
 
+            "inetnum:       193.0.0.0 - 193.0.0.255\n" +
+            "netname:       RIPE\n" +
+            "admin-c:       NIC2-TEST\n" +
+            "tech-c:        NIC3-TEST\n" +
+            "source:        TEST",
+
             "route:         193.0.0.0/8\n" +
             "descr:         RIPE-NCC\n" +
             "origin:        A201\n" +
@@ -115,14 +121,14 @@ public class AbuseCTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void forwardLookupInetnum() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "173.0.0.0");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "173.0.0.0");
 
         assertThat(response, containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'"));
     }
 
     @Test
     public void simpleLookupInetnum() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-rBGxTinetnum 173.0.0.0/8");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rBGxTinetnum 173.0.0.0/8");
 
         assertThat(response, containsString("" +
                 "% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'\n" +
@@ -131,8 +137,18 @@ public class AbuseCTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     @Test
+    public void simpleLookupChildInetnum() {
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "193.0.0.0");
+
+        assertThat(response, containsString("" +
+                "% Abuse contact for '193.0.0.0 - 193.0.0.255' is 'shown@abuse.net'\n" +
+                "\n" +
+                "inetnum:        193.0.0.0 - 193.0.0.255"));
+    }
+
+    @Test
     public void dashBGivesAbuseCMessage_hasContact() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-b 173.0.0.5");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-b 173.0.0.5");
 
         assertThat(response, not(containsString("% Abuse contact for '173.0.0.0 - 173.255.255.255' is 'abuse@ripe.net'")));
         assertThat(response, containsString("" +
@@ -142,7 +158,7 @@ public class AbuseCTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void dashBGivesAbuseCMessage_hasNoContact() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-b 18.0.0.0");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-b 18.0.0.0");
 
         assertThat(response, containsString("inetnum:        18.0.0.0 - 18.255.255.255"));
 
@@ -153,13 +169,13 @@ public class AbuseCTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void rootObjectShowsNoMessage() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "0.0.0.5");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "0.0.0.5");
         assertThat(response, not(containsString("Abuse")));
     }
 
     @Test
     public void autnum_hasNoContacts() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "AS102");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "AS102");
         assertThat(response, containsString(
                 "% Information related to 'AS102'\n" +
                 "\n" +
@@ -171,13 +187,13 @@ public class AbuseCTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void autnum_hasContacts() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "AS103");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "AS103");
         assertThat(response, containsString("Abuse contact for 'AS103' is 'abuse@ripe.net'"));
     }
 
     @Test
     public void brief_query_shows_abusemailbox_twice() {
-        final String briefResponse = DummyWhoisClient.query(QueryServer.port, "-b 193.0.0.0");
+        final String briefResponse = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-b 193.0.0.0");
         assertThat(briefResponse, not(containsString("notshown@abuse.net")));
     }
 }

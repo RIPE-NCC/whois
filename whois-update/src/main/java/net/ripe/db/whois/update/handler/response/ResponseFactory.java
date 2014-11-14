@@ -35,19 +35,11 @@ public class ResponseFactory {
     private final VelocityEngine velocityEngine;
     private final DateTimeProvider dateTimeProvider;
 
+    @Value("${application.version}")
     private String version;
 
-    @Value("${application.version}")
-    public void setVersion(final String version) {
-        this.version = version;
-    }
-
-    private String source;
-
     @Value("${whois.source}")
-    public void setSource(final String source) {
-        this.source = source;
-    }
+    private String source;
 
     @Autowired
     public ResponseFactory(final DateTimeProvider dateTimeProvider) {
@@ -115,7 +107,7 @@ public class ResponseFactory {
         velocityContext.put("globalMessages", updateContext.printGlobalMessages());
         velocityContext.put("origin", origin);
         velocityContext.put("version", version);
-        velocityContext.put("hostName", Hosts.getLocalHost().name());
+        velocityContext.put("hostName", Hosts.getLocalHostName());
         velocityContext.put("source", source);
         velocityContext.put("timestamp", FormatHelper.dateTimeToString(dateTimeProvider.getCurrentDateTime()));
 

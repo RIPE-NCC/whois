@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.Splitter;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -15,7 +16,7 @@ import java.util.regex.Pattern;
 
 @Component
 public class ReferencedTypeResolver {
-
+    private static final Splitter SPACE_SPLITTER = Splitter.on(' ');
     private static final Pattern MNT_ROUTES_NO_REFERENCE = Pattern.compile("(?i)^\\s*(ANY|\\{.*\\})$");
 
     private final RpslObjectDao rpslObjectDao;
@@ -51,7 +52,8 @@ public class ReferencedTypeResolver {
 
             case 1:
                 if (AttributeType.AUTH.equals(attributeType)) {
-                    if (value.toLowerCase().startsWith("md5-pw")) {
+                    final String authType = SPACE_SPLITTER.split(value).iterator().next().toUpperCase();
+                    if (authType.endsWith("-PW") || authType.equals("SSO")) {
                         return null;
                     }
                 }
@@ -75,7 +77,8 @@ public class ReferencedTypeResolver {
                             try {
                                 // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
                                 return rpslObjectDao.findByKey(objectType, value.toString()).getObjectType().getName();
-                            } catch (EmptyResultDataAccessException ignored) {}
+                            } catch (EmptyResultDataAccessException ignored) {
+                            }
                         }
                     }
                 } else {

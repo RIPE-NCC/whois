@@ -9,11 +9,11 @@ import java.util.regex.Pattern;
 public class PasswordHelper {
     private static final Pattern MD5_PATTERN = Pattern.compile("(?i)MD5-PW ((\\$1\\$.{1,8})\\$.{22})");
 
-    public static boolean authenticateMd5Passwords(String authValue, String... passwords) {
+    public static boolean authenticateMd5Passwords(final String authValue, final String... passwords) {
         return authenticateMd5Passwords(authValue, Arrays.asList(passwords));
     }
 
-    public static boolean authenticateMd5Passwords(String authValue, Iterable<String> passwords) {
+    public static boolean authenticateMd5Passwords(final String authValue, final Iterable<String> passwords) {
         final Matcher matcher = MD5_PATTERN.matcher(authValue);
         if (matcher.matches()) {
             final String known = matcher.group(1);
@@ -27,5 +27,9 @@ public class PasswordHelper {
             }
         }
         return false;
+    }
+
+    public static final String hashMd5Password(final String cleantextPassword) {
+        return Md5Crypt.md5Crypt(cleantextPassword.getBytes());
     }
 }

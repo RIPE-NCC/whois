@@ -1,8 +1,10 @@
 package net.ripe.db.whois.spec.update
 
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class RouteSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -910,9 +912,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route6 ::/16", "route6", "::/16")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 route6:         ::/16
                 descr:          test route
                 origin:         AS10000
@@ -936,8 +936,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)

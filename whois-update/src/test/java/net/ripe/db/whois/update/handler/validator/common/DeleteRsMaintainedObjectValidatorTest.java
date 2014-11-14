@@ -79,13 +79,12 @@ public class DeleteRsMaintainedObjectValidatorTest {
     @Test
     public void validate_no_rs_auth_rs_maintainer_override() {
         when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
+        when(authSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
 
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
                 "mntner: DEV-MNT\n" +
                 "mnt-by: DEV-MNT\n" +
                 "mnt-by: RS-MNT\n"));
-
-        when(update.isOverride()).thenReturn(true);
 
         subject.validate(update, updateContext);
 

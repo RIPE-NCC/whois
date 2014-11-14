@@ -1,17 +1,21 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
 import java.util.List;
 
 @XmlRootElement(name = "template-resources")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TemplateResources {
     @XmlElement
-    protected Link link;
+    private Link link;
     @XmlElement
-    protected Service service;
+    private Service service;
     @XmlElement
-    protected Templates templates;
+    private Templates templates;
 
     public Link getLink() {
         return link;
@@ -26,16 +30,16 @@ public class TemplateResources {
         return service;
     }
 
-    public TemplateResources setService(Service value) {
+    public TemplateResources setService(final Service value) {
         this.service = value;
         return this;
     }
 
     public List<Template> getTemplates() {
-        return templates != null ? templates.templates : null;
+        return templates != null ? templates.getTemplates() : Collections.<Template>emptyList();
     }
 
-    public TemplateResources setTemplates(List<Template> templates) {
+    public TemplateResources setTemplates(final List<Template> templates) {
         this.templates = new Templates(templates);
         return this;
     }

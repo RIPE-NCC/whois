@@ -2,10 +2,12 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
 import net.ripe.db.whois.api.rest.mapper.AbuseContactMapper;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.planner.RpslAttributes;
 import net.ripe.db.whois.query.query.Query;
@@ -21,30 +23,36 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
+
 
 @Component
 @Path("/abuse-contact")
 public class AbuseContactService {
 
     private final QueryHandler queryHandler;
+    private final AccessControlListManager accessControlListManager;
 
     @Autowired
-    public AbuseContactService(final QueryHandler queryHandler) {
+    public AbuseContactService(final QueryHandler queryHandler, final AccessControlListManager accessControlListManager) {
         this.queryHandler = queryHandler;
+        this.accessControlListManager = accessControlListManager;
     }
 
     @GET
     @Path("/{key:.*}")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public AbuseResources lookup(
+    public Response lookup(
             @Context final HttpServletRequest request,
             @PathParam("key") final String key) {
 
-        final String format = String.format("%s %s",
-                QueryFlag.ABUSE_CONTACT.getLongFlag(),
-                key);
-        final Query query = Query.parse(format);
+        QueryBuilder queryBuilder = new QueryBuilder()
+                .addFlag(QueryFlag.ABUSE_CONTACT);
+
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
 
         final List<AbuseResources> abuseResources = Lists.newArrayList();
 
@@ -61,16 +69,29 @@ public class AbuseContactService {
         });
 
         if (abuseResources.isEmpty()) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("No abuse contact found for " + key).build());
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+                    .entity(AbuseContactMapper.mapAbuseContactError("No abuse contact found for " + key))
+                    .build());
         }
 
         final AbuseResources result = abuseResources.get(0);
 
         final String parametersKey = result.getParameters().getPrimaryKey().getValue();
         if (parametersKey.equals("::/0") || parametersKey.equals("0.0.0.0 - 255.255.255.255")) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("No abuse contact found for " + key).build());
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+                    .entity(AbuseContactMapper.mapAbuseContactError("No abuse contact found for " + key))
+                    .build());
         }
 
-        return result;
+        return Response.ok(new StreamingOutput() {
+            @Override
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                StreamingHelper.getStreamingMarshal(request, output).singleton(result);
+            }
+        }).build();
+    }
+
+    private boolean isTrusted(final HttpServletRequest request) {
+        return accessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
     }
 }

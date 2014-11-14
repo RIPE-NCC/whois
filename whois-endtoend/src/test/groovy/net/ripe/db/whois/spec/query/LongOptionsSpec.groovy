@@ -1,7 +1,9 @@
 package net.ripe.db.whois.spec.query
 
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class LongOptionsSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {
@@ -519,10 +521,6 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
         queryObject("-GBr --select-types inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
         queryObjectNotFound("-GBr --select-types route 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
-
-    // -a ToDo
-
-    // -s ToDo
 
     def "query specific ASSIGNED PA range, parent ALLOCATED PA, with --sources --version"() {
       given:

@@ -311,8 +311,20 @@ class BasicFixtures {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$bzCpMX7h\$wl3EmBzNXG..8oTMmGVF51 # nccend
                 org:         ORG-OTO1-TEST
-                auth:        MD5-PW # Filtered
                 mnt-by:      RIPE-NCC-END-MNT
+                changed:     dbtest@ripe.net
+                referral-by: RIPE-DBM-MNT
+                source:      TEST
+                """,
+            "RIPE-NCC-LEGACY-MNT": """\
+                mntner:      RIPE-NCC-LEGACY-MNT
+                descr:       RIPE NCC LEGACY resource maintainer
+                upd-to:      updto_legacy@ripe.net
+                mnt-nfy:     mntnfy_legacy@ripe.net
+                notify:      notify_legacy@ripe.net
+                auth:        MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
+                org:         ORG-OTO1-TEST
+                mnt-by:      RIPE-NCC-LEGACY-MNT
                 changed:     dbtest@ripe.net
                 referral-by: RIPE-DBM-MNT
                 source:      TEST

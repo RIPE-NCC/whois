@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+
 @Immutable
 @SuppressWarnings("UnusedDeclaration")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -18,9 +20,10 @@ import javax.xml.bind.annotation.XmlType;
         "link",
         "parameters",
         "abuseContact",
+        "message",
         "termsAndConditions"
 })
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "abuse-resources")
 public class AbuseResources {
     @XmlAttribute
@@ -31,6 +34,8 @@ public class AbuseResources {
     private Parameters parameters;
     @XmlElement(name = "abuse-contacts")
     private AbuseContact abuseContact;
+    @XmlElement(name = "message")
+    private String message;
     @XmlElement(name = "terms-and-conditions")
     private Link termsAndConditions;
 
@@ -40,6 +45,10 @@ public class AbuseResources {
         this.parameters = parameters;
         this.abuseContact = abuseContact;
         this.termsAndConditions = termsAndConditions;
+    }
+
+    public AbuseResources(final String message) {
+        this.message = message;
     }
 
     public AbuseResources() {
@@ -58,7 +67,9 @@ public class AbuseResources {
     public AbuseContact getAbuseContact() {
         return abuseContact;
     }
-
+    public String getMessage() {
+        return message;
+    }
     public Link getTermsAndConditions() {
         return termsAndConditions;
     }

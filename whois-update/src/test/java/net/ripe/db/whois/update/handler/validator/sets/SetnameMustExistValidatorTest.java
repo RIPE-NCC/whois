@@ -6,11 +6,15 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.authentication.Principal;
+import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -21,7 +25,11 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SetnameMustExistValidatorTest {
@@ -30,9 +38,15 @@ public class SetnameMustExistValidatorTest {
     @Mock UpdateContext updateContext;
     @Mock RpslObjectDao objectDao;
     @Mock AuthenticationModule authenticationModule;
+    @Mock Subject updateSubject;
 
     @InjectMocks
     SetnameMustExistValidator subject;
+
+    @Before
+    public void setUp() {
+        when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(updateSubject);
+    }
 
     @Test
     public void getActions() {
@@ -62,7 +76,8 @@ public class SetnameMustExistValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -78,13 +93,14 @@ public class SetnameMustExistValidatorTest {
 
     @Test
     public void validate_autnum_lookup_does_not_exist_with_override() {
-        when(update.isOverride()).thenReturn(true);
+        when(updateSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.AS_SET);
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-set: AS101:AS-TEST"));
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -109,7 +125,8 @@ public class SetnameMustExistValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -121,7 +138,8 @@ public class SetnameMustExistValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
     @Test
@@ -133,7 +151,8 @@ public class SetnameMustExistValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verifyZeroInteractions(updateContext);
+        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verifyNoMoreInteractions(updateContext);
     }
 
 

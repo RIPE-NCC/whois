@@ -21,7 +21,7 @@ public class SetObject {
         private final ObjectType objectType;
         private final String prefix;
 
-        Type(String prefix, ObjectType objectType) {
+        Type(final String prefix, final ObjectType objectType) {
             this.prefix = prefix;
             this.objectType = objectType;
             pattern =  Pattern.compile("(?i)^" + prefix + "-[A-Z0-9_-]*[A-Z0-9]$");
@@ -46,7 +46,7 @@ public class SetObject {
     private Type type;
     private String value;
 
-    public SetObject(Type type, String value) {
+    public SetObject(final Type type, final String value) {
         this.type = type;
         this.value = value;
     }

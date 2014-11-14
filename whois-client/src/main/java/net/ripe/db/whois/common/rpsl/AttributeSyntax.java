@@ -1,10 +1,37 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.common.generated.*;
+import net.ripe.db.whois.common.generated.AggrBndryParser;
+import net.ripe.db.whois.common.generated.AggrMtdParser;
+import net.ripe.db.whois.common.generated.ComponentsParser;
+import net.ripe.db.whois.common.generated.ComponentsR6Parser;
+import net.ripe.db.whois.common.generated.DefaultParser;
+import net.ripe.db.whois.common.generated.ExportParser;
+import net.ripe.db.whois.common.generated.ExportViaParser;
+import net.ripe.db.whois.common.generated.FilterParser;
+import net.ripe.db.whois.common.generated.IfaddrParser;
+import net.ripe.db.whois.common.generated.ImportParser;
+import net.ripe.db.whois.common.generated.ImportViaParser;
+import net.ripe.db.whois.common.generated.InjectParser;
+import net.ripe.db.whois.common.generated.InjectR6Parser;
+import net.ripe.db.whois.common.generated.InterfaceParser;
+import net.ripe.db.whois.common.generated.MpDefaultParser;
+import net.ripe.db.whois.common.generated.MpExportParser;
+import net.ripe.db.whois.common.generated.MpFilterParser;
+import net.ripe.db.whois.common.generated.MpImportParser;
+import net.ripe.db.whois.common.generated.MpPeerParser;
+import net.ripe.db.whois.common.generated.MpPeeringParser;
+import net.ripe.db.whois.common.generated.PeerParser;
+import net.ripe.db.whois.common.generated.PeeringParser;
+import net.ripe.db.whois.common.generated.V6FilterParser;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.rpsl.attrs.*;
+import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
+import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
+import net.ripe.db.whois.common.rpsl.attrs.RangeOperation;
 
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -23,7 +50,8 @@ public interface AttributeSyntax extends Documented {
             Pattern.compile("(?i)^[A-Z0-9]([-A-Z0-9]*[A-Z0-9])?(\\.[A-Z0-9]([-A-Z0-9]*[A-Z0-9])?)*(\\.)?$"), "" +
             "Domain name as specified in RFC 1034 (point 5.2.1.2) with or\n" +
             "without trailing dot (\".\").  The total length should not exceed\n" +
-            "254 characters (octets).\n");
+            "254 characters (octets).\n"
+    );
 
     AttributeSyntax AS_BLOCK_SYNTAX = new AttributeSyntaxParser(new AttributeParser.AsBlockParser(), "" +
             "<as-number> - <as-number>\n");
@@ -55,17 +83,11 @@ public interface AttributeSyntax extends Documented {
             Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO [-@.\\w]{1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
             "<auth-scheme> <scheme-info>       Description\n" +
             "\n" +
-            "MD5-PW        encrypted           This scheme is the weakest form of\n" +
-            "              password, produced  authentication. It is by no means\n" +
-            "              using the FreeBSD   to keep out a determined malicious\n" +
-            "              crypt_md5           attacker. As you are publishing the\n" +
-            "              algorithm           encrypted password in the RIPE\n" +
-            "                                  database, it is open to attack.\n" +
-            "                                  We strongly advise phrases longer\n" +
-            "                                  than 8 characters to be used,\n" +
-            "                                  avoiding the use of words or\n" +
-            "                                  combinations of words found in any\n" +
-            "                                  dictionary of any language.\n" +
+            "MD5-PW        encrypted           We strongly advise phrases longer\n" +
+            "              password, produced  than 8 characters to be used,\n" +
+            "              using the FreeBSD   avoiding the use of words or\n" +
+            "              crypt_md5           combinations of words found in any\n" +
+            "              algorithm           dictionary of any language.\n" +
             "\n" +
             "PGPKEY-<id>                       Strong scheme of authentication.\n" +
             "                                  <id> is the PGP key ID to be\n" +
@@ -79,8 +101,11 @@ public interface AttributeSyntax extends Documented {
             "                                  corresponding key-cert object's\n" +
             "                                  \"key-cert:\" attribute (X509-nnn).\n" +
             "\n" +
-            "SSO           username            Scheme for RIPE Access Single Sign On" +
-            "                                  authentication.\n");
+            "SSO           username            The username is the same as one used \n" +
+            "                                  for a RIPE NCC Access account. This must \n" +
+            "                                  be a valid username and is checked \n" +
+            "                                  against the RIPE NCC Access user list.\n"
+    );
 
     AttributeSyntax CERTIF_SYNTAX = new AnySyntax("" +
             "The value of the public key should be supplied either using\n" +
@@ -178,7 +203,8 @@ public interface AttributeSyntax extends Documented {
             Pattern.compile("(?i)^[A-Z0-9]([-_A-Z0-9]*[A-Z0-9])?(\\.[A-Z0-9]([-_A-Z0-9]*[A-Z0-9])?)*(\\.)?$"), "" +
             "Domain name as specified in RFC 1034 (point 5.2.1.2) with or\n" +
             "without trailing dot (\".\").  The total length should not exceed\n" +
-            "254 characters (octets).\n");
+            "254 characters (octets).\n"
+    );
 
     AttributeSyntax IFADDR_SYNTAX = new AttributeSyntaxParser(new IfaddrParser(), "" +
             "<ipv4-address> masklen <integer> [action <action>]");
@@ -207,7 +233,8 @@ public interface AttributeSyntax extends Documented {
             "PGPKEY-<id>\n" +
             "\n" +
             "<id> is  the PGP key ID of the public key in 8-digit\n" +
-            "hexadecimal format without \"0x\" prefix.");
+            "hexadecimal format without \"0x\" prefix."
+    );
 
     AttributeSyntax LANGUAGE_CODE_SYNTAX = new AttributeSyntaxRegexp(Pattern.compile("(?i)^[a-z]{2}$"), "" +
             "Valid two-letter ISO 639-1 language code.\n");
@@ -244,13 +271,15 @@ public interface AttributeSyntax extends Documented {
             "announce <filter>\n");
 
     AttributeSyntax EXPORT_VIA_SYNTAX = new AttributeSyntaxParser(new ExportViaParser(), "" +
-            "[protocol <protocol-1>] [into <protocol-1>]\n" +
+            "[protocol <protocol-1>] [into <protocol-2>]   \n" +
             "afi <afi-list>\n" +
-            "<peering-0> to <peering-1> [action <action-1>]\n" +
+            "<peering-1>\n" +
+            "to <peering-2> [action <action-1>; <action-2>; ... <action-N>;]\n" +
             "    .\n" +
             "    .\n" +
             "    .\n" +
-            "<peering-N> to <peering-N> [action <action-N>]\n" +
+            "<peering-3>\n" +
+            "to <peering-M> [action <action-1>; <action-2>; ... <action-N>;]\n" +
             "announce <filter>\n");
 
     AttributeSyntax MP_FILTER_SYNTAX = new AttributeSyntaxParser(new MpFilterParser(), "" +
@@ -270,13 +299,15 @@ public interface AttributeSyntax extends Documented {
             "        <filter> refine <importexpression>)\n");
 
     AttributeSyntax IMPORT_VIA_SYNTAX = new AttributeSyntaxParser(new ImportViaParser(), "" +
-            "[protocol <protocol-1>] [into <protocol-1>]\n" +
+            "[protocol <protocol-1>] [into <protocol-2>]\n" +
             "afi <afi-list>\n" +
-            "<peering-0> from <peering-1> [action <action-1>]\n" +
+            "<peering-1>\n" +
+            "from <peering-2> [action <action-1>; <action-2>; ... <action-N>;]\n" +
             "    .\n" +
             "    .\n" +
             "    .\n" +
-            "<peering-N> from <peering-N> [action <action-N>]\n" +
+            "<peering-3>\n" +
+            "from <peering-M> [action <action-1>; <action-2>; ... <action-N>;]\n" +
             "accept (<filter>|<filter> except <importexpression>|\n" +
             "        <filter> refine <importexpression>)\n");
 
@@ -324,7 +355,7 @@ public interface AttributeSyntax extends Documented {
     AttributeSyntax NUMBER_SYNTAX = new AttributeSyntaxRegexp(Pattern.compile("^[0-9]+$"), "" +
             "Specifies a numeric value.\n");
 
-    AttributeSyntax OBJECT_NAME_SYNTAX = new AttributeSyntaxParser(new NameParser(), "" +
+    AttributeSyntax OBJECT_NAME_SYNTAX = new AttributeSyntaxParser(new AttributeParser.NameParser(), "" +
             "Made up of letters, digits, the character underscore \"_\",\n" +
             "and the character hyphen \"-\"; the first character of a name\n" +
             "must be a letter, and the last character of a name must be a\n" +
@@ -344,26 +375,30 @@ public interface AttributeSyntax extends Documented {
             "with \"prng-\" are reserved for peering set names. Names\n" +
             "starting with \"irt-\" are reserved for irt names.\n");
 
+    AttributeSyntax REFERRAL_SYNTAX = new AttributeSyntaxParser(new AttributeParser.NameParser());
+
     AttributeSyntax SOURCE_SYNTAX = new AttributeSyntaxRegexp(80,
             Pattern.compile("(?i)^[A-Z][A-Z0-9_-]*[A-Z0-9]$"), "" +
             "Made up of letters, digits, the character underscore \"_\",\n" +
             "and the character hyphen \"-\"; the first character of a\n" +
             "registry name must be a letter, and the last character of a\n" +
-            "registry name must be a letter or a digit.");
+            "registry name must be a letter or a digit."
+    );
 
     AttributeSyntax ORGANISATION_SYNTAX = new AttributeSyntaxRegexp(30,
             Pattern.compile("(?i)^(ORG-[A-Z]{2,4}([1-9][0-9]{0,5})?-[A-Z][A-Z0-9_-]*[A-Z0-9]|AUTO-[1-9][0-9]*([A-Z]{2,4})?)$"), "" +
             "The 'ORG-' string followed by 2 to 4 characters, followed by up to 5 digits\n" +
             "followed by a source specification.  The first digit must not be \"0\".\n" +
             "Source specification starts with \"-\" followed by source name up to\n" +
-            "9-character length.\n");
+            "9-character length.\n"
+    );
 
     AttributeSyntax ORG_NAME_SYNTAX = new AttributeSyntaxRegexp(
             Pattern.compile("(?i)^[\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}( [\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}){0,29}$"), "" +
-            "A list of words separated by white space.  A word is made up of letters,\n" +
-            "digits, the character underscore \"_\", and the character hyphen \"-\";\n" +
-            "the first character of a word must be a letter or digit; the last\n" +
-            "character of a word must be a letter, digit or a dot.\n");
+            "A list of 1 to 30 words separated by white space. A word is made up of letters, digits and the following characters:\n" +
+            "][)(._\"*@,&:!'`+/-\n" +
+            "A word may have up to 64 characters and is not case sensitive. Each word can have any combination of the above characters with no restriction on the start or end of a word.\n"
+    );
 
     AttributeSyntax ORG_TYPE_SYNTAX = new OrgTypeSyntax();
 
@@ -383,16 +418,19 @@ public interface AttributeSyntax extends Documented {
             "POEM-<string>\n" +
             "\n" +
             "<string> can include alphanumeric characters, and \"_\" and\n" +
-            "\"-\" characters.\n");
+            "\"-\" characters.\n"
+    );
 
     AttributeSyntax POETIC_FORM_SYNTAX = new AttributeSyntaxRegexp(80,
             Pattern.compile("(?i)^FORM-[A-Z0-9][A-Z0-9_-]*$"), "" +
             "FORM-<string>\n" +
             "\n" +
             "<string> can include alphanumeric characters, and \"_\" and\n" +
-            "\"-\" characters.\n");
+            "\"-\" characters.\n"
+    );
 
-    AttributeSyntax PINGABLE_SYNTAX = new RoutePrefixSyntax();
+    AttributeSyntax PINGABLE_SYNTAX = new AttributeSyntaxParser(new AttributeParser.IPAddressParser());
+
     AttributeSyntax PHONE_SYNTAX = new AttributeSyntaxRegexp(30,
             Pattern.compile("" +
                     "(?i)^" +
@@ -405,7 +443,8 @@ public interface AttributeSyntax extends Documented {
             "'+' <integer-list>\n" +
             "'+' <integer-list> \"(\" <integer-list> \")\" <integer-list>\n" +
             "'+' <integer-list> ext. <integer list>\n" +
-            "'+' <integer-list> \"(\" integer list \")\" <integer-list> ext. <integer-list>\n");
+            "'+' <integer-list> \"(\" integer list \")\" <integer-list> ext. <integer-list>\n"
+    );
 
     AttributeSyntax ROUTE_SET_SYNTAX = new AttributeSyntaxParser(new AttributeParser.RouteSetParser(), "" +
             "An route-set name is made up of letters, digits, the\n" +
@@ -816,15 +855,11 @@ public interface AttributeSyntax extends Documented {
         @Override
         public String getDescription(final ObjectType objectType) {
             return "" +
-                    "A list of at least 2 words separated by white space. The\n" +
-                    "first and the last word cannot end with dot (\".\"). The\n" +
-                    "following words are not allowed: \"Dr\", \"Prof\", \"Mv\", \"Ms\",\n" +
-                    "\"Mr\", no matter whether they end with dot (\".\") or not. A\n" +
-                    "word is made up of letters, digits, the character underscore\n" +
-                    "\"_\", and the character hyphen \"-\"; the first character of a\n" +
-                    "name must be a letter, and the last character of a name must\n" +
-                    "be a letter or a digit.\n";
-
+                    "It should contain 2 to 10 words.\n" +
+                    "Each word consists of letters, digits or the following symbols:\n" +
+                    ".`'_-\n" +
+                    "The first word should begin with a letter.\n" +
+                    "Max 64 characters can be used in each word.";
         }
     }
 
@@ -842,6 +877,13 @@ public interface AttributeSyntax extends Documented {
                 case INET6NUM:
                     try {
                         Inet6numStatus.getStatusFor(ciString(value));
+                        return true;
+                    } catch (IllegalArgumentException ignored) {
+                        return false;
+                    }
+                case AUT_NUM:
+                    try {
+                        AutnumStatus.valueOf(value.toUpperCase());
                         return true;
                     } catch (IllegalArgumentException ignored) {
                         return false;
@@ -865,6 +907,12 @@ public interface AttributeSyntax extends Documented {
                     return descriptionBuilder.toString();
                 case INET6NUM:
                     for (final Inet6numStatus status : Inet6numStatus.values()) {
+                        descriptionBuilder.append("o ").append(status).append('\n');
+                    }
+
+                    return descriptionBuilder.toString();
+                case AUT_NUM:
+                    for (final AutnumStatus status : AutnumStatus.values()) {
                         descriptionBuilder.append("o ").append(status).append('\n');
                     }
 

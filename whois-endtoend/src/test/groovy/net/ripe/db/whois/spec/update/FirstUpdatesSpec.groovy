@@ -1,9 +1,10 @@
-package net.ripe.db.whois.spec.update;
+package net.ripe.db.whois.spec.update
 
-
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
 
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class FirstUpdatesSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -301,7 +302,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(2, 0, 1)
         ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
                 "Syntax error in 20121016",
-                "Unrecognized source: owner"
+                "Unrecognized source: OWNER"
         ]
         ack.infoMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
                 "Value owner converted to OWNER"

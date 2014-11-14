@@ -83,10 +83,9 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
 
     def grepQueryLog(String pattern) {
         DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
-        File queryLogFile = new File("var/log/qry/qrylog." + DATE_FORMATTER.print(whoisFixture.getTestDateTimeProvider().currentDate));
 
         boolean result = false;
-        queryLogFile.eachLine { line ->
+        getTestWhoisLog().messages.each { line ->
             if (line =~ pattern) result = true;
         }
         result

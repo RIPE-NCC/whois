@@ -1,10 +1,10 @@
 package net.ripe.db.whois.query.executor;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.QueryFlag;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;

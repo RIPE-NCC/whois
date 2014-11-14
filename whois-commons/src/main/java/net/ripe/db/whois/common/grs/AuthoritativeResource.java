@@ -4,20 +4,23 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.commons.ip.Asn;
+import net.ripe.commons.ip.AsnRange;
+import net.ripe.commons.ip.Ipv4;
+import net.ripe.commons.ip.Ipv4Range;
+import net.ripe.commons.ip.Ipv6;
+import net.ripe.commons.ip.Ipv6Range;
+import net.ripe.commons.ip.SortedRangeSet;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.etree.IntervalMap;
-import net.ripe.db.whois.common.etree.NestedIntervalMap;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -26,11 +29,9 @@ import java.util.Set;
 public class AuthoritativeResource {
     private static final Set<ObjectType> RESOURCE_TYPES = Sets.newEnumSet(Lists.newArrayList(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM), ObjectType.class);
 
-    private final Set<CIString> autNums;
-    private final IntervalMap<Ipv4Resource, Ipv4Resource> inetRanges;
-    private final int nrInetRanges;
-    private final IntervalMap<Ipv6Resource, Ipv6Resource> inet6Ranges;
-    private final int nrInet6Ranges;
+    private final SortedRangeSet<Asn, AsnRange> autNums;
+    private final SortedRangeSet<Ipv4, Ipv4Range> inetRanges;
+    private final SortedRangeSet<Ipv6, Ipv6Range> inet6Ranges;
 
     public static AuthoritativeResource loadFromFile(final Logger logger, final String name, final Path path) {
         try (final Scanner scanner = new Scanner(path)) {
@@ -41,19 +42,17 @@ public class AuthoritativeResource {
     }
 
     public static AuthoritativeResource unknown() {
-        return new AuthoritativeResource(Collections.<CIString>emptySet(), new NestedIntervalMap<Ipv4Resource, Ipv4Resource>(), new NestedIntervalMap<Ipv6Resource, Ipv6Resource>());
+        return new AuthoritativeResource(new SortedRangeSet<Asn, AsnRange>(), new SortedRangeSet<Ipv4, Ipv4Range>(), new SortedRangeSet<Ipv6, Ipv6Range>());
     }
 
     public static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {
         return new AuthoritativeResourceLoader(logger, name, scanner).load();
     }
 
-    public AuthoritativeResource(final Set<CIString> autNums, final IntervalMap<Ipv4Resource, Ipv4Resource> inetRanges, final IntervalMap<Ipv6Resource, Ipv6Resource> inet6Ranges) {
+    public AuthoritativeResource(final SortedRangeSet<Asn, AsnRange> autNums, final SortedRangeSet<Ipv4, Ipv4Range> inetRanges, final SortedRangeSet<Ipv6, Ipv6Range> inet6Ranges) {
         this.autNums = autNums;
         this.inetRanges = inetRanges;
         this.inet6Ranges = inet6Ranges;
-        this.nrInetRanges = inetRanges.findExactAndAllMoreSpecific(Ipv4Resource.MAX_RANGE).size();
-        this.nrInet6Ranges = inet6Ranges.findExactAndAllMoreSpecific(Ipv6Resource.MAX_RANGE).size();
     }
 
     public int getNrAutNums() {
@@ -61,106 +60,17 @@ public class AuthoritativeResource {
     }
 
     public int getNrInetnums() {
-        return nrInetRanges;
+        return inetRanges.size();
     }
 
     public int getNrInet6nums() {
-        return nrInet6Ranges;
+        return inet6Ranges.size();
     }
 
     boolean isEmpty() {
         return getNrAutNums() == 0 && getNrInetnums() == 0 && getNrInet6nums() == 0;
     }
 
-    private Ipv4Resource concatenateIpv4Resources(final List<Ipv4Resource> resources) {
-        if (resources.isEmpty()) {
-            throw new IllegalArgumentException();
-        }
-
-        for (int index = 1; index < resources.size(); index++) {
-            if (resources.get(index).begin() != resources.get(index - 1).end() + 1) {
-                throw new IllegalArgumentException("found gap");
-            }
-        }
-
-        return new Ipv4Resource(resources.get(0).begin(), resources.get(resources.size() - 1).end());
-    }
-
-    private Ipv6Resource concatenateIpv6Resources(final List<Ipv6Resource> resources) {
-        if (resources.isEmpty()) {
-            throw new IllegalArgumentException();
-        }
-
-        for (int index = 1; index < resources.size(); index++) {
-            if (!resources.get(index).begin().equals(resources.get(index - 1).end().add(BigInteger.ONE))) {
-                throw new IllegalArgumentException("found gap");
-            }
-        }
-
-        return new Ipv6Resource(resources.get(0).begin(), resources.get(resources.size() - 1).end());
-    }
-
-    // TODO: since authresource is a dumb container of resources, perhaps containsExactly() would be a better name for this
-    public boolean isMaintainedByRir(final ObjectType objectType, final CIString pkey) {
-        try {
-            switch (objectType) {
-                case AUT_NUM:
-                    return autNums.contains(pkey);
-                case INETNUM: {
-                    final Ipv4Resource pkeyResource = Ipv4Resource.parse(pkey);
-
-                    if (!inetRanges.findExact(pkeyResource).isEmpty()) {
-                        return true;
-                    }
-
-                    List<Ipv4Resource> matches = inetRanges.findFirstMoreSpecific(pkeyResource);
-                    if (matches.isEmpty()) {
-                        return false;
-                    }
-
-                    try {
-                        Ipv4Resource concatenatedResource = concatenateIpv4Resources(matches);
-                        if (concatenatedResource.compareTo(pkeyResource) == 0) {
-                            return true;
-                        }
-                    } catch (IllegalArgumentException ignored) {
-                        // empty match or gap in range
-                    }
-
-                    return false;
-                }
-                case INET6NUM: {
-                    final Ipv6Resource pkeyResource = Ipv6Resource.parse(pkey);
-
-                    if (!inet6Ranges.findExact(pkeyResource).isEmpty()) {
-                        return true;
-                    }
-
-                    List<Ipv6Resource> matches = inet6Ranges.findFirstMoreSpecific(pkeyResource);
-                    if (matches.isEmpty()) {
-                        return false;
-                    }
-
-                    try {
-                        Ipv6Resource concatenatedResource = concatenateIpv6Resources(matches);
-                        if (concatenatedResource.compareTo(pkeyResource) == 0) {
-                            return true;
-                        }
-                    } catch (IllegalArgumentException ignored) {
-                        // empty match or gap in range
-                    }
-
-                    return false;
-                }
-                default:
-                    return true;
-            }
-        } catch (IllegalArgumentException ignored) {
-            return false;
-        }
-    }
-
-    // TODO: since authresource is a dumb container of resources, perhaps contains() or encompasses() would be a better name for this
     public boolean isMaintainedInRirSpace(final RpslObject rpslObject) {
         return isMaintainedInRirSpace(rpslObject.getType(), rpslObject.getKey());
     }
@@ -169,11 +79,11 @@ public class AuthoritativeResource {
         try {
             switch (objectType) {
                 case AUT_NUM:
-                    return autNums.contains(pkey);
+                    return autNums.contains(parseAsn(pkey));
                 case INETNUM:
-                    return !inetRanges.findExactOrFirstLessSpecific(Ipv4Resource.parse(pkey)).isEmpty();
+                    return inetRanges.contains(parseRangeOrSingleAddress(pkey));
                 case INET6NUM:
-                    return !inet6Ranges.findExactOrFirstLessSpecific(Ipv6Resource.parse(pkey)).isEmpty();
+                    return inet6Ranges.contains(parseIpv6(pkey));
                 default:
                     return true;
             }
@@ -182,20 +92,56 @@ public class AuthoritativeResource {
         }
     }
 
+    private AsnRange parseAsn(final CIString pkey) {
+        return Asn.parse(pkey.toString()).asRange();
+    }
+
+
+    private Ipv6Range parseIpv6(final CIString pkey) {
+        // use whois-common library to parse input
+        // to keep backwards compatibility
+        // so that 2001:2002:2003:2004:1::/65 is parsed as 2001:2002:2003:2004::/65
+        final Ipv6Resource ipv6Resource = Ipv6Resource.parse(pkey);
+        return Ipv6Range.from(ipv6Resource.begin()).to(ipv6Resource.end());
+    }
+
+    private Ipv4Range parseRangeOrSingleAddress(final CIString pkey) {
+        // use whois-common library to parse input
+        // to keep backwards compatibility
+        // so that 10/8 is parsed as 10.0.0.0/8
+        final Ipv4Resource ipv4Resource = Ipv4Resource.parse(pkey);
+        return Ipv4Range.from(ipv4Resource.begin()).to(ipv4Resource.end());
+    }
+
     public Set<ObjectType> getResourceTypes() {
         return RESOURCE_TYPES;
     }
 
-    Set<CIString> getAutNums() {
-        return autNums;
+    public Iterable<String> findAutnumOverlaps(AuthoritativeResource other) {
+        return Iterables.transform(this.autNums.intersection(other.autNums), new Function<AsnRange, String>() {
+            @Override
+            public String apply(final AsnRange input) {
+                return input.toString();
+            }
+        });
     }
 
-    IntervalMap<Ipv4Resource, Ipv4Resource> getInetRanges() {
-        return inetRanges;
+    public Iterable<String> findInetnumOverlaps(AuthoritativeResource other) {
+        return Iterables.transform(this.inetRanges.intersection(other.inetRanges), new Function<Ipv4Range, String>() {
+            @Override
+            public String apply(final Ipv4Range input) {
+                return input.toStringInRangeNotation();
+            }
+        });
     }
 
-    IntervalMap<Ipv6Resource, Ipv6Resource> getInet6Ranges() {
-        return inet6Ranges;
+    public Iterable<String> findInet6numOverlaps(AuthoritativeResource other) {
+        return Iterables.transform(this.inet6Ranges.intersection(other.inet6Ranges), new Function<Ipv6Range, String>() {
+            @Override
+            public String apply(final Ipv6Range input) {
+                return input.toStringInCidrNotation();
+            }
+        });
     }
 
     @Override
@@ -218,25 +164,31 @@ public class AuthoritativeResource {
 
     public List<String> getResources() {
         return Lists.newArrayList(Iterables.concat(
-                Iterables.transform(autNums, new Function<CIString, String>() {
+                Iterables.transform(autNums, new Function<AsnRange, String>() {
                     @Override
-                    public String apply(CIString input) {
+                    public String apply(AsnRange input) {
                         return input.toString();
                     }
                 }),
-                Iterables.transform(inetRanges.findExactAndAllMoreSpecific(Ipv4Resource.MAX_RANGE), new Function<Ipv4Resource, String>() {
+                Iterables.transform(inetRanges, new Function<Ipv4Range, String>() {
                     @Override
-                    public String apply(Ipv4Resource input) {
-                        return input.toRangeString();
+                    public String apply(Ipv4Range input) {
+                        return input.toStringInRangeNotation();
                     }
                 }),
-                Iterables.transform(inet6Ranges.findExactAndAllMoreSpecific(Ipv6Resource.MAX_RANGE), new Function<Ipv6Resource, String>() {
-                    @Override
-                    public String apply(Ipv6Resource input) {
-                        return input.toString();
-                    }
-                })
-        ));
+                Iterables.transform(
+                        Iterables.concat(Iterables.transform(inet6Ranges, new Function<Ipv6Range, List<Ipv6Range>>() {
+                            @Override
+                            public List<Ipv6Range> apply(Ipv6Range input) {
+                                return input.splitToPrefixes();
+                            }
+                        })), new Function<Ipv6Range, String>() {
+                            @Override
+                            public String apply(Ipv6Range input) {
+                                return input.toStringInCidrNotation();
+                            }
+                        })
+                ));
     }
 }
 

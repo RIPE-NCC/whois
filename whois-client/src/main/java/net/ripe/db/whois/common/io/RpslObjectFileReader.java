@@ -13,7 +13,7 @@ import java.util.zip.GZIPInputStream;
 public class RpslObjectFileReader implements Iterable<String> {
     private final String fileName;
 
-    public RpslObjectFileReader(String fileName) {
+    public RpslObjectFileReader(final String fileName) {
         this.fileName = fileName;
     }
 
@@ -26,7 +26,7 @@ public class RpslObjectFileReader implements Iterable<String> {
         private final BufferedReader bufferedReader;
         private String nextObject;
 
-        public StringIterator(String fileName) {
+        public StringIterator(final String fileName) {
             try {
                 InputStream in = new FileInputStream(fileName);
                 if (fileName.endsWith(".gz")) {
@@ -55,23 +55,31 @@ public class RpslObjectFileReader implements Iterable<String> {
             }
 
             try {
-                String line;
-                StringBuilder partialObject = new StringBuilder(1024);
-                while ((line = bufferedReader.readLine()) != null) {
-                    if (StringUtils.isBlank(line)) {
-                        return partialObject.toString();
-                    } else {
-                        if (line.charAt(0) != '#') {
-                            partialObject.append(line).append('\n');
+                String result;
+
+                do {
+                    String line;
+                    final StringBuilder partialObject = new StringBuilder(1024);
+
+                    while ((line = bufferedReader.readLine()) != null) {
+                        if (StringUtils.isBlank(line)) {
+                            break;
+                        } else {
+                            if (line.charAt(0) != '#' && line.charAt(0) != '%') {
+                                partialObject.append(line).append('\n');
+                            }
                         }
                     }
-                }
 
-                if (partialObject.length() > 0) {
-                    return partialObject.toString();
-                } else {
-                    return null; // terminator
-                }
+                    if (line == null && partialObject.length() == 0) {
+                        return null; // terminator
+                    }
+
+                    result = partialObject.toString();
+
+                } while (StringUtils.isBlank(result));
+
+                return result;
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }

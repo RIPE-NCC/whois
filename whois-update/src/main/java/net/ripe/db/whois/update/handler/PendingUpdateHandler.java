@@ -13,8 +13,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +20,6 @@ import java.util.Set;
 
 @Component
 class PendingUpdateHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PendingUpdateHandler.class);
-
     private final PendingUpdateDao pendingUpdateDao;
     private final Authenticator authenticator;
     private final UpdateObjectHandler updateObjectHandler;
@@ -31,7 +27,7 @@ class PendingUpdateHandler {
     private final LoggerContext loggerContext;
 
     @Autowired
-    public PendingUpdateHandler(final PendingUpdateDao pendingUpdateDao, final Authenticator authenticator, UpdateObjectHandler updateObjectHandler, DateTimeProvider dateTimeProvider, LoggerContext loggerContext) {
+    public PendingUpdateHandler(final PendingUpdateDao pendingUpdateDao, final Authenticator authenticator, final UpdateObjectHandler updateObjectHandler, final DateTimeProvider dateTimeProvider, final LoggerContext loggerContext) {
         this.pendingUpdateDao = pendingUpdateDao;
         this.authenticator = authenticator;
         this.updateObjectHandler = updateObjectHandler;

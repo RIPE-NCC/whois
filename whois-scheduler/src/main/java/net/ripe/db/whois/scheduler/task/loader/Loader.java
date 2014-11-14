@@ -57,7 +57,7 @@ public class Loader {
         return result.toString();
     }
 
-    private void runPass(Result result, String entry, int pass) {
+    private void runPass(final Result result, final String entry, final int pass) {
         // sadly Executors don't offer a bounded/blocking submit() implementation
         final int numThreads = Runtime.getRuntime().availableProcessors();
         final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads*16);
@@ -65,8 +65,13 @@ public class Loader {
                 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
         try {
-            for (String nextObject : new RpslObjectFileReader(entry)) {
-                executorService.submit(new RpslObjectProcessor(nextObject, result, pass));
+            for (final String nextObject : new RpslObjectFileReader(entry)) {
+                executorService.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        objectLoader.processObject(nextObject, result, pass);
+                    }
+                });
             }
         } catch (Exception e) {
             result.addText(String.format("Error reading '%s': %s\n", entry, e.getMessage()));
@@ -77,23 +82,6 @@ public class Loader {
             } catch (InterruptedException e) {
                 result.addText(e.getMessage() + "\n");
             }
-        }
-    }
-
-    class RpslObjectProcessor implements Runnable {
-        private final String rpslObject;
-        private final Result result;
-        private final int pass;
-
-        RpslObjectProcessor(String rpslObject, Result result, int pass) {
-            this.rpslObject = rpslObject;
-            this.result = result;
-            this.pass = pass;
-        }
-
-        @Override
-        public void run() {
-            objectLoader.processObject(rpslObject, result, pass);
         }
     }
 }

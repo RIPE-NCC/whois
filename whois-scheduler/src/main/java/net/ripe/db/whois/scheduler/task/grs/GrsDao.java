@@ -23,8 +23,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.*;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.deleteFromLastAndUpdateSerials;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.deleteFromTables;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoTablesIgnoreMissing;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.updateLastAndUpdateSerials;
 
+// TODO: [AH] add an init() method instead of the ensureInitialized() hack
 class GrsDao {
     private final Logger logger;
     private final DateTimeProvider dateTimeProvider;

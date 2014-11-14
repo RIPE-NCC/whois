@@ -11,13 +11,16 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterTagsDecorator;
 import net.ripe.db.whois.query.query.Query;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -53,6 +56,8 @@ public class RpslResponseDecorator {
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final AbuseCInfoDecorator abuseCInfoDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
+    private final SsoTokenTranslator ssoTokenTranslator;
+    private final CrowdClient crowdClient;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -63,12 +68,16 @@ public class RpslResponseDecorator {
                                  final FilterTagsDecorator filterTagsDecorator,
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
+                                 final SsoTokenTranslator ssoTokenTranslator,
+                                 final CrowdClient crowdClient,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
         this.dummifyDecorator = dummifyDecorator;
         this.sourceContext = sourceContext;
         this.abuseCInfoDecorator = abuseCInfoDecorator;
+        this.ssoTokenTranslator = ssoTokenTranslator;
+        this.crowdClient = crowdClient;
         this.validSyntaxFilterFunction = new SyntaxFilterFunction(true);
         this.invalidSyntaxFilterFunction = new SyntaxFilterFunction(false);
         this.filterTagsDecorator = filterTagsDecorator;
@@ -106,12 +115,7 @@ public class RpslResponseDecorator {
         return result;
     }
 
-    // TODO: [AH] This is really inefficient, multiple (as high as 3-4!) wrapping in iterables/collections
     private Iterable<? extends ResponseObject> groupRelatedObjects(final Query query, Iterable<? extends ResponseObject> primaryObjects) {
-        if (query.via(Query.Origin.REST)) {
-            return primaryObjects;
-        }
-
         final GroupFunction groupFunction = getGroupFunction(query);
         if (groupFunction == null) {
             return primaryObjects;
@@ -139,7 +143,12 @@ public class RpslResponseDecorator {
 
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
         List<String> passwords = query.getPasswords();
-        final FilterAuthFunction filterAuthFunction = CollectionUtils.isEmpty(passwords) ? FILTER_AUTH_FUNCTION : new FilterAuthFunction(passwords);
+        final String ssoToken = query.getSsoToken();
+
+        final FilterAuthFunction filterAuthFunction =
+                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken)) ?
+                        FILTER_AUTH_FUNCTION :
+                        new FilterAuthFunction(passwords, ssoToken, ssoTokenTranslator, crowdClient, rpslObjectDao);
 
         return Iterables.transform(objects, new Function<ResponseObject, ResponseObject>() {
             @Nullable

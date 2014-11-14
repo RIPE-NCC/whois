@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.IpTree;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
@@ -14,6 +13,7 @@ import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -27,14 +27,17 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-class DomainAuthentication extends AuthenticationStrategyBase {
+public class DomainAuthentication extends AuthenticationStrategyBase {
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final RpslObjectDao objectDao;
     private final AuthenticationModule authenticationModule;
 
     @Autowired
-    public DomainAuthentication(final Ipv4Tree ipv4Tree, final Ipv6Tree ipv6Tree, final RpslObjectDao objectDao, final AuthenticationModule authenticationModule) {
+    public DomainAuthentication(final Ipv4Tree ipv4Tree,
+                                final Ipv6Tree ipv6Tree,
+                                final RpslObjectDao objectDao,
+                                final AuthenticationModule authenticationModule) {
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.objectDao = objectDao;
@@ -85,11 +88,9 @@ class DomainAuthentication extends AuthenticationStrategyBase {
             return authenticated;
         }
 
-        if (!reverseIp.equals(ipEntry.getKey())) {
-            authenticated.addAll(authenticate(update, updateContext, ipObject, AttributeType.MNT_LOWER));
-            if (!authenticated.isEmpty()) {
-                return authenticated;
-            }
+        authenticated.addAll(authenticate(update, updateContext, ipObject, AttributeType.MNT_LOWER));
+        if (!authenticated.isEmpty()) {
+            return authenticated;
         }
 
         return authenticate(update, updateContext, ipObject, AttributeType.MNT_BY);

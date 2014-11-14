@@ -2,7 +2,11 @@ package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.Contract;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
 import java.util.Set;
@@ -12,11 +16,11 @@ public final class CIString implements Comparable<CIString>, CharSequence {
     private final String value;
     private final String lcValue;
 
+    @Nullable @Contract("null -> null;!null -> !null")
     public static CIString ciString(final String value) {
         if (value == null) {
             return null;
         }
-
         return new CIString(value);
     }
 
@@ -48,14 +52,30 @@ public final class CIString implements Comparable<CIString>, CharSequence {
         return builder.build();
     }
 
+    public static boolean isBlank(final CIString ciString) {
+        return ciString == null || StringUtils.isBlank(ciString.value);
+    }
+
     private CIString(final String value) {
         this.value = value;
         this.lcValue = value.toLowerCase();
     }
 
     @Override
-    public boolean equals(Object o) {
-        return this == o || !(o == null || getClass() != o.getClass()) && lcValue.equals(((CIString) o).lcValue);
+    public boolean equals(@Nullable final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null) {
+            return false;
+        }
+
+        if (o instanceof String) {
+            return value.equalsIgnoreCase((String) o);
+        }
+
+        return getClass() == o.getClass() && lcValue.equals(((CIString) o).lcValue);
     }
 
     @Override
@@ -64,11 +84,11 @@ public final class CIString implements Comparable<CIString>, CharSequence {
     }
 
     @Override
-    public int compareTo(final CIString o) {
+    public int compareTo(@Nonnull final CIString o) {
         return lcValue.compareTo(o.lcValue);
     }
 
-    @Override
+    @Override @Nonnull
     public String toString() {
         return value;
     }
@@ -91,12 +111,12 @@ public final class CIString implements Comparable<CIString>, CharSequence {
     }
 
     @Override
-    public char charAt(int index) {
+    public char charAt(final int index) {
         return value.charAt(index);
     }
 
     @Override
-    public CharSequence subSequence(int start, int end) {
+    public CharSequence subSequence(final int start, final int end) {
         return value.subSequence(start, end);
     }
 
@@ -104,12 +124,24 @@ public final class CIString implements Comparable<CIString>, CharSequence {
         return lcValue.startsWith(value.lcValue);
     }
 
+    public boolean startsWith(final String value) {
+        return lcValue.startsWith(value.toLowerCase());
+    }
+
     public boolean contains(final CIString value) {
         return lcValue.contains(value.lcValue);
     }
 
+    public boolean contains(final String value) {
+        return lcValue.contains(value.toLowerCase());
+    }
+
     public boolean endsWith(final CIString value) {
         return lcValue.endsWith(value.lcValue);
+    }
+
+    public boolean endsWith(final String value) {
+        return lcValue.endsWith(value.toLowerCase());
     }
 
     public CIString append(final CIString other) {

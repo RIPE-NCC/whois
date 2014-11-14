@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseEndToEndSpec
 import org.joda.time.LocalDateTime
 
-// TODO [AK] Now that we also have access to query here, we can expand our tests
 abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
 
     def setupSpec(){
@@ -73,7 +72,7 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
     }
 
     def removeObject(String string) {
-        getDatabaseHelper().removeObject(RpslObject.parse(string))
+        getDatabaseHelper().deleteObject(RpslObject.parse(string))
     }
 
     def pendingUpdates(ObjectType objectType, String pkey) {

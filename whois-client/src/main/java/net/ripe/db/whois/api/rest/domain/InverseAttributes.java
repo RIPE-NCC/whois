@@ -17,13 +17,16 @@ import java.util.List;
 public class InverseAttributes {
 
     @XmlElement(name = "inverse-attribute")
-    protected List<InverseAttribute> attributes;
+    private List<InverseAttribute> attributes = Lists.newArrayList();
 
     public InverseAttributes(final Collection<String> attributes) {
-        this.attributes = Lists.newArrayList();
         for (String attribute : attributes) {
             this.attributes.add(new InverseAttribute(attribute));
         }
+    }
+
+    public InverseAttributes(final List<InverseAttribute> attributes) {
+        this.attributes = attributes;
     }
 
     public InverseAttributes() {

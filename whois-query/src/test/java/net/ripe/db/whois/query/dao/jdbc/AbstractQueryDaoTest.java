@@ -10,6 +10,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
+// TODO: [AH] do this the same way as update tests (without testexecutionlisteners) OR add design note as to why it sports a customized solution
 @ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml"})
 @TestExecutionListeners(listeners = {
         SetupQueryDatabaseTestExecutionListener.class,

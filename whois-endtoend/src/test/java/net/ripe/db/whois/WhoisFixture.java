@@ -3,7 +3,7 @@ package net.ripe.db.whois;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
-import net.ripe.db.whois.api.rest.RestClient;
+import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
@@ -18,22 +18,28 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
+import net.ripe.db.whois.db.WhoisServer;
 import net.ripe.db.whois.query.QueryServer;
+import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.scheduler.task.unref.UnrefCleanup;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
 import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.joda.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -48,6 +54,9 @@ import java.util.Map;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 public class WhoisFixture {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisFixture.class);
+
     private ClassPathXmlApplicationContext applicationContext;
 
     protected MailSenderStub mailSender;
@@ -72,26 +81,29 @@ public class WhoisFixture {
     protected IndexDao indexDao;
     protected WhoisServer whoisServer;
     protected RestClient restClient;
+    protected TestWhoisLog testWhoisLog;
 
     static {
         Slf4JLogConfiguration.init();
 
         System.setProperty("application.version", "0.1-ENDTOEND");
-        System.setProperty("mail.dequeue.threads", "2");
+        System.setProperty("mail.update.threads", "2");
         System.setProperty("mail.dequeue.interval", "10");
         System.setProperty("whois.maintainers.power", "RIPE-NCC-HM-MNT");
         System.setProperty("whois.maintainers.enduser", "RIPE-NCC-END-MNT");
+        System.setProperty("whois.maintainers.legacy", "RIPE-NCC-LEGACY-MNT");
         System.setProperty("whois.maintainers.alloc", "RIPE-NCC-HM-MNT,RIPE-NCC-HM2-MNT");
         System.setProperty("whois.maintainers.enum", "RIPE-GII-MNT,RIPE-NCC-MNT");
         System.setProperty("whois.maintainers.dbm", "RIPE-NCC-LOCKED-MNT,RIPE-DBM-MNT");
         System.setProperty("unrefcleanup.enabled", "true");
         System.setProperty("unrefcleanup.deletes", "true");
         System.setProperty("nrtm.enabled", "false");
+        System.setProperty("grs.sources", "TEST-GRS");
     }
 
-
     public void start() throws Exception {
-        applicationContext = new ClassPathXmlApplicationContext("applicationContext-whois-test.xml");
+        applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois-test.xml", WhoisProfile.TEST);
+
         databaseHelper = applicationContext.getBean(DatabaseHelper.class);
         whoisServer = applicationContext.getBean(WhoisServer.class);
         jettyBootstrap = applicationContext.getBean(JettyBootstrap.class);
@@ -114,12 +126,13 @@ public class WhoisFixture {
         unrefCleanup = applicationContext.getBean(UnrefCleanup.class);
         indexDao = applicationContext.getBean(IndexDao.class);
         restClient = applicationContext.getBean(RestClient.class);
+        testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
 
         databaseHelper.setup();
         whoisServer.start();
 
-        restClient.setRestApiUrl(String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
-        restClient.setSource("test");
+
+        ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%s/whois", jettyBootstrap.getPort()));
 
         initData();
     }
@@ -230,11 +243,13 @@ public class WhoisFixture {
     }
 
     public String query(final String query) {
-        return DummyWhoisClient.query(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
 
     public RpslObject restLookup(ObjectType objectType, String pkey, String... passwords) {
-        return restClient.lookup(objectType, pkey, passwords);
+        return restClient.request()
+                .addParams("password", passwords)
+                .lookup(objectType, pkey);
     }
 
     public List<String> queryPersistent(final List<String> queries) throws Exception {
@@ -292,6 +307,10 @@ public class WhoisFixture {
 
     public DnsGatewayStub getDnsGatewayStub() {
         return dnsGatewayStub;
+    }
+
+    public TestWhoisLog getTestWhoisLog() {
+        return testWhoisLog;
     }
 
     public MailSenderStub getMailSender() {

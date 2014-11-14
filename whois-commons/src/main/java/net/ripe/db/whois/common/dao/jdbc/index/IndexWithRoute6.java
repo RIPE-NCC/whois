@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 
 
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -45,7 +45,7 @@ class IndexWithRoute6 extends IndexStrategyWithSingleLookupTable {
                 "  LEFT JOIN last l ON l.object_id = route6.object_id " +
                 "  WHERE route6.r6_msb = ? AND route6.r6_lsb = ? AND route6.prefix_length = ? AND route6.origin = ? " +
                 "  AND l.sequence_id != 0 ",
-                new RpslObjectResultSetExtractor(),
+                new RpslObjectInfoResultSetExtractor(),
                 Long.toString(Ipv6Resource.msb(route6Key.resource.begin())),
                 Long.toString(Ipv6Resource.lsb(route6Key.resource.begin())),
                 route6Key.resource.getPrefixLength(),

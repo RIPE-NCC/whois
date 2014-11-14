@@ -1,26 +1,33 @@
 package net.ripe.db.whois.query.domain;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.domain.VersionDateTime;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.query.VersionDateTime;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class VersionResponseObject implements ResponseObject {
     private final Operation operation;
-    private final Integer version;
+    private Integer version;
     private final VersionDateTime dateTime;
     private final ObjectType type;
     private final String key;
-    private final int versionPadding;
+    private int versionPadding;
 
     public VersionResponseObject(final int versionPadding, final Operation operation, final Integer version, final VersionDateTime dateTime, final ObjectType type, final String key) {
         this.versionPadding = versionPadding;
         this.operation = operation;
         this.version = version;
         this.dateTime = dateTime;
+        this.type = type;
+        this.key = key;
+    }
+
+    public VersionResponseObject(final VersionDateTime dateTime, final Operation operation, final ObjectType type, final String key) {
+        this.dateTime = dateTime;
+        this.operation = operation;
         this.type = type;
         this.key = key;
     }

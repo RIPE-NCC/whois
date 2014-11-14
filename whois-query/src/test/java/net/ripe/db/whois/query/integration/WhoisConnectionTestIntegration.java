@@ -3,13 +3,13 @@ package net.ripe.db.whois.query.integration;
 import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.pipeline.*;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
+import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)
 @Category(IntegrationTest.class)
-public class WhoisConnectionTestIntegration extends AbstractWhoisIntegrationTest {
+public class WhoisConnectionTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired @ReplaceWithMock WhoisServerPipelineFactory whoisServerPipelineFactory;
     @Autowired @ReplaceWithMock QueryHandler queryHandler;
     @Autowired @WrapWithSpy QueryChannelsRegistry queryChannelsRegistry;
@@ -99,7 +99,7 @@ public class WhoisConnectionTestIntegration extends AbstractWhoisIntegrationTest
             }
         }).when(upstreamMock).messageReceived(any(ChannelHandlerContext.class), any(MessageEvent.class));
 
-        String response = new DummyWhoisClient(QueryServer.port).sendQuery(queryString);
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery(queryString);
 
         assertEquals("", stripHeader(response));
     }
@@ -108,7 +108,7 @@ public class WhoisConnectionTestIntegration extends AbstractWhoisIntegrationTest
     public void timeoutException_in_upstreamChannelHandler() throws Exception {
         doThrow(new TimeoutException()).when(upstreamMock).messageReceived(any(ChannelHandlerContext.class), any(MessageEvent.class));
 
-        String response = new DummyWhoisClient(QueryServer.port).sendQuery(queryString);
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery(queryString);
 
         assertThat(response, containsString("%ERROR:305: connection has been closed"));
     }
@@ -117,7 +117,7 @@ public class WhoisConnectionTestIntegration extends AbstractWhoisIntegrationTest
     public void tooLongFrameException_in_upstreamChannelHandler() throws Exception {
         doThrow(new TooLongFrameException("")).when(upstreamMock).messageReceived(any(ChannelHandlerContext.class), any(MessageEvent.class));
 
-        String response = new DummyWhoisClient(QueryServer.port).sendQuery(queryString);
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery(queryString);
 
         assertThat(response, containsString("%ERROR:107: input line too long"));
     }
@@ -126,7 +126,7 @@ public class WhoisConnectionTestIntegration extends AbstractWhoisIntegrationTest
     public void nullPointerException_in_upstreamChannelHandler() throws Exception {
         doThrow(new NullPointerException()).when(upstreamMock).messageReceived(any(ChannelHandlerContext.class), any(MessageEvent.class));
 
-        String response = new DummyWhoisClient(QueryServer.port).sendQuery(queryString);
+        String response = new TelnetWhoisClient(QueryServer.port).sendQuery(queryString);
 
         assertThat(response, containsString("%ERROR:100: internal software error"));
     }

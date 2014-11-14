@@ -14,7 +14,7 @@ import java.util.List;
 public class TypeFilters {
 
     @XmlElement(name = "type-filter")
-    protected List<TypeFilter> typeFilters;
+    private List<TypeFilter> typeFilters;
 
     public TypeFilters(final List<TypeFilter> typeFilters) {
         this.typeFilters = typeFilters;
@@ -28,7 +28,7 @@ public class TypeFilters {
     }
 
     public TypeFilters() {
-        // required no-arg constructor
+        this.typeFilters = Lists.newArrayList();
     }
 
     public List<TypeFilter> getTypeFilters() {

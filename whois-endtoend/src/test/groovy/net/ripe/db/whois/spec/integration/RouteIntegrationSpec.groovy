@@ -4,8 +4,6 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-// TODO: [AH] We check successful errors with response =~ /SUCCESS/; this is very error-prone and misleading, should be fixed everywhere
-// TODO: [AH] Use $ in regexp to increase efficiency, e.g. matching for /not authenticated by: TEST-MNT/ happily matches for 'not authenticated by: TEST-MNT2' !!!
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class RouteIntegrationSpec extends BaseWhoisSourceSpec {
@@ -270,7 +268,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       when:
         def deleteRoute = new SyncUpdate(data: """\
-                    route: 195.0/24
+                    route: 195.0.0.0/24
                     descr: Test route
                     origin: AS12726
                     mnt-by: TEST-MNT
@@ -885,11 +883,11 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     def "create route pingable contained withing prefix value"() {
       when:
         def create = new SyncUpdate(data: """\
-                route: 195.0/24
+                route: 195.0.0.0/24
                 descr: other route
                 origin: AS456
                 mnt-by: LOWER-MNT
-                pingable: 195.0/32
+                pingable: 195.0.0.1
                 changed: ripe@test.net 20091015
                 source: TEST
                 password: update
@@ -908,11 +906,11 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     def "create route pingable not contained withing prefix value"() {
       when:
         def create = new SyncUpdate(data: """\
-                route: 195.0/24
+                route: 195.0.0.0/24
                 descr: other route
                 origin: AS456
                 mnt-by: LOWER-MNT
-                pingable: 196.0/32
+                pingable: 196.0.0.1
                 changed: ripe@test.net 20091015
                 source: TEST
                 password: update
@@ -925,7 +923,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ /FAIL/
-        response =~ /Error:   196.0\/32 is outside the range of this object/
+        response =~ /Error:   196.0.0.1 is outside the range of this object/
     }
 
     def "create route member-of exists in route-set"() {
@@ -1048,18 +1046,18 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     def "modify route fail on pingables "() {
       when:
         def response = syncUpdate new SyncUpdate(data: """\
-                        route: 180.0/24
+                        route: 180.0.0.0/24
                         descr: Test route
                         origin: AS12726
                         mnt-by: TEST-MNT
-                        pingable: 181.0.0.0/32
+                        pingable: 181.0.0.0
                         changed: ripe@test.net 20091015
                         source: TEST
                         password: update
                         """.stripIndent())
       then:
         response =~ /FAIL/
-        response =~ /Error:   181.0.0.0\/32 is outside the range of this object/
+        response =~ /Error:   181.0.0.0 is outside the range of this object/
     }
 
     def "modify route fail on holes"() {
@@ -1521,6 +1519,18 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create route pending auth, inetnum deleted after authenticated"() {
+      given:
+        databaseHelper.addObject("" +
+                "inetnum: 197.0.0.0 - 197.0.255.255\n" +
+                "netname: RIPE-NCC\n" +
+                "descr: description\n" +
+                "country: NL\n" +
+                "admin-c: TEST-PN\n" +
+                "tech-c: TEST-PN\n" +
+                "status: SUB-ALLOCATED PA\n" +
+                "mnt-by: TEST-MNT3\n" +
+                "changed: ripe@test.net 20120601\n" +
+                "source: TEST")
       when:
         def inetnumWithIpAuth = syncUpdate(new SyncUpdate(data: """\
                             route: 197.0.0.0/24
@@ -1541,7 +1551,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       when:
         def deleteInetnum = syncUpdate(new SyncUpdate(data: """\
-                            inetnum: 197.0/24
+                            inetnum: 197.0.0.0 - 197.0.0.255
                             netname: RIPE-NCC
                             descr: description
                             country: NL

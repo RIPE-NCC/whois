@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.72-SNAPSHOT</version>
+    <version>1.77-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -18,20 +18,19 @@
             <url>https://raw.github.com/RIPE-NCC/whois/master/LICENSE.txt</url>
             <distribution>repo</distribution>
         </license>
+
     </licenses>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring.version>3.2.0.RELEASE</spring.version>
-        <aspectj.version>1.8.0.M1</aspectj.version>
-        <compiler.version>1.8</compiler.version>
+        <spring.version>3.2.10.RELEASE</spring.version>
+        <aspectj.version>1.8.4</aspectj.version>
         <java.version>1.8</java.version>
-        <jersey.version>2.2</jersey.version>
-        <lucene.version>4.4.0</lucene.version>
-        <jetty.version>8.1.12.v20130726</jetty.version>
+        <jersey.version>2.11</jersey.version>
+        <lucene.version>4.10.0</lucene.version>
+        <jetty.version>8.1.15.v20140411</jetty.version>
         <whois.main>OVERRIDE</whois.main>
-        <sonar.skippedModules>whois-oneshot</sonar.skippedModules>
         <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
         <sonar.jdbc.driver>com.mysql.jdbc.Driver</sonar.jdbc.driver>
         <sonar.jdbc.username>dbint</sonar.jdbc.username>
@@ -42,18 +41,18 @@
         <developerConnection>scm:git:ssh://git@github.com/RIPE-NCC/whois.git</developerConnection>
     </scm>
 
+    <!--
     <distributionManagement>
         <repository>
-            <id>artifactory-libs-release</id>
-            <name>libs-release</name>
-            <url>http://tools.db.ripe.net/artifactory/libs-release-local</url>
+            <id>ripe-releases</id>
+            <url>http://nexus.ripe.net/nexus/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
-            <id>artifactory-libs-snapshot</id>
-            <name>libs-snapshot</name>
-            <url>http://tools.db.ripe.net/artifactory/libs-snapshot-local</url>
+            <id>ripe-snapshots</id>
+            <url>http://nexus.ripe.net/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
+    -->
 
     <modules>
         <module>whois-client</module>
@@ -65,8 +64,6 @@
         <module>whois-scheduler</module>
         <module>whois-db</module>
         <module>whois-endtoend</module>
-        <module>whois-oneshot</module>
-        <module>whois-internal</module>
     </modules>
 
     <dependencyManagement>
@@ -127,11 +124,6 @@
             </dependency>
             <dependency>
                 <groupId>net.ripe.db</groupId>
-                <artifactId>whois-internal</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.ripe.db</groupId>
                 <artifactId>whois-query</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
@@ -173,11 +165,15 @@
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
-
+            <dependency>
+                <groupId>net.ripe.commons</groupId>
+                <artifactId>commons-ip-math</artifactId>
+                <version>1.20</version>
+            </dependency>
             <dependency>
                 <groupId>de.jflex</groupId>
                 <artifactId>jflex</artifactId>
-                <version>1.4.3</version>
+                <version>1.6.0</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
@@ -211,6 +207,12 @@
                 <version>${spring.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
                 <version>${aspectj.version}</version>
@@ -223,37 +225,37 @@
             <dependency>
                 <groupId>net.sf.jopt-simple</groupId>
                 <artifactId>jopt-simple</artifactId>
-                <version>4.3</version>
+                <version>4.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
-                <version>1.2.16</version>
+                <version>1.2.17</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>apache-log4j-extras</artifactId>
-                <version>1.1</version>
+                <version>1.2.17</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>15.0-rc1</version>
+                <version>16.0.1</version>
             </dependency>
             <dependency>
                 <groupId>mysql</groupId>
@@ -280,30 +282,30 @@
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
-                <version>2.4</version>
+                <version>2.6.7</version>
             </dependency>
 
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.1</version>
+                <version>2.3</version>
             </dependency>
 
             <!-- bouncy castle -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpg-jdk15on</artifactId>
-                <version>1.47</version>
+                <version>1.51</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcmail-jdk15on</artifactId>
-                <version>1.47</version>
+                <version>1.51</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.47</version>
+                <version>1.51</version>
             </dependency>
 
             <!-- apache commons -->
@@ -342,12 +344,17 @@
                 <artifactId>velocity</artifactId>
                 <version>1.7</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.3.3</version>
+            </dependency>
 
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
-                <version>1.7.1</version>
+                <version>1.7.3</version>
             </dependency>
 
             <!-- Jetty as an embedded server -->
@@ -378,12 +385,36 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-base</artifactId>
-                <version>2.2.3</version>
+                <version>2.4.1</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>2.2.3</version>
+                <version>2.4.1</version>
+            </dependency>
+
+            <!-- StaxUtils for the XMLWriterUtils -->
+            <dependency>
+                <groupId>net.java.dev.stax-utils</groupId>
+                <artifactId>stax-utils</artifactId>
+                <version>20070216</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.bea.xml</groupId>
+                        <artifactId>jsr173-ri</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-core</artifactId>
+                <version>2.2.7</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>2.2.7</version>
             </dependency>
 
             <!-- lucene for fulltext search -->
@@ -418,6 +449,14 @@
                 <version>${lucene.version}</version>
             </dependency>
 
+            <!-- contract annotations, see http://blog.jetbrains.com/idea/2013/10/better-control-flow-analysis-with-contract-annotations-and-intellij-idea-13/ -->
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>13.0</version>
+                <scope>compile</scope>
+            </dependency>
+
             <!-- diffutils -->
             <dependency>
                 <groupId>com.googlecode.java-diff-utils</groupId>
@@ -431,6 +470,12 @@
                 <artifactId>solr-solrj</artifactId>
                 <version>1.4.1</version>
                 <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.2.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -587,12 +632,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8</version>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -630,10 +678,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.14.1</version>
+                <version>2.16</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx512m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx512m -DjvmId=${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.unit}</include>
                     </includes>
@@ -641,6 +689,7 @@
                     <threadCount>1</threadCount>
                     <excludedGroups>
                         net.ripe.db.whois.common.IntegrationTest,
+                        net.ripe.db.whois.common.EndToEndTest,
                         net.ripe.db.whois.common.ManualTest
                     </excludedGroups>
                 </configuration>
@@ -648,10 +697,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.14.1</version>
+                <version>2.16</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
-                    <argLine>-Xmx1024m -Ddir.var=var${surefire.forkNumber} -Dsurefire.forkNumber=${surefire.forkNumber}</argLine>
+                    <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber}</argLine>
                     <includes>
                         <include>${test.files.integration}</include>
                     </includes>
@@ -660,6 +709,7 @@
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
+                    <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
                 </configuration>
                 <executions>
                     <execution>
@@ -673,13 +723,13 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.7</version>
                 <configuration>
                     <showWeaveInfo>false</showWeaveInfo>
-                    <source>${compiler.version}</source>
-                    <target>${compiler.version}</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <Xlint>warning</Xlint>
-                    <complianceLevel>${compiler.version}</complianceLevel>
+                    <complianceLevel>${java.version}</complianceLevel>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <verbose>false</verbose>
                     <warn>true</warn>
@@ -713,6 +763,7 @@
             </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>junit</id>
@@ -732,33 +783,45 @@
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
-                <test.forkCount.integration>3</test.forkCount.integration>
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/*TestIntegration*.class,**/*Spec*.class</test.files.integration>
+                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
             <id>comparison</id>
             <properties>
                 <test.redirectOutput>false</test.redirectOutput>
+                <test.ignoreFailure>false</test.ignoreFailure>
                 <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/*CompareTwoQueryInstances*</test.files.integration>
+                <test.files.integration>**/CompareTwoQueryInstancesByComparisonFile.class,**/RestCompareTwoInstancesByComparisonFile.class</test.files.integration>
             </properties>
         </profile>
         <profile>
             <id>endtoend</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
-                <test.groups />
+                <test.groups>net.ripe.db.whois.common.EndToEndTest</test.groups>
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/whois/spec/query/*Spec*.java,**/whois/spec/update/*Spec*.java,**/whois/spec/integration/*Spec*.java
-                </test.files.integration>
+                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
                 <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
             <id>all</id>
+            <properties>
+                <test.redirectOutput>true</test.redirectOutput>
+                <test.groups>net.ripe.db.whois.common.EndToEndTest,net.ripe.db.whois.common.IntegrationTest
+                </test.groups>
+                <test.files.unit>**/*Test.class</test.files.unit>
+                <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
+                <test.forkCount.integration>3</test.forkCount.integration>
+            </properties>
+        </profile>
+        <profile>
+            <!-- travis can't run endtoend tests because of the dependency on ripe-internal servers like crowd -->
+            <id>travis</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
@@ -775,6 +838,30 @@
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>None</test.files.integration>
             </properties>
+        </profile>
+        <profile>
+            <id>jmeter</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.lazerycode.jmeter</groupId>
+                        <artifactId>jmeter-maven-plugin</artifactId>
+                        <version>1.10.0</version>
+                        <configuration>
+                            <reportDir>${project.build.directory}/jmeter-reports</reportDir>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>jmeter</id>
+                                <phase>none</phase>
+                                <goals>
+                                    <goal>jmeter</goal>
+                                </goals>
+                           </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

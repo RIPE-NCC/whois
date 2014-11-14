@@ -1,9 +1,10 @@
 package net.ripe.db.whois.api.rest.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import net.ripe.db.whois.api.rest.mapper.ValidXmlAdapter;
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -14,6 +15,8 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Objects;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -22,23 +25,23 @@ import java.util.Objects;
     "value",
     "referencedType"
 })
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonInclude(NON_NULL)
 @XmlRootElement(name = "attribute")
 public class Attribute {
 
     @XmlElement
-    protected Link link;
+    private Link link;
     @XmlAttribute(name = "value", required = true)
     @XmlJavaTypeAdapter(value = ValidXmlAdapter.class)
-    protected String value;
+    private String value;
     @XmlAttribute(name = "referenced-type")
-    protected String referencedType;
+    private String referencedType;
     @XmlAttribute(name = "name")
-    protected String name;
+    private String name;
     @XmlAttribute(name = "comment")
-    protected String comment;
+    private String comment;
 
-    public Attribute(final String name, final String value, final String comment, final String referencedType, final Link link) {
+    public Attribute(final String name, final String value, @Nullable final String comment, @Nullable final String referencedType, @Nullable final Link link) {
         this.name = name;
         this.value = value;
         this.comment = comment;
@@ -103,11 +106,23 @@ public class Attribute {
                 Objects.equals(attribute.link, link);
     }
 
+    /** does not properly handle multiline attributes; first line will have an extra space before the value */
     public String toString() {
-        if (StringUtils.isBlank(comment)) {
-            return String.format("%s: %s", name, value);
-        } else {
-            return String.format("%s: %s # %s", name, value, comment);
+        StringBuilder builder = new StringBuilder();
+        builder.append(name).append(": ").append(value);
+
+        if (!StringUtils.isBlank(comment)) {
+            builder.append(" # ").append(comment);
         }
+
+        if (!StringUtils.isBlank(referencedType)) {
+            builder.append(" [").append(referencedType).append("]");
+        }
+
+        if (link != null) {
+            builder.append(" [").append(link).append("]");
+        }
+
+        return builder.toString();
     }
 }

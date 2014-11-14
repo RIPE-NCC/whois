@@ -2,9 +2,9 @@ package net.ripe.db.whois.query.integration;
 
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
+import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @Category(IntegrationTest.class)
-public class RelatedToTestIntegration extends AbstractWhoisIntegrationTest {
+public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
 
     @Before
     public void startupWhoisServer() throws Exception {
@@ -52,7 +52,8 @@ public class RelatedToTestIntegration extends AbstractWhoisIntegrationTest {
     }
 
     private void references_self(final String query) {
-        final String response = DummyWhoisClient.query(QueryServer.port, query);
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        System.err.println(response);
 
         final String check = "role:           Asia Pacific Network Information Centre\n";
         assertThat(response, containsString(check));

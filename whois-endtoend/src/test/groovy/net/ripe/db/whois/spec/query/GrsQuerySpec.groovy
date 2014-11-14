@@ -1,10 +1,11 @@
 package net.ripe.db.whois.spec.query
-
 import com.google.common.collect.Sets
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseEndToEndSpec
 
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class GrsQuerySpec extends BaseEndToEndSpec {
 
     static def grsFixtures = [
@@ -203,6 +204,24 @@ class GrsQuerySpec extends BaseEndToEndSpec {
         then:
         response =~ "%ERROR:115: invalid search key"
         response !=~ "mntner"
+    }
+
+    def "Query grs frankenranges"() {
+        when:
+        databaseHelper.addObjectToSource("1-GRS", "inetnum: 132.95.0.0 - 132.95.255.255\nnetname: test")
+        databaseHelper.addObjectToSource("1-GRS", "inetnum: 132.96.0.0 - 132.103.255.255\nnetname: test")
+        databaseHelper.addObjectToSource("1-GRS", "inetnum: 132.104.0.0 - 132.107.255.255\nnetname: test")
+        databaseHelper.addObjectToSource("1-GRS", "inetnum: 132.108.0.0 - 132.108.255.255\nnetname: test")
+
+        // query exact match
+        def response = query("--resource -x 132.95.0.0 - 132.95.255.255")
+        then:
+        response =~ "inetnum"
+
+        // query more specific
+        def response2 = query("--resource -m 132.95.0.0 - 132.108.255.255")
+        then:
+        response2 =~ "inetnum"
     }
 
     def "--all-sources found in both"() {

@@ -1,6 +1,85 @@
-## next
+## 1.75
+[update] Suballocations smaller than /24 is now allowed
+[update] Reverse domain objects with single IP address now allowed
+
+## 1.74
+[all] Fixed issues listed in GitHub: https://github.com/RIPE-NCC/whois/issues?milestone=12&state=closed
+[update] Users can now remove the remarks about status in an aut-num object
+[update] Users cannot remove abuse-c from an organisation if it's referenced from RIPE resources
+[all] Role attribute now has a more permissive syntax
+
+
+## 1.73.1
+[all] Fixed issues listed in GitHub: https://github.com/RIPE-NCC/whois/issues?milestone=11&state=closed
+[all] Created script to remove references to reserved AS numbers
+[all] Created script to find emails for legacy resources
+[all] Created script to turn multiple abuse-mailbox attributes into remarks
+[all] Auth table cleanup patch (whois-1.73-3.sql) - fixes case-sensitivity regression in 1.73
+[all] Crowd connect/read timeout decrease
+
+## 1.73
+[all] Implemented policy 2012-07: added "legacy" status to inetnum, and added (generated) status attribute to autnum
+[all] Implemented policy 2012-08: attribute "sponsoring-org" added to inetnum, inet6num and aut-num
+[all] Fixed issues listed in GitHub: https://github.com/RIPE-NCC/whois/issues?milestone=10&page=1&state=closed
+[DEPLOY] merge and deploy web application feature-1.73 branch
+[DEPLOY] run the following scripts for this release:
+	- internals-1.73-1.sql
+	- whois-1.73-1.sql
+	- whois-1.73-2.sql
+	- legacy_autnums.sql
+Also run whois scripts in all MIRROR datasources.
+[DEPLOY] when deploying the web application, change access.hostname to access.url.
+
+## 1.72
+[web, api] Better integration with other Ripe services:
+Introduced Single Sign On (SSO) for Ripe Database web interface.
+Objects can be created/modified when appropriate using the SSO account.
+
+[api] #158 source element
+[api] #152 Improve logging
+[api] #150 restclient streamSearch returns url as an errormessage when no object is found
+[api] #140 --no-personal does not work on web queries
+[api] #130 JSON output is weird
+[api] #114 REST API JSON response duplicate declaration for 'object' property
+[api] #119 in case of noop, rest update returns the new object instead of the one in database.
+[api] #148 primary-key element incorrect for route(6)
+[api] #145 Empty/unused element in JAXB objects
+[query] #121 The built-in help message (-v) contains outdated information about syntax rules of person and role object names
+[update] #149 Cannot Update Maintainer with Multiple Passwords
+[update] #141 Undelete JMX command unreliable
+[web] #179 inverse web query does not find some objects
+[web] #177 update a PERSON from result list selects wrong object
+[web] #172 After sign out in webupdates, user is not redirected to webupdates.
+[web] #164 RIPE # Filtered not shown on filtered objects
+[web] #161 web query start page needs some more '?' text
+[web] #160 web query 'General Info' text change
+[web] #125 no error with wrong type on lookup
+[web] #123 dbweb - search results should be streamed
+[web] #122 Person objects have incorrect lookup links in search form results
+[web] #124 dbweb does not pass on the X-Forwarded-for header to whois backend
+[web] #144 Lookup page is missing RIPEStat link
+[web] #138 syntax error in link to aut-num in route object in web query
+[web] #132 selecting Types on web query returns wrong types
+[web] #131 inverse web query does not find aut-num objects
+
 
 ## 1.71
+[all] byacc, flex and generator files are not part of deployable whois.jar
+[update] No attribute sanitation of object on delete
+[api] All RestClient lookups are unfiltered
+[oneshot] Dummification for database on RC environment
+[update] Call Dnschecker once for all objects before beginning the per-object update cycle
+[api] allow for delete reason in rest client
+[all] allow for multiple owner attributes in keycert object
+[web] #102 webupdates permanent link
+[web] #99 webupdates new organisation startup existing maintainer
+[web] #98 webupdates create page error formatting
+[web] #93 webupdates doesn't display non-ASCII characters correctly
+[web] #16 webupdates mixes up extracting errors from acknowledgement message
+[api] #112 - return a user friendly message when creating an inetnum with invalid parent.
+[api] #110 SQL statements and results are not logged in audit log
+[api] #109 A mntner object is returned filtered in look up, if the password for the mnt_by mntners is supplied
+[api] #108 RestClient does not return comments in the attributes of an rpsl object
 [api] #97 REST calls should return error messages
 [api] #95 REST /search should not accept query flags in 'query-string'
 [api] #92 Uniform use to flag names in error messages
@@ -12,6 +91,9 @@
 [api] Added authentication support for REST lookups
 [api] log HTTP headers in update audit log
 [update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
+[commons] Fixed logging of daily scheduled jobs
+[oneshot] Added Default Abuse Contact script
+[deploy] remove logger=... from whois.properties/master datasource definition
 
 ## 1.70.1 (deployed on 2013-11-21)
 [all] Fixed MySQL replication issue

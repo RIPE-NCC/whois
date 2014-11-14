@@ -113,12 +113,14 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(result, is("" +
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">" +
-                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/193.0.0.0 - 193.0.0.255\"/>" +
-                "<parameters><primary-key value=\"193.0.0.0 - 193.0.0.255\"/></parameters>" +
-                "<abuse-contacts email=\"abuse@test.net\"/>" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<abuse-resources service=\"abuse-contact\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/193.0.0.0 - 193.0.0.255\"/>\n" +
+                "    <parameters>\n" +
+                "        <primary-key value=\"193.0.0.0 - 193.0.0.255\"/>\n" +
+                "    </parameters>\n" +
+                "    <abuse-contacts email=\"abuse@test.net\"/>\n" +
+                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
                 "</abuse-resources>"));
     }
 
@@ -217,11 +219,16 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "}"));
     }
 
-    @Test(expected = NotFoundException.class)
-    public void lookup_inetnum_not_found() {
-        RestTest.target(getPort(), "whois/abuse-contact/193.0.1.2")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
+    @Test
+    public void lookup_inetnum_not_found_xml() {
+        try {
+            RestTest.target(getPort(), "whois/abuse-contact/193.0.1.2")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(String.class);
+        } catch (NotFoundException e) {
+            final String responseEntity = e.getResponse().readEntity(String.class);
+            assertThat(responseEntity, is("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\"><message>No abuse contact found for 193.0.1.2</message></abuse-resources>"));
+        }
     }
 
     // inet6num
@@ -301,22 +308,27 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(result, is("" +
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\" service=\"abuse-contact\">" +
-                "<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/2a00:1f78::/32\"/>" +
-                "<parameters>" +
-                "<primary-key value=\"2a00:1f78::/32\"/>" +
-                "</parameters>" +
-                "<abuse-contacts email=\"abuse@test.net\"/>" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<abuse-resources service=\"abuse-contact\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/2a00:1f78::/32\"/>\n" +
+                "    <parameters>\n" +
+                "        <primary-key value=\"2a00:1f78::/32\"/>\n" +
+                "    </parameters>\n" +
+                "    <abuse-contacts email=\"abuse@test.net\"/>\n" +
+                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
                 "</abuse-resources>"));
     }
 
-    @Test(expected = NotFoundException.class)
-    public void lookup_inet6num_not_found() {
-        RestTest.target(getPort(), "whois/abuse-contact/2a00:1234::/32")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
+    @Test
+    public void lookup_inet6num_not_found_json() {
+        try {
+            RestTest.target(getPort(), "whois/abuse-contact/2a00:1234::/32")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(String.class);
+        } catch (NotFoundException e) {
+            final AbuseResources result = e.getResponse().readEntity(AbuseResources.class);
+            assertThat(result.getMessage(), is("No abuse contact found for 2a00:1234::/32"));
+        }
     }
 
     // autnum
@@ -373,11 +385,18 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
         assertThat(abuseResources.getAbuseContact().getEmail(), is(""));
     }
 
-    @Test(expected = NotFoundException.class)
-    public void lookup_autnum_not_found() {
-        RestTest.target(getPort(), "whois/abuse-contact/AS333")
-                .request(MediaType.APPLICATION_XML)
-                .get(String.class);
+    @Test
+    public void lookup_autnum_not_found_json() {
+        try {
+            RestTest.target(getPort(), "whois/abuse-contact/AS333")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(AbuseResources.class);
+        } catch (NotFoundException e) {
+            assertThat(e.getResponse().readEntity(String.class),
+                    is("{\n" +
+                       "  \"message\" : \"No abuse contact found for AS333\"\n" +
+                       "}"));
+        }
     }
 
     @Test

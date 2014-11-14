@@ -1,9 +1,11 @@
 package net.ripe.db.whois.spec.update
 
+import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
+@org.junit.experimental.categories.Category(IntegrationTest.class)
 class AsSetSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -875,9 +877,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -895,8 +895,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
@@ -1000,9 +998,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T as-set AS123:AS-TEST:AS-TEST2", "as-set", "AS123:AS-TEST:AS-TEST2")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS123
                 as-name:        some-name
                 descr:          description
@@ -1030,8 +1026,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
@@ -1054,9 +1048,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T as-set AS123:AS-TEST:AS-TEST2", "as-set", "AS123:AS-TEST:AS-TEST2")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 as-set:       AS123:AS-TEST
                 descr:        test as-set
                 tech-c:       TP1-TEST
@@ -1084,8 +1076,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.success
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 2, 0, 0, 0)

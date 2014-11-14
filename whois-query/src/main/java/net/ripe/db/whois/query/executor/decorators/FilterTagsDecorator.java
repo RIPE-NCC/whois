@@ -6,11 +6,11 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.query.QueryFlag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -64,8 +64,8 @@ public class FilterTagsDecorator implements ResponseDecorator {
 
                 result.add(object);
 
-                if (showTagInfo) {
-                    addTags(object, tags, result);
+                if (showTagInfo && !tags.isEmpty()) {
+                    result.add(new TagResponseObject(object.getKey(), tags));
                 }
             }
         };
@@ -75,20 +75,6 @@ public class FilterTagsDecorator implements ResponseDecorator {
         }
 
         return responseObjects;
-    }
-
-    private void addTags(final RpslObject object, final List<Tag> tags, Deque<ResponseObject> result) {
-        if (tags.isEmpty()) {
-            return;
-        }
-
-        result.add(new MessageObject(QueryMessages.tagInfoStart(object.getKey())));
-
-        for (final Tag tag : tags) {
-            result.add(new TagResponseObject(object.getKey(), tag.getType(), tag.getValue()));
-        }
-
-        result.add(new MessageObject(QueryMessages.tagInfoEnd()));
     }
 
     private static boolean containsTag(List<Tag> objectTags, Set<CIString> tagsFromQuery) {

@@ -1,7 +1,11 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -10,7 +14,7 @@ import javax.xml.bind.annotation.*;
 public class InverseAttribute {
 
     @XmlAttribute(name = "value", required = true)
-    protected String value;
+    private String value;
 
     public InverseAttribute(final String value) {
         this.value = value;

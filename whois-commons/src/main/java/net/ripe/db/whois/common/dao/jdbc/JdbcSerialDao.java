@@ -31,11 +31,17 @@ public class JdbcSerialDao implements SerialDao {
     @Override
     @CheckForNull
     public SerialEntry getById(final int serialId) {
-        return JdbcRpslObjectOperations.getById(jdbcTemplate, serialId);
+        return JdbcRpslObjectOperations.getSerialEntry(jdbcTemplate, serialId);
     }
 
     @Override
-    public int getSerialAge(final int serialId) {
-        return JdbcRpslObjectOperations.getSerialAge(dateTimeProvider, jdbcTemplate, serialId);
+    @CheckForNull
+    public SerialEntry getByIdForNrtm(final int serialId) {
+        return JdbcRpslObjectOperations.getSerialEntryForNrtm(jdbcTemplate, serialId);
+    }
+
+    @Override
+    public Integer getAgeOfExactOrNextExistingSerial(final int serialId) {
+        return JdbcRpslObjectOperations.getAgeOfExactOrNextExistingSerial(dateTimeProvider, jdbcTemplate, serialId);
     }
 }

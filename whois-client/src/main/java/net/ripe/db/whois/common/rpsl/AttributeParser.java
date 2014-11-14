@@ -1,9 +1,12 @@
 package net.ripe.db.whois.common.rpsl;
 
+import com.google.common.collect.ImmutableSet;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
+import net.ripe.db.whois.common.rpsl.attrs.IPAddress;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
+import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.AutNum;
 import net.ripe.db.whois.common.rpsl.attrs.Changed;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
@@ -11,14 +14,26 @@ import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.common.rpsl.attrs.SetObject;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public interface AttributeParser<T> {
+    // TODO: [AH] should operate on CIString, not String
     T parse(String s);
 
     final class AddressPrefixRangeParser implements AttributeParser<AddressPrefixRange> {
         @Override
         public AddressPrefixRange parse(final String s) {
             return AddressPrefixRange.parse(s);
+        }
+    }
+
+    final class IPAddressParser implements AttributeParser<IPAddress> {
+        @Override
+        public IPAddress parse(final String s) {
+            return IPAddress.parse(s);
         }
     }
 
@@ -84,6 +99,7 @@ public interface AttributeParser<T> {
             return DsRdata.parse(s);
         }
     }
+
     final class DomainParser implements AttributeParser<Domain> {
         @Override
         public Domain parse(final String s) {
@@ -138,6 +154,24 @@ public interface AttributeParser<T> {
         @Override
         public NServer parse(final String s) {
             return NServer.parse(s);
+        }
+    }
+
+    final class NameParser implements AttributeParser {
+        final private Pattern NAME = Pattern.compile("(?i)[a-z][a-z0-9_-]{0,78}[a-z0-9]");
+        final private Set<String> reserved = ImmutableSet.of(
+                "ANY", "AS-ANY", "RS-ANY", "PEERAS", "AND", "OR", "NOT",
+                "ATOMIC", "FROM", "TO", "AT", "ACTION", "ACCEPT", "ANNOUNCE",
+                "EXCEPT", "REFINE", "NETWORKS", "INTO", "INBOUND", "OUTBOUND");
+
+        @Override
+        public String parse(final String s) {
+            if (!StringUtils.isBlank(s) &&
+                    NAME.matcher(s).matches() &&
+                    !reserved.contains(s.toUpperCase())) {
+                return s;
+            }
+            throw new AttributeParseException("Unexpected parse result", s);
         }
     }
 }

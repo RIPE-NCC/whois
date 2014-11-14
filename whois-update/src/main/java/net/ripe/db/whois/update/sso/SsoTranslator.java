@@ -1,83 +1,93 @@
 package net.ripe.db.whois.update.sso;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.sso.AuthTranslator;
+import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.SsoHelper;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Iterator;
-import java.util.Map;
+import javax.annotation.CheckForNull;
 
 @Component
 public class SsoTranslator {
-    public static final Splitter SPACE_SPLITTER = Splitter.on(' ');
+    private final CrowdClient crowdClient;
 
-    public String getUuidForUsername(UpdateContext updateContext, String username) {
-        String ssoTranslationResult = updateContext.getSsoTranslationResult(username);
-        if (ssoTranslationResult != null) {
-            return ssoTranslationResult;
-        }
-
-        // TODO: implement
-        updateContext.addSsoTranslationResult(username, "1234-5678-90AB-DCEF");
-        return updateContext.getSsoTranslationResult(username);
-//        throw new IllegalArgumentException("Unknown RIPE Access user: " + username);
+    @Autowired
+    public SsoTranslator(final CrowdClient crowdClient) {
+        this.crowdClient = crowdClient;
     }
 
-    public String getUsernameForUuid(UpdateContext updateContext, String uuid) {
-        String ssoTranslationResult = updateContext.getSsoTranslationResult(uuid);
-        if (ssoTranslationResult != null) {
-            return ssoTranslationResult;
-        }
-
-        // TODO: implement
-        updateContext.addSsoTranslationResult(uuid, "agoston@ripe.net");
-        return updateContext.getSsoTranslationResult(uuid);
-//        throw new IllegalArgumentException("Unknown RIPE Access UUID: " + uuid);
-    }
-
-    public void populate(Update update, UpdateContext updateContext) {
-        RpslObject submittedObject = update.getSubmittedObject();
-        if (!ObjectType.MNTNER.equals(submittedObject.getType())) {
-            return;
-        }
-
-        for (RpslAttribute auth : submittedObject.findAttributes(AttributeType.AUTH)) {
-            CIString authValue = auth.getCleanValue();
-            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue).iterator();
-            String passwordType = authIterator.next();
-            if (passwordType.equalsIgnoreCase("SSO")) {
-                getUuidForUsername(updateContext, authIterator.next());
+    public void populateCacheAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {
+        SsoHelper.translateAuth(rpslObject, new AuthTranslator() {
+            @Override
+            @CheckForNull
+            public RpslAttribute translate(final String authType, final String authToken, final RpslAttribute originalAttribute) {
+                if (authType.equals("SSO")) {
+                    if (!updateContext.hasSsoTranslationResult(authToken)) {
+                        try {
+                            final String username = crowdClient.getUsername(authToken);
+                            updateContext.addSsoTranslationResult(authToken, username);
+                        } catch (CrowdClientException e) {
+                            if (!updateContext.getGlobalMessages().getErrors().contains(UpdateMessages.ripeAccessServerUnavailable())) {
+                                updateContext.addGlobalMessage(UpdateMessages.ripeAccessServerUnavailable());
+                            }
+                        }
+                    }
+                }
+                return null;
             }
-        }
+        });
     }
 
-    public RpslObject translateAuthToUuid(UpdateContext updateContext, RpslObject rpslObject) {
-        if (!ObjectType.MNTNER.equals(rpslObject.getType())) {
-            return rpslObject;
-        }
-
-        Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        for (RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
-            CIString authValue = auth.getCleanValue();
-            Iterator<String> authIterator = SPACE_SPLITTER.split(authValue.toUpperCase()).iterator();
-            String passwordType = authIterator.next();
-            if (passwordType.equals("SSO")) {
-                replace.put(auth, new RpslAttribute(auth.getKey(), "SSO" + getUuidForUsername(updateContext, authIterator.next())));
+    public void populateCacheAuthToUuid(final UpdateContext updateContext, final Update update) {
+        final RpslObject submittedObject = update.getSubmittedObject();
+        SsoHelper.translateAuth(submittedObject, new AuthTranslator() {
+            @Override
+            @CheckForNull
+            public RpslAttribute translate(final String authType, final String authToken, final RpslAttribute originalAttribute) {
+                if (authType.equals("SSO")) {
+                    if (!updateContext.hasSsoTranslationResult(authToken)) {
+                        try {
+                            final String uuid = crowdClient.getUuid(authToken);
+                            updateContext.addSsoTranslationResult(authToken, uuid);
+                        } catch (CrowdClientException e) {
+                            updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
+                        }
+                    }
+                }
+                return null;
             }
-        }
+        });
+    }
 
-        if (replace.isEmpty()) {
-            return rpslObject;
-        } else {
-            return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
-        }
+    public RpslObject translateFromCacheAuthToUuid(final UpdateContext updateContext, final RpslObject rpslObject) {
+        return translateAuthFromCache(updateContext, rpslObject);
+    }
+
+    public RpslObject translateFromCacheAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {
+        return translateAuthFromCache(updateContext, rpslObject);
+    }
+
+    private RpslObject translateAuthFromCache(final UpdateContext updateContext, final RpslObject rpslObject) {
+        return SsoHelper.translateAuth(rpslObject, new AuthTranslator() {
+            @Override
+            @CheckForNull
+            public RpslAttribute translate(String authType, String authToken, RpslAttribute originalAttribute) {
+                if (authType.equals("SSO")) {
+                    final String translatedValue = updateContext.getSsoTranslationResult(authToken);
+                    if (translatedValue != null) {
+                        String authValue = String.format("SSO %s", translatedValue);
+                        return new RpslAttribute(originalAttribute.getKey(), authValue);
+                    }
+                }
+                return null;
+            }
+        });
     }
 }

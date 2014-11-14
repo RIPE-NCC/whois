@@ -2,17 +2,16 @@
 package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.DummifierLegacy;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
@@ -25,27 +24,29 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-// TODO: [AH] this should have been an integration test
 
 @RunWith(MockitoJUnitRunner.class)
 public class RpslResponseDecoratorTest {
@@ -58,13 +59,25 @@ public class RpslResponseDecoratorTest {
     @Mock DummifyDecorator dummifyDecorator;
     @Mock FilterTagsDecorator filterTagsDecorator;
     @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
+    @Mock SsoTokenTranslator ssoTokenTranslator;
+    @Mock CrowdClient crowdClient;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
     RpslResponseDecorator subject;
 
     @Before
     public void setup() {
-        subject = new RpslResponseDecorator(rpslObjectDaoMock, filterPersonalDecorator, dummifyDecorator, sourceContext, abuseCFinder, filterTagsDecorator, filterPlaceholdersDecorator, abuseCInfoDecorator, decorator);
+        subject = new RpslResponseDecorator(rpslObjectDaoMock,
+                filterPersonalDecorator,
+                dummifyDecorator,
+                sourceContext,
+                abuseCFinder,
+                filterTagsDecorator,
+                filterPlaceholdersDecorator,
+                abuseCInfoDecorator,
+                ssoTokenTranslator,
+                crowdClient,
+                decorator);
         when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
@@ -113,14 +126,14 @@ public class RpslResponseDecoratorTest {
         final RpslObject inet = RpslObject.parse(1, "inetnum: 10.0.0.0\nmntner: TEST\norg: ORG1-TEST");
         final RpslObject inet6 = RpslObject.parse(1, "inet6num: ::0/0\nmntner: TEST\norg: ORG1-TEST");
 
-        when(abuseCFinder.getAbuseContacts(any(RpslObject.class))).thenReturn(Maps.<CIString, CIString>newHashMap());
+        when(abuseCFinder.getAbuseContact(any(RpslObject.class))).thenReturn(null);
 
         final String response = execute("-b 10.0.0.0", inet, inet6);
         assertThat(response, is(
                 "inetnum:        10.0.0.0\n" +
-                        "\n" +
-                        "inet6num:       ::0/0\n" +
-                        "\n"));
+                "\n" +
+                "inet6num:       ::0/0\n" +
+                "\n"));
     }
 
     @Test
@@ -259,10 +272,8 @@ public class RpslResponseDecoratorTest {
     @Test
     public void non_grouping_and_recursive_no_recursive_objects() {
         final RpslObject inetnum = RpslObject.parse(1, "inetnum: 10.0.0.0\norg:ORG1-TEST\nstatus:OTHER");
-        final HashMap<CIString, CIString> map = Maps.newHashMap();
-        map.put(CIString.ciString("10.0.0.0"), CIString.ciString("abuse@ripe.net"));
 
-        when(abuseCFinder.getAbuseContacts(inetnum)).thenReturn(map);
+        when(abuseCFinder.getAbuseContact(inetnum)).thenReturn("abuse@ripe.net");
 
         String result = execute("-G -B -T inetnum 10.0.0.0", inetnum);
 
@@ -277,10 +288,8 @@ public class RpslResponseDecoratorTest {
     @Test
     public void non_grouping_and_recursive_with_recursive_objects() {
         RpslObject rpslObject = RpslObject.parse("inetnum: 10.0.0.0\ntech-c:NICHDL\norg:ORG1-TEST\nstatus:OTHER");
-        final HashMap<CIString, CIString> map = Maps.newHashMap();
-        map.put(CIString.ciString("10.0.0.0"), CIString.ciString("abuse@ripe.net"));
         when(decorator.appliesToQuery(any(Query.class))).thenReturn(true);
-        when(abuseCFinder.getAbuseContacts(rpslObject)).thenReturn(map);
+        when(abuseCFinder.getAbuseContact(rpslObject)).thenReturn("abuse@ripe.net");
 
         String result = execute("-G -B -T inetnum 10.0.0.0", rpslObject);
 
@@ -311,13 +320,8 @@ public class RpslResponseDecoratorTest {
             }
         });
 
-        final HashMap<CIString, CIString> map1 = Maps.newHashMap();
-        map1.put(CIString.ciString("10.0.0.1"), CIString.ciString("abuse@ripe.net"));
-        when(abuseCFinder.getAbuseContacts(object1)).thenReturn(map1);
-
-        final HashMap<CIString, CIString> map2 = Maps.newHashMap();
-        map2.put(CIString.ciString("10.0.0.2"), CIString.ciString("abuse@ripe.net"));
-        when(abuseCFinder.getAbuseContacts(object2)).thenReturn(map2);
+        when(abuseCFinder.getAbuseContact(object1)).thenReturn("abuse@ripe.net");
+        when(abuseCFinder.getAbuseContact(object2)).thenReturn("abuse@ripe.net");
 
         String result = execute("-G -B -T inetnum 10.0.0.0", object1, object2);
 
@@ -360,14 +364,8 @@ public class RpslResponseDecoratorTest {
             }
         });
 
-        final HashMap<CIString, CIString> map1 = Maps.newHashMap();
-        map1.put(CIString.ciString("10.0.0.1"), CIString.ciString("abuse@ripe.net"));
-
-        final HashMap<CIString, CIString> map2 = Maps.newHashMap();
-        map2.put(CIString.ciString("10.0.0.2"), CIString.ciString("abuse@ripe.net"));
-
-        when(abuseCFinder.getAbuseContacts(object1)).thenReturn(map1);
-        when(abuseCFinder.getAbuseContacts(object2)).thenReturn(map2);
+        when(abuseCFinder.getAbuseContact(object1)).thenReturn("abuse@ripe.net");
+        when(abuseCFinder.getAbuseContact(object2)).thenReturn("abuse@ripe.net");
 
         String result = execute("-B -T inetnum 10.0.0.0", object1, object2);
 

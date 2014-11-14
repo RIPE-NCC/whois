@@ -4,7 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -28,12 +28,12 @@ class IndexWithName extends IndexStrategyWithSingleLookupTable {
     public List<RpslObjectInfo> findInIndex(final JdbcTemplate jdbcTemplate, final String value) {
         final String[] names = Iterables.toArray(SPACE_SPLITTER.split(value), String.class);
         final String query = getObjectQueryByName(lookupTableName, names);
-        return jdbcTemplate.query(query, new RpslObjectResultSetExtractor(), (Object[]) names);
+        return jdbcTemplate.query(query, new RpslObjectInfoResultSetExtractor(), (Object[]) names);
     }
 
     protected static String getObjectQueryByName(String table, String[] names) {
         Validate.notEmpty(names, "no name");
-        Validate.isTrue(names.length <= MYSQL_MAX_JOINS, "reached join limit");
+        Validate.isTrue(names.length < MYSQL_MAX_JOINS, "reached join limit");
 
         StringBuilder query = new StringBuilder();
         query.append("SELECT l.object_id, l.object_type, l.pkey FROM last l JOIN ");

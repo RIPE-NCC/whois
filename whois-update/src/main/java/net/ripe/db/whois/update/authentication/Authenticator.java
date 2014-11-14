@@ -5,15 +5,26 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.UserDao;
-import net.ripe.db.whois.common.domain.*;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.IpRanges;
+import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.domain.PendingUpdate;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
+import net.ripe.db.whois.update.authentication.strategy.MntByAuthentication;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.OverrideCredential;
+import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -23,7 +34,14 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class Authenticator {
@@ -54,6 +72,7 @@ public class Authenticator {
         final Map<CIString, Set<Principal>> tempPrincipalsMap = Maps.newHashMap();
         addMaintainers(tempPrincipalsMap, maintainers.getPowerMaintainers(), Principal.POWER_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getEnduserMaintainers(), Principal.ENDUSER_MAINTAINER);
+        addMaintainers(tempPrincipalsMap, maintainers.getLegacyMaintainers(), Principal.LEGACY_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getAllocMaintainers(), Principal.ALLOC_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getRsMaintainers(), Principal.RS_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getEnumMaintainers(), Principal.ENUM_MAINTAINER);
@@ -94,6 +113,8 @@ public class Authenticator {
 
     public void authenticate(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject;
+
+        loggerContext.logCredentials(update.getUpdate());
 
         if (origin.isDefaultOverride()) {
             subject = new Subject(Principal.OVERRIDE_MAINTAINER);
@@ -178,8 +199,7 @@ public class Authenticator {
             principals.addAll(getPrincipals(authenticatedObject));
         }
 
-        // TODO: [AH] remove the isDeployed() when we are done migrating power-maintainer tests to syncupdates (a lot of tests that require power mntner are using mailupdates ATM)
-        if (!principals.isEmpty() && !origin.isDefaultOverride() && WhoisProfile.isDeployed()) {
+        if (!principals.isEmpty() && !origin.isDefaultOverride()) {
             if (!origin.allowAdminOperations() || !ipRanges.isTrusted(IpInterval.parse(origin.getFrom()))) {
                 authenticationMessages.add(UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());
             }
@@ -237,8 +257,8 @@ public class Authenticator {
         if (isPending(update, updateContext, pendingAuthentications.keySet())) {
             final PendingUpdate pendingUpdate = findAndStorePendingUpdate(updateContext, update);
             if (pendingUpdate != null) {
-                if (failedAuthentications.remove("MntByAuthentication")) {
-                    passedAuthentications.add("MntByAuthentication");
+                if (failedAuthentications.remove(MntByAuthentication.class.getSimpleName())) {
+                    passedAuthentications.add(MntByAuthentication.class.getSimpleName());
                 }
             }
         }

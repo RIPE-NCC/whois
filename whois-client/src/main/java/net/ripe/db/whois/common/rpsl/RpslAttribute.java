@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
@@ -14,8 +13,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -24,52 +21,38 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 public final class RpslAttribute {
     private static final int LEADING_CHARS = 16;
     private static final int LEADING_CHARS_SHORTHAND = 5;
-    private static final Pattern COMMENT_PATTERN = Pattern.compile("(?m)^[^#]*[#](.*)$");
 
     private final AttributeType type;
     private final String key;
     private final String value;     // non-clean, contains EOL comments too
-    private String comment;
+    private String cleanComment;
 
     private int hash;
     private Set<CIString> cleanValues;
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
-        // Constructor is only used by RpslObject, which behaves, so no need to copy arrays
-    RpslAttribute(final byte[] key, final byte[] value) {
-        Validate.notNull(key);
-        Validate.notNull(value);
-
-        String strValue = new String(value, Charsets.ISO_8859_1);
-
-        this.key = new String(key, Charsets.ISO_8859_1).toLowerCase();
-        this.value = strValue;
-        this.type = AttributeType.getByNameOrNull(this.key);
-        this.comment = extractFirstCommentFromValue(strValue);
+    public RpslAttribute(final AttributeType attributeType, final CIString value) {
+        this(attributeType, value.toString());
     }
 
     public RpslAttribute(final AttributeType attributeType, final String value) {
-        this(attributeType.getName(), value);
+        Validate.notNull(attributeType);
+        Validate.notNull(value);
+        this.key = attributeType.getName();
+        this.value = value;
+        this.type = attributeType;
     }
 
-    public RpslAttribute(final AttributeType attributeType, final String value, final String comment) {
-        this(attributeType.getName(), value, comment);
+    public RpslAttribute(final String key, final CIString value) {
+        this(key, value.toString());
     }
 
     public RpslAttribute(final String key, final String value) {
-        this(key, value, null);
-        this.comment = extractFirstCommentFromValue(value);
-    }
-
-    public RpslAttribute(final String key, final String value, final String comment) {
         Validate.notNull(key);
         Validate.notNull(value);
         this.key = key.toLowerCase();
         this.value = value;
         this.type = AttributeType.getByNameOrNull(this.key);
-        this.comment = comment;
     }
-
 
     public String getKey() {
         return key;
@@ -79,31 +62,29 @@ public final class RpslAttribute {
         return value;
     }
 
-    public String getFirstComment() {
-        return comment;
+    public String getCleanComment() {
+        if (cleanValues == null) {
+            extractCleanValueAndComment(value);
+        }
+        return cleanComment;
     }
 
     public CIString getCleanValue() {
         final Set<CIString> values = getCleanValues();
         switch (values.size()) {
             case 0:
-                throw new IllegalStateException("No value found");
+                throw new IllegalStateException("No " + type + ": value found");
             case 1:
                 return values.iterator().next();
             default:
-                throw new IllegalStateException("Multiple clean values found: " + values);
+                throw new IllegalStateException("Multiple " + type + ": values found");
         }
     }
 
+    // TODO: [AH] should NOT return empty values; however, that behavior breaks validateSyntax() as it also relies on this method, and can't validate list structure if empty values are silently omitted
     public Set<CIString> getCleanValues() {
         if (cleanValues == null) {
-            final String cleanedValue = determineCleanValue(value);
-
-            if (type == null) {
-                cleanValues = Collections.singleton(ciString(cleanedValue));
-            } else {
-                cleanValues = ciImmutableSet(type.splitValue(cleanedValue));
-            }
+            extractCleanValueAndComment(value);
         }
 
         return cleanValues;
@@ -148,23 +129,15 @@ public final class RpslAttribute {
         }
     }
 
-    // Using final and private together is redundant. Both keywords are used
-    // for emphasis because the method is used in the constructor.
-    final private String extractFirstCommentFromValue(final String value) {
-        Matcher m = COMMENT_PATTERN.matcher(value);
-        if (m.find()) {
-            return m.group(1).trim();
-        }
-        return null;
-    }
-
-    private static String determineCleanValue(final String value) {
-        final StringBuilder result = new StringBuilder(value.length());
+    private void extractCleanValueAndComment(final String value) {
+        final StringBuilder cleanedValue = new StringBuilder(value.length());
+        final StringBuilder commentValue = new StringBuilder(value.length());
 
         boolean comment = false;
         boolean space = false;
         boolean newline = false;
-        boolean written = false;
+        boolean valueWritten = false;
+        boolean commentWritten = false;
 
         for (final char c : value.toCharArray()) {
             if (c == '\n') {
@@ -183,9 +156,6 @@ public final class RpslAttribute {
 
             if (c == '#') {
                 comment = true;
-            }
-
-            if (comment) {
                 continue;
             }
 
@@ -194,20 +164,40 @@ public final class RpslAttribute {
                 continue;
             }
 
-            if (written) {
+            if (comment) {
+                if (commentWritten) {
+                    if (space) {
+                        commentValue.append(' ');
+                        space = false;
+                    }
+                } else {
+                    commentWritten = true;
+                    space = false;
+                }
+                commentValue.append(c);
+                continue;
+            }
+
+            if (valueWritten) {
                 if (space) {
-                    result.append(' ');
+                    cleanedValue.append(' ');
                     space = false;
                 }
             } else {
-                written = true;
+                valueWritten = true;
                 space = false;
             }
 
-            result.append(c);
+            cleanedValue.append(c);
         }
 
-        return result.toString();
+        this.cleanComment = commentWritten ? commentValue.toString() : null;
+
+        if (type == null) {
+            cleanValues = Collections.singleton(ciString(cleanedValue.toString()));
+        } else {
+            cleanValues = ciImmutableSet(type.splitValue(cleanedValue.toString()));
+        }
     }
 
     public void validateSyntax(final ObjectType objectType, final ObjectMessages objectMessages) {
@@ -221,7 +211,22 @@ public final class RpslAttribute {
     public void writeTo(final Writer writer) throws IOException {
         writer.write(key);
         writer.write(':');
+        writeAttributeValueTo(writer);
+        writer.write('\n');
+    }
 
+    /** value as it is written to mysql/port43 client */
+    public String getFormattedValue() {
+        try {
+            final StringWriter writer = new StringWriter();
+            writeAttributeValueTo(writer);
+            return writer.toString();
+        } catch (IOException e) {
+            throw new IllegalStateException("Should never occur", e);
+        }
+    }
+
+    public void writeAttributeValueTo(final Writer writer) throws IOException {
         final int column = key.startsWith("*") ? LEADING_CHARS_SHORTHAND : LEADING_CHARS;
         final char[] chars = value.toCharArray();
 
@@ -252,8 +257,6 @@ public final class RpslAttribute {
                 writer.write(c);
             }
         }
-
-        writer.write('\n');
     }
 
     @Override
@@ -266,7 +269,7 @@ public final class RpslAttribute {
             return false;
         }
 
-        RpslAttribute attribute = (RpslAttribute) o;
+        final RpslAttribute attribute = (RpslAttribute) o;
 
         if (type == null) {
             if (attribute.type != null) {
@@ -284,7 +287,7 @@ public final class RpslAttribute {
     @Override
     public int hashCode() {
         if (hash == 0) {
-            hash = 31*key.hashCode() + getCleanValues().hashCode();
+            hash = 31 * key.hashCode() + getCleanValues().hashCode();
         }
         return hash;
     }

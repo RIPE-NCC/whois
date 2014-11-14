@@ -7,12 +7,12 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
-import net.ripe.db.whois.query.domain.QueryMessages;
-import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
+import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,13 +25,21 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoLastAndUpdateSerials;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.insertIntoTablesIgnoreMissing;
+import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static net.ripe.db.whois.query.support.PatternCountMatcher.matchesPatternCount;
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @Category(IntegrationTest.class)
-public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
+public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
+    //TODO [TP]: Too many different things being tested here. Should be refactored.
+
     private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
 
     @Autowired IpTreeUpdater ipTreeUpdater;
@@ -60,20 +68,20 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void testLoggingNonProxy() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-rBGxTinetnum 81.80.117.237 - 81.80.117.237");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rBGxTinetnum 81.80.117.237 - 81.80.117.237");
         assertThat(response, containsString("81.80.117.237 - 81.80.117.237"));
     }
 
     @Test
     public void testLocalhostAllowedToProxyRequest() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-V 10.0.0.1 -rBGxTinetnum 81.80.117.237 - 81.80.117.237");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-V 10.0.0.1 -rBGxTinetnum 81.80.117.237 - 81.80.117.237");
 
         assertThat(response, containsString("81.80.117.237 - 81.80.117.237"));
     }
 
     @Test
     public void testLoggingProxy() throws InterruptedException {
-        final String response = DummyWhoisClient.query(QueryServer.port, "help\n");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "help\n");
 
         assertThat(response, containsString("-L"));
     }
@@ -117,7 +125,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     @Test
     public void testEmptyQueries() throws Exception {
         for (int i = 0; i < 10; i++) {
-            final String response = DummyWhoisClient.query(QueryServer.port, "\n");
+            final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "\n");
 
             assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
         }
@@ -125,7 +133,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void testEmptyQueriesOnMultipleLines() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "\n\n\n");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "\n\n\n");
 
         assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -133,12 +141,12 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void multiple_lines_unsupported() throws Exception {
-        DummyWhoisClient.query(QueryServer.port, "-rwhois V-1.5 jwhois 1.0\n-rwhois V-1.5 jwhois 2.0\n-rwhois V-1.5 jwhois 3.0\n");
+        TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rwhois V-1.5 jwhois 1.0\n-rwhois V-1.5 jwhois 2.0\n-rwhois V-1.5 jwhois 3.0\n");
     }
 
     @Test
     public void testMultipleQueriesWithoutKeepAlive() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "help\nhelp");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "help\nhelp");
 
         assertThat(response, containsString("RIPE Database Reference Manual"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -146,7 +154,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void testGetVersion() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-q version");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-q version");
 
         assertThat(response, containsString("% whois-server-"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -154,7 +162,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void testGetVersion_with_long_option() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--version");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--version");
 
         assertThat(response, containsString("% whois-server-"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -162,7 +170,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void testGetInvalidInetnum() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-r -T inetnum RIPE-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -T inetnum RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -170,7 +178,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void testGetMaintainer() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-r -T mntner RIPE-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -T mntner RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -178,7 +186,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void testGetMaintainer_long_version() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--no-referenced --select-types mntner RIPE-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--no-referenced --select-types mntner RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -186,7 +194,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void searchByOrganisationNameNoSearchKey() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-r -T organisation");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -T organisation");
 
         assertThat(response, containsString("no search key specified"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -194,7 +202,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void searchByAsBlockInvalidRange() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-r -T as-block AS2 - AS1");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -T as-block AS2 - AS1");
 
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -203,7 +211,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     @Test
     public void domainQueryTrailingDot() throws Exception {
         databaseHelper.addObject("domain: 9.4.e164.arpa");
-        final String response = DummyWhoisClient.query(QueryServer.port, "-rT domain 9.4.e164.arpa.");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT domain 9.4.e164.arpa.");
 
         assertThat(response, not(containsString("trailing dot in domain query")));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -211,7 +219,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void reverseDomainInvalidInverseRange() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "80-28.79.198.195.in-addr.arpa");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "80-28.79.198.195.in-addr.arpa");
 
         assertThat(response, containsString("no entries found"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -219,7 +227,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void reverseDomainUppercaseSearch() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "117.80.81.IN-ADDR.ARPA");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "117.80.81.IN-ADDR.ARPA");
 
         assertThat(response, containsString("117.80.81.in-addr.arpa"));
         assertThat(response, not(containsString(QueryMessages.noResults("TEST").toString())));
@@ -227,26 +235,26 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void routeSimpleHierarchySearch() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.0/24AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
 
     @Test
     public void routeSimpleHierarchySearchWrongAS() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS456");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.0/24AS456");
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeDefaultHierarchySearchForNonexistant() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.54/32AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.54/32AS123");
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeAllLessSpecificHierarchySearchForNonexistant() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-L 81.80.117.54/32AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-L 81.80.117.54/32AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 4));
@@ -254,47 +262,47 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void routeOneLessSpecificHierarchySearchForExisting() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-l 81.80.117.0/24AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-l 81.80.117.0/24AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
 
     @Test
     public void routeOneLessSpecificHierarchySearchAtTopLevel() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-l 81.80.0.0/16AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-l 81.80.0.0/16AS123");
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeOneMoreSpecificHierarchySearchAtBottomLevel() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.80.117.0/24AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 81.80.117.0/24AS123");
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeOneMoreSpecificHierarchySearch() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.80.0.0/16AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 81.80.0.0/16AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
 
     @Test
     public void routeOneMoreSpecificHierarchySearchAtTopLevel() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-m 0.0.0.0/0AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 0.0.0.0/0AS123");
         assertThat(response, containsString("query options are not allowed on very large ranges/prefixes"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 0));
     }
 
     @Test
     public void routeOneMoreSpecificHierarchySearchAtAlmostTopLevel() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.0.0.0/8AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 81.0.0.0/8AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
 
     @Test
     public void routeAllMoreSpecificHierarchySearchAtAlmostTopLevel() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-M 81.0.0.0/8AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-M 81.0.0.0/8AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 4));
@@ -302,13 +310,13 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void routeAllMoreSpecificHierarchySearchAtTopLevelWrongAS() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-M 81.0.0.0/8A456");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-M 81.0.0.0/8A456");
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void personQueryWithoutSearchKey() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-rT person");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person");
 
         assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -316,7 +324,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void invalidAsBlockReturnsErrorMessage() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-rT as-block AS2-AS1");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT as-block AS2-AS1");
 
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -336,7 +344,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                         "e-mail:denis@ripe.net\n" +
                         "nic-hdl:DW6465-RIPE"));
 
-        final String response = DummyWhoisClient.query(QueryServer.port, "denis@ripe.net");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "denis@ripe.net");
 
         assertThat(response.indexOf("nic-hdl:        DW-RIPE"), not(is(-1)));
         assertThat(response.lastIndexOf("nic-hdl:        DW-RIPE"), is(response.indexOf("nic-hdl:        DW-RIPE")));
@@ -347,100 +355,22 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void unsupported_query() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "(85.115.248.176)");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "(85.115.248.176)");
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
     }
 
     @Test
     public void more_specific_inetnum_query_including_domain_object() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-r -d -M 81.80.0.0/16");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -d -M 81.80.0.0/16");
         assertThat(response, containsString("inetnum:        81.80.117.237 - 81.80.117.237"));
         assertThat(response, containsString("domain:         117.80.81.in-addr.arpa"));
     }
 
     @Test
     public void check_inverse_with_objecttype() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-T aut-num -i member-of AS-123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-T aut-num -i member-of AS-123");
         assertThat(response, not(containsString(QueryMessages.invalidSearchKey().toString())));
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
-    }
-
-    @Test
-    public void check_template() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-t route");
-        assertThat(response, containsString("" +
-                "% This is the RIPE Database query service.\n" +
-                "% The objects are in RPSL format.\n" +
-                "%\n" +
-                "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
-                "\n" +
-                "route:          [mandatory]  [single]     [primary/lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
-                "origin:         [mandatory]  [single]     [primary/inverse key]\n" +
-                "pingable:       [optional]   [multiple]   [ ]\n" +
-                "ping-hdl:       [optional]   [multiple]   [inverse key]\n" +
-                "holes:          [optional]   [multiple]   [ ]\n" +
-                "org:            [optional]   [multiple]   [inverse key]\n" +
-                "member-of:      [optional]   [multiple]   [inverse key]\n" +
-                "inject:         [optional]   [multiple]   [ ]\n" +
-                "aggr-mtd:       [optional]   [single]     [ ]\n" +
-                "aggr-bndry:     [optional]   [single]     [ ]\n" +
-                "export-comps:   [optional]   [single]     [ ]\n" +
-                "components:     [optional]   [single]     [ ]\n" +
-                "remarks:        [optional]   [multiple]   [ ]\n" +
-                "notify:         [optional]   [multiple]   [inverse key]\n" +
-                "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
-                "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
-                "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
-                "source:         [mandatory]  [single]     [ ]\n" +
-                "\n" +
-                "% This query was served by the RIPE Database Query Service"));
-    }
-
-    @Test
-    public void check_verbose() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-v route6");
-        assertThat(response, containsString("" +
-                "% This is the RIPE Database query service.\n" +
-                "% The objects are in RPSL format.\n" +
-                "%\n" +
-                "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
-                "\n" +
-                "The route6 class:\n" +
-                "\n" +
-                "      Each interAS route (also referred to as an interdomain route)\n" +
-                "      in IPv6 domain originated by an AS is specified using a route6 \n" +
-                "      object. The \"route6:\" attribute is the address prefix of the \n" +
-                "      route and the \"origin:\" attribute is the AS number of the AS \n" +
-                "      that originates the route into the interAS routing system.\n" +
-                "\n" +
-                "route6:         [mandatory]  [single]     [primary/lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
-                "origin:         [mandatory]  [single]     [primary/inverse key]\n" +
-                "pingable:       [optional]   [multiple]   [ ]\n" +
-                "ping-hdl:       [optional]   [multiple]   [inverse key]\n" +
-                "holes:          [optional]   [multiple]   [ ]\n" +
-                "org:            [optional]   [multiple]   [inverse key]\n" +
-                "member-of:      [optional]   [multiple]   [inverse key]\n" +
-                "inject:         [optional]   [multiple]   [ ]\n" +
-                "aggr-mtd:       [optional]   [single]     [ ]\n" +
-                "aggr-bndry:     [optional]   [single]     [ ]\n" +
-                "export-comps:   [optional]   [single]     [ ]\n" +
-                "components:     [optional]   [single]     [ ]\n" +
-                "remarks:        [optional]   [multiple]   [ ]\n" +
-                "notify:         [optional]   [multiple]   [inverse key]\n" +
-                "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
-                "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
-                "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
-                "source:         [mandatory]  [single]     [ ]\n" +
-                "\n" +
-                "The content of the attributes of the route6 class are defined below:\n" +
-                "\n" +
-                "route6\n"));
     }
 
     @Test
@@ -468,7 +398,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         assertThat(missing.size(), greaterThan(0));
         ipTreeUpdater.update();
 
-        final String lookupResponse = DummyWhoisClient.query(QueryServer.port, "0/0");
+        final String lookupResponse = TelnetWhoisClient.queryLocalhost(QueryServer.port, "0/0");
         assertThat(lookupResponse, containsString("" +
                 "inetnum:        0.0.0.0 - 255.255.255.255\n" +
                 "netname:        IANA-BLK\n" +
@@ -485,239 +415,8 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "remarks:        This is an automatically created object.\n" +
                 "source:         TEST # Filtered"));
 
-        final String inverseLookupResponse = DummyWhoisClient.query(QueryServer.port, "-i mnt-by TEST-ROOT-MNT");
+        final String inverseLookupResponse = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-i mnt-by TEST-ROOT-MNT");
         assertThat(inverseLookupResponse, containsString("%ERROR:101: no entries found"));
-    }
-
-    @Test
-    public void verbose_description() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-v inetnum");
-        assertThat(response, containsString("" +
-                "The content of the attributes of the inetnum class are defined below:\n" +
-                "\n" +
-                "inetnum\n" +
-                "\n" +
-                "   Specifies a range of IPv4 that inetnum object presents. The ending\n" +
-                "   address should be greater than the starting one.\n" +
-                "\n" +
-                "     <ipv4-address> - <ipv4-address>\n" +
-                "\n" +
-                "netname\n" +
-                "\n" +
-                "   The name of a range of IP address space.\n" +
-                "\n" +
-                "     Made up of letters, digits, the character underscore \"_\",\n" +
-                "     and the character hyphen \"-\"; the first character of a name\n" +
-                "     must be a letter, and the last character of a name must be a\n" +
-                "     letter or a digit.\n" +
-                "\n" +
-                "descr\n" +
-                "\n" +
-                "   A short decription related to the object.\n" +
-                "\n" +
-                "     A sequence of ASCII characters.\n" +
-                "\n" +
-                "country\n" +
-                "\n" +
-                "   Identifies the country.\n" +
-                "\n" +
-                "     Valid two-letter ISO 3166 country code.\n" +
-                "\n" +
-                "geoloc\n" +
-                "\n" +
-                "   The location coordinates for the resource.\n" +
-                "\n" +
-                "     Location coordinates of the resource. Can take one of the following forms:\n" +
-                "     \n" +
-                "     [-90,90][-180,180]\n" +
-                "\n" +
-                "language\n" +
-                "\n" +
-                "   Identifies the language.\n" +
-                "\n" +
-                "     Valid two-letter ISO 639-1 language code.\n" +
-                "\n" +
-                "org\n" +
-                "\n" +
-                "   Points to an existing organisation object representing the entity that\n" +
-                "   holds the resource.\n" +
-                "\n" +
-                "     The 'ORG-' string followed by 2 to 4 characters, followed by up to 5 digits\n" +
-                "     followed by a source specification.  The first digit must not be \"0\".\n" +
-                "     Source specification starts with \"-\" followed by source name up to\n" +
-                "     9-character length.\n" +
-                "\n" +
-                "admin-c\n" +
-                "\n" +
-                "   References an on-site administrative contact.\n" +
-                "\n" +
-                "     From 2 to 4 characters optionally followed by up to 6 digits\n" +
-                "     optionally followed by a source specification.  The first digit\n" +
-                "     must not be \"0\".  Source specification starts with \"-\" followed\n" +
-                "     by source name up to 9-character length.\n" +
-                "\n" +
-                "tech-c\n" +
-                "\n" +
-                "   References a technical contact.\n" +
-                "\n" +
-                "     From 2 to 4 characters optionally followed by up to 6 digits\n" +
-                "     optionally followed by a source specification.  The first digit\n" +
-                "     must not be \"0\".  Source specification starts with \"-\" followed\n" +
-                "     by source name up to 9-character length.\n" +
-                "\n" +
-                "status\n" +
-                "\n" +
-                "   Specifies the status of the address range represented by inetnum or\n" +
-                "   inet6num object.\n" +
-                "\n" +
-                "     Status can have one of these values:\n" +
-                "     \n" +
-                "     o ALLOCATED PA\n" +
-                "     o ALLOCATED PI\n" +
-                "     o ALLOCATED UNSPECIFIED\n" +
-                "     o LIR-PARTITIONED PA\n" +
-                "     o LIR-PARTITIONED PI\n" +
-                "     o SUB-ALLOCATED PA\n" +
-                "     o ASSIGNED PA\n" +
-                "     o ASSIGNED PI\n" +
-                "     o ASSIGNED ANYCAST\n" +
-                "     o EARLY-REGISTRATION\n" +
-                "     o NOT-SET\n" +
-                "\n" +
-                "remarks\n" +
-                "\n" +
-                "   Contains remarks.\n" +
-                "\n" +
-                "     A sequence of ASCII characters.\n" +
-                "\n" +
-                "notify\n" +
-                "\n" +
-                "   Specifies the e-mail address to which notifications of changes to an\n" +
-                "   object should be sent. This attribute is filtered from the default\n" +
-                "   whois output.\n" +
-                "\n" +
-                "     An e-mail address as defined in RFC 2822.\n" +
-                "\n" +
-                "mnt-by\n" +
-                "\n" +
-                "   Specifies the identifier of a registered mntner object used for\n" +
-                "   authorisation of operations performed with the object that contains\n" +
-                "   this attribute.\n" +
-                "\n" +
-                "     Made up of letters, digits, the character underscore \"_\",\n" +
-                "     and the character hyphen \"-\"; the first character of a name\n" +
-                "     must be a letter, and the last character of a name must be a\n" +
-                "     letter or a digit.  The following words are reserved by\n" +
-                "     RPSL, and they can not be used as names:\n" +
-                "     \n" +
-                "      any as-any rs-any peeras and or not atomic from to at\n" +
-                "      action accept announce except refine networks into inbound\n" +
-                "      outbound\n" +
-                "     \n" +
-                "     Names starting with certain prefixes are reserved for\n" +
-                "     certain object types.  Names starting with \"as-\" are\n" +
-                "     reserved for as set names.  Names starting with \"rs-\" are\n" +
-                "     reserved for route set names.  Names starting with \"rtrs-\"\n" +
-                "     are reserved for router set names. Names starting with\n" +
-                "     \"fltr-\" are reserved for filter set names. Names starting\n" +
-                "     with \"prng-\" are reserved for peering set names. Names\n" +
-                "     starting with \"irt-\" are reserved for irt names.\n" +
-                "\n" +
-                "mnt-lower\n" +
-                "\n" +
-                "   Specifies the identifier of a registered mntner object used for\n" +
-                "   hierarchical authorisation. Protects creation of objects directly (one\n" +
-                "   level) below in the hierarchy of an object type. The authentication\n" +
-                "   method of this maintainer object will then be used upon creation of\n" +
-                "   any object directly below the object that contains the \"mnt-lower:\"\n" +
-                "   attribute.\n" +
-                "\n" +
-                "     Made up of letters, digits, the character underscore \"_\",\n" +
-                "     and the character hyphen \"-\"; the first character of a name\n" +
-                "     must be a letter, and the last character of a name must be a\n" +
-                "     letter or a digit.  The following words are reserved by\n" +
-                "     RPSL, and they can not be used as names:\n" +
-                "     \n" +
-                "      any as-any rs-any peeras and or not atomic from to at\n" +
-                "      action accept announce except refine networks into inbound\n" +
-                "      outbound\n" +
-                "     \n" +
-                "     Names starting with certain prefixes are reserved for\n" +
-                "     certain object types.  Names starting with \"as-\" are\n" +
-                "     reserved for as set names.  Names starting with \"rs-\" are\n" +
-                "     reserved for route set names.  Names starting with \"rtrs-\"\n" +
-                "     are reserved for router set names. Names starting with\n" +
-                "     \"fltr-\" are reserved for filter set names. Names starting\n" +
-                "     with \"prng-\" are reserved for peering set names. Names\n" +
-                "     starting with \"irt-\" are reserved for irt names.\n" +
-                "\n" +
-                "mnt-domains\n" +
-                "\n" +
-                "   Specifies the identifier of a registered mntner object used for\n" +
-                "   reverse domain authorisation. Protects domain objects. The\n" +
-                "   authentication method of this maintainer object will be used for any\n" +
-                "   encompassing reverse domain object.\n" +
-                "\n" +
-                "     Made up of letters, digits, the character underscore \"_\",\n" +
-                "     and the character hyphen \"-\"; the first character of a name\n" +
-                "     must be a letter, and the last character of a name must be a\n" +
-                "     letter or a digit.  The following words are reserved by\n" +
-                "     RPSL, and they can not be used as names:\n" +
-                "     \n" +
-                "      any as-any rs-any peeras and or not atomic from to at\n" +
-                "      action accept announce except refine networks into inbound\n" +
-                "      outbound\n" +
-                "     \n" +
-                "     Names starting with certain prefixes are reserved for\n" +
-                "     certain object types.  Names starting with \"as-\" are\n" +
-                "     reserved for as set names.  Names starting with \"rs-\" are\n" +
-                "     reserved for route set names.  Names starting with \"rtrs-\"\n" +
-                "     are reserved for router set names. Names starting with\n" +
-                "     \"fltr-\" are reserved for filter set names. Names starting\n" +
-                "     with \"prng-\" are reserved for peering set names. Names\n" +
-                "     starting with \"irt-\" are reserved for irt names.\n" +
-                "\n" +
-                "mnt-routes\n" +
-                "\n" +
-                "   This attribute references a maintainer object which is used in\n" +
-                "   determining authorisation for the creation of route objects.\n" +
-                "   After the reference to the maintainer, an optional list of\n" +
-                "   prefix ranges inside of curly braces or the keyword \"ANY\" may\n" +
-                "   follow. The default, when no additional set items are\n" +
-                "   specified, is \"ANY\" or all more specifics. Please refer to\n" +
-                "   RFC-2622 for more information.\n" +
-                "\n" +
-                "     <mnt-name> [ { list of <address-prefix-range> } | ANY ]\n" +
-                "\n" +
-                "mnt-irt\n" +
-                "\n" +
-                "   May appear in an inetnum or inet6num object. It points to an irt\n" +
-                "   object representing a Computer Security Incident Response Team (CSIRT)\n" +
-                "   that handles security incidents for the address space specified by the\n" +
-                "   inetnum or inet6num object.\n" +
-                "\n" +
-                "     An irt name is made up of letters, digits, the character\n" +
-                "     underscore \"_\", and the character hyphen \"-\"; it must start\n" +
-                "     with \"irt-\", and the last character of a name must be a\n" +
-                "     letter or a digit.\n" +
-                "\n" +
-                "changed\n" +
-                "\n" +
-                "   Specifies who submitted the update, and when the object was updated.\n" +
-                "   This attribute is filtered from the default whois output.\n" +
-                "\n" +
-                "     An e-mail address as defined in RFC 2822, followed by a date\n" +
-                "     in the format YYYYMMDD.\n" +
-                "\n" +
-                "source\n" +
-                "\n" +
-                "   Specifies the registry where the object is registered. Should be\n" +
-                "   \"RIPE\" for the RIPE Database.\n" +
-                "\n" +
-                "     Made up of letters, digits, the character underscore \"_\",\n" +
-                "     and the character hyphen \"-\"; the first character of a\n" +
-                "     registry name must be a letter, and the last character of a\n" +
-                "     registry name must be a letter or a digit.\n"));
     }
 
     @Test
@@ -734,8 +433,8 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "auth:           MD5-PW $1$2$34567\n" +
                 "source:         RIPE"));
 
-        final String response = DummyWhoisClient.query(QueryServer.port, "-s TEST-GRS AS760-MNT");
-        assertThat(response, containsString("" +
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-s TEST-GRS AS760-MNT");
+        assertThat(response, stringMatchesRegexp("(?si)" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
                 "%\n" +
@@ -749,15 +448,15 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "admin-c:        DUMY-RIPE\n" +
                 "auth:           MD5-PW # Filtered\n" +
                 "source:         TEST-GRS # Filtered\n" +
-                "remarks:        ****************************\n" +
-                "remarks:        * THIS OBJECT IS MODIFIED\n" +
-                "remarks:        * Please note that all data that is generally regarded as personal\n" +
-                "remarks:        * data has been removed from this object.\n" +
-                "remarks:        * To view the original object, please query the RIPE Database at:\n" +
-                "remarks:        * http://www.ripe.net/whois\n" +
-                "remarks:        ****************************\n" +
+                "remarks:        \\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\n" +
+                "remarks:        \\* THIS OBJECT IS MODIFIED\n" +
+                "remarks:        \\* Please note that all data that is generally regarded as personal\n" +
+                "remarks:        \\* data has been removed from this object.\n" +
+                "remarks:        \\* To view the original object, please query the RIPE Database at:\n" +
+                "remarks:        \\* http://www.ripe.net/whois\n" +
+                "remarks:        \\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\n" +
                 "\n" +
-                "% This query was served by the RIPE Database Query Service version 0.1-TEST (UNDEFINED)\n" +
+                "% This query was served by the RIPE Database Query Service version 0.1-TEST \\(.*\\)\n" +
                 "\n" +
                 "\n"));
     }
@@ -766,7 +465,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
     public void query_updated_domain() throws Exception {
         databaseHelper.updateObject("domain: 117.80.81.in-addr.arpa\nnserver:ns.example.com\nremark:This is the current version\n");
 
-        String response = DummyWhoisClient.query(QueryServer.port, "117.80.81.in-addr.arpa");
+        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "117.80.81.in-addr.arpa");
 
         assertThat(response, containsString("domain:         117.80.81.in-addr.arpa"));
         assertThat(response, containsString("This is the current version"));
@@ -779,7 +478,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
         databaseHelper.updateObject("domain: 117.80.81.in-addr.arpa\nnserver:ns.example.com\n");
         databaseHelper.updateObject("domain: 117.80.81.in-addr.arpa\nnserver:ns.example.com\nremark:This is the current version\n");
 
-        String response = DummyWhoisClient.query(QueryServer.port, "--list-versions 117.80.81.in-addr.arpa");
+        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions 117.80.81.in-addr.arpa");
 
         assertThat(response, containsString("% Version history for DOMAIN object \"117.80.81.in-addr.arpa\"\n% You can use \"--show-version rev#\" to get an exact version of the object."));
         assertThat(response, containsString("ADD/UPD"));
@@ -799,14 +498,14 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
 
     @Test
     public void invalid_combination() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-v role -v person");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v role -v person");
         assertThat(response, containsString("ERROR:110: multiple use of flag"));
         assertThat(response, containsString("The flag \"-v\" cannot be used multiple times."));
     }
 
     @Test
     public void testDirectRouteLookup() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.0/24AS123");
         assertThat(response, containsString("81.80.117.0/24"));
     }
 
@@ -823,7 +522,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
-        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+        final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax DEL-MNT");
 
         assertThat(result, containsString("% 'DEL-MNT' invalid syntax"));
     }
@@ -842,7 +541,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
-        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+        final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax DEL-MNT");
 
         assertThat(result, containsString("% 'DEL-MNT' invalid syntax"));
     }
@@ -861,23 +560,23 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
-        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+        final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax DEL-MNT");
 
         assertThat(result, not(containsString("% 'DEL-MNT' invalid syntax")));
     }
 
     @Test
     public void validSyntax_wrong_queryflag_combination() {
-        final String wrongFlagShowVersion = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --show-version 1 ADM-TEST");
+        final String wrongFlagShowVersion = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax --show-version 1 ADM-TEST");
         assertThat(wrongFlagShowVersion, containsString("The flags \"--valid-syntax\" and \"--show-version\" cannot be used together."));
 
-        final String wrongFlagListVersions = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --list-versions 1 ADM-TEST");
+        final String wrongFlagListVersions = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax --list-versions 1 ADM-TEST");
         assertThat(wrongFlagListVersions, containsString("The flags \"--valid-syntax\" and \"--list-versions\" cannot be used together."));
 
-        final String wrongFlagDiffVersions = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --diff-versions 1 ADM-TEST");
+        final String wrongFlagDiffVersions = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax --diff-versions 1 ADM-TEST");
         assertThat(wrongFlagDiffVersions, containsString("The flags \"--valid-syntax\" and \"--diff-versions\" cannot be used together."));
 
-        final String wrongFlagValidNovalid = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --no-valid-syntax 1 ADM-TEST");
+        final String wrongFlagValidNovalid = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax --no-valid-syntax 1 ADM-TEST");
         assertThat(wrongFlagValidNovalid, containsString("The flags \"--valid-syntax\" and \"--no-valid-syntax\" cannot be used together."));
     }
 
@@ -895,7 +594,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
-        final String result = DummyWhoisClient.query(QueryServer.port, "--no-valid-syntax DEL-MNT");
+        final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--no-valid-syntax DEL-MNT");
         assertThat(result, containsString("MD5-PW # Filtered"));
         assertThat(result, containsString("+312342343"));
     }
@@ -914,7 +613,7 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
-        final String result = DummyWhoisClient.query(QueryServer.port, "--no-valid-syntax DEL-MNT");
+        final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--no-valid-syntax DEL-MNT");
 
         assertThat(result, containsString("% 'DEL-MNT' has valid syntax"));
         assertThat(result, not(containsString("MD5-PW # Filtered")));
@@ -932,8 +631,19 @@ public class SimpleTestIntegration extends AbstractWhoisIntegrationTest {
                 "source:          TEST");
 
         ipTreeUpdater.rebuild();
-        final String query = DummyWhoisClient.query(QueryServer.port, "2aaa:6fff::/48");
+        final String query = TelnetWhoisClient.queryLocalhost(QueryServer.port, "2aaa:6fff::/48");
 
         assertThat(query, containsString("route6:         2aaa:6fff::/48"));
+    }
+
+    @Test
+    public void autnum_status_description() {
+        final String query = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v aut-num");
+
+        assertThat(query, containsString("status:         [generated]  [single]     [ ]"));
+        assertThat(query, containsString("status"));
+        assertThat(query, containsString("o ASSIGNED"));
+        assertThat(query, containsString("o LEGACY"));
+        assertThat(query, containsString("o OTHER"));
     }
 }

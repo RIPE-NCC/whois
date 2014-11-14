@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import com.google.common.collect.Lists;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -17,11 +19,11 @@ import java.util.List;
 @XmlRootElement(name = "versions")
 public class WhoisVersions {
     @XmlElement(name = "version")
-    protected List<WhoisVersion> versions;
+    private List<WhoisVersion> versions;
     @XmlAttribute(name = "type")
-    protected String type;
+    private String type;
     @XmlAttribute(name = "key")
-    protected String key;
+    private String key;
 
     public WhoisVersions(final String type, final String key, final List<WhoisVersion> versions) {
         this.type = type;
@@ -30,7 +32,7 @@ public class WhoisVersions {
     }
 
     public WhoisVersions() {
-        // required no-arg constructor
+        this.versions = Lists.newArrayList();
     }
 
     public List<WhoisVersion> getVersions() {

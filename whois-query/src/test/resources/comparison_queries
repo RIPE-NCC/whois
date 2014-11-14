@@ -73,11 +73,54 @@
 #-q version 0/0
 
 # Help query
--t person HELP
+help
 
-# Template and verbose queries
+# template per object type
+-t as-block
+-t as-set
+-t aut-num
+-t domain
+-t filter-set
+-t inet6num
 -t inetnum
+-t inet-rtr
+-t irt
+-t key-cert
+-t mntner
+-t organisation
+-t peering-set
+-t person
+-t poem
+-t poetic-form
+-t role
+-t route
+-t route6
+-t route-set
+-t rtr-set
+
+# verbose template per object type
+-v as-block
+-v as-set
+-v aut-num
+-v domain
+-v filter-set
 -v inet6num
+-v inetnum
+-v inet-rtr
+-v irt
+-v key-cert
+-v mntner
+-v organisation
+-v peering-set
+-v person
+-v poem
+-v poetic-form
+-v role
+-v route
+-v route6
+-v route-set
+-v rtr-set
+
 -t person,role
 -t person, role
  -t person dw-ripe
@@ -134,6 +177,8 @@
 -i am abuse@ripe.net
 
 -i auth PGpkeY-03BB9E7B
+-i auth sso bitbucket@ripe.net
+-i auth MD5-Pw $1$SaltSalt$ninjaninja
 -i at x509-1
 -i ds-rdata 11850 5 1 A95AFB27588FB9939CD75495304FFED9607B092E
 -i ds 2240 7 2 3061b1d704ce9101a8a86712839e57c1a88698ba095f2afe93b1adb1 b16ab723
@@ -583,4 +628,5 @@ e164.arpa
 AS3333
 AS1157
 
-
+# show mp-members for --primary-keys <routeset>
+--primary-keys RS-KROOT-V6
