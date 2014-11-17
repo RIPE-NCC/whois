@@ -793,7 +793,11 @@
                 <test.ignoreFailure>false</test.ignoreFailure>
                 <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/CompareTwoQueryInstancesByComparisonFile.class,**/RestCompareTwoInstancesByComparisonFile.class</test.files.integration>
+                <test.files.integration>
+                    **/CompareTwoQueryInstancesByFile.class,
+                    **/CompareTwoRestInstancesByFile.class,
+                    **/CompareTwoNrtmInstances.class
+                </test.files.integration>
             </properties>
         </profile>
         <profile>

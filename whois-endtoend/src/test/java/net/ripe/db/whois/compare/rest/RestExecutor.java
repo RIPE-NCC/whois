@@ -1,10 +1,12 @@
-package net.ripe.db.whois.api.rest.compare;
+package net.ripe.db.whois.compare.rest;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.query.endtoend.compare.ComparisonExecutor;
+import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
+import net.ripe.db.whois.compare.common.ComparisonExecutor;
+import net.ripe.db.whois.compare.common.ComparisonExecutorConfig;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +26,9 @@ import java.util.List;
 public class RestExecutor implements ComparisonExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestExecutor.class);
 
-    private final RestExecutorConfiguration configuration;
+    private final ComparisonExecutorConfig configuration;
 
-    public RestExecutor(final RestExecutorConfiguration configuration) throws UnknownHostException {
+    public RestExecutor(final ComparisonExecutorConfig configuration) throws UnknownHostException {
         this.configuration = configuration;
     }
 
@@ -40,6 +42,7 @@ public class RestExecutor implements ComparisonExecutor {
             response = RestCaller.target(configuration.getHost(), props.getPortFromConfiguration(configuration), query)
                     .request(props.getMediaType())
                     .get(String.class);
+
         } catch (ClientErrorException e) {
             response = e.getResponse().readEntity(String.class);
         } finally {
@@ -50,11 +53,16 @@ public class RestExecutor implements ComparisonExecutor {
                 new StringResponseObject(parseResponse(props, response)));
     }
 
+    @Override
+    public QueryExecutorConfiguration getExecutorConfig() {
+        return configuration;
+    }
+
     private String parseResponse(final RestQueryProperties props, final String response) {
 
         final String parsedResponse = response.replaceAll("://.+?/", "://server/");
 
-        if (configuration.getResponseFormat() == RestExecutorConfiguration.ResponseFormat.DEFAULT) {
+        if (configuration.getResponseFormat() == ComparisonExecutorConfig.ResponseFormat.DEFAULT) {
             return parsedResponse;
         }
 
