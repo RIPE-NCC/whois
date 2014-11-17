@@ -133,10 +133,6 @@ ${result}
 
     def query_object_not_matches(String qry_str, String type, String pkey, String pattern) {
         !query_object_matches(qry_str, type, pkey, pattern)
-        // query_object_not_matches from integration tests:
-        // def query_object_not_matches(String qry_str, String type, String pkey, String regex) {
-        //     def qry = query(qry_str)
-        //     (qry =~ type + ":\\s*" + pkey) && !(qry =~ regex)
     }
 
     def queryCommentMatches(String qry_str, String prePattern, String pkey, String postPattern) {
@@ -168,6 +164,7 @@ ${result}
 
     def send(Message message) {
         message.from = whoisFixture.send(message.subject, message.body.stripIndent())
+        def str=""
         print """\
 >>>>> SEND MESSAGE
 
