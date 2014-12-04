@@ -784,7 +784,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        println "insertResponse : $insertResponse"
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.193.in-addr.arpa")
         insertResponse.contains("Create SUCCEEDED: [domain] 0.0.194.in-addr.arpa")
         insertResponse.contains("Create SUCCEEDED: [person] SP1-TEST   Some person")

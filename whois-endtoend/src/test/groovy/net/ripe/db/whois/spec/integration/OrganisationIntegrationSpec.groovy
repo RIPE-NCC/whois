@@ -246,7 +246,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate org
 
       then:
-        println(response)
         response =~ /Create FAILED: \[organisation\] AUTO-1/
         response =~ /\\*\\*\\*Error:   Mandatory attribute \"mnt-by\" is missing/
         response =~ /\\*\\*\\*Error:   Mandatory attribute \"mnt-ref\" is missing/
