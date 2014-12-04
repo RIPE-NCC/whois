@@ -1045,7 +1045,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         qry5.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
         def qry2 = query("-Torganisation (qwerty)")
         qry2.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
-// commented out until bug fixed so these queries work
+// TODO commented out until bug fixed so these queries work
 //        def qry3 = query("-Torganisation @")
 //        qry3.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
 //        def qry4 = query("-Torganisation 0123456789")
