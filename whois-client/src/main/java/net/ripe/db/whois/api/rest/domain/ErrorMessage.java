@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 
+import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -20,6 +21,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 @XmlRootElement(name = "errormessage")
 @JsonInclude(NON_EMPTY)
 public class ErrorMessage implements Comparable<ErrorMessage> {
+
     @XmlAttribute(required = true)
     private String severity;          // TODO: severity should be enum
     @XmlElement
@@ -55,25 +57,31 @@ public class ErrorMessage implements Comparable<ErrorMessage> {
         this.args = Lists.newArrayList();
     }
 
+    @Nullable
     public String getSeverity() {
         return severity;
     }
 
+    @Nullable
     public Attribute getAttribute() {
         return attribute;
     }
 
+    @Nullable
     public String getText() {
         return text;
     }
 
+    @Nullable
     public List<Arg> getArgs() {
         return args;
     }
 
     @Override
     public String toString() {
-        return (args.isEmpty()) ? text : String.format(text, args.toArray());
+        return (args == null || args.isEmpty() || text == null) ?
+                text :
+                String.format(text, args.toArray());
     }
 
     @Override
@@ -92,6 +100,15 @@ public class ErrorMessage implements Comparable<ErrorMessage> {
                 Objects.equals(attribute, errorMessage.getAttribute()) &&
                 Objects.equals(text, errorMessage.getText()) &&
                 Objects.equals(args, errorMessage.getArgs()));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (severity != null ? severity.hashCode() : 0);
+        result = 31 * result + (attribute != null ? attribute.hashCode() : 0);
+        result = 31 * result + (text != null ? text.hashCode() : 0);
+        result = 31 * result + (args != null ? args.hashCode() : 0);
+        return result;
     }
 
     @Override

@@ -23,7 +23,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.db.WhoisServer;
@@ -91,6 +91,7 @@ public class WhoisFixture {
         System.setProperty("mail.dequeue.interval", "10");
         System.setProperty("whois.maintainers.power", "RIPE-NCC-HM-MNT");
         System.setProperty("whois.maintainers.enduser", "RIPE-NCC-END-MNT");
+        System.setProperty("whois.maintainers.legacy", "RIPE-NCC-LEGACY-MNT");
         System.setProperty("whois.maintainers.alloc", "RIPE-NCC-HM-MNT,RIPE-NCC-HM2-MNT");
         System.setProperty("whois.maintainers.enum", "RIPE-GII-MNT,RIPE-NCC-MNT");
         System.setProperty("whois.maintainers.dbm", "RIPE-NCC-LOCKED-MNT,RIPE-DBM-MNT");
@@ -242,7 +243,7 @@ public class WhoisFixture {
     }
 
     public String query(final String query) {
-        return DummyWhoisClient.query(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
 
     public RpslObject restLookup(ObjectType objectType, String pkey, String... passwords) {

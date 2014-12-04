@@ -24,22 +24,27 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class IndexTemplateTest {
+
     @Rule public TemporaryFolder folder = new TemporaryFolder();
     IndexTemplate subject;
     WhitespaceAnalyzer analyzer;
 
     @Before
     public void setUp() throws Exception {
-        analyzer = new WhitespaceAnalyzer(Version.LUCENE_44);
+        analyzer = new WhitespaceAnalyzer();
 
-        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_44, analyzer);
+        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_0, analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         subject = new IndexTemplate(folder.getRoot().getAbsolutePath(), config);
     }
@@ -63,7 +68,7 @@ public class IndexTemplateTest {
             }
         });
 
-        final Query query = new QueryParser(Version.LUCENE_44, "title", analyzer).parse("Lucene");
+        final Query query = new QueryParser("title", analyzer).parse("Lucene");
         subject.search(new IndexTemplate.SearchCallback<Void>() {
             @Override
             public Void search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
@@ -129,7 +134,7 @@ public class IndexTemplateTest {
 
         final CountDownLatch countDownLatch = new CountDownLatch(nrThreads);
         final ExecutorService executorService = Executors.newFixedThreadPool(nrThreads);
-        final Query query = new QueryParser(Version.LUCENE_44, "title", analyzer).parse("title");
+        final Query query = new QueryParser("title", analyzer).parse("title");
         for (int i = 0; i < nrThreads; i++) {
             executorService.submit(new Callable<Void>() {
                 @Override
@@ -171,7 +176,8 @@ public class IndexTemplateTest {
         } catch (OutOfMemoryError ignored) {
         }
 
-        assertThat(numDocs(), is(0));
+        // no rollback on out of memory, document was written properly
+        assertThat(numDocs(), is(1));
 
         subject.write(new IndexTemplate.WriteCallback() {
             @Override
@@ -180,7 +186,7 @@ public class IndexTemplateTest {
             }
         });
 
-        assertThat(numDocs(), is(1));
+        assertThat(numDocs(), is(2));
     }
 
     @Test
