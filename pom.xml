@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.76-SNAPSHOT</version>
+    <version>1.77-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -28,7 +28,7 @@
         <aspectj.version>1.7.4</aspectj.version>
         <java.version>1.7</java.version>
         <jersey.version>2.11</jersey.version>
-        <lucene.version>4.4.0</lucene.version>
+        <lucene.version>4.10.0</lucene.version>
         <jetty.version>8.1.15.v20140411</jetty.version>
         <whois.main>OVERRIDE</whois.main>
         <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
@@ -163,7 +163,11 @@
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
-
+            <dependency>
+                <groupId>net.ripe.commons</groupId>
+                <artifactId>commons-ip-math</artifactId>
+                <version>1.20</version>
+            </dependency>
             <dependency>
                 <groupId>de.jflex</groupId>
                 <artifactId>jflex</artifactId>
@@ -703,6 +707,7 @@
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
+                    <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
                 </configuration>
                 <executions>
                     <execution>
@@ -782,6 +787,20 @@
             </properties>
         </profile>
         <profile>
+            <id>comparison</id>
+            <properties>
+                <test.redirectOutput>false</test.redirectOutput>
+                <test.ignoreFailure>false</test.ignoreFailure>
+                <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
+                <test.files.unit>None</test.files.unit>
+                <test.files.integration>
+                    **/CompareTwoQueryInstancesByFile.class,
+                    **/CompareTwoRestInstancesByFile.class,
+                    **/CompareTwoNrtmInstances.class
+                </test.files.integration>
+            </properties>
+        </profile>
+        <profile>
             <id>endtoend</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
@@ -821,6 +840,30 @@
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>None</test.files.integration>
             </properties>
+        </profile>
+        <profile>
+            <id>jmeter</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.lazerycode.jmeter</groupId>
+                        <artifactId>jmeter-maven-plugin</artifactId>
+                        <version>1.10.0</version>
+                        <configuration>
+                            <reportDir>${project.build.directory}/jmeter-reports</reportDir>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>jmeter</id>
+                                <phase>none</phase>
+                                <goals>
+                                    <goal>jmeter</goal>
+                                </goals>
+                           </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

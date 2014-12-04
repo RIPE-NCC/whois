@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.integration;
 
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
@@ -27,7 +27,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void check_template() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-t route");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-t route");
         assertThat(response, containsString("" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
@@ -61,7 +61,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void check_verbose() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-v route6");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v route6");
         assertThat(response, containsString("" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
@@ -115,7 +115,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void verbose_description() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-v inetnum");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v inetnum");
         assertThat(response, containsString("" +
                 "The content of the attributes of the inetnum class are defined below:\n" +
                 "\n" +
@@ -354,7 +354,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void verbose_description_autnum() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-v aut-num");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v aut-num");
         assertThat(response, containsString("" +
                 "The aut-num class:\n" +
                 "\n" +

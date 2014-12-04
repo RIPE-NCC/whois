@@ -69,14 +69,18 @@ public class AbuseContactService {
         });
 
         if (abuseResources.isEmpty()) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(AbuseContactMapper.mapAbuseContactError("No abuse contact found for " + key)).build());
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+                    .entity(AbuseContactMapper.mapAbuseContactError("No abuse contact found for " + key))
+                    .build());
         }
 
         final AbuseResources result = abuseResources.get(0);
 
         final String parametersKey = result.getParameters().getPrimaryKey().getValue();
         if (parametersKey.equals("::/0") || parametersKey.equals("0.0.0.0 - 255.255.255.255")) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(AbuseContactMapper.mapAbuseContactError("No abuse contact found for " + key)).build());
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+                    .entity(AbuseContactMapper.mapAbuseContactError("No abuse contact found for " + key))
+                    .build());
         }
 
         return Response.ok(new StreamingOutput() {

@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.query.QueryMessages;
@@ -68,20 +68,20 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void testLoggingNonProxy() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-rBGxTinetnum 81.80.117.237 - 81.80.117.237");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rBGxTinetnum 81.80.117.237 - 81.80.117.237");
         assertThat(response, containsString("81.80.117.237 - 81.80.117.237"));
     }
 
     @Test
     public void testLocalhostAllowedToProxyRequest() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-V 10.0.0.1 -rBGxTinetnum 81.80.117.237 - 81.80.117.237");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-V 10.0.0.1 -rBGxTinetnum 81.80.117.237 - 81.80.117.237");
 
         assertThat(response, containsString("81.80.117.237 - 81.80.117.237"));
     }
 
     @Test
     public void testLoggingProxy() throws InterruptedException {
-        final String response = DummyWhoisClient.query(QueryServer.port, "help\n");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "help\n");
 
         assertThat(response, containsString("-L"));
     }
@@ -125,7 +125,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void testEmptyQueries() throws Exception {
         for (int i = 0; i < 10; i++) {
-            final String response = DummyWhoisClient.query(QueryServer.port, "\n");
+            final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "\n");
 
             assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
         }
@@ -133,7 +133,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void testEmptyQueriesOnMultipleLines() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "\n\n\n");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "\n\n\n");
 
         assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -141,12 +141,12 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void multiple_lines_unsupported() throws Exception {
-        DummyWhoisClient.query(QueryServer.port, "-rwhois V-1.5 jwhois 1.0\n-rwhois V-1.5 jwhois 2.0\n-rwhois V-1.5 jwhois 3.0\n");
+        TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rwhois V-1.5 jwhois 1.0\n-rwhois V-1.5 jwhois 2.0\n-rwhois V-1.5 jwhois 3.0\n");
     }
 
     @Test
     public void testMultipleQueriesWithoutKeepAlive() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "help\nhelp");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "help\nhelp");
 
         assertThat(response, containsString("RIPE Database Reference Manual"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -154,7 +154,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void testGetVersion() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-q version");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-q version");
 
         assertThat(response, containsString("% whois-server-"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -162,7 +162,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void testGetVersion_with_long_option() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--version");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--version");
 
         assertThat(response, containsString("% whois-server-"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -170,7 +170,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void testGetInvalidInetnum() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-r -T inetnum RIPE-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -T inetnum RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -178,7 +178,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void testGetMaintainer() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-r -T mntner RIPE-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -T mntner RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -186,7 +186,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void testGetMaintainer_long_version() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--no-referenced --select-types mntner RIPE-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--no-referenced --select-types mntner RIPE-MNT");
 
         assertThat(response, containsString("%ERROR:101: no entries found"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -194,7 +194,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void searchByOrganisationNameNoSearchKey() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-r -T organisation");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -T organisation");
 
         assertThat(response, containsString("no search key specified"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -202,7 +202,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void searchByAsBlockInvalidRange() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-r -T as-block AS2 - AS1");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -T as-block AS2 - AS1");
 
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -211,7 +211,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     @Test
     public void domainQueryTrailingDot() throws Exception {
         databaseHelper.addObject("domain: 9.4.e164.arpa");
-        final String response = DummyWhoisClient.query(QueryServer.port, "-rT domain 9.4.e164.arpa.");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT domain 9.4.e164.arpa.");
 
         assertThat(response, not(containsString("trailing dot in domain query")));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -219,7 +219,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void reverseDomainInvalidInverseRange() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "80-28.79.198.195.in-addr.arpa");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "80-28.79.198.195.in-addr.arpa");
 
         assertThat(response, containsString("no entries found"));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -227,7 +227,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void reverseDomainUppercaseSearch() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "117.80.81.IN-ADDR.ARPA");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "117.80.81.IN-ADDR.ARPA");
 
         assertThat(response, containsString("117.80.81.in-addr.arpa"));
         assertThat(response, not(containsString(QueryMessages.noResults("TEST").toString())));
@@ -235,26 +235,26 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void routeSimpleHierarchySearch() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.0/24AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
 
     @Test
     public void routeSimpleHierarchySearchWrongAS() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS456");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.0/24AS456");
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeDefaultHierarchySearchForNonexistant() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.54/32AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.54/32AS123");
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeAllLessSpecificHierarchySearchForNonexistant() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-L 81.80.117.54/32AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-L 81.80.117.54/32AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 4));
@@ -262,47 +262,47 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void routeOneLessSpecificHierarchySearchForExisting() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-l 81.80.117.0/24AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-l 81.80.117.0/24AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
 
     @Test
     public void routeOneLessSpecificHierarchySearchAtTopLevel() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-l 81.80.0.0/16AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-l 81.80.0.0/16AS123");
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeOneMoreSpecificHierarchySearchAtBottomLevel() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.80.117.0/24AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 81.80.117.0/24AS123");
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void routeOneMoreSpecificHierarchySearch() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.80.0.0/16AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 81.80.0.0/16AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
 
     @Test
     public void routeOneMoreSpecificHierarchySearchAtTopLevel() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-m 0.0.0.0/0AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 0.0.0.0/0AS123");
         assertThat(response, containsString("query options are not allowed on very large ranges/prefixes"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 0));
     }
 
     @Test
     public void routeOneMoreSpecificHierarchySearchAtAlmostTopLevel() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-m 81.0.0.0/8AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-m 81.0.0.0/8AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 2));
     }
 
     @Test
     public void routeAllMoreSpecificHierarchySearchAtAlmostTopLevel() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-M 81.0.0.0/8AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-M 81.0.0.0/8AS123");
         assertThat(response, matchesPattern("(?m)^route: *81.80.0.0/16$"));
         assertThat(response, matchesPattern("(?m)^route: *81.80.117.0/24$"));
         assertThat(response, matchesPatternCount("(?m)^\\w+: *", 4));
@@ -310,13 +310,13 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void routeAllMoreSpecificHierarchySearchAtTopLevelWrongAS() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-M 81.0.0.0/8A456");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-M 81.0.0.0/8A456");
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
 
     @Test
     public void personQueryWithoutSearchKey() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-rT person");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT person");
 
         assertThat(response, containsString(QueryMessages.noSearchKeySpecified().toString()));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -324,7 +324,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void invalidAsBlockReturnsErrorMessage() throws Exception {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-rT as-block AS2-AS1");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rT as-block AS2-AS1");
 
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
         assertThat(response, not(containsString(QueryMessages.internalErroroccurred().toString())));
@@ -344,7 +344,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                         "e-mail:denis@ripe.net\n" +
                         "nic-hdl:DW6465-RIPE"));
 
-        final String response = DummyWhoisClient.query(QueryServer.port, "denis@ripe.net");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "denis@ripe.net");
 
         assertThat(response.indexOf("nic-hdl:        DW-RIPE"), not(is(-1)));
         assertThat(response.lastIndexOf("nic-hdl:        DW-RIPE"), is(response.indexOf("nic-hdl:        DW-RIPE")));
@@ -355,20 +355,20 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void unsupported_query() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "(85.115.248.176)");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "(85.115.248.176)");
         assertThat(response, containsString(QueryMessages.invalidSearchKey().toString()));
     }
 
     @Test
     public void more_specific_inetnum_query_including_domain_object() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-r -d -M 81.80.0.0/16");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-r -d -M 81.80.0.0/16");
         assertThat(response, containsString("inetnum:        81.80.117.237 - 81.80.117.237"));
         assertThat(response, containsString("domain:         117.80.81.in-addr.arpa"));
     }
 
     @Test
     public void check_inverse_with_objecttype() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-T aut-num -i member-of AS-123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-T aut-num -i member-of AS-123");
         assertThat(response, not(containsString(QueryMessages.invalidSearchKey().toString())));
         assertThat(response, containsString(QueryMessages.noResults("TEST").toString()));
     }
@@ -398,7 +398,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(missing.size(), greaterThan(0));
         ipTreeUpdater.update();
 
-        final String lookupResponse = DummyWhoisClient.query(QueryServer.port, "0/0");
+        final String lookupResponse = TelnetWhoisClient.queryLocalhost(QueryServer.port, "0/0");
         assertThat(lookupResponse, containsString("" +
                 "inetnum:        0.0.0.0 - 255.255.255.255\n" +
                 "netname:        IANA-BLK\n" +
@@ -415,7 +415,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "remarks:        This is an automatically created object.\n" +
                 "source:         TEST # Filtered"));
 
-        final String inverseLookupResponse = DummyWhoisClient.query(QueryServer.port, "-i mnt-by TEST-ROOT-MNT");
+        final String inverseLookupResponse = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-i mnt-by TEST-ROOT-MNT");
         assertThat(inverseLookupResponse, containsString("%ERROR:101: no entries found"));
     }
 
@@ -433,7 +433,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "auth:           MD5-PW $1$2$34567\n" +
                 "source:         RIPE"));
 
-        final String response = DummyWhoisClient.query(QueryServer.port, "-s TEST-GRS AS760-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-s TEST-GRS AS760-MNT");
         assertThat(response, stringMatchesRegexp("(?si)" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
@@ -465,7 +465,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     public void query_updated_domain() throws Exception {
         databaseHelper.updateObject("domain: 117.80.81.in-addr.arpa\nnserver:ns.example.com\nremark:This is the current version\n");
 
-        String response = DummyWhoisClient.query(QueryServer.port, "117.80.81.in-addr.arpa");
+        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "117.80.81.in-addr.arpa");
 
         assertThat(response, containsString("domain:         117.80.81.in-addr.arpa"));
         assertThat(response, containsString("This is the current version"));
@@ -478,7 +478,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         databaseHelper.updateObject("domain: 117.80.81.in-addr.arpa\nnserver:ns.example.com\n");
         databaseHelper.updateObject("domain: 117.80.81.in-addr.arpa\nnserver:ns.example.com\nremark:This is the current version\n");
 
-        String response = DummyWhoisClient.query(QueryServer.port, "--list-versions 117.80.81.in-addr.arpa");
+        String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--list-versions 117.80.81.in-addr.arpa");
 
         assertThat(response, containsString("% Version history for DOMAIN object \"117.80.81.in-addr.arpa\"\n% You can use \"--show-version rev#\" to get an exact version of the object."));
         assertThat(response, containsString("ADD/UPD"));
@@ -498,14 +498,14 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void invalid_combination() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-v role -v person");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v role -v person");
         assertThat(response, containsString("ERROR:110: multiple use of flag"));
         assertThat(response, containsString("The flag \"-v\" cannot be used multiple times."));
     }
 
     @Test
     public void testDirectRouteLookup() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "81.80.117.0/24AS123");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "81.80.117.0/24AS123");
         assertThat(response, containsString("81.80.117.0/24"));
     }
 
@@ -522,7 +522,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
-        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+        final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax DEL-MNT");
 
         assertThat(result, containsString("% 'DEL-MNT' invalid syntax"));
     }
@@ -541,7 +541,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
-        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+        final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax DEL-MNT");
 
         assertThat(result, containsString("% 'DEL-MNT' invalid syntax"));
     }
@@ -560,23 +560,23 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
-        final String result = DummyWhoisClient.query(QueryServer.port, "--valid-syntax DEL-MNT");
+        final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax DEL-MNT");
 
         assertThat(result, not(containsString("% 'DEL-MNT' invalid syntax")));
     }
 
     @Test
     public void validSyntax_wrong_queryflag_combination() {
-        final String wrongFlagShowVersion = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --show-version 1 ADM-TEST");
+        final String wrongFlagShowVersion = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax --show-version 1 ADM-TEST");
         assertThat(wrongFlagShowVersion, containsString("The flags \"--valid-syntax\" and \"--show-version\" cannot be used together."));
 
-        final String wrongFlagListVersions = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --list-versions 1 ADM-TEST");
+        final String wrongFlagListVersions = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax --list-versions 1 ADM-TEST");
         assertThat(wrongFlagListVersions, containsString("The flags \"--valid-syntax\" and \"--list-versions\" cannot be used together."));
 
-        final String wrongFlagDiffVersions = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --diff-versions 1 ADM-TEST");
+        final String wrongFlagDiffVersions = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax --diff-versions 1 ADM-TEST");
         assertThat(wrongFlagDiffVersions, containsString("The flags \"--valid-syntax\" and \"--diff-versions\" cannot be used together."));
 
-        final String wrongFlagValidNovalid = DummyWhoisClient.query(QueryServer.port, "--valid-syntax --no-valid-syntax 1 ADM-TEST");
+        final String wrongFlagValidNovalid = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax --no-valid-syntax 1 ADM-TEST");
         assertThat(wrongFlagValidNovalid, containsString("The flags \"--valid-syntax\" and \"--no-valid-syntax\" cannot be used together."));
     }
 
@@ -594,7 +594,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
-        final String result = DummyWhoisClient.query(QueryServer.port, "--no-valid-syntax DEL-MNT");
+        final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--no-valid-syntax DEL-MNT");
         assertThat(result, containsString("MD5-PW # Filtered"));
         assertThat(result, containsString("+312342343"));
     }
@@ -613,7 +613,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
-        final String result = DummyWhoisClient.query(QueryServer.port, "--no-valid-syntax DEL-MNT");
+        final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--no-valid-syntax DEL-MNT");
 
         assertThat(result, containsString("% 'DEL-MNT' has valid syntax"));
         assertThat(result, not(containsString("MD5-PW # Filtered")));
@@ -631,14 +631,14 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "source:          TEST");
 
         ipTreeUpdater.rebuild();
-        final String query = DummyWhoisClient.query(QueryServer.port, "2aaa:6fff::/48");
+        final String query = TelnetWhoisClient.queryLocalhost(QueryServer.port, "2aaa:6fff::/48");
 
         assertThat(query, containsString("route6:         2aaa:6fff::/48"));
     }
 
     @Test
     public void autnum_status_description() {
-        final String query = DummyWhoisClient.query(QueryServer.port, "-v aut-num");
+        final String query = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v aut-num");
 
         assertThat(query, containsString("status:         [generated]  [single]     [ ]"));
         assertThat(query, containsString("status"));

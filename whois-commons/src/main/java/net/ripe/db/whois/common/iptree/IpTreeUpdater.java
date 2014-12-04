@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.List;
@@ -116,7 +115,7 @@ public class IpTreeUpdater {
     public void rebuild(final String source) {
         for (SourceConfiguration sourceConfiguration : Iterables.filter(sourceConfigurationsForRebuild, new Predicate<SourceConfiguration>() {
             @Override
-            public boolean apply(@Nullable SourceConfiguration input) {
+            public boolean apply(final SourceConfiguration input) {
                 return input.getSource().getName().contains(source);
             }
         })) {

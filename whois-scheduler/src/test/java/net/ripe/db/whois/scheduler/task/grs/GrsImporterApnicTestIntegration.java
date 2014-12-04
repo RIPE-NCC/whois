@@ -8,8 +8,8 @@ import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
 import net.ripe.db.whois.common.support.FileHelper;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.AfterClass;
@@ -48,10 +48,13 @@ public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegratio
     public static void setup_database() throws IOException {
         DatabaseHelper.addGrsDatabases("APNIC-GRS");
 
-        final File resourceFile = FileHelper.addToTextFileWithMd5Checksum(tempDirectory, "APNIC-GRS-RES.tmp", "apnic|*|asn|*|22831|summary\n" +
+        final File resourceFile = FileHelper.addToTextFileWithMd5Checksum(tempDirectory, "APNIC-GRS-RES.tmp",
+                "apnic|*|asn|*|22831|summary\n" +
                 "apnic|*|ipv4|*|53557|summary\n" +
                 "apnic|*|ipv6|*|29780|summary\n" +
-                "apnic|CO|ipv4|24.232.0.0|65536|20140414|allocated|35073");
+                "apnic|JP|ipv4|24.232.0.0|65536|20140414|allocated|35073\n" +
+                "apnic|JP|ipv4|88.202.208.0|4096|20140414|allocated|35073\n"  + // franken-range part 1
+                "apnic|JP|ipv4|88.202.224.0|4096|20140414|allocated|35073" );   // franken-range part 2
 
         final File dumpFile = FileHelper.addToGZipFile(
                 tempDirectory,
@@ -67,7 +70,7 @@ public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegratio
                         "source:         APNIC\n" +
                         "\n" +
                         "\n" +
-                        "inetnum:    24.232/16\n" +
+                        "inetnum:    24.232.0.0 - 24.232.255.255\n" +
                         "status:     allocated\n" +
                         "owner:      CABLEVISION S.A.\n" +
                         "city:       Munro\n" +
@@ -80,7 +83,23 @@ public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegratio
                         "nserver:    DNS2.CVTCI.COM.AR\n" +
                         "created:    1997-06-02\n" +
                         "changed:    2003-05-19\n" +
-                        "source:     LACNIC\n\n"
+                        "source:     APNIC\n" +
+                        "\n" +
+                        "\n" +
+                        "inetnum:    88.202.208.0 - 88.202.239.255\n" +
+                        "status:     allocated\n" +
+                        "owner:      CABLEVISION S.A.\n" +
+                        "city:       Munro\n" +
+                        "country:    AR\n" +
+                        "owner-c:    NEA\n" +
+                        "tech-c:     NEA\n" +
+                        "abuse-c:    NEA\n" +
+                        "nserver:    DNS2.CVTCI.COM.AR\n" +
+                        "created:    1997-06-02\n" +
+                        "changed:    2003-05-19\n" +
+                        "source:     APNIC\n" +
+                        "\n" +
+                        "\n"
         );
 
         System.setProperty("grs.import.apnic.source", "APNIC-GRS");
@@ -114,6 +133,9 @@ public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegratio
         assertThat(query("-s APNIC-GRS SOME-MNT"), containsString("mntner:         SOME-MNT"));
         assertThat(query("-s APNIC-GRS -i mnt-by SOME-MNT"), containsString("mntner:         SOME-MNT"));
         assertThat(query("-s APNIC-GRS 24.232.1.1"), containsString("status:         ALLOCATED"));
+        assertThat(query("-s APNIC-GRS 88.202.208.0 - 88.202.239.255"), containsString("status:         ALLOCATED"));
+        assertThat(query("-s APNIC-GRS 88.202.240.0"), containsString("No entries found"));
+        assertThat(query("-s ARIN-GRS 88.202.224.0 - 88.202.239.255"),  containsString("unknown source"));
     }
 
     private void awaitAll(final List<Future> futures) throws ExecutionException, InterruptedException {
@@ -123,7 +145,7 @@ public class GrsImporterApnicTestIntegration extends AbstractSchedulerIntegratio
     }
 
     private String query(final String query) throws Exception {
-        return DummyWhoisClient.query(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
 
     private static String getUrl(final File file) throws MalformedURLException {

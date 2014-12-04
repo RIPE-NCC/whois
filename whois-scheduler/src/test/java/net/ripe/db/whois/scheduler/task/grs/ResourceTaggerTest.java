@@ -42,6 +42,7 @@ public class ResourceTaggerTest {
         when(grsSource.getLogger()).thenReturn(LoggerFactory.getLogger(ResourceTaggerTest.class));
         when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
         when(sourceContext.getCurrentSourceConfiguration()).thenReturn(sourceConfiguration);
+        when(sourceContext.isTagRoutes()).thenReturn(true);
         when(sourceConfiguration.getJdbcTemplate()).thenReturn(jdbcTemplate);
     }
 

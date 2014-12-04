@@ -6,7 +6,9 @@ import net.ripe.db.whois.update.domain.Keyword;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class MailMessageBuilderTest {
@@ -48,8 +50,8 @@ public class MailMessageBuilderTest {
         subject.addContentWithCredentials(
                 new ContentWithCredentials(
                         "mntner: DEV-MNT\n" +
-                                "descr: DEV maintainer\n" +
-                                "password: pass\n"));
+                        "descr: DEV maintainer\n" +
+                        "password: pass\n"));
 
         final MailMessage message = subject.build();
         assertThat(message.getContentWithCredentials(), hasSize(1));

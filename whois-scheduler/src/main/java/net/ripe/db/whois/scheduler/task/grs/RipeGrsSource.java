@@ -27,7 +27,7 @@ public class RipeGrsSource extends GrsSource {
             final DateTimeProvider dateTimeProvider,
             final AuthoritativeResourceData authoritativeResourceData,
             final Downloader downloader,
-            @Value("${grs.import.apnic.download:}") final String download) {
+            @Value("${grs.import.ripe.download:}") final String download) {
         super(source, sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
 
         this.download = download;

@@ -21,7 +21,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -297,7 +296,7 @@ public class KeycertAttributeGeneratorTest {
     private void validateAttributeType(final RpslObject rpslObject, final AttributeType attributeType, final String... values) {
         final List attributes = Lists.transform(Arrays.asList(values), new Function<String, RpslAttribute>() {
             @Override
-            public RpslAttribute apply(@Nullable String input) {
+            public RpslAttribute apply(final String input) {
                 return new RpslAttribute(attributeType, input);
             }
         });

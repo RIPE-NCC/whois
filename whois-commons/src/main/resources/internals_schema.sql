@@ -64,6 +64,7 @@ CREATE TABLE `forgot_password_audit_log` (
   `mntner` varchar(256),
   `email` varchar(256),
   `hash`  varchar(256),
+  `user_sso_email`  varchar(256),
   PRIMARY KEY (`id`),
   CONSTRAINT FOREIGN KEY (`hash`) REFERENCES `email_links` (`hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

@@ -62,6 +62,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(abuseContactService);
         resourceConfig.register(defaultExceptionMapper);
         resourceConfig.register(new CacheControlFilter());
+        // resourceConfig.register(new CrossOriginFilter());        // TODO: [ES] enable when we have clear requirements
 
         final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);

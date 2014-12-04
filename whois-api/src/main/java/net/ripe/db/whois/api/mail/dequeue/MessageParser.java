@@ -6,7 +6,13 @@ import com.google.common.io.ByteStreams;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.ContentWithCredentials;
+import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.PgpCredential;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -23,7 +29,13 @@ import javax.mail.Address;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.Part;
-import javax.mail.internet.*;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.ContentType;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimeUtility;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -134,20 +146,23 @@ public class MessageParser {
                 throw new ParseException("Multiple credentials for text content");
             }
 
-            messageBuilder.addContentWithCredentials(new ContentWithCredentials(messagePart.text, credentials));
+            final Charset charset = getCharset(new ContentType(message.getContentType()));
+
+            messageBuilder.addContentWithCredentials(new ContentWithCredentials(messagePart.text, credentials, charset));
         }
     }
 
     private void parseContents(@Nonnull final MessageParts messageParts, @Nonnull final Part part, @Nullable final Part parentPart) throws MessagingException, IOException {
         final ContentType contentType = new ContentType(part.getContentType());
         final Object content = getContent(part, contentType);
+        final Charset charset = getCharset(contentType);
 
         if (isPlainText(contentType)) {
             String text;
             if (content instanceof String) {
                 text = (String) content;
             } else if (content instanceof InputStream) {
-                text = new String(ByteStreams.toByteArray((InputStream) content), getCharset(contentType));
+                text = new String(ByteStreams.toByteArray((InputStream) content), charset);
             } else {
                 throw new ParseException("Unexpected content: " + content);
             }
@@ -162,8 +177,14 @@ public class MessageParser {
                 if (bodyPartContentType.getBaseType().equals("application/pgp-signature")) {
                     final MessagePart last = messageParts.getLast();
                     final String signedData = getHeaders(last.part) + getRawContent(last.part);
-                    final String signature = getRawContent(bodyPart);
-                    last.addCredential(PgpCredential.createOfferedCredential(signedData, signature));
+
+                    if (isBase64(bodyPart)) {
+                        final String signature = getContent(bodyPart);
+                        last.addCredential(PgpCredential.createOfferedCredential(signedData, signature, charset));
+                    } else {
+                        final String signature = getRawContent(bodyPart);
+                        last.addCredential(PgpCredential.createOfferedCredential(signedData, signature, charset));
+                    }
                 } else if (bodyPartContentType.getBaseType().equals("application/pkcs7-signature") || bodyPartContentType.getBaseType().equals("application/x-pkcs7-signature")) {
                     final MessagePart last = messageParts.getLast();
                     final String signedData = (getHeaders(last.part).replaceAll("\\r\\n", "\n") + getRawContent(last.part)).replaceAll("\\n", "\r\n");
@@ -258,6 +279,21 @@ public class MessageParser {
                 }
             }
         }
+    }
+
+    String getContent(final Part part) throws MessagingException {
+        try (InputStream inputStream = part.getInputStream()) {
+            return new String(ByteStreams.toByteArray(inputStream), getCharset(new ContentType(part.getContentType())));
+        } catch (IOException e) {
+            throw new MessagingException("Unable to read body part", e);
+        }
+    }
+
+    boolean isBase64(final Part part) throws MessagingException {
+        final String[] headers = part.getHeader("Content-Transfer-Encoding");
+        return ((headers != null) &&
+                (headers.length > 0) &&
+                ("base64".equals(headers[0])));
     }
 
     private static class MessageParts {

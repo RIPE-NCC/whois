@@ -108,7 +108,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         }
     }
 
-    private boolean sponsoringOrgStatusCheck(RpslObject updatedObject) {
+    private boolean sponsoringOrgStatusCheck(final RpslObject updatedObject) {
         final CIString statusString = updatedObject.getValueForAttribute(AttributeType.STATUS);
         InetStatus status;
 

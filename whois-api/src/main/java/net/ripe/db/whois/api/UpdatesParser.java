@@ -19,6 +19,7 @@ import net.ripe.db.whois.update.keycert.PgpSignedMessage;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -56,7 +57,7 @@ public class UpdatesParser {
             final Matcher signedMessageMatcher = PgpSignedMessage.SIGNED_MESSAGE_PATTERN.matcher(content).region(offset, content.length());
             if (signedMessageMatcher.find(offset)) {
                 addPlainTextContent(baseCredentials, paragraphs, content, offset, signedMessageMatcher.start());
-                offset = addSignedContent(baseCredentials, paragraphs, content, signedMessageMatcher.start());
+                offset = addSignedContent(baseCredentials, paragraphs, content, signedMessageMatcher.start(), contentWithCredentials.getCharset());
             } else {
                 offset = addPlainTextContent(baseCredentials, paragraphs, content, offset, content.length());
             }
@@ -75,7 +76,7 @@ public class UpdatesParser {
         return endIndex + 1;
     }
 
-    private int addSignedContent(final Set<Credential> baseCredentials, final List<Paragraph> paragraphs, final String content, final int beginIndex) {
+    private int addSignedContent(final Set<Credential> baseCredentials, final List<Paragraph> paragraphs, final String content, final int beginIndex, final Charset charset) {
         final Set<Credential> credentials = Sets.newLinkedHashSet(baseCredentials);
 
         int endIdx = -1;
@@ -90,7 +91,7 @@ public class UpdatesParser {
 
                 try {
                     final String clearText = matcher.group(0);
-                    final PgpCredential credential = PgpCredential.createOfferedCredential(clearText);
+                    final PgpCredential credential = PgpCredential.createOfferedCredential(clearText, charset);
                     credentials.add(credential);
                     signedContent = credential.getContent();
                     if (StringUtils.isBlank(signedContent)) {

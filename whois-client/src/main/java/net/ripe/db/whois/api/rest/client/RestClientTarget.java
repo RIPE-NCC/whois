@@ -1,5 +1,8 @@
 package net.ripe.db.whois.api.rest.client;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
 import net.ripe.db.whois.api.rest.domain.AbuseResources;
@@ -330,6 +333,7 @@ public class RestClientTarget {
      */
     public StreamingRestClient streamingSearch() {
         URLConnection urlConnection = null;
+
         try {
             final WebTarget webTarget = client.target(baseUrl).path("search");
             urlConnection = setParams(webTarget).getUri().toURL().openConnection();
@@ -337,15 +341,21 @@ public class RestClientTarget {
             setHeaders(urlConnection);
             setCookies(urlConnection);
 
+            urlConnection.setReadTimeout(60 * 1000);
+
             return new StreamingRestClient(urlConnection.getInputStream());
         } catch (IOException e) {
-            LOGGER.error("Caught exception while streaming", e);
             try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
-                urlConnection.setReadTimeout(60 * 1000);
-                LOGGER.info("Read timeout = {}", urlConnection.getReadTimeout());
                 final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
                 throw new RestClientException(whoisResources.getErrorMessages());
             } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
+                final String allCurrentParams = Joiner.on('&').join(Iterables.transform(params.keySet(), new Function<String, String>() {
+                    @Override
+                    public String apply(final String input) {
+                        return String.format("%s=%s", input, params.get(input));
+                    }
+                }));
+                LOGGER.info("search failed: {}/search?", baseUrl, allCurrentParams);
                 LOGGER.error("Caught exception while unmarshalling error", e);
                 throw new RestClientException(e1.getCause());
             }
@@ -356,7 +366,7 @@ public class RestClientTarget {
     private WebTarget setParams(final WebTarget webTarget) {
         WebTarget updatedWebTarget = webTarget;
         for (Map.Entry<String, List<String>> param : params.entrySet()) {
-            updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), Lists.transform(param.getValue(), RestClientUtils.CURLY_BRACES_ENCODING_FUNCTION).toArray());
+            updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), RestClientUtils.encode(param.getValue()).toArray());
         }
         return updatedWebTarget;
     }
