@@ -492,7 +492,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 new Date());
     }
 
-    public static void dumpSchema(final DataSource datasource) throws SQLException {
+    public static void dumpSchema(final DataSource datasource) {
         new JdbcTemplate(datasource).execute(new StatementCallback<Object>() {
             @Override
             public Object doInStatement(Statement statement) throws SQLException, DataAccessException {
