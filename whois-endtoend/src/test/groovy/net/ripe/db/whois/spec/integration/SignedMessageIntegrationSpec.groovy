@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
@@ -4077,7 +4076,4 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       def ack = ackFor message
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
-
-
-
 }

@@ -2,6 +2,7 @@ package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
@@ -128,6 +129,30 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+    }
+
+    @Ignore("TODO: [ES] internal software error")
+    def "illegal character in key"() {
+        def org = new SyncUpdate(data:
+            "organisation: AUTO-1\n" +
+            "org-name:     Ripe NCC organisation\n" +
+            "org-type:     OTHER\n" +
+            "address:      Singel 258\n" +
+            "phone: +31-2-12345678\n" +
+            " \n" +
+            "e-mail:        bitbucket@ripe.net\n" +
+            "changed:      admin@test.com 20120505\n" +
+            "mnt-by:       TST-MNT\n" +
+            "mnt-ref:      TST-MNT\n" +
+            "source:       TEST\n" +
+            "password: update\n")
+
+      when:
+        def response = syncUpdate org
+
+      then:
+        response =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+        query("ORG-RNO1-TEST") =~ /organisation/
     }
 
 
