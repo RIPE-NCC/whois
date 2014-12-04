@@ -76,8 +76,9 @@ class SSOSpec extends BaseQueryUpdateSpec {
         hasAttribute(objLU, "auth", "MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.", "sso");
 
         query_object_matches("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT", "auth:\\s*SSO")
+
         def fullObj = databaseHelper.lookupObject(ObjectType.MNTNER, "NO-SSO-MNT")
-        print(fullObj)
+        fullObj =~ /auth:\s+SSO ed7cd420-6402-11e3-949a-0800200c9a66/
     }
 
     def "replace pw with SSO in mntner"() {
@@ -118,8 +119,10 @@ class SSOSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT", "auth:\\s*SSO")
         query_object_not_matches("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT", "auth:\\s*MD5")
+
         def fullObj = databaseHelper.lookupObject(ObjectType.MNTNER, "NO-SSO-MNT")
-        print(fullObj)
+        fullObj =~ /auth:\s+SSO ed7cd420-6402-11e3-949a-0800200c9a66/
+        fullObj !=~ /auth:\s+MD5-PW/
     }
 
     def "add SSO to mntner with existing SSO"() {
@@ -163,8 +166,11 @@ class SSOSpec extends BaseQueryUpdateSpec {
         hasAttribute(objLU, "auth", "MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.", "sso");
 
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
+
         def fullObj = databaseHelper.lookupObject(ObjectType.MNTNER, "ONE-SSO-MNT")
-        print(fullObj)
+        fullObj =~ /auth:\s+SSO 8ffe29be-89ef-41c8-ba7f-0e1553a623e5/
+        fullObj =~ /auth:\s+SSO ed7cd420-6402-11e3-949a-0800200c9a66/
+        fullObj =~ /auth:\s+MD5-PW/
     }
 
     def "replace pw with SSO in mntner with existing SSO"() {
@@ -206,8 +212,11 @@ class SSOSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
         query_object_not_matches("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT", "auth:\\s*MD5")
+
         def fullObj = databaseHelper.lookupObject(ObjectType.MNTNER, "ONE-SSO-MNT")
-        print(fullObj)
+        fullObj =~ /auth:\s+SSO 8ffe29be-89ef-41c8-ba7f-0e1553a623e5/
+        fullObj =~ /auth:\s+SSO ed7cd420-6402-11e3-949a-0800200c9a66/
+        fullObj !=~ /auth:\s+MD5-PW/
     }
 
     def "replace SSO with new SSO in mntner with existing SSO"() {
@@ -250,8 +259,11 @@ class SSOSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*MD5")
+
         def fullObj = databaseHelper.lookupObject(ObjectType.MNTNER, "ONE-SSO-MNT")
-        print(fullObj)
+        fullObj !=~ /auth:\s+SSO 8ffe29be-89ef-41c8-ba7f-0e1553a623e5/
+        fullObj =~ /auth:\s+SSO ed7cd420-6402-11e3-949a-0800200c9a66/
+        fullObj =~ /auth:\s+MD5-PW/
     }
 
     def "remove SSO from mntner with existing SSO"() {
@@ -293,8 +305,10 @@ class SSOSpec extends BaseQueryUpdateSpec {
 
         query_object_not_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*MD5")
+
         def fullObj = databaseHelper.lookupObject(ObjectType.MNTNER, "ONE-SSO-MNT")
-        print(fullObj)
+        fullObj !=~ /auth:\s+SSO/
+        fullObj =~ /auth:\s+MD5-PW/
     }
 
     def "remove pw from mntner with existing SSO"() {
@@ -336,8 +350,10 @@ class SSOSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
         query_object_not_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*MD5")
+
         def fullObj = databaseHelper.lookupObject(ObjectType.MNTNER, "ONE-SSO-MNT")
-        print(fullObj)
+        fullObj =~ /auth:\s+SSO 8ffe29be-89ef-41c8-ba7f-0e1553a623e5/
+        fullObj !=~ /auth:\s+MD5-PW/
     }
 
     def "remove pw, replace SSO from mntner with existing SSO"() {
@@ -379,8 +395,10 @@ class SSOSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
         query_object_not_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*MD5")
+
         def fullObj = databaseHelper.lookupObject(ObjectType.MNTNER, "ONE-SSO-MNT")
-        print(fullObj)
+        fullObj =~ /auth:\s+SSO ed7cd420-6402-11e3-949a-0800200c9a66/
+        fullObj !=~ /auth:\s+MD5-PW/
     }
 
     def "remove pw, remove SSO from mntner with existing SSO"() {
@@ -424,8 +442,10 @@ class SSOSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*MD5")
+
         def fullObj = databaseHelper.lookupObject(ObjectType.MNTNER, "ONE-SSO-MNT")
-        print(fullObj)
+        fullObj =~ /auth:\s+SSO 8ffe29be-89ef-41c8-ba7f-0e1553a623e5/
+        fullObj =~ /auth:\s+MD5-PW/
     }
 
     def "add 2 SSO to mntner with existing SSO"() {
@@ -470,8 +490,12 @@ class SSOSpec extends BaseQueryUpdateSpec {
         hasAttribute(objLU, "auth", "MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.", "sso");
 
         query_object_matches("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT", "auth:\\s*SSO")
+
         def fullObj = databaseHelper.lookupObject(ObjectType.MNTNER, "ONE-SSO-MNT")
-        print(fullObj)
+        fullObj =~ /auth:\s+SSO 8ffe29be-89ef-41c8-ba7f-0e1553a623e5/
+        fullObj =~ /auth:\s+SSO ed7cd420-6402-11e3-949a-0800200c9a66/
+        fullObj =~ /auth:\s+SSO 906635c2-0405-429a-800b-0602bd716124/
+        fullObj =~ /auth:\s+MD5-PW/
     }
 
     def "add invalid SSO to mntner"() {
@@ -648,8 +672,10 @@ class SSOSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT", "auth:\\s*SSO")
         query_object_matches("-r -BG -T mntner NO-SSO-MNT", "mntner", "NO-SSO-MNT", "auth:\\s*MD5")
+
         def fullObj = databaseHelper.lookupObject(ObjectType.MNTNER, "NO-SSO-MNT")
-        print(fullObj)
+        fullObj =~ /auth:\s+SSO ed7cd420-6402-11e3-949a-0800200c9a66/
+        fullObj =~ /auth:\s+MD5-PW/
     }
 
     def "create mntner with pw and invalid SSO"() {
