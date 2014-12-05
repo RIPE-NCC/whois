@@ -9,10 +9,10 @@
 [nrtm] #265 Missing reference breaks NRTM
 [nrtm] added end to end comparison testing for NRTM
 [query] Stockholm resiliency project: performed load tests targeting the query server in Stockholm
-			Used Apache Jmeter to perform the load testings and Logstash, Elasticsearch and Kibana to visualise results.
-			- Performed an average load test
-			- Performed an stress test with about 10x more average load.
-			Configuration files for the above tooling can be found in the whois source code.
+            - Performed an average load test
+            - Performed an stress test with about 10x more than average load.
+            Apache Jmeter was used to perform the load testing and Logstash, Elasticsearch and Kibana to visualise results.
+            Configuration files for the above tooling can be found in the whois source code.
 
 ## 1.76
 [all] #271 RipeGrsSource: uses APNIC value for download instead of RIPE
