@@ -1,3 +1,21 @@
+## 1.77
+
+## 1.76
+[all] #271 RipeGrsSource: uses APNIC value for download instead of RIPE
+[api] #269 Syncupdates does not return 403 Forbidden on Failed Authorisation
+[rc] #268 Not all maintainers in RC have a dummified password
+[all] #266 Undefined SERVICE in whois.init prevents Jetty to start
+[api] #264 REST Client gets stuck on Error from Streaming Search
+[web] #262 passwords with '%'
+[api] #261 WHOIS public REST API truncates long URL encoded parameters
+[all] #260 'ASSIGNED ANYCAST' and "sponsoring-org:"
+[api] #259 REST API - Unformatted Flag adds whitespace padding to response
+[web] #256 Abuse Contact information not displayed on web lookups
+[update] #254 PGP signed mailupdate with non-latin1 encoding fails
+[query] #253 Query with too many parameters
+[update] #252 Unexpected Error when Updating Domain Object
+[api] #243 Returning 404 on rest api is misleading
+
 ## 1.75
 [update] Suballocations smaller than /24 is now allowed
 [update] Reverse domain objects with single IP address now allowed
