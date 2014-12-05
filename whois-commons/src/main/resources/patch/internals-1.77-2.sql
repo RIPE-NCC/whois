@@ -25,3 +25,5 @@ CREATE TABLE `forgot_password_audit_log` (
   CONSTRAINT FOREIGN KEY (`hash`) REFERENCES `email_links` (`hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+INSERT INTO version VALUES ('internals-1.77-2');
+
