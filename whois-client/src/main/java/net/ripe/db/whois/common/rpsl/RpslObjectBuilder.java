@@ -4,12 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.Validate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RpslObjectBuilder {
     private RpslObject original;
@@ -95,6 +90,7 @@ public class RpslObjectBuilder {
                     switch (next) {
                         case ' ':
                         case '\t':
+                        case '\n':
                         case '+':
                             break;
                         default:
