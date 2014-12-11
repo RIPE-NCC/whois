@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.support.database.diff.DatabaseDiff;
 import net.ripe.db.whois.common.support.database.diff.Row;
 import net.ripe.db.whois.common.support.database.diff.Table;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1870,6 +1871,32 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         final DatabaseDiff diff = rebuild();
 
         assertNotNull(diff.getToDatabase().getTable("domain").get(with("domain", "169.236.109.IN-ADDR.ARPA")));
+    }
+
+    /*
+    Removed:
+    mntner:
+     {object_id=6, mntner=Another Maintainer}
+    person_role:
+     {object_id=5, nic_hdl=TEST-HM3, object_type=10}
+    tech_c:
+     {object_id=6, pe_ro_id=5, object_type=9}
+     */
+    @Ignore("TODO: [ES] references to syntactically incorrect values are removed by rebuild")
+    @Test
+    public void invalid_nic_hdl() {
+        databaseHelper.addObject(
+                "person:    Henry Mitchell\n" +
+                "nic-hdl:   TEST-HM3\n" +
+                "source:    TEST");
+        databaseHelper.addObject(
+                "mntner:    Another Maintainer\n" +
+                "tech-c:    TEST-HM3\n" +
+                "source:    TEST");
+
+        final DatabaseDiff diff = rebuild();
+
+        assertThat(diff.getRemoved().getAll(), hasSize(0));
     }
 
     private DatabaseDiff rebuild(final RpslObject object) {
