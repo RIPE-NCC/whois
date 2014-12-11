@@ -637,52 +637,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("End of line comments not allowed on \"source:\" attribute"));
     }
 
-    @Test
-    public void create_person_with_filtered_source() throws Exception {
-        databaseHelper.addObject(PERSON_ANY1_TEST);
-        databaseHelper.addObject(MNTNER_TEST_MNTNER);
-
-        final FormDataMultiPart multipart = new FormDataMultiPart()
-                .field("DATA",
-                        "person:         Test Person\n" +
-                                "address:        Home\n" +
-                                "phone:          +31 6 12345678\n" +
-                                "nic-hdl:        TP2-TEST\n" +
-                                "mnt-by:         mntner\n" +
-                                "changed:        dbtest@ripe.net 20120101\n" +
-                                "source:         TEST #Filtered\n" +
-                                "password: emptypassword")
-                .field("NEW", "yes");
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
-        assertThat(response, containsString("Create FAILED"));
-        assertThat(response, containsString("***Error:   End of line comments not allowed on \"source:\" attribute"));
-    }
-
-    @Test
-    public void update_person_with_filtered_source() throws Exception {
-        databaseHelper.addObject(PERSON_ANY1_TEST);
-        databaseHelper.addObject(MNTNER_TEST_MNTNER);
-
-        final FormDataMultiPart multipart = new FormDataMultiPart()
-                .field("DATA",
-                        "person:         Test Person\n" +
-                                "address:        Home\n" +
-                                "phone:          +31 6 12345678\n" +
-                                "nic-hdl:        TP1-TEST\n" +
-                                "mnt-by:         mntner\n" +
-                                "remarks:         test remark\n" +
-                                "remarks:         another test remark\n" +
-                                "changed:        dbtest@ripe.net 20120101\n" +
-                                "source:         TEST #Filtered\n" +
-                                "password: emptypassword");
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
-        assertThat(response, containsString("Modify FAILED"));
-        assertThat(response, containsString("End of line comments not allowed on \"source:\" attribute"));
-    }
 
     // helper methods
 
