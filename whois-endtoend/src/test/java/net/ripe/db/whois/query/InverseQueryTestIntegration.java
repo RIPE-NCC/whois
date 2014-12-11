@@ -144,6 +144,20 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
                 containsString("% Inverse search on 'auth' attribute is limited to 'key-cert' objects only"));
     }
 
+    @Test
+    public void inverse_invalid_nic_hdl() {
+        databaseHelper.addObject(
+                "person:    Henry Mitchell\n" +
+                "nic-hdl:   TEST-HM3\n" +
+                "source:    TEST");
+        databaseHelper.addObject(
+                "mntner:    Another Maintainer\n" +
+                "tech-c:    TEST-HM3\n" +
+                "source:    TEST");
+
+        assertThat(query("-i tech-c TEST-HM3"), containsString("Another Maintainer"));
+    }
+
     private String query(final String query) {
         return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
