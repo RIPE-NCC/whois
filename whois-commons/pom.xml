@@ -19,6 +19,10 @@
             <artifactId>whois-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.ripe.commons</groupId>
+            <artifactId>commons-ip-math</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>

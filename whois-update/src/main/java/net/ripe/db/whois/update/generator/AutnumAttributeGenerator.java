@@ -2,21 +2,11 @@ package net.ripe.db.whois.update.generator;
 
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.rpsl.attrs.AutnumStatus;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.update.domain.Action;
-import net.ripe.db.whois.update.domain.LegacyAutnum;
-import net.ripe.db.whois.update.domain.Operation;
-import net.ripe.db.whois.update.domain.Update;
-import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.jetbrains.annotations.Nullable;
+import net.ripe.db.whois.update.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -73,7 +63,7 @@ public class AutnumAttributeGenerator extends AttributeGenerator {
     private boolean isMaintainedByRir(final RpslObject object) {
         try {
             final AuthoritativeResource authoritativeResource = authoritativeResourceData.getAuthoritativeResource(sourceContext.getCurrentSource().getName());
-            return authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, object.getKey());
+            return authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, object.getKey());
         } catch (IllegalSourceException e) {
             return false;
         }

@@ -242,7 +242,7 @@ public class AutNumCleanup {
                                 final Matcher matcher = AS_PATTERN.matcher(value.toString());
                                 while (matcher.find()) {
                                     final String match = matcher.group();
-                                    if (authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, CIString.ciString(match))) {
+                                    if (authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, CIString.ciString(match))) {
                                         foundAutnums.add(match);
                                     }
                                 }

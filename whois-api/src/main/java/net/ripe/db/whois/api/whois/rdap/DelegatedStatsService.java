@@ -76,6 +76,7 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
             for (Map.Entry<CIString, String> entry : sourceToPathMap.entrySet()) {
                 final CIString sourceName = entry.getKey();
                 final AuthoritativeResource authoritativeResource = resourceData.getAuthoritativeResource(sourceName);
+                LOGGER.info("trying authoritativeResource for source {}", sourceName);
                 if (authoritativeResource.isMaintainedInRirSpace(objectType.get(), CIString.ciString(query.getSearchValue()))) {
                     final String basePath = entry.getValue();
                     LOGGER.debug("Redirecting {} to {}", requestPath, sourceName);
@@ -85,6 +86,7 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
             }
         }
 
+        LOGGER.info("Resource {} not found", query.getSearchValue());
         LOGGER.debug("Resource {} not found", query.getSearchValue());
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }

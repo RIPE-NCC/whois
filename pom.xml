@@ -172,7 +172,11 @@
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
-
+            <dependency>
+                <groupId>net.ripe.commons</groupId>
+                <artifactId>commons-ip-math</artifactId>
+                <version>1.20</version>
+            </dependency>
             <dependency>
                 <groupId>de.jflex</groupId>
                 <artifactId>jflex</artifactId>

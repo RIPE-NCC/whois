@@ -32,8 +32,8 @@ public class DelegatedStatsServiceTest {
 
     @Before
     public void setup() {
-        when(authoritativeResourceOne.isMaintainedByRir(any(ObjectType.class), any(CIString.class))).thenReturn(Boolean.FALSE);
-        when(authoritativeResourceTwo.isMaintainedByRir(any(ObjectType.class), any(CIString.class))).thenReturn(Boolean.FALSE);
+        when(authoritativeResourceOne.isMaintainedInRirSpace(any(ObjectType.class), any(CIString.class))).thenReturn(Boolean.FALSE);
+        when(authoritativeResourceTwo.isMaintainedInRirSpace(any(ObjectType.class), any(CIString.class))).thenReturn(Boolean.FALSE);
         when(authoritativeResourceData.getAuthoritativeResource(CIString.ciString("one"))).thenReturn(authoritativeResourceOne);
         when(authoritativeResourceData.getAuthoritativeResource(CIString.ciString("two"))).thenReturn(authoritativeResourceTwo);
 

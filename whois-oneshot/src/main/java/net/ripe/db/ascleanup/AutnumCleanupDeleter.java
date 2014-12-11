@@ -40,10 +40,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -262,7 +259,8 @@ public class AutnumCleanupDeleter {
             asns.add(ciString(asMatcher.group(1)));
         }
 
-        return Sets.intersection(authoritativeResource.getAutNums(), asns);
+        return Collections.EMPTY_SET;
+//        return Sets.intersection(authoritativeResource., asns);
     }
 
     @Nullable
@@ -293,7 +291,7 @@ public class AutnumCleanupDeleter {
         for (CIString value : rpslAttribute.getCleanValues()) {
             if (StringUtils.isBlank(value.toString())) continue;
 
-            if (authoritativeResource.isMaintainedByRir(ObjectType.AUT_NUM, value)) {
+            if (authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, value)) {
                 final String match = value.toString();
                 references++;
                 final String updatedValue = rpslAttribute.getValue().replaceAll(
@@ -408,7 +406,7 @@ public class AutnumCleanupDeleter {
     private void loadAuthoritativeResource() {
         try {
             authoritativeResource = getAuthoritativeResource(Files.createTempFile("autnumCleanup", ""));
-            INFO_LOGGER.info("# " + authoritativeResource.getAutNums());
+            INFO_LOGGER.info("# " + authoritativeResource.getNrAutNums());
             INFO_LOGGER.info("# Number of autnums: " + authoritativeResource.getNrAutNums());
         } catch (IOException e) {
             INFO_LOGGER.info("couldn't get authoritative resource");
