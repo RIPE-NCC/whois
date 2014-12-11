@@ -2068,15 +2068,16 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
-                ["\"assignment-size:\" value must be greater than prefix size 32"]
+                ["\"assignment-size:\" value cannot be smaller than 48",
+                 "\"assignment-size:\" value must be greater than prefix size 32"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
     }
 
-    @Ignore("TODO: failing test")
+    @Ignore("https://www.pivotaltracker.com/story/show/84370066")
     def "create child AGGREGATED-BY-LIR, assignment-size = 40"() {
         given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
@@ -2121,7 +2122,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
     }
 
-    @Ignore("TODO: confirmed issue - cannot assign prefix bigger than a /64 (against policy)")
+    @Ignore("https://www.pivotaltracker.com/story/show/84370066")
     def "create child AGGREGATED-BY-LIR, assignment-size = 128"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
@@ -2166,10 +2167,10 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
                 ["\"assignment-size:\" value cannot be greater than 64"]
 
-        queryObject("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+        queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
     }
 
-    @Ignore("TODO: failing test")
+    @Ignore("https://www.pivotaltracker.com/story/show/84370066")
     def "create child AGGREGATED-BY-LIR, assignment-size > 128"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
@@ -2212,7 +2213,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
-                ["\"assignment-size:\" value value cannot be greater than 64"]
+                ["\"assignment-size:\" value cannot be greater than 64"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
     }

@@ -1174,7 +1174,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
     }
 
-    @Ignore("TODO: [ES] override should not bypass status check, this create should fail")
+    @Ignore("https://www.pivotaltracker.com/story/show/82466454")
     def "create child ALLOCATED PA, parent status ALLOCATED PA with override"() {
       given:
         syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")

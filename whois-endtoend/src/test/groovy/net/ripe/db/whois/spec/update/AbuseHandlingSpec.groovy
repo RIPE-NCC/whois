@@ -2427,7 +2427,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
     }
 
-    @Ignore("TODO: [ES] failing test")
+    @Ignore("https://www.pivotaltracker.com/story/show/84284562")
     def "modify ALLOCATED PA ref ORGANISATION with no abuse-c, type LIR"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "override: denis,override1")
