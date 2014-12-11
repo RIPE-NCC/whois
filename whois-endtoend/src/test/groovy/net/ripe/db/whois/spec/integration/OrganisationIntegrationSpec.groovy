@@ -131,7 +131,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
     }
 
-    @Ignore("TODO: [ES] internal software error")
+    @Ignore("https://www.pivotaltracker.com/story/show/84370344")
     def "illegal character in key"() {
         def org = new SyncUpdate(data:
             "organisation: AUTO-1\n" +
