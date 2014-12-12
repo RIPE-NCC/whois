@@ -1,8 +1,8 @@
 package net.ripe.db.whois.nrtm.client;
 
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.MaintenanceMode;
-import net.ripe.db.whois.common.ServerHelper;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,8 +81,7 @@ class NrtmClientFactory {
                         writer = SocketChannelFactory.createWriter(socketChannel);
 
                         readHeader();
-                        writeMirrorCommand();
-                        readMirrorResult();
+                        writeMirrorCommandAndReadResponse();
                         readUpdates();
                     } catch (ClosedByInterruptException e) {
                         LOGGER.info("Interrupted, stopping.");
@@ -102,6 +102,7 @@ class NrtmClientFactory {
             }
         }
 
+        // TODO: [ES] detect error on connect, and do not retry (e.g. %ERROR:402: not authorised to mirror the database from IP address x.y.z)
         @RetryFor(value = IOException.class, attempts = 100, intervalMs = 10 * 1000)
         private void connect() throws IOException {
             try {
@@ -113,7 +114,6 @@ class NrtmClientFactory {
         }
 
         private void readHeader() throws IOException {
-            // TODO [AK] Read comments until empty line occurs
             readLineWithExpected("%");
             readLineWithExpected("%");
             readEmptyLine();
@@ -136,18 +136,32 @@ class NrtmClientFactory {
             return line;
         }
 
-        private void writeMirrorCommand() throws IOException {
+        //[TP] Do not use only the error code. There are two errors with code 401.
+        private static final String RESPONSE_INVALID_RANGE = "%ERROR:401: invalid range";
+        private static final String RESPONSE_START = "%START";
+        private static final int SLEEP_TIME_IF_NO_UPDATES_AVAILABLE_IN_SECONDS = 1;
+
+        private void writeMirrorCommandAndReadResponse() throws IOException {
+
             final String mirrorCommand = String.format("-g %s:3:%d-LAST -k",
                     nrtmSource.getOriginSource(),
-                    serialDao.getSerials().getEnd());
+                    serialDao.getSerials().getEnd() + 1);
 
-            writeLine(mirrorCommand);
-        }
+            while (true) {
+                writeLine(mirrorCommand);
 
-        private void readMirrorResult() throws IOException {
-            final String result = readLineWithExpected("%START");
-            readEmptyLine();
-            LOGGER.info(result);
+                final String line = reader.readLine();
+                if (line.startsWith(RESPONSE_START)) {
+                    readEmptyLine();
+                    LOGGER.info(line);
+                    return;
+                } else if (line.startsWith(RESPONSE_INVALID_RANGE)) {
+                    readEmptyLine();
+                    Uninterruptibles.sleepUninterruptibly(SLEEP_TIME_IF_NO_UPDATES_AVAILABLE_IN_SECONDS, TimeUnit.SECONDS);
+                } else {
+                    throw new IllegalStateException(String.format("Expected to read: '%s' or %s, but actually read: '%s'.", RESPONSE_START, RESPONSE_INVALID_RANGE, line));
+                }
+            }
         }
 
         private void writeLine(final String line) throws IOException {
@@ -161,7 +175,7 @@ class NrtmClientFactory {
                     final RpslObject object = readObject();
                     update(operationSerial.getOperation(), operationSerial.getSerial(), object);
                 } else {
-                    ServerHelper.sleep(1000);
+                    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
                 }
             }
         }
@@ -172,8 +186,11 @@ class NrtmClientFactory {
                     case UPDATE:
                         try {
                             final RpslObjectUpdateInfo updateInfo = rpslObjectUpdateDao.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());
+
                             if (!nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId())) {
                                 nrtmClientDao.updateObject(rpslObject, updateInfo, serialId);
+                            } else {
+                                LOGGER.warn("Already applied serial {}", serialId);
                             }
                         } catch (EmptyResultDataAccessException e) {
                             nrtmClientDao.createObject(rpslObject, serialId);
@@ -185,6 +202,8 @@ class NrtmClientFactory {
                             final RpslObjectUpdateInfo updateInfo = rpslObjectUpdateDao.lookupObject(rpslObject.getType(), rpslObject.getKey().toString());
                             if (!nrtmClientDao.objectExistsWithSerial(serialId, updateInfo.getObjectId())) {
                                 nrtmClientDao.deleteObject(updateInfo, serialId);
+                            } else {
+                                LOGGER.warn("Already applied serial {}", serialId);
                             }
                         } catch (EmptyResultDataAccessException e) {
                             throw new IllegalStateException("DELETE serial:" + serialId + " but object:" + rpslObject.getKey().toString() + " doesn't exist");
@@ -192,6 +211,7 @@ class NrtmClientFactory {
                         break;
                 }
             } catch (DataAccessException e) {
+                LOGGER.error(e.getMessage(), e);
                 throw new IllegalStateException("Unexpected error on " + operation + " " + serialId, e);
             }
         }
@@ -211,7 +231,7 @@ class NrtmClientFactory {
         }
 
         private RpslObject readObject() throws IOException {
-            StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder();
             String line;
             while (!(line = reader.readLine()).isEmpty()) {
                 builder.append(line);
@@ -220,7 +240,7 @@ class NrtmClientFactory {
             return RpslObject.parse(builder.toString());
         }
 
-        private class OperationSerial {
+        private final class OperationSerial {
             private final Operation operation;
             private final int serial;
 

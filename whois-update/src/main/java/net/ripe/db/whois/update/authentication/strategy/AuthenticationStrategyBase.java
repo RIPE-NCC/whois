@@ -15,4 +15,9 @@ abstract class AuthenticationStrategyBase implements AuthenticationStrategy {
     public Set<ObjectType> getTypesWithPendingAuthenticationSupport() {
         return Collections.emptySet();
     }
+
+    @Override
+    public int compareTo(AuthenticationStrategy other) {
+        return getName().compareTo(other.getName());
+    }
 }

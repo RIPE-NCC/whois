@@ -5,15 +5,14 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.attrs.Inet6numStatus;
-import net.ripe.db.whois.common.domain.attrs.InetStatus;
-import net.ripe.db.whois.common.domain.attrs.OrgType;
-import net.ripe.db.whois.common.etree.Interval;
+import net.ripe.db.whois.common.ip.Interval;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 
 import java.util.Set;
 
@@ -24,7 +23,7 @@ public final class UpdateMessages {
     private static final Joiner LIST_JOINED = Joiner.on(", ");
 
     public static String print(final Message message) {
-        return prettyPrint(String.format("***%s: ", message.getType()), message.getValue(), 12, 80);
+        return prettyPrint(String.format("***%s: ", message.getType()), message.getFormattedText(), 12, 80);
     }
 
     private UpdateMessages() {
@@ -39,7 +38,7 @@ public final class UpdateMessages {
     }
 
     public static Message unexpectedError() {
-        return new Message(Type.ERROR, "Unexpected error occured");
+        return new Message(Type.ERROR, "Unexpected error occurred");
     }
 
     public static Message filteredNotAllowed() {
@@ -189,8 +188,23 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Enforced new keyword specified, but the object already exists in the database");
     }
 
-    public static Message invalidMaintainerForOrganisationType() {
-        return new Message(Type.ERROR, "This org-type value can only be set by administrative mntners");
+    public static Message invalidMaintainerForOrganisationType(CharSequence orgType) {
+        return new Message(Type.ERROR, "Value '%s' can only be set by the RIPE NCC for this organisation.", orgType);
+    }
+
+    public static Message cantChangeOrgAttribute() {
+        return new Message(Type.ERROR, "Referenced organisation can only be changed by the RIPE NCC for this resource.\n" +
+                "Please contact \"ncc@ripe.net\" to change this reference.");
+    }
+
+    public static Message cantRemoveOrgAttribute() {
+        return new Message(Type.ERROR, "Referenced organisation can only be removed by the RIPE NCC for this resource.\n" +
+                "Please contact \"ncc@ripe.net\" to remove this reference.");
+    }
+
+    public static Message cantChangeOrgName() {
+        return new Message(Type.ERROR, "Organisation name can only be changed by the RIPE NCC for this organisation.\n" +
+                "Please contact \"ncc@ripe.net\" to change the name.");
     }
 
     public static Message countryNotRecognised(final CharSequence country) {
@@ -262,13 +276,12 @@ public final class UpdateMessages {
                 "Allowed values are %s", allowedOrgTypes);
     }
 
-    // TODO: [DW] this error should specify that this specific parent-child status in not allowed, similar to incorrectChildStatus()
     public static Message incorrectParentStatus(final ObjectType type, final CharSequence parentStatus) {
         return new Message(Messages.Type.ERROR, "%s parent has incorrect status: %s", type.getName(), parentStatus);
     }
 
-    public static Message incorrectChildStatus(final CharSequence givenStatus, final CharSequence childStatus) {
-        return new Message(Type.ERROR, "Status %s not allowed when more specific object has status %s", givenStatus, childStatus);
+    public static Message incorrectChildStatus(final CharSequence givenStatus, final CharSequence childStatus, final CharSequence moreSpecificObject) {
+        return new Message(Type.ERROR, "Status %s not allowed when more specific object '%s' has status %s", givenStatus, moreSpecificObject, childStatus);
     }
 
     public static Message objectLacksStatus(final CharSequence familyMember, final CharSequence parentInetnum) {
@@ -283,16 +296,16 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This range overlaps with %s", intervalToString(intersectingRange));
     }
 
+    public static Message inetnumStatusLegacy() {
+        return new Message(Type.ERROR, "Only RIPE NCC can create/delete a top level object with status 'LEGACY'\nContact legacy@ripe.net for more info");
+    }
+
     private static CharSequence intervalToString(final Interval<?> interval) {
         if (interval instanceof Ipv4Resource) {
             return ((Ipv4Resource) interval).toRangeString();
         }
 
         return interval.toString();
-    }
-
-    public static Message rangeTooSmallForStatus(final InetStatus inetStatus, final int maxPrefixLength) {
-        return new Message(Type.ERROR, "%s cannot be smaller than /%s", inetStatus.toString(), maxPrefixLength);
     }
 
     public static Message createFirstPersonMntnerForOrganisation() {
@@ -333,6 +346,10 @@ public final class UpdateMessages {
 
     public static Message invalidChildPrefixLength() {
         return new Message(Type.ERROR, "More specific objects exist that do not match assignment-size");
+    }
+
+    public static Message invalidParentEntryForInterval(final IpInterval s) {
+        return new Message(Type.ERROR, "Interval %s must have exactly one parent", s);
     }
 
     public static Message invalidPrefixLength(final IpInterval ipInterval, final int assignmentSize) {
@@ -474,6 +491,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "A %s object must contain either %s or %s attribute", objectType.getName(), simple, complex);
     }
 
+    public static Message diffNotSupported() {
+        return new Message(Type.WARNING, "The DIFF keyword is not supported.");
+    }
+
     public static Message abuseMailboxRequired(final CharSequence key) {
         return new Message(Type.ERROR,
                 "The \"abuse-c\" ROLE object '%s' has no \"abuse-mailbox:\"\n"
@@ -500,6 +521,10 @@ public final class UpdateMessages {
 
     public static Message abuseCNoLimitWarning() {
         return new Message(Type.WARNING, "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\"");
+    }
+
+    public static Message abuseContactNotRemovable() {
+        return new Message(Type.ERROR, "\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object");
     }
 
     public static Message selfReferenceError(final AttributeType attributeType) {
@@ -532,5 +557,45 @@ public final class UpdateMessages {
 
     public static Message dryRunNotice() {
         return new Message(Type.INFO, "Dry-run performed, no changes to the database have been made");
+    }
+
+    public static Message ripeAccessAccountUnavailable(final CharSequence username) {
+        return new Message(Type.ERROR, "No RIPE NCC Access Account found for %s", username);
+    }
+
+    public static Message ripeAccessServerUnavailable() {
+        return new Message(Type.ERROR, "RIPE NCC Access server is unavailable");
+    }
+
+    public static Message statusCannotBeRemoved() {
+        return new Message(Type.WARNING, "\"status:\" attribute cannot be removed");
+    }
+
+    public static Message sponsoringOrgChanged() {
+        return new Message(Type.ERROR, "The sponsoring-org can only be changed by the RIPE NCC");
+    }
+
+    public static Message sponsoringOrgAdded() {
+        return new Message(Type.ERROR, "The sponsoring-org can only be added by the RIPE NCC");
+    }
+
+    public static Message sponsoringOrgRemoved() {
+        return new Message(Type.ERROR, "The sponsoring-org can only be removed by the RIPE NCC");
+    }
+
+    public static Message sponsoringOrgNotLIR() {
+        return new Message(Type.ERROR, "Referenced organisation must have org-type: LIR");
+    }
+
+    public static Message sponsoringOrgNotAllowedWithStatus(final CharSequence status) {
+        return new Message(Type.ERROR, "The \"sponsoring-org:\" attribute is not allowed with status value \"%s\"", status);
+    }
+
+    public static Message sponsoringOrgMustBePresent() {
+        return new Message(Type.ERROR, "This resource object must be created with a sponsoring-org attribute");
+    }
+
+    public static Message valueChangedDueToLatin1Conversion(String attributeName) {
+        return new Message(Type.WARNING, "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", attributeName);
     }
 }

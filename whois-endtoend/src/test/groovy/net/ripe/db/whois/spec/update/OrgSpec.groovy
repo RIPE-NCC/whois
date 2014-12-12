@@ -1,16 +1,17 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import net.ripe.db.whois.update.domain.Ack
-import spec.domain.AckResponse
-import spec.domain.Message
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 
-class OrgSpec extends BaseSpec {
+@org.junit.experimental.categories.Category(IntegrationTest.class)
+class OrgSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
         [
-                "RL": """\
+                "RL"             : """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -23,7 +24,21 @@ class OrgSpec extends BaseSpec {
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
-                "ORG": """\
+                "RL-ORG"         : """\
+                role:    First Role
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                org:     ORG-LIR2-TEST
+                admin-c: TP1-TEST
+                tech-c:  TP1-TEST
+                nic-hdl: FR1-TEST
+                mnt-by:  OWNER-MNT
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+                """,
+                "ORG"            : """\
                 organisation:    auto-1
                 org-type:        other
                 org-name:        First Org
@@ -37,7 +52,7 @@ class OrgSpec extends BaseSpec {
                 changed:         denis@ripe.net 20121016
                 source:          TEST
                 """,
-                "ORG-NAME": """\
+                "ORG-NAME"       : """\
                 organisation:    ORG-FO1-TEST
                 org-type:        other
                 org-name:        First Org
@@ -51,15 +66,140 @@ class OrgSpec extends BaseSpec {
                 mnt-by:          owner2-mnt
                 changed:         denis@ripe.net 20121016
                 source:          TEST
-                """
+                """,
+                "ALLOC-PA"       : """\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR2-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "ASSIGN-PA"      : """\
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR2-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "LEGACY"         : """\
+                inetnum:      10.168.0.0 - 10.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR2-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "LEGACY-NO-ORG"  : """\
+                inetnum:      10.168.0.0 - 10.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "LEGACY-OTHER"   : """\
+                inetnum:      10.168.0.0 - 10.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-OR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "ASSIGN-PI"      : """\
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR2-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "ASSIGN-PI-OTHER": """\
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-OR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "ASSIGN-PA-OTHER": """\
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-OR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+                "AS500"          : """\
+                aut-num:     AS500
+                as-name:     TEST-AS
+                descr:       Testing Authorisation code
+                org:         ORG-OR1-TEST
+                admin-c:     TP1-TEST
+                tech-c:      TP1-TEST
+                mnt-by:      LIR-MNT
+                mnt-by:      RIPE-NCC-END-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
         ]
     }
 
     def "delete non-existent org"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -82,7 +222,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.failed
 
@@ -98,10 +238,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with auto-1"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -122,7 +262,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -137,14 +277,14 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with auto-1 with existing object in DB with same name"() {
-      given:
+        given:
         syncUpdate(getTransient("ORG") + "password: owner2")
 
-      expect:
+        expect:
         queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO2-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -165,7 +305,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -179,10 +319,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with auto-1 and weird (valid) chars in name"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -203,7 +343,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -217,10 +357,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with auto-1 and weird (valid) chars plus one valid word in name"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-XA1-TEST", "organisation", "ORG-XA1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -241,7 +381,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -254,29 +394,32 @@ class OrgSpec extends BaseSpec {
         queryObject("-r -T organisation ORG-XA1-TEST", "organisation", "ORG-XA1-TEST")
     }
 
-    def "create organisation org-type LIR no power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+    // FIXME: [AH] the character 'Ő' was converted to a ? in the acknowledgement message
+    def "create organisation with auto-1 and weird (invalid) chars in name, missing auth"() {
+        expect:
+        queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
                 organisation:    auto-1
-                org-type:        LIR
-                org-name:        First Org
-                address:         Amsterdam
+                org-type:        other
+                org-name:        Hö öns mö åäö ŐÚ
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
                 changed:         denis@ripe.net 20121016
                 source:          TEST
 
-                password: owner2
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.failed
 
@@ -285,22 +428,20 @@ class OrgSpec extends BaseSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "This org-type value can only be set by administrative mntners"]
 
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+        ack.errorMessagesFor("Create", "[organisation] auto-1") == ["Syntax error in Hö öns mö åäö ?Ú"]
+
+        queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
     }
 
-    def "create organisation org-type IANA no power mntner"() {
-      expect:
+    def "create organisation disallowed org-type no power mntner"() {
+        given:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-      when:
         def message = send new Message(
                 subject: "",
-                body: """\
+                body: sprintf("""\
                 organisation:    auto-1
-                org-type:        IANA
+                org-type:        %s
                 org-name:        First Org
                 address:         Amsterdam
                 e-mail:          dbtest@ripe.net
@@ -310,10 +451,10 @@ class OrgSpec extends BaseSpec {
                 source:          TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(), orgtype)
         )
 
-      then:
+        expect:
         def ack = ackFor message
         ack.failed
 
@@ -323,130 +464,26 @@ class OrgSpec extends BaseSpec {
 
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "This org-type value can only be set by administrative mntners"]
+                "Value '" + orgtype + "' can only be set by the RIPE NCC for this organisation."]
 
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-    }
 
-    def "create organisation org-type RIR no power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                organisation:    auto-1
-                org-type:        RIR
-                org-name:        First Org
-                address:         Amsterdam
-                e-mail:          dbtest@ripe.net
-                mnt-ref:         owner3-mnt
-                mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
-                source:          TEST
-
-                password: owner2
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-        ack.failed
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "This org-type value can only be set by administrative mntners"]
-
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-    }
-
-    def "create organisation org-type WHITEPAGES no power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                organisation:    auto-1
-                org-type:        WHITEPAGES
-                org-name:        First Org
-                address:         Amsterdam
-                e-mail:          dbtest@ripe.net
-                mnt-ref:         owner3-mnt
-                mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
-                source:          TEST
-
-                password: owner2
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-        ack.failed
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "This org-type value can only be set by administrative mntners"]
-
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-    }
-
-    def "create organisation org-type DIRECT_ASSIGNMENT no power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                organisation:    auto-1
-                org-type:        DIRECT_ASSIGNMENT
-                org-name:        First Org
-                address:         Amsterdam
-                e-mail:          dbtest@ripe.net
-                mnt-ref:         owner3-mnt
-                mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
-                source:          TEST
-
-                password: owner2
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-        ack.failed
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
-                "This org-type value can only be set by administrative mntners"]
-
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+        where:
+        orgtype << [
+                "LIR",
+                "IANA",
+                "RIR",
+                "WHITEPAGES",
+                "DIRECT_ASSIGNMENT"
+        ]
     }
 
     def "create organisation org-type LIR with power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+        expect:
+            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        when:
+            def ack = syncUpdateWithResponse("""
                 organisation:    auto-1
                 org-type:        LIR
                 org-name:        First Org
@@ -462,29 +499,26 @@ class OrgSpec extends BaseSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+            )
 
-      then:
-        def ack = ackFor message
-        ack.success
+        then:
+            ack.success
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
 
     def "create organisation org-type IANA with power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+        expect:
+            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        when:
+            def ack = syncUpdateWithResponse("""
                 organisation:    auto-1
                 org-type:        IANA
                 org-name:        First Org
@@ -500,29 +534,26 @@ class OrgSpec extends BaseSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+            )
 
-      then:
-        def ack = ackFor message
-        ack.success
+        then:
+            ack.success
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
 
     def "create organisation org-type RIR with power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+        expect:
+            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        when:
+            def ack = syncUpdateWithResponse("""
                 organisation:    auto-1
                 org-type:        RIR
                 org-name:        First Org
@@ -538,29 +569,26 @@ class OrgSpec extends BaseSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+            )
 
-      then:
-        def ack = ackFor message
-        ack.success
+        then:
+            ack.success
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
 
     def "create organisation org-type WHITEPAGES with power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+        expect:
+            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        when:
+           def ack = syncUpdateWithResponse("""
                 organisation:    auto-1
                 org-type:        WHITEPAGES
                 org-name:        First Org
@@ -576,29 +604,26 @@ class OrgSpec extends BaseSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+           )
 
-      then:
-        def ack = ackFor message
-        ack.success
+        then:
+            ack.success
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
 
     def "create organisation org-type DIRECT_ASSIGNMENT with power mntner"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+        expect:
+            queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        when:
+            def ack = syncUpdateWithResponse("""
                 organisation:    auto-1
                 org-type:        DIRECT_ASSIGNMENT
                 org-name:        First Org
@@ -614,26 +639,25 @@ class OrgSpec extends BaseSpec {
 
                 password: hm
                 """.stripIndent()
-        )
+            )
 
-      then:
-        def ack = ackFor message
-        ack.success
+        then:
+            ack.success
 
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
 
-        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
 
     def "create organisation with 1 word name"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FA1-TEST", "organisation", "ORG-FA1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -651,7 +675,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -665,10 +689,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with 1 long word name"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FA1-TEST", "organisation", "ORG-FA1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -686,7 +710,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.failed
 
@@ -703,10 +727,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with syntax and auth error"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FA1-TEST", "organisation", "ORG-FA1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -724,7 +748,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.failed
 
@@ -741,10 +765,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with 6 word name"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FSTF1-TEST", "organisation", "ORG-FSTF1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -762,7 +786,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -776,10 +800,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with >30 word name"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-ABCD1-TEST", "organisation", "ORG-ABCD1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -827,7 +851,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.errors
 
@@ -844,10 +868,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with same name as a person name"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-TP1-TEST", "organisation", "ORG-TP1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -865,7 +889,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -885,10 +909,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with multiple spaces in name"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -906,7 +930,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -920,10 +944,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with name having 30 words each of 64 chars"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -970,7 +994,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -984,16 +1008,16 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with all possible valid chars in name"() {
-      expect:
-        queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "A-Z 0-9 .  _ \" * ()@, & :!'`+/-")
+        expect:
+        queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
                 organisation:    auto-1
                 org-type:        other
-                org-name:        A-Z 0-9 .  _ " * ()@, & :!'`+/-
+                org-name:        ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+/-
                 address:         RIPE NCC
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
@@ -1005,7 +1029,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1016,14 +1040,23 @@ class OrgSpec extends BaseSpec {
         ack.countErrorWarnInfo(0, 0, 0)
 
         def qry = query("-r -T organisation ORG-AA1-TEST")
-        qry.contains(/org-name:       A-Z 0-9 .  _ " * ()@, & :!'`+\/-/)
+        qry.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+        def qry5 = query("-Torganisation ABZ")
+        qry5.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+        def qry2 = query("-Torganisation (qwerty)")
+        qry2.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+// TODO commented out until bug fixed so these queries work
+//        def qry3 = query("-Torganisation @")
+//        qry3.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
+//        def qry4 = query("-Torganisation 0123456789")
+//        qry4.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
     }
 
     def "create organisation with valid language and geoloc"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AMH1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1043,7 +1076,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1057,10 +1090,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with valid language and fine grain geoloc"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AMH1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1080,7 +1113,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1094,10 +1127,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with valid language and extreme low geoloc"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AMH1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1117,7 +1150,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1131,10 +1164,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with valid language and extreme high geoloc"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AMH1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1154,7 +1187,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1168,10 +1201,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "modify organisation with valid language"() {
-      expect:
+        expect:
         queryObject("-r -T organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1191,7 +1224,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1205,10 +1238,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "modify organisation with invalid language"() {
-      expect:
+        expect:
         queryObject("-r -T organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1228,7 +1261,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.errors
 
@@ -1244,10 +1277,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "modify organisation with valid geoloc"() {
-      expect:
+        expect:
         queryObject("-r -T organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1267,7 +1300,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1281,10 +1314,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "modify organisation with invalid geoloc"() {
-      expect:
+        expect:
         queryObject("-r -T organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1304,7 +1337,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.errors
 
@@ -1318,10 +1351,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with all optional attributes"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AMH1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1369,7 +1402,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1383,13 +1416,13 @@ class OrgSpec extends BaseSpec {
     }
 
     def "delete self referencing org"() {
-      given:
+        given:
         dbfixture(getTransient("ORG-NAME"))
 
-      expect:
+        expect:
         queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1412,7 +1445,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1427,13 +1460,13 @@ class OrgSpec extends BaseSpec {
     }
 
     def "delete referenced org"() {
-      given:
+        given:
         dbfixture(getTransient("ORG-NAME"))
 
-      expect:
+        expect:
         queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1471,7 +1504,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.failed
 
@@ -1489,11 +1522,11 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create organisation with auto-1AbC"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
         queryObjectNotFound("-r -T organisation ORG-ABC1-TEST", "organisation", "ORG-ABC1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1514,7 +1547,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1530,10 +1563,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create self referencing organisation"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1556,7 +1589,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1571,11 +1604,11 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create 2 self referencing organisations, auto-1 auto-2"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
         queryObjectNotFound("-r -T organisation ORG-ABC1-TEST", "organisation", "ORG-ABC1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1612,7 +1645,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1628,12 +1661,13 @@ class OrgSpec extends BaseSpec {
         queryObject("-r -T organisation ORG-FO2-TEST", "organisation", "ORG-FO2-TEST")
     }
 
+    // TODO: [AH] this test follows what legacy whois did; we should allow for this situation in the new code (as in, this test should create 2 organisation objects successfully)
     def "create 2 mutually referencing organisations, auto-1 auto-2"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
         queryObjectNotFound("-r -T organisation ORG-ABC1-TEST", "organisation", "ORG-ABC1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1670,7 +1704,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.failed
 
@@ -1691,11 +1725,11 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create 2 self referencing organisations, auto-1AbC auto-1deF"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-DEF1-TEST", "organisation", "ORG-DEF1-TEST")
         queryObjectNotFound("-r -T organisation ORG-ABC1-TEST", "organisation", "ORG-ABC1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1732,7 +1766,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 2
@@ -1750,11 +1784,11 @@ class OrgSpec extends BaseSpec {
     }
 
     def "create 2 self referencing organisations, auto-1AbC auto-2deF"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T organisation ORG-DEF1-TEST", "organisation", "ORG-DEF1-TEST")
         queryObjectNotFound("-r -T organisation ORG-ABC1-TEST", "organisation", "ORG-ABC1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1791,7 +1825,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.success
 
@@ -1808,10 +1842,10 @@ class OrgSpec extends BaseSpec {
     }
 
     def "modify organisation, change org-type LIR to OTHER"() {
-      expect:
+        expect:
         queryObject("-r -T organisation ORG-LIR1-TEST", "organisation", "ORG-LIR1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -1830,7 +1864,7 @@ class OrgSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -1843,13 +1877,13 @@ class OrgSpec extends BaseSpec {
     }
 
     def "modify organisation, change org-type OTHER to LIR"() {
-      given:
+        given:
         syncUpdate(getTransient("ORG") + "password: owner2\npassword: hm")
 
-      expect:
+        expect:
         queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 organisation:    ORG-FO1-TEST
                 org-type:        LIR
@@ -1863,11 +1897,11 @@ class OrgSpec extends BaseSpec {
                 mnt-by:          ripe-ncc-hm-mnt
                 changed:         denis@ripe.net 20121016
                 source:          TEST
-                override:        override1
+                override:        denis,override1
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
@@ -1877,6 +1911,828 @@ class OrgSpec extends BaseSpec {
         ack.countErrorWarnInfo(0, 0, 1)
 
         query_object_matches("-r -GBT organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST", "LIR")
+    }
+
+    def "modify organisation, org-type:LIR, change org-name"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIR2-TEST
+                org-type:     LIR
+                org-name:     My Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      SR1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password: owner2
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
+                ["Organisation name can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name.",
+                 "Authorisation for [organisation] ORG-LIR2-TEST failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",]
+
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
+    }
+
+    def "modify organisation, remove org-name attribute"() {
+        given:
+        dbfixture(getTransient("ORG-NAME"))
+
+        expect:
+        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def message = syncUpdate("""
+                organisation:    ORG-FO1-TEST
+                org-type:        other
+                org:             ORG-FO1-TEST
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                changed:         denis@ripe.net 20121016
+                source:          TEST
+
+                password: owner2
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-FO1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-FO1-TEST") == ["Mandatory attribute \"org-name\" is missing"]
+    }
+
+    def "modify organisation, org-type:LIR, change org-name with override"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIR2-TEST
+                org-type:     LIR
+                org-name:     My Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      SR1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "My Registry")
+    }
+
+    def "modify organisation, org-type:LIR, change org-name with RS password"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIR2-TEST
+                org-type:     LIR
+                org-name:     My Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      SR1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password:     hm
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "My Registry")
+    }
+
+    def "modify organisation, org-type:OTHER, change org-name with user password"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OR1-TEST
+                org-type:     OTHER
+                org-name:     Changed Other Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password:     lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Changed Other Registry")
+    }
+
+    def "modify organisation, org-type:OTHER, ref from PI, change org-name"() {
+        given:
+        databaseHelper.addObject(getTransient("ASSIGN-PI-OTHER"))
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "ASSIGNED PI")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OR1-TEST
+                org-type:     OTHER
+                org-name:     New Other Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
+                ["Organisation name can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
+
+        query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
+    }
+
+    def "modify organisation, org-type:OTHER, ref from ASSIGNED PA, change org-name"() {
+        given:
+        syncUpdate(getTransient("ASSIGN-PA-OTHER") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "ASSIGNED PA")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OR1-TEST
+                org-type:     OTHER
+                org-name:     New Other Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
+    }
+
+    def "modify organisation, org-type:OTHER, ref from legacy, change org-name"() {
+        given:
+        syncUpdate(getTransient("LEGACY-OTHER") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "LEGACY")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OR1-TEST
+                org-type:     OTHER
+                org-name:     New Other Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
+    }
+
+    def "modify organisation, org-type:OTHER, ref from ASN, change org-name"() {
+        given:
+        databaseHelper.addObject(getTransient("AS500"))
+
+        expect:
+        queryObject("-r -T aut-num AS500", "aut-num", "AS500")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Other Registry")
+        query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "org-type:\\s*OTHER")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-OR1-TEST
+                org-type:     OTHER
+                org-name:     New Other Registry
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       lir-mnt
+                changed:      denis@ripe.net 20121016
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
+                ["Organisation name can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name."]
+
+        query_object_not_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "New Other Registry")
+    }
+
+    def "modify allocation, change org:"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     lir
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
+                ["Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference.",
+                 "Authorisation for [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT"]
+
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
+    }
+
+    def "modify allocation, change org: with override"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "modify allocation, change org: with RS password"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     hm
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "modify legacy, referenced org is type LIR and also referenced in allocation, change org:"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("LEGACY") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      10.168.0.0 - 10.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     lir
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -T inetnum 10.168.0.0 - 10.169.255.255", "inetnum", "10.168.0.0 - 10.169.255.255", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "modify legacy, add org: attribute"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("LEGACY-NO-ORG") + "override: denis,override1")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      10.168.0.0 - 10.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR2-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     lir
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "modify assignment, referenced org is type LIR and also referenced in allocation, change org:"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASSIGN-PA") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     lir
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "create assignment, referenced org is type LIR and also referenced in allocation"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
+        queryObjectNotFound("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     lir
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "modify person, referenced org is type LIR and also referenced in allocation, change org:"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("RL-ORG") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T role FR1-TEST", "role", "First Role", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                role:    First Role
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                org:     ORG-LIRA-TEST
+                admin-c: TP1-TEST
+                tech-c:  TP1-TEST
+                nic-hdl: FR1-TEST
+                mnt-by:  OWNER-MNT
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+
+                password:     owner
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+        ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   First Role" }
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -T role FR1-TEST", "role", "First Role", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "modify pi, change org:"() {
+        given:
+        syncUpdate(getTransient("ASSIGN-PI") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     lir
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.255.0 - 192.168.255.255") ==
+                ["Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference."]
+
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIR2-TEST")
+    }
+
+    def "modify pi, change org: with override"() {
+        given:
+        syncUpdate(getTransient("ASSIGN-PI") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
+    }
+
+    def "modify pi, change org: with RS pw"() {
+        given:
+        syncUpdate(getTransient("ASSIGN-PI") + "override: denis,override1")
+
+        expect:
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIR2-TEST")
+        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "org-type:\\s*LIR")
+
+        when:
+        def message = syncUpdate("""
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIRA-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password:     nccend
+                password:     owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
+
+        query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
     }
 
 }

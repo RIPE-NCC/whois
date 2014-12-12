@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -42,11 +43,11 @@ public class ReferencedObjectsExistValidator implements BusinessRuleValidator {
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
 
-        final Map<RpslAttribute, Set<String>> invalidReferences = rpslObjectUpdateDao.getInvalidReferences(updatedObject);
+        final Map<RpslAttribute, Set<CIString>> invalidReferences = rpslObjectUpdateDao.getInvalidReferences(updatedObject);
         final ObjectMessages objectMessages = updateContext.getMessages(update);
-        for (final Map.Entry<RpslAttribute, Set<String>> invalidReferenceEntry : invalidReferences.entrySet()) {
+        for (final Map.Entry<RpslAttribute, Set<CIString>> invalidReferenceEntry : invalidReferences.entrySet()) {
             final RpslAttribute attribute = invalidReferenceEntry.getKey();
-            if (objectMessages.getMessages(attribute).getErrors().isEmpty() && !objectMessages.contains(UpdateMessages.unknownObjectReferenced(StringUtils.join(invalidReferenceEntry.getValue(), ',')))) {
+            if (objectMessages.getMessages(attribute).getErrors().isEmpty()) {
                 updateContext.addMessage(update, attribute, UpdateMessages.unknownObjectReferenced(StringUtils.join(invalidReferenceEntry.getValue(), ',')));
             }
         }

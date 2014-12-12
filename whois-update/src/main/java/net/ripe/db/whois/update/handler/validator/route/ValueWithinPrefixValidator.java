@@ -2,12 +2,14 @@ package net.ripe.db.whois.update.handler.validator.route;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.attrs.AddressPrefixRange;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AddressPrefixRange;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -88,7 +90,19 @@ public class ValueWithinPrefixValidator implements BusinessRuleValidator {
 
     private void validatePrefixForPingableAttribute(final PreparedUpdate update, final UpdateContext updateContext, final CIString pingableIp, final CIString ip, final RpslAttribute rpslAttribute) {
         final IpInterval ipInterval = IpInterval.parse(ip);
-        if (!ipInterval.contains(IpInterval.parse(pingableIp))) {
+        final IpInterval pingableInterval = IpInterval.parse(pingableIp);
+
+        if ((ipInterval instanceof Ipv4Resource) && !(pingableInterval instanceof Ipv4Resource)) {
+            updateContext.addMessage(update, rpslAttribute, UpdateMessages.invalidIpv4Address(pingableIp));
+            return;
+        }
+
+        if ((ipInterval instanceof Ipv6Resource) && !(pingableInterval instanceof Ipv6Resource)) {
+            updateContext.addMessage(update, rpslAttribute, UpdateMessages.invalidIpv6Address(pingableIp));
+            return;
+        }
+
+        if (!ipInterval.contains(pingableInterval)) {
             updateContext.addMessage(update, rpslAttribute, UpdateMessages.invalidRouteRange(pingableIp));
         }
     }

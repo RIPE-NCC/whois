@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.BlockEvents;
-import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.IpResourceEntry;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -42,7 +42,9 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
     }
 
     @Override
-    public void saveAclEvent(final String prefix, final LocalDate date, final int limit, final BlockEvent.Type type) {
+    public void saveAclEvent(IpInterval<?> interval, final LocalDate date, final int limit, final BlockEvent.Type type) {
+        String prefix = interval.toString();
+
         try {
             jdbcTemplate.update(
                     "INSERT INTO acl_event (prefix, event_time, daily_limit, event_type) VALUES (?, ?, ?, ?)",
@@ -55,6 +57,7 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
             LOGGER.debug("Attempt to create temporary block twice: prefix {}, date {}", prefix, date);
         }
     }
+
 
     private static class BlockEventsExtractor implements ResultSetExtractor<List<BlockEvents>> {
         @Override
@@ -93,8 +96,10 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
     }
 
     @Override
-    public void savePermanentBlock(final String prefix, final LocalDate date, final int limit, final String comment) {
-        saveAclEvent(prefix, date, limit, BlockEvent.Type.BLOCK_PERMANENTLY);
+    public void savePermanentBlock(final IpInterval<?> ipInterval, final LocalDate date, final int limit, final String comment) {
+        String prefix = ipInterval.toString();
+
+        saveAclEvent(ipInterval, date, limit, BlockEvent.Type.BLOCK_PERMANENTLY);
 
         jdbcTemplate.update(
                 "INSERT INTO acl_denied (prefix, comment, denied_date) VALUES (?, ?, ?)",
@@ -129,6 +134,11 @@ public class JdbcAccessControlListDao implements AccessControlListDao {
     @Override
     public List<IpResourceEntry<Boolean>> loadUnlimitedConnections() {
         return jdbcTemplate.query("SELECT prefix FROM acl_limit where unlimited_connections != 0", new BooleanEntryMapper());
+    }
+
+    private String getCanonicalPrefix(String prefix) {
+        IpInterval<?> ipInterval = IpInterval.parse(prefix);
+        return ipInterval.toString();
     }
 
     private static class BooleanEntryMapper implements RowMapper<IpResourceEntry<Boolean>> {

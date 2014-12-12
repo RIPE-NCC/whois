@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -25,9 +27,9 @@ public class PasswordCredentialValidatorTest {
     public void authenticatePassword() {
         assertThat(authenticate("emptypassword", "MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0"), is(true));
         assertThat(authenticate("emptypassword", "md5-pw $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0"), is(true));
-        assertThat(authenticate("emptypassword", "MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0 # comment"), is(true));
         assertThat(authenticate("emptypassword", "MD5-PW $1$ID$T6JBFWOLNhasGbO3Jkj37."), is(true));
 
+        assertThat(authenticate("emptypassword", "MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0 # comment"), is(false));
         assertThat(authenticate("EmptyPassword", "MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0"), is(false));
         assertThat(authenticate("", "MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0"), is(false));
         assertThat(authenticate("emptypassword", "$1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0"), is(false));
@@ -41,7 +43,7 @@ public class PasswordCredentialValidatorTest {
     }
 
     private boolean authenticate(final String offered, final String known) {
-        return subject.hasValidCredential(update, updateContext, PasswordCredential.forPasswords(offered), new PasswordCredential(known));
+        return subject.hasValidCredential(update, updateContext, Collections.singleton(new PasswordCredential(offered)), new PasswordCredential(known));
     }
 
     @Test

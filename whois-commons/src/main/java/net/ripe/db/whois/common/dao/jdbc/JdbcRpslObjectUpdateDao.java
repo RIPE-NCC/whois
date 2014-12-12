@@ -40,14 +40,28 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
     private final DateTimeProvider dateTimeProvider;
 
     @Autowired
-    public JdbcRpslObjectUpdateDao(@Qualifier("sourceAwareDataSource") final DataSource dataSource, final DateTimeProvider dateTimeProvider) {
+    public JdbcRpslObjectUpdateDao(@Qualifier("sourceAwareDataSource") final DataSource dataSource,
+                                   final DateTimeProvider dateTimeProvider) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dateTimeProvider = dateTimeProvider;
     }
 
     @Override
     public boolean isReferenced(final RpslObject object) {
-        return !getReferences(object).isEmpty();
+        for (final RpslAttribute attribute : object.findAttributes(ObjectTemplate.getTemplate(object.getType()).getKeyAttributes())) {
+            for (final IndexStrategy indexStrategy : IndexStrategies.getReferencing(object.getType())) {
+                for (final CIString value : attribute.getReferenceValues()) {
+                    for (final RpslObjectInfo result : indexStrategy.findInIndex(jdbcTemplate, value)) {
+                        if (object.getKey().equals(ciString(result.getKey())) && result.getObjectType().equals(object.getType())) {
+                            continue;
+                        }
+
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -55,12 +69,13 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
         Set<RpslObjectInfo> references = Sets.newHashSet();
         final List<IndexStrategy> indexStrategies = IndexStrategies.getReferencing(object.getType());
 
-        for (final RpslAttribute attribute : object.findAttributes(ObjectTemplate.getTemplate(object.getType()).getKeyAttributes())) {
+        // for route(6), individually check each key
+        for (final RpslAttribute keyAttr : object.findAttributes(ObjectTemplate.getTemplate(object.getType()).getKeyAttributes())) {
             for (final IndexStrategy indexStrategy : indexStrategies) {
-                for (final CIString value : attribute.getReferenceValues()) {
+                for (final CIString value : keyAttr.getReferenceValues()) {
                     final List<RpslObjectInfo> results = indexStrategy.findInIndex(jdbcTemplate, value);
                     for (final RpslObjectInfo result : results) {
-                        if (object.getKey().equals(ciString(result.getKey())) && result.getObjectType().equals(object.getType())) {
+                        if (object.getKey().equals(result.getKey()) && result.getObjectType().equals(object.getType())) {
                             continue;
                         }
 
@@ -74,18 +89,13 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
     }
 
     @Override
-    public Map<RpslAttribute, Set<String>> getInvalidReferences(final RpslObject object) {
-        final Map<RpslAttribute, Set<String>> invalidReferenceMap = Maps.newHashMap();
+    public Map<RpslAttribute, Set<CIString>> getInvalidReferences(final RpslObject object) {
+        final Map<RpslAttribute, Set<CIString>> invalidReferenceMap = Maps.newHashMap();
 
         for (final RpslAttribute attribute : object.getAttributes()) {
             final Set<CIString> invalidReferenceValues = getInvalidReferences(object, attribute);
             if (!invalidReferenceValues.isEmpty()) {
-                final Set<String> invalidReferences = Sets.newLinkedHashSetWithExpectedSize(invalidReferenceValues.size());
-                for (final CIString invalidReferenceValue : invalidReferenceValues) {
-                    invalidReferences.add(invalidReferenceValue.toString());
-                }
-
-                invalidReferenceMap.put(attribute, invalidReferences);
+                invalidReferenceMap.put(attribute, invalidReferenceValues);
             }
         }
 

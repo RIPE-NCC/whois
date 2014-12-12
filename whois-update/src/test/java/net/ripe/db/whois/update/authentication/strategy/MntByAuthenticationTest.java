@@ -2,8 +2,8 @@ package net.ripe.db.whois.update.authentication.strategy;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
 import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
@@ -15,6 +15,7 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +34,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -47,6 +50,7 @@ public class MntByAuthenticationTest {
     @Mock RpslObjectDao rpslObjectDao;
     @Mock Ipv4Tree ipv4Tree;
     @Mock Ipv6Tree ipv6Tree;
+    @Mock SsoTranslator ssoTranslator;
 
     @InjectMocks MntByAuthentication subject;
 
@@ -105,11 +109,14 @@ public class MntByAuthenticationTest {
         when(update.getType()).thenReturn(mntner.getType());
         when(update.getReferenceObject()).thenReturn(mntner);
         when(update.getUpdatedObject()).thenReturn(mntner);
+        when(update.getAction()).thenReturn(Action.CREATE);
 
         final ArrayList<RpslObject> candidates = Lists.newArrayList(mntner);
         when(rpslObjectDao.getByKeys(ObjectType.MNTNER, mntner.getValuesForAttribute(AttributeType.MNT_BY))).thenReturn(Lists.<RpslObject>newArrayList());
 
         when(credentialValidators.authenticate(update, updateContext, candidates)).thenReturn(candidates);
+
+        when(ssoTranslator.translateFromCacheAuthToUuid(updateContext, mntner)).thenReturn(mntner);
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 

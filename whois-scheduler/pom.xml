@@ -3,12 +3,12 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.67.7-SNAPSHOT</version>
+        <version>1.78-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>whois-scheduler</artifactId>
-    <version>1.67.7-SNAPSHOT</version>
+    <version>1.78-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -28,6 +28,10 @@
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
 
         <!-- testing -->
         <dependency>
@@ -43,6 +47,11 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-update</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-client</artifactId>
             <type>test-jar</type>
         </dependency>
     </dependencies>

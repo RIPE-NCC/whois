@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-class RouteAutnumAuthentication extends RouteAuthentication {
+public class RouteAutnumAuthentication extends RouteAuthentication {
 
     @Autowired
     public RouteAutnumAuthentication(final AuthenticationModule authenticationModule, final RpslObjectDao objectDao) {

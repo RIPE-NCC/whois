@@ -1,10 +1,7 @@
 package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 
 class SearchKeyValidator implements QueryValidator {
     @Override
@@ -23,18 +20,8 @@ class SearchKeyValidator implements QueryValidator {
             return;
         }
 
-        for (final ObjectType objectType : query.getObjectTypes()) {
-            for (final AttributeType attributeType : ObjectTemplate.getTemplate(objectType).getLookupAttributes()) {
-                if (AttributeMatcher.fetchableBy(attributeType, query)) {
-                    return;
-                }
-            }
-        }
-
-        if (query.hasObjectTypesSpecified() || query.getObjectTypes().isEmpty()) {
+        if (query.getObjectTypes().isEmpty()) {
             messages.add(QueryMessages.invalidSearchKey());
-        } else {
-            messages.add(QueryMessages.unsupportedQuery());
         }
     }
 }

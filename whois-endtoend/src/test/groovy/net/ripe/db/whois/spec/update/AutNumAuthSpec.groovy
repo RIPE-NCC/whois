@@ -1,10 +1,82 @@
 package net.ripe.db.whois.spec.update
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
+@org.junit.experimental.categories.Category(IntegrationTest.class)
+class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
-class AutNumAuthSpec extends BaseSpec {
+    @Override
+    Map<String, String> getFixtures() {
+        [
+            "RIPE-NCC-RPSL-MNT": """\
+                mntner:      RIPE-NCC-RPSL-MNT
+                descr:       This maintainer may be used to create objects to represent
+                descr:       routing policy in the RIPE Database for number resources not
+                descr:       allocated or assigned from the RIPE NCC.
+                upd-to:      updto_hm@ripe.net
+                mnt-nfy:     mntnfy_hm@ripe.net
+                notify:      notify_hm@ripe.net
+                auth:        MD5-PW \$1\$0W0joRg1\$eOOcT4JsBIh6q3mu/yTvj1 # rpsl
+                notify:      dbtest@ripe.net
+                mnt-by:      RIPE-DBM-MNT
+                changed:     dbtest@ripe.net
+                changed:     dbtest@ripe.net
+                source:      TEST
+                """,
+            "AS251NOSTAT": """\
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                """,
+            "AS445NOSTAT": """\
+                aut-num:        AS445
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                """,
+            "AS12667NOSTAT": """\
+                aut-num:        AS12667
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                """,
+        ]
+    }
 
     @Override
     Map<String, String> getTransients() {
@@ -27,7 +99,7 @@ class AutNumAuthSpec extends BaseSpec {
                 """,
             "AS222 - AS333": """\
                 as-block:       AS222 - AS333
-                descr:          ARIN ASN block
+                descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
                 changed:        dbtest@ripe.net
@@ -35,14 +107,30 @@ class AutNumAuthSpec extends BaseSpec {
                 """,
             "AS222 - AS333-NOLOW": """\
                 as-block:       AS222 - AS333
-                descr:          ARIN ASN block
+                descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
+                changed:        dbtest@ripe.net
+                source:         TEST
+                """,
+            "AS12557 - AS13223": """\
+                as-block:       AS12557 - AS13223
+                descr:          RIPE NCC ASN block
+                mnt-by:         RIPE-DBM-MNT
+                mnt-lower:      RIPE-NCC-HM-MNT
+                changed:        dbtest@ripe.net
+                source:         TEST
+                """,
+            "AS444 - AS555": """\
+                as-block:       AS444 - AS555
+                descr:          APNIC ASN block
+                mnt-by:         RIPE-DBM-MNT
+                mnt-lower:      RIPE-NCC-RPSL-MNT
                 changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS0 - AS4294967295": """\
                 as-block:       AS0 - AS4294967295
-                descr:          ARIN ASN block
+                descr:          RIPE ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
                 changed:        dbtest@ripe.net
@@ -82,10 +170,12 @@ class AutNumAuthSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
-            "AS200": """
+            "AS200": """\
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -97,10 +187,29 @@ class AutNumAuthSpec extends BaseSpec {
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
-            "AS300": """
+            "AS250": """\
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          description
+                sponsoring-org: ORG-LIRA-TEST
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                """,
+            "AS300": """\
                 aut-num:        AS300
                 as-name:        ASTEST
                 descr:          description
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS200 accept ANY
                 export:         to AS200 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -112,31 +221,79 @@ class AutNumAuthSpec extends BaseSpec {
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
-            "ROUTE": """
+            "AS444": """\
+                aut-num:        AS444
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                """,
+            "AS12666": """\
+                aut-num:        AS12666
+                as-name:        End-User-1
+                descr:          description
+                status:         LEGACY
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                """,
+            "ROUTE": """\
                 route:          20.13.0.0/16
                 descr:          Route
                 origin:         AS200
                 mnt-by:         CHILD-MB-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                """
-    ]}
+                """,
+            "AS12668": """\
+                aut-num:        AS12668
+                as-name:        End-User-1
+                descr:          description
+                status:         legacy
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                """,
+        ]
+    }
 
     def "create aut-num, with mnt-by RS and LIR, and a parent mnt-lower RS"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -156,8 +313,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -169,19 +324,18 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, with mnt-by RS and LIR, and a parent no mnt-lower, mnt-by pw supplied"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333-NOLOW") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        syncUpdate(getTransient("AS222 - AS333-NOLOW") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 default:        to AS8505
@@ -204,8 +358,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -217,19 +369,18 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, with mnt-by RS and LIR, mnt-by pw supplied, and a parent mnt-lower RS, no pw supplied"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -248,8 +399,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -263,10 +412,10 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, with mnt-by RS and LIR, no pw for parent mnt-lower RS, with override"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
@@ -274,6 +423,7 @@ class AutNumAuthSpec extends BaseSpec {
                 aut-num:        AS250
                 as-name:        End-User-1
                 descr:          description
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -285,7 +435,7 @@ class AutNumAuthSpec extends BaseSpec {
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:       override1
+                override:       denis,override1
 
                 """.stripIndent()
         )
@@ -306,15 +456,14 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, mnt-by pw supplied, no parent"() {
       expect:
-        queryObjectNotFound("-rBG -T aut-num AS550", "aut-num", "AS550")
+        queryObjectNotFound("-rBG -T aut-num AS650", "aut-num", "AS650")
 
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                aut-num:        AS550
+    when:
+        def ack = syncUpdateWithResponse("""
+                aut-num:        AS650
                 as-name:        End-User-1
                 descr:          description
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -332,28 +481,27 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS550" }
-        ack.errorMessagesFor("Create", "[aut-num] AS550") ==
-              ["No parent as-block found for AS550"]
+        ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS650" }
+        ack.errorMessagesFor("Create", "[aut-num] AS650") ==
+              ["No parent as-block found for AS650"]
 
-        queryObjectNotFound("-rBG -T aut-num AS550", "aut-num", "AS550")
+        queryObjectNotFound("-rBG -T aut-num AS650", "aut-num", "AS650")
     }
 
     def "create aut-num, mnt-by pw supplied, no parent, with override"() {
       expect:
-        queryObjectNotFound("-rBG -T aut-num AS550", "aut-num", "AS550")
+        queryObjectNotFound("-rBG -T aut-num AS650", "aut-num", "AS650")
 
       when:
         def message = syncUpdate("""
-                aut-num:        AS550
+                aut-num:        AS650
                 as-name:        End-User-1
                 descr:          description
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -364,7 +512,7 @@ class AutNumAuthSpec extends BaseSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:      override1
+                override:      denis,override1
 
                 """.stripIndent()
         )
@@ -376,11 +524,11 @@ class AutNumAuthSpec extends BaseSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS550" }
-        ack.infoSuccessMessagesFor("Create", "[aut-num] AS550") == [
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS650" }
+        ack.infoSuccessMessagesFor("Create", "[aut-num] AS650") == [
                 "Authorisation override used"]
 
-        queryObject("-rBG -T aut-num AS550", "aut-num", "AS550")
+        queryObject("-rBG -T aut-num AS650", "aut-num", "AS650")
     }
 
     // Create aut-num, testing some elements of policy attrs
@@ -391,15 +539,15 @@ class AutNumAuthSpec extends BaseSpec {
     // we test AS 32 number as a part of the set name
     def "create aut-num, testing some elements of policy attrs"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
         def message = syncUpdate("""
-                aut-num:        AS250
+                aut-num:      AS250
                 as-name:      ASTEST
                 descr:        TEST TELEKOM
                 import:       from AS1 accept {1.2.3.4/24}
@@ -490,10 +638,10 @@ class AutNumAuthSpec extends BaseSpec {
     // we test AS 32 number as a part of the set name
     def "create aut-num, testing some more elements of policy attrs"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
@@ -546,20 +694,20 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, mix up import/export syntax"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
         def message = syncUpdate("""
                 aut-num:        AS250
-                as-name:      ASTEST
-                descr:        TEST TELEKOM
-                remarks:      following import is missing the 'and'
-                remarks:      from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
-                import:       from AS1 accept (AS65536 not AS7775535  AS1:as-myset:AS94967295:As-otherset)
+                as-name:        ASTEST
+                descr:          TEST TELEKOM
+                remarks:        following import is missing the 'and'
+                remarks:        from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
+                import:         from AS1 accept (AS65536 not AS7775535  AS1:as-myset:AS94967295:As-otherset)
                 import:         to AS1 announce ANY
                 import:         from AS1 announce ANY
                 import:         from AS1 accept FRED
@@ -602,10 +750,10 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, mp- attrs"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
@@ -613,6 +761,7 @@ class AutNumAuthSpec extends BaseSpec {
                 aut-num:        AS250
                 as-name:      ASTEST
                 descr:        TEST TELEKOM
+                status:       ASSIGNED
                 import:       from AS1 accept {1.2.3.4/24}
                 export:       to AS2 announce {1.2.3.4/24}
                 mp-import:    afi ipv4.unicast from AS1 accept ANY;
@@ -661,19 +810,20 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, import only"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
         def message = syncUpdate("""
                 aut-num:        AS250
-                as-name:      ASTEST
-                descr:        TEST TELEKOM
-                remarks:      following import is missing the 'and'
-                remarks:      from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
+                as-name:        ASTEST
+                descr:          TEST TELEKOM
+                status:         OTHER
+                remarks:        following import is missing the 'and'
+                remarks:        from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
                 import:         from AS1 accept ANY
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
@@ -694,7 +844,7 @@ class AutNumAuthSpec extends BaseSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
         queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
@@ -702,19 +852,19 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, export only"() {
       given:
-        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
         queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
 
       when:
         def message = syncUpdate("""
                 aut-num:        AS250
-                as-name:      ASTEST
-                descr:        TEST TELEKOM
-                remarks:      following import is missing the 'and'
-                remarks:      from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
+                as-name:        ASTEST
+                descr:          TEST TELEKOM
+                remarks:        following import is missing the 'and'
+                remarks:        from AS1 accept (AS65536 and not AS7775535 and AS1:as-myset:AS94967295:As-otherset)
                 export:         to AS1 announce AS2
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
@@ -743,19 +893,19 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create 32 bit aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS94967295", "aut-num", "AS94967295")
 
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        when:
+            def ack = syncUpdateWithResponse("""
                 aut-num:        AS94967295
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -775,8 +925,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -788,19 +936,19 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create max 32 bit aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS4294967295", "aut-num", "AS4294967295")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS4294967295
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
+                sponsoring-org: ORG-LIRA-TEST
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
@@ -816,8 +964,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -829,19 +975,19 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create highest 16 bit aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS65535", "aut-num", "AS65535")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        AS65535
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -861,8 +1007,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -874,19 +1018,19 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create lowest 16 bit aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS0", "aut-num", "AS0")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        As0
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -906,8 +1050,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -919,19 +1061,18 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num range"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS0 - AS1", "aut-num", "AS0 - AS1")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS0 - AS1
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -951,8 +1092,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -966,10 +1105,10 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create -ve aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS-1", "aut-num", "AS-1")
 
       when:
@@ -979,6 +1118,7 @@ class AutNumAuthSpec extends BaseSpec {
                 aut-num:        AS-1
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1013,10 +1153,10 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create leading 0 aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS01", "aut-num", "AS01")
 
       when:
@@ -1060,10 +1200,10 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num > 32 bit"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS01", "aut-num", "AS4294967299")
 
       when:
@@ -1107,10 +1247,10 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num AS2.3"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS2.3", "aut-num", "AS2.3")
 
       when:
@@ -1154,18 +1294,16 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, member-of, mbrs-by-ref"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: override1")
-        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
@@ -1187,8 +1325,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1200,12 +1336,12 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, member-of, mbrs-by-ref, syntax errors"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: override1")
-        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1253,18 +1389,16 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, member-of, mbrs-by-ref, wrong mntner"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: override1")
-        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS-SET") + "password: lir\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
@@ -1286,8 +1420,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -1301,18 +1433,16 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, member-of, no mbrs-by-ref"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS-SET-NO-REF") + "password: lir\noverride: override1")
-        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS-SET-NO-REF") + "password: lir\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
@@ -1334,8 +1464,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -1349,17 +1477,15 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, member-of, set does not exist"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS200", "aut-num", "AS200")
         queryObjectNotFound("-rGBT as-set as7775535:as-test:AS94967295", "as-set", "as7775535:as-test:AS94967295")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:        As200
                 as-name:        ASTEST
                 descr:          description
@@ -1381,8 +1507,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
@@ -1396,18 +1520,21 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "delete aut-num, RS auth"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+
+      expect:
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1425,8 +1552,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1438,9 +1563,11 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "delete aut-num, LIR auth"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+
+      expect:
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1450,6 +1577,9 @@ class AutNumAuthSpec extends BaseSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1482,24 +1612,24 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "delete aut-num, RS auth, referenced in route"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
-        syncUpdate(getTransient("ROUTE") + "override: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("ROUTE") + "override: denis,override1")
 
       expect:
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
         queryObject("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16")
         query_object_matches("-r -T route -i origin AS200", "route", "20.13.0.0/16", "origin:\\s*AS200")
-//        println "*************\n${aaa}\n************\n"
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1511,14 +1641,11 @@ class AutNumAuthSpec extends BaseSpec {
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
-
                 password:   nccend
                 """.stripIndent()
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1531,23 +1658,24 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "delete aut-num, RS auth, referenced in other aut-num"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
-        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
-        syncUpdate(getTransient("AS300") + "password: dbm\noverride: override1")
-        queryObject("-rGBT aut-num AS300", "aut-num", "AS300")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS300") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
+        queryObject("-rGBT aut-num AS300", "aut-num", "AS300")
         query_object_matches("-r -T aut-num AS300", "aut-num", "AS300", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1565,8 +1693,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1579,20 +1705,23 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "delete aut-num, RS auth, referenced in as-set"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS-SET-200") + "password: lir\noverride: denis,override1")
+
+      expect:
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
-        syncUpdate(getTransient("AS-SET-200") + "password: lir\noverride: override1")
         query_object_matches("-rGBT as-set AS7775535:AS-TEST", "as-set", "AS7775535:AS-TEST", "AS200")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+          def ack = syncUpdateWithResponse("""
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1610,8 +1739,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -1624,9 +1751,11 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "modify aut-num, LIR auth"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+
+      expect:
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1636,6 +1765,8 @@ class AutNumAuthSpec extends BaseSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1664,11 +1795,14 @@ class AutNumAuthSpec extends BaseSpec {
         query_object_matches("-rGBT aut-num AS200", "aut-num", "AS200", "just added")
     }
 
+    
     def "modify aut-num, LIR auth, remove RS mntner"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
+        syncUpdate(getTransient("AS200") + "password: dbm\noverride: denis,override1")
+
+      expect:
         queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
-        syncUpdate(getTransient("AS200") + "password: dbm\noverride: override1")
         queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
 
       when:
@@ -1678,6 +1812,8 @@ class AutNumAuthSpec extends BaseSpec {
                 aut-num:        AS200
                 as-name:        ASTEST
                 descr:          description
+                status:         ASSIGNED
+                sponsoring-org: ORG-LIRA-TEST
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
                 mp-import:      afi ipv6.unicast from AS1 accept ANY
@@ -1709,10 +1845,10 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create aut-num, (mp-)import/export/default have invalid AS values"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS0", "aut-num", "AS0")
 
       when:
@@ -1722,6 +1858,7 @@ class AutNumAuthSpec extends BaseSpec {
                 aut-num:        As0
                 as-name:        End-User-1
                 descr:          description
+                status:         OTHER
                 import:         from AS01 accept ANY
                 import:         from AS2.1 accept ANY
                 import:         from AS7777777234 accept ANY
@@ -1746,6 +1883,7 @@ class AutNumAuthSpec extends BaseSpec {
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS17777777234:As-otherset)
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS777.234:As-otherset)
                 mp-default:     to AS1 networks (AS65565 and not AS7775535 and AS01:as-myset:AS077234:As-otherset)
+                remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                 org:            ORG-OTO1-TEST
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
@@ -1799,19 +1937,18 @@ class AutNumAuthSpec extends BaseSpec {
 
     def "create very long aut-num, no org ref"() {
       given:
-        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: override1")
-        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
+        syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
 
       expect:
+        queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")
         queryObjectNotFound("-rBG -T aut-num AS702", "aut-num", "AS702")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 aut-num:      AS702
                 as-name:      AS702
                 descr:        ISP
+                status:       OTHER
                 import:       from AS72 194.98.169.195 at 194.98.169.196 accept AS72
                 import:       from AS109 213.53.49.50 at 213.53.49.49 accept AS109
                 import:       from AS137 194.242.224.15 at 194.242.224.18 accept AS-FOO1
@@ -1933,7 +2070,7 @@ class AutNumAuthSpec extends BaseSpec {
                 import:       from AS2486 194.68.129.238 at 194.68.129.236 accept AS-FOO27
                 import:       from AS2529 195.66.224.13 at 195.66.224.16 accept AS-FOO28
                 import:       from AS2578 146.188.65.230 at 146.188.65.229 accept AS-FOO29 AS-FOO30
-                import:       from AS2603 193.10.252.5 at 146.188.1.40 accept AS-FOO31
+                import:       from AS2503 193.10.252.5 at 146.188.1.40 accept AS-FOO31
                 import:       from AS2611 194.53.172.65 at 194.53.172.78 accept AS-FOO32
                 import:       from AS2611 193.148.15.43 at 193.148.15.98 accept AS-FOO32
                 import:       from AS2647 146.188.35.22 at 146.188.35.21 accept AS2647
@@ -2512,8 +2649,6 @@ class AutNumAuthSpec extends BaseSpec {
         )
 
       then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -2521,6 +2656,1658 @@ class AutNumAuthSpec extends BaseSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS702" }
 
         queryObject("-rBG -T aut-num AS702", "aut-num", "AS702")
+    }
+
+    
+    def "create aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, RS pw, not on legacy list"() {
+        given:
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+
+        expect:
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          description
+                status:         ASSIGNED
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   nccend
+                password:   hm
+                password:   owner3
+                """.stripIndent()
+            )
+
+        then:
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
+
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
+    }
+
+    def "create aut-num, ripe as-block, with mnt-by RS and LIR, no status, RS pw, not on legacy list"() {
+        given:
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+
+        expect:
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-rBG -T aut-num AS260", "aut-num", "AS260")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                aut-num:        AS260
+                as-name:        End-User-1
+                descr:          description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   nccend
+                password:   hm
+                password:   owner3
+                """.stripIndent()
+            )
+
+        then:
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS260" }
+
+            query_object_matches("-rBG -T aut-num AS260", "aut-num", "AS260", "status:\\s*OTHER")
+    }
+
+    
+    def "create aut-num, ripe as-block, with mnt-by RS and LIR, status LEGACY, RS pw, not on legacy list"() {
+        given:
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+
+        expect:
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          description
+                status:         LEGACY
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   nccend
+                password:   hm
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
+            ack.warningSuccessMessagesFor("Create", "[aut-num] AS250") ==
+                    ["Supplied attribute 'status' has been replaced with a generated value"]
+
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
+    }
+
+    
+    def "create aut-num, ripe as-block, with mnt-by RS and LIR, status OTHER, RS pw, not on legacy list"() {
+        given:
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+
+        expect:
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            queryObjectNotFound("-rBG -T aut-num AS250", "aut-num", "AS250")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   nccend
+                password:   hm
+                password:   owner3
+                """.stripIndent()
+            )
+
+        then:
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
+            ack.warningSuccessMessagesFor("Create", "[aut-num] AS250") ==
+                    ["Supplied attribute 'status' has been replaced with a generated value"]
+
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "create aut-num, ripe as-block, with mnt-by LIR, status ASSIGNED, override, on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS12557 - AS13223", "as-block", "AS12557 - AS13223")
+        queryObjectNotFound("-rBG -T aut-num AS12666", "aut-num", "AS12666")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS12666
+                as-name:        End-User-1
+                descr:          description
+                status:         ASSIGNED
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS12666" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS12666") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+    }
+
+    
+    def "create aut-num, ripe as-block, with mnt-by LIR, no status, override, on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS12557 - AS13223", "as-block", "AS12557 - AS13223")
+        queryObjectNotFound("-rBG -T aut-num AS12666", "aut-num", "AS12666")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS12666
+                as-name:        End-User-1
+                descr:          description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS12666" }
+
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
+    }
+
+    
+    def "create aut-num, ripe as-block, with mnt-by LIR, status LEGACY, override, on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS12557 - AS13223", "as-block", "AS12557 - AS13223")
+        queryObjectNotFound("-rBG -T aut-num AS12666", "aut-num", "AS12666")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS12666
+                as-name:        End-User-1
+                descr:          description
+                status:         LEGACY
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS12666" }
+
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
+    }
+
+    
+    def "create aut-num, ripe as-block, with mnt-by LIR, status OTHER, override, on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS12557 - AS13223", "as-block", "AS12557 - AS13223")
+        queryObjectNotFound("-rBG -T aut-num AS12666", "aut-num", "AS12666")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS12666
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS12666" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS12666") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+    }
+
+    
+    def "create aut-num, apnic as-block, with mnt-by LIR, status ASSIGNED, LIR pw, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
+        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS444
+                as-name:        End-User-1
+                descr:          description
+                status:         ASSIGNED
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                password:   rpsl
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS444") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
+    }
+
+    def "create aut-num, apnic as-block, with mnt-by LIR, no status, LIR pw, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
+        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS444
+                as-name:        End-User-1
+                descr:          description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                password:   rpsl
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
+
+        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
+    }
+
+    
+    def "create aut-num, apnic as-block, with mnt-by LIR, status LEGACY, LIR pw, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
+        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS444
+                as-name:        End-User-1
+                descr:          description
+                status:         LEGACY
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                password:   rpsl
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
+        ack.warningSuccessMessagesFor("Create", "[aut-num] AS444") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
+    }
+
+    def "create aut-num, apnic as-block, with mnt-by LIR, status OTHER, LIR pw, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
+        queryObjectNotFound("-rBG -T aut-num AS444", "aut-num", "AS444")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS444
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                password:   rpsl
+                password:   owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS444" }
+
+        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, RS pw, not on legacy list"() {
+        given:
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+            syncUpdate(getTransient("AS250") + "override: denis,override1")
+
+        expect:
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          updated description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   nccend
+                """.stripIndent()
+            )
+
+        then:
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
+            ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
+                    ["\"status:\" attribute cannot be removed"]
+
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, LIR pw, not on legacy list"() {
+        given:
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+            syncUpdate(getTransient("AS250") + "override: denis,override1")
+
+        expect:
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                """.stripIndent()
+        )
+
+        then:
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
+            ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
+                    ["\"status:\" attribute cannot be removed"]
+
+            query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, override, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+        syncUpdate(getTransient("AS250") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          new description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
+                ["\"status:\" attribute cannot be removed"]
+
+        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, remove status, LIR pw, on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
+        syncUpdate(getTransient("AS12666") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS12557 - AS13223", "as-block", "AS12557 - AS13223")
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS12666
+                as-name:        End-User-1
+                descr:          new description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
+                ["\"status:\" attribute cannot be removed"]
+
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, remove status, override, on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
+        syncUpdate(getTransient("AS12666") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS12557 - AS13223", "as-block", "AS12557 - AS13223")
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS12666
+                as-name:        End-User-1
+                descr:          new description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
+                ["\"status:\" attribute cannot be removed"]
+
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+    }
+
+    
+    def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, remove status, LIR pw, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
+        syncUpdate(getTransient("AS444") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
+        query_object_not_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*LEGACY")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS444
+                as-name:        End-User-1
+                descr:          description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
+                ["\"status:\" attribute cannot be removed"]
+
+        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
+    }
+
+    
+    def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, remove status, override, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
+        syncUpdate(getTransient("AS444") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
+        query_object_not_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*LEGACY")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS444
+                as-name:        End-User-1
+                descr:          description
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
+                ["\"status:\" attribute cannot be removed"]
+
+        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add ASSIGNED, RS pw, not on legacy list"() {
+        given:
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+
+        expect:
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          new description
+                status:         ASSIGNED
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   nccend
+                """.stripIndent()
+            )
+
+        then:
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 0, 0)
+            ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
+
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add LEGACY, RS pw, not on legacy list"() {
+        given:
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+
+        expect:
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description
+                status:         LEGACY
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   nccend
+                """.stripIndent()
+            )
+
+        then:
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
+            ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
+                    ["Supplied attribute 'status' has been replaced with a generated value"]
+
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add OTHER, RS pw, not on legacy list"() {
+        given:
+            syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+
+        expect:
+            queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   nccend
+                """.stripIndent()
+            )
+
+        then:
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
+            ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
+            ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
+                    ["Supplied attribute 'status' has been replaced with a generated value"]
+
+            query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add ASSIGNED, override, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description
+                status:         ASSIGNED
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
+
+        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add LEGACY, override, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description
+                status:         LEGACY
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add OTHER, override, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS251
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by LIR, no status, add ASSIGNED, override, on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
+        databaseHelper.addObject("" +
+                "aut-num:        AS12666\n" +
+                "as-name:        End-User-1\n" +
+                "descr:          new description\n" +
+                "status:         ASSIGNED\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "org:            ORG-OTO1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         LIR-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST")
+
+        expect:
+        queryObject("-rGBT as-block AS12557 - AS13223", "as-block", "AS12557 - AS13223")
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS12666
+                as-name:        End-User-1
+                descr:          new description
+                status:         ASSIGNED
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+    }
+
+    def "modify aut-num, ripe as-block, with mnt-by LIR, no status, add OTHER, override, on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
+        databaseHelper.addObject("" +
+                "aut-num:        AS12666\n" +
+                "as-name:        End-User-1\n" +
+                "descr:          description\n" +
+                "status:         LEGACY\n" +
+                "import:         from AS1 accept ANY\n" +
+                "export:         to AS1 announce AS2\n" +
+                "mp-import:      afi ipv6.unicast from AS1 accept ANY\n" +
+                "mp-export:      afi ipv6.unicast to AS1 announce AS2\n" +
+                "org:            ORG-OTO1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         LIR-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "source:         TEST")
+
+        expect:
+        queryObject("-rGBT as-block AS12557 - AS13223", "as-block", "AS12557 - AS13223")
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS12666
+                as-name:        End-User-1
+                descr:          description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+    }
+
+    
+    def "modify aut-num, apnic as-block, with mnt-by LIR, no status, add ASSIGNED, override, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
+        query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS445
+                as-name:        End-User-1
+                descr:          description
+                status:         ASSIGNED
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS445" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS445") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
+    }
+
+    
+    def "modify aut-num, apnic as-block, with mnt-by LIR, no status, add LEGACY, override, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
+        query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS445
+                as-name:        End-User-1
+                descr:          new description
+                status:         LEGACY
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS445" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS445") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
+    }
+
+    def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, change to LEGACY, LIR pw, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+        syncUpdate(getTransient("AS250") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          new description
+                status:         LEGACY
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, change to OTHER, LIR pw, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
+        syncUpdate(getTransient("AS250") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
+        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS250
+                as-name:        End-User-1
+                descr:          new description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
+    }
+
+    
+    def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, change to ASSIGNED, LIR pw, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
+        syncUpdate(getTransient("AS444") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
+        query_object_not_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*LEGACY")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS444
+                as-name:        End-User-1
+                descr:          description
+                status:         ASSIGNED
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
+    }
+
+    
+    def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, change to LEGACY, LIR pw, not on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
+        syncUpdate(getTransient("AS444") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS444 - AS555", "as-block", "AS444 - AS555")
+        query_object_not_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*LEGACY")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS444
+                as-name:        End-User-1
+                descr:          other description
+                status:         LEGACY
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to ASSIGNED, LIR pw, on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
+        syncUpdate(getTransient("AS12666") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS12557 - AS13223", "as-block", "AS12557 - AS13223")
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS12666
+                as-name:        End-User-1
+                descr:          other description
+                status:         ASSIGNED
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to OTHER, LIR pw, on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
+        syncUpdate(getTransient("AS12666") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS12557 - AS13223", "as-block", "AS12557 - AS13223")
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                aut-num:        AS12666
+                as-name:        End-User-1
+                descr:          new description
+                status:         OTHER
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
+        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
+                ["Supplied attribute 'status' has been replaced with a generated value"]
+
+        query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
+    }
+
+    
+    def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to ASSIGNED, add mnt-by RS, override, no longer on legacy list"() {
+        given:
+        syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
+        syncUpdate(getTransient("AS12668") + "override: denis,override1")
+
+        expect:
+        queryObject("-rGBT as-block AS12557 - AS13223", "as-block", "AS12557 - AS13223")
+        query_object_matches("-rBG -T aut-num AS12668", "aut-num", "AS12668", "status:\\s*LEGACY")
+
+        when:
+        def message = syncUpdate("""
+                aut-num:        AS12668
+                as-name:        End-User-1
+                descr:          description
+                status:         LEGACY
+                import:         from AS1 accept ANY
+                export:         to AS1 announce AS2
+                mp-import:      afi ipv6.unicast from AS1 accept ANY
+                mp-export:      afi ipv6.unicast to AS1 announce AS2
+                org:            ORG-OTO1-TEST
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         RIPE-NCC-END-MNT
+                mnt-by:         LIR-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override:   denis,override1
+
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12668" }
+
+        query_object_matches("-rBG -T aut-num AS12668", "aut-num", "AS12668", "status:\\s*LEGACY")
     }
 
 }

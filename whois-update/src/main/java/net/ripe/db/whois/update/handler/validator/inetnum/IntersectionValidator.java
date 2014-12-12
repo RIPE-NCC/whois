@@ -1,9 +1,9 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.domain.IpInterval;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.etree.Interval;
+import net.ripe.db.whois.common.ip.Interval;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.IpTree;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
@@ -14,7 +14,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import org.apache.commons.lang.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -53,7 +52,11 @@ public class IntersectionValidator implements BusinessRuleValidator {
 
     private void validateIntersections(final PreparedUpdate update, final UpdateContext updateContext, final IpInterval ipInterval, final IpTree ipTree) {
         final List<IpEntry> parent = ipTree.findFirstLessSpecific(ipInterval);
-        Validate.notEmpty(parent, "Should always have a parent");
+
+        if (parent.size() != 1) {
+            updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipInterval));
+            return;
+        }
 
         Interval firstIntersecting = null;
         final List<IpEntry> childEntries = ipTree.findFirstMoreSpecific((IpInterval) parent.get(0).getKey());

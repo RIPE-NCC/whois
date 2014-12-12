@@ -1,20 +1,20 @@
 package net.ripe.db.whois.common.domain;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
 
 @Component
 public class Maintainers {
     private final Set<CIString> powerMaintainers;
     private final Set<CIString> enduserMaintainers;
+    private final Set<CIString> legacyMaintainers;
     private final Set<CIString> allocMaintainers;
     private final Set<CIString> rsMaintainers;
     private final Set<CIString> enumMaintainers;
@@ -24,26 +24,19 @@ public class Maintainers {
     public Maintainers(
             @Value("${whois.maintainers.power}") final String[] powerMaintainers,
             @Value("${whois.maintainers.enduser}") final String[] enduserMaintainers,
+            @Value("${whois.maintainers.legacy}") final String[] legacyMaintainers,
             @Value("${whois.maintainers.alloc}") final String[] allocMaintainers,
             @Value("${whois.maintainers.enum}") final String[] enumMaintainers,
             @Value("${whois.maintainers.dbm}") final String[] dbmMaintainers) {
 
-        this.powerMaintainers = createMaintainerSet(powerMaintainers);
-        this.enduserMaintainers = createMaintainerSet(enduserMaintainers);
-        this.allocMaintainers = createMaintainerSet(allocMaintainers);
-        this.enumMaintainers = createMaintainerSet(enumMaintainers);
-        this.dbmMaintainers = createMaintainerSet(dbmMaintainers);
+        this.powerMaintainers = ciImmutableSet(powerMaintainers);
+        this.enduserMaintainers = ciImmutableSet(enduserMaintainers);
+        this.legacyMaintainers = ciImmutableSet(legacyMaintainers);
+        this.allocMaintainers = ciImmutableSet(allocMaintainers);
+        this.enumMaintainers = ciImmutableSet(enumMaintainers);
+        this.dbmMaintainers = ciImmutableSet(dbmMaintainers);
 
-        this.rsMaintainers = Sets.newLinkedHashSet(Iterables.concat(this.powerMaintainers, this.enduserMaintainers, this.allocMaintainers));
-    }
-
-    private static Set<CIString> createMaintainerSet(final String[] maintainers) {
-        final Set<CIString> maintainerSet = Sets.newLinkedHashSetWithExpectedSize(maintainers.length);
-        for (final String maintainer : maintainers) {
-            maintainerSet.add(ciString(maintainer));
-        }
-
-        return Collections.unmodifiableSet(maintainerSet);
+        this.rsMaintainers = ImmutableSet.copyOf(Iterables.concat(this.powerMaintainers, this.enduserMaintainers, this.legacyMaintainers, this.allocMaintainers));
     }
 
     public Set<CIString> getPowerMaintainers() {
@@ -52,6 +45,10 @@ public class Maintainers {
 
     public Set<CIString> getEnduserMaintainers() {
         return enduserMaintainers;
+    }
+
+    public Set<CIString> getLegacyMaintainers() {
+        return legacyMaintainers;
     }
 
     public Set<CIString> getAllocMaintainers() {

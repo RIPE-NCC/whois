@@ -30,6 +30,7 @@ public class SourceContextTest {
     final String grsSourceNames = "RIPE-GRS,APNIC-GRS";
     final String nrtmSourceNames = "NRTM-GRS";
     final String grsSourceNamesForDummification = "RIPE-GRS";
+    final String grsSourceNamesToTagRoutes = "RIPE-GRS";
     final String grsMasterBaseUrl = "jdbc://localhost/master";
     final String whoisMasterUsername = "masterUser";
     final String whoisMasterPassword = "masterPw";
@@ -46,12 +47,13 @@ public class SourceContextTest {
     public void setUp() throws Exception {
         when(dataSourceFactory.createDataSource(anyString(), anyString(), anyString())).thenReturn(grsDataSource);
 
-        subject = new SourceContext(
+        subject = new DefaultSourceContext(
                 mainSourceNameString,
                 additionalSourceNames,
                 grsSourceNames,
                 nrtmSourceNames,
                 grsSourceNamesForDummification,
+                grsSourceNamesToTagRoutes,
                 grsMasterBaseUrl,
                 whoisMasterUsername,
                 whoisMasterPassword,
@@ -110,12 +112,13 @@ public class SourceContextTest {
     public void invalidAdditionalSource() {
         final String invalidAdditionalSource = "INVALID";
         try {
-            new SourceContext(
+            new DefaultSourceContext(
                 mainSourceNameString,
                 invalidAdditionalSource,
                 grsSourceNames,
                 nrtmSourceNames,
                 grsSourceNamesForDummification,
+                grsSourceNamesToTagRoutes,
                 grsMasterBaseUrl,
                 whoisMasterUsername,
                 whoisMasterPassword,
@@ -135,12 +138,13 @@ public class SourceContextTest {
     @Test
     public void noAdditionalSources() {
         final String noAdditionalSources = "";
-        subject = new SourceContext(
+        subject = new DefaultSourceContext(
             mainSourceNameString,
             noAdditionalSources,
             grsSourceNames,
             nrtmSourceNames,
             grsSourceNamesForDummification,
+            grsSourceNamesToTagRoutes,
             grsMasterBaseUrl,
             whoisMasterUsername,
             whoisMasterPassword,

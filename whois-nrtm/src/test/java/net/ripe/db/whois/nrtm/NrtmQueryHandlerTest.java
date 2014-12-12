@@ -58,11 +58,10 @@ public class NrtmQueryHandlerTest {
         when(channelMock.isOpen()).thenReturn(true);
         when(channelMock.write(any())).thenReturn(channelFutureMock);
         when(serialDaoMock.getSerials()).thenReturn(new SerialRange(1, 2));
-
-        when(serialDaoMock.getById(1)).thenReturn(new SerialEntry(Operation.UPDATE, true, 1, 1000, 1000, inetnum.toByteArray()));
+        when(serialDaoMock.getByIdForNrtm(1)).thenReturn(new SerialEntry(Operation.UPDATE, true, 1, 1000, 1000, inetnum.toByteArray()));
         when(dummifierMock.isAllowed(NrtmServer.NRTM_VERSION, inetnum)).thenReturn(true);
         when(dummifierMock.dummify(NrtmServer.NRTM_VERSION, inetnum)).thenReturn(inetnum);
-        when(serialDaoMock.getById(2)).thenReturn(new SerialEntry(Operation.UPDATE, true, 2, 1000, 1000, person.toByteArray()));
+        when(serialDaoMock.getByIdForNrtm(2)).thenReturn(new SerialEntry(Operation.UPDATE, true, 2, 1000, 1000, person.toByteArray()));
         when(dummifierMock.isAllowed(NrtmServer.NRTM_VERSION, person)).thenReturn(false);
 
         when(mySchedulerMock.scheduleAtFixedRate(any(Runnable.class), anyLong())).thenAnswer(new Answer<ScheduledFuture<?>>() {
@@ -75,7 +74,7 @@ public class NrtmQueryHandlerTest {
         });
 
         subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, UPDATE_INTERVAL);
-        subject.PENDING_WRITES.set(channelMock, new AtomicInteger());
+        NrtmQueryHandler.PENDING_WRITES.set(channelMock, new AtomicInteger());
     }
 
     @Test
@@ -180,7 +179,7 @@ public class NrtmQueryHandlerTest {
 
     @Test
     public void gFlagRequestOutOfDateSerial() {
-        when(serialDaoMock.getSerialAge(1)).thenReturn(NrtmQueryHandler.HISTORY_AGE_LIMIT + 1);
+        when(serialDaoMock.getAgeOfExactOrNextExistingSerial(1)).thenReturn(Integer.valueOf(NrtmQueryHandler.HISTORY_AGE_LIMIT + 1));
         when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-2");
 
         try {
@@ -211,7 +210,7 @@ public class NrtmQueryHandlerTest {
 
     @Test
     public void throttleChannelKeepaliveQuery() {
-        subject.PENDING_WRITES.set(channelMock, new AtomicInteger(subject.MAX_PENDING_WRITES + 1));
+        NrtmQueryHandler.PENDING_WRITES.set(channelMock, new AtomicInteger(NrtmQueryHandler.MAX_PENDING_WRITES + 1));
 
         when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-LAST -k");
 

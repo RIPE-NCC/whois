@@ -7,15 +7,12 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 @Immutable
-public class OverrideCredential implements Credential {
-    private static final Splitter OVERRIDE_SPLITTER = Splitter.on(',').limit(3);
-    private static final String DEFAULT_USER_1 = "dbase1";
-    private static final String DEFAULT_USER_2 = "dbase2";
+public final class OverrideCredential implements Credential {
+    private static final Splitter OVERRIDE_SPLITTER = Splitter.on(',').trimResults().limit(3);
 
     private final String value;
     private final Set<UsernamePassword> possibleCredentials;
@@ -64,26 +61,18 @@ public class OverrideCredential implements Credential {
 
         String remarks = "";
         final Set<UsernamePassword> possibleCredentials;
-        if (values.isEmpty()) {
+        if (values.size() < 2) {
             possibleCredentials = Collections.emptySet();
         } else {
             possibleCredentials = Sets.newLinkedHashSet();
-            if (values.size() > 1) {
-                final String username = values.get(0);
-                final String password = values.get(1);
-                if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
-                    possibleCredentials.add(new UsernamePassword(username, password));
-                }
-
-                if (values.size() > 2) {
-                    remarks = values.get(2);
-                }
+            final String username = values.get(0);
+            final String password = values.get(1);
+            if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+                possibleCredentials.add(new UsernamePassword(username, password));
             }
 
-            final String password = values.get(0);
-            if (StringUtils.isNotEmpty(password)) {
-                possibleCredentials.add(new UsernamePassword(DEFAULT_USER_1, password));
-                possibleCredentials.add(new UsernamePassword(DEFAULT_USER_2, password));
+            if (values.size() > 2) {
+                remarks = values.get(2);
             }
         }
 

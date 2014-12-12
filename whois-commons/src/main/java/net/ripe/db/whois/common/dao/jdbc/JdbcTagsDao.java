@@ -97,10 +97,16 @@ public class JdbcTagsDao implements TagsDao {
     }
 
     @Override
-    public void deleteTagsOfType(CIString type) {
+    public void deleteOrphanedTags() {
+        jdbcTemplate.update("DELETE tags FROM tags LEFT OUTER JOIN last ON last.object_id = tags.object_id WHERE last.sequence_id = 0");
+    }
+
+    @Override
+    public void deleteTagsOfType(final CIString type) {
         jdbcTemplate.update("DELETE FROM tags WHERE tag_id = ?", type.toString());
     }
 
+    // TODO: use updatetags wherever possible; rebuilding every time takes a lot of resources (think replication!)
     @Override
     @Transactional
     public void rebuild(final CIString type, final List<Tag> tags) {

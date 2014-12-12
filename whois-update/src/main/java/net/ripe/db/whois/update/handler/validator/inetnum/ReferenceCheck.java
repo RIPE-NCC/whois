@@ -5,12 +5,13 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.attrs.InetStatus;
-import net.ripe.db.whois.common.domain.attrs.OrgType;
+import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
+import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -46,7 +47,7 @@ public class ReferenceCheck implements BusinessRuleValidator {
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (update.isOverride()) {
+        if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
             return;
         }
 

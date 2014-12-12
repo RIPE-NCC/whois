@@ -35,12 +35,11 @@ class JdbcExportDao implements ExportDao {
         JdbcStreamingHelper.executeStreaming(jdbcTemplate,
                 "SELECT object_id, object " +
                         "FROM last " +
-                        "WHERE sequence_id != 0 " +
-                        "AND object_type != 100",
+                        "WHERE sequence_id != 0 ",
                 new ExportRowCallbackHandler(exportCallbackHandler));
     }
 
-    private static class ExportRowCallbackHandler implements RowCallbackHandler {
+    private static final class ExportRowCallbackHandler implements RowCallbackHandler {
         private final ExportCallbackHandler exportCallbackHandler;
 
         private ExportRowCallbackHandler(final ExportCallbackHandler exportCallbackHandler) {
@@ -54,7 +53,7 @@ class JdbcExportDao implements ExportDao {
             try {
                 object = RpslObject.parse(objectId, rs.getBytes(2));
             } catch (RuntimeException e) {
-                LOGGER.warn("Unable to parse RPSL object with id: {}", objectId);
+                LOGGER.warn("Unable to parse RPSL object with object_id: {}, {}", objectId, e.toString());
             }
 
             if (object != null) {

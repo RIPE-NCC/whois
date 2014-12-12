@@ -9,7 +9,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-class RpslAttributes implements ResponseObject {
+// TODO: [AH] this should be moved to RpslObjectBuilder
+public class RpslAttributes implements ResponseObject {
     private final Iterable<RpslAttribute> attributes;
 
     public RpslAttributes(final Iterable<RpslAttribute> attributes) {
@@ -41,5 +42,9 @@ class RpslAttributes implements ResponseObject {
     @Override
     public String toString() {
         return new String(toByteArray(), Charsets.UTF_8);
+    }
+
+    public Iterable<RpslAttribute> getAttributes() {
+        return attributes;
     }
 }

@@ -1,26 +1,27 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
-public class Result {
-    private int success = 0, fail = 0;
-    private final StringBuilder text = new StringBuilder();
+import java.util.concurrent.atomic.AtomicInteger;
 
-    public void addSuccess(int pass) {
-        if (pass > 1) success++;
+public class Result {
+    private AtomicInteger success = new AtomicInteger(0);
+    private AtomicInteger fail = new AtomicInteger(0);
+    private final StringBuffer text = new StringBuffer();
+
+    public void addSuccess() {
+        success.incrementAndGet();
     }
 
-    public void addFail(int pass, String reason) {
-        if (pass > 1) {
-            fail++;
-            text.append(reason);
-        }
+    public void addFail(String reason) {
+        text.append(reason);
+        fail.incrementAndGet();
     }
 
     public int getSuccess() {
-        return success;
+        return success.get();
     }
 
     public int getFail() {
-        return fail;
+        return fail.get();
     }
 
     public void addText(String text) {

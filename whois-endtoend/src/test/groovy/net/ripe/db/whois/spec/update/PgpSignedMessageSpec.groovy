@@ -1,14 +1,16 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-import spec.domain.Message
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 
-class PgpSignedMessageSpec extends BaseSpec{
+@org.junit.experimental.categories.Category(IntegrationTest.class)
+class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {
         [
-            "PGP-KEYCERT-ONE": """\
+                "PGP-KEYCERT-ONE": """\
                 key-cert:     PGPKEY-EBEEB05E
                 method:       PGP
                 owner:        Test Person1 <noreply1@ripe.net>
@@ -37,7 +39,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 changed:      tp1@3ripe.net 20010713
                 source:       TEST
                 """,
-            "PGP-KEYCERT-TWO": """\
+                "PGP-KEYCERT-TWO": """\
                 key-cert:     PGPKEY-44AF2B48
                 method:       PGP
                 owner:        Test Person2 <noreply2@ripe.net>
@@ -66,7 +68,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 changed:      tp2@3ripe.net 20010713
                 source:       TEST
                 """,
-            "TST-MNT-NEW": """\
+                "TST-MNT-NEW"    : """\
                 mntner:      TST-MNT-NEW
                 descr:       MNTNER for test
                 admin-c:     TP1-TEST
@@ -77,7 +79,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
-            "TEST-DBM-MNT": """\
+                "TEST-DBM-MNT"   : """\
                 mntner:       TEST-DBM-MNT
                 descr:        Mntner for RIPE DBM objects.
                 admin-c:      TP1-TEST
@@ -89,7 +91,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-            "IRT-TEST": """\
+                "IRT-TEST"       : """\
                 irt:          IRT-TEST
                 address:      Singel 258
                 e-mail:       dbtest@ripe.net
@@ -105,13 +107,14 @@ class PgpSignedMessageSpec extends BaseSpec{
                 changed:      dbtest@ripe.net 20030201
                 source:       TEST
                 """
-    ]}
+        ]
+    }
 
     def "create mntr authorized by PGP-Key"() {
         given:
-            syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
+        syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
         expect:
-            queryObject("-r -T key-cert PGPKEY-EBEEB05E","key-cert","PGPKEY-EBEEB05E")
+        queryObject("-r -T key-cert PGPKEY-EBEEB05E", "key-cert", "PGPKEY-EBEEB05E")
         when:
         def message = send new Message(
                 subject: "",
@@ -139,14 +142,14 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Create" && it.key == "[mntner] TST-MNT-NEW"}
+        ack.successes.any { it.operation == "Create" && it.key == "[mntner] TST-MNT-NEW" }
 
         queryObject("-rBT mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
     }
 
     def "create mntr authorized by a non-existing PGP-Key"() {
         expect:
-            queryObjectNotFound("-r -T key-cert PGPKEY-EBEEB05E","key-cert","PGPKEY-EBEEB05E")
+        queryObjectNotFound("-r -T key-cert PGPKEY-EBEEB05E", "key-cert", "PGPKEY-EBEEB05E")
         when:
         def message = send new Message(
                 subject: "",
@@ -174,8 +177,8 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any {it.operation == "Create" && it.key == "[mntner] TST-MNT-NEW"}
-        ack.errorMessagesFor("Create","[mntner] TST-MNT-NEW") == ["Unknown object referenced PGPKEY-EBEEB05E"]
+        ack.errors.any { it.operation == "Create" && it.key == "[mntner] TST-MNT-NEW" }
+        ack.errorMessagesFor("Create", "[mntner] TST-MNT-NEW") == ["Unknown object referenced PGPKEY-EBEEB05E"]
         queryObjectNotFound("-rBT mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
     }
 
@@ -196,7 +199,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 referral-by:  TST-MNT
                 changed:      dbtest@ripe.net 20130110
                 source:       TEST
-                override:     override1
+                override:     denis,override1
 
 
                 -----BEGIN PGP SIGNATURE-----
@@ -219,18 +222,18 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any {it.operation == "Create" && it.key == "[mntner] TEST-DBM-MNT"}
+        ack.successes.any { it.operation == "Create" && it.key == "[mntner] TEST-DBM-MNT" }
 
         queryObject("-rBT mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT")
     }
 
     def "modify mntr authorized by PGP-Key"() {
         given:
-            syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
-            syncUpdate(getTransient("TST-MNT-NEW") + "password:test")
+        syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
+        syncUpdate(getTransient("TST-MNT-NEW") + "password:test")
         expect:
-            queryObject("-r -T key-cert PGPKEY-EBEEB05E","key-cert","PGPKEY-EBEEB05E")
-            queryObject("-r -T mntner TST-MNT-NEW","mntner","TST-MNT-NEW")
+        queryObject("-r -T key-cert PGPKEY-EBEEB05E", "key-cert", "PGPKEY-EBEEB05E")
+        queryObject("-r -T mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
         when:
         def message = send new Message(
                 subject: "",
@@ -258,18 +261,18 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT-NEW"}
+        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-MNT-NEW" }
 
         queryObject("-rBT mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
     }
 
     def "create mntr authorized by multiple auth values"() {
         given:
-            syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
-            syncUpdate(getTransient("PGP-KEYCERT-TWO") + "password:test2")
+        syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
+        syncUpdate(getTransient("PGP-KEYCERT-TWO") + "password:test2")
         expect:
-            queryObject("-r -T key-cert PGPKEY-EBEEB05E","key-cert","PGPKEY-EBEEB05E")
-            queryObject("-r -T key-cert PGPKEY-44AF2B48","key-cert","PGPKEY-44AF2B48")
+        queryObject("-r -T key-cert PGPKEY-EBEEB05E", "key-cert", "PGPKEY-EBEEB05E")
+        queryObject("-r -T key-cert PGPKEY-44AF2B48", "key-cert", "PGPKEY-44AF2B48")
         when:
         def message = send new Message(
                 subject: "",
@@ -298,16 +301,16 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Create" && it.key == "[mntner] TST-MNT-NEW"}
+        ack.successes.any { it.operation == "Create" && it.key == "[mntner] TST-MNT-NEW" }
 
         queryObject("-rBT mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
     }
 
     def "modify mntner using override using pgp key with wrong pgp signature"() {
         given:
-            syncUpdate(getTransient("TEST-DBM-MNT") + "password:test")
+        syncUpdate(getTransient("TEST-DBM-MNT") + "password:test")
         expect:
-            queryObject("-r -T mntner TEST-DBM-MNT","mntner","TEST-DBM-MNT")
+        queryObject("-r -T mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT")
         when:
         def update = syncUpdate(
                 """\
@@ -324,7 +327,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 referral-by:  TST-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:     override1
+                override:     denis,override1
 
                 -----BEGIN PGP SIGNATURE-----
                 Version: GnuPG v1.2.2 (GNU/Linux)
@@ -345,16 +348,16 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TEST-DBM-MNT"}
+        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TEST-DBM-MNT" }
 
         queryObject("-rBT mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT")
     }
 
     def "modify mntner using override using pgp key with right pgp signature"() {
         given:
-            syncUpdate(getTransient("TEST-DBM-MNT") + "password:test")
+        syncUpdate(getTransient("TEST-DBM-MNT") + "password:test")
         expect:
-            queryObject("-r -T mntner TEST-DBM-MNT","mntner","TEST-DBM-MNT")
+        queryObject("-r -T mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT")
         when:
         def update = syncUpdate(
                 """\
@@ -371,7 +374,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 referral-by:  TST-MNT2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                override:     override1
+                override:     denis,override1
 
 
                 -----BEGIN PGP SIGNATURE-----
@@ -393,18 +396,18 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TEST-DBM-MNT"}
+        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TEST-DBM-MNT" }
 
-        query_object_matches("-rBT mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT","referral-by:\\s*TST-MNT2")
+        query_object_matches("-rBT mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT", "referral-by:\\s*TST-MNT2")
     }
 
     def "create irt using pgp key using override"() {
         given:
-            syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
-            syncUpdate(getTransient("PGP-KEYCERT-TWO") + "password:test2")
+        syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
+        syncUpdate(getTransient("PGP-KEYCERT-TWO") + "password:test2")
         expect:
-            queryObject("-r -T key-cert PGPKEY-EBEEB05E","key-cert","PGPKEY-EBEEB05E")
-            queryObject("-r -T key-cert PGPKEY-44AF2B48","key-cert","PGPKEY-44AF2B48")
+        queryObject("-r -T key-cert PGPKEY-EBEEB05E", "key-cert", "PGPKEY-EBEEB05E")
+        queryObject("-r -T key-cert PGPKEY-44AF2B48", "key-cert", "PGPKEY-44AF2B48")
         when:
         def update = syncUpdate(
                 """\
@@ -422,7 +425,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 notify:              dbtest@ripe.net
                 changed:             dbtest@ripe.net
                 source:              TEST
-                override:            override1
+                override:            denis,override1
                 """.stripIndent()
         )
 
@@ -434,20 +437,20 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any {it.operation == "Create" && it.key == "[irt] IRT-REQUEST"}
+        ack.successes.any { it.operation == "Create" && it.key == "[irt] IRT-REQUEST" }
 
         queryObject("-rBT irt IRT-REQUEST", "irt", "IRT-REQUEST")
     }
 
     def "modify irt using pgp key using override"() {
         given:
-            syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
-            syncUpdate(getTransient("PGP-KEYCERT-TWO") + "password:test2")
-            syncUpdate(getTransient("IRT-TEST") + "password:test")
+        syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
+        syncUpdate(getTransient("PGP-KEYCERT-TWO") + "password:test2")
+        syncUpdate(getTransient("IRT-TEST") + "password:test")
         expect:
-            queryObject("-r -T key-cert PGPKEY-EBEEB05E","key-cert","PGPKEY-EBEEB05E")
-            queryObject("-r -T key-cert PGPKEY-44AF2B48","key-cert","PGPKEY-44AF2B48")
-            queryObject("-r -T irt IRT-TEST","irt","IRT-TEST")
+        queryObject("-r -T key-cert PGPKEY-EBEEB05E", "key-cert", "PGPKEY-EBEEB05E")
+        queryObject("-r -T key-cert PGPKEY-44AF2B48", "key-cert", "PGPKEY-44AF2B48")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
         when:
         def update = syncUpdate(
                 """\
@@ -465,7 +468,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                 changed:      dbtest@ripe.net 20030101
                 changed:      dbtest@ripe.net 20030201
                 source:       TEST
-                override:     override1
+                override:     denis,override1
                 """.stripIndent()
         )
 
@@ -477,7 +480,7 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any {it.operation == "Modify" && it.key == "[irt] IRT-TEST"}
+        ack.successes.any { it.operation == "Modify" && it.key == "[irt] IRT-TEST" }
 
         queryObject("-rBT irt IRT-TEST", "irt", "IRT-TEST")
     }
@@ -512,8 +515,8 @@ class PgpSignedMessageSpec extends BaseSpec{
         syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
         syncUpdate(getTransient("TST-MNT-NEW") + "password:test")
         expect:
-        queryObject("-r -T key-cert PGPKEY-EBEEB05E","key-cert","PGPKEY-EBEEB05E")
-        queryObject("-r -T mntner TST-MNT-NEW","mntner","TST-MNT-NEW")
+        queryObject("-r -T key-cert PGPKEY-EBEEB05E", "key-cert", "PGPKEY-EBEEB05E")
+        queryObject("-r -T mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
         when:
         def update = syncUpdate(
                 """\
@@ -568,14 +571,14 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(1, 0, 0, 1)
         ack.countErrorWarnInfo(1, 0, 0)
 
-        ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT-NEW"}
-        ack.errors.any {it.operation == "Delete" && it.key == "[key-cert] PGPKEY-EBEEB05E"}
+        ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-MNT-NEW" }
+        ack.errors.any { it.operation == "Delete" && it.key == "[key-cert] PGPKEY-EBEEB05E" }
 
-        ack.errorMessagesFor("Delete","[key-cert] PGPKEY-EBEEB05E")  == ["Object [key-cert] PGPKEY-EBEEB05E is referenced from other objects"]
+        ack.errorMessagesFor("Delete", "[key-cert] PGPKEY-EBEEB05E") == ["Object [key-cert] PGPKEY-EBEEB05E is referenced from other objects"]
         queryObject("-rBT mntner TST-MNT-NEW", "mntner", "TST-MNT-NEW")
     }
 
-    def "delete key-cert object that doesnot match existing object"() {
+    def "delete key-cert object that differs in generated attributes only"() {
         when:
         def update = syncUpdate(
                 """\
@@ -633,15 +636,14 @@ class PgpSignedMessageSpec extends BaseSpec{
         def ack = new AckResponse("", update)
 
         ack.summary.nrFound == 2
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 0, 1)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.summary.assertSuccess(2, 1, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.successes.any {it.operation == "Create" && it.key == "[key-cert] PGPKEY-D8F37DA3"}
-        ack.errors.any {it.operation == "Delete" && it.key == "[key-cert] PGPKEY-D8F37DA3"}
+        ack.successes.any { it.operation == "Create" && it.key == "[key-cert] PGPKEY-D8F37DA3" }
+        ack.successes.any { it.operation == "Delete" && it.key == "[key-cert] PGPKEY-D8F37DA3" }
 
-        ack.errorMessagesFor("Delete","[key-cert] PGPKEY-D8F37DA3")  == ["Object [key-cert] PGPKEY-D8F37DA3 doesn't match version in database"]
-        queryObject("-rBT key-cert PGPKEY-D8F37DA3", "key-cert", "PGPKEY-D8F37DA3")
+        queryObjectNotFound("-rBT key-cert PGPKEY-D8F37DA3", "key-cert", "PGPKEY-D8F37DA3")
     }
 
     def "delete key-cert object that does match existing object"() {
@@ -692,8 +694,8 @@ class PgpSignedMessageSpec extends BaseSpec{
                 certif:         AJsEYkdtXwMM69Nd+JWsiEk+48ns3w==
                 certif:         =3+2Y
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
-                mnt-by:         TST-MNT
                 changed:        dbtest@ripe.net 20020101
+                mnt-by:         TST-MNT
                 source:         TEST
                 delete: test delete
 
@@ -708,15 +710,15 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.successes.any {it.operation == "Create" && it.key == "[key-cert] PGPKEY-D8F37DA3"}
-        ack.successes.any {it.operation == "Delete" && it.key == "[key-cert] PGPKEY-D8F37DA3"}
+        ack.successes.any { it.operation == "Create" && it.key == "[key-cert] PGPKEY-D8F37DA3" }
+        ack.successes.any { it.operation == "Delete" && it.key == "[key-cert] PGPKEY-D8F37DA3" }
 
         queryObjectNotFound("-rBT key-cert PGPKEY-D8F37DA3", "key-cert", "PGPKEY-D8F37DA3")
     }
 
     def "create PGP-Key with mutiple public keys"() {
         expect:
-            queryObjectNotFound("-rBT key-cert PGPKEY-459F13C1", "key-cert", "PGPKEY-459F13C1")
+        queryObjectNotFound("-rBT key-cert PGPKEY-459F13C1", "key-cert", "PGPKEY-459F13C1")
         when:
         def message = send new Message(
                 subject: "",
@@ -890,7 +892,7 @@ class PgpSignedMessageSpec extends BaseSpec{
                               UZC5I3Dd5jRvdPYYOBdFDBxKXjF25+2jTMRF
                               =4TVE
                               -----END PGP PUBLIC KEY BLOCK-----
-                mnt-by:       owner-MNT
+                mnt-by:       TST-MNT
                 changed:      bit-bucket@ripe.net
                 source:       TEST
 
@@ -907,8 +909,8 @@ class PgpSignedMessageSpec extends BaseSpec{
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any {it.operation == "Create" && it.key == "[key-cert] PGPKEY-459F13C1"}
-        ack.errorMessagesFor("Create","[key-cert] PGPKEY-459F13C1") == ["The supplied object has multiple keys"]
+        ack.errors.any { it.operation == "Create" && it.key == "[key-cert] PGPKEY-459F13C1" }
+        ack.errorMessagesFor("Create", "[key-cert] PGPKEY-459F13C1") == ["The supplied object has multiple keys"]
         queryObjectNotFound("-rBT key-cert PGPKEY-459F13C1", "key-cert", "PGPKEY-459F13C1")
     }
 }

@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
@@ -21,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
@@ -49,11 +51,13 @@ public class MessageDequeueTest {
     @Mock UpdateRequestHandler messageHandler;
     @Mock LoggerContext loggerContext;
     @Mock UpdateLog updateLog;
+    @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks MessageDequeue subject;
 
     @Before
     public void setUp() throws Exception {
-        subject.setNrThreads(1);
+        ReflectionTestUtils.setField(subject, "nrThreads", 1);
+        ReflectionTestUtils.setField(subject, "intervalMs", 1);
         when(maintenanceMode.allowUpdate()).thenReturn(true);
     }
 

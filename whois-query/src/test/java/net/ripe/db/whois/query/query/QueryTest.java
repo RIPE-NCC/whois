@@ -3,16 +3,29 @@ package net.ripe.db.whois.query.query;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.Set;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class QueryTest {
     private Query subject;
@@ -45,14 +58,12 @@ public class QueryTest {
         assertTrue(subject.isProxyValid());
         assertTrue(subject.isReturningReferencedObjects());
         assertThat(subject.getSearchValue(), is("foo"));
-        assertThat(subject.queryLength(), is(3));
     }
 
     @Test
     public void query_with_space() {
         parse("foo ");
         assertThat(subject.getSearchValue(), is("foo"));
-        assertThat(subject.queryLength(), is(3));
     }
 
     @Test
@@ -110,7 +121,7 @@ public class QueryTest {
 
     @Test
     public void has_ip_flags() {
-        final Set<QueryFlag> flags = Sets.newHashSet(QueryFlag.ABUSE_CONTACT, QueryFlag.REVERSE_DOMAIN);
+        final Set<QueryFlag> flags = Sets.newHashSet(QueryFlag.REVERSE_DOMAIN);
         for (final Query.MatchOperation matchOperation : Query.MatchOperation.values()) {
             if (matchOperation.getQueryFlag() != null) {
                 flags.add(matchOperation.getQueryFlag());
@@ -129,28 +140,28 @@ public class QueryTest {
     public void match_operations_default_inetnum() {
         parse("-T inetnum 10.0.0.0");
 
-        assertThat(subject.matchOperations(), hasSize(0));
+        assertNull(subject.matchOperation());
     }
 
     @Test
     public void match_operations_default_inet6num() {
         parse("-T inet6num ::0/0");
 
-        assertThat(subject.matchOperations(), hasSize(0));
+        assertNull(subject.matchOperation());
     }
 
     @Test
     public void match_operations_no_default_for_maintainer() {
         parse("-T mntner foo");
 
-        assertThat(subject.matchOperations(), hasSize(0));
+        assertNull(subject.matchOperation());
     }
 
     @Test
     public void match_operations_empty() {
         parse("foo");
 
-        assertThat(subject.matchOperations(), hasSize(0));
+        assertNull(subject.matchOperation());
     }
 
     @Test
@@ -217,6 +228,14 @@ public class QueryTest {
     public void single_type() {
         parse("-T aut-num AS1");
         assertTrue(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.AUT_NUM));
+    }
+
+    @Test
+    public void empty_types() {
+        parse("TEST-DBM-MNT");
+        assertThat(subject.getSuppliedObjectTypes(), hasSize(0));
+        assertThat(subject.getObjectTypes(), not(hasSize(0)));
     }
 
     @Test
@@ -224,22 +243,30 @@ public class QueryTest {
         parse("-T aut-num,iNet6nUM,iNETnUm foo");
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INET6NUM));
-        assertTrue(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertFalse(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.getSuppliedObjectTypes(), containsInAnyOrder(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM));
     }
 
     @Test
     public void multiple_types_with_empty_element() {
         parse("-T aut-num,,iNETnUm foo");
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
+        assertFalse(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.getSuppliedObjectTypes(), containsInAnyOrder(ObjectType.AUT_NUM, ObjectType.INETNUM));
+
+        parse("-T aut-num,,iNETnUm as112");
+        assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
         assertTrue(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.getSuppliedObjectTypes(), containsInAnyOrder(ObjectType.AUT_NUM, ObjectType.INETNUM));
     }
 
     @Test
     public void short_types_casing() {
         parse("-T in,rT,An foo");
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
-        assertTrue(subject.hasObjectTypeFilter(ObjectType.ROUTE));
-        assertTrue(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertFalse(subject.hasObjectTypeFilter(ObjectType.ROUTE));
+        assertFalse(subject.hasObjectTypeFilter(ObjectType.AUT_NUM));
+        assertThat(subject.getSuppliedObjectTypes(), containsInAnyOrder(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.ROUTE));
     }
 
     @Test
@@ -257,6 +284,7 @@ public class QueryTest {
         parse("-Tinetnum dont_care");
 
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
+        assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.INETNUM));
     }
 
     @Test
@@ -264,6 +292,7 @@ public class QueryTest {
         parse("-T  inetnum dont_care");
 
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
+        assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.INETNUM));
     }
 
     @Test
@@ -272,6 +301,7 @@ public class QueryTest {
 
         assertFalse(subject.isReturningReferencedObjects());
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
+        assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.INETNUM));
     }
 
     @Test
@@ -280,6 +310,7 @@ public class QueryTest {
 
         assertFalse(subject.isReturningReferencedObjects());
         assertTrue(subject.hasObjectTypeFilter(ObjectType.INETNUM));
+        assertThat(subject.getSuppliedObjectTypes(), contains(ObjectType.INETNUM));
     }
 
     @Test
@@ -328,25 +359,6 @@ public class QueryTest {
         assertEquals("-r -GBTinetnum dont_care", subject.toString());
     }
 
-    @SuppressWarnings({"EqualsBetweenInconvertibleTypes", "ObjectEqualsNull"})
-    @Test
-    public void equals_hashcode() {
-        parse("-Tperson Truus");
-
-        assertTrue(subject.equals(subject));
-        assertThat(subject.hashCode(), is(subject.hashCode()));
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals(2L));
-
-        Query differentQuery = parseWithNewline("-Tperson joost");
-        assertFalse(subject.equals(differentQuery));
-        assertThat(subject.hashCode(), not(is(differentQuery.hashCode())));
-
-        Query sameQuery = parseWithNewline("-Tperson Truus");
-        assertTrue(subject.equals(sameQuery));
-        assertThat(subject.hashCode(), is(sameQuery.hashCode()));
-    }
-
     @Test
     public void only_keep_alive_flag_specified() {
         parse("-k\r");
@@ -387,7 +399,7 @@ public class QueryTest {
         assertThat(query.isInverse(), is(true));
         assertThat(query.getAttributeTypes(), containsInAnyOrder(AttributeType.MNT_BY));
         assertThat(query.getSearchValue(), is("aardvark-mnt"));
-        assertThat(query.matchOperations(), hasSize(0));
+        assertNull(query.matchOperation());
     }
 
     @Test
@@ -397,7 +409,7 @@ public class QueryTest {
         assertThat(query.isInverse(), is(true));
         assertThat(query.getAttributeTypes(), containsInAnyOrder(AttributeType.MNT_BY));
         assertThat(query.getSearchValue(), is("aardvark-mnt"));
-        assertThat(query.matchOperations(), hasSize(0));
+        assertNull(query.matchOperation());
     }
 
     @Test
@@ -482,16 +494,6 @@ public class QueryTest {
     @Test(expected = QueryException.class)
     public void multiple_proxies() {
         Query.parse("-V ripews,188.111.4.162   -V 85.25.132.61");
-    }
-
-    @Test
-    public void max_elements_exceeded() {
-        try {
-            Query.parse("a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a a ");
-            fail("Expected query exception");
-        } catch (QueryException e) {
-            assertThat(e.getMessage(), is(QueryMessages.malformedQuery().toString()));
-        }
     }
 
     @Test
@@ -638,13 +640,13 @@ public class QueryTest {
     @Test
     public void isBrief() {
         Query query = Query.parse("-b 10.0.0.0");
-        assertThat(query.isBrief(), is(true));
+        assertThat(query.isBriefAbuseContact(), is(true));
     }
 
     @Test
     public void isBrief_forces_grouping_and_irt() {
         Query query = Query.parse("-b -C 10.0.0.0");
-        assertThat(query.isBrief(), is(true));
+        assertThat(query.isBriefAbuseContact(), is(true));
         assertThat(query.isGrouping(), is(false));
         assertThat(query.isReturningIrt(), is(true));
     }
@@ -652,7 +654,7 @@ public class QueryTest {
     @Test
     public void not_isBrief() {
         Query query = Query.parse("foo");
-        assertThat(query.isBrief(), is(false));
+        assertThat(query.isBriefAbuseContact(), is(false));
     }
 
     @Test
@@ -783,7 +785,7 @@ public class QueryTest {
             Query.parse("...");
             fail("Expected exception");
         } catch (QueryException e) {
-            assertThat(e.getMessages(), contains(QueryMessages.unsupportedQuery()));
+            assertThat(e.getMessages(), contains(QueryMessages.invalidSearchKey()));
         }
     }
 
@@ -811,17 +813,18 @@ public class QueryTest {
     }
 
     @Test
-    public void allow_only_k_and_V_options_for_version_queries() {
+    public void allow_only_k_T_and_V_options_for_version_queries() {
         final String[] validQueries = {
-            "--show-version 1 AS12 -k",
-            "--show-version 1 AS12 -V fred",
-            "--show-version 1 AS12 -k -V fred",
-            "--list-versions AS12 -k -V fred",
-            "--list-versions AS12 -V fred",
-            "--list-versions AS12 -k",
-            "--diff-versions 1:2 AS12",
-            "--diff-versions 1:2 AS12 -k",
-            "--diff-versions 1:2 AS12 -V fred"
+                "--show-version 1 AS12 -k",
+                "--show-version 1 AS12 -V fred",
+                "--show-version 1 AS12 -k -V fred",
+                "--list-versions AS12 -k -V fred",
+                "--list-versions AS12 -V fred",
+                "--list-versions AS12 -k",
+                "--diff-versions 1:2 AS12",
+                "--diff-versions 1:2 AS12 -k",
+                "--diff-versions 1:2 AS12 -V fred",
+                "--show-version 1 AS12 -T aut-num",
         };
 
         for (String query : validQueries) {
@@ -829,14 +832,13 @@ public class QueryTest {
         }
 
         final String[] invalidQueries = {
-            "--show-version 1 AS12 -T aut-num",
-            "--show-version 1 AS12 -B",
-            "--list-versions AS12 -G",
-            "--list-versions AS12 -V fred --no-tag-info",
-            "--list-versions AS12 -k --show-version 1 AS12",
-            "--diff-versions 1:2 AS12 -k --show-version 1",
-            "--diff-versions 1:2 AS12 -B",
-            "--diff-versions 1:2 AS12 -V fred --no-tag-info"
+                "--show-version 1 AS12 -B",
+                "--list-versions AS12 -G",
+                "--list-versions AS12 -V fred --no-tag-info",
+                "--list-versions AS12 -k --show-version 1 AS12",
+                "--diff-versions 1:2 AS12 -k --show-version 1",
+                "--diff-versions 1:2 AS12 -B",
+                "--diff-versions 1:2 AS12 -V fred --no-tag-info"
         };
 
         for (String query : invalidQueries) {
@@ -929,10 +931,7 @@ public class QueryTest {
         final Query query = Query.parse("--resource 10.0.0.0");
         assertThat(query.getObjectTypes(), contains(
                 ObjectType.INETNUM,
-                ObjectType.INET6NUM,
-                ObjectType.AUT_NUM,
                 ObjectType.ROUTE,
-                ObjectType.ROUTE6,
                 ObjectType.DOMAIN));
     }
 
@@ -940,6 +939,12 @@ public class QueryTest {
     public void grs_search_types_specified_single() {
         final Query query = Query.parse("--resource -Tinetnum 10.0.0.0");
         assertThat(query.getObjectTypes(), contains(ObjectType.INETNUM));
+    }
+
+    @Test
+    public void inverse_query_should_not_filter_object_types() {
+        final Query query = Query.parse("-i nic-hdl 10.0.0.1");
+        assertThat(query.getObjectTypes(), hasSize(21));
     }
 
     @Test

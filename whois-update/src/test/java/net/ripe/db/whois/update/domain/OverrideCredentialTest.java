@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.Set;
 
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -22,14 +23,7 @@ public class OverrideCredentialTest {
     public void parse_one_value() {
         final OverrideCredential overrideCredential = OverrideCredential.parse("password");
 
-        assertThat(overrideCredential.toString(), is("password"));
-
-        final Set<OverrideCredential.UsernamePassword> possibleCredentials = overrideCredential.getPossibleCredentials();
-        assertThat(possibleCredentials, containsInAnyOrder(
-                new OverrideCredential.UsernamePassword("dbase1", "password"),
-                new OverrideCredential.UsernamePassword("dbase2", "password")));
-
-        assertThat(overrideCredential.getRemarks(), is(""));
+        assertTrue(overrideCredential.getPossibleCredentials().isEmpty());
     }
 
     @Test
@@ -39,10 +33,8 @@ public class OverrideCredentialTest {
         assertThat(overrideCredential.toString(), is("user,password"));
 
         final Set<OverrideCredential.UsernamePassword> possibleCredentials = overrideCredential.getPossibleCredentials();
-        assertThat(possibleCredentials, containsInAnyOrder(
-                new OverrideCredential.UsernamePassword("user", "password"),
-                new OverrideCredential.UsernamePassword("dbase1", "user"),
-                new OverrideCredential.UsernamePassword("dbase2", "user")));
+        assertThat(possibleCredentials, hasSize(1));
+        assertThat(possibleCredentials, containsInAnyOrder(new OverrideCredential.UsernamePassword("user", "password")));
 
         assertThat(overrideCredential.getRemarks(), is(""));
     }
@@ -54,10 +46,8 @@ public class OverrideCredentialTest {
         assertThat(overrideCredential.toString(), is("user,password,remarks"));
 
         final Set<OverrideCredential.UsernamePassword> possibleCredentials = overrideCredential.getPossibleCredentials();
-        assertThat(possibleCredentials, containsInAnyOrder(
-                new OverrideCredential.UsernamePassword("user", "password"),
-                new OverrideCredential.UsernamePassword("dbase1", "user"),
-                new OverrideCredential.UsernamePassword("dbase2", "user")));
+        assertThat(possibleCredentials, hasSize(1));
+        assertThat(possibleCredentials, containsInAnyOrder(new OverrideCredential.UsernamePassword("user", "password")));
 
         assertThat(overrideCredential.getRemarks(), is("remarks"));
     }
@@ -69,10 +59,8 @@ public class OverrideCredentialTest {
         assertThat(overrideCredential.toString(), is("user,password,remarks, and some more"));
 
         final Set<OverrideCredential.UsernamePassword> possibleCredentials = overrideCredential.getPossibleCredentials();
-        assertThat(possibleCredentials, containsInAnyOrder(
-                new OverrideCredential.UsernamePassword("user", "password"),
-                new OverrideCredential.UsernamePassword("dbase1", "user"),
-                new OverrideCredential.UsernamePassword("dbase2", "user")));
+        assertThat(possibleCredentials, hasSize(1));
+        assertThat(possibleCredentials, containsInAnyOrder(new OverrideCredential.UsernamePassword("user", "password")));
 
         assertThat(overrideCredential.getRemarks(), is("remarks, and some more"));
     }

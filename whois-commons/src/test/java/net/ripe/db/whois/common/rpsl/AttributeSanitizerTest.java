@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.rpsl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.domain.CIString;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,24 +22,43 @@ public class AttributeSanitizerTest {
     @InjectMocks AttributeSanitizer attributeSanitizer;
 
     @Test
-    public void transform_domain_no_not() {
+    public void transform_domain_no_dot() {
         final RpslObject rpslObject = RpslObject.parse("domain:          17.45.212.in-addr.arpa");
 
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
+        assertThat(result.getKey().toString(), is("17.45.212.in-addr.arpa"));
         assertThat(result.getValueForAttribute(AttributeType.DOMAIN).toString(), is("17.45.212.in-addr.arpa"));
 
         verifyZeroInteractions(objectMessages);
     }
 
     @Test
-    public void transform_domain_with_not() {
+    public void transform_key_domain_no_dot() {
+        final RpslObject rpslObject = RpslObject.parse("domain:          17.45.212.in-addr.arpa");
+
+        final CIString result = attributeSanitizer.sanitizeKey(rpslObject);
+        assertThat(result.toString(), is("17.45.212.in-addr.arpa"));
+    }
+
+    @Test
+    public void transform_domain_with_trailing_dot() {
         final RpslObject rpslObject = RpslObject.parse("domain:          17.45.212.in-addr.arpa.");
 
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
+        assertThat(result.getKey().toString(), is("17.45.212.in-addr.arpa"));
         assertThat(result.getValueForAttribute(AttributeType.DOMAIN).toString(), is("17.45.212.in-addr.arpa"));
+
         verify(objectMessages).addMessage(result.getTypeAttribute(), ValidationMessages.attributeValueConverted("17.45.212.in-addr.arpa.", "17.45.212.in-addr.arpa"));
 
         verifyNoMoreInteractions(objectMessages);
+    }
+
+    @Test
+    public void transform_keys_domain_with_trailing_dot() {
+        final RpslObject rpslObject = RpslObject.parse("domain:          17.45.212.in-addr.arpa.");
+
+        final CIString result = attributeSanitizer.sanitizeKey(rpslObject);
+        assertThat(result.toString(), is("17.45.212.in-addr.arpa"));
     }
 
     @Test
@@ -117,6 +137,7 @@ public class AttributeSanitizerTest {
 
         verifyZeroInteractions(objectMessages);
     }
+
 
     @Test
     public void transform_inetnum_leading_zeroes() {
@@ -298,6 +319,7 @@ public class AttributeSanitizerTest {
                 "route:           212.166.64.0/19\n" +
                 "origin:          AS12321");
 
+
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
         assertThat(result.getValueForAttribute(AttributeType.ROUTE).toString(), is("212.166.64.0/19"));
 
@@ -419,6 +441,18 @@ public class AttributeSanitizerTest {
     }
 
     @Test
+    public void transform_key_inetrtr_no_dot() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "inet-rtr:          test.ripe.net\n" +
+                "alias:          alias.ripe.net");
+
+        final CIString result = attributeSanitizer.sanitizeKey(rpslObject);
+        assertThat(result.toString(), is("test.ripe.net"));
+
+        verifyNoMoreInteractions(objectMessages);
+    }
+
+    @Test
     public void transform_inetrtr_with_trailing_dot() {
         final RpslObject rpslObject = RpslObject.parse("" +
                 "inet-rtr:          test.ripe.net.\n" +
@@ -427,6 +461,18 @@ public class AttributeSanitizerTest {
         final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
         assertThat(result.getValueForAttribute(AttributeType.INET_RTR).toString(), is("test.ripe.net"));
         verify(objectMessages).addMessage(result.findAttribute(AttributeType.INET_RTR), ValidationMessages.attributeValueConverted("test.ripe.net.", "test.ripe.net"));
+
+        verifyNoMoreInteractions(objectMessages);
+    }
+
+    @Test
+    public void transform_key_inetrtr_with_trailing_dot() {
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "inet-rtr:          test.ripe.net.\n" +
+                "alias:          alias.ripe.net");
+
+        final CIString result = attributeSanitizer.sanitizeKey(rpslObject);
+        assertThat(result.toString(), is("test.ripe.net"));
 
         verifyNoMoreInteractions(objectMessages);
     }
@@ -478,5 +524,13 @@ public class AttributeSanitizerTest {
         verify(objectMessages).addMessage(result.findAttribute(AttributeType.NIC_HDL), ValidationMessages.remarksReformatted());
 
         verifyNoMoreInteractions(objectMessages);
+    }
+
+    @Test
+    public void transform_source_to_upper() {
+        final RpslObject rpslObject = RpslObject.parse("person: Person A\nnic-hdl: tst-test\nsource: Test");
+        final RpslObject result = attributeSanitizer.sanitize(rpslObject, objectMessages);
+
+        assertThat(result.findAttribute(AttributeType.SOURCE).getValue(), is("TEST"));
     }
 }

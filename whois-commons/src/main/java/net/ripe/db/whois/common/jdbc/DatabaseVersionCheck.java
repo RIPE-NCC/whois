@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.jdbc;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -16,7 +17,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -30,8 +30,8 @@ import java.util.regex.Pattern;
 @DeployedProfile
 public class DatabaseVersionCheck {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseVersionCheck.class);
-    static final Pattern RESOURCE_MATCHER = Pattern.compile("(?i)^([a-z]+)-([0-9.]+)$");
-    static final Splitter VERSION_SPLITTER = Splitter.on('.').omitEmptyStrings();
+    static final Pattern RESOURCE_MATCHER = Pattern.compile("(?i)^([a-z]+)-([0-9.-]+)$");
+    static final Splitter VERSION_SPLITTER = Splitter.on(CharMatcher.anyOf(".-")).omitEmptyStrings();
 
     private final ApplicationContext applicationContext;
     @Value("${application.version}")
@@ -67,9 +67,8 @@ public class DatabaseVersionCheck {
 
     public Iterable<String> getSqlPatchResources() throws IOException {
         return Iterables.transform(Arrays.asList(applicationContext.getResources("patch/*-*.*.sql")), new Function<Resource, String>() {
-            @Nullable
             @Override
-            public String apply(@Nullable Resource input) {
+            public String apply(final Resource input) {
                 final String ret = input.getFilename();
                 if (ret.endsWith(".sql")) {
                     return ret.substring(0, ret.length() - 4);
@@ -129,13 +128,13 @@ public class DatabaseVersionCheck {
     }
 
     public void checkDatabase(Iterable<String> resources, String dataSourceName, String dbVersion) {
-        Matcher dbVersionMatcher = RESOURCE_MATCHER.matcher(dbVersion);
+        final Matcher dbVersionMatcher = RESOURCE_MATCHER.matcher(dbVersion);
         if (!dbVersionMatcher.matches()) {
             throw new IllegalStateException("Invalid version: " + dbVersion);
         }
 
         for (String resource : resources) {
-            Matcher resourceMatcher = RESOURCE_MATCHER.matcher(resource);
+            final Matcher resourceMatcher = RESOURCE_MATCHER.matcher(resource);
             if (!resourceMatcher.matches()) continue;
             if (!dbVersionMatcher.group(1).equals(resourceMatcher.group(1))) continue;
 

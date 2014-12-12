@@ -2,7 +2,7 @@ package net.ripe.db.whois.nrtm.integration;
 
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import org.junit.After;
 import org.junit.Before;
@@ -34,28 +34,28 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void versionQuery() throws Exception {
-        final String response = DummyWhoisClient.query(NrtmServer.port, "-q version");
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q version");
 
         assertThat(response, containsString("% nrtm-server"));
     }
 
     @Test
     public void sourcesQuery() throws Exception {
-        final String response = DummyWhoisClient.query(NrtmServer.port, "-q sources");
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
 
         assertThat(response, containsString("TEST:3:X:0-0"));
     }
 
     @Test
     public void emptyQuery() throws Exception {
-        final String response = DummyWhoisClient.query(NrtmServer.port, "\n");
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "\n");
 
         assertThat(response, containsString("no flags passed"));
     }
 
     @Test
     public void queryKeepaliveNoPreExistingObjects() throws Exception {
-        final String response = DummyWhoisClient.query(NrtmServer.port, "-g TEST:3:1-2 -k", (updateInterval + 1) * 1000);
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-2 -k", (updateInterval + 1) * 1000);
 
         assertThat(response, containsString("%ERROR:401: invalid range"));
     }
@@ -63,7 +63,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     @Test
     public void queryKeepAliveNoPreExistingObjectsOneNewObject() throws Exception {
         databaseHelper.addObject(RpslObject.parse("mntner:test"));
-        DummyNrtmClient client = new DummyNrtmClient(NrtmServer.port, "-g TEST:3:1-1 -k", (updateInterval + 1));
+        AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST:3:1-1 -k", (updateInterval + 1));
 
         client.start();
         databaseHelper.addObject(RpslObject.parse("mntner:keepalive"));
@@ -75,7 +75,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     @Test
     public void queryKeepAliveOnePreExistingObjectsOneNewObject() throws Exception {
         databaseHelper.addObject(RpslObject.parse("mntner:testmntner\nmnt-by:testmntner"));
-        DummyNrtmClient client = new DummyNrtmClient(NrtmServer.port, "-g TEST:3:1-LAST -k", (updateInterval + 1));
+        AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST:3:1-LAST -k", (updateInterval + 1));
 
         client.start();
         super.databaseHelper.addObject(RpslObject.parse("mntner:keepalive"));
@@ -89,7 +89,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     public void mirrorQueryOneSerialEntry() throws Exception {
         databaseHelper.addObject("aut-num:AS4294967207");
 
-        final String response = DummyWhoisClient.query(NrtmServer.port, "-g TEST:3:1-1");
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-1");
 
         assertThat(response, containsString("AS4294967207"));
     }
@@ -100,7 +100,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE");
         databaseHelper.addObject("mntner:DEV-MNT");
 
-        final String response = DummyWhoisClient.query(NrtmServer.port, "-g TEST:3:1-3");
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-3");
 
         assertThat(response, containsString("ADD 1"));
         assertThat(response, containsString("AS4294967207"));
@@ -114,7 +114,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     public void mirrorQueryOutofRange() throws Exception {
         databaseHelper.addObject("aut-num:AS4294967207");
 
-        final String response = DummyWhoisClient.query(NrtmServer.port, "-g TEST:3:2-4");
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:2-4");
 
         assertThat(response, containsString("invalid range: Not within 1-1"));
     }
@@ -125,7 +125,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE");
         databaseHelper.addObject("mntner:DEV-MNT");
 
-        final String response = DummyWhoisClient.query(NrtmServer.port, "-g TEST:3:1-LAST");
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
 
         assertThat(response, containsString("ADD 3"));
         assertThat(response, containsString("DEV-MNT"));
@@ -134,22 +134,24 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     @Test
     public void mirrorQueryLegacyStillAvailable() throws Exception {
         databaseHelper.addObject("" +
-                "role: Denis Walker\n" +
-                "nic-hdl: DW-RIPE\n" +
+                "role:          Denis Walker\n" +
+                "nic-hdl:       DW-RIPE\n" +
                 "abuse-mailbox: abuse@ripe.net\n" +
-                "e-mail: test@ripe.net");
+                "e-mail:        test@ripe.net\n" +
+                "source:        TEST");
 
-        final String legacyResponse = DummyWhoisClient.query(NrtmServer.legacyPort, "-g TEST:3:1-LAST");
+        final String legacyResponse = TelnetWhoisClient.queryLocalhost(NrtmServer.getLegacyPort(), "-g TEST:3:1-LAST");
 
         assertThat(legacyResponse, containsString("remarks:        * THIS OBJECT IS MODIFIED"));
 
-        final String response = DummyWhoisClient.query(NrtmServer.port, "-g TEST:3:1-LAST");
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
 
         assertThat(response, not(containsString("remarks:        * THIS OBJECT IS MODIFIED")));
         assertThat(response, containsString("" +
                 "role:           Denis Walker\n" +
                 "nic-hdl:        DW-RIPE\n" +
                 "abuse-mailbox:  abuse@ripe.net\n" +
-                "e-mail:         ***@ripe.net"));
+                "e-mail:         ***@ripe.net\n" +
+                "source:         TEST"));
     }
 }

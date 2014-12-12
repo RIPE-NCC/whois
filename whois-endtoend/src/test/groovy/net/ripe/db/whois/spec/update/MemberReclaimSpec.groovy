@@ -1,9 +1,12 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
 
-class MemberReclaimSpec extends BaseSpec {
+@org.junit.experimental.categories.Category(IntegrationTest.class)
+class MemberReclaimSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {
         [
@@ -223,6 +226,7 @@ class MemberReclaimSpec extends BaseSpec {
             "AS10000": """\
                 aut-num:     AS10000
                 as-name:     TEST-AS
+                status:      OTHER
                 descr:       Testing Authorisation code
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
@@ -233,6 +237,7 @@ class MemberReclaimSpec extends BaseSpec {
             "AS20000": """\
                 aut-num:     AS20000
                 as-name:     TEST-AS
+                status:      OTHER
                 descr:       Testing Authorisation code
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
@@ -257,8 +262,8 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ASSIGNED PA using mnt-lower of ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // ALLOC-PA
@@ -300,8 +305,8 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ASSIGNED PA using mnt-by of ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // ALLOC-PA
@@ -343,8 +348,8 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ASSIGNED PA using mnt-routes of ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // ALLOC-PA
@@ -390,8 +395,8 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ASSIGNED PA using mnt-domains of ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // ALLOC-PA
@@ -437,8 +442,8 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ASSIGNED PA using mnt-ref of ALLOCATED PA org"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // ALLOC-PA
@@ -484,8 +489,8 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "modify ASSIGNED PA using mnt-lower of ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // ALLOC-PA
@@ -529,8 +534,8 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "modify ASSIGNED PA using mnt-by of ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // ALLOC-PA
@@ -574,10 +579,10 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ASSIGNED PA using mnt-lower of ALLOCATED PA with SUB-ALLOCATED PA in between"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-ALLOC") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -623,10 +628,10 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ASSIGNED PA using mnt-by of ALLOCATED PA with SUB-ALLOCATED PA in between"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-ALLOC") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -672,10 +677,10 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete SUB-ALLOCATED PA using mnt-lower of ALLOCATED PA with more specific ASSIGNED PA"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-ALLOC") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -723,10 +728,10 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete SUB-ALLOCATED PA using mnt-by of ALLOCATED PA with more specific ASSIGNED PA"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-ALLOC") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -774,10 +779,10 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ASSIGNED PA using mnt-lower of SUB-ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-ALLOC") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -827,10 +832,10 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ASSIGNED PA using mnt-by of SUB-ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-ALLOC") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -880,11 +885,11 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ASSIGNED PA reverse delegation using mnt-lower of ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-ALLOC") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("ASS-DOM") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-DOM") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -931,11 +936,11 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ASSIGNED PA reverse delegation using mnt-by of ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-ALLOC") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("ASS-DOM") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-DOM") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -982,12 +987,12 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ROUTE for ASSIGNED PA using mnt-lower of ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("AS10000") + "override: override1")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-ALLOC") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("ASS-ROUTE") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("AS10000") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-ROUTE") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -1033,12 +1038,12 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ROUTE for ASSIGNED PA using mnt-by of ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("AS10000") + "override: override1")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-ALLOC") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("ASS-ROUTE") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("AS10000") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-ROUTE") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -1083,13 +1088,13 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ROUTE for ASSIGNED PA and reverse delegation using mnt-by of ASSIGNED PA"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("AS10000") + "override: override1")
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-ALLOC") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("ASS-ROUTE") + "override: override1")
-        syncUpdate(getTransient("ASS-DOM") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("AS10000") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-ALLOC") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-ROUTE") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-DOM") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -1158,8 +1163,8 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete ALLOCATED PA using mnt-lower of ALLOCATED PA"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
 
       expect:
         // ALLOC-PA
@@ -1206,12 +1211,12 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete full hierarchy using mnt-lower of ALLOCATED-BY-RIR"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "override: override1")
-        syncUpdate(getTransient("LIR-ALLOC-30") + "override: override1")
-        syncUpdate(getTransient("LIR-AGGR-32-48") + "override: override1")
-        syncUpdate(getTransient("LIR-AGGR-48-64") + "override: override1")
-        syncUpdate(getTransient("ASS-64") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "override: denis,override1")
+        syncUpdate(getTransient("LIR-ALLOC-30") + "override: denis,override1")
+        syncUpdate(getTransient("LIR-AGGR-32-48") + "override: denis,override1")
+        syncUpdate(getTransient("LIR-AGGR-48-64") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-64") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -1332,12 +1337,12 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete full hierarchy using mnt-by of ALLOCATED-BY-RIR"() {
       given:
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "override: override1")
-        syncUpdate(getTransient("LIR-ALLOC-30") + "override: override1")
-        syncUpdate(getTransient("LIR-AGGR-32-48") + "override: override1")
-        syncUpdate(getTransient("LIR-AGGR-48-64") + "override: override1")
-        syncUpdate(getTransient("ASS-64") + "override: override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "override: denis,override1")
+        syncUpdate(getTransient("LIR-ALLOC-30") + "override: denis,override1")
+        syncUpdate(getTransient("LIR-AGGR-32-48") + "override: denis,override1")
+        syncUpdate(getTransient("LIR-AGGR-48-64") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-64") + "override: denis,override1")
 
       expect:
         // SUB2-MNT
@@ -1456,20 +1461,22 @@ class MemberReclaimSpec extends BaseSpec {
 
     def "delete full network using mnt-lower of ALLOCATED-BY-RIR"() {
       given:
-        syncUpdate(getTransient("PING-PN") + "override: override1")
-        syncUpdate(getTransient("SUB2-MNT") + "override: override1")
-        syncUpdate(getTransient("AS10000") + "override: override1")
-        syncUpdate(getTransient("AS20000") + "override: override1")
-        syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "override: override1")
-        syncUpdate(getTransient("LIR-ALLOC-30") + "override: override1")
-        syncUpdate(getTransient("LIR-AGGR-32-48") + "override: override1")
-        syncUpdate(getTransient("LIR-AGGR-48-64") + "override: override1")
-        syncUpdate(getTransient("ASS-64") + "override: override1")
-        syncUpdate(getTransient("DOMAIN6") + "override: override1")
-        syncUpdate(getTransient("ROUTE6-PARENT30") + "override: override1")
-        syncUpdate(getTransient("ROUTE6-CHILD32-1") + "override: override1")
-        syncUpdate(getTransient("ROUTE6-CHILD32-2") + "override: override1")
 
+        syncUpdate(getTransient("PING-PN") + "override: denis,override1")
+        syncUpdate(getTransient("SUB2-MNT") + "override: denis,override1")
+        syncUpdate(getTransient("AS10000") + "override: denis,override1")
+        syncUpdate(getTransient("AS20000") + "override: denis,override1")
+        syncUpdate(getTransient("RIR-ALLOC-25-LOW-R-D") + "override: denis,override1")
+        syncUpdate(getTransient("LIR-ALLOC-30") + "override: denis,override1")
+        syncUpdate(getTransient("LIR-AGGR-32-48") + "override: denis,override1")
+        syncUpdate(getTransient("LIR-AGGR-48-64") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-64") + "override: denis,override1")
+        syncUpdate(getTransient("DOMAIN6") + "override: denis,override1")
+        syncUpdate(getTransient("ROUTE6-PARENT30") + "override: denis,override1")
+        syncUpdate(getTransient("ROUTE6-CHILD32-1") + "override: denis,override1")
+        syncUpdate(getTransient("ROUTE6-CHILD32-2") + "override: denis,override1")
+
+        DatabaseHelper.dumpSchema(databaseHelper.whoisTemplate.dataSource)
       expect:
         // PING-PN
         queryObject("-GBr -T person PP1-TEST", "person", "Ping Person")
@@ -1613,6 +1620,8 @@ class MemberReclaimSpec extends BaseSpec {
 
                 aut-num:     AS20000
                 as-name:     TEST-AS
+                remarks:     For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
+                status:      OTHER
                 descr:       Testing Authorisation code
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST

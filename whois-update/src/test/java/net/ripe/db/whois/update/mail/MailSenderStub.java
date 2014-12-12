@@ -1,12 +1,13 @@
 package net.ripe.db.whois.update.mail;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.jayway.awaitility.Awaitility;
 import net.ripe.db.whois.common.Stub;
-import net.ripe.db.whois.common.profiles.TestingProfile;
-import org.apache.commons.collections.EnumerationUtils;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +18,12 @@ import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-@TestingProfile
+@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
 @Component
 public class MailSenderStub extends MailSenderBase implements Stub {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailSenderStub.class);
@@ -38,7 +40,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         try {
             final MimeMessage mimeMessage = new MimeMessage((Session) null);
             mimeMessagePreparator.prepare(mimeMessage);
-            LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
+//            LOGGER.info("Send message: {}\n\n{}\n\n", EnumerationUtils.toList(mimeMessage.getAllHeaderLines()), mimeMessage.getContent());
             messages.add(mimeMessage);
         } catch (Exception e) {
             throw new RuntimeException("Send message", e);
@@ -57,8 +59,7 @@ public class MailSenderStub extends MailSenderBase implements Stub {
             for (final MimeMessage message : messages) {
                 LOGGER.warn("Got message for: {}", message.getRecipients(Message.RecipientType.TO)[0].toString());
             }
-
-            throw new AssertionError("Unable to get message for: " + to + ": " + e.getMessage());
+            throw new AssertionError("Unable to get message for: " + to, e);
         }
     }
 
@@ -72,10 +73,12 @@ public class MailSenderStub extends MailSenderBase implements Stub {
 
         @Override
         public Boolean call() throws Exception {
-            for (MimeMessage message : messages) {
-                if (message.getRecipients(Message.RecipientType.TO)[0].toString().equalsIgnoreCase(to)) {
-                    this.message = message;
-                    return true;
+            synchronized (messages) {
+                for (MimeMessage message : messages) {
+                    if (message.getRecipients(Message.RecipientType.TO)[0].toString().equalsIgnoreCase(to)) {
+                        this.message = message;
+                        return true;
+                    }
                 }
             }
 
@@ -85,20 +88,37 @@ public class MailSenderStub extends MailSenderBase implements Stub {
         public MimeMessage getMessage() {
             return message;
         }
+
     }
 
     public boolean anyMoreMessages() {
         if (!messages.isEmpty()) {
-            for (Message message : messages) {
-                try {
-                    Address[] to = message.getRecipients(Message.RecipientType.TO);
-                    LOGGER.warn("Found message to: {}, subject: {}",Arrays.deepToString(to), message.getSubject());
-                } catch (MessagingException e) {
-                    throw new IllegalStateException(e);
+            synchronized (messages) {
+                for (Message message : messages) {
+                    try {
+                        Address[] to = message.getRecipients(Message.RecipientType.TO);
+                        LOGGER.warn("Found message to: {}, subject: {}", Arrays.deepToString(to), message.getSubject());
+                    } catch (MessagingException e) {
+                        throw new IllegalStateException(e);
+                    }
                 }
             }
         }
 
         return !messages.isEmpty();
+    }
+
+    public List<Address> getAllRecipients() {
+        final List<Address> addresses = Lists.newArrayList();
+        synchronized (messages) {
+            for (Message message : messages) {
+                try {
+                    addresses.addAll(Arrays.asList(message.getRecipients(Message.RecipientType.TO)));
+                } catch (MessagingException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        }
+        return addresses;
     }
 }

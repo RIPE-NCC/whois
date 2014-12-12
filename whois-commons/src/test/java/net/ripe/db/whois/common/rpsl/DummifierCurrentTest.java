@@ -165,7 +165,8 @@ public class DummifierCurrentTest {
                 "upd-to: guy@ripe.net\n" +
                 "auth: X509-1\n" +
                 "auth: X509-1689\n" +
-                "auth: MD5-PW # Filtered\n" +
+                "auth: MD5-PW $1$SaltSalt$ThisIsABrokenMd5Hash.\n" +
+                "auth: SSO 1234-5678-9abc-dead-beef\n" +
                 "notify: guy@ripe.net\n" +
                 "mnt-by: AARDVARK-MNT\n" +
                 "referral-by: AARDVARK-MNT\n" +
@@ -183,6 +184,7 @@ public class DummifierCurrentTest {
                 new RpslAttribute("auth", "X509-1"),
                 new RpslAttribute("auth", "X509-1689"),
                 new RpslAttribute("auth", "MD5-PW # Filtered"),
+                new RpslAttribute("auth", "SSO # Filtered"),
                 new RpslAttribute("notify", "***@ripe.net"),
                 new RpslAttribute("mnt-by", "AARDVARK-MNT"),
                 new RpslAttribute("referral-by", "AARDVARK-MNT"),

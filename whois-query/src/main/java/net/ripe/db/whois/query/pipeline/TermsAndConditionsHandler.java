@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.pipeline;
 
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;

@@ -1,9 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.Message
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.Message
 
-class FilterSetsSpec extends BaseSpec {
+@org.junit.experimental.categories.Category(IntegrationTest.class)
+class FilterSetsSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {

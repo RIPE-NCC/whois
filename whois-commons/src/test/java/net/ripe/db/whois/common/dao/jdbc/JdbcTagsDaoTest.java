@@ -4,12 +4,14 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.AbstractDaoTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 
@@ -19,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 public class JdbcTagsDaoTest extends AbstractDaoTest {
     @Autowired TagsDao subject;
+    @Value("${whois.source}") protected String source;
 
     @Before
     public void setup() {
@@ -132,5 +135,17 @@ public class JdbcTagsDaoTest extends AbstractDaoTest {
         assertThat(subject.getTags(2).size(), is(0));
         assertThat(subject.getTags(3).size(), is(0));
         assertThat(databaseHelper.getWhoisTemplate().queryForInt("SELECT count(*) FROM tags WHERE tag_id != \"unref\""), is(1));
+    }
+
+    @Test
+    public void deleteOrphanedTags() {
+        final RpslObject person = databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST\nsource: TEST");
+
+        subject.createTag(new Tag(CIString.ciString("unref"), person.getObjectId()));
+        assertThat(databaseHelper.getWhoisTemplate().queryForInt("SELECT count(*) FROM tags"), is(1));
+        databaseHelper.deleteObject(person);
+
+        subject.deleteOrphanedTags();
+        assertThat(databaseHelper.getWhoisTemplate().queryForInt("SELECT count(*) FROM tags"), is(0));
     }
 }

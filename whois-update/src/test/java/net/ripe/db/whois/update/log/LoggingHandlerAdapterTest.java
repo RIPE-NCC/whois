@@ -12,7 +12,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LoggingHandlerAdapterTest {
@@ -28,14 +29,6 @@ public class LoggingHandlerAdapterTest {
 
         final List<List<String>> rows = Lists.newArrayList();
         resultInfo = new ResultInfo(rows);
-    }
-
-    @Test
-    public void log_not_initialized() throws Exception {
-        subject = new LoggingHandlerAdapter();
-        subject.log(statementInfo, resultInfo);
-
-        verifyZeroInteractions(loggerContext);
     }
 
     @Test

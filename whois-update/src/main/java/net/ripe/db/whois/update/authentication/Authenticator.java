@@ -1,18 +1,30 @@
 package net.ripe.db.whois.update.authentication;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.UserDao;
-import net.ripe.db.whois.common.domain.*;
-import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.IpRanges;
+import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.domain.PendingUpdate;
+import net.ripe.db.whois.common.domain.User;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.authentication.strategy.MntByAuthentication;
+import net.ripe.db.whois.update.dao.PendingUpdateDao;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.OverrideCredential;
+import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -21,7 +33,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import javax.annotation.CheckForNull;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class Authenticator {
@@ -29,21 +49,30 @@ public class Authenticator {
 
     private final IpRanges ipRanges;
     private final UserDao userDao;
+    private final PendingUpdateDao pendingUpdateDao;
     private final LoggerContext loggerContext;
     private final List<AuthenticationStrategy> authenticationStrategies;
     private final Map<CIString, Set<Principal>> principalsMap;
     private final Map<ObjectType, Set<String>> typesWithPendingAuthenticationSupport;
 
     @Autowired
-    public Authenticator(final IpRanges ipRanges, final UserDao userDao, final Maintainers maintainers, final LoggerContext loggerContext, final AuthenticationStrategy[] authenticationStrategies) {
+    public Authenticator(final IpRanges ipRanges,
+                         final UserDao userDao,
+                         final Maintainers maintainers,
+                         final LoggerContext loggerContext,
+                         final AuthenticationStrategy[] authenticationStrategies,
+                         final PendingUpdateDao pendingUpdateDao) {
         this.ipRanges = ipRanges;
         this.userDao = userDao;
         this.loggerContext = loggerContext;
-        this.authenticationStrategies = Lists.newArrayList(authenticationStrategies);
+        this.pendingUpdateDao = pendingUpdateDao;
+        Arrays.sort(authenticationStrategies);
+        this.authenticationStrategies = Arrays.asList(authenticationStrategies);
 
         final Map<CIString, Set<Principal>> tempPrincipalsMap = Maps.newHashMap();
         addMaintainers(tempPrincipalsMap, maintainers.getPowerMaintainers(), Principal.POWER_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getEnduserMaintainers(), Principal.ENDUSER_MAINTAINER);
+        addMaintainers(tempPrincipalsMap, maintainers.getLegacyMaintainers(), Principal.LEGACY_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getAllocMaintainers(), Principal.ALLOC_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getRsMaintainers(), Principal.RS_MAINTAINER);
         addMaintainers(tempPrincipalsMap, maintainers.getEnumMaintainers(), Principal.ENUM_MAINTAINER);
@@ -84,6 +113,8 @@ public class Authenticator {
 
     public void authenticate(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject;
+
+        loggerContext.logCredentials(update.getUpdate());
 
         if (origin.isDefaultOverride()) {
             subject = new Subject(Principal.OVERRIDE_MAINTAINER);
@@ -168,12 +199,13 @@ public class Authenticator {
             principals.addAll(getPrincipals(authenticatedObject));
         }
 
-        // TODO: [AH] remove the isDeployed() when we are done migrating power-maintainer tests to syncupdates (a lot of tests that require power mntner are using mailupdates ATM)
-        if (!principals.isEmpty() && !origin.isDefaultOverride() && WhoisProfile.isDeployed()) {
+        if (!principals.isEmpty() && !origin.isDefaultOverride()) {
             if (!origin.allowAdminOperations() || !ipRanges.isTrusted(IpInterval.parse(origin.getFrom()))) {
                 authenticationMessages.add(UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());
             }
         }
+
+        filterAuthentication(updateContext, update, passedAuthentications, failedAuthentications, pendingAuthentications);
 
         final Subject subject = new Subject(principals, passedAuthentications, failedAuthentications, pendingAuthentications);
         if (!authenticationMessages.isEmpty()) {
@@ -197,7 +229,7 @@ public class Authenticator {
     }
 
     private void handleFailure(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject, final Set<Message> authenticationMessages) {
-        if (isPending(update, updateContext, subject)) {
+        if (isPending(update, updateContext, subject.getPendingAuthentications()) && subject.getFailedAuthentications().isEmpty()) {
             updateContext.status(update, UpdateStatus.PENDING_AUTHENTICATION);
         } else {
             updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
@@ -208,19 +240,45 @@ public class Authenticator {
         }
     }
 
-    boolean isPending(final PreparedUpdate update, final UpdateContext updateContext, final Subject subject) {
+    boolean isPending(final PreparedUpdate update, final UpdateContext updateContext, final Set<String> pendingAuths) {
         if (!Action.CREATE.equals(update.getAction())) {
             return false;
         }
 
+        final Set<String> supportedPendingAuths = typesWithPendingAuthenticationSupport.get(update.getType());
+
         return !updateContext.hasErrors(update)
-                && subject.getFailedAuthentications().isEmpty()
-                && typesWithPendingAuthenticationSupport.containsKey(update.getType())
-                && subject.getPendingAuthentications().size() < typesWithPendingAuthenticationSupport.get(update.getType()).size();
+                && pendingAuths.size() > 0
+                && pendingAuths.size() < supportedPendingAuths.size();
     }
 
-    public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final Set<String> authentications) {
+    private void filterAuthentication(UpdateContext updateContext, PreparedUpdate update, Set<String> passedAuthentications, Set<String> failedAuthentications, Map<String, Collection<RpslObject>> pendingAuthentications) {
+        // we only have pending filter ATM
+        if (isPending(update, updateContext, pendingAuthentications.keySet())) {
+            final PendingUpdate pendingUpdate = findAndStorePendingUpdate(updateContext, update);
+            if (pendingUpdate != null) {
+                if (failedAuthentications.remove(MntByAuthentication.class.getSimpleName())) {
+                    passedAuthentications.add(MntByAuthentication.class.getSimpleName());
+                }
+            }
+        }
+    }
+
+    @CheckForNull
+    private PendingUpdate findAndStorePendingUpdate(UpdateContext updateContext, final PreparedUpdate update) {
+        final RpslObject rpslObject = update.getUpdatedObject();
+
+        for (final PendingUpdate pendingUpdate : pendingUpdateDao.findByTypeAndKey(rpslObject.getType(), rpslObject.getKey().toString())) {
+            if (rpslObject.equals(pendingUpdate.getObject())) {
+                updateContext.addPendingUpdate(update, pendingUpdate);
+                return pendingUpdate;
+            }
+        }
+        return null;
+    }
+
+    public boolean isAuthenticationForTypeComplete(final ObjectType objectType, final PendingUpdate pendingUpdate) {
         final Set<String> authenticationStrategyNames = typesWithPendingAuthenticationSupport.get(objectType);
-        return authentications.containsAll(authenticationStrategyNames);
+        return pendingUpdate.getPassedAuthentications().containsAll(authenticationStrategyNames);
     }
 }

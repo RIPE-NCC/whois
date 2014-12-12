@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.keycert;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -8,14 +10,20 @@ import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.SignatureSubpacketTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openpgp.*;
+import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPKeyFlags;
+import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPPublicKeyRing;
+import org.bouncycastle.openpgp.PGPSignature;
+import org.bouncycastle.openpgp.PGPSignatureSubpacketVector;
+import org.bouncycastle.openpgp.PGPUtil;
+import org.bouncycastle.openpgp.bc.BcPGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
 import org.joda.time.LocalDateTime;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.Provider;
-import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -42,13 +50,13 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         }
 
         try {
-            final byte[] bytes = new RpslObjectFilter(object).getCertificateFromKeyCert().getBytes(Charsets.UTF_8);
+            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(object).getBytes(Charsets.UTF_8);
             final ArmoredInputStream armoredInputStream = (ArmoredInputStream) PGPUtil.getDecoderStream(new ByteArrayInputStream(bytes));
             PGPPublicKey masterKey = null;
             List<PGPPublicKey> subKeys = Lists.newArrayList();
 
             @SuppressWarnings("unchecked")
-            final Iterator<PGPPublicKeyRing> keyRingsIterator = new PGPPublicKeyRingCollection(armoredInputStream).getKeyRings();
+            final Iterator<PGPPublicKeyRing> keyRingsIterator = new BcPGPPublicKeyRingCollection(armoredInputStream).getKeyRings();
             while (keyRingsIterator.hasNext()) {
                 @SuppressWarnings("unchecked")
                 final Iterator<PGPPublicKey> keyIterator = keyRingsIterator.next().getPublicKeys();
@@ -89,7 +97,8 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
                                 if (signature.verifyCertification(masterKey, key)) {
                                     subKeys.add(key);
                                 }
-                            } catch (SignatureException ignored) {
+                            } catch (PGPException e) {
+                                throw new IllegalStateException(e);
                             }
                         }
                     }
@@ -121,7 +130,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
     }
 
     static boolean looksLikePgpKey(final RpslObject rpslObject) {
-        final String pgpKey = new RpslObjectFilter(rpslObject).getCertificateFromKeyCert();
+        final String pgpKey = RpslObjectFilter.getCertificateFromKeyCert(rpslObject);
         return pgpKey.indexOf(PGP_HEADER) != -1 && pgpKey.indexOf(PGP_FOOTER) != -1;
     }
 
@@ -139,15 +148,14 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
     }
 
     @Override
-    public String getOwner() {
-        String uid = null;
-
-        Iterator iterator = masterKey.getUserIDs();
-        while (iterator.hasNext()) {
-            uid = iterator.next().toString(); // return last uid found
-        }
-
-        return uid;
+    public List<String> getOwners() {
+        return Lists.newArrayList(Iterators.<Object, String>transform(masterKey.getUserIDs(),
+                new Function<Object, String>() {
+                    @Override
+                    public String apply(final Object input) {
+                        return input.toString();
+                    }
+                }));
     }
 
     @Override

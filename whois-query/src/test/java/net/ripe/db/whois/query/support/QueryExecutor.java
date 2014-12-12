@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.io.ByteArrayInput;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.ByteArrayContains;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.MessageObject;
@@ -41,10 +41,10 @@ public class QueryExecutor {
     }
 
     public List<ResponseObject> getWhoisResponse(final String query) throws IOException {
-        final DummyWhoisClient client = new DummyWhoisClient(configuration.getHost(), configuration.getPort());
+        final TelnetWhoisClient client = new TelnetWhoisClient(configuration.getHost(), configuration.getQueryPort());
         final String response;
 
-        final Stopwatch stopWatch = new Stopwatch().start();
+        final Stopwatch stopWatch = Stopwatch.createStarted();
         try {
             response = client.sendQuery(query);
         } finally {
@@ -90,7 +90,7 @@ public class QueryExecutor {
             }
         }
 
-        logger.warn("Error occured: \n\n{}", StringUtils.left(response.substring(errorIndex), 200));
+        logger.warn("Error occurred: \n\n{}", StringUtils.left(response.substring(errorIndex), 200));
     }
 
     private List<ResponseObject> parseWhoisResponseIntoRpslObjects(final String query, String response) throws IOException {

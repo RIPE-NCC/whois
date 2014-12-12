@@ -24,7 +24,7 @@ class BasicFixtures {
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
                 referral-by: OWNER-MNT
-                changed:     dbtest@ripe.net
+                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "OWNER2-MNT": """\
@@ -311,8 +311,20 @@ class BasicFixtures {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$bzCpMX7h\$wl3EmBzNXG..8oTMmGVF51 # nccend
                 org:         ORG-OTO1-TEST
-                auth:        MD5-PW # Filtered
                 mnt-by:      RIPE-NCC-END-MNT
+                changed:     dbtest@ripe.net
+                referral-by: RIPE-DBM-MNT
+                source:      TEST
+                """,
+            "RIPE-NCC-LEGACY-MNT": """\
+                mntner:      RIPE-NCC-LEGACY-MNT
+                descr:       RIPE NCC LEGACY resource maintainer
+                upd-to:      updto_legacy@ripe.net
+                mnt-nfy:     mntnfy_legacy@ripe.net
+                notify:      notify_legacy@ripe.net
+                auth:        MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
+                org:         ORG-OTO1-TEST
+                mnt-by:      RIPE-NCC-LEGACY-MNT
                 changed:     dbtest@ripe.net
                 referral-by: RIPE-DBM-MNT
                 source:      TEST
@@ -348,7 +360,7 @@ class BasicFixtures {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
                 referral-by: TST-MNT4
-                changed:     dbtest@ripe.net
+                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "TST-MNT5": """\
@@ -595,7 +607,7 @@ class BasicFixtures {
                 descr:       exact match route object
                 origin:      AS999000
                 mnt-by:      EXACT-MB-MNT
-                changed:     dbtest@ripe.net
+                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "AS1000": """\
@@ -907,7 +919,7 @@ class BasicFixtures {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       SUBTLA
-                changed:      dbtest@ripe.net
+                changed:      dbtest@ripe.net 20120202
                 source:       TEST
                 """,
     ]

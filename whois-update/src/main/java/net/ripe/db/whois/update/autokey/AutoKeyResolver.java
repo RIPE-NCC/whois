@@ -41,7 +41,7 @@ public class AutoKeyResolver {
             return object;
         }
 
-        return new RpslObjectFilter(object).replaceAttributes(attributesToReplace);
+        return new RpslObjectBuilder(object).replaceAttributes(attributesToReplace).get();
     }
 
     private void claimOrGenerateAutoKeys(final Update update, final RpslObject object, final UpdateContext updateContext, final Map<RpslAttribute, RpslAttribute> attributesToReplace) {

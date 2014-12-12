@@ -1,6 +1,6 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -9,20 +9,25 @@ import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
+@DirtiesContext
+@Category(IntegrationTest.class)
 public class GrsDaoTest extends AbstractSchedulerIntegrationTest {
     @Autowired SourceContext sourceContext;
-    @Autowired DateTimeProvider dateTimeProvider;
 
     Logger logger = LoggerFactory.getLogger(GrsDao.class);
     GrsDao subject;
@@ -34,13 +39,13 @@ public class GrsDaoTest extends AbstractSchedulerIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new GrsDao(logger, dateTimeProvider, ciString("TEST-GRS"), sourceContext);
+        subject = new GrsDao(logger, testDateTimeProvider, ciString("TEST-GRS"), sourceContext);
         subject.cleanDatabase();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void no_grs_datasource() {
-        subject = new GrsDao(logger, dateTimeProvider, ciString("UNKNOWN"), sourceContext);
+        subject = new GrsDao(logger, testDateTimeProvider, ciString("UNKNOWN"), sourceContext);
         subject.cleanDatabase();
     }
 

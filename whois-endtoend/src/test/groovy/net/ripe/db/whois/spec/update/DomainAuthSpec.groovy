@@ -1,9 +1,10 @@
 package net.ripe.db.whois.spec.update
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
-
-class DomainAuthSpec extends BaseSpec {
+@org.junit.experimental.categories.Category(IntegrationTest.class)
+class DomainAuthSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -13,7 +14,7 @@ class DomainAuthSpec extends BaseSpec {
                 descr:          Full ASN range
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
+                changed:        dbtest@ripe.net 20120202
                 source:         TEST
                 """,
             "ALLOC-PA": """\
@@ -74,6 +75,21 @@ class DomainAuthSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
+            "ASSIGN-PA-LOW-DOM": """\
+                inetnum:      193.0.0.0 - 193.0.0.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       OWNER-MNT
+                mnt-lower:    LIR-MNT
+                mnt-domains:  LIR2-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
             "ALLOC-PA-LOW-R": """\
                 inetnum:      193.0.0.0 - 193.255.255.255
                 netname:      TEST-NET-NAME
@@ -100,6 +116,43 @@ class DomainAuthSpec extends BaseSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-routes:   LIR3-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+            "ALLOC-U": """\
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED Unspecified
+                mnt-by:       RIPE-NCC-HM-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+            "ALLOC-PA1": """\
+                inetnum:      192.0.0.0 - 192.0.0.0
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,
+            "ALLOC-PA2": """\
+                inetnum:      192.0.0.0 - 192.0.0.1
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
@@ -220,6 +273,86 @@ class DomainAuthSpec extends BaseSpec {
         queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
     }
 
+    def "create reverse domain, single IP, ripe space, exact match inetnum with mnt-domains, domains pw supplied"() {
+        given:
+        syncUpdate(getTransient("ALLOC-U") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA1") + "override: denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.0.0.0 - 192.0.0.0", "inetnum", "192.0.0.0 - 192.0.0.0")
+        queryObjectNotFound("-rGBT domain 0.0.0.192.in-addr.arpa", "domain", "0.0.0.192.in-addr.arpa")
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0.0.0.192.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         owner-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                password:   owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.0.192.in-addr.arpa" }
+
+        queryObject("-rGBT domain 0.0.0.192.in-addr.arpa", "domain", "0.0.0.192.in-addr.arpa")
+    }
+
+    def "create reverse domain, range of 2 IP, ripe space, exact match inetnum with mnt-domains, domains pw supplied"() {
+        given:
+        syncUpdate(getTransient("ALLOC-U") + "override: denis,override1")
+        syncUpdate(getTransient("ALLOC-PA2") + "override: denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.0.0.0 - 192.0.0.1", "inetnum", "192.0.0.0 - 192.0.0.1")
+        queryObjectNotFound("-rGBT domain 0-1.0.0.192.in-addr.arpa", "domain", "0-1.0.0.192.in-addr.arpa")
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0-1.0.0.192.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         owner-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   lir
+                password:   owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 0-1.0.0.192.in-addr.arpa" }
+
+        queryObject("-rGBT domain 0-1.0.0.192.in-addr.arpa", "domain", "0-1.0.0.192.in-addr.arpa")
+    }
+
     def "create reverse domain, ripe space, exact match inetnum with mnt-domains, routes pw supplied"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
@@ -301,14 +434,14 @@ class DomainAuthSpec extends BaseSpec {
     }
 
     def "create reverse domain, ripe space, exact match inetnum with mnt-lower no mnt-domains, lower pw supplied"() {
-      given:
+        given:
         syncUpdate(getTransient("ALLOC-PA-LOW-R") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
 
-      expect:
+        expect:
         queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
 
-      when:
+        when:
         def message = syncUpdate("""\
                 domain:         193.in-addr.arpa
                 descr:          reverse domain
@@ -326,18 +459,16 @@ class DomainAuthSpec extends BaseSpec {
                """.stripIndent()
         )
 
-      then:
+        then:
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
-        ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
-                ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT"]
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
 
-        queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
+        queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
     }
 
     def "create reverse domain, ripe space, exact match inetnum with mnt-lower no mnt-domains, routes pw supplied"() {
@@ -375,7 +506,7 @@ class DomainAuthSpec extends BaseSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
-                ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT"]
+                ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-lower:\" not authenticated by: LIR-MNT"]
 
         queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
     }
@@ -410,12 +541,14 @@ class DomainAuthSpec extends BaseSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
+        ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
+              ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-lower:\" not authenticated by: LIR-MNT"]
 
-        queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
+        queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
     }
 
     def "create reverse domain, ripe space, exact match inetnum with no mnt-lower no mnt-domains, -by pw supplied"() {
@@ -830,7 +963,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:  denis,override1
 
                 """.stripIndent()
         )
@@ -839,14 +972,14 @@ class DomainAuthSpec extends BaseSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[domain] 1.0.0.193.in-addr.arpa" }
-        ack.errorMessagesFor("Create", "[domain] 1.0.0.193.in-addr.arpa") ==
-                ["Syntax error in 1.0.0.193.in-addr.arpa"]
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 1.0.0.193.in-addr.arpa" }
+        ack.infoSuccessMessagesFor("Create", "[domain] 1.0.0.193.in-addr.arpa") == [
+              "Authorisation override used"]
 
-        queryObjectNotFound("-rGBT domain 1.0.0.193.in-addr.arpa", "domain", "1.0.0.193.in-addr.arpa")
+        queryObject("-rGBT domain 1.0.0.193.in-addr.arpa", "domain", "1.0.0.193.in-addr.arpa")
     }
 
     def "create reverse domain, ripe space, range smaller than /24, override"() {
@@ -869,7 +1002,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -908,7 +1041,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -947,7 +1080,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -986,7 +1119,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1025,7 +1158,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1064,7 +1197,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1103,7 +1236,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1112,14 +1245,14 @@ class DomainAuthSpec extends BaseSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[domain] 2-2.0.0.193.in-addr.arpa" }
-        ack.errorMessagesFor("Create", "[domain] 2-2.0.0.193.in-addr.arpa") ==
-                ["Syntax error in 2-2.0.0.193.in-addr.arpa"]
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[domain] 2-2.0.0.193.in-addr.arpa" }
+        ack.infoSuccessMessagesFor("Create", "[domain] 2-2.0.0.193.in-addr.arpa") == [
+              "Authorisation override used"]
 
-        queryObjectNotFound("-rGBT domain 2-2.0.0.193.in-addr.arpa", "domain", "2-2.0.0.193.in-addr.arpa")
+        queryObject("-rGBT domain 2-2.0.0.193.in-addr.arpa", "domain", "2-2.0.0.193.in-addr.arpa")
     }
 
     def "create reverse domain, ripe space, ip6.arpa suffix"() {
@@ -1142,7 +1275,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1513,7 +1646,7 @@ class DomainAuthSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
 
       expect:
@@ -1553,7 +1686,7 @@ class DomainAuthSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
 
       expect:
@@ -1572,7 +1705,7 @@ class DomainAuthSpec extends BaseSpec {
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  testing delete
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -1595,7 +1728,7 @@ class DomainAuthSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -1639,7 +1772,7 @@ class DomainAuthSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -1683,7 +1816,7 @@ class DomainAuthSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -1718,11 +1851,50 @@ class DomainAuthSpec extends BaseSpec {
         queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
     }
 
+    def "delete reverse domain, using parent mnt-by"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
+        queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
+        queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+
+        expect:
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0.0.193.in-addr.arpa
+                descr:          reverse domain
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         DOMAIN-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                delete:  testing delete
+
+                password:   hm
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[domain] 0.0.193.in-addr.arpa" }
+
+        queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
+    }
+
     def "modify reverse domain, add remarks using mnt-by"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -1761,7 +1933,7 @@ class DomainAuthSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -1802,7 +1974,7 @@ class DomainAuthSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
 
       expect:
@@ -1845,7 +2017,7 @@ class DomainAuthSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
 
       expect:
@@ -1876,10 +2048,11 @@ class DomainAuthSpec extends BaseSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
-                ["Existing more specific domain object found 193.0.0.0/24"]
+            ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-lower:\" not authenticated by: LIR-MNT",
+             "Existing more specific domain object found 193.0.0.0/24"]
 
         queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
     }
@@ -2007,7 +2180,7 @@ class DomainAuthSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 193.0.0.0 - 193.255.255.255", "inetnum", "193.0.0.0 - 193.255.255.255")
-        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ALLOC-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
 
       expect:
@@ -2145,7 +2318,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )
@@ -2168,7 +2341,7 @@ class DomainAuthSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC6-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001::/16", "inet6num", "2001::/16")
-        syncUpdate(getTransient("ASSIGN6-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN6-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa", "domain", "0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa")
 
       expect:
@@ -2207,7 +2380,7 @@ class DomainAuthSpec extends BaseSpec {
       given:
         syncUpdate(getTransient("ALLOC6-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001::/16", "inet6num", "2001::/16")
-        syncUpdate(getTransient("ASSIGN6-DOMAIN") + "override: override1")
+        syncUpdate(getTransient("ASSIGN6-DOMAIN") + "override: denis,override1")
         queryObject("-r -T domain 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa", "domain", "0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa")
 
       expect:
@@ -2302,7 +2475,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -2472,7 +2645,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -2517,7 +2690,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -2558,7 +2731,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -2599,7 +2772,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         owner-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )
@@ -2714,7 +2887,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         LIR-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:    override1
+                override:    denis,override1
 
                 password:   lir
                 """.stripIndent()
@@ -2866,7 +3039,7 @@ class DomainAuthSpec extends BaseSpec {
                 mnt-by:         RIPE-GII-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:    override1
+                override:    denis,override1
 
                 """.stripIndent()
         )
@@ -2944,7 +3117,7 @@ class DomainAuthSpec extends BaseSpec {
                 remarks:        just added
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
-                override:   override1
+                override:   denis,override1
 
                 """.stripIndent()
         )

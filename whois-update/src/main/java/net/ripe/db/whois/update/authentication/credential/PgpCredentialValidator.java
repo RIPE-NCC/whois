@@ -59,7 +59,7 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential> {
         }
 
         if (verify(update, offeredCredential, pgpPublicKeyWrapper.getPublicKey()) || verify(update, offeredCredential, pgpPublicKeyWrapper.getSubKeys())) {
-            log(update, String.format("Validated %s with %s", update.getFormattedKey(), keyId));
+            log(update, String.format("Validated %s with keyId %s", update.getFormattedKey(), keyId));
 
             if (pgpPublicKeyWrapper.isExpired(dateTimeProvider)) {
                 updateContext.addMessage(update, UpdateMessages.publicKeyHasExpired(keyId));
@@ -72,6 +72,7 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential> {
             return true;
         }
 
+        log(update, String.format("Failed to validate %s with keyId %s", update.getFormattedKey(), offeredCredential.getKeyId()));
         return false;
     }
 

@@ -1,9 +1,11 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.spec.BaseSpec
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
 
-class TagsSpec extends BaseSpec {
+@org.junit.experimental.categories.Category(IntegrationTest.class)
+class TagsSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getBasicFixtures() {

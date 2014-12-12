@@ -2,8 +2,8 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 
 import com.google.common.base.Splitter;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,7 +46,7 @@ class IndexWithIfAddr extends IndexStrategyWithSingleLookupTable {
                 "  LEFT JOIN last l ON l.object_id = ifaddr.object_id " +
                 "  WHERE ifaddr = ? " +
                 "  AND l.sequence_id != 0 ",
-                new RpslObjectResultSetExtractor(),
+                new RpslObjectInfoResultSetExtractor(),
                 resource.begin());
     }
 

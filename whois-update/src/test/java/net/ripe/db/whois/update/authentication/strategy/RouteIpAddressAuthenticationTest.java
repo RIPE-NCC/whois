@@ -2,8 +2,8 @@ package net.ripe.db.whois.update.authentication.strategy;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.*;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;

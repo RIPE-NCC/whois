@@ -1,9 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.AckResponse
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
 
-class ReclaimSpec extends BaseSpec {
+@org.junit.experimental.categories.Category(IntegrationTest.class)
+class ReclaimSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -167,18 +169,26 @@ class ReclaimSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-            "EARLY-ALLOC": """\
+            "LEGACY-ALLOC": """\
                 inetnum:      192.0.0.0 - 192.255.255.255
                 netname:      RIPE-NET1
                 descr:        /8 ERX
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-                """
+                """,
+            "EXACT-ROUTE": """\
+                route:       192.168.200.0/24
+                descr:       exact match route object
+                origin:      AS3000
+                mnt-by:      OWNER2-MNT
+                changed:     dbtest@ripe.net 20020101
+                source:      TEST
+                """,
     ]}
 
     def "modify end user using allocation mnt-lower"() {
@@ -260,6 +270,90 @@ class ReclaimSpec extends BaseSpec {
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+    }
+
+    def "delete route for end user assignment using allocation mnt-lower"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("PART-PA") + "password: lir")
+        syncUpdate(getTransient("ASS-END") + "password: lir\npassword: end")
+        syncUpdate(getTransient("EXACT-ROUTE") + "override:  denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryObject("-r -T route 192.168.200.0/24", "route", "192.168.200.0/24")
+
+        when:
+        def message = syncUpdate("""\
+                route:       192.168.200.0/24
+                descr:       exact match route object
+                origin:      AS3000
+                mnt-by:      OWNER2-MNT
+                changed:     dbtest@ripe.net 20020101
+                source:      TEST
+                delete:  lir reclaim
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[route] 192.168.200.0/24AS3000" }
+
+        queryObjectNotFound("-r -T route 192.168.200.0/24", "route", "192.168.200.0/24")
+    }
+
+    def "delete route for end user assignment using allocation mnt-routes"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-ROUTES") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("PART-PA") + "password: lir")
+        syncUpdate(getTransient("ASS-END") + "password: lir\npassword: end")
+        syncUpdate(getTransient("EXACT-ROUTE") + "override:  denis,override1")
+
+        expect:
+        queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+        queryObject("-r -T route 192.168.200.0/24", "route", "192.168.200.0/24")
+
+        when:
+        def message = syncUpdate("""\
+                route:       192.168.200.0/24
+                descr:       exact match route object
+                origin:      AS3000
+                mnt-by:      OWNER2-MNT
+                changed:     dbtest@ripe.net 20020101
+                source:      TEST
+                delete:  lir reclaim
+
+                password: lir2
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 0, 1)
+
+        ack.countErrorWarnInfo(3, 0, 0)
+        ack.errors.any { it.operation == "Delete" && it.key == "[route] 192.168.200.0/24AS3000" }
+        ack.errorMessagesFor("Delete", "[route] 192.168.200.0/24AS3000") == [
+                "Authorisation for [route] 192.168.200.0/24AS3000 failed using \"mnt-by:\" not authenticated by: OWNER2-MNT",
+                "Authorisation for [inetnum] 192.0.0.0 - 192.255.255.255 failed using \"mnt-lower:\" not authenticated by: LIR-MNT",
+                "Authorisation for [inetnum] 192.0.0.0 - 192.255.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT, LIR-MNT"]
+
+        queryObject("-r -T route 192.168.200.0/24", "route", "192.168.200.0/24")
     }
 
     def "delete end user assignment using allocation 2nd mnt-lower"() {
@@ -492,7 +586,6 @@ class ReclaimSpec extends BaseSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir override
-
                 password: lir2
                 """.stripIndent()
         )
@@ -560,7 +653,7 @@ class ReclaimSpec extends BaseSpec {
 
     def "delete end user assignment using legacy allocation mnt-by, no RS mntner"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("LEGACY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("PART-PA") + "password: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -575,7 +668,7 @@ class ReclaimSpec extends BaseSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ASSIGNED PA
+                status:       LEGACY
                 mnt-by:       END-USER-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
@@ -602,7 +695,7 @@ class ReclaimSpec extends BaseSpec {
 
     def "delete legacy allocation without override"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("LEGACY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("PART-PA") + "password: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -617,7 +710,7 @@ class ReclaimSpec extends BaseSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
@@ -637,14 +730,14 @@ class ReclaimSpec extends BaseSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
         ack.errorMessagesFor("Delete", "[inetnum] 192.0.0.0 - 192.255.255.255") ==
-                ["Object with status EARLY-REGISTRATION can only be deleted by the database administrator"]
+                ["Only RIPE NCC can create/delete a top level object with status 'LEGACY' Contact legacy@ripe.net for more info"]
 
         queryObject("-rGBT inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
     }
 
     def "delete legacy allocation using override"() {
       given:
-        syncUpdate(getTransient("EARLY-ALLOC") + "override: override1")
+        syncUpdate(getTransient("LEGACY-ALLOC") + "override: denis,override1")
         queryObject("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
         syncUpdate(getTransient("PART-PA") + "password: lir")
         queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -659,12 +752,12 @@ class ReclaimSpec extends BaseSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       EARLY-REGISTRATION
+                status:       LEGACY
                 mnt-by:       LIR-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir
-                override: override1
+                override: denis,override1
 
                 """.stripIndent()
         )

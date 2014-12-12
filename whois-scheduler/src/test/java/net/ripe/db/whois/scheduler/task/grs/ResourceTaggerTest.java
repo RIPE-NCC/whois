@@ -42,6 +42,7 @@ public class ResourceTaggerTest {
         when(grsSource.getLogger()).thenReturn(LoggerFactory.getLogger(ResourceTaggerTest.class));
         when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
         when(sourceContext.getCurrentSourceConfiguration()).thenReturn(sourceConfiguration);
+        when(sourceContext.isTagRoutes()).thenReturn(true);
         when(sourceConfiguration.getJdbcTemplate()).thenReturn(jdbcTemplate);
     }
 
@@ -52,6 +53,7 @@ public class ResourceTaggerTest {
         verify(sourceContext).setCurrent(any(Source.class));
         verify(sourceContext).removeCurrentSource();
         verify(tagsDao).updateTags(any(Iterable.class), any(List.class), any(List.class));
+        verify(tagsDao).deleteOrphanedTags();
     }
 
     @Test

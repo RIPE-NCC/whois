@@ -1,17 +1,11 @@
 package net.ripe.db.whois.spec.query
 
-import net.ripe.db.whois.spec.BaseSpec
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.BasicFixtures
 
-/**
- * Created with IntelliJ IDEA.
- * User: denis
- * Date: 12/04/2013
- * Time: 13:19
- * To change this template use File | Settings | File Templates.
- */
-
-class InverseQuerySpec extends BaseSpec {
+@org.junit.experimental.categories.Category(IntegrationTest.class)
+class InverseQuerySpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getBasicFixtures() {
@@ -287,9 +281,9 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i admin-c, -i ac, IP1-RIPE"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -315,9 +309,9 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i tech-c, -i tc, IP2-RIPE"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -343,10 +337,10 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i zone-c, -i zc, IP2-RIPE"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("ZONE") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("ZONE") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -374,13 +368,13 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i person, -i pn, IP2-RIPE"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("AS2000") + "override: override1")
-        syncUpdate(getTransient("PING") + "override: override1")
-        syncUpdate(getTransient("PING2") + "override: override1")
-        syncUpdate(getTransient("ZONE") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("AS2000") + "override: denis,override1")
+        syncUpdate(getTransient("PING") + "override: denis,override1")
+        syncUpdate(getTransient("PING2") + "override: denis,override1")
+        syncUpdate(getTransient("ZONE") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -418,11 +412,11 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i ping-hdl, -i pc, IP1-RIPE"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("PING") + "override: override1")
-        syncUpdate(getTransient("ZONE") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("PING") + "override: denis,override1")
+        syncUpdate(getTransient("ZONE") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -450,14 +444,14 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i mnt-by, -i mb, BY-MNT"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW-R-D") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("AS2000") + "override: override1")
-        syncUpdate(getTransient("PING") + "override: override1")
-        syncUpdate(getTransient("PING2") + "override: override1")
-        syncUpdate(getTransient("ZONE") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW-R-D") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("AS2000") + "override: denis,override1")
+        syncUpdate(getTransient("PING") + "override: denis,override1")
+        syncUpdate(getTransient("PING2") + "override: denis,override1")
+        syncUpdate(getTransient("ZONE") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -495,15 +489,15 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i mnt-lower, -i ml, LOWER-MNT"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW-R-D") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("AS2000") + "override: override1")
-        syncUpdate(getTransient("PING") + "override: override1")
-        syncUpdate(getTransient("PING2") + "override: override1")
-        syncUpdate(getTransient("ZONE") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW-R-D") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("AS2000") + "override: denis,override1")
+        syncUpdate(getTransient("PING") + "override: denis,override1")
+        syncUpdate(getTransient("PING2") + "override: denis,override1")
+        syncUpdate(getTransient("ZONE") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -543,15 +537,15 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i mnt-routes, -i mu, ROUTES-MNT"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW-R-D") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("AS2000") + "override: override1")
-        syncUpdate(getTransient("PING") + "override: override1")
-        syncUpdate(getTransient("PING2") + "override: override1")
-        syncUpdate(getTransient("ZONE") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW-R-D") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("AS2000") + "override: denis,override1")
+        syncUpdate(getTransient("PING") + "override: denis,override1")
+        syncUpdate(getTransient("PING2") + "override: denis,override1")
+        syncUpdate(getTransient("ZONE") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -589,15 +583,15 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i mnt-domains, -i md, DOMAINS-MNT"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW-R-D") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("AS2000") + "override: override1")
-        syncUpdate(getTransient("PING") + "override: override1")
-        syncUpdate(getTransient("PING2") + "override: override1")
-        syncUpdate(getTransient("ZONE") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW-R-D") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("AS2000") + "override: denis,override1")
+        syncUpdate(getTransient("PING") + "override: denis,override1")
+        syncUpdate(getTransient("PING2") + "override: denis,override1")
+        syncUpdate(getTransient("ZONE") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -633,15 +627,15 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i mnt-ref, -i mz, REF-MNT"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW-R-D") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("AS2000") + "override: override1")
-        syncUpdate(getTransient("PING") + "override: override1")
-        syncUpdate(getTransient("PING2") + "override: override1")
-        syncUpdate(getTransient("ZONE") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW-R-D") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("AS2000") + "override: denis,override1")
+        syncUpdate(getTransient("PING") + "override: denis,override1")
+        syncUpdate(getTransient("PING2") + "override: denis,override1")
+        syncUpdate(getTransient("ZONE") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -677,14 +671,14 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i mbrs-by-ref, -i mr, ANY"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW-R-D") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("AS2000") + "override: override1")
-        syncUpdate(getTransient("AS-SET-ANY") + "override: override1")
-        syncUpdate(getTransient("ROUTE-SET") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW-R-D") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("AS2000") + "override: denis,override1")
+        syncUpdate(getTransient("AS-SET-ANY") + "override: denis,override1")
+        syncUpdate(getTransient("ROUTE-SET") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -718,14 +712,14 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i mbrs-by-ref, -i mr, MBRS-MNT"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW-R-D") + "override: override1")
-        syncUpdate(getTransient("SUB-LOW") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
-        syncUpdate(getTransient("AS2000") + "override: override1")
-        syncUpdate(getTransient("AS-SET-ANY") + "override: override1")
-        syncUpdate(getTransient("ROUTE-SET") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW-R-D") + "override: denis,override1")
+        syncUpdate(getTransient("SUB-LOW") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
+        syncUpdate(getTransient("AS2000") + "override: denis,override1")
+        syncUpdate(getTransient("AS-SET-ANY") + "override: denis,override1")
+        syncUpdate(getTransient("ROUTE-SET") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -797,9 +791,9 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i notify, -i ny, notify-inverse@ripe.net"() {
       given:
-        syncUpdate(getTransient("ALLOC-PA") + "override: override1")
-        syncUpdate(getTransient("ASS-END") + "override: override1")
-        syncUpdate(getTransient("AS1000") + "override: override1")
+        syncUpdate(getTransient("ALLOC-PA") + "override: denis,override1")
+        syncUpdate(getTransient("ASS-END") + "override: denis,override1")
+        syncUpdate(getTransient("AS1000") + "override: denis,override1")
 
       expect:
         // "ALLOC-PA"
@@ -840,11 +834,11 @@ class InverseQuerySpec extends BaseSpec {
 
     def "query -i irt-nfy, -i iy, irtnfy-inverse@ripe.net"() {
       given:
-        syncUpdate(getTransient("IRT") + "override: override1")
+        syncUpdate(getTransient("IRT") + "override: denis,override1")
 
       expect:
         // "IRT"
-        queryObject("-rBG -T irt IRT-TEST", "irt", "IRT-TEST")
+        queryObject("-rBG -T irt IRT-TEST", "irt", "irt-test")
 
       when:
         def longObjCount = queryCountObjects("-rGB -i irt-nfy irtnfy-inverse@ripe.net")

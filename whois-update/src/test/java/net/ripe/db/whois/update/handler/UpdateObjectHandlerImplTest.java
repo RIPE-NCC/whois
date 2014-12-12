@@ -1,28 +1,32 @@
 package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Operation;
+import net.ripe.db.whois.update.domain.Paragraph;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-import static org.hamcrest.Matchers.endsWith;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @Transactional
 @RunWith(MockitoJUnitRunner.class)
@@ -30,8 +34,8 @@ public class UpdateObjectHandlerImplTest {
 
     @Mock UpdateContext updateContext;
     @Mock RpslObjectUpdateDao rpslObjectUpdateDao;
-    @Mock DateTimeProvider dateTimeProvider;
-    private UpdateObjectHandlerImpl subject;
+    @Mock SsoTranslator ssoTranslator;
+    private UpdateObjectHandler subject;
 
     private final String RIPE_NCC_BA_MNT_MAINTAINER = "" +
             "mntner:            RIPE-NCC-BA-MNT\n" +
@@ -46,7 +50,19 @@ public class UpdateObjectHandlerImplTest {
 
     @Before
     public void setUp() throws Exception {
-        subject = new UpdateObjectHandlerImpl(rpslObjectUpdateDao, Lists.<BusinessRuleValidator>newArrayList(), dateTimeProvider);
+        when(ssoTranslator.translateFromCacheAuthToUsername(any(UpdateContext.class), any(RpslObject.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArguments()[1];
+            }
+        });
+        when(ssoTranslator.translateFromCacheAuthToUuid(any(UpdateContext.class), any(RpslObject.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArguments()[1];
+            }
+        });
+        subject = new UpdateObjectHandler(rpslObjectUpdateDao, Lists.<BusinessRuleValidator>newArrayList(), ssoTranslator);
     }
 
     @Test

@@ -2,8 +2,9 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 
 
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,7 +21,9 @@ class IndexWithInetnum extends IndexStrategyWithSingleLookupTable {
     public int addToIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo, final RpslObject object, final String value) {
         final Ipv4Resource resource = Ipv4Resource.parse(objectInfo.getKey());
 
-        final String netname = object.getValueForAttribute(AttributeType.NETNAME).toString();
+        // GRS sources might not have netname
+        final CIString netnameAttribute = object.getValueOrNullForAttribute(AttributeType.NETNAME);
+        final String netname = netnameAttribute == null ? "" : netnameAttribute.toString();
 
         return jdbcTemplate.update(
                 "INSERT INTO inetnum (object_id, begin_in, end_in, netname) VALUES (?, ?, ?, ?)",
@@ -43,7 +46,7 @@ class IndexWithInetnum extends IndexStrategyWithSingleLookupTable {
                 "  LEFT JOIN last l ON l.object_id = inetnum.object_id " +
                 "  WHERE begin_in = ? AND end_in = ? " +
                 "  AND l.sequence_id != 0 ",
-                new RpslObjectResultSetExtractor(),
+                new RpslObjectInfoResultSetExtractor(),
                 resource.begin(),
                 resource.end());
     }

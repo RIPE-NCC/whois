@@ -15,7 +15,7 @@ public final class IndexStrategies {
     private static final Map<ObjectType, List<IndexStrategy>> INDEXES_REFERING_OBJECT;
 
     static {
-        final IndexStrategy[] indexStrategies = new IndexStrategy[]{
+        final IndexStrategy[] indexStrategies = {
                 new IndexWithReference(AttributeType.ABUSE_C, "abuse_c", "pe_ro_id"),
                 new IndexWithValueAndType(AttributeType.ABUSE_MAILBOX, "abuse_mailbox", "abuse_mailbox"),
                 new Unindexed(AttributeType.ADDRESS),
@@ -27,7 +27,7 @@ public final class IndexStrategies {
                 new IndexWithAsBlock(AttributeType.AS_BLOCK),
                 new Unindexed(AttributeType.AS_NAME),
                 new IndexWithValue(AttributeType.AS_SET, "as_set", "as_set"),
-                new IndexWithValueAndType(AttributeType.AUTH, "auth", "auth"),
+                new IndexWithAuth(AttributeType.AUTH, "auth", "auth"),
                 new IndexWithReference(AttributeType.AUTHOR, "author", "pe_ro_id"),
                 new IndexWithValue(AttributeType.AUT_NUM, "aut_num", "aut_num"),
                 new Unindexed(AttributeType.CERTIF),
@@ -40,6 +40,7 @@ public final class IndexStrategies {
                 new IndexWithValue(AttributeType.DS_RDATA, "ds_rdata", "ds_rdata"),
                 new Unindexed(AttributeType.ENCRYPTION),
                 new Unindexed(AttributeType.EXPORT),
+                new Unindexed(AttributeType.EXPORT_VIA),
                 new Unindexed(AttributeType.EXPORT_COMPS),
                 new IndexWithValueAndType(AttributeType.E_MAIL, "e_mail", "e_mail"),
                 new Unindexed(AttributeType.FAX_NO),
@@ -51,6 +52,7 @@ public final class IndexStrategies {
                 new Unindexed(AttributeType.HOLES),
                 new IndexWithIfAddr(AttributeType.IFADDR),
                 new Unindexed(AttributeType.IMPORT),
+                new Unindexed(AttributeType.IMPORT_VIA),
                 new IndexWithInet6num(AttributeType.INET6NUM),
                 new IndexWithInetnum(AttributeType.INETNUM),
                 new IndexWithValue(AttributeType.INET_RTR, "inet_rtr", "inet_rtr"),
@@ -80,7 +82,7 @@ public final class IndexStrategies {
                 new Unindexed(AttributeType.MP_MEMBERS),
                 new Unindexed(AttributeType.MP_PEER),
                 new Unindexed(AttributeType.MP_PEERING),
-                new Unindexed(AttributeType.NETNAME),
+                new Unindexed(AttributeType.NETNAME),   // TODO: [AH] ATM this is handled by JdbcInetnumDao/JdbcInet6numDao as a special case
                 new IndexWithValueAndType(AttributeType.NIC_HDL, "person_role", "nic_hdl"),
                 new IndexWithValueAndType(AttributeType.NOTIFY, "notify", "notify"),
                 new IndexWithNServer(AttributeType.NSERVER, "nserver", "host"),
@@ -109,6 +111,7 @@ public final class IndexStrategies {
                 new IndexWithValue(AttributeType.RTR_SET, "rtr_set", "rtr_set"),
                 new Unindexed(AttributeType.SIGNATURE),
                 new Unindexed(AttributeType.SOURCE),
+                new IndexWithReference(AttributeType.SPONSORING_ORG, "sponsoring_org", "org_id"),
                 new Unindexed(AttributeType.STATUS),
                 new IndexWithReference(AttributeType.TECH_C, "tech_c", "pe_ro_id"),
                 new Unindexed(AttributeType.TEXT),

@@ -2,10 +2,8 @@ package net.ripe.db.whois.nrtm;
 
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.MaintenanceMode;
-import net.ripe.db.whois.common.aspects.RetryFor;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelException;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
@@ -18,8 +16,7 @@ import org.springframework.stereotype.Component;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
-import static net.ripe.db.whois.common.ServerHelper.getActualPort;
-
+// TODO: [ES] refactor use of two variables (one static) for port number
 @Component
 public class NrtmServer implements ApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmServer.class);
@@ -38,8 +35,8 @@ public class NrtmServer implements ApplicationService {
     private Channel serverChannelLegacy;
     private Channel serverChannel;
 
-    public static int port;
-    public static int legacyPort;
+    private static int port;
+    private static int legacyPort;
 
     @Autowired
     public NrtmServer(final NrtmChannelsRegistry nrtmChannelsRegistry,
@@ -59,34 +56,25 @@ public class NrtmServer implements ApplicationService {
             return;
         }
 
-        resumeLegacy();
-        resume();
-    }
+        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, nrtmPort, "NEW DUMMIFER");
+        serverChannelLegacy = bootstrapChannel(legacyNrtmServerPipelineFactory, nrtmPortLegacy, "OLD DUMMIFER");
 
-    @RetryFor(ChannelException.class)
-    public void resumeLegacy() {
-        legacyPort = getActualPort(nrtmPortLegacy);
-        serverChannelLegacy = bootstrapChannel(legacyNrtmServerPipelineFactory, legacyPort, "OLD DUMMIFER");
-    }
-
-    @RetryFor(ChannelException.class)
-    public void resume() {
-        port = getActualPort(nrtmPort);
-        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, port, "NEW DUMMIFER");
+        port = ((InetSocketAddress) serverChannel.getLocalAddress()).getPort();
+        legacyPort = ((InetSocketAddress) serverChannelLegacy.getLocalAddress()).getPort();
     }
 
     private Channel bootstrapChannel(final ChannelPipelineFactory serverPipelineFactory, final int port, final String instanceName) {
         final ChannelFactory channelFactory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
-
-        ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
+        final ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
 
         bootstrap.setPipelineFactory(serverPipelineFactory);
-
         bootstrap.setOption("backlog", 200);
         bootstrap.setOption("child.keepAlive", true);
 
-        LOGGER.info("NRTM server listening on port {} ({})", port, instanceName);
-        return bootstrap.bind(new InetSocketAddress(port));
+        final Channel channel = bootstrap.bind(new InetSocketAddress(port));
+        final int actualPort = ((InetSocketAddress) channel.getLocalAddress()).getPort();
+        LOGGER.info("NRTM server listening on port {} ({})", actualPort, instanceName);
+        return channel;
     }
 
     @Override
@@ -110,5 +98,13 @@ public class NrtmServer implements ApplicationService {
                 maintenanceMode.setShutdown();
             }
         }
+    }
+
+    public static int getPort() {
+        return port;
+    }
+
+    public static int getLegacyPort() {
+        return legacyPort;
     }
 }

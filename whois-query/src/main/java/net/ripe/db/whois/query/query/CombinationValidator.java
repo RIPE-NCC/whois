@@ -4,25 +4,29 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.QueryMessages;
 
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static net.ripe.db.whois.query.QueryFlag.*;
+
 class CombinationValidator implements QueryValidator {
     private static final Map<QueryFlag, List<QueryFlag>> INVALID_COMBINATIONS = Maps.newLinkedHashMap();
 
     static {
-        INVALID_COMBINATIONS.put(QueryFlag.ABUSE_CONTACT, Lists.newArrayList(QueryFlag.BRIEF, QueryFlag.NO_FILTERING, QueryFlag.NO_REFERENCED, QueryFlag.PRIMARY_KEYS));
-        INVALID_COMBINATIONS.put(QueryFlag.SHOW_TAG_INFO, Lists.newArrayList(QueryFlag.NO_TAG_INFO));
-        INVALID_COMBINATIONS.put(QueryFlag.RESOURCE, Lists.newArrayList(QueryFlag.SOURCES, QueryFlag.ALL_SOURCES, QueryFlag.INVERSE));
+        INVALID_COMBINATIONS.put(ABUSE_CONTACT, Lists.newArrayList(BRIEF, NO_FILTERING, NO_REFERENCED, PRIMARY_KEYS));
+        INVALID_COMBINATIONS.put(SHOW_TAG_INFO, Lists.newArrayList(NO_TAG_INFO));
+        INVALID_COMBINATIONS.put(RESOURCE, Lists.newArrayList(SOURCES, ALL_SOURCES, INVERSE));
+        INVALID_COMBINATIONS.put(VALID_SYNTAX, Lists.newArrayList(NO_VALID_SYNTAX, LIST_VERSIONS, SHOW_VERSION, DIFF_VERSIONS));
 
         final Map<QueryFlag, List<QueryFlag>> limitedCombinations = Maps.newHashMap();
-        limitedCombinations.put(QueryFlag.LIST_VERSIONS, Lists.newArrayList(QueryFlag.PERSISTENT_CONNECTION, QueryFlag.CLIENT));
-        limitedCombinations.put(QueryFlag.DIFF_VERSIONS, Lists.newArrayList(QueryFlag.PERSISTENT_CONNECTION, QueryFlag.CLIENT));
-        limitedCombinations.put(QueryFlag.SHOW_VERSION, Lists.newArrayList(QueryFlag.PERSISTENT_CONNECTION, QueryFlag.CLIENT));
+        limitedCombinations.put(LIST_VERSIONS, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT));
+        limitedCombinations.put(DIFF_VERSIONS, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT));
+        limitedCombinations.put(SHOW_VERSION, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT));
 
         for (Map.Entry<QueryFlag, List<QueryFlag>> limitedCombinationEntry : limitedCombinations.entrySet()) {
             final QueryFlag queryFlag = limitedCombinationEntry.getKey();

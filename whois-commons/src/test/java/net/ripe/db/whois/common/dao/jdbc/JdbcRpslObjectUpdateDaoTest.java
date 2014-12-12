@@ -390,7 +390,7 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
     private void assertCreate_simple(final ObjectType objectType) {
         final String info = objectType.toString();
-        truncateTables(new Database(whoisTemplate).getTableNames());
+        JdbcRpslObjectOperations.truncateTables(whoisTemplate);
 
         final Database before = new Database(whoisTemplate);
 
@@ -430,12 +430,11 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         final int objectTypeId = ObjectTypeIds.getId(objectType);
         assertThat(added.getTable("last"), hasSize(1));
 
-        // We do not have to check: thread_id, serial, prev_serial
         added.get("last",
                 with("object_id", created.getObjectId()),
                 with("sequence_id", 1),
                 with("pkey", created.getKey()),
-                with("timestamp", lessThan(JdbcRpslObjectOperations.now(dateTimeProvider) + 5)),
+                with("timestamp", lessThan(JdbcRpslObjectOperations.now(testDateTimeProvider) + 5)),
                 with("object_type", objectTypeId),
                 with("object", rpslObject.toByteArray())
         );
@@ -443,7 +442,6 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         // Serials
         assertThat(added.getTable("serials"), hasSize(1));
 
-        // We do not have to check: thread_id
         added.get("serials",
                 with("serial_id", greaterThan(0)),
                 with("object_id", created.getObjectId()),
@@ -457,7 +455,6 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
 
         assertThat(added.getTable(tableName), hasSize(1));
 
-        // We do not have to check: thread_id
         final Row lookupRow = added.get(tableName,
                 with("object_id", created.getObjectId())
         );

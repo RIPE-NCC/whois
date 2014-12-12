@@ -3,7 +3,7 @@ package net.ripe.db.whois.query.integration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.pipeline.QueryChannelsRegistry;
-import net.ripe.db.whois.query.support.AbstractWhoisIntegrationTest;
+import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(loader = SpringockitoContextLoader.class, locations = {"classpath:applicationContext-query-test.xml"}, inheritLocations = false)
 @Category(IntegrationTest.class)
-public class WhoisShutdownTestIntegration extends AbstractWhoisIntegrationTest {
+public class WhoisShutdownTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired @WrapWithSpy private QueryChannelsRegistry queryChannelsRegistry;
 
     @Before

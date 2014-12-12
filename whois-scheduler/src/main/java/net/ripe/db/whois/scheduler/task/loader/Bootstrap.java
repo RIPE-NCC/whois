@@ -1,15 +1,17 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
-import net.ripe.db.whois.common.ServerHelper;
+import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
+import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.scheduler.DailyScheduledTask;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class Bootstrap implements DailyScheduledTask {
@@ -22,7 +24,7 @@ public class Bootstrap implements DailyScheduledTask {
     private String[] dumpFileLocation;
 
     @Autowired
-    public Bootstrap(final Loader loader, SourceContext sourceContext) {
+    public Bootstrap(final Loader loader, final SourceContext sourceContext) {
         this.sourceContext = sourceContext;
         this.loader = loader;
     }
@@ -41,10 +43,9 @@ public class Bootstrap implements DailyScheduledTask {
 
             // wait until trees pick up empty DB to avoid case where few updates done and new objects added to text dump result in
             // treeupdaters not recognising rebuild is needed
-            ServerHelper.sleep((IpTreeUpdater.TREE_UPDATE_IN_SECONDS) * 1000);
+            Uninterruptibles.sleepUninterruptibly(IpTreeUpdater.TREE_UPDATE_IN_SECONDS, TimeUnit.SECONDS);
 
-            final String result = loader.loadSplitFiles(dumpFileLocation);
-            return result;
+            return loader.loadSplitFiles(dumpFileLocation);
         } finally {
             sourceContext.removeCurrentSource();
         }
@@ -53,8 +54,7 @@ public class Bootstrap implements DailyScheduledTask {
     public String loadTextDump(String[] dumpfile) {
         try {
             sourceContext.setCurrentSourceToWhoisMaster();
-            final String result = loader.loadSplitFiles(dumpfile);
-            return result;
+            return loader.loadSplitFiles(dumpfile);
         } finally {
             sourceContext.removeCurrentSource();
         }

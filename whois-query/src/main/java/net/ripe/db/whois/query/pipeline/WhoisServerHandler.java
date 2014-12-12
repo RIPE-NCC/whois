@@ -9,6 +9,10 @@ import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import org.jboss.netty.channel.*;
 
+/**
+ * The worker threads are asynchronously pushing data down the Netty pipeline.
+ * Make sure IO threads can handle the flow.
+ */
 public class WhoisServerHandler extends SimpleChannelUpstreamHandler {
     private final QueryHandler queryHandler;
     private boolean closed;
@@ -40,7 +44,6 @@ public class WhoisServerHandler extends SimpleChannelUpstreamHandler {
         channel.getPipeline().sendDownstream(new QueryCompletedEvent(channel));
     }
 
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // Base class throws exception
     @Override
     public void channelClosed(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         closed = true;

@@ -83,9 +83,9 @@ class OrganisationIdRepositoryJdbc implements OrganisationIdRepository {
 
     void createRange(final String space, final String suffix, final int end) {
         jdbcTemplate.update("" +
-                "insert into organisation_id(range_end, space, source, thread_id) " +
-                "  values(?, ?, ?, ?)",
-                end, space, getSuffixForSql(suffix), 0);
+                "insert into organisation_id(range_end, space, source) " +
+                "  values(?, ?, ?)",
+                end, space, getSuffixForSql(suffix));
     }
 
     void updateRange(final int rangeId, final int end) {

@@ -11,7 +11,7 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
-public class User {
+public final class User {
     private final CIString username;
     private final String hashedPassword;
     private final Set<ObjectType> objectTypes;

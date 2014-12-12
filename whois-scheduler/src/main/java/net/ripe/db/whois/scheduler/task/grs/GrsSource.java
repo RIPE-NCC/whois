@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.io.Downloader;
+import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.InitializingBean;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -51,7 +52,7 @@ abstract class GrsSource implements InitializingBean {
         return grsDao;
     }
 
-    abstract void acquireDump(File file) throws IOException;
+    abstract void acquireDump(Path path) throws IOException;
 
     abstract void handleObjects(File file, ObjectHandler handler) throws IOException;
 
@@ -85,7 +86,7 @@ abstract class GrsSource implements InitializingBean {
             }
 
             final char firstChar = line.charAt(0);
-            if (firstChar == '#') {
+            if (firstChar == '#' || firstChar == '%') {
                 continue;
             }
 

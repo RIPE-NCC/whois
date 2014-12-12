@@ -1,262 +1,74 @@
 package net.ripe.db.whois.common.grs;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.commons.ip.Asn;
+import net.ripe.commons.ip.AsnRange;
+import net.ripe.commons.ip.Ipv4;
+import net.ripe.commons.ip.Ipv4Range;
+import net.ripe.commons.ip.Ipv6;
+import net.ripe.commons.ip.Ipv6Range;
+import net.ripe.commons.ip.SortedRangeSet;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
-import net.ripe.db.whois.common.etree.IntervalMap;
-import net.ripe.db.whois.common.etree.NestedIntervalMap;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 
 import javax.annotation.concurrent.Immutable;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.math.BigInteger;
-import java.util.Collections;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
 public class AuthoritativeResource {
     private static final Set<ObjectType> RESOURCE_TYPES = Sets.newEnumSet(Lists.newArrayList(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM), ObjectType.class);
 
-    private final Set<CIString> autNums;
-    private final IntervalMap<Ipv4Resource, Ipv4Resource> inetRanges;
-    private final int nrInetRanges;
-    private final IntervalMap<Ipv6Resource, Ipv6Resource> inet6Ranges;
-    private final int nrInet6Ranges;
+    private final SortedRangeSet<Asn, AsnRange> autNums;
+    private final SortedRangeSet<Ipv4, Ipv4Range> inetRanges;
+    private final SortedRangeSet<Ipv6, Ipv6Range> inet6Ranges;
 
-    public static AuthoritativeResource unknown(final Logger logger) {
-        return new AuthoritativeResource(logger, Collections.<CIString>emptySet(), new NestedIntervalMap<Ipv4Resource, Ipv4Resource>(), new NestedIntervalMap<Ipv6Resource, Ipv6Resource>());
-    }
-
-    public static AuthoritativeResource loadFromFile(final Logger logger, final String name, final File file) {
-        try {
-            return loadFromScanner(logger, name, new Scanner(file));
-        } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException(String.format("File not found: %s", file.getAbsolutePath()), e);
+    public static AuthoritativeResource loadFromFile(final Logger logger, final String name, final Path path) {
+        try (final Scanner scanner = new Scanner(path)) {
+            return loadFromScanner(logger, name, scanner);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 
-    static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {
-        try {
-            return load(logger, name, scanner);
-        } finally {
-            scanner.close();
-        }
+    public static AuthoritativeResource unknown() {
+        return new AuthoritativeResource(new SortedRangeSet<Asn, AsnRange>(), new SortedRangeSet<Ipv4, Ipv4Range>(), new SortedRangeSet<Ipv6, Ipv6Range>());
     }
 
-    private static AuthoritativeResource load(final Logger logger, final String name, final Scanner scanner) {
-        scanner.useDelimiter("\n");
-
-        final Set<String> allowedStatus = Sets.newHashSet("allocated", "assigned", "available", "reserved");
-        final Pattern linePattern = Pattern.compile("^([a-zA-Z]+)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)\\|(.*?)(?:\\|.*|$)");
-
-        return new Callable<AuthoritativeResource>() {
-            final Set<CIString> autNums = Sets.newHashSet();
-            final IntervalMap<Ipv4Resource, Ipv4Resource> inetnums = new NestedIntervalMap<>();
-            final IntervalMap<Ipv6Resource, Ipv6Resource> inet6nums = new NestedIntervalMap<>();
-
-            @Override
-            public AuthoritativeResource call() {
-                final String expectedSource = name.replace("-GRS", "").toLowerCase();
-
-                while (scanner.hasNext()) {
-                    final String line = scanner.next();
-                    handleLine(expectedSource, line);
-                }
-
-                return new AuthoritativeResource(logger, autNums, inetnums, inet6nums);
-            }
-
-            private void handleLine(final String expectedSource, final String line) {
-                final Matcher matcher = linePattern.matcher(line);
-                if (!matcher.matches()) {
-                    logger.debug("Skipping: {}", line);
-                    return;
-                }
-
-                final String source = matcher.group(1);
-                final String cc = matcher.group(2);
-                final String type = matcher.group(3).toLowerCase();
-                final String start = matcher.group(4);
-                final String value = matcher.group(5);
-                final String status = matcher.group(7).toLowerCase();
-
-                if (!source.toLowerCase().contains(expectedSource)) {
-                    logger.debug("Ignoring source '{}': {}", source, line);
-                    return;
-                }
-
-                if (cc.indexOf('*') != -1) {
-                    logger.debug("Ignoring country code '{}': {}", cc, line);
-                    return;
-                }
-
-                if (!allowedStatus.contains(status)) {
-                    logger.debug("Ignoring status '{}': {}", status, line);
-                    return;
-                }
-
-                try {
-                    if (type.equals("ipv4")) {
-                        createIpv4Resource(start, value);
-                    } else if (type.equals("ipv6")) {
-                        createIpv6Resource(start, value);
-                    } else if (type.equals("asn")) {
-                        createAutNum(start, value);
-                    } else {
-                        logger.debug("Unsupported type '{}': {}", type, line);
-                    }
-                } catch (RuntimeException ignored) {
-                    logger.warn("Unexpected '{}-{}': {}", ignored, ignored.getMessage(), line);
-                }
-            }
-
-            private void createAutNum(final String start, final String value) {
-                final int startNum = Integer.parseInt(start);
-                final int count = Integer.parseInt(value);
-                for (int i = 0; i < count; i++) {
-                    autNums.add(ciString(String.format("AS%s", startNum + i)));
-                }
-            }
-
-            private void createIpv4Resource(final String start, final String value) {
-                final long begin = Ipv4Resource.parse(start).begin();
-                final long end = begin + (Long.parseLong(value) - 1);
-                final Ipv4Resource ipv4Resource = new Ipv4Resource(begin, end);
-                inetnums.put(ipv4Resource, ipv4Resource);
-            }
-
-            private void createIpv6Resource(final String start, final String value) {
-                final Ipv6Resource ipv6Resource = Ipv6Resource.parse(String.format("%s/%s", start, value));
-                inet6nums.put(ipv6Resource, ipv6Resource);
-            }
-        }.call();
+    public static AuthoritativeResource loadFromScanner(final Logger logger, final String name, final Scanner scanner) {
+        return new AuthoritativeResourceLoader(logger, name, scanner).load();
     }
 
-    private AuthoritativeResource(final Logger logger, final Set<CIString> autNums, final IntervalMap<Ipv4Resource, Ipv4Resource> inetRanges, final IntervalMap<Ipv6Resource, Ipv6Resource> inet6Ranges) {
+    public AuthoritativeResource(final SortedRangeSet<Asn, AsnRange> autNums, final SortedRangeSet<Ipv4, Ipv4Range> inetRanges, final SortedRangeSet<Ipv6, Ipv6Range> inet6Ranges) {
         this.autNums = autNums;
         this.inetRanges = inetRanges;
         this.inet6Ranges = inet6Ranges;
-        this.nrInetRanges = inetRanges.findExactAndAllMoreSpecific(Ipv4Resource.parse("0/0")).size();
-        this.nrInet6Ranges = inet6Ranges.findExactAndAllMoreSpecific(Ipv6Resource.parse("::0/0")).size();
-
-        logger.info("Resources: {}", String.format("asn: %5d; ipv4: %5d; ipv6: %5d", getNrAutNums(), getNrInetnums(), getNrInet6nums()));
     }
 
-    int getNrAutNums() {
+    public int getNrAutNums() {
         return autNums.size();
     }
 
-    int getNrInetnums() {
-        return nrInetRanges;
+    public int getNrInetnums() {
+        return inetRanges.size();
     }
 
-    int getNrInet6nums() {
-        return nrInet6Ranges;
+    public int getNrInet6nums() {
+        return inet6Ranges.size();
     }
 
     boolean isEmpty() {
         return getNrAutNums() == 0 && getNrInetnums() == 0 && getNrInet6nums() == 0;
-    }
-
-    private Ipv4Resource concatenateIpv4Resources(final List<Ipv4Resource> resources) {
-        if (resources.isEmpty()) {
-            throw new IllegalArgumentException();
-        }
-
-        for (int index = 1; index < resources.size(); index++) {
-            if (resources.get(index).begin() != resources.get(index - 1).end() + 1) {
-                throw new IllegalArgumentException("found gap");
-            }
-        }
-
-        return new Ipv4Resource(resources.get(0).begin(), resources.get(resources.size() - 1).end());
-    }
-
-    private Ipv6Resource concatenateIpv6Resources(final List<Ipv6Resource> resources) {
-        if (resources.isEmpty()) {
-            throw new IllegalArgumentException();
-        }
-
-        for (int index = 1; index < resources.size(); index++) {
-            if (!resources.get(index).begin().equals(resources.get(index - 1).end().add(BigInteger.ONE))) {
-                throw new IllegalArgumentException("found gap");
-            }
-        }
-
-        return new Ipv6Resource(resources.get(0).begin(), resources.get(resources.size() - 1).end());
-    }
-
-    public boolean isMaintainedByRir(final ObjectType objectType, final CIString pkey) {
-        try {
-            switch (objectType) {
-                case AUT_NUM:
-                    return autNums.contains(pkey);
-                case INETNUM:
-                {
-                    final Ipv4Resource pkeyResource = Ipv4Resource.parse(pkey);
-
-                    if (!inetRanges.findExact(pkeyResource).isEmpty()) {
-                        return true;
-                    }
-
-                    List<Ipv4Resource> matches = inetRanges.findFirstMoreSpecific(pkeyResource);
-                    if (matches.isEmpty()) {
-                        return false;
-                    }
-
-                    try {
-                        Ipv4Resource concatenatedResource = concatenateIpv4Resources(matches);
-                        if (concatenatedResource.compareTo(pkeyResource) == 0) {
-                            return true;
-                        }
-                    } catch (IllegalArgumentException ignored) {
-                        // empty match or gap in range
-                    }
-
-                    return false;
-                }
-                case INET6NUM:
-                {
-                    final Ipv6Resource pkeyResource = Ipv6Resource.parse(pkey);
-
-                    if (!inet6Ranges.findExact(pkeyResource).isEmpty()) {
-                        return true;
-                    }
-
-                    List<Ipv6Resource> matches = inet6Ranges.findFirstMoreSpecific(pkeyResource);
-                    if (matches.isEmpty()) {
-                        return false;
-                    }
-
-                    try {
-                        Ipv6Resource concatenatedResource = concatenateIpv6Resources(matches);
-                        if (concatenatedResource.compareTo(pkeyResource) == 0) {
-                            return true;
-                        }
-                    } catch (IllegalArgumentException ignored) {
-                        // empty match or gap in range
-                    }
-
-                    return false;
-                }
-                default:
-                    return true;
-            }
-        } catch (IllegalArgumentException ignored) {
-            return false;
-        }
     }
 
     public boolean isMaintainedInRirSpace(final RpslObject rpslObject) {
@@ -267,11 +79,11 @@ public class AuthoritativeResource {
         try {
             switch (objectType) {
                 case AUT_NUM:
-                    return autNums.contains(pkey);
+                    return autNums.contains(parseAsn(pkey));
                 case INETNUM:
-                    return !inetRanges.findExactOrFirstLessSpecific(Ipv4Resource.parse(pkey)).isEmpty();
+                    return inetRanges.contains(parseRangeOrSingleAddress(pkey));
                 case INET6NUM:
-                    return !inet6Ranges.findExactOrFirstLessSpecific(Ipv6Resource.parse(pkey)).isEmpty();
+                    return inet6Ranges.contains(parseIpv6(pkey));
                 default:
                     return true;
             }
@@ -280,19 +92,103 @@ public class AuthoritativeResource {
         }
     }
 
+    private AsnRange parseAsn(final CIString pkey) {
+        return Asn.parse(pkey.toString()).asRange();
+    }
+
+
+    private Ipv6Range parseIpv6(final CIString pkey) {
+        // use whois-common library to parse input
+        // to keep backwards compatibility
+        // so that 2001:2002:2003:2004:1::/65 is parsed as 2001:2002:2003:2004::/65
+        final Ipv6Resource ipv6Resource = Ipv6Resource.parse(pkey);
+        return Ipv6Range.from(ipv6Resource.begin()).to(ipv6Resource.end());
+    }
+
+    private Ipv4Range parseRangeOrSingleAddress(final CIString pkey) {
+        // use whois-common library to parse input
+        // to keep backwards compatibility
+        // so that 10/8 is parsed as 10.0.0.0/8
+        final Ipv4Resource ipv4Resource = Ipv4Resource.parse(pkey);
+        return Ipv4Range.from(ipv4Resource.begin()).to(ipv4Resource.end());
+    }
+
     public Set<ObjectType> getResourceTypes() {
         return RESOURCE_TYPES;
     }
 
-    Set<CIString> getAutNums() {
-        return autNums;
+    public Iterable<String> findAutnumOverlaps(AuthoritativeResource other) {
+        return Iterables.transform(this.autNums.intersection(other.autNums), new Function<AsnRange, String>() {
+            @Override
+            public String apply(final AsnRange input) {
+                return input.toString();
+            }
+        });
     }
 
-    IntervalMap<Ipv4Resource, Ipv4Resource> getInetRanges() {
-        return inetRanges;
+    public Iterable<String> findInetnumOverlaps(AuthoritativeResource other) {
+        return Iterables.transform(this.inetRanges.intersection(other.inetRanges), new Function<Ipv4Range, String>() {
+            @Override
+            public String apply(final Ipv4Range input) {
+                return input.toStringInRangeNotation();
+            }
+        });
     }
 
-    IntervalMap<Ipv6Resource, Ipv6Resource> getInet6Ranges() {
-        return inet6Ranges;
+    public Iterable<String> findInet6numOverlaps(AuthoritativeResource other) {
+        return Iterables.transform(this.inet6Ranges.intersection(other.inet6Ranges), new Function<Ipv6Range, String>() {
+            @Override
+            public String apply(final Ipv6Range input) {
+                return input.toStringInCidrNotation();
+            }
+        });
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AuthoritativeResource that = (AuthoritativeResource) o;
+
+        return autNums.equals(that.autNums) && inet6Ranges.equals(that.inet6Ranges) && inetRanges.equals(that.inetRanges);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (autNums == null ? 0 : autNums.hashCode());
+        result = 31 * result + (inetRanges == null ? 0 : inetRanges.hashCode());
+        result = 31 * result + (inet6Ranges == null ? 0 : inet6Ranges.hashCode());
+        return result;
+    }
+
+    public List<String> getResources() {
+        return Lists.newArrayList(Iterables.concat(
+                Iterables.transform(autNums, new Function<AsnRange, String>() {
+                    @Override
+                    public String apply(AsnRange input) {
+                        return input.toString();
+                    }
+                }),
+                Iterables.transform(inetRanges, new Function<Ipv4Range, String>() {
+                    @Override
+                    public String apply(Ipv4Range input) {
+                        return input.toStringInRangeNotation();
+                    }
+                }),
+                Iterables.transform(
+                        Iterables.concat(Iterables.transform(inet6Ranges, new Function<Ipv6Range, List<Ipv6Range>>() {
+                            @Override
+                            public List<Ipv6Range> apply(Ipv6Range input) {
+                                return input.splitToPrefixes();
+                            }
+                        })), new Function<Ipv6Range, String>() {
+                            @Override
+                            public String apply(Ipv6Range input) {
+                                return input.toStringInCidrNotation();
+                            }
+                        })
+                ));
     }
 }
+

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.pipeline;
 
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.frame.TooLongFrameException;
 import org.jboss.netty.handler.timeout.TimeoutException;
@@ -53,7 +53,7 @@ public class ExceptionHandlerTest {
     public void handle_unknown_exceptions() throws Exception {
         subject.exceptionCaught(channelHandlerContextMock, exceptionEventMock);
 
-        verify(channelMock, times(1)).write(QueryMessages.internalErrorOccured());
+        verify(channelMock, times(1)).write(QueryMessages.internalErroroccurred());
     }
 
     @Test

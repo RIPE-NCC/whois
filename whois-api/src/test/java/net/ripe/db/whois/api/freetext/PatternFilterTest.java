@@ -3,7 +3,6 @@ package net.ripe.db.whois.api.freetext;
 import com.google.common.collect.Lists;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.util.Version;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -61,7 +60,7 @@ public class PatternFilterTest {
     private List<String> tokenize(final String input) throws IOException {
         final List<String> tokens = Lists.newArrayList();
 
-        final WhitespaceTokenizer whitespaceTokenizer = new WhitespaceTokenizer(Version.LUCENE_41, new StringReader(input));
+        final WhitespaceTokenizer whitespaceTokenizer = new WhitespaceTokenizer(new StringReader(input));
         final PatternFilter subject = new PatternFilter(whitespaceTokenizer);
 
         try {

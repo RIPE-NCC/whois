@@ -18,16 +18,18 @@ public abstract class IterableTransformer<T> implements Iterable<T> {
      * efficiently add extra headers, as in iterable elements at the beginning of the iterable
      * headers are not fed into apply() but passed down directly
      */
-    public void setHeader(T... header) {
+    public IterableTransformer<T> setHeader(T... header) {
         head = Arrays.asList(header);
+        return this;
     }
 
     /**
      * efficiently add extra headers, as in iterable elements at the beginning of the iterable
      * headers are not fed into apply() but passed down directly
      */
-    public void setHeader(Collection<T> header) {
+    public IterableTransformer<T> setHeader(Collection<T> header) {
         head = header;
+        return this;
     }
 
     /**

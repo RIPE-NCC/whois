@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import org.apache.commons.lang.StringUtils;
 
@@ -52,6 +53,7 @@ public final class Notification {
     @Immutable
     public static class Update {
         private static final Map<Action, String> RESULT_MAP = Maps.newEnumMap(Action.class);
+        private static final FilterAuthFunction filterAuthFunction = new FilterAuthFunction();
 
         static {
             RESULT_MAP.put(Action.CREATE, "CREATED");
@@ -68,21 +70,21 @@ public final class Notification {
         private final PreparedUpdate update;
         private final int versionId;
 
-        public Update(final PreparedUpdate update, UpdateContext updateContext) {
-            this.referenceObject = new FilterAuthFunction().apply(update.getReferenceObject());
-            this.updatedObject = new FilterAuthFunction().apply(update.getUpdatedObject());
+        public Update(final PreparedUpdate update, final UpdateContext updateContext) {
+            this.referenceObject = filterAuthFunction.apply(update.getReferenceObject());
+            this.updatedObject = filterAuthFunction.apply(update.getUpdatedObject());
             this.action = update.getAction().name();
             this.result = RESULT_MAP.get(update.getAction());
             this.update = update;
 
-            String reason = StringUtils.join(update.getUpdate().getDeleteReasons(), ", ");
-            if (StringUtils.isNotEmpty(reason)) {
-                reason = prettyPrint(String.format("***%s: ", Messages.Type.INFO), reason, 12, 80);
+            String updateReason = StringUtils.join(update.getUpdate().getDeleteReasons(), ", ");
+            if (StringUtils.isNotEmpty(updateReason)) {
+                updateReason = prettyPrint(String.format("***%s: ", Messages.Type.INFO), updateReason, 12, 80);
             }
 
             versionId = updateContext.getVersionId(update);
 
-            this.reason = reason;
+            this.reason = updateReason;
         }
 
         public RpslObject getReferenceObject() {
@@ -110,7 +112,7 @@ public final class Notification {
         }
 
         public String getDiff() {
-            return updatedObject.diff(referenceObject);
+            return RpslObjectFilter.diff(referenceObject, updatedObject);
         }
 
         public int getVersionId() {

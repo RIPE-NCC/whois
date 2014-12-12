@@ -29,7 +29,16 @@ $update.action REQUESTED FOR:
 
 $update.referenceObject
 
-$update.reason
+#if ($update.replacement)
+---
+OBJECT MODIFICATION REQUESTED:
+
+>>>>>
+$update.diff
+<<<<<
+#end
+
+$!update.reason
 
 #end
 #end
@@ -78,7 +87,7 @@ The old object can be seen in the history using the query options --list-version
 #else
 $update.updatedObject
 #end
-$update.reason
+$!update.reason
 #end
 #end
 
@@ -107,7 +116,7 @@ The old object can be seen in the history using the query options --list-version
 #else
 $update.updatedObject
 #end
-$update.reason
+$!update.reason
 #end
 #end
 

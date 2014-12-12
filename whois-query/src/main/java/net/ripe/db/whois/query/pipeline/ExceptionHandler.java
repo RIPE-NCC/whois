@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.frame.TooLongFrameException;
 import org.jboss.netty.handler.timeout.TimeoutException;
@@ -50,7 +50,7 @@ public class ExceptionHandler extends SimpleChannelUpstreamHandler {
                     query,
                     cause);
 
-            handleException(channel, Collections.singletonList(QueryMessages.internalErrorOccured()), QueryCompletionInfo.EXCEPTION);
+            handleException(channel, Collections.singletonList(QueryMessages.internalErroroccurred()), QueryCompletionInfo.EXCEPTION);
         }
     }
 

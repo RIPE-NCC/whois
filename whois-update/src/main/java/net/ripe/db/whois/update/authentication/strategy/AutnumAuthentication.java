@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-class AutnumAuthentication extends AuthenticationStrategyBase {
+public class AutnumAuthentication extends AuthenticationStrategyBase {
     private final RpslObjectDao objectDao;
     private final AuthenticationModule authenticationModule;
 

@@ -10,7 +10,6 @@ import javax.annotation.CheckForNull;
 import java.util.Map;
 import java.util.Set;
 
-// TODO: [AH] objectId should not be exposed outside DAO (it shouldn't be part of the DAO interface)
 public interface RpslObjectUpdateDao {
 
     RpslObjectUpdateInfo lookupObject(ObjectType type, String pkey);
@@ -27,7 +26,7 @@ public interface RpslObjectUpdateDao {
 
     Set<RpslObjectInfo> getReferences(RpslObject object);
 
-    Map<RpslAttribute, Set<String>> getInvalidReferences(RpslObject object);
+    Map<RpslAttribute, Set<CIString>> getInvalidReferences(RpslObject object);
 
     @CheckForNull
     RpslObjectInfo getAttributeReference(AttributeType attributeType, CIString keyValue);

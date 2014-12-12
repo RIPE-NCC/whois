@@ -2,12 +2,11 @@ package net.ripe.db.whois.scheduler.task.acl;
 
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.TestDateTimeProvider;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.PersonalObjectAccounting;
-import net.ripe.db.whois.query.domain.QueryMessages;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.joda.time.LocalDateTime;
 import org.junit.After;
@@ -32,7 +31,6 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     @Autowired PersonalObjectAccounting personalObjectAccounting;
     @Autowired AutomaticPermanentBlocks automaticPermanentBlocks;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
-    @Autowired TestDateTimeProvider dateTimeProvider;
 
     @Before
     public void startupServer() throws Exception {
@@ -60,7 +58,7 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     public void test_ban_and_unban() throws Exception {
         int currentDay = 0;
         for (int day = 1; day <= NR_DAYS_BEFORE_PERMANENT_BAN; day++) {
-            dateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
+            testDateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
             queryAndCheckNotBanned(personQuery, "person:         test person");
 
             // Caught by ACL manager
@@ -71,16 +69,16 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
             dailyMaintenance();
         }
 
-        dateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
+        testDateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
         dailyMaintenance();
         queryAndCheckBanned(QueryMessages.accessDeniedPermanently(localHost));
 
-        dateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
+        testDateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
         databaseHelper.unban("127.0.0.1/32");
 
         dailyMaintenance();
 
-        dateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
+        testDateTimeProvider.setTime(new LocalDateTime().plusDays(currentDay++));
         queryAndCheckNotBanned(personQuery, "person:         test person");
     }
 
@@ -112,6 +110,6 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     }
 
     private String query(final String query) throws Exception {
-        return DummyWhoisClient.query(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
 }

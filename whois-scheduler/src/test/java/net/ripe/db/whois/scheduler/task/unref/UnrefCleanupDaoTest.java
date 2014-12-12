@@ -1,13 +1,11 @@
 package net.ripe.db.whois.scheduler.task.unref;
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import net.ripe.db.whois.update.domain.ObjectKey;
 import org.joda.time.LocalDate;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,13 +22,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 public class UnrefCleanupDaoTest extends AbstractSchedulerIntegrationTest {
     final static Set<ObjectType> referenceCheckObjectTypes = Sets.newHashSet(ObjectType.PERSON, ObjectType.ROLE);
 
-    @Autowired TestDateTimeProvider dateTimeProvider;
     @Autowired UnrefCleanupDao subject;
-
-    @Before
-    public void setup() throws Exception {
-        dateTimeProvider.reset();
-    }
 
     @Test
     public void getDeleteCandidates_empty() {
@@ -55,7 +47,7 @@ public class UnrefCleanupDaoTest extends AbstractSchedulerIntegrationTest {
     @Test
     public void getDeleteCandidates_person_deleted_and_readded() {
         final RpslObject person = RpslObject.parse("person: test\nnic-hdl: TEST-PN");
-        databaseHelper.removeObject(databaseHelper.addObject(person));
+        databaseHelper.deleteObject(databaseHelper.addObject(person));
         databaseHelper.addObject(person);
 
         final Map<ObjectKey, DeleteCandidate> deleteCandidates = subject.getDeleteCandidates(referenceCheckObjectTypes);
@@ -140,10 +132,10 @@ public class UnrefCleanupDaoTest extends AbstractSchedulerIntegrationTest {
     @Test
     public void doForHistoricRpslObjects_person_and_role() {
         final RpslObject person = RpslObject.parse("person: test\nnic-hdl: TEST-PN");
-        databaseHelper.removeObject(databaseHelper.addObject(person));
+        databaseHelper.deleteObject(databaseHelper.addObject(person));
 
         final RpslObject inetnum = RpslObject.parse("inetnum: 193.0.0.10\nnetname: netname");
-        databaseHelper.removeObject(databaseHelper.addObject(inetnum));
+        databaseHelper.deleteObject(databaseHelper.addObject(inetnum));
 
         final Set<RpslObject> handled = Sets.newHashSet();
 
@@ -162,10 +154,10 @@ public class UnrefCleanupDaoTest extends AbstractSchedulerIntegrationTest {
     @Test
     public void doForHistoricRpslObjects_person_and_role_too_long_ago() {
         final RpslObject person = RpslObject.parse("person: test\nnic-hdl: TEST-PN");
-        databaseHelper.removeObject(databaseHelper.addObject(person));
+        databaseHelper.deleteObject(databaseHelper.addObject(person));
 
         final RpslObject inetnum = RpslObject.parse("inetnum: 193.0.0.10\nnetname: netname");
-        databaseHelper.removeObject(databaseHelper.addObject(inetnum));
+        databaseHelper.deleteObject(databaseHelper.addObject(inetnum));
 
         final Set<RpslObject> handled = Sets.newHashSet();
 

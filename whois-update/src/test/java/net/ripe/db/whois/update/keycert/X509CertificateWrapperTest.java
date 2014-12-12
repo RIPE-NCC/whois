@@ -13,6 +13,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -27,7 +28,7 @@ public class X509CertificateWrapperTest {
 
     @Before
     public void setup() throws IOException {
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.parse("2014-01-02"));
         x509Keycert = RpslObject.parse(getResource("keycerts/X509-3465.TXT"));
         anotherX509Keycert = RpslObject.parse(getResource("keycerts/X509-1.TXT"));
         pgpKeycert = RpslObject.parse(getResource("keycerts/PGPKEY-28F6CD6C.TXT"));
@@ -59,8 +60,7 @@ public class X509CertificateWrapperTest {
     public void getOwner() {
         X509CertificateWrapper subject = X509CertificateWrapper.parse(x509Keycert);
 
-        assertThat(subject.getOwner(),
-                is("/C=NL/ST=Some-State/O=BOGUS"));
+        assertThat(subject.getOwners(), containsInAnyOrder("/C=NL/ST=Some-State/O=BOGUS"));
     }
 
     @Test

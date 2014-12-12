@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.database;
 
 import net.ripe.db.whois.common.IntegrationTest;
-import net.ripe.db.whois.update.dao.AbstractDaoTest;
+import net.ripe.db.whois.update.dao.AbstractUpdateDaoTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
-public class TransactionTestIntegration extends AbstractDaoTest {
+public class TransactionTestIntegration extends AbstractUpdateDaoTest {
     @Autowired @Qualifier("sourceAwareDataSource") DataSource dataSource;
 
     @Test

@@ -8,7 +8,12 @@ import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContainer;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -20,7 +25,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPOutputStream;
@@ -34,8 +44,10 @@ public class LoggerContext {
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
     private static final int MAXIMUM_FILENAME_LENGTH = 255;
 
+    // static, to avoid overlapping applicationContexts masking Contexts
+    private static final ThreadLocal<Context> context = new ThreadLocal<>();
+
     private final DateTimeProvider dateTimeProvider;
-    private final ThreadLocal<Context> context = new ThreadLocal<>();
 
     @Value("${dir.update.audit.log}") private String baseDir;
 
@@ -59,7 +71,7 @@ public class LoggerContext {
 
     private File getCreatedDir(final String name) {
         final File dir = new File(name);
-        if (!dir.exists() && !dir.mkdirs()) {
+        if (!dir.mkdirs() && !dir.exists()) {
             throw new IllegalStateException("Unable to create directory: " + dir.getAbsolutePath());
         }
 
@@ -81,14 +93,13 @@ public class LoggerContext {
         final AuditLogger auditLogger = new AuditLogger(dateTimeProvider, getOutputstream(getFile(dir, fileNumber.getAndIncrement(), "audit.xml")));
 
         context.set(new Context(dir, fileNumber, auditLogger));
-        LOGGER.debug("Using dir: {}", dir.getAbsolutePath());
     }
 
     public void remove() {
         try {
             getContext().auditLogger.close();
         } finally {
-            this.context.remove();
+            context.remove();
         }
     }
 
@@ -140,7 +151,7 @@ public class LoggerContext {
     public void logUpdateStarted(final Update update) {
         final Context ctx = getContext();
         ctx.auditLogger.logUpdate(update);
-        ctx.stopwatch = new Stopwatch().start();
+        ctx.stopwatch = Stopwatch.createStarted();
         ctx.currentUpdate = update;
     }
 
@@ -176,14 +187,9 @@ public class LoggerContext {
         getContext().auditLogger.logPreparedUpdate(preparedUpdate);
     }
 
-    public boolean canLog() {
-        final Context ctx = context.get();
-        return !(ctx == null || ctx.currentUpdate == null);
-    }
-
     public void logQuery(final StatementInfo statementInfo, final ResultInfo resultInfo) {
         final Context ctx = context.get();
-        if (canLog()) {
+        if (ctx != null && ctx.currentUpdate != null) {
             ctx.auditLogger.logQuery(ctx.currentUpdate, statementInfo, resultInfo);
         }
     }
@@ -194,6 +200,14 @@ public class LoggerContext {
 
     public void logAction(final UpdateContainer updateContainer, final Action action) {
         getContext().auditLogger.logAction(updateContainer.getUpdate(), action);
+    }
+
+    public void logAuthenticationStrategy(Update update, String authenticationStrategy, Collection<RpslObject> maintainers) {
+        getContext().auditLogger.logAuthenticationStrategy(update, authenticationStrategy, maintainers);
+    }
+
+    public void logCredentials(Update update) {
+        getContext().auditLogger.logCredentials(update);
     }
 
     public void logString(final Update update, final String element, final String auditMessage) {

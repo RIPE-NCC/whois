@@ -5,12 +5,11 @@ import org.bouncycastle.openpgp.PGPSignature;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.SignatureException;
 
 /**
  * Signed message util, mostly copied from BouncyCastle PGP tests.
  */
-class PgpSignedMessageUtil {
+final class PgpSignedMessageUtil {
     private PgpSignedMessageUtil() {
     }
 
@@ -32,24 +31,24 @@ class PgpSignedMessageUtil {
     }
 
     static int readInputLine(final ByteArrayOutputStream out, int lookAhead, final InputStream in) throws IOException {
+        int newLookAhead = lookAhead;
         out.reset();
 
         int ch = lookAhead;
-
         do {
             out.write(ch);
             if (ch == '\r' || ch == '\n') {
-                lookAhead = readPassedEOL(out, ch, in);
+                newLookAhead = readPassedEOL(out, ch, in);
                 break;
             }
         }
         while ((ch = in.read()) >= 0);
 
         if (ch < 0) {
-            lookAhead = -1;
+            newLookAhead = -1;
         }
 
-        return lookAhead;
+        return newLookAhead;
     }
 
     static int readPassedEOL(final ByteArrayOutputStream out, final int lastCh, final InputStream in) throws IOException {
@@ -102,7 +101,7 @@ class PgpSignedMessageUtil {
         return isLineEnding(b) || b == '\t' || b == ' ';
     }
 
-    static void processLine(final PGPSignature sig, final byte[] line) throws SignatureException, IOException {
+    static void processLine(final PGPSignature sig, final byte[] line) throws IOException {
         final int length = getLengthWithoutWhiteSpace(line);
         if (length > 0) {
             sig.update(line, 0, length);

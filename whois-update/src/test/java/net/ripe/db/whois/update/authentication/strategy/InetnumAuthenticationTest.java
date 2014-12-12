@@ -2,8 +2,8 @@ package net.ripe.db.whois.update.authentication.strategy;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Entry;
@@ -24,6 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -153,22 +154,24 @@ public class InetnumAuthenticationTest {
         verifyZeroInteractions(updateContext);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parent_not_found() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: fe80::/32"));
-
         when(ipv6Tree.findFirstLessSpecific(any(Ipv6Resource.class))).thenReturn(Lists.<Ipv6Entry>newArrayList());
 
-        subject.authenticate(update, updateContext);
+        List<RpslObject> rpslObjects = subject.authenticate(update, updateContext);
+
+        assertThat(rpslObjects, is(empty()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void more_than_one_parent_found() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: fe80::/32"));
-
         when(ipv6Tree.findFirstLessSpecific(any(Ipv6Resource.class))).thenReturn(Lists.<Ipv6Entry>newArrayList(ipv6Entry, ipv6Entry));
 
-        subject.authenticate(update, updateContext);
+        List<RpslObject> rpslObjects = subject.authenticate(update, updateContext);
+
+        assertThat(rpslObjects, is(empty()));
     }
 
 }

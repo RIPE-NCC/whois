@@ -13,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -25,10 +23,10 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisClientHandler.class);
 
     private final ClientBootstrap bootstrap;
-    private InetSocketAddress host;
+    private final InetSocketAddress host;
     private Channel channel;
 
-    private ChannelBuffer response = ChannelBuffers.dynamicBuffer(8192);
+    private final ChannelBuffer response = ChannelBuffers.dynamicBuffer(8192);
     private boolean success;
 
     public WhoisClientHandler(ClientBootstrap bootstrap, String hostName, int port) {
@@ -50,8 +48,16 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         ChannelBuffer cb = (ChannelBuffer) e.getMessage();
-        response.writeBytes(cb);
+        synchronized (response) {
+            response.writeBytes(cb);
+        }
         success = true;
+    }
+
+    public void clearBuffer() {
+        synchronized (response) {
+            response.clear();
+        }
     }
 
     @Override
@@ -61,13 +67,9 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
         e.getChannel().close();
     }
 
-    public ChannelFuture connect() {
-        return bootstrap.connect(host);
-    }
-
     public ChannelFuture connectAndWait() throws InterruptedException {
-        ChannelFuture future = connect();
-        success = future.await(1, TimeUnit.SECONDS);
+        ChannelFuture future = bootstrap.connect(host);
+        success = future.await(3, TimeUnit.SECONDS);
         return future;
     }
 
@@ -78,7 +80,7 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     public ChannelFuture sendLine(String query) throws InterruptedException {
         Assert.assertTrue(success);
         ChannelFuture future = channel.write(query + "\n");
-        success = future.await(1, TimeUnit.SECONDS);
+        success = future.await(3, TimeUnit.SECONDS);
         return future;
     }
 
@@ -87,19 +89,13 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     }
 
     public String getResponse() {
-        return getResponse(Charsets.UTF_8);
-    }
-
-    public String getResponse(Charset encoding) {
-        return new String(response.array(), 0, response.readableBytes(), encoding);
-    }
-
-    public byte[] getResponseBytes() {
-        return Arrays.copyOfRange(response.array(), 0, response.readableBytes());
+        synchronized (response) {
+            return response.toString(Charsets.UTF_8);
+        }
     }
 
     public void waitForClose() throws InterruptedException {
-        success = channel.getCloseFuture().await(10, TimeUnit.SECONDS);
+        success = channel.getCloseFuture().await(3, TimeUnit.SECONDS);
     }
 
     public void waitForResponseContains(final String assertText) throws Exception {
@@ -111,7 +107,7 @@ public class WhoisClientHandler extends SimpleChannelUpstreamHandler {
     }
 
     private void waitForResponse(Matcher<String> anwserMatcher) throws Exception {
-        Awaitility.waitAtMost(1, TimeUnit.SECONDS).until(new Callable<String>() {
+        Awaitility.waitAtMost(3, TimeUnit.SECONDS).until(new Callable<String>() {
             @Override
             public String call() throws Exception {
                 return getResponse();

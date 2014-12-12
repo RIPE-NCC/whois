@@ -7,9 +7,11 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
@@ -31,10 +33,12 @@ public class UpdateContext {
     private final Map<CIString, GeneratedKey> generatedKeys = Maps.newHashMap();
     private final Map<Update, Context> contexts = Maps.newLinkedHashMap();
     private final Map<DnsCheckRequest, DnsCheckResponse> dnsCheckResponses = Maps.newHashMap();
+    private final Map<String, String> ssoTranslation = Maps.newHashMap();
     private final LoggerContext loggerContext;
 
     private int nrSinceRestart;
     private boolean dryRun;
+    private UserSession userSession;
 
     public UpdateContext(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
@@ -59,6 +63,35 @@ public class UpdateContext {
         if (previous != null) {
             throw new IllegalStateException("Existing response for request: " + request);
         }
+    }
+
+    public void addSsoTranslationResult(final String username, final String uuid) {
+        final String duplicateUuid = ssoTranslation.put(username, uuid);
+        if (duplicateUuid != null) {
+            throw new IllegalStateException("Duplicate UUID '" + duplicateUuid + "' in SSO translation! (" + username + "=" + uuid + ")");
+        }
+
+        final String duplicateUsername = ssoTranslation.put(uuid, username);
+        if (duplicateUsername != null) {
+            throw new IllegalStateException("Duplicate username '" + duplicateUsername + "' in SSO translation! (" + username + "=" + uuid + ")");
+        }
+    }
+
+    public boolean hasSsoTranslationResult(String usernameOrUuid) {
+        return ssoTranslation.containsKey(usernameOrUuid);
+    }
+
+    @CheckForNull
+    public String getSsoTranslationResult(final String usernameOrUuid) {
+        return ssoTranslation.get(usernameOrUuid);
+    }
+
+    public void addPendingUpdate(final UpdateContainer updateContainer, final PendingUpdate pendingUpdate) {
+        getOrCreateContext(updateContainer).pendingUpdate = pendingUpdate;
+    }
+
+    public PendingUpdate getPendingUpdate(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).pendingUpdate;
     }
 
     @CheckForNull
@@ -90,6 +123,9 @@ public class UpdateContext {
         loggerContext.logAction(updateContainer, action);
     }
 
+    public Action getAction(final UpdateContainer updateContainer) {
+        return getOrCreateContext(updateContainer).action;
+    }
     public PreparedUpdate getPreparedUpdate(final UpdateContainer updateContainer) {
         return getOrCreateContext(updateContainer).preparedUpdate;
     }
@@ -136,6 +172,7 @@ public class UpdateContext {
     }
 
     public void setPreparedUpdate(final PreparedUpdate preparedUpdate) {
+        loggerContext.logPreparedUpdate(preparedUpdate);
         final Context context = getOrCreateContext(preparedUpdate);
         context.preparedUpdate = preparedUpdate;
     }
@@ -246,7 +283,7 @@ public class UpdateContext {
             updatedObject = update.getSubmittedObject();
         }
 
-        return new UpdateResult(update, originalObject, updatedObject, context.action, context.status, context.objectMessages, context.retryCount, dryRun);
+        return new UpdateResult(originalObject, updatedObject, context.action, context.status, context.objectMessages, context.retryCount, dryRun);
     }
 
     public void prepareForReattempt(final UpdateContainer update) {
@@ -266,6 +303,14 @@ public class UpdateContext {
         return context;
     }
 
+    public void setUserSession(final UserSession userSession) {
+        this.userSession = userSession;
+    }
+
+    public UserSession getUserSession() {
+        return userSession;
+    }
+
     private static class Context {
         private final ObjectMessages objectMessages = new ObjectMessages();
         private Action action;
@@ -275,5 +320,6 @@ public class UpdateContext {
         private int retryCount;
         private RpslObjectUpdateInfo updateInfo;
         private int versionId = -1;
+        private PendingUpdate pendingUpdate;
     }
 }

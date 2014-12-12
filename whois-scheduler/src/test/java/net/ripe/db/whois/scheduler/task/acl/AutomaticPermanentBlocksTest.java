@@ -3,13 +3,16 @@ package net.ripe.db.whois.scheduler.task.acl;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.BlockEvents;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.scheduler.DailyScheduler;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.dao.AccessControlListDao;
-import net.ripe.db.whois.scheduler.DailyScheduler;
 import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -19,11 +22,16 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static net.ripe.db.whois.query.support.Fixture.createBlockEvents;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AutomaticPermanentBlocksTest {
@@ -60,7 +68,7 @@ public class AutomaticPermanentBlocksTest {
 
         subject.run();
 
-        verify(accessControlListDao, never()).savePermanentBlock(anyString(), any(LocalDate.class), anyInt(), anyString());
+        verify(accessControlListDao, never()).savePermanentBlock(any(IpInterval.class), any(LocalDate.class), anyInt(), anyString());
     }
 
     @Test
@@ -83,15 +91,19 @@ public class AutomaticPermanentBlocksTest {
         test_run_temporary_block(30, IPV6_PREFIX);
     }
 
-    private void test_run_temporary_block(final int times, String prefix) {
+    @Captor
+    ArgumentCaptor<IpInterval> argumentCaptor;
+
+    public void test_run_temporary_block(final int times, String prefix) {
         when(accessControlListDao.getTemporaryBlocks(now.minusDays(30))).thenReturn(Arrays.asList(createBlockEvents(prefix, times)));
 
         subject.run();
 
         if (times < 10) {
-            verify(accessControlListDao, never()).savePermanentBlock(anyString(), any(LocalDate.class), anyInt(), anyString());
+            verify(accessControlListDao, never()).savePermanentBlock(any(IpInterval.class), any(LocalDate.class), anyInt(), anyString());
         } else {
-            verify(accessControlListDao).savePermanentBlock(eq(prefix), any(LocalDate.class), eq(QUERY_LIMIT), eq("Automatic permanent ban after " + times + " temporary blocks at " + FormatHelper.dateToString(now)));
+            verify(accessControlListDao).savePermanentBlock(argumentCaptor.capture(), any(LocalDate.class), eq(QUERY_LIMIT), eq("Automatic permanent ban after " + times + " temporary blocks at " + FormatHelper.dateToString(now)));
+            assertThat(argumentCaptor.getValue().toString(), is(IpInterval.parse(prefix).toString()));
         }
     }
 
@@ -103,6 +115,6 @@ public class AutomaticPermanentBlocksTest {
         subject.run();
 
         verify(ipResourceConfiguration).isDenied(any(InetAddress.class));
-        verify(accessControlListDao, never()).savePermanentBlock(anyString(), any(LocalDate.class), anyInt(), anyString());
+        verify(accessControlListDao, never()).savePermanentBlock(any(IpInterval.class), any(LocalDate.class), anyInt(), anyString());
     }
 }

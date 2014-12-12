@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.domain.QueryMessages;
+import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
 import org.junit.Before;
 import org.junit.Test;

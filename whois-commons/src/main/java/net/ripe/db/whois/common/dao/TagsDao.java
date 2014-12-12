@@ -14,15 +14,17 @@ public interface TagsDao {
 
     void createTag(Tag tag);
 
-    void deleteTag(CIString type, Integer objectId);
-
-    void deleteTagsOfType(CIString type);
+    void createTags(List<Tag> tags);
 
     void rebuild(CIString type, List<Tag> tags);
 
-    void createTags(List<Tag> tags);
+    void updateTags(Iterable<CIString> tagType, List<Integer> deletes, List<Tag> creates);
+
+    void deleteTag(CIString type, Integer objectId);
 
     void deleteTags(CIString type, List<Integer> objectIds);
 
-    void updateTags(Iterable<CIString> tagType, List<Integer> deletes, List<Tag> creates);
+    void deleteTagsOfType(CIString type);
+
+    void deleteOrphanedTags();
 }

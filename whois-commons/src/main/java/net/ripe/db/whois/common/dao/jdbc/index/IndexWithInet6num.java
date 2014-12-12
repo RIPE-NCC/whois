@@ -1,8 +1,9 @@
 package net.ripe.db.whois.common.dao.jdbc.index;
 
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectResultSetExtractor;
-import net.ripe.db.whois.common.domain.Ipv6Resource;
+import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,7 +21,10 @@ class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
     @Override
     public int addToIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo, final RpslObject object, final String value) {
         final Ipv6Resource resource = Ipv6Resource.parse(objectInfo.getKey());
-        final String netname = object.getValueForAttribute(AttributeType.NETNAME).toString();
+
+        // GRS sources might not have netname
+        final CIString netnameAttribute = object.getValueOrNullForAttribute(AttributeType.NETNAME);
+        final String netname = netnameAttribute == null ? "" : netnameAttribute.toString();
 
         return jdbcTemplate.update(
                 "INSERT INTO inet6num (object_id, i6_msb, i6_lsb, prefix_length, netname) VALUES (?, ?, ?, ?, ?)",
@@ -46,7 +50,7 @@ class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
                 "  LEFT JOIN last l ON l.object_id = inet6num.object_id " +
                 "  WHERE i6_msb = ? AND i6_lsb = ? AND prefix_length = ? " +
                 "  AND l.sequence_id != 0 ",
-                new RpslObjectResultSetExtractor(),
+                new RpslObjectInfoResultSetExtractor(),
                 Long.toString(Ipv6Resource.msb(resource.begin())),
                 Long.toString(Ipv6Resource.lsb(resource.begin())),
                 resource.getPrefixLength());

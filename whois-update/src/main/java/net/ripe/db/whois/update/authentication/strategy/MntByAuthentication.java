@@ -4,9 +4,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.*;
-import net.ripe.db.whois.common.domain.attrs.Domain;
-import net.ripe.db.whois.common.etree.Interval;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.ip.Interval;
+import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
 import net.ripe.db.whois.common.iptree.Ipv6Tree;
@@ -14,11 +17,13 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,20 +36,27 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-class MntByAuthentication extends AuthenticationStrategyBase {
+public class MntByAuthentication extends AuthenticationStrategyBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(MntByAuthentication.class);
 
     private final Maintainers maintainers;
-    private final AuthenticationModule credentialValidators;
+    private final AuthenticationModule authenticationModule;
     private final RpslObjectDao rpslObjectDao;
+    private final SsoTranslator ssoTranslator;
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
 
     @Autowired
-    MntByAuthentication(final Maintainers maintainers, final AuthenticationModule credentialValidators, final RpslObjectDao rpslObjectDao, final Ipv4Tree ipv4Tree, final Ipv6Tree ipv6Tree) {
+    MntByAuthentication(final Maintainers maintainers,
+                        final AuthenticationModule authenticationModule,
+                        final RpslObjectDao rpslObjectDao,
+                        final SsoTranslator ssoTranslator,
+                        final Ipv4Tree ipv4Tree,
+                        final Ipv6Tree ipv6Tree) {
         this.maintainers = maintainers;
-        this.credentialValidators = credentialValidators;
+        this.authenticationModule = authenticationModule;
         this.rpslObjectDao = rpslObjectDao;
+        this.ssoTranslator = ssoTranslator;
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
     }
@@ -59,7 +71,7 @@ class MntByAuthentication extends AuthenticationStrategyBase {
         try {
             return authenticateMntBy(update, updateContext);
         } catch (AuthenticationFailedException e) {
-            return authenticateByAddresSpaceHolder(update, updateContext, e);
+            return authenticateByAddressSpaceHolder(update, updateContext, e);
         }
     }
 
@@ -80,10 +92,14 @@ class MntByAuthentication extends AuthenticationStrategyBase {
 
         final List<RpslObject> candidates = rpslObjectDao.getByKeys(ObjectType.MNTNER, keys);
         if (isSelfReference(update, keys)) {
-            candidates.add(update.getReferenceObject());
+            if (update.getAction().equals(Action.CREATE)) {
+                candidates.add(ssoTranslator.translateFromCacheAuthToUuid(updateContext, update.getReferenceObject()));
+            } else {
+                candidates.add(update.getReferenceObject());
+            }
         }
 
-        final List<RpslObject> authenticatedBy = credentialValidators.authenticate(update, updateContext, candidates);
+        final List<RpslObject> authenticatedBy = authenticationModule.authenticate(update, updateContext, candidates);
         if (authenticatedBy.isEmpty()) {
             throw new AuthenticationFailedException(UpdateMessages.authenticationFailed(authenticationObject, AttributeType.MNT_BY, candidates), candidates);
         }
@@ -91,7 +107,7 @@ class MntByAuthentication extends AuthenticationStrategyBase {
         return authenticatedBy;
     }
 
-    private List<RpslObject> authenticateByAddresSpaceHolder(final PreparedUpdate update, final UpdateContext updateContext, final AuthenticationFailedException originalAuthenticationException) {
+    private List<RpslObject> authenticateByAddressSpaceHolder(final PreparedUpdate update, final UpdateContext updateContext, final AuthenticationFailedException originalAuthenticationException) {
         if (!update.getAction().equals(Action.DELETE)) {
             throw originalAuthenticationException;
         }
@@ -132,7 +148,7 @@ class MntByAuthentication extends AuthenticationStrategyBase {
             for (final IpEntry ipEntry : exact) {
                 final RpslObject ipObject = rpslObjectDao.getById(ipEntry.getObjectId());
                 final List<RpslObject> candidates = rpslObjectDao.getByKeys(ObjectType.MNTNER, ipObject.getValuesForAttribute(AttributeType.MNT_DOMAINS));
-                final List<RpslObject> authenticated = credentialValidators.authenticate(update, updateContext, candidates);
+                final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
                 if (!authenticated.isEmpty()) {
                     return authenticated;
                 }
@@ -197,7 +213,7 @@ class MntByAuthentication extends AuthenticationStrategyBase {
         candidates.addAll(mntLowerCandidates);
         candidates.addAll(mntByCandidates);
 
-        final List<RpslObject> authenticated = credentialValidators.authenticate(update, updateContext, candidates);
+        final List<RpslObject> authenticated = authenticationModule.authenticate(update, updateContext, candidates);
         if (authenticated.isEmpty()) {
             final List<Message> messages = Lists.newArrayList(originalAuthenticationException.getAuthenticationMessages());
             messages.add(UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_LOWER, mntLowerCandidates));

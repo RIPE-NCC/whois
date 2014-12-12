@@ -26,7 +26,7 @@ public class UpdateResultTest {
         objectMessages.addMessage(updatedObject.getAttributes().get(2), ValidationMessages.unknownAttribute("invalid"));
         objectMessages.addMessage(updatedObject.getAttributes().get(3), UpdateMessages.referencedObjectMissingAttribute(ObjectType.MNTNER, "MNT2", AttributeType.DESCR));
 
-        final UpdateResult subject = new UpdateResult(update, null, updatedObject, Action.MODIFY, UpdateStatus.FAILED, objectMessages, 0, false);
+        final UpdateResult subject = new UpdateResult(null, updatedObject, Action.MODIFY, UpdateStatus.FAILED, objectMessages, 0, false);
 
         final String string = subject.toString();
         assertThat(string, is("" +

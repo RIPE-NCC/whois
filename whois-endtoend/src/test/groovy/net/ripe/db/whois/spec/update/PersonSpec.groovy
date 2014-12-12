@@ -1,9 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.Message
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.Message
 
-class PersonSpec extends BaseSpec  {
+@org.junit.experimental.categories.Category(IntegrationTest.class)
+class PersonSpec extends BaseQueryUpdateSpec  {
 
     @Override
     Map<String, String> getTransients() {
@@ -528,21 +530,55 @@ class PersonSpec extends BaseSpec  {
       then:
         def ack = ackFor message
 
-        ack.failed
+        ack.success
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
-        ack.errors.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   Second Person"}
+        ack.countErrorWarnInfo(0, 2, 0)
+        ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   Second Person"}
 
-        ack.errorMessagesFor("Modify", "[person] FP1-TEST   Second Person") =~
-                ["Person/Role name cannot be changed automatically."]
+        queryObject("-rBT person Second Person", "person", "Second Person")
+        queryObject("-rBT person FP1-TEST", "person", "Second Person")
+    }
 
-        ack.objErrorContains("Modify", "FAILED", "person", "FP1-TEST   Second Person",
-                "Person/Role name cannot be changed automatically.")
+    def "modify role to change name"() {
+        given:
+        databaseHelper.addObject(getTransient("PN"))
+        databaseHelper.addObject(getTransient("RL"))
 
-        queryObject("-rBT person FP1-TEST", "person", "First Person")
+        when:
+        def message = send new Message(
+                subject: "modify role FP1-TEST",
+                body: """\
+                role:  Changed Role
+                e-mail: role@ripe.net
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FR1-TEST
+                mnt-by:  owner-mnt
+                changed: denis@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 2, 0)
+        ack.successes.any {it.operation == "Modify" && it.key == "[role] FR1-TEST   Changed Role"}
+
+        queryObject("-rBT role FR1-TEST", "role", "Changed Role")
+        queryObject("-rBT role Changed Role", "role", "Changed Role")
     }
 
     def "create person no mnt-by"() {
@@ -1509,5 +1545,36 @@ class PersonSpec extends BaseSpec  {
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP2-TEST   Second Person"}
 
         query_object_not_matches("-r -T person FP2-TEST", "person", "Second Person", "20121016")
+    }
+
+    def "modify person with empty remarks"() {
+        given:
+        dbfixture(getTransient("PN"))
+
+        expect:
+        queryObject("-r -T person FP1-TEST", "person", "First Person")
+
+        when:
+        def message = send new Message(
+                subject: "modify person FP1-TEST",
+                body: """\
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                remarks:
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                changed: denis@ripe.net
+                source:  TEST
+                password: owner
+
+                """.stripIndent()
+        )
+
+        then:
+        ackFor message
+        queryLineMatches("-GBr -T person FP1-TEST", "remarks")
     }
 }

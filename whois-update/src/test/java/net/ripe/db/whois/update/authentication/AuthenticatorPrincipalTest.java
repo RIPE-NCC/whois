@@ -4,19 +4,29 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.UserDao;
-import net.ripe.db.whois.common.domain.IpInterval;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.domain.User;
-import net.ripe.db.whois.common.etree.Interval;
+import net.ripe.db.whois.common.ip.Interval;
+import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.dao.PendingUpdateDao;
+import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.update.domain.Credentials;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.OverrideCredential;
+import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContainer;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -33,7 +43,11 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,6 +61,7 @@ public class AuthenticatorPrincipalTest {
     @Mock AuthenticationStrategy authenticationStrategy2;
     @Mock Maintainers maintainers;
     @Mock LoggerContext loggerContext;
+    @Mock PendingUpdateDao pendingUpdateDao;
 
     Authenticator subject;
     ArgumentCaptor<Subject> subjectCapture;
@@ -55,14 +70,17 @@ public class AuthenticatorPrincipalTest {
     public void setup() {
         when(authenticationStrategy1.getName()).thenReturn("authenticationStrategy1");
         when(authenticationStrategy2.getName()).thenReturn("authenticationStrategy2");
+        when(authenticationStrategy1.compareTo(authenticationStrategy2)).thenReturn(-1);
+        when(authenticationStrategy2.compareTo(authenticationStrategy1)).thenReturn(1);
 
         when(maintainers.getPowerMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT"));
         when(maintainers.getEnduserMaintainers()).thenReturn(ciSet("RIPE-NCC-END-MNT"));
         when(maintainers.getAllocMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT", "AARDVARK-MNT"));
+        when(maintainers.getLegacyMaintainers()).thenReturn(ciSet("RIPE-NCC-LEGACY-MNT"));
         when(update.getCredentials()).thenReturn(new Credentials());
 
         subjectCapture = ArgumentCaptor.forClass(Subject.class);
-        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2});
+        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2}, pendingUpdateDao);
     }
 
     @Test
@@ -77,11 +95,17 @@ public class AuthenticatorPrincipalTest {
         authenticate_maintainer(RpslObject.parse("mntner: RIPE-NCC-HM-MNT"), Principal.POWER_MAINTAINER, Principal.ALLOC_MAINTAINER);
     }
 
+
     @Test
     public void authenticate_powerMaintainer_case_mismatch() {
         when(origin.getFrom()).thenReturn("127.0.0.1");
         when(ipRanges.isTrusted(any(Interval.class))).thenReturn(true);
         authenticate_maintainer(RpslObject.parse("mntner: riPe-nCC-hm-Mnt"), Principal.POWER_MAINTAINER, Principal.ALLOC_MAINTAINER);
+    }
+
+    @Test
+    public void authenticate_legacyMaintainer() {
+        authenticate_maintainer(RpslObject.parse("mntner: RIPE-NCC-LEGACY-MNT"), Principal.LEGACY_MAINTAINER);
     }
 
     private void authenticate_maintainer(final RpslObject mntner, final Principal... excpectedPrincipals) {
@@ -97,30 +121,6 @@ public class AuthenticatorPrincipalTest {
         ));
     }
 
-    @Test
-    @Ignore // [AK] For now we allow updating by power maintainers outside the RIPE range, so this test fails
-    public void authenticate_by_powerMaintainer_outside_ripe() {
-        when(origin.getFrom()).thenReturn("212.0.0.0");
-        when(ipRanges.isTrusted(any(Interval.class))).thenReturn(false);
-        when(authenticationStrategy1.supports(update)).thenReturn(true);
-        when(authenticationStrategy1.authenticate(update, updateContext)).thenReturn(Lists.newArrayList(RpslObject.parse("mntner: RIPE-NCC-HM-MNT")));
-
-        subject.authenticate(origin, update, updateContext);
-
-        verify(updateContext, times(1)).addMessage(update, UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());
-    }
-
-    @Test
-    @Ignore
-    public void authenticate_by_powerMaintainer_by_email() {
-        when(origin.allowAdminOperations()).thenReturn(false);
-        when(authenticationStrategy1.supports(update)).thenReturn(true);
-        when(authenticationStrategy1.authenticate(update, updateContext)).thenReturn(Lists.newArrayList(RpslObject.parse("mntner: RIPE-NCC-HM-MNT")));
-
-        subject.authenticate(origin, update, updateContext);
-
-        verify(updateContext, times(1)).addMessage(update, UpdateMessages.ripeMntnerUpdatesOnlyAllowedFromWithinNetwork());
-    }
 
     @Test
     public void authenticate_by_powerMaintainer_inside_ripe() {
@@ -322,7 +322,8 @@ public class AuthenticatorPrincipalTest {
         verifySubject(updateContext, new Subject(Principal.OVERRIDE_MAINTAINER));
         verify(authenticationStrategy1).getTypesWithPendingAuthenticationSupport();
         verify(authenticationStrategy2).getTypesWithPendingAuthenticationSupport();
-        verifyNoMoreInteractions(authenticationStrategy1, authenticationStrategy2, userDao, update, updateContext);
+        verify(update).getUpdate();
+        verifyNoMoreInteractions(userDao, update, updateContext);
     }
 
     @Test

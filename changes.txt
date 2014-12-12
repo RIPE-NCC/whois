@@ -1,5 +1,188 @@
-## next
+## 1.77
+[update] policy 2012-07: Legacy holder organisations cannot change their organisation name in their org object
+            if it is referenced by an INETNUM or AUTNUM that is maintained by RIPE-NCC-LEGACY-MNT.
+[update] mnt-lower can now authenticate the creation of domain objects for reverse dns
+[web] A banner is displayed if user is in a non-production environment (RC, Ripe Academy)
+[web] Support for RIPE Academy training environment
+[web] #274 Full Text Search - Advanced Search - OR Operator
+[nrtm] #267 AUTO_INCREMENT in whois_schema.sql causes out-of-range serials
+[nrtm] #265 Missing reference breaks NRTM
+[nrtm] added end to end comparison testing for NRTM
+[query] Stockholm resiliency project: performed load tests targeting the query server in Stockholm
+            - Performed an average load test
+            - Performed an stress test with about 10x more than average load.
+            Apache Jmeter was used to perform the load testing and Logstash, Elasticsearch and Kibana to visualise results.
+            Configuration files for the above tooling can be found in the whois source code.
+
+## 1.76
+[all] #271 RipeGrsSource: uses APNIC value for download instead of RIPE
+[api] #269 Syncupdates does not return 403 Forbidden on Failed Authorisation
+[rc] #268 Not all maintainers in RC have a dummified password
+[all] #266 Undefined SERVICE in whois.init prevents Jetty to start
+[api] #264 REST Client gets stuck on Error from Streaming Search
+[web] #262 passwords with '%'
+[api] #261 WHOIS public REST API truncates long URL encoded parameters
+[all] #260 'ASSIGNED ANYCAST' and "sponsoring-org:"
+[api] #259 REST API - Unformatted Flag adds whitespace padding to response
+[web] #256 Abuse Contact information not displayed on web lookups
+[update] #254 PGP signed mailupdate with non-latin1 encoding fails
+[query] #253 Query with too many parameters
+[update] #252 Unexpected Error when Updating Domain Object
+[api] #243 Returning 404 on rest api is misleading
+
+## 1.75
+[update] Suballocations smaller than /24 is now allowed
+[update] Reverse domain objects with single IP address now allowed
+
+## 1.74
+[all] Fixed issues listed in GitHub: https://github.com/RIPE-NCC/whois/issues?milestone=12&state=closed
+[update] Users can now remove the remarks about status in an aut-num object
+[update] Users cannot remove abuse-c from an organisation if it's referenced from RIPE resources
+[all] Role attribute now has a more permissive syntax
+
+
+## 1.73.1
+[all] Fixed issues listed in GitHub: https://github.com/RIPE-NCC/whois/issues?milestone=11&state=closed
+[all] Created script to remove references to reserved AS numbers
+[all] Created script to find emails for legacy resources
+[all] Created script to turn multiple abuse-mailbox attributes into remarks
+[all] Auth table cleanup patch (whois-1.73-3.sql) - fixes case-sensitivity regression in 1.73
+[all] Crowd connect/read timeout decrease
+
+## 1.73
+[all] Implemented policy 2012-07: added "legacy" status to inetnum, and added (generated) status attribute to autnum
+[all] Implemented policy 2012-08: attribute "sponsoring-org" added to inetnum, inet6num and aut-num
+[all] Fixed issues listed in GitHub: https://github.com/RIPE-NCC/whois/issues?milestone=10&page=1&state=closed
+[DEPLOY] merge and deploy web application feature-1.73 branch
+[DEPLOY] run the following scripts for this release:
+	- internals-1.73-1.sql
+	- whois-1.73-1.sql
+	- whois-1.73-2.sql
+	- legacy_autnums.sql
+Also run whois scripts in all MIRROR datasources.
+[DEPLOY] when deploying the web application, change access.hostname to access.url.
+
+## 1.72
+[web, api] Better integration with other Ripe services:
+Introduced Single Sign On (SSO) for Ripe Database web interface.
+Objects can be created/modified when appropriate using the SSO account.
+
+[api] #158 source element
+[api] #152 Improve logging
+[api] #150 restclient streamSearch returns url as an errormessage when no object is found
+[api] #140 --no-personal does not work on web queries
+[api] #130 JSON output is weird
+[api] #114 REST API JSON response duplicate declaration for 'object' property
+[api] #119 in case of noop, rest update returns the new object instead of the one in database.
+[api] #148 primary-key element incorrect for route(6)
+[api] #145 Empty/unused element in JAXB objects
+[query] #121 The built-in help message (-v) contains outdated information about syntax rules of person and role object names
+[update] #149 Cannot Update Maintainer with Multiple Passwords
+[update] #141 Undelete JMX command unreliable
+[web] #179 inverse web query does not find some objects
+[web] #177 update a PERSON from result list selects wrong object
+[web] #172 After sign out in webupdates, user is not redirected to webupdates.
+[web] #164 RIPE # Filtered not shown on filtered objects
+[web] #161 web query start page needs some more '?' text
+[web] #160 web query 'General Info' text change
+[web] #125 no error with wrong type on lookup
+[web] #123 dbweb - search results should be streamed
+[web] #122 Person objects have incorrect lookup links in search form results
+[web] #124 dbweb does not pass on the X-Forwarded-for header to whois backend
+[web] #144 Lookup page is missing RIPEStat link
+[web] #138 syntax error in link to aut-num in route object in web query
+[web] #132 selecting Types on web query returns wrong types
+[web] #131 inverse web query does not find aut-num objects
+
+
+## 1.71
+[all] byacc, flex and generator files are not part of deployable whois.jar
+[update] No attribute sanitation of object on delete
+[api] All RestClient lookups are unfiltered
+[oneshot] Dummification for database on RC environment
+[update] Call Dnschecker once for all objects before beginning the per-object update cycle
+[api] allow for delete reason in rest client
+[all] allow for multiple owner attributes in keycert object
+[web] #102 webupdates permanent link
+[web] #99 webupdates new organisation startup existing maintainer
+[web] #98 webupdates create page error formatting
+[web] #93 webupdates doesn't display non-ASCII characters correctly
+[web] #16 webupdates mixes up extracting errors from acknowledgement message
+[api] #112 - return a user friendly message when creating an inetnum with invalid parent.
+[api] #110 SQL statements and results are not logged in audit log
+[api] #109 A mntner object is returned filtered in look up, if the password for the mnt_by mntners is supplied
+[api] #108 RestClient does not return comments in the attributes of an rpsl object
+[api] #97 REST calls should return error messages
+[api] #95 REST /search should not accept query flags in 'query-string'
+[api] #92 Uniform use to flag names in error messages
+[api] #91 REST API /search puts flags in <Parameters> section in the same format as they were received in the request
+[api] #87 Fixed error on NOOP update via REST API
+[api] #86 Fixed email address filtering
+[api] #89 Maintenance mode should return error on Syncupdates and REST API
+[api] Created REST Client module
+[api] Added authentication support for REST lookups
+[api] log HTTP headers in update audit log
+[update] Allow import-via/export-via rpsl attributes - Job Snijders <job@atrato.com>
+[commons] Fixed logging of daily scheduled jobs
+[oneshot] Added Default Abuse Contact script
+[deploy] remove logger=... from whois.properties/master datasource definition
+
+## 1.70.1 (deployed on 2013-11-21)
+[all] Fixed MySQL replication issue
+
+## 1.70 (deployed on 2013-11-14)
+[update] DIFF keyword no longer supported
+[api] added service element in responses
+[api] added GETter for the abuse contact creation service
+[update] mail updates not processed if they have an invalid email address, notifications failing loggingly for the same reason
+[logsearch] switched to lucene 4.4 from 4.1.
+[query] added option --valid-syntax and --no-valid-syntax
+[query] added comment if no abuse contact registered.
+[oneshot] added autnum cleanup
+[api] renamed abuse-finder to abuse-contact (also changed references on DbWebWar abusefinder branch)
+[api] added abuse contact creation helper rest call
+[api] moved apikeys from properties to acl database
+[api] Updated to Lucene 4.4
+[api] removed xml-related 'xlink:' prefix from locators in JSON output
+[api] normalize ip addresses
+[api] dropped external/internal notion of servers; config port.api replaces port.api.*
+[all] removed useless thread_id, prev_serial, serial fields and dropped unused tables from SQL schema
+[all] merged pending and scheduler databases into internals
+[all] added table authoritative_data to interals database
+[all] dailyscheduledtasks now runs distributed in the cluster
+[all] sanitize source attribute into uppercase letters
+[all] specifying type filter is now allowed with version queries
+[DEPLOY] remove leftover wsearch.* from properties file
+[DEPLOY] change api.rest.lookup.baseurl to api.rest.baseurl
+[DEPLOY] specify port.api instead of port.api.* in properties
+[DEPLOY] run internals-1.70.sql on master
+[DEPLOY] adjust properties to reflect new internals database
+[DEPLOY] run whois-1.70.sql and whois-1.70-2.sql on master (warning: blocks updates & takes a long time!) (65 mins on pre-production)
+[DEPLOY] run acl-1.70.sql on master (to normalise all ACL prefixes).
+[DEPLOY] delete var/idx before starting 1.70 (to rebuild Lucene index @ v4.4, will take 20 mins to complete)
+[DEPLOY] execute JMX call DailyScheduler.runDailyScheduledTask net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask, on the first server only
+[DEPLOY] run JMX call AuthoritativeResources.refreshCache on all servers (after import finished)
+[DEPLOY] deploy DbWebWar abusefinder branch
+[DEPLOY] run whois-1.70.sql on all GRS databases, too
+[DEPLOY] add /abuse-contact to mod_proxy config
+
+## 1.69 (deployed on 2013-09-23)
+[update] enable dry-run
+[api] changed rest API create: POST supports '/ripe/person' format only
+[api] adjust mod_proxy config for POST accordingly
+[api] added unfiltered queryparam to lookup (adjust documentation on deployment!)
+[grs] dummifier comments are now per-source (massive update expected on deployment)
+[grs] expand AS Number ranges in ARIN GRS delegated stats
+[query] adjusted hierarchical lookup of direct route object keys
+[query] fixed search on mixed-case domain postfix
+
+## 1.68.1 (deployed on 2013-08-29)
+[api] revamped API to follow the REST paradigm more closely
+
+## 1.67.7
 [api] added api.rest.lookup.baseurl to properties
+[query] added option to directly lookup route object by specifying search key '10.0.0.0/24AS123'
+[api] fully revamped REST API
 
 ## 1.67.5
 [update] Allow 2-10 letters in nic-hdl suffix.

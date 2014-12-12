@@ -32,15 +32,28 @@ public class DnsChecker {
 
     public void checkAll(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         Set<DnsCheckRequest> dnsCheckRequestSet = Sets.newLinkedHashSet();
+
         for (Update update : updateRequest.getUpdates()) {
             if (isDnsCheckRequired(update)) {
                 dnsCheckRequestSet.add(createDnsCheckRequest(update));
             }
         }
 
+        if (dnsCheckRequestSet.isEmpty()) {
+            return;
+        }
+
         final Map<DnsCheckRequest, DnsCheckResponse> dnsCheckResponseMap = dnsGateway.performDnsChecks(dnsCheckRequestSet);
+
         for (Map.Entry<DnsCheckRequest, DnsCheckResponse> entry : dnsCheckResponseMap.entrySet()) {
-            updateContext.addDnsCheckResponse(entry.getKey(), entry.getValue());
+            final DnsCheckRequest dnsCheckRequest = entry.getKey();
+            final DnsCheckResponse dnsCheckResponse = entry.getValue();
+
+            updateContext.addDnsCheckResponse(dnsCheckRequest, dnsCheckResponse);
+
+            for (final Message message : dnsCheckResponse.getMessages()) {
+                updateContext.addMessage(dnsCheckRequest.getUpdate(), message);
+            }
         }
     }
 
@@ -81,28 +94,11 @@ public class DnsChecker {
         return true;
     }
 
-    public void check(final Update update, final UpdateContext updateContext) {
-        if (!isDnsCheckRequired(update)) {
-            return;
-        }
-
-        final DnsCheckRequest dnsCheckRequest = createDnsCheckRequest(update);
-        DnsCheckResponse dnsCheckResponse = updateContext.getCachedDnsCheckResponse(dnsCheckRequest);
-        if (dnsCheckResponse == null) {
-            dnsCheckResponse = dnsGateway.performDnsCheck(dnsCheckRequest);
-            updateContext.addDnsCheckResponse(dnsCheckRequest, dnsCheckResponse);
-        }
-
-        for (final Message message : dnsCheckResponse.getMessages()) {
-            updateContext.addMessage(update, message);
-        }
-    }
-
     private DnsCheckRequest createDnsCheckRequest(final Update update) {
         final RpslObject rpslObject = update.getSubmittedObject();
         final String domain = rpslObject.getKey().toString();
         final String glue = createGlue(rpslObject);
-        return new DnsCheckRequest(domain, glue);
+        return new DnsCheckRequest(update, domain, glue);
     }
 
     private String createGlue(final RpslObject rpslObject) {

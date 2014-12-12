@@ -12,7 +12,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.rpsl.AttributeType.*;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.AUTH;
+import static net.ripe.db.whois.common.rpsl.AttributeType.CHANGED;
+import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
+import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
+import static net.ripe.db.whois.common.rpsl.AttributeType.IRT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.MNT_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.NOTIFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PERSON;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PHONE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.REF_NFY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.UPD_TO;
 
 @Component
 public class DummifierCurrent implements Dummifier {
@@ -25,7 +37,6 @@ public class DummifierCurrent implements Dummifier {
 
     private static final Set<AttributeType> EMAIL_ATTRIBUTES = Sets.immutableEnumSet(E_MAIL, NOTIFY, CHANGED, REF_NFY, IRT_NFY, MNT_NFY, UPD_TO);
     private static final Set<AttributeType> PHONE_FAX_ATTRIBUTES = Sets.immutableEnumSet(PHONE, FAX_NO);
-
 
     public RpslObject dummify(final int version, final RpslObject rpslObject) {
         final ObjectType objectType = rpslObject.getType();
@@ -65,7 +76,7 @@ public class DummifierCurrent implements Dummifier {
             attributes.set(lastAddressLineIndex, lastAddressLine);
         }
 
-        return new RpslObject(rpslObject.getObjectId(), attributes);
+        return new RpslObject(rpslObject, attributes);
     }
 
     private RpslAttribute replacePhoneFax(final AttributeType attributeType, final RpslAttribute attribute) {
@@ -92,15 +103,15 @@ public class DummifierCurrent implements Dummifier {
         return attribute;
     }
 
-    // TODO: [AH] use the FilterAuthFunction from RpslResponseDecorator
+    // TODO: [AH] we should relay on a single implementation of Authentication Filter; this method duplicates FilterAuthFunction
     private RpslAttribute replaceAuth(final AttributeType attributeType, final RpslAttribute attribute) {
         if (attributeType != AUTH) {
             return attribute;
         }
 
         String passwordType = SPACE_SPLITTER.split(attribute.getCleanValue().toUpperCase()).iterator().next();
-        if (passwordType.endsWith("-PW")) {     // history table has CRYPT-PW, has to be able to dummify that too!
-            return new RpslAttribute(attribute.getKey(), passwordType + FILTERED_APPENDIX);
+        if (passwordType.endsWith("-PW") || passwordType.startsWith("SSO")) {     // history table has CRYPT-PW, has to be able to dummify that too!
+            return new RpslAttribute(AttributeType.AUTH, passwordType + FILTERED_APPENDIX);
         }
 
         return attribute;

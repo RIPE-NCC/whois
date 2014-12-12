@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.autokey.dao;
 
-import net.ripe.db.whois.update.dao.AbstractDaoTest;
+import net.ripe.db.whois.update.dao.AbstractUpdateDaoTest;
 import net.ripe.db.whois.update.domain.OrganisationId;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 @Transactional
-public class OrganisationIdRepositoryJdbcTest extends AbstractDaoTest {
+public class OrganisationIdRepositoryJdbcTest extends AbstractUpdateDaoTest {
     @Autowired OrganisationIdRepository subject;
 
     @Test

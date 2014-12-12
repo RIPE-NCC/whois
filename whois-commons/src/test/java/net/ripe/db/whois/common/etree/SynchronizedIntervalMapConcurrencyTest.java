@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.etree;
 
 import com.google.common.base.Stopwatch;
-import net.ripe.db.whois.common.domain.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import org.junit.Test;
 
@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertEquals;
@@ -37,7 +38,7 @@ public class SynchronizedIntervalMapConcurrencyTest {
 
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.start();
-            while (stopwatch.elapsedMillis() < 100) {
+            while (stopwatch.elapsed(TimeUnit.MILLISECONDS) < 100) {
                 List<Ipv4Entry> match = subject.findExact(entry.getKey());
                 assertThat(match, contains(entry));
             }

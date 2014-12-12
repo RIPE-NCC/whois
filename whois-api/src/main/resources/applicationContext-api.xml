@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:oxm="http://www.springframework.org/schema/oxm"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                         http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
                         http://www.springframework.org/schema/oxm
                         http://www.springframework.org/schema/oxm/spring-oxm.xsd">
 
-    <import resource="applicationContext-commons.xml"/>
     <import resource="applicationContext-query.xml"/>
     <import resource="applicationContext-update.xml"/>
+    <context:component-scan base-package="net.ripe.db.whois.api"/>
 
     <oxm:jaxb2-marshaller id="marshaller">
         <oxm:class-to-be-bound name="net.ripe.db.whois.api.freetext.SearchResponse"/>
-        <oxm:class-to-be-bound name="net.ripe.db.whois.api.whois.domain.WhoisResources"/>
-        <oxm:class-to-be-bound name="net.ripe.db.whois.api.whois.domain.WhoisModify"/>
     </oxm:jaxb2-marshaller>
-
 </beans>

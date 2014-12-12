@@ -1,8 +1,14 @@
 package net.ripe.db.whois.update.keycert;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import org.bouncycastle.bcpg.ArmoredInputStream;
-import org.bouncycastle.openpgp.*;
+import org.bouncycastle.openpgp.PGPObjectFactory;
+import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPSignature;
+import org.bouncycastle.openpgp.PGPSignatureList;
+import org.bouncycastle.openpgp.PGPUtil;
+import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.joda.time.LocalDateTime;
 import org.springframework.util.FileCopyUtils;
@@ -13,15 +19,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.security.SignatureException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.ripe.db.whois.update.keycert.PgpSignedMessageUtil.*;
+import static net.ripe.db.whois.update.keycert.PgpSignedMessageUtil.canonicalise;
+import static net.ripe.db.whois.update.keycert.PgpSignedMessageUtil.getLengthWithoutSeparatorOrTrailingWhitespace;
+import static net.ripe.db.whois.update.keycert.PgpSignedMessageUtil.getLineSeparator;
+import static net.ripe.db.whois.update.keycert.PgpSignedMessageUtil.processLine;
+import static net.ripe.db.whois.update.keycert.PgpSignedMessageUtil.readInputLine;
 
 @Immutable
-public class PgpSignedMessage {
+public final class PgpSignedMessage {
 
     public static final Pattern SIGNED_MESSAGE_PATTERN = Pattern.compile("(?ms)"
             + "-----BEGIN PGP SIGNED MESSAGE-----"
@@ -43,9 +53,13 @@ public class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String signedContent, final String signature) {
+        return parse(signedContent, signature, Charsets.UTF_8);
+    }
+
+    public static PgpSignedMessage parse(final String signedContent, final String signature, final Charset charset) {
         try {
             final byte[] content = canonicalise(signedContent.getBytes());
-            final ByteArrayInputStream signatureIn = new ByteArrayInputStream(signature.getBytes());
+            final ByteArrayInputStream signatureIn = new ByteArrayInputStream(signature.getBytes(charset));
             final InputStream decoderStream = PGPUtil.getDecoderStream(signatureIn);
             if (decoderStream instanceof ArmoredInputStream) {
                 final ArmoredInputStream armoredInputStream = (ArmoredInputStream) decoderStream;
@@ -64,51 +78,58 @@ public class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String clearText) {
+        return parse(clearText, Charsets.UTF_8);
+    }
+
+    public static PgpSignedMessage parse(final String clearText, final Charset charset) {
         final Matcher matcher = SIGNED_MESSAGE_PATTERN.matcher(clearText);
         if (matcher.find()) {
-            try {
-                final InputStream decoderStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(matcher.group(0).getBytes()));
-                if (!(decoderStream instanceof ArmoredInputStream)) {
-                    throw new IllegalArgumentException("Unexpected content");
-                }
-
-                final ArmoredInputStream in = (ArmoredInputStream) decoderStream;
-                final ByteArrayOutputStream signedSectionOut = new ByteArrayOutputStream();
-
-                // write out signed section using the local line separator.
-                // note: trailing white space needs to be removed from the end of
-                // each line RFC 4880 Section 7.1
-                ByteArrayOutputStream lineOut = new ByteArrayOutputStream();
-                int lookAhead = readInputLine(lineOut, in);
-                byte[] lineSep = getLineSeparator();
-
-                if (lookAhead != -1 && in.isClearText()) {
-                    byte[] line = lineOut.toByteArray();
-                    signedSectionOut.write(line, 0, getLengthWithoutSeparatorOrTrailingWhitespace(line));
-                    signedSectionOut.write(lineSep);
-
-                    while (lookAhead != -1 && in.isClearText()) {
-                        lookAhead = readInputLine(lineOut, lookAhead, in);
-
-                        line = lineOut.toByteArray();
-                        signedSectionOut.write(line, 0, getLengthWithoutSeparatorOrTrailingWhitespace(line));
-                        signedSectionOut.write(lineSep);
-                    }
-                }
-
-                signedSectionOut.close();
-
-                final ByteArrayOutputStream signatureOut = new ByteArrayOutputStream();
-                FileCopyUtils.copy(in, signatureOut);
-
-                return new PgpSignedMessage(signedSectionOut.toByteArray(), signatureOut.toByteArray(), true);
-
-
-            } catch (IOException e) {
-                throw new IllegalArgumentException(e);
-            }
+            return parse(charset.encode(matcher.group(0)).array());
         } else {
             throw new IllegalArgumentException("no signed message found");
+        }
+    }
+
+    private static PgpSignedMessage parse(final byte[] bytes) {
+        try {
+            final InputStream decoderStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(bytes));     // encodeAsLatin1(matcher.group(0))
+            if (!(decoderStream instanceof ArmoredInputStream)) {
+                throw new IllegalArgumentException("Unexpected content");
+            }
+
+            final ArmoredInputStream in = (ArmoredInputStream) decoderStream;
+            final ByteArrayOutputStream signedSectionOut = new ByteArrayOutputStream();
+
+            // write out signed section using the local line separator.
+            // note: trailing white space needs to be removed from the end of
+            // each line RFC 4880 Section 7.1
+            ByteArrayOutputStream lineOut = new ByteArrayOutputStream();
+            int lookAhead = readInputLine(lineOut, in);
+            byte[] lineSep = getLineSeparator();
+
+            if (lookAhead != -1 && in.isClearText()) {
+                byte[] line = lineOut.toByteArray();
+                signedSectionOut.write(line, 0, getLengthWithoutSeparatorOrTrailingWhitespace(line));
+                signedSectionOut.write(lineSep);
+
+                while (lookAhead != -1 && in.isClearText()) {
+                    lookAhead = readInputLine(lineOut, lookAhead, in);
+
+                    line = lineOut.toByteArray();
+                    signedSectionOut.write(line, 0, getLengthWithoutSeparatorOrTrailingWhitespace(line));
+                    signedSectionOut.write(lineSep);
+                }
+            }
+
+            signedSectionOut.close();
+
+            final ByteArrayOutputStream signatureOut = new ByteArrayOutputStream();
+            FileCopyUtils.copy(in, signatureOut);
+
+            return new PgpSignedMessage(signedSectionOut.toByteArray(), signatureOut.toByteArray(), true);
+
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -176,17 +197,15 @@ public class PgpSignedMessage {
     private PGPSignature getPgpSignature() {
         try {
             final InputStream decoderStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(signature));
-            final PGPObjectFactory objectFactory = new PGPObjectFactory(decoderStream);
+            final PGPObjectFactory objectFactory = new BcPGPObjectFactory(decoderStream);
 
             final PGPSignatureList signatureList = (PGPSignatureList) objectFactory.nextObject();
             if ((signatureList == null) || (signatureList.size() != 1)) {
-                throw new SignatureException("Couldn't read PGP signature");
+                throw new IllegalArgumentException("Couldn't read PGP signature");
             }
 
             return signatureList.get(0);
         } catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        } catch (SignatureException e) {
             throw new IllegalArgumentException(e);
         }
     }

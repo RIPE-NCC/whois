@@ -29,7 +29,7 @@ class ResultSetInvocationHandler implements InvocationHandler {
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
         final Object result = method.invoke(target, args);
 
-        if (loggingHandler.canLog()) {
+        if (loggingHandler != null) {
             if (method.getName().equals("next") && (Boolean) result) {
                 handleNext();
             } else if (method.getName().equals("close")) {

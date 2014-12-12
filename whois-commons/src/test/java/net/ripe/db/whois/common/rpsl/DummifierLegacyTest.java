@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -35,7 +36,6 @@ public class DummifierLegacyTest {
         }
 
         attributeList.addAll(Arrays.asList(rpslAttributes));
-
         return new RpslObject(0, attributeList);
     }
 
@@ -47,7 +47,7 @@ public class DummifierLegacyTest {
     @Test
     public void skip_objects_version_1_2() {
         for (ObjectType objectType : DummifierLegacy.SKIPPED_OBJECT_TYPES) {
-            RpslObject object = makeObject(objectType, "YAY", new RpslAttribute(AttributeType.REMARKS, "Remark!"));
+            RpslObject object = makeObject(objectType, "YAY", new RpslAttribute(AttributeType.REMARKS, "Remark!"), new RpslAttribute(AttributeType.SOURCE, "TEST"));
 
             assertTrue(subject.isAllowed(1, object));
             assertTrue(subject.isAllowed(2, object));
@@ -101,6 +101,8 @@ public class DummifierLegacyTest {
 
         assertThat(attributes, hasSize(1 + 2 * DummifierLegacy.PERSON_ROLE_REFERENCES.size()));
 
+        attributes.add(new RpslAttribute(AttributeType.SOURCE, "TEST"));
+
         final RpslObject rpslObject = new RpslObject(0, attributes);
         final RpslObject dummifiedObject = subject.dummify(3, rpslObject);
 
@@ -113,9 +115,9 @@ public class DummifierLegacyTest {
 
     @Test
     public void dummify_adds_remarks() {
-        RpslObject dummifiedObject = subject.dummify(3, makeObject(ObjectType.ROUTE, "10/8"));
+        RpslObject dummifiedObject = subject.dummify(3, makeObject(ObjectType.ROUTE, "10/8", new RpslAttribute(AttributeType.SOURCE, "TEST")));
 
-        assertThat(dummifiedObject.findAttributes(AttributeType.REMARKS), hasSize(DummifierLegacy.DUMMIFICATION_REMARKS.size()));
+        assertThat(dummifiedObject.findAttributes(AttributeType.REMARKS), hasSize(7));
     }
 
     @Test
@@ -135,7 +137,7 @@ public class DummifierLegacyTest {
             final RpslObject rpslObject = makeObject(objectType, "FOO", optionalAttributes.toArray(new RpslAttribute[optionalAttributes.size()]));
             final RpslObject dummifiedObject = subject.dummify(3, rpslObject);
 
-            assertThat(dummifiedObject.getAttributes(), hasSize(ObjectTemplate.getTemplate(objectType).getMandatoryAttributes().size() + DummifierLegacy.DUMMIFICATION_REMARKS.size() + 1));
+            assertThat(dummifiedObject.getAttributes(), hasSize(ObjectTemplate.getTemplate(objectType).getMandatoryAttributes().size() + 1));
             assertThat(dummifiedObject.findAttributes(AttributeType.ABUSE_C), hasSize(1));
         }
     }
@@ -156,6 +158,8 @@ public class DummifierLegacyTest {
                     optionalAttributes.add(rpslAttribute);
                 }
             }
+
+            optionalAttributes.add(new RpslAttribute(AttributeType.SOURCE, "TEST"));
 
             final RpslObject rpslObject = makeObject(objectType, "FOO", optionalAttributes.toArray(new RpslAttribute[optionalAttributes.size()]));
             final RpslObject dummifiedObject = subject.dummify(3, rpslObject);
@@ -201,5 +205,29 @@ public class DummifierLegacyTest {
                 "remarks:        * To view the original object, please query the RIPE Database at:\n" +
                 "remarks:        * http://www.ripe.net/whois\n" +
                 "remarks:        ****************************\n"));
+    }
+
+    @Test
+    public void dummify_mntner_keeps_dummy_auth_line_only() {
+        final RpslObject mntner = RpslObject.parse(11, "" +
+                "mntner: AARDVARK-MNT\n" +
+                "descr: Mntner for guy's objects\n" +
+                "admin-c: FB99999-RIPE\n" +
+                "tech-c: FB99999-RIPE\n" +
+                "upd-to: guy@ripe.net\n" +
+                "auth: X509-1\n" +
+                "auth: X509-1689\n" +
+                "auth: MD5-PW $1$SaltSalt$ThisIsABrokenMd5Hash.\n" +
+                "auth: SSO 1234-5678-9abc-dead-beef\n" +
+                "notify: guy@ripe.net\n" +
+                "mnt-by: AARDVARK-MNT\n" +
+                "referral-by: AARDVARK-MNT\n" +
+                "changed: guy@ripe.net 20120510\n" +
+                "source: RIPE # Filtered");
+
+        final RpslObject dummified = subject.dummify(3, mntner);
+
+        RpslAttribute expectedDummifiedAuth = new RpslAttribute("auth", "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.");
+        assertThat(dummified.findAttribute(AttributeType.AUTH), is(expectedDummifiedAuth));
     }
 }

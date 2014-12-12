@@ -1,14 +1,17 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.spec.BaseSpec
-import spec.domain.Message
+import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import net.ripe.db.whois.spec.domain.AckResponse
+import net.ripe.db.whois.spec.domain.Message
 
-class RoleSpec extends BaseSpec {
+@org.junit.experimental.categories.Category(IntegrationTest.class)
+class RoleSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
         [
-            "RL": """\
+                "RL": """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -21,7 +24,7 @@ class RoleSpec extends BaseSpec {
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
-            "NO-MB-RL": """\
+                "NO-MB-RL": """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -33,7 +36,7 @@ class RoleSpec extends BaseSpec {
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
-            "RL-NO-MB-PN": """\
+                "RL-NO-MB-PN": """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -46,7 +49,7 @@ class RoleSpec extends BaseSpec {
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
-            "NO-MB-PN": """\
+                "NO-MB-PN": """\
                 person:  No MB Person
                 address: St James Street
                 address: Burnley
@@ -56,7 +59,7 @@ class RoleSpec extends BaseSpec {
                 changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
-            "NO-MB-PN-MNT": """\
+                "NO-MB-PN-MNT": """\
                 mntner:      NO-MB-PN-MNT
                 descr:       used to maintain other MNTNERs
                 admin-c:     NMP1-TEST
@@ -69,7 +72,7 @@ class RoleSpec extends BaseSpec {
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
-            "RL2": """\
+                "RL2": """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -82,13 +85,14 @@ class RoleSpec extends BaseSpec {
                 changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """
-    ]}
+        ]
+    }
 
     def "delete non-existent role"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "FR1-TEST")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -109,7 +113,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
         ack.failed
 
@@ -126,20 +130,20 @@ class RoleSpec extends BaseSpec {
     }
 
     def "delete role"() {
-      given:
+        given:
         def toDelete = getTransient("RL")
         syncUpdate(toDelete + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: toDelete + "delete: testing role delete\npassword: owner"
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -154,13 +158,13 @@ class RoleSpec extends BaseSpec {
     }
 
     def "modify role no date"() {
-      given:
+        given:
         syncUpdate(getTransient("RL") + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -180,7 +184,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -195,13 +199,13 @@ class RoleSpec extends BaseSpec {
     }
 
     def "modify role add missing mnt-by"() {
-      given:
+        given:
         dbfixture(getTransient("NO-MB-RL"))
 
-      expect:
+        expect:
         query_object_not_matches("-r -T role FR1-TEST", "role", "First Role", "mnt-by:")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -221,7 +225,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -236,13 +240,13 @@ class RoleSpec extends BaseSpec {
     }
 
     def "modify role to change name"() {
-      given:
+        given:
         syncUpdate(getTransient("RL") + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -262,34 +266,28 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
-        ack.failed
+        ack.success
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   Second Role" }
-        ack.errorMessagesFor("Modify", "[role] FR1-TEST   Second Role") ==
-                ["Person/Role name cannot be changed automatically. Please create " +
-                        "another Person/Role object and modify any references to the old " +
-                        "object, then delete the old object"]
-        ack.objErrorContains("Modify", "FAILED", "role", "FR1-TEST   Second Role",
-                "Person/Role name cannot be changed automatically. Please create")
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   Second Role" }
 
-        queryObject("-rBT role FR1-TEST", "role", "First Role")
+        queryObject("-rBT role FR1-TEST", "role", "Second Role")
     }
 
     def "modify role to change name and object type to PERSON"() {
-      given:
+        given:
         syncUpdate(getTransient("RL") + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -308,7 +306,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.failed
@@ -325,15 +323,15 @@ class RoleSpec extends BaseSpec {
     }
 
     def "create role using previously deleted nic-hdl"() {
-      given:
+        given:
         syncUpdate(getTransient("RL") + "password: owner")
         queryObject("-r -T role FR1-TEST", "role", "First Role")
         syncUpdate(getTransient("RL") + "delete: testing\npassword: owner")
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -353,7 +351,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.failed
@@ -371,17 +369,17 @@ class RoleSpec extends BaseSpec {
 
     // Modify a ROLE that references a PERSON with no mnt-by:
     def "modify role ref no mnt-by person"() {
-      given:
+        given:
         dbfixture(getTransient("NO-MB-PN"))
         dbfixture(getTransient("NO-MB-PN-MNT"))
         syncUpdate(getTransient("RL") + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T person NMP1-TEST", "person", "No MB Person")
         queryObject("-r -T role FR1-TEST", "role", "First Role")
         queryObject("-r -T mntner NO-MB-PN-MNT", "mntner", "NO-MB-PN-MNT")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -401,7 +399,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -411,24 +409,25 @@ class RoleSpec extends BaseSpec {
 
         ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   First Role" }
-        ack.warningSuccessMessagesFor("Modify", "[role] FR1-TEST   First Role").sort() == [
+        ack.warningSuccessMessagesFor("Modify", "[role] FR1-TEST   First Role") == [
                 "Referenced person object NMP1-TEST from mntner: NO-MB-PN-MNT is missing mandatory attribute \"mnt-by:\"",
-                "Referenced person object NMP1-TEST is missing mandatory attribute \"mnt-by:\""].sort()
+                "Referenced person object NMP1-TEST is missing mandatory attribute \"mnt-by:\""
+        ]
 
         query_object_matches("-rBT role FR1-TEST", "role", "First Role", "admin-c:\\s*NMP1-TEST")
     }
 
     // Create a ROLE that references a PERSON with no mnt-by:
     def "create role ref no mnt-by person"() {
-      given:
+        given:
         dbfixture(getTransient("NO-MB-PN"))
         dbfixture(getTransient("NO-MB-PN-MNT"))
 
-      expect:
+        expect:
         query_object_not_matches("-r -T person NMP1-TEST", "person", "No MB Person", "mnt-by:")
         queryObject("-r -T mntner NO-MB-PN-MNT", "mntner", "NO-MB-PN-MNT")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -448,7 +447,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -458,18 +457,19 @@ class RoleSpec extends BaseSpec {
 
         ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
-        ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   First Role").sort() == [
+        ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   First Role") == [
                 "Referenced person object NMP1-TEST from mntner: NO-MB-PN-MNT is missing mandatory attribute \"mnt-by:\"",
-                "Referenced person object NMP1-TEST is missing mandatory attribute \"mnt-by:\""].sort()
+                "Referenced person object NMP1-TEST is missing mandatory attribute \"mnt-by:\""
+        ]
 
         query_object_matches("-rBT role FR1-TEST", "role", "First Role", "admin-c:\\s*NMP1-TEST")
     }
 
     def "create role"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -489,7 +489,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -501,13 +501,15 @@ class RoleSpec extends BaseSpec {
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
 
         queryObject("-rBT role FR1-TEST", "role", "First Role")
+        def qry = query("-Trole First")
+        qry =~ "FR1-TEST"
     }
 
     def "create role with all optional and multiple and duplicate attrs"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -552,7 +554,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -569,10 +571,10 @@ class RoleSpec extends BaseSpec {
     }
 
     def "create self referencing role"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -592,7 +594,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -603,23 +605,23 @@ class RoleSpec extends BaseSpec {
         ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
         ack.errorMessagesFor("Create", "[role] FR1-TEST   First Role") ==
                 ["Self reference is not allowed for attribute type \"admin-c\"",
-                 "Self reference is not allowed for attribute type \"tech-c\""]
+                        "Self reference is not allowed for attribute type \"tech-c\""]
 
         queryObjectNotFound("-rBT role FR1-TEST", "role", "First Role")
     }
 
     def "create circular referencing roles"() {
-      given:
+        given:
         def role1 = getTransient("RL")
         syncUpdate(role1 + "password: owner")
         def role2 = getTransient("RL2")
         syncUpdate(role2 + "password: owner")
 
-      expect:
+        expect:
         queryObject("-r -T role FR1-TEST", "role", "First Role")
         queryObject("-rBT role FR2-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -639,7 +641,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.success
@@ -655,10 +657,10 @@ class RoleSpec extends BaseSpec {
     }
 
     def "create role referencing non exist persons"() {
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -678,7 +680,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.failed
@@ -696,12 +698,12 @@ class RoleSpec extends BaseSpec {
     }
 
     def "create role with no admin-c, tech-c"() {
-      given:
+        given:
 
-      expect:
+        expect:
         queryObjectNotFound("-r -T role FR1-TEST", "role", "First Role")
 
-      when:
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -719,7 +721,7 @@ class RoleSpec extends BaseSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
@@ -733,4 +735,241 @@ class RoleSpec extends BaseSpec {
         query_object_not_matches("-rBT role FR1-TEST", "role", "First Role", "tech-c:")
     }
 
+    def "create role with name including all possible chars"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "@ \"*TTTTTT & ][,] (XAMPLE) 1234567890 abc ._\"*@,&:!'`+/-")
+
+        when:
+        def message = syncUpdate("""
+                role:    @ "*TTTTTT & ][,] (XAMPLE) 1234567890 abc ._"*@,&:!'`+/-
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                nic-hdl: FR1-TEST
+                mnt-by:  owner-mnt
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   @ \"*TTTTTT & ][,] (XAMPLE) 1234567890 abc ._\"*@,&:!'`+/-" }
+
+        queryObject("-rBT role FR1-TEST", "role", "@ \"\\*TTTTTT & \\]\\[,\\] \\(XAMPLE\\) 1234567890 abc \\._\"\\*@,&:\\!'`\\+\\/-")
+    }
+
+    def "create role with name including 30 words, 64 chars each"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+
+        when:
+        def message = syncUpdate("""
+                role:            1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                nic-hdl: FR1-TEST
+                mnt-by:  owner-mnt
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword" }
+        ack.infoSuccessMessagesFor("Create", "[role] FR1-TEST   1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword") ==
+                ["Continuation lines are not allowed here and have been removed"]
+
+        queryObject("-rBT role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+    }
+
+    def "create role with name including 30 words, one word with 65 chars"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+
+        when:
+        def message = syncUpdate("""
+                role:            1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                nic-hdl: FR1-TEST
+                mnt-by:  owner-mnt
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword" }
+        ack.infoMessagesFor("Create", "[role] FR1-TEST") =~
+                ["Continuation lines are not allowed here and have been removed"]
+        ack.errorMessagesFor("Create", "[role] FR1-TEST") =~
+                ["Syntax error in 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords"]
+
+        queryObjectNotFound("-rBT role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+    }
+
+    def "create role with name including >30 words, 65 chars each"() {
+        given:
+
+        expect:
+        queryObjectNotFound("-r -T role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordwords 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+
+        when:
+        def message = syncUpdate("""
+                role:            1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                                 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword
+                address: St James Street
+                address: Burnley
+                address: UK
+                e-mail:  dbtest@ripe.net
+                nic-hdl: FR1-TEST
+                mnt-by:  owner-mnt
+                changed: dbtest@ripe.net 20121016
+                source:  TEST
+
+                password: owner
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 1)
+        ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword" }
+        ack.infoMessagesFor("Create", "[role] FR1-TEST") =~
+                ["Continuation lines are not allowed here and have been removed"]
+        ack.errorMessagesFor("Create", "[role] FR1-TEST") =~
+                ["Syntax error in 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword"]
+
+        queryObjectNotFound("-rBT role FR1-TEST", "role", "1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 2ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 3ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 4ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 5ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 6ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 7ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 8ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 9ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 0ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword")
+    }
 }

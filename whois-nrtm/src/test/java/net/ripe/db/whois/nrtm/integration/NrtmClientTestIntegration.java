@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
 import org.apache.commons.lang.StringUtils;
@@ -17,18 +18,22 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.concurrent.Callable;
 
 import static org.hamcrest.Matchers.is;
 
 @Category(IntegrationTest.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
+
     private static final RpslObject MNTNER = RpslObject.parse("" +
             "mntner: OWNER-MNT\n" +
             "source: TEST");
 
     @Autowired protected NrtmImporter nrtmImporter;
+    @Autowired protected SourceContext sourceContext;
 
     @BeforeClass
     public static void beforeClass() {
@@ -48,7 +53,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.port));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
     }
 
@@ -87,7 +92,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.addObject(person);
 
         nrtmServer.start();
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.port));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
 
         objectExists(ObjectType.PERSON, "OP1-TEST", true);
@@ -95,7 +100,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void delete_maintainer_from_nrtm() throws Exception {
-        databaseHelper.removeObject(MNTNER);
+        databaseHelper.deleteObject(MNTNER);
 
         objectExists(ObjectType.MNTNER, "OWNER-MNT", false);
     }
@@ -160,7 +165,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         databaseHelper.addObject(person2);
         nrtmServer.start();
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.port));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
         nrtmImporter.start();
 
         objectExists(ObjectType.PERSON, "OP2-TEST", true);
@@ -178,21 +183,39 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         objectMatches(mntner);
     }
 
-    private void objectExists(final ObjectType type, final String key, final boolean exists) {
-        Awaitility.waitAtMost(Duration.FOREVER).until(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                try {
-                    sourceContext.setCurrent(Source.master("1-GRS"));
-                    databaseHelper.lookupObject(type, key);
-                    return Boolean.TRUE;
-                } catch (EmptyResultDataAccessException e) {
-                    return Boolean.FALSE;
-                } finally {
-                    sourceContext.removeCurrentSource();
-                }
-            }
-        }, is(exists));
+    @Test
+    public void ensure_all_changes_of_object_are_imported_with_no_missing_references() {
+        final RpslObject test1mntA = RpslObject.parse("" +
+                "mntner: TEST1-MNT\n" +
+                "mnt-ref: OWNER-MNT\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST");
+
+        final RpslObject test2mnt = RpslObject.parse("" +
+                "mntner: TEST2-MNT\n" +
+                "mnt-ref: OWNER-MNT\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST");
+
+        final RpslObject test1mntB = RpslObject.parse("" +
+                "mntner: TEST1-MNT\n" +
+                "mnt-ref: TEST2-MNT\n" +
+                "mnt-by: TEST2-MNT\n" +
+                "source: TEST");
+
+        nrtmImporter.stop(true);
+        nrtmServer.stop(true);
+
+        databaseHelper.addObject(test1mntA);
+        databaseHelper.addObject(test2mnt);
+        databaseHelper.updateObject(test1mntB);
+
+        nrtmServer.start();
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        nrtmImporter.start();
+
+        objectExists(ObjectType.MNTNER, "TEST2-MNT", true);
+        objectExists(ObjectType.MNTNER, "TEST1-MNT", true);
     }
 
     private void objectMatches(final RpslObject rpslObject) {
