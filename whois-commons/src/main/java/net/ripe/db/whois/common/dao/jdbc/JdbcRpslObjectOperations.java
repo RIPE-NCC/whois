@@ -45,7 +45,7 @@ import java.util.Set;
 public class JdbcRpslObjectOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcRpslObjectOperations.class);
 
-    private static final Set<String> UNTRUNCATABLE_TABLES = Sets.newHashSet("version", "object_version", "object_reference", "forgot_password_audit_log", "email_links");
+    private static final Set<String> UNTRUNCATABLE_TABLES = Sets.newHashSet("version", "forgot_password_audit_log", "email_links");
 
     public static void insertIntoTables(final JdbcTemplate jdbcTemplate, final RpslObjectInfo rpslObjectInfo, final RpslObject rpslObject) {
         final Set<CIString> missing = insertIntoTablesIgnoreMissing(jdbcTemplate, rpslObjectInfo, rpslObject);
