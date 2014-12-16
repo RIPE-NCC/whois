@@ -90,7 +90,6 @@ public class RpslObjectBuilder {
                     switch (next) {
                         case ' ':
                         case '\t':
-                        case '\n':
                         case '+':
                             break;
                         default:
