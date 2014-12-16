@@ -1,10 +1,10 @@
 package net.ripe.db.whois.spec.update
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class InetnumSpec extends BaseQueryUpdateSpec {
@@ -5048,8 +5048,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
     }
 
-    @Ignore("TODO: confirmed issue, this should succeed if admin auth has been supplied")
-    def "modify assignment, user mnt-by, add RS mntner with RS auth"() {
+    def "modify assignment, user mnt-by, add RS mntner with RS auth only allowed by override"() {
       given:
         syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -5057,9 +5056,45 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObject("-GBr -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       when:
+        def ack = syncUpdateWithResponse("""\
+        inetnum:      192.168.200.0 - 192.168.200.255
+        netname:      RIPE-NET1
+        descr:        /24 assigned
+        country:      NL
+        admin-c:      TP1-TEST
+        tech-c:       TP1-TEST
+        status:       ASSIGNED PA
+        mnt-by:       END-USER-MNT
+        mnt-by:       RIPE-NCC-HM-MNT
+        changed:      dbtest@ripe.net 20020101
+        source:       TEST
+        override:     denis,override1
+        """.stripIndent())
+
+
+      then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
+    }
+
+    def "modify assignment, user mnt-by, add RS mntner with RS auth should not be allowed"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        syncUpdate(getTransient("ASS") + "password: lir\npassword: end")
+        queryObject("-GBr -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
         def message = send new Message(
-                subject: "",
-                body: """\
+        subject: "",
+        body: """\
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -5077,17 +5112,18 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 """.stripIndent()
         )
 
-      then:
+        then:
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Adding or removing a RIPE NCC maintainer requires administrative authorisation"]
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "END-USER-MNT")
     }
 
     def "modify assignment, user mnt-by, add DB mntner without DB auth"() {
@@ -5132,8 +5168,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-DBM-MNT")
     }
 
-    @Ignore("TODO: failing test")
-    def "modify assignment, user mnt-by, add DB mntner with DB auth"() {
+    def "modify assignment, user mnt-by, add DB mntner should only be allowed by ripe"() {
       given:
         syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -5141,9 +5176,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObject("-GBr -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""\
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -5155,20 +5188,17 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-DBM-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
-
-                password: end
-                password: dbm
+                override:     denis,override1
                 """.stripIndent()
         )
 
       then:
-        def ack = ackFor message
-
+        ack.success
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-DBM-MNT")
