@@ -11,7 +11,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -520,7 +519,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void post_url_encoded_data_with_latin1_charset() throws Exception {
+    public void post_url_encoded_data_with_latin1_charset_failure() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
@@ -542,10 +541,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("Flughafenstraße 109/a"));
     }
 
-    // TODO we should return a informational warning indicating less of information due to conversion into latin1
-    @Ignore
     @Test
-    public void post_url_encoded_data_with_non_latin1_address() throws Exception {
+    public void post_url_encoded_data_with_non_latin1_address_success() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
@@ -562,13 +559,12 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
-        assertThat(response, containsString("Attribute \"address\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set"));
+        assertThat(response, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person again"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        Тверская улица,москва"));
     }
 
-    // TODO: [ES] no warning on conversion of cyrillic characters to latin-1 charset
-    @Ignore
     @Test
-    public void post_multipart_data_with_non_latin1_address() throws Exception {
+    public void post_multipart_data_with_non_latin1_address_success() throws Exception {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject(MNTNER_TEST_MNTNER);
 
@@ -583,11 +579,13 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "source:         TEST\n" +
                         "password: emptypassword")
                 .field("NEW", "yes");
+
         final String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
-        assertThat(response, containsString("Attribute \"address\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set"));
+        assertThat(response, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        Тверская улица,москва"));
     }
 
     @Test
@@ -598,17 +596,19 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         final FormDataMultiPart multipart = new FormDataMultiPart()
                 .field("DATA",
                         "person:         Test Person\n" +
-                                "address:        Home\n" +
-                                "phone:          +31 6 12345678\n" +
-                                "nic-hdl:        TP2-TEST\n" +
-                                "mnt-by:         mntner\n" +
-                                "changed:        dbtest@ripe.net 20120101\n" +
-                                "source:         TEST #Filtered\n" +
-                                "password: emptypassword")
+                        "address:        Home\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "changed:        dbtest@ripe.net 20120101\n" +
+                        "source:         TEST #Filtered\n" +
+                        "password: emptypassword")
                 .field("NEW", "yes");
+
         final String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
+
         assertThat(response, containsString("Create FAILED"));
         assertThat(response, containsString("***Error:   End of line comments not allowed on \"source:\" attribute"));
     }
@@ -621,22 +621,23 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         final FormDataMultiPart multipart = new FormDataMultiPart()
                 .field("DATA",
                         "person:         Test Person\n" +
-                                "address:        Home\n" +
-                                "phone:          +31 6 12345678\n" +
-                                "nic-hdl:        TP1-TEST\n" +
-                                "mnt-by:         mntner\n" +
-                                "remarks:         test remark\n" +
-                                "remarks:         another test remark\n" +
-                                "changed:        dbtest@ripe.net 20120101\n" +
-                                "source:         TEST #Filtered\n" +
-                                "password: emptypassword");
+                        "address:        Home\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP1-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "remarks:         test remark\n" +
+                        "remarks:         another test remark\n" +
+                        "changed:        dbtest@ripe.net 20120101\n" +
+                        "source:         TEST #Filtered\n" +
+                        "password: emptypassword");
+
         final String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
+
         assertThat(response, containsString("Modify FAILED"));
         assertThat(response, containsString("End of line comments not allowed on \"source:\" attribute"));
     }
-
 
     // helper methods
 
