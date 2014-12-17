@@ -394,7 +394,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T organisation ORG-XA1-TEST", "organisation", "ORG-XA1-TEST")
     }
 
-    // FIXME: [AH] the character 'Ő' was converted to a ? in the acknowledgement message
     def "create organisation with auto-1 and weird (invalid) chars in name, missing auth"() {
         expect:
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
@@ -429,7 +428,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(1, 0, 0)
 
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == ["Syntax error in Hö öns mö åäö ?Ú"]
+        ack.errorMessagesFor("Create", "[organisation] auto-1") == ["Syntax error in Hö öns mö åäö ŐÚ"]
 
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
     }
