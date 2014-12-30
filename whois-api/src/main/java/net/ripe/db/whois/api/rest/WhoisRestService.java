@@ -45,6 +45,7 @@ import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -157,6 +158,7 @@ public class WhoisRestService {
     private final WhoisObjectServerMapper whoisObjectServerMapper;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
+    private final LoggerContext loggerContext;
 
     private final WhoisService whoisService;
 
@@ -169,7 +171,8 @@ public class WhoisRestService {
                             final WhoisObjectServerMapper whoisObjectServerMapper,
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator,
-                            final WhoisService whoisService) {
+                            final WhoisService whoisService,
+                            final LoggerContext loggerContext) {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
@@ -179,6 +182,7 @@ public class WhoisRestService {
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
         this.whoisService = whoisService;
+        this.loggerContext = loggerContext;
     }
 
     @DELETE
@@ -194,6 +198,7 @@ public class WhoisRestService {
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
+        auditlogRequest(request);
         checkForMainSource(request, source);
 
         final Origin origin = updatePerformer.createOrigin(request);
@@ -204,6 +209,7 @@ public class WhoisRestService {
 
             ssoTranslator.populateCacheAuthToUsername(updateContext, originalObject);
             originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);
+
 
             return updatePerformer.performUpdate(
                     updateContext,
@@ -231,6 +237,7 @@ public class WhoisRestService {
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
+        auditlogRequest(request);
         checkForMainSource(request, source);
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
@@ -264,6 +271,7 @@ public class WhoisRestService {
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
+        auditlogRequest(request);
         checkForMainSource(request, source);
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
@@ -546,6 +554,11 @@ public class WhoisRestService {
                     .entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType)))
                     .build());
         }
+    }
+
+    private void auditlogRequest(final HttpServletRequest request) {
+        InternalUpdatePerformer.logHttpHeaders(loggerContext, request);
+        InternalUpdatePerformer.logHttpUri(loggerContext, request);
     }
 
     private class VersionsResponseHandler extends ApiResponseHandler {
