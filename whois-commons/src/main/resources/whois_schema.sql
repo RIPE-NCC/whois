@@ -422,7 +422,7 @@ CREATE TABLE `last` (
   PRIMARY KEY (`object_id`,`sequence_id`),
   KEY `last_pkey` (`pkey`),
   KEY `object_type_index` (`object_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=12650254 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -622,7 +622,7 @@ CREATE TABLE `nic_hdl` (
   KEY `range_start` (`range_start`),
   KEY `range_end` (`range_end`),
   KEY `space` (`space`,`source`)
-) ENGINE=InnoDB AUTO_INCREMENT=1924502 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -716,7 +716,7 @@ CREATE TABLE `organisation_id` (
   `source` char(10) NOT NULL DEFAULT '',
   PRIMARY KEY (`range_id`),
   UNIQUE KEY `space` (`space`,`source`)
-) ENGINE=InnoDB AUTO_INCREMENT=22661 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -913,7 +913,7 @@ CREATE TABLE `serials` (
   `operation` tinyint(4) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`serial_id`),
   KEY `object` (`object_id`,`sequence_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25050923 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1044,3 +1044,4 @@ CREATE TABLE `zone_c` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2013-09-27 12:13:22
+

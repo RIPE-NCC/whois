@@ -64,8 +64,6 @@
         <module>whois-scheduler</module>
         <module>whois-db</module>
         <module>whois-endtoend</module>
-        <module>whois-oneshot</module>
-        <module>whois-internal</module>
     </modules>
 
     <dependencyManagement>
