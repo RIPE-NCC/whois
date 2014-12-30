@@ -27,7 +27,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -123,6 +123,17 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         assertThat(object.findAttribute(AttributeType.AUTH).getValue(), is("MD5-PW # Filtered"));
         assertThat(object.findAttribute(AttributeType.AUTH).getCleanComment(), is("Filtered"));
+    }
+
+    @Test
+    public void lookup_not_found() throws Exception {
+        try {
+            restClient.request().lookup(ObjectType.MNTNER, "NON-EXISTANT");
+            fail();
+        } catch (RestClientException e) {
+            assertThat(e.getErrorMessages(), hasSize(1));
+            assertThat(e.getErrorMessages().get(0).getText(), containsString("ERROR:101: no entries found"));
+        }
     }
 
     @Test
@@ -233,8 +244,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .addParam("password", "test")
                 .lookup(SECOND_MNT.getType(), SECOND_MNT.getKey().toString());
 
-        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), startsWith("MD5-PW"));
-        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), not(is("MD5-PW")));
+        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), is("MD5-PW $1$1ZnhrEYU$h8QUAsDPLZYOYVjm3uGQr1"));
     }
 
     @Test
@@ -258,8 +268,27 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .addParam("password", "secondmnt")
                 .lookup(THIRD_MNT.getType(), THIRD_MNT.getKey().toString());
 
-        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), startsWith("MD5-PW"));
-        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), not(is("MD5-PW")));
+        assertThat(obj.getValueForAttribute(AttributeType.AUTH).toString(), is("MD5-PW $1$L9a6Y39t$wuu.ykzgp596KK56tpJm31"));
+    }
+
+    @Test
+    public void lookup_maintainer_password_parameter_must_be_encoded() throws Exception {
+        databaseHelper.addObject(
+                "mntner:        AA1-MNT\n" +
+                "descr:         testing\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
+                "mnt-by:        AA1-MNT\n" +
+                "referral-by:   AA1-MNT\n" +
+                "changed:       noreply@ripe.net\n" +
+                "source:        TEST");
+
+        final RpslObject object = restClient.request()
+                .addParam("password", "pass %95{word}?")
+                .lookup(ObjectType.MNTNER, "AA1-MNT");
+
+        assertThat(object.findAttribute(AttributeType.AUTH).getCleanValue().toString(), is("MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1"));
     }
 
     @Test
@@ -310,7 +339,11 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             restClient.request().lookupAbuseContact("10.0.0.1");
             fail();
         } catch (RestClientException e) {
-            assertThat(e.getErrorMessages().get(0).getText(), is("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\"><message>No abuse contact found for 10.0.0.1</message></abuse-resources>"));
+            assertThat(e.getErrorMessages().get(0).getText(), is(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                    "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
+                    "<message>No abuse contact found for 10.0.0.1</message>" +
+                    "</abuse-resources>"));
         }
     }
 
@@ -387,7 +420,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
         // return nothing on partial primary key
         try {
-            final RpslObject responseNoOrigin = restClient.request().lookup(ObjectType.ROUTE, "193.0.0.0/21");
+            restClient.request().lookup(ObjectType.ROUTE, "193.0.0.0/21");
             fail("no result on partial primary key");
         } catch (RestClientException e){
             assertThat(e.getErrorMessages().get(0).toString(), is("ERROR:101: no entries found\n\nNo entries found in source TEST.\n"));
@@ -422,6 +455,142 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         } catch (EmptyResultDataAccessException ignored) {
             // expected
         }
+    }
+
+    private static final RpslObject INET_NUM = RpslObject.parse("" +
+            "inetnum:         193.0.0.0 - 193.0.0.255\n"+
+            "netname:         RIPE-NCC\n"+
+            "descr:           description\n"+
+            "country:         DK\n"+
+            "admin-c:         TP1-TEST\n"+
+            "tech-c:          TP1-TEST\n"+
+            "status:          SUB-ALLOCATED PA\n"+
+            "mnt-by:          OWNER-MNT\n"+
+            "changed:         ripe@test.net 20120505\n"+
+            "source:          TEST\n" );
+
+    @Test
+    public void create_domain_with_insane_key()  {
+        databaseHelper.addObject(INET_NUM);
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:         0.0.193.in-addr.arpa.\n"+
+                "descr:          Testing\n"+
+                "admin-c:        TP1-TEST\n"+
+                "tech-c:         TP1-TEST\n"+
+                "zone-c:         TP1-TEST\n"+
+                "mnt-by:         OWNER-MNT\n"+
+                "nserver:        ns1.sefiber.dk\n"+
+                "nserver:        ns2.sefiber.dk\n"+
+                "changed:        noreply@ripe.net\n"+
+                "source:         TEST\n");
+
+        restClient.request().addParam("password", "test").create(domain);
+
+        databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa");
+        try {
+            databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa.");
+            fail();
+        } catch( Exception ignored ) {
+            // In DB the object is saved after being sanitised,
+            // therefore the databaseHelper.lookup with unsanitised key fails.
+        }
+
+        restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa");
+        restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa.");
+    }
+
+    @Test
+    public void update_domain_with_unsanitised_key()  {
+        databaseHelper.addObject(INET_NUM);
+
+        final RpslObject domain = RpslObject.parse("" +
+                "domain:         0.0.193.in-addr.arpa\n"+
+                "descr:          Testing\n"+
+                "admin-c:        TP1-TEST\n"+
+                "tech-c:         TP1-TEST\n"+
+                "zone-c:         TP1-TEST\n"+
+                "mnt-by:         OWNER-MNT\n"+
+                "nserver:        ns1.sefiber.dk\n"+
+                "nserver:        ns2.sefiber.dk\n"+
+                "changed:        noreply@ripe.net\n"+
+                "source:         TEST\n" );
+        databaseHelper.addObject(domain);
+
+        final RpslObject updatedDomain = RpslObject.parse("" +
+                "domain:         0.0.193.in-addr.arpa.\n"+
+                "descr:          Testing\n"+
+                "admin-c:        TP1-TEST\n"+
+                "tech-c:         TP1-TEST\n"+
+                "zone-c:         TP1-TEST\n"+
+                "mnt-by:         OWNER-MNT\n"+
+                "nserver:        ns1.sefiber.dk\n"+
+                "nserver:        ns2.sefiber.dk\n"+
+                "changed:        noreply@ripe.net\n"+
+                "source:         TEST\n");
+
+        final RpslObject updatedResult = restClient.request()
+                .addParam("password", "test")
+                .update(updatedDomain);
+        assertThat(updatedResult.getKey().toString(), is("0.0.193.in-addr.arpa"));
+        databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa");
+        try {
+            databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa.");
+            fail();
+        } catch( Exception ignored ) {
+            // In DB the object is saved after being sanitised,
+            // therefore the databaseHelper.lookup with unsanitised key fails.
+        }
+
+       restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa");
+       restClient.request().lookup(domain.getType(), "0.0.193.in-addr.arpa.");
+    }
+
+    @Test
+    public void update_domain_with_existing_unsanitised_key_creates_new_object()  {
+        databaseHelper.addObject(INET_NUM);
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "domain:         0.0.193.in-addr.arpa.\n"+
+                "descr:          Testing\n"+
+                "admin-c:        TP1-TEST\n"+
+                "tech-c:         TP1-TEST\n"+
+                "zone-c:         TP1-TEST\n"+
+                "mnt-by:         OWNER-MNT\n"+
+                "nserver:        ns1.sefiber.dk\n"+
+                "nserver:        ns2.sefiber.dk\n"+
+                "changed:        noreply@ripe.net\n"+
+                "source:         TEST\n" ));
+
+        final RpslObject toBeUpdatedDomain = RpslObject.parse("" +
+                "domain:         0.0.193.in-addr.arpa\n"+
+                "descr:          Testing 2\n"+
+                "admin-c:        TP1-TEST\n"+
+                "tech-c:         TP1-TEST\n"+
+                "zone-c:         TP1-TEST\n"+
+                "mnt-by:         OWNER-MNT\n"+
+                "nserver:        ns1.sefiber.dk\n"+
+                "nserver:        ns2.sefiber.dk\n"+
+                "changed:        noreply@ripe.net\n"+
+                "source:         TEST\n");
+
+        final RpslObject updatedResult = restClient.request()
+                .addParam("password", "test")
+                .update(toBeUpdatedDomain);
+
+
+        final RpslObject domainWithoutDot = databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa");
+        final RpslObject domainWithDot = databaseHelper.lookupObject(ObjectType.DOMAIN, "0.0.193.in-addr.arpa.");
+
+        assertThat(updatedResult.getKey(), is(domainWithoutDot.getKey()));
+
+        //There are both objects in the database
+        assertThat(domainWithoutDot.getKey().toString(), is("0.0.193.in-addr.arpa"));
+        assertThat(domainWithDot.getKey().toString(), is("0.0.193.in-addr.arpa."));
+
+        //Only the sanitised object is returned
+        assertThat(restClient.request().lookup(ObjectType.DOMAIN, "0.0.193.in-addr.arpa").getKey(), is(domainWithoutDot.getKey()));
+        assertThat(restClient.request().lookup(ObjectType.DOMAIN, "0.0.193.in-addr.arpa.").getKey(), is(domainWithoutDot.getKey()));
     }
 
     @Test
@@ -471,6 +640,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void streaming_search_shows_correct_message_in_empty_result() {
         try {
             restClient.request().addParam("query-string", "bla").streamingSearch();
+            fail();
         } catch (RestClientException e){
             assertThat(e.getErrorMessages().get(0).toString(), is("ERROR:101: no entries found\n\nNo entries found in source TEST.\n"));
         }
@@ -480,6 +650,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     public void streaming_search_shows_correct_message_in_bad_request() {
         try {
             restClient.request().addParam("query-ng", "bla").streamingSearch();
+            fail();
         } catch (RestClientException e){
             assertThat(e.getErrorMessages().get(0).toString(), is("Query param 'query-string' cannot be empty"));
         }

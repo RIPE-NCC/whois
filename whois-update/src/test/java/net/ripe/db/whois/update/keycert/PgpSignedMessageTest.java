@@ -6,6 +6,8 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import java.nio.charset.Charset;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -304,7 +306,7 @@ public class PgpSignedMessageTest {
         assertThat(subject.verify(getPublicKey_28F6CD6C()), Matchers.is(true));
     }
 
-    // TODO: latin1 extended characters are not encoded into bytes properly, unless the original charset is specified.
+    // latin1 extended characters are not encoded into bytes properly, unless the original charset is specified.
     @Test
     public void verify_latin1_encoded_message_with_umlaut_character() {
         final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
@@ -336,6 +338,36 @@ public class PgpSignedMessageTest {
     }
 
     @Test
+    public void verify_iso_8859_7_encoded_message_with_greek_characters() {
+        final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA1\n" +
+                "\n" +
+                "person:     Test Person\n" +
+                "address:    ακρόπολη\n" +
+                "phone:      +30 123 411141\n" +
+                "fax-no:     +30 123 411140\n" +
+                "nic-hdl:    TP1-TEST\n" +
+                "changed:    dbtest@ripe.net 20120101\n" +
+                "mnt-by:     UPD-MNT\n" +
+                "source:     TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Version: GnuPG v1\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iQEcBAEBAgAGBQJUM7ipAAoJELvMuy1XY5UNpSoH/2EOdSuBtYe6DncP0wyJQrDZ\n" +
+                "TFeqWcvqolQTX/LoW2oEDALn0PWYlZQGiPX1xuZXt46qz/VvxUqD3i5aqj+d0oZR\n" +
+                "576KhM9a5vxJLNE+Gr16p2MxWB5g/CYNdr3OU3VDFU102oDVuxuKkUHkMu46XNp8\n" +
+                "K5IEYAFseqO2cBDKKL8CRUtz8ENkThXVrtsf1Ufpodw2oZu/rtDuntVqpyaxnKI3\n" +
+                "bAGvjUxWIS089FZk7TJwyTCQGhj+DBQfXxG9I1nOUgAcpC9+Xs8uuysT1AZj4sWq\n" +
+                "VosVxnsIENmyaxQ1p50OjTqRvpoytJ6aNVZU7b8NgpKvKBmftwsrpotRumIJSe8=\n" +
+                "=/+ly\n" +
+                "-----END PGP SIGNATURE-----", Charset.forName("ISO-8859-7"));
+
+        assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
+    }
+
+    @Test
     public void verify_utf8_encoded_message_with_umlaut_character() {
         final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
@@ -360,7 +392,7 @@ public class PgpSignedMessageTest {
                 "1HhK30519VbgNE9LNxCDYM9W+R6x7jJ0NxF5+Ptw9Qzov9qOpMSqfovBe5yB77s6\n" +
                 "8qQjytv2LE8VHEC3WqQAJMLrFrsgBgcWsm1L0TL3iWsmgwXGF6Q02kWgUzei/ao=\n" +
                 "=KFEI\n" +
-                "-----END PGP SIGNATURE-----");
+                "-----END PGP SIGNATURE-----", Charsets.UTF_8);
 
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
     }

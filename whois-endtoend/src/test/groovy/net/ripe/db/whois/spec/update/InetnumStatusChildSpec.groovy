@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
@@ -1172,6 +1173,48 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
     }
+
+    @Ignore("https://www.pivotaltracker.com/story/show/82466454")
+    def "create child ALLOCATED PA, parent status ALLOCATED PA with override"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+      expect:
+        queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+      when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override: denis,override1
+                """.stripIndent()
+        )
+
+      then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
+                ["inetnum parent has incorrect status: ALLOCATED PA"]
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+    }
+
 
     def "create child ALLOCATED PA, parent status ALLOCATED PI"() {
       given:
@@ -2658,15 +2701,13 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.100 - 192.168.0.100" }
-        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.100 - 192.168.0.100") ==
-                ["SUB-ALLOCATED PA cannot be smaller than /24"]
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.100 - 192.168.0.100" }
 
-        queryObjectNotFound("-rGBT inetnum 192.168.0.100 - 192.168.0.100", "inetnum", "192.168.0.100 - 192.168.0.100")
+        queryObject("-rGBT inetnum 192.168.0.100 - 192.168.0.100", "inetnum", "192.168.0.100 - 192.168.0.100")
     }
 
     def "create child SUB-ALLOCATED PA, parent status ALLOCATED PI"() {
@@ -3012,11 +3053,10 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
-                ["inetnum parent has incorrect status: ASSIGNED ANYCAST",
-                "SUB-ALLOCATED PA cannot be smaller than /24"]
+                ["inetnum parent has incorrect status: ASSIGNED ANYCAST"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.127", "inetnum", "192.168.200.0 - 192.168.200.127")
     }

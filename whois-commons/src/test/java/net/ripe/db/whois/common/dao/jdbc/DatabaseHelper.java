@@ -78,10 +78,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     private JdbcTemplate aclTemplate;
     private JdbcTemplate mailupdatesTemplate;
     private JdbcTemplate internalsTemplate;
+    private SourceAwareDataSource sourceAwareDataSource;
 
     @Autowired ApplicationContext applicationContext;
     @Autowired AttributeSanitizer attributeSanitizer;
-    @Autowired SourceAwareDataSource sourceAwareDataSource;
     @Autowired SourceContext sourceContext;
 
     RpslObjectDao rpslObjectDao;
@@ -114,8 +114,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     @Autowired(required = false)
     @Qualifier("internalsDataSource")
-    public void setPendingDataSource(DataSource pendingDataSource) {
-        internalsTemplate = new JdbcTemplate(pendingDataSource);
+    public void setInternalsDataSource(DataSource internalsDataSource) {
+        internalsTemplate = new JdbcTemplate(internalsDataSource);
     }
 
     // TODO: [AH] autowire these fields once whois-internals has proper wiring set up
@@ -123,6 +123,13 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     public void setCrowdClient(CrowdClient crowdClient) {
         this.crowdClient = crowdClient;
     }
+
+    @Autowired
+    @Qualifier("sourceAwareDataSource")
+    public void setSourceAwareDataSource(final SourceAwareDataSource sourceAwareDataSource) {
+        this.sourceAwareDataSource = sourceAwareDataSource;
+    }
+
 
     @Autowired
     public void setRpslObjectDao(RpslObjectDao rpslObjectDao) {
@@ -138,6 +145,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     public void setEmbeddedValueResolver(final StringValueResolver valueResolver) {
         this.valueResolver = valueResolver;
     }
+
+
 
     private static String dbBaseName;
     private static Map<String, String> grsDatabaseNames = Maps.newHashMap();
@@ -483,7 +492,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 new Date());
     }
 
-    public static void dumpSchema(final DataSource datasource) throws SQLException {
+    public static void dumpSchema(final DataSource datasource) {
         new JdbcTemplate(datasource).execute(new StatementCallback<Object>() {
             @Override
             public Object doInStatement(Statement statement) throws SQLException, DataAccessException {

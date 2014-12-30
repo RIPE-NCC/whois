@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.HashSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -44,9 +45,37 @@ public class OrgNameNotChangedValidatorTest {
     @Mock private Maintainers maintainers;
     @InjectMocks private OrgNameNotChangedValidator subject;
 
+    public static final RpslObject ORIGINAL_ORG = RpslObject.parse(10,
+            "organisation: ORG-TEST1\n" +
+            "org-name: Test Organisation\n" +
+            "mnt-by: TEST-MNT");
+    public static final RpslObject UPDATED_ORG_SAME_NAME = RpslObject.parse(20,
+            "organisation: ORG-TEST1\n" +
+            "org-name: Test Organisation\n" +
+            "mnt-by: TEST-MNT");
+    public static final RpslObject UPDATED_ORG_NEW_NAME = RpslObject.parse(30,
+            "organisation: ORG-TEST1\n" +
+            "org-name: Updated Organisation\n" +
+            "mnt-by: TEST-MNT");
+    public static final RpslObject REFERRER_MNT_BY_USER = RpslObject.parse(40,
+            "aut-num: AS3434\n" +
+            "mnt-by: TEST-MNT\n" +
+            "org: ORG-TEST1\n" +
+            "source: TEST");
+    public static final RpslObject REFERRER_MNT_BY_RS = RpslObject.parse(50,
+            "aut-num: AS3434\n" +
+            "mnt-by: RIPE-NCC-HM-MNT\n" +
+            "org: ORG-TEST1\n" +
+            "source: TEST");
+    public static final RpslObject REFERRER_MNT_BY_LEGACY = RpslObject.parse(60,
+            "aut-num: AS3434\n" +
+            "mnt-by: RIPE-NCC-LEGACY-MNT\n" +
+            "org: ORG-TEST1\n" +
+            "source: TEST");
+
     @Before
     public void setup() {
-        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT"), CIString.ciString("RIPE-NCC-END-MNT")));
+        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT"), CIString.ciString("RIPE-NCC-END-MNT"), CIString.ciString("RIPE-NCC-LEGACY-MNT")));
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
     }
 
@@ -62,13 +91,8 @@ public class OrgNameNotChangedValidatorTest {
 
     @Test
     public void orgname_not_changed() {
-        final RpslObject object = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Test Organisation" +
-                "mnt-by: TEST-MNT");
-
-        when(update.getReferenceObject()).thenReturn(object);
-        when(update.getUpdatedObject()).thenReturn(object);
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_SAME_NAME);
 
         subject.validate(update, updateContext);
 
@@ -78,19 +102,11 @@ public class OrgNameNotChangedValidatorTest {
 
     @Test
     public void orgname_changed_not_referenced_at_all() {
-        final RpslObject object = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Test Organisation" +
-                "mnt-by: TEST-MNT");
-        when(update.getReferenceObject()).thenReturn(object);
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
 
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Updated Organisation" +
-                "mnt-by: TEST-MNT");
-        when(update.getUpdatedObject()).thenReturn(updatedObject);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
 
-        when(updateDao.getReferences(object)).thenReturn(Collections.EMPTY_SET);
+        when(updateDao.getReferences(ORIGINAL_ORG)).thenReturn(Collections.EMPTY_SET);
 
         subject.validate(update, updateContext);
 
@@ -100,19 +116,10 @@ public class OrgNameNotChangedValidatorTest {
 
     @Test
     public void orgname_changed_not_referenced_by_resource() {
-        final RpslObject object = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Test Organisation" +
-                "mnt-by: TEST-MNT");
-        when(update.getReferenceObject()).thenReturn(object);
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
 
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Updated Organisation" +
-                "mnt-by: TEST-MNT");
-        when(update.getUpdatedObject()).thenReturn(updatedObject);
-
-        when(updateDao.getReferences(object)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.PERSON, "TEST-NIC")));
+        when(updateDao.getReferences(ORIGINAL_ORG)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.PERSON, "TEST-NIC")));
 
         subject.validate(update, updateContext);
 
@@ -122,27 +129,10 @@ public class OrgNameNotChangedValidatorTest {
 
     @Test
     public void orgname_changed_referenced_by_resource_without_RSmntner__no_RSmntner_auth() {
-        final RpslObject object = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Test Organisation" +
-                "mnt-by: TEST-MNT");
-        when(update.getReferenceObject()).thenReturn(object);
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
 
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Updated Organisation" +
-                "mnt-by: TEST-MNT");
-        when(update.getUpdatedObject()).thenReturn(updatedObject);
-
-        when(updateDao.getReferences(object)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.AUT_NUM, "AS123")));
-        when(objectDao.getById(5)).thenReturn(RpslObject.parse("" +
-                "aut-num: AS3434\n" +
-                "mnt-by: TEST-MNT\n" +
-                "org: ORG-TEST1\n" +
-                "source: TEST"));
-
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
+        presetReferrers(REFERRER_MNT_BY_USER);
 
         subject.validate(update, updateContext);
 
@@ -152,57 +142,72 @@ public class OrgNameNotChangedValidatorTest {
 
     @Test
     public void orgname_changed_referenced_by_resource_with_RSmntner__no_RSmntner_auth() {
-        final RpslObject object = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Test Organisation" +
-                "mnt-by: TEST-MNT");
-        when(update.getReferenceObject()).thenReturn(object);
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
 
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Updated Organisation" +
-                "mnt-by: RIPE-NCC-HM-MNT");
-        when(update.getUpdatedObject()).thenReturn(updatedObject);
-
-        when(updateDao.getReferences(object)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.AUT_NUM, "AS123")));
-        when(objectDao.getById(5)).thenReturn(RpslObject.parse("" +
-                "aut-num: AS3434\n" +
-                "mnt-by: RIPE-NCC-END-MNT\n" +
-                "org: ORG-TEST1\n" +
-                "source: TEST"));
-
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.FALSE);
+        presetReferrers(REFERRER_MNT_BY_RS);
 
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
-        verify(updateContext).addMessage(update, updatedObject.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
+        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
+    }
+
+    @Test
+    public void orgname_changed_referenced_by_resource_with_LEGACY_mntner__no_LEGACY_mntner_auth() {
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
+
+        presetReferrers(REFERRER_MNT_BY_LEGACY);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
+    }
+
+    @Test
+    public void orgname_changed_referenced_by_resource_with_RS_and_LEGACY_mntner__no_LEGACY_mntner_auth() {
+        presetOverrideAuthentication();
+
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
+
+        presetReferrers(REFERRER_MNT_BY_RS, REFERRER_MNT_BY_LEGACY);
+
+        subject.validate(update, updateContext);
+
+        // HM and LEGACY maintainers belong to the same group of RS super-mntners
+        // Any mntner from that group could be used to update such objects
+        // confirmed by David 2014-10-06
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
     }
 
     @Test
     public void orgname_changed_referenced_by_resource_with_RSmntner__RSmaintainer_auth() {
-        final RpslObject object = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Test Organisation" +
-                "mnt-by: TEST-MNT");
-        when(update.getReferenceObject()).thenReturn(object);
+        presetOverrideAuthentication();
 
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Updated Organisation" +
-                "mnt-by: TEST-MNT");
-        when(update.getUpdatedObject()).thenReturn(updatedObject);
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
 
-        when(updateDao.getReferences(object)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.AUT_NUM, "AS123")));
-        when(objectDao.getById(5)).thenReturn(RpslObject.parse("" +
-                "aut-num: AS3434\n" +
-                "mnt-by: RIPE-NCC-END-MNT\n" +
-                "org: ORG-TEST1\n" +
-                "source: TEST"));
+        presetReferrers(REFERRER_MNT_BY_RS);
 
-        when(update.isOverride()).thenReturn(Boolean.FALSE);
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(Boolean.TRUE);
+        subject.validate(update, updateContext);
+
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+    }
+
+    @Test
+    public void orgname_changed_referenced_by_resource_with_LEGACY_mntner__LEGACY_maintainer_auth() {
+        presetRsAuthentication();
+
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
+
+        presetReferrers(REFERRER_MNT_BY_LEGACY);
 
         subject.validate(update, updateContext);
 
@@ -212,31 +217,66 @@ public class OrgNameNotChangedValidatorTest {
 
     @Test
     public void orgname_changed_referenced_by_resource_with_RSmntner__auth_by_override() {
-        final RpslObject object = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Test Organisation" +
-                "mnt-by: TEST-MNT");
-        when(update.getReferenceObject()).thenReturn(object);
+        presetOverrideAuthentication();
 
-        final RpslObject updatedObject = RpslObject.parse("" +
-                "organisation: ORG-TEST1\n" +
-                "org-name: Updated Organisation" +
-                "mnt-by: TEST-MNT");
-        when(update.getUpdatedObject()).thenReturn(updatedObject);
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
 
-        when(updateDao.getReferences(object)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.AUT_NUM, "AS123")));
-        when(objectDao.getById(5)).thenReturn(RpslObject.parse("" +
-                "aut-num: AS3434\n" +
-                "mnt-by: RIPE-NCC-END-MNT\n" +
-                "org: ORG-TEST1\n" +
-                "source: TEST"));
-
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
-        when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        presetReferrers(REFERRER_MNT_BY_RS);
 
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+    }
+
+    @Test
+    public void orgname_changed_referenced_by_resource_with_LEGACY_mntner__auth_by_override() {
+        presetOverrideAuthentication();
+
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
+
+        presetReferrers(REFERRER_MNT_BY_LEGACY);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+    }
+
+    @Test
+    public void orgname_changed_referenced_by_resource_with_RS_and_LEGACY_mntner__auth_by_override() {
+        presetOverrideAuthentication();
+
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
+
+        presetReferrers(REFERRER_MNT_BY_RS, REFERRER_MNT_BY_LEGACY);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+    }
+
+    private void presetRsAuthentication() {
+        when(subjectObject.hasPrincipal(Matchers.eq(Principal.RS_MAINTAINER))).thenReturn(true);
+    }
+
+    private void presetOverrideAuthentication() {
+        when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+    }
+
+    private void presetReferrers(RpslObject... referrerObjects) {
+        final HashSet<RpslObjectInfo> rpslObjectInfos = new HashSet<>(referrerObjects.length);
+
+        for (RpslObject referrerObject : referrerObjects) {
+            rpslObjectInfos.add(
+                    new RpslObjectInfo(referrerObject.getObjectId(), referrerObject.getType(), referrerObject.getKey()));
+            when(objectDao.getById(referrerObject.getObjectId())).thenReturn(referrerObject);
+        }
+
+        when(updateDao.getReferences(ORIGINAL_ORG)).thenReturn(rpslObjectInfos);
     }
 }

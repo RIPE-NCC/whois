@@ -1047,7 +1047,6 @@ class SponsorSpec extends BaseQueryUpdateSpec {
         "ALLOCATED-BY-LIR"  | ""
         "AGGREGATED-BY-LIR" | "\nassignment-size: 96"
         "ASSIGNED"          | ""
-        "ASSIGNED ANYCAST"  | ""
     }
 
     def "remove sponsoring-org without override without RS maintainer is NOOP"() {
@@ -2775,6 +2774,78 @@ class SponsorSpec extends BaseQueryUpdateSpec {
                 ["This resource object must be created with a sponsoring-org attribute"]
 
         queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+    }
+
+    def "create inet6num with sponsoring-org attribute and assigned anycast status with override"() {
+        expect:
+            queryObjectNotFound("-r -BG -T inet6num 2001:102::/48", "inet6num", "2001:102::/48")
+        when:
+            def message = syncUpdate("""\
+                    inet6num:       2001:102::/48
+                    netname:        EU-ZZ-2001-600
+                    descr:          assigned anycast
+                    country:        EU
+                    org:            ORG-OFA10-TEST
+                    sponsoring-org: ORG-LIRA-TEST
+                    admin-c:        TP1-TEST
+                    tech-c:         TP1-TEST
+                    mnt-by:         RIPE-NCC-END-MNT
+                    mnt-by:         LIR-MNT
+                    mnt-lower:      RIPE-NCC-HM-MNT
+                    status:         ASSIGNED ANYCAST
+                    changed:        dbtest@ripe.net 20130101
+                    source:         TEST
+                    override:     denis,override1
+                    """.stripIndent())
+        then:
+            def ack = new AckResponse("", message)
+
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+    }
+
+    def "modify inet6num with assigned anycast status add sponsoring-org attribute with override"() {
+        when:
+            databaseHelper.addObject("""\
+                    inet6num:       2001:102::/48
+                    netname:        EU-ZZ-2001-600
+                    descr:          assigned anycast
+                    country:        EU
+                    org:            ORG-OFA10-TEST
+                    admin-c:        TP1-TEST
+                    tech-c:         TP1-TEST
+                    mnt-by:         RIPE-NCC-END-MNT
+                    mnt-by:         LIR-MNT
+                    mnt-lower:      RIPE-NCC-HM-MNT
+                    status:         ASSIGNED ANYCAST
+                    changed:        dbtest@ripe.net 20130101
+                    source:         TEST
+                    """.stripIndent())
+        then:
+            def message = syncUpdate("""\
+                    inet6num:       2001:102::/48
+                    netname:        EU-ZZ-2001-600
+                    descr:          assigned anycast
+                    country:        EU
+                    org:            ORG-OFA10-TEST
+                    sponsoring-org: ORG-LIRA-TEST
+                    admin-c:        TP1-TEST
+                    tech-c:         TP1-TEST
+                    mnt-by:         RIPE-NCC-END-MNT
+                    mnt-by:         LIR-MNT
+                    mnt-lower:      RIPE-NCC-HM-MNT
+                    status:         ASSIGNED ANYCAST
+                    changed:        dbtest@ripe.net 20130101
+                    source:         TEST
+                    override:     denis,override1
+                    """.stripIndent())
+        then:
+            def ack = new AckResponse("", message)
+
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 0, 1, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
     }
 
 }

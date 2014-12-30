@@ -330,8 +330,9 @@ public class SyncUpdatesServiceTest {
         final String redirect = null;
         final String source = "test";
         final String ssoToken = "valid-token";
+        final String contentType = "charset=\"latin1\"";
 
-        subject.doMultipartPost(request, source, data, help, nnew, diff, redirect, ssoToken);
+        subject.doMultipartPost(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         verify(messageHandler).handle(
                 argThat(new ArgumentMatcher<UpdateRequest>() {
@@ -371,8 +372,9 @@ public class SyncUpdatesServiceTest {
         final String redirect = null;
         final String source = "test";
         final String ssoToken = "invalid-token";
+        final String contentType = "charset=\"latin1\"";
 
-        subject.doMultipartPost(request, source, data, help, nnew, diff, redirect, ssoToken);
+        subject.doMultipartPost(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
         verify(messageHandler).handle(
                 argThat(new ArgumentMatcher<UpdateRequest>() {

@@ -45,6 +45,8 @@ import java.util.Set;
 public class JdbcRpslObjectOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcRpslObjectOperations.class);
 
+    private static final Set<String> UNTRUNCATABLE_TABLES = Sets.newHashSet("version", "forgot_password_audit_log", "email_links");
+
     public static void insertIntoTables(final JdbcTemplate jdbcTemplate, final RpslObjectInfo rpslObjectInfo, final RpslObject rpslObject) {
         final Set<CIString> missing = insertIntoTablesIgnoreMissing(jdbcTemplate, rpslObjectInfo, rpslObject);
         if (!missing.isEmpty()) {
@@ -329,7 +331,7 @@ public class JdbcRpslObjectOperations {
             final List<String> tables = jdbcTemplate.queryForList("SHOW TABLES", String.class);
 
             for (final String table : tables) {
-                if (table.equals("version")) {
+                if (UNTRUNCATABLE_TABLES.contains(table)) {
                     continue;
                 }
 
@@ -398,9 +400,30 @@ public class JdbcRpslObjectOperations {
         }
     }
 
-    public static int getSerialAge(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final int serialId) {
+    @CheckForNull
+    public static SerialEntry getSerialEntryForNrtm(final JdbcTemplate jdbcTemplate, final int serialId) {
         try {
-            final SerialEntry serialEntry = getSerialEntryWithoutBlobs(jdbcTemplate, serialId);
+            return getSerialEntryWithBlobsForNrtm(jdbcTemplate, serialId);
+        } catch (EmptyResultDataAccessException e) {
+            LOGGER.debug("SerialDao.getByIdForNrtm({})", serialId, e);
+            return null;
+        }
+    }
+
+    public static Integer getAgeOfExactOrNextExistingSerial(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final int serialId) {
+        try {
+            //[TP] this is for NRTM to cover some cases where there are gaps in the serials table.
+            final int minSerialId = jdbcTemplate.queryForObject(
+                    "SELECT IF (nextmin, nextmin, 0) " +
+                    "FROM   (SELECT min(serial_id) AS nextMin " +
+                    "        FROM   serials " +
+                    "        WHERE  serial_id >= ?) AS nextMinTable ", Integer.class, serialId);
+
+            if (minSerialId == 0) {
+                return null;
+            }
+
+            final SerialEntry serialEntry = getSerialEntryWithoutBlobs(jdbcTemplate, minSerialId);
             int effectiveTimestamp;
 
             if (serialEntry.getOperation() == Operation.DELETE || serialEntry.isAtLast()) {
@@ -411,7 +434,7 @@ public class JdbcRpslObjectOperations {
 
             return now(dateTimeProvider) - effectiveTimestamp;
         } catch (EmptyResultDataAccessException e) {
-            return Integer.MAX_VALUE;
+            return null;
         }
     }
 
@@ -419,16 +442,26 @@ public class JdbcRpslObjectOperations {
     // TODO: [AH] fix legacy history to match rdp's approach
     // note: this is really kludgy, because legacy decreased serials.sequence_id by 1 on deletion, to make sure once
     //       could join from the deletion serials record directly to history.
+    // Attention [TP]: this method returns the object version from last even if the input serialId is historical!!!
     private static SerialEntry getSerialEntryWithBlobs(final JdbcTemplate jdbcTemplate, final int serialId) {
         return jdbcTemplate.queryForObject("" +
-                "SELECT serials.operation, serials.atlast, serials.object_id, last.timestamp, " +
-                "COALESCE(legacy_history.timestamp, rdp_history.timestamp), " +
-                "IF(last.sequence_id, last.object, COALESCE(legacy_history.object, rdp_history.object)) " +
-                "FROM serials " +
-                "LEFT JOIN last ON last.object_id = serials.object_id " +
-                "LEFT JOIN history legacy_history ON legacy_history.object_id = serials.object_id AND legacy_history.sequence_id = serials.sequence_id " +
-                "LEFT JOIN history rdp_history ON rdp_history.object_id = serials.object_id AND rdp_history.sequence_id = serials.sequence_id - 1 " +
-                "WHERE serials.serial_id = ?", new RowMapper<SerialEntry>() {
+                "SELECT serials.operation," +
+                "       serials.atlast," +
+                "       serials.object_id," +
+                "       last.timestamp," +
+                "       COALESCE(legacy_history.timestamp, rdp_history.timestamp)," +
+                "       IF(last.sequence_id, last.object, COALESCE(legacy_history.object," +
+                "                                         rdp_history.object))" +
+                "FROM   serials" +
+                "       LEFT JOIN last" +
+                "              ON last.object_id = serials.object_id" +
+                "       LEFT JOIN history legacy_history" +
+                "              ON legacy_history.object_id = serials.object_id" +
+                "                 AND legacy_history.sequence_id = serials.sequence_id" +
+                "       LEFT JOIN history rdp_history" +
+                "              ON rdp_history.object_id = serials.object_id" +
+                "                 AND rdp_history.sequence_id = serials.sequence_id - 1 " +
+                "WHERE  serials.serial_id = ?", new RowMapper<SerialEntry>() {
             @Override
             public SerialEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
                 try {
@@ -443,17 +476,60 @@ public class JdbcRpslObjectOperations {
     // exact same, but omit blob lookup for performance reasons
     private static SerialEntry getSerialEntryWithoutBlobs(final JdbcTemplate jdbcTemplate, final int serialId) {
         return jdbcTemplate.queryForObject("" +
-                "SELECT serials.operation, serials.atlast, serials.object_id, last.timestamp, " +
-                "COALESCE(legacy_history.timestamp, rdp_history.timestamp), " +
-                "IF(last.sequence_id, last.object, COALESCE(legacy_history.object, rdp_history.object)) " +
-                "FROM serials " +
-                "LEFT JOIN last ON last.object_id = serials.object_id " +
-                "LEFT JOIN history legacy_history ON legacy_history.object_id = serials.object_id AND legacy_history.sequence_id = serials.sequence_id " +
-                "LEFT JOIN history rdp_history ON rdp_history.object_id = serials.object_id AND rdp_history.sequence_id = serials.sequence_id - 1 " +
-                "WHERE serials.serial_id = ?", new RowMapper<SerialEntry>() {
+                "SELECT serials.operation, " +
+                "       serials.atlast, " +
+                "       serials.object_id, " +
+                "       last.timestamp, " +
+                "       COALESCE(legacy_history.timestamp, rdp_history.timestamp), " +
+                "       IF(last.sequence_id, last.object, COALESCE(legacy_history.object, " +
+                "                                         rdp_history.object)) " +
+                "FROM   serials " +
+                "       LEFT JOIN last " +
+                "              ON last.object_id = serials.object_id " +
+                "       LEFT JOIN history legacy_history " +
+                "              ON legacy_history.object_id = serials.object_id " +
+                "                 AND legacy_history.sequence_id = serials.sequence_id " +
+                "       LEFT JOIN history rdp_history " +
+                "              ON rdp_history.object_id = serials.object_id " +
+                "                 AND rdp_history.sequence_id = serials.sequence_id - 1 " +
+                "WHERE  serials.serial_id = ? ", new RowMapper<SerialEntry>() {
             @Override
             public SerialEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return new SerialEntry(Operation.getByCode(rs.getInt(1)), rs.getBoolean(2), rs.getInt(4), rs.getInt(5));
+            }
+        }, serialId);
+    }
+
+
+    //   [TP] If operation is delete return the previous version of the object [needed by NRTM],
+    //        otherwise return the exact version which is either in history or in last
+    private static SerialEntry getSerialEntryWithBlobsForNrtm(final JdbcTemplate jdbcTemplate, final int serialId) {
+        return jdbcTemplate.queryForObject("" +
+                "SELECT serials.operation, " +
+                "       serials.atlast, " +
+                "       serials.object_id, " +
+                "       IF(serials.operation = 2, " +
+                "                rdp_history.object, " +
+                "                COALESCE(legacy_history.object, last.object)) as object " +
+                "FROM   serials " +
+                "       LEFT JOIN last " +
+                "              ON last.object_id = serials.object_id" +
+                "                 AND last.sequence_id = serials.sequence_id  " +
+                "       LEFT JOIN history legacy_history " +
+                "              ON legacy_history.object_id = serials.object_id " +
+                "                 AND legacy_history.sequence_id = serials.sequence_id " +
+                "       LEFT JOIN history rdp_history " +
+                "              ON rdp_history.object_id = serials.object_id " +
+                "                 AND rdp_history.sequence_id = serials.sequence_id - 1 " +
+                "WHERE  serials.serial_id = ?", new RowMapper<SerialEntry>() {
+            @Override
+            public SerialEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
+                try {
+                    return SerialEntry.createSerialEntryWithoutTimestamps
+                            (Operation.getByCode(rs.getInt(1)), rs.getBoolean(2), rs.getInt(3), rs.getBytes(4));
+                } catch (RuntimeException e) {
+                    throw new IllegalStateException("Failed at serial_id " + serialId, e);
+                }
             }
         }, serialId);
     }

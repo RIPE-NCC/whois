@@ -5,7 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import org.apache.commons.io.IOUtils;
 import org.junit.*;
@@ -63,9 +63,9 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
     @Test
     public void dontHangOnHugeAutNumObject() throws Exception {
-        String response = DummyWhoisClient.query(NrtmServer.getPort(), String.format("-g TEST:3:%d-%d", MIN_RANGE, MAX_RANGE), 5 * 1000);
+        String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), String.format("-g TEST:3:%d-%d", MIN_RANGE, MAX_RANGE), 5 * 1000);
 
-        assertTrue(response, response.contains(String.format("ADD/UPD %d", MIN_RANGE)));  // serial 21486000 is a huge aut-num
+        assertTrue(response, response.contains(String.format("ADD %d", MIN_RANGE)));  // serial 21486000 is a huge aut-num
         assertTrue(response, response.contains(String.format("DEL %d", MIN_RANGE + 1)));
     }
 
@@ -219,9 +219,9 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
                             return;
                         }
 
-                        if (line.startsWith("ADD/UPD ")) {
+                        if (line.startsWith("ADD ")) {
                             addCount++;
-                            signalLatch(line.substring(8));
+                            signalLatch(line.substring(4));
                         }
 
                         if (line.startsWith("DEL ")) {

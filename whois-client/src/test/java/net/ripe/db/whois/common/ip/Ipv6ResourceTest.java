@@ -137,6 +137,11 @@ public class Ipv6ResourceTest {
     }
 
     @Test
+    public void truncateByPrefixLength() {
+        assertThat(Ipv6Resource.parse("2001:2002:2003:2004:1::/65").toString(), is("2001:2002:2003:2004::/65"));
+    }
+
+    @Test
     public void verifyIntersects() {
         subject = resource(10, 20);
 

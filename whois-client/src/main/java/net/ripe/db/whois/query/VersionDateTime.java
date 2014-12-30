@@ -8,7 +8,7 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
 
     private final LocalDateTime timestamp;
 
-    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+    public static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
 
     public VersionDateTime(final LocalDateTime timestamp) {
         this.timestamp = timestamp;
@@ -42,5 +42,9 @@ public class VersionDateTime implements Comparable<VersionDateTime> {
     @Override
     public int compareTo(final VersionDateTime other) {
         return timestamp.compareTo(other.timestamp);
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 }

@@ -24,13 +24,12 @@ import static org.mockito.Mockito.when;
 public class AuthoritativeResourceDataValidatorTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceDataValidatorTest.class);
 
-    @Mock
-    AuthoritativeResourceData authoritativeResourceData;
+    @Mock AuthoritativeResourceData authoritativeResourceData;
     AuthoritativeResourceDataValidator subject;
 
     @Before
     public void setUp() throws Exception {
-        subject = new AuthoritativeResourceDataValidator(new String[]{"GRS1", "GRS2", "GRS3"}, authoritativeResourceData);
+        subject = new AuthoritativeResourceDataValidator(new String[] {"GRS1","GRS2","GRS3"}, authoritativeResourceData);
 
         final AuthoritativeResource resourceDataGrs1 = AuthoritativeResource.loadFromScanner(LOGGER, "GRS1", new Scanner("" +
                 "GRS1||ipv4|192.0.0.0|3||allocated|\n" +
@@ -60,7 +59,7 @@ public class AuthoritativeResourceDataValidatorTest {
         when(authoritativeResourceData.getAuthoritativeResource(ciString("GRS3"))).thenReturn(resourceDataGrs3);
     }
 
-    @Test
+@Test
     public void checkOverlaps() throws IOException {
         final StringWriter writer = new StringWriter();
         subject.checkOverlaps(writer);

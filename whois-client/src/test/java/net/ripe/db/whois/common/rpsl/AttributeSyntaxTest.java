@@ -8,6 +8,11 @@ import static org.junit.Assert.assertThat;
 public class AttributeSyntaxTest {
 
     @Test
+    public void address() {
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.ADDRESS, "gcyudgyducgdugcuydguycd cgduyagcduygcduy gcdyugcyudgcduygcd cdhiuchdghcdiughciudhciudhcdiu cyudghiucdghucidgcdiugdcdiu cduihciudhudcdc");
+    }
+
+    @Test
     public void adminc() {
         verifySuccess(ObjectType.AS_SET, AttributeType.ADMIN_C, "HIA1-AFRINIC");
         verifySuccess(ObjectType.AS_SET, AttributeType.ADMIN_C, "HIA1-ARIN");
@@ -196,6 +201,7 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "Amsterdam.in-addr.arpa");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "01-03.0.0.193.in-addr.arpa");
 
+        verifySuccess(ObjectType.DOMAIN, AttributeType.DOMAIN, "1.0.0.193.in-addr.arpa");
         verifySuccess(ObjectType.DOMAIN, AttributeType.DOMAIN, "36.116.62.in-addr.arpa");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopq.e164.arpa");
         verifyFailure(ObjectType.DOMAIN, AttributeType.DOMAIN, "alpha.e164.arpa.");

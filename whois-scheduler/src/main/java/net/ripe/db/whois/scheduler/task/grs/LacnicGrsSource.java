@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -158,17 +157,15 @@ class LacnicGrsSource extends GrsSource {
 
     static {
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Nullable
             @Override
-            public RpslAttribute apply(@Nullable RpslAttribute input) {
+            public RpslAttribute apply(final RpslAttribute input) {
                 return new RpslAttribute(AttributeType.AUT_NUM, "AS" + input.getCleanValue());
             }
         }, "aut-num");
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Nullable
             @Override
-            public RpslAttribute apply(@Nullable RpslAttribute input) {
+            public RpslAttribute apply(final RpslAttribute input) {
                 final String date = input.getCleanValue().toString().replaceAll("-", "");
                 final String value = String.format("unread@ripe.net %s # %s", date, input.getKey());
                 return new RpslAttribute(AttributeType.CHANGED, value);
@@ -176,9 +173,8 @@ class LacnicGrsSource extends GrsSource {
         }, "changed", "created");
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Nullable
             @Override
-            public RpslAttribute apply(@Nullable RpslAttribute input) {
+            public RpslAttribute apply(final RpslAttribute input) {
                 final IpInterval<?> ipInterval = IpInterval.parse(input.getCleanValue());
                 if (ipInterval instanceof Ipv4Resource) {
                     return new RpslAttribute(AttributeType.INETNUM, input.getValue());
@@ -191,9 +187,8 @@ class LacnicGrsSource extends GrsSource {
         }, "inetnum");
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Nullable
             @Override
-            public RpslAttribute apply(@Nullable RpslAttribute input) {
+            public RpslAttribute apply(final RpslAttribute input) {
                 return new RpslAttribute(AttributeType.DESCR, input.getValue());
             }
         }, "owner");

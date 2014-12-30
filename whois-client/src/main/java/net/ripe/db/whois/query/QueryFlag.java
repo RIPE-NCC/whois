@@ -181,6 +181,7 @@ public enum QueryFlag {
             .describedAs("Returns historical version of the object")
             .requiresArgument(Integer.class));
 
+
     private static final class Builder {
         private List<String> flags = Collections.emptyList();
         private String searchKey;

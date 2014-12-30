@@ -1,8 +1,8 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +12,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,21 +35,22 @@ public class AfrinicGrsSourceTest {
 
     @Test
     public void handleObjects() throws Exception {
-        final File file = new File(getClass().getResource("/grs/afrinic.test.bz2").toURI());
+        final File file = new File(getClass().getResource("/grs/afrinic.test.gz").toURI());
 
         subject.handleObjects(file, objectHandler);
 
         assertThat(objectHandler.getObjects(), hasSize(0));
         assertThat(objectHandler.getLines(), hasSize(5));
+
         assertThat(objectHandler.getLines().get(0), contains(
                 "as-block:     AS30980 - AS30980\n",
                 "descr:        AfriNIC ASN block\n",
-                "remarks:      These AS Numbers are further assigned to network\n",
-                "              operators in the AfriNIC service region. AS\n",
-                "              assignment policy is documented in:\n",
-                "              <http://www.afrinic.net/policies/afpol-as200407-000.htm>\n",
-                "              AfriNIC members can request AS Numbers using the\n",
-                "              form located at:\n",
+                "remarks:      These AS Numbers are further assigned to network\n" +
+                "              operators in the AfriNIC service region. AS\n" +
+                "              assignment policy is documented in:\n" +
+                "              <http://www.afrinic.net/policies/afpol-as200407-000.htm>\n" +
+                "              AfriNIC members can request AS Numbers using the\n" +
+                "              form located at:\n" +
                 "              http://www.afrinic.net/documents.htm\n",
                 "org:          ORG-AFNC1-AFRINIC\n",
                 "admin-c:      TEAM-AFRINIC\n",

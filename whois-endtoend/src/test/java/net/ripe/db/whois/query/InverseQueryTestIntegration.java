@@ -3,7 +3,7 @@ package net.ripe.db.whois.query;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
@@ -144,7 +144,21 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
                 containsString("% Inverse search on 'auth' attribute is limited to 'key-cert' objects only"));
     }
 
+    @Test
+    public void inverse_invalid_nic_hdl() {
+        databaseHelper.addObject(
+                "person:    Henry Mitchell\n" +
+                "nic-hdl:   TEST-HM3\n" +
+                "source:    TEST");
+        databaseHelper.addObject(
+                "mntner:    Another Maintainer\n" +
+                "tech-c:    TEST-HM3\n" +
+                "source:    TEST");
+
+        assertThat(query("-i tech-c TEST-HM3"), containsString("Another Maintainer"));
+    }
+
     private String query(final String query) {
-        return DummyWhoisClient.query(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
 }

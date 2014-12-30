@@ -1014,7 +1014,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
       then:
         def after = query "--list-versions TST"
       then:
-        println(after)
         after =~ "This object was deleted on"
     }
 

@@ -120,14 +120,16 @@ public class GeolocationService {
         }
         catch (IllegalArgumentException e) {
             throw new WebApplicationException(
-                    Response.status(Response.Status.NOT_FOUND).
-                            entity("No inetnum/inet6num resource has been found").build());
+                    Response.status(Response.Status.NOT_FOUND)
+                            .entity("No inetnum/inet6num resource has been found")
+                            .build());
         }
 
         if (languages == null && location == null) {
             throw new WebApplicationException(
-                    Response.status(Response.Status.NOT_FOUND).
-                            entity("No geolocation data was found for the given ipkey: " + ipkey).build());
+                    Response.status(Response.Status.NOT_FOUND)
+                            .entity("No geolocation data was found for the given ipkey: " + ipkey)
+                            .build());
         }
 
         final WhoisResources whoisResources = new WhoisResources();

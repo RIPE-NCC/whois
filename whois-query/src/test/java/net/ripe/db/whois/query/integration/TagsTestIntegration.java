@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.After;
@@ -51,43 +51,43 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void no_tag_info_displays_no_info() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--no-tag-info UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--no-tag-info UNUSED-MNT");
         assertThat(response, not(containsString("Unreferenced")));
     }
 
     @Test
     public void single_dash_no_tag_info_works_too() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-no-tag-info UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-no-tag-info UNUSED-MNT");
         assertThat(response, not(containsString("Unreferenced")));
     }
 
     @Test
     public void tag_info_is_off_per_default() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "UNUSED-MNT");
         assertThat(response, not(containsString("Unreferenced")));
     }
 
     @Test
     public void no_unref_info_for_referenced_object() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "RIPE-NCC-HM-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "RIPE-NCC-HM-MNT");
         assertThat(response, not(containsString("Unreferenced")));
     }
 
     @Test
     public void show_tag_info_for_unreferenced_object() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--show-tag-info UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-tag-info UNUSED-MNT");
         assertThat(response, containsString("Unreferenced"));
     }
 
     @Test
     public void show_tag_info_for_referenced_object() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--show-tag-info RIPE-NCC-HM-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-tag-info RIPE-NCC-HM-MNT");
         assertThat(response, not(containsString("Unreferenced# 'RIPE-NCC-HM-MNT'")));
     }
 
     @Test
     public void show_tag_info_help() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "help");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "help");
         assertThat(response, containsString("" +
                 "%     --show-tag-info\n" +
                 "%           Switches on tagging information.\n"));
@@ -95,13 +95,13 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void show_taginfo_and_no_tag_info_shows_default_behaviour() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--no-tag-info --show-tag-info UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--no-tag-info --show-tag-info UNUSED-MNT");
         assertThat(response, containsString("ERROR:109: invalid combination of flags passed"));
     }
 
     @Test
     public void filterTag_include_applies() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-B --filter-tag-include unref UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-B --filter-tag-include unref UNUSED-MNT");
 
         assertThat(response, containsString("mntner:         UNUSED-MNT"));
         assertThat(response, not(containsString("person:         Test Person")));
@@ -114,7 +114,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterTag_include_does_not_apply() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-B --filter-tag-include unref TP1-TEST");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-B --filter-tag-include unref TP1-TEST");
         assertThat(response, stringMatchesRegexp("(?si)" +
                 "% This is the RIPE Database query service.\n" +
                 "% The objects are in RPSL format.\n" +
@@ -139,13 +139,13 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterTag_include_no_argument() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-include UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-include UNUSED-MNT");
         assertThat(response, containsString("ERROR:106: no search key specified"));
     }
 
     @Test
     public void filterTag_include_unknown_tag() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-include incorrect UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-include incorrect UNUSED-MNT");
         assertThat(response, containsString("" +
                 "% Note: tag filtering is enabled,\n" +
                 "%       Only showing objects WITH tag(s): incorrect"));
@@ -153,7 +153,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterTag_exclude_applies() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-exclude unref UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-exclude unref UNUSED-MNT");
         assertThat(response, not(containsString("mntner:         UNUSED-MNT")));
         assertThat(response, containsString("person:         Test Person"));
         assertThat(response, containsString("% Note: tag filtering is enabled,\n" +
@@ -162,7 +162,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterTag_exclude_does_not_apply() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-exclude unref TP1-TEST");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-exclude unref TP1-TEST");
         assertThat(response, containsString("person:         Test Person"));
         assertThat(response, stringMatchesRegexp("(?si)" +
                 "% This is the RIPE Database query service.\n" +
@@ -193,13 +193,13 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterTag_exclude_no_argument() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-exclude UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-exclude UNUSED-MNT");
         assertThat(response, containsString("ERROR:106: no search key specified"));
     }
 
     @Test
     public void filterTag_exclude_nonapplicable_argument() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-exclude incorrect UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-exclude incorrect UNUSED-MNT");
         assertThat(response, containsString("mntner:         UNUSED-MNT"));
         assertThat(response, containsString("person:         Test Person"));
         assertThat(response, containsString(
@@ -209,7 +209,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterNote_include_on_top_for_longer_list_of_related_objects() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-B --filter-tag-include unref RIPE-NCC-HM-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-B --filter-tag-include unref RIPE-NCC-HM-MNT");
         assertThat(response, containsString("" +
                 "% Note: tag filtering is enabled,\n" +
                 "%       Only showing objects WITH tag(s): unref\n" +
@@ -222,7 +222,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterNote_exclude_on_top_for_longer_list_of_related_objects() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "-B --filter-tag-exclude unref RIPE-NCC-HM-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-B --filter-tag-exclude unref RIPE-NCC-HM-MNT");
         assertThat(response, containsString("" +
                 "% Note: tag filtering is enabled,\n" +
                 "%       Only showing objects WITHOUT tag(s): unref\n" +
@@ -235,7 +235,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterTag_include_and_exclude_cannot_be_combined_with_the_same_argument() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-exclude unref --filter-tag-include unref UNUSED-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-exclude unref --filter-tag-include unref UNUSED-MNT");
         assertThat(response, containsString("%ERROR:109: invalid combination of flags passed\n" +
                 "%\n" +
                 "% The flags \"--filter-tag-include (unref)\" and \"--filter-tag-exclude (unref)\" cannot be used together."));
@@ -243,7 +243,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterTag_include_and_exclude_none_apply() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-exclude lame --filter-tag-include placeholder RIPE-NCC-HM-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-exclude lame --filter-tag-include placeholder RIPE-NCC-HM-MNT");
         assertThat(response, not(containsString("organisation:   ORG-TEST1-TEST")));
         assertThat(response, not(containsString("mntner:         RIPE-NCC-HM-MNT")));
         assertThat(response, not(containsString("person:         Test Person")));
@@ -251,7 +251,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterTag_include_and_exclude_both_apply_on_different_objects() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-exclude foo --filter-tag-include unref RIPE-NCC-HM-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-exclude foo --filter-tag-include unref RIPE-NCC-HM-MNT");
         assertThat(response, containsString(
                 "% Note: tag filtering is enabled,\n" +
                         "%       Only showing objects WITH tag(s): unref\n" +
@@ -262,7 +262,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterTag_include_and_exclude_both_apply_on_same_objects() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-exclude unref --filter-tag-include bar MTAG-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-exclude unref --filter-tag-include bar MTAG-MNT");
         assertThat(response, not(containsString("mntner:         MTAG-MNT")));
         assertThat(response, not(containsString("organisation:   ORG-TEST1-TEST")));
         assertThat(response, not(containsString("person:         Test Person")));
@@ -270,7 +270,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterTag_include_and_exclude_only_include_apply() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-exclude lame --filter-tag-include unref RIPE-NCC-HM-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-exclude lame --filter-tag-include unref RIPE-NCC-HM-MNT");
         assertThat(response, containsString(
                 "% Note: tag filtering is enabled,\n" +
                         "%       Only showing objects WITH tag(s): unref\n" +
@@ -282,7 +282,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
 
     @Test
     public void filterTag_include_and_exclude_only_exclude_apply() {
-        final String response = DummyWhoisClient.query(QueryServer.port, "--filter-tag-exclude unref --filter-tag-include placeholder RIPE-NCC-HM-MNT");
+        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--filter-tag-exclude unref --filter-tag-include placeholder RIPE-NCC-HM-MNT");
         assertThat(response, not(containsString("organisation:   ORG-TEST1-TEST")));
         assertThat(response, not(containsString("mntner:         RIPE-NCC-HM-MNT")));
         assertThat(response, not(containsString("person:         Test Person")));

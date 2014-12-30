@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.io.ByteArrayInput;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.ByteArrayContains;
-import net.ripe.db.whois.common.support.DummyWhoisClient;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.MessageObject;
@@ -41,7 +41,7 @@ public class QueryExecutor {
     }
 
     public List<ResponseObject> getWhoisResponse(final String query) throws IOException {
-        final DummyWhoisClient client = new DummyWhoisClient(configuration.getHost(), configuration.getQueryPort());
+        final TelnetWhoisClient client = new TelnetWhoisClient(configuration.getHost(), configuration.getQueryPort());
         final String response;
 
         final Stopwatch stopWatch = Stopwatch.createStarted();

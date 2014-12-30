@@ -5,4 +5,12 @@ before_install:
  - sudo apt-get update
  - sudo apt-get install byacc git maven openjdk-7-doc openjdk-7-jdk openjdk-7-source mysql-server mysql-client
 
+before_script:
+ - mysql -u root -e "CREATE USER 'dbint'@'localhost' IDENTIFIED BY ''"
+ - mysql -u root -e "GRANT ALL on *.* TO 'dbint'@'localhost'"
+
+branches:
+  only:
+    - master
+
 script: mvn install -Ptravis

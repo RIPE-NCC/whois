@@ -256,7 +256,7 @@ public class AuthoritativeResourceTest {
                 "ripencc|NL|ipv6|2001:610::|32|19990819|allocated\n"));
 
         assertThat(resourceData.isEmpty(), is(false));
-
+        
         assertThat(resourceData.isMaintainedInRirSpace(RpslObject.parse("inet6num: 2001::")), is(false));
         assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001::")), is(false));
         assertThat(resourceData.isMaintainedInRirSpace(RpslObject.parse("inet6num: 2002:608::")), is(false));

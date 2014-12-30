@@ -5,7 +5,6 @@ import org.bouncycastle.openpgp.PGPSignature;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.SignatureException;
 
 /**
  * Signed message util, mostly copied from BouncyCastle PGP tests.
@@ -102,7 +101,7 @@ final class PgpSignedMessageUtil {
         return isLineEnding(b) || b == '\t' || b == ' ';
     }
 
-    static void processLine(final PGPSignature sig, final byte[] line) throws SignatureException, IOException {
+    static void processLine(final PGPSignature sig, final byte[] line) throws IOException {
         final int length = getLengthWithoutWhiteSpace(line);
         if (length > 0) {
             sig.update(line, 0, length);

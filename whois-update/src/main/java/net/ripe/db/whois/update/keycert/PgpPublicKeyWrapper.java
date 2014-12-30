@@ -14,17 +14,16 @@ import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyFlags;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPPublicKeyRing;
-import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.PGPSignature;
 import org.bouncycastle.openpgp.PGPSignatureSubpacketVector;
 import org.bouncycastle.openpgp.PGPUtil;
+import org.bouncycastle.openpgp.bc.BcPGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
 import org.joda.time.LocalDateTime;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.Provider;
-import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +56,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
             List<PGPPublicKey> subKeys = Lists.newArrayList();
 
             @SuppressWarnings("unchecked")
-            final Iterator<PGPPublicKeyRing> keyRingsIterator = new PGPPublicKeyRingCollection(armoredInputStream).getKeyRings();
+            final Iterator<PGPPublicKeyRing> keyRingsIterator = new BcPGPPublicKeyRingCollection(armoredInputStream).getKeyRings();
             while (keyRingsIterator.hasNext()) {
                 @SuppressWarnings("unchecked")
                 final Iterator<PGPPublicKey> keyIterator = keyRingsIterator.next().getPublicKeys();
@@ -98,7 +97,8 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
                                 if (signature.verifyCertification(masterKey, key)) {
                                     subKeys.add(key);
                                 }
-                            } catch (SignatureException ignored) {
+                            } catch (PGPException e) {
+                                throw new IllegalStateException(e);
                             }
                         }
                     }

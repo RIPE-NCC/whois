@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -49,18 +50,22 @@ public class Message {
         return result;
     }
 
+    @Nullable
     public Messages.Type getType() {
         return type;
     }
 
+    @Nullable
     public String getFormattedText() {
         return formattedText;
     }
 
+    @Nullable
     public String getText() {
         return text;
     }
 
+    @Nullable
     public Object[] getArgs() {
         return args;
     }

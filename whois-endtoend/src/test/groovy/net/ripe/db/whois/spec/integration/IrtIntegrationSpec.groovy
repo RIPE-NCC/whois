@@ -303,7 +303,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     """.stripIndent()
 
         def keycertCreate = syncUpdate(new SyncUpdate(data: keycert + "password: update"))
-        println "--->" + query("PGPKEY-28F6CD6C")
 
         def create = syncUpdate(new SyncUpdate(data: """\
                 irt: irt-IRT1
@@ -321,8 +320,8 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
 
       then:
-        keycertCreate =~ /SUCCESS/
-        create =~ /SUCCESS/
+        keycertCreate =~ /Create SUCCEEDED: \[key-cert\] PGPKEY-28F6CD6C/
+        create =~ /Create SUCCEEDED: \[irt\] irt-IRT1/
 
       when:
         def delete = syncUpdate(new SyncUpdate(data: """\
@@ -369,6 +368,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
 
       then:
-        delete =~ /SUCCESS/
+        delete =~ /Delete SUCCEEDED: \[key-cert\] PGPKEY-28F6CD6C/
     }
 }

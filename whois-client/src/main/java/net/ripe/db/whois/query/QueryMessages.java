@@ -243,6 +243,13 @@ public final class QueryMessages {
                 max);
     }
 
+    public static Message tooManyArguments() {
+        return new QueryMessage(Type.ERROR, ""
+                + "ERROR:118: too many arguments supplied\n"
+                + "\n"
+                + "Too many arguments supplied.");
+    }
+
     public static Message accessDeniedPermanently(final InetAddress remoteAddress) {
         return new QueryMessage(Type.ERROR, ""
                 + "ERROR:201: access denied for %s\n"

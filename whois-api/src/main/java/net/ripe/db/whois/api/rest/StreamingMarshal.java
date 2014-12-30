@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
-interface StreamingMarshal {
+public interface StreamingMarshal {
     void open();
 
     void start(String name);

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.74-RDAP-SNAPSHOT</version>
+    <version>1.77-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -24,19 +23,17 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring.version>3.2.8.RELEASE</spring.version>
+        <spring.version>3.2.10.RELEASE</spring.version>
         <aspectj.version>1.7.4</aspectj.version>
-        <compiler.version>1.7</compiler.version>
         <java.version>1.7</java.version>
-        <jersey.version>2.7</jersey.version>
-        <lucene.version>4.4.0</lucene.version>
-        <jetty.version>8.1.12.v20130726</jetty.version>
+        <jersey.version>2.11</jersey.version>
+        <lucene.version>4.10.0</lucene.version>
+        <jetty.version>8.1.16.v20140903</jetty.version>
         <whois.main>OVERRIDE</whois.main>
-        <sonar.skippedModules>whois-oneshot</sonar.skippedModules>
         <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
         <sonar.jdbc.driver>com.mysql.jdbc.Driver</sonar.jdbc.driver>
         <sonar.jdbc.username>dbint</sonar.jdbc.username>
-        <sonar.jdbc.password/>
+        <sonar.jdbc.password />
     </properties>
 
     <scm>
@@ -124,11 +121,6 @@
             </dependency>
             <dependency>
                 <groupId>net.ripe.db</groupId>
-                <artifactId>whois-internal</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.ripe.db</groupId>
                 <artifactId>whois-query</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
@@ -178,7 +170,7 @@
             <dependency>
                 <groupId>de.jflex</groupId>
                 <artifactId>jflex</artifactId>
-                <version>1.4.3</version>
+                <version>1.6.0</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
@@ -230,32 +222,32 @@
             <dependency>
                 <groupId>net.sf.jopt-simple</groupId>
                 <artifactId>jopt-simple</artifactId>
-                <version>4.3</version>
+                <version>4.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
-                <version>1.2.16</version>
+                <version>1.2.17</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>apache-log4j-extras</artifactId>
-                <version>1.1</version>
+                <version>1.2.17</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -293,24 +285,24 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.1</version>
+                <version>2.3</version>
             </dependency>
 
             <!-- bouncy castle -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpg-jdk15on</artifactId>
-                <version>1.47</version>
+                <version>1.51</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcmail-jdk15on</artifactId>
-                <version>1.47</version>
+                <version>1.51</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.47</version>
+                <version>1.51</version>
             </dependency>
 
             <!-- apache commons -->
@@ -395,12 +387,12 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-base</artifactId>
-                <version>2.3.1</version>
+                <version>2.4.1</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>2.3.1</version>
+                <version>2.4.1</version>
             </dependency>
 
             <!-- StaxUtils for the XMLWriterUtils -->
@@ -488,6 +480,11 @@
                 <scope>test</scope>
             </dependency>
 
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.2.4</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -663,7 +660,7 @@
                 <artifactId>gmaven-plugin</artifactId>
                 <version>1.4</version>
                 <configuration>
-                    <source/>
+                    <source />
                     <providerSelection>1.8</providerSelection>
                     <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
                 </configuration>
@@ -720,6 +717,7 @@
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
+                    <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
                 </configuration>
                 <executions>
                     <execution>
@@ -736,10 +734,10 @@
                 <version>1.5</version>
                 <configuration>
                     <showWeaveInfo>false</showWeaveInfo>
-                    <source>${compiler.version}</source>
-                    <target>${compiler.version}</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <Xlint>warning</Xlint>
-                    <complianceLevel>${compiler.version}</complianceLevel>
+                    <complianceLevel>${java.version}</complianceLevel>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <verbose>false</verbose>
                     <warn>true</warn>
@@ -799,6 +797,20 @@
             </properties>
         </profile>
         <profile>
+            <id>comparison</id>
+            <properties>
+                <test.redirectOutput>false</test.redirectOutput>
+                <test.ignoreFailure>false</test.ignoreFailure>
+                <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
+                <test.files.unit>None</test.files.unit>
+                <test.files.integration>
+                    **/CompareTwoQueryInstancesByFile.class,
+                    **/CompareTwoRestInstancesByFile.class,
+                    **/CompareTwoNrtmInstances.class
+                </test.files.integration>
+            </properties>
+        </profile>
+        <profile>
             <id>endtoend</id>
             <properties>
                 <test.redirectOutput>true</test.redirectOutput>
@@ -838,6 +850,30 @@
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>None</test.files.integration>
             </properties>
+        </profile>
+        <profile>
+            <id>jmeter</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.lazerycode.jmeter</groupId>
+                        <artifactId>jmeter-maven-plugin</artifactId>
+                        <version>1.10.0</version>
+                        <configuration>
+                            <reportDir>${project.build.directory}/jmeter-reports</reportDir>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>jmeter</id>
+                                <phase>none</phase>
+                                <goals>
+                                    <goal>jmeter</goal>
+                                </goals>
+                           </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

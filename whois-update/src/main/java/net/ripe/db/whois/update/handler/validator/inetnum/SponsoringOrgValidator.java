@@ -41,7 +41,7 @@ import static net.ripe.db.whois.update.domain.UpdateMessages.sponsoringOrgNotLIR
 public class SponsoringOrgValidator implements BusinessRuleValidator {
     private static final List<Action> ACTIONS = ImmutableList.of(CREATE, MODIFY);
     private static final List<ObjectType> OBJECT_TYPES = ImmutableList.of(INETNUM, INET6NUM, AUT_NUM);
-    private static final Set<? extends InetStatus> ALLOWED_STATUSES = ImmutableSet.of(InetnumStatus.ASSIGNED_PI, InetnumStatus.ASSIGNED_ANYCAST, Inet6numStatus.ASSIGNED_PI);
+    private static final Set<? extends InetStatus> ALLOWED_STATUSES = ImmutableSet.of(InetnumStatus.ASSIGNED_PI, InetnumStatus.ASSIGNED_ANYCAST, Inet6numStatus.ASSIGNED_PI, Inet6numStatus.ASSIGNED_ANYCAST);
 
     private final RpslObjectDao objectDao;
     private final Maintainers maintainers;
@@ -108,7 +108,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
         }
     }
 
-    private boolean sponsoringOrgStatusCheck(RpslObject updatedObject) {
+    private boolean sponsoringOrgStatusCheck(final RpslObject updatedObject) {
         final CIString statusString = updatedObject.getValueForAttribute(AttributeType.STATUS);
         InetStatus status;
 

@@ -4,13 +4,13 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.74-RDAP-SNAPSHOT</version>
+        <version>1.77-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois-query</artifactId>
-    <version>1.74-RDAP-SNAPSHOT</version>
+    <version>1.77-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -54,6 +54,7 @@
             <artifactId>whois-client</artifactId>
             <type>test-jar</type>
         </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -73,6 +74,51 @@
                     </aspectLibraries>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.lazerycode.jmeter</groupId>
+                <artifactId>jmeter-maven-plugin</artifactId>
+                <version>1.10.0</version>
+                <executions>
+                    <execution>
+                        <id>jmeter-tests</id>
+                        <goals>
+                            <goal>jmeter</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>commons-lang</groupId>
+                        <artifactId>commons-lang</artifactId>
+                        <version>2.6</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>commons-net</groupId>
+                        <artifactId>commons-net</artifactId>
+                        <version>3.1</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>jmeter</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.lazerycode.jmeter</groupId>
+                        <artifactId>jmeter-maven-plugin</artifactId>
+                        <version>1.10.0</version>
+                        <executions>
+                            <execution>
+                                <id>jmeter</id>
+                                <phase>clean</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

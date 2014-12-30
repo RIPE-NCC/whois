@@ -7,12 +7,14 @@ import com.google.common.collect.Sets;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import joptsimple.OptionSpecBuilder;
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.domain.CIString;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +27,7 @@ public class QueryParser {
     private static final Joiner SPACE_JOINER = Joiner.on(' ');
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ').omitEmptyStrings();
+    protected static final int MAX_QUERY_ARGUMENTS = 61;
 
     private static final QueryFlagParser PARSER = new QueryFlagParser();
 
@@ -35,7 +38,13 @@ public class QueryParser {
     public QueryParser(final String query) {
         originalStringQuery = query;
         options = PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(query), String.class));
-        searchKey = SPACE_JOINER.join(options.nonOptionArguments());
+
+
+        final List<?> searchKeys = options.nonOptionArguments();
+        if (searchKeys.size() >= MAX_QUERY_ARGUMENTS) {
+            throw new IllegalArgumentExceptionMessage(QueryMessages.tooManyArguments());
+        }
+        searchKey = SPACE_JOINER.join(searchKeys);
     }
 
     public String getSearchKey() {
@@ -133,11 +142,12 @@ public class QueryParser {
     }
 
     public boolean hasOnlyQueryFlag(final QueryFlag queryFlag) {
-        return options.specs().size() == 1 && queryFlag.getFlags().contains(options.specs().get(0).options().iterator().next());
+        final List<OptionSpec<?>> specs = options.specs();
+        return specs.size() == 1 && queryFlag.getFlags().contains(specs.get(0).options().iterator().next());
     }
 
     public static boolean hasFlags(final String queryString) {
-        return !PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class)).specs().isEmpty();
+        return PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(queryString), String.class)).hasOptions();
     }
 
     static class QueryFlagParser extends OptionParser {

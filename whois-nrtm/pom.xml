@@ -4,13 +4,13 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.74-RDAP-SNAPSHOT</version>
+        <version>1.77-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois-nrtm</artifactId>
-    <version>1.74-RDAP-SNAPSHOT</version>
+    <version>1.77-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>

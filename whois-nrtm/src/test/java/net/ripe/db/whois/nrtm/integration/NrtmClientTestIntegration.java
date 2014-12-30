@@ -18,13 +18,16 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.concurrent.Callable;
 
 import static org.hamcrest.Matchers.is;
 
 @Category(IntegrationTest.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
+
     private static final RpslObject MNTNER = RpslObject.parse("" +
             "mntner: OWNER-MNT\n" +
             "source: TEST");
@@ -180,21 +183,39 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         objectMatches(mntner);
     }
 
-    private void objectExists(final ObjectType type, final String key, final boolean exists) {
-        Awaitility.waitAtMost(Duration.FOREVER).until(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                try {
-                    sourceContext.setCurrent(Source.master("1-GRS"));
-                    databaseHelper.lookupObject(type, key);
-                    return Boolean.TRUE;
-                } catch (EmptyResultDataAccessException e) {
-                    return Boolean.FALSE;
-                } finally {
-                    sourceContext.removeCurrentSource();
-                }
-            }
-        }, is(exists));
+    @Test
+    public void ensure_all_changes_of_object_are_imported_with_no_missing_references() {
+        final RpslObject test1mntA = RpslObject.parse("" +
+                "mntner: TEST1-MNT\n" +
+                "mnt-ref: OWNER-MNT\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST");
+
+        final RpslObject test2mnt = RpslObject.parse("" +
+                "mntner: TEST2-MNT\n" +
+                "mnt-ref: OWNER-MNT\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST");
+
+        final RpslObject test1mntB = RpslObject.parse("" +
+                "mntner: TEST1-MNT\n" +
+                "mnt-ref: TEST2-MNT\n" +
+                "mnt-by: TEST2-MNT\n" +
+                "source: TEST");
+
+        nrtmImporter.stop(true);
+        nrtmServer.stop(true);
+
+        databaseHelper.addObject(test1mntA);
+        databaseHelper.addObject(test2mnt);
+        databaseHelper.updateObject(test1mntB);
+
+        nrtmServer.start();
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        nrtmImporter.start();
+
+        objectExists(ObjectType.MNTNER, "TEST2-MNT", true);
+        objectExists(ObjectType.MNTNER, "TEST1-MNT", true);
     }
 
     private void objectMatches(final RpslObject rpslObject) {

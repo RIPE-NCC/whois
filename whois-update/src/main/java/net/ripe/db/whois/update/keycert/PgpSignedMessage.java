@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.keycert;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.openpgp.PGPObjectFactory;
@@ -7,6 +8,7 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSignature;
 import org.bouncycastle.openpgp.PGPSignatureList;
 import org.bouncycastle.openpgp.PGPUtil;
+import org.bouncycastle.openpgp.bc.BcPGPObjectFactory;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.joda.time.LocalDateTime;
 import org.springframework.util.FileCopyUtils;
@@ -18,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,9 +53,13 @@ public final class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String signedContent, final String signature) {
+        return parse(signedContent, signature, Charsets.ISO_8859_1);
+    }
+
+    public static PgpSignedMessage parse(final String signedContent, final String signature, final Charset charset) {
         try {
             final byte[] content = canonicalise(signedContent.getBytes());
-            final ByteArrayInputStream signatureIn = new ByteArrayInputStream(signature.getBytes());
+            final ByteArrayInputStream signatureIn = new ByteArrayInputStream(signature.getBytes(charset));
             final InputStream decoderStream = PGPUtil.getDecoderStream(signatureIn);
             if (decoderStream instanceof ArmoredInputStream) {
                 final ArmoredInputStream armoredInputStream = (ArmoredInputStream) decoderStream;
@@ -73,12 +78,7 @@ public final class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String clearText) {
-        final Matcher matcher = SIGNED_MESSAGE_PATTERN.matcher(clearText);
-        if (matcher.find()) {
-            return parse(matcher.group(0).getBytes());
-        } else {
-            throw new IllegalArgumentException("no signed message found");
-        }
+        return parse(clearText, Charsets.ISO_8859_1);
     }
 
     public static PgpSignedMessage parse(final String clearText, final Charset charset) {
@@ -197,17 +197,15 @@ public final class PgpSignedMessage {
     private PGPSignature getPgpSignature() {
         try {
             final InputStream decoderStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(signature));
-            final PGPObjectFactory objectFactory = new PGPObjectFactory(decoderStream);
+            final PGPObjectFactory objectFactory = new BcPGPObjectFactory(decoderStream);
 
             final PGPSignatureList signatureList = (PGPSignatureList) objectFactory.nextObject();
             if ((signatureList == null) || (signatureList.size() != 1)) {
-                throw new SignatureException("Couldn't read PGP signature");
+                throw new IllegalArgumentException("Couldn't read PGP signature");
             }
 
             return signatureList.get(0);
         } catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        } catch (SignatureException e) {
             throw new IllegalArgumentException(e);
         }
     }
