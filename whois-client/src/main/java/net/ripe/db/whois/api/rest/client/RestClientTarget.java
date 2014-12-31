@@ -345,30 +345,40 @@ public class RestClientTarget {
 
             return new StreamingRestClient(urlConnection.getInputStream());
         } catch (IOException e) {
-            try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
-                final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
-                throw new RestClientException(whoisResources.getErrorMessages());
-            } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
-                final String allCurrentParams = Joiner.on('&').join(Iterables.transform(params.keySet(), new Function<String, String>() {
-                    @Override
-                    public String apply(final String input) {
-                        return String.format("%s=%s", input, params.get(input));
-                    }
-                }));
-                LOGGER.info("search failed: {}/search?", baseUrl, allCurrentParams);
-                LOGGER.error("Caught exception while unmarshalling error", e);
-                throw new RestClientException(e1.getCause());
+            if (urlConnection == null) {
+                LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
+                LOGGER.error("Caught exception while connecting", e);
+                throw new RestClientException(e);
+            } else {
+                try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
+                    final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
+                    throw new RestClientException(whoisResources.getErrorMessages());
+                } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
+                    LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
+                    LOGGER.error("Caught exception while unmarshalling error", e);
+                    throw new RestClientException(e1.getCause());
+                }
             }
         }
     }
 
     // helper methods
+
     private WebTarget setParams(final WebTarget webTarget) {
         WebTarget updatedWebTarget = webTarget;
         for (Map.Entry<String, List<String>> param : params.entrySet()) {
             updatedWebTarget = updatedWebTarget.queryParam(param.getKey(), RestClientUtils.encode(param.getValue()).toArray());
         }
         return updatedWebTarget;
+    }
+
+    private String printParams() {
+        return Joiner.on('&').join(Iterables.transform(params.keySet(), new Function<String, String>() {
+            @Override
+            public String apply(final String input) {
+                return String.format("%s=%s", input, params.get(input));
+            }
+        }));
     }
 
     private void setCookies(final Invocation.Builder request) {
