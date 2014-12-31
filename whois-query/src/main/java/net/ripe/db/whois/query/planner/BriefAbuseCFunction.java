@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.planner;
 
 import com.google.common.base.Function;
+
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;

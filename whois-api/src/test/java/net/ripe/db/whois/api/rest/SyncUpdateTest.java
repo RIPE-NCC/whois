@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import net.ripe.db.whois.api.rest.SyncUpdate;
 import net.ripe.db.whois.common.DateTimeProvider;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;

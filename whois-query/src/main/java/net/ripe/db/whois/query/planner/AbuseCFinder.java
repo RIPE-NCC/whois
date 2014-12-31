@@ -43,7 +43,7 @@ public class AbuseCFinder {
 
     @CheckForNull
     @Nullable
-    public String getAbuseContact(final RpslObject object){
+    public String getAbuseContact(final RpslObject object) {
         final RpslObject role = getAbuseContactRole(object);
         return (role != null) ? role.getValueForAttribute(AttributeType.ABUSE_MAILBOX).toString() : null;
     }
@@ -74,6 +74,7 @@ public class AbuseCFinder {
         }
     }
 
+    @CheckForNull
     @Nullable
     private RpslObject getAbuseContactRoleInternal(final RpslObject object) {
         try {

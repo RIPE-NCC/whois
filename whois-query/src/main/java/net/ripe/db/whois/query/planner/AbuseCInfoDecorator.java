@@ -2,6 +2,7 @@ package net.ripe.db.whois.query.planner;
 
 
 import net.ripe.db.whois.common.collect.IterableTransformer;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Deque;
 import java.util.EnumSet;
+import java.util.Map;
 
 @Component
 class AbuseCInfoDecorator implements ResponseDecorator {

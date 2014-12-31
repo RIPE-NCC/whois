@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 public final class CollectionHelper {
@@ -21,6 +22,7 @@ public final class CollectionHelper {
         // do not instantiate
     }
 
+    @Nullable
     static class IsBlankPredicate implements Predicate<CIString> {
         @Override
         public boolean apply(final CIString input) {

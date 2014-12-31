@@ -94,7 +94,6 @@ Objects can be created/modified when appropriate using the SSO account.
 [web] #132 selecting Types on web query returns wrong types
 [web] #131 inverse web query does not find aut-num objects
 
-
 ## 1.71
 [all] byacc, flex and generator files are not part of deployable whois.jar
 [update] No attribute sanitation of object on delete

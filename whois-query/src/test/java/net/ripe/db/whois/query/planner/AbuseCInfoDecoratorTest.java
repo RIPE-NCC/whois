@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import static org.hamcrest.Matchers.instanceOf;

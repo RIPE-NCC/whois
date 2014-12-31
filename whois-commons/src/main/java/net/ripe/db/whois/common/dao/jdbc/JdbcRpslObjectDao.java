@@ -23,6 +23,7 @@ import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.Validate;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,6 +172,11 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     @Override
     public RpslObject getById(final int objectId) {
         return JdbcRpslObjectOperations.getObjectById(jdbcTemplate, objectId);
+    }
+
+    @Override
+    public LocalDateTime getLastUpdated(int objectId) {
+        return new LocalDateTime(jdbcTemplate.queryForLong("SELECT timestamp FROM last WHERE object_id = ?", objectId) * 1000L);
     }
 
     @Override

@@ -310,6 +310,11 @@ public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comp
     }
 
     @Override
+    public InetAddress endAsInetAddress() {
+        return InetAddresses.fromInteger(end);
+    }
+
+    @Override
     public int getPrefixLength() {
         // see if we can convert to nice prefix
         if (isPowerOfTwo(end - begin + 1)) {

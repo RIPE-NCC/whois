@@ -18,14 +18,19 @@ public class RestServiceHelper {
     }
 
     public static String getRequestURL(final HttpServletRequest request) {
-        final String queryString = request.getQueryString();
-        final StringBuffer requestURL = request.getRequestURL();
+            return request.getRequestURL().toString() + filter(request.getQueryString());
+    }
 
-        if (StringUtils.isBlank(queryString)) {
-            return requestURL.toString();
+    public static String getRequestURI(final HttpServletRequest request) {
+            return request.getRequestURI() + filter(request.getQueryString());
+    }
+
+    private static String filter(final String queryString) {
+        if (StringUtils.isEmpty(queryString)) {
+            return "";
         }
 
-        final StringBuilder builder = new StringBuilder(requestURL);
+        final StringBuilder builder = new StringBuilder();
         char separator = '?';
 
         for (String next : AMPERSAND_SPLITTER.split(queryString)) {
