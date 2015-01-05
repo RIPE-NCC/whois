@@ -13,6 +13,7 @@
             - Performed an stress test with about 10x more than average load.
             Apache Jmeter was used to perform the load testing and Logstash, Elasticsearch and Kibana to visualise results.
             Configuration files for the above tooling can be found in the whois source code.
+[update] REST API Delete on a nonexistent object isn't logged correctly
 
 ## 1.76.1
 [update] #284 If a blank line (containing only spaces and/or tabs) is found in an attribute, convert to a '+' continuation character.
