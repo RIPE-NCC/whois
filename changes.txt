@@ -1,7 +1,7 @@
 ## 1.77
 [update] policy 2012-07: Legacy holder organisations cannot change their organisation name in their org object
             if it is referenced by an INETNUM or AUTNUM that is maintained by RIPE-NCC-LEGACY-MNT.
-[update] mnt-lower can now authenticate the creation of domain objects for reverse dns
+[update] #285 warning if conversion to latin-1 (ISO-8859-1) causes attribute value to change.
 [web] A banner is displayed if user is in a non-production environment (RC, Ripe Academy)
 [web] Support for RIPE Academy training environment
 [web] #274 Full Text Search - Advanced Search - OR Operator
@@ -13,6 +13,9 @@
             - Performed an stress test with about 10x more than average load.
             Apache Jmeter was used to perform the load testing and Logstash, Elasticsearch and Kibana to visualise results.
             Configuration files for the above tooling can be found in the whois source code.
+
+## 1.76.1
+[update] #284 If a blank line (containing only spaces and/or tabs) is found in an attribute, convert to a '+' continuation character.
 
 ## 1.76
 [all] #271 RipeGrsSource: uses APNIC value for download instead of RIPE
