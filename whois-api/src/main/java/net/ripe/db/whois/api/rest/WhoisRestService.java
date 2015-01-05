@@ -198,11 +198,11 @@ public class WhoisRestService {
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
-        auditlogRequest(request);
-        checkForMainSource(request, source);
-
         final Origin origin = updatePerformer.createOrigin(request);
         final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+
+        auditlogRequest(request);
+        checkForMainSource(request, source);
 
         try {
             RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
@@ -237,14 +237,15 @@ public class WhoisRestService {
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
+        final Origin origin = updatePerformer.createOrigin(request);
+        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+
         auditlogRequest(request);
         checkForMainSource(request, source);
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
-        final Origin origin = updatePerformer.createOrigin(request);
-        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
         try {
             return updatePerformer.performUpdate(
                     updateContext,
@@ -271,14 +272,15 @@ public class WhoisRestService {
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
+        final Origin origin = updatePerformer.createOrigin(request);
+        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+
         auditlogRequest(request);
         checkForMainSource(request, source);
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedCreateObject(request, submittedObject, objectType);
 
-        final Origin origin = updatePerformer.createOrigin(request);
-        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
         try {
             return updatePerformer.performUpdate(
                     updateContext,
