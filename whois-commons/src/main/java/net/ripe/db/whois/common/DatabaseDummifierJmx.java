@@ -3,7 +3,6 @@ package net.ripe.db.whois.common;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -32,6 +31,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -158,8 +158,8 @@ public class DatabaseDummifierJmx extends JmxBase {
                         final RpslObject rpslObject = RpslObject.parse(object);
                         RpslObject dummyObject = dummifier.dummify(3, rpslObject);
 
-                        if (ObjectType.MNTNER.equals(rpslObject.getType()) && hasPassword(rpslObject)) {
-                            dummyObject = replaceWithMntnerNamePassword(dummyObject);
+                        if (ObjectType.MNTNER.equals(rpslObject.getType())) {
+                            dummyObject = replaceAuthAttributes(dummyObject);
                         }
 
                         jdbcTemplate.update("UPDATE " + table + " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
@@ -175,40 +175,23 @@ public class DatabaseDummifierJmx extends JmxBase {
             });
         }
 
-        static RpslObject replaceWithMntnerNamePassword(final RpslObject rpslObject) {
-            boolean foundPassword = false;
+        static RpslObject replaceAuthAttributes(final RpslObject rpslObject) {
             RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
-            for (int i = 0; i < builder.size(); i++) {
-                RpslAttribute attribute = builder.get(i);
+
+            final Iterator<RpslAttribute> attributes = builder.getAttributes().iterator();
+            while (attributes.hasNext()) {
+                final RpslAttribute attribute = attributes.next();
                 if (AttributeType.AUTH.equals(attribute.getType())) {
-                    if (attribute.getCleanValue().startsWith("md5-pw")) {
-                        if (foundPassword) {
-                            builder.remove(i);
-                        } else {
-                            builder.set(i, new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toString())));
-                            foundPassword = true;
-                        }
-                    } else if (!foundPassword) {
-                        builder.set(i, new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toString())));
-                        foundPassword = true;
+                    if (attribute.getCleanValue().startsWith("md5-pw") ||
+                            attribute.getCleanValue().startsWith("sso")) {
+                        attributes.remove();
                     }
                 }
             }
 
-            if (!foundPassword) {
-                throw new IllegalStateException("No 'auth: md5-pw' found after dummifying " + rpslObject.getFormattedKey());
-            }
+            builder.addAttributeAfter(new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toUpperCase())), AttributeType.MNTNER);
 
             return builder.get();
-        }
-
-        static boolean hasPassword(RpslObject rpslObject) {
-            for (CIString auth : rpslObject.getValuesForAttribute(AttributeType.AUTH)) {
-                if (auth.startsWith("md5-pw")) {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 
