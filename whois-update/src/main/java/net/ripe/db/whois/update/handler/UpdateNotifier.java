@@ -88,7 +88,7 @@ public class UpdateNotifier {
 
         VersionLookupResult res = versionDao.findByKey(preparedUpdate.getType(), preparedUpdate.getKey());
         if (res == null) {
-            LOGGER.info("Failed to find version lookup result on update for " + preparedUpdate.toString());
+            LOGGER.info("Failed to find version lookup result on update for {}", preparedUpdate.toString());
         } else {
             try {
                 final RpslObjectUpdateInfo updateInfo = context.getUpdateInfo(preparedUpdate);

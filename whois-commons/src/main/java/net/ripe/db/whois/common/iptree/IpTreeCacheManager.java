@@ -93,7 +93,7 @@ public class IpTreeCacheManager {
                 try {
                     update(ipTreeUpdate);
                 } catch (IntersectingIntervalException e) {
-                    LOGGER.warn("Skipping intersecting entry in " + cacheEntry.sourceConfiguration.getSource() + ": " + e.getMessage());
+                    LOGGER.warn("Skipping intersecting entry in {}: {}", cacheEntry.sourceConfiguration.getSource(), e.getMessage());
                 } catch (RuntimeException e) {
                     LOGGER.warn("Unable to update object {}: {}", ipTreeUpdate, e.getMessage());
                 }

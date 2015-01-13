@@ -283,7 +283,7 @@ private int yylex () {
 		yyl_return = lexer.yylex();
 	}
 	catch (IOException e) {
-		 LOGGER.error("IO error :" + e);
+		 LOGGER.error(e.getMessage(), e);
 	}
 	return yyl_return;
 }

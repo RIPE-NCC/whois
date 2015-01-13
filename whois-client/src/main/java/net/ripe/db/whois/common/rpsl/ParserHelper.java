@@ -298,6 +298,10 @@ public class ParserHelper {
         LOGGER.debug(message);
     }
 
+    public static void log(final Exception exception) {
+        LOGGER.debug(exception.getMessage(), exception);
+    }
+
     public static void syntaxError(final String message) {
     	LOGGER.debug("syntax error: {}", message);
         throw new IllegalArgumentException(message);
