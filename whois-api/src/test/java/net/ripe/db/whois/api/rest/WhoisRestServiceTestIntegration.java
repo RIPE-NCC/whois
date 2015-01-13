@@ -4,21 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.api.rest.domain.Flag;
-import net.ripe.db.whois.api.rest.domain.Flags;
-import net.ripe.db.whois.api.rest.domain.InverseAttributes;
-import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.Parameters;
-import net.ripe.db.whois.api.rest.domain.QueryStrings;
-import net.ripe.db.whois.api.rest.domain.Source;
-import net.ripe.db.whois.api.rest.domain.Sources;
-import net.ripe.db.whois.api.rest.domain.TypeFilters;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
-import net.ripe.db.whois.api.rest.domain.WhoisVersion;
-import net.ripe.db.whois.api.rest.domain.WhoisVersions;
+import net.ripe.db.whois.api.rest.domain.*;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -27,14 +13,10 @@ import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
@@ -47,13 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServiceUnavailableException;
+import javax.ws.rs.*;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -69,20 +45,8 @@ import java.util.Map;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
 @Category(IntegrationTest.class)
@@ -1941,6 +1905,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        ] }\n" +
                         "    }] \n" +
                         "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+    }
+
+    @Test
+    public void create_dryRun() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dryrun=yes")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(1));
+        assertThat(messages.get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
+        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.NOT_FOUND_404));
     }
 
     @Test

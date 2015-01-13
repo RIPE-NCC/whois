@@ -196,13 +196,15 @@ public class WhoisRestService {
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
-            @QueryParam("override") final String override) {
+            @QueryParam("override") final String override,
+            @QueryParam("dryrun") final String dryRun) {
 
         final Origin origin = updatePerformer.createOrigin(request);
         final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
         auditlogRequest(request);
         checkForMainSource(request, source);
+        checkDryRun(updateContext, dryRun);
 
         try {
             RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
@@ -235,13 +237,15 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
-            @QueryParam("override") final String override) {
+            @QueryParam("override") final String override,
+            @QueryParam("dryrun") final String dryRun) {
 
         final Origin origin = updatePerformer.createOrigin(request);
         final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
         auditlogRequest(request);
         checkForMainSource(request, source);
+        checkDryRun(updateContext, dryRun);
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedUpdateObject(request, submittedObject, objectType, key);
@@ -270,13 +274,15 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
-            @QueryParam("override") final String override) {
+            @QueryParam("override") final String override,
+            @QueryParam("dryrun") final String dryRun) {
 
         final Origin origin = updatePerformer.createOrigin(request);
         final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
         auditlogRequest(request);
         checkForMainSource(request, source);
+        checkDryRun(updateContext, dryRun);
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedCreateObject(request, submittedObject, objectType);
@@ -641,6 +647,12 @@ public class WhoisRestService {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
                     .entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source)))
                     .build());
+        }
+    }
+
+    private void checkDryRun(final UpdateContext updateContext, final String dryRun) {
+        if (StringUtils.isNotBlank(dryRun)) {
+            updateContext.dryRun();
         }
     }
 
