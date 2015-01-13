@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -74,7 +73,11 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
         if (update.getAction().equals(Action.CREATE)) {
             validateCreate(update, updateContext);
         } else if (update.getAction().equals(Action.DELETE)) {
-            validateDelete(update, updateContext, ipv4Tree);
+            if (update.getType().equals(ObjectType.INETNUM)) {
+                validateDelete(update, updateContext, ipv4Tree);
+            } else {
+                validateDelete(update, updateContext, ipv6Tree);
+            }
         } else {
             validateModify(update, updateContext);
         }
@@ -269,8 +272,12 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
     private void validateDelete(final PreparedUpdate update, final UpdateContext updateContext, final IpTree ipTree) {
         InetStatus status;
 
+        if (update.getReferenceObject() == null) {
+            return;
+        }
+
         try {
-            status = getStatus(update);
+            status = getStatus(update.getReferenceObject());
             if (status == null) {
                 // invalid status attribute value
                 return;
@@ -286,20 +293,20 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
         }
 
         if (status.requiresRsMaintainer()) {
-            final Set<CIString> mntBy = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
+            final Set<CIString> mntBy = update.getReferenceObject().getValuesForAttribute(AttributeType.MNT_BY);
             if (Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty()) {
                 updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(status.toString()));
             }
         }
 
-        if (update.getUpdatedObject().getType() == ObjectType.INETNUM) {
-            final IpInterval ipInterval = IpInterval.parse(update.getUpdatedObject().getKey());
+        if (update.getReferenceObject().getType().equals(ObjectType.INETNUM)) {
+            final IpInterval ipInterval = IpInterval.parse(update.getReferenceObject().getKey());
             final List<IpEntry> parents = ipTree.findFirstLessSpecific(ipInterval);
             if (parents.size() != 1) {
                 updateContext.addMessage(update, UpdateMessages.invalidParentEntryForInterval(ipInterval));
                 return;
             }
-            validateStatusLegacy(update.getUpdatedObject(), objectDao.getById(parents.get(0).getObjectId()), update, updateContext);
+            validateStatusLegacy(update.getReferenceObject(), objectDao.getById(parents.get(0).getObjectId()), update, updateContext);
         }
     }
 

@@ -558,14 +558,12 @@ public class StatusValidatorTest {
     @Test
     public void delete_inetnum_w_legacy_not_allowed_under_unspecified_w_non_rs_maintainer() {
         when(update.getAction()).thenReturn(Action.DELETE);
-
         when(ipv4Tree.findFirstLessSpecific(any(Ipv4Resource.class))).thenReturn(Lists.newArrayList(new Ipv4Entry(Ipv4Resource.parse("0/0"), 1)));
         when(objectDao.getById(1)).thenReturn(RpslObject.parse("" +
                 "inetnum: 0.0.0.0 - 255.255.255.255\n" +
                 "status: ALLOCATED UNSPECIFIED"));
-
         when(update.getType()).thenReturn(ObjectType.INETNUM);
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: LEGACY\n" +
                 "mnt-by: TEST-MNT\n" +
@@ -580,12 +578,12 @@ public class StatusValidatorTest {
     @Test
     public void delete_inetnum_with_early_registration_not_allowed_without_an_rs_maintainer() {
         when(update.getAction()).thenReturn(Action.DELETE);
-
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("" +
                 "inetnum: 192.0/24\n" +
                 "status: EARLY-REGISTRATION"));
 
         subject.validate(update, updateContext);
+
         verify(updateContext).addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(InetnumStatus.EARLY_REGISTRATION.toString()));
     }
 
