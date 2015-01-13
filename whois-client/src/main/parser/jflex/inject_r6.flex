@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
 */
 %%
 
+%public
 %class InjectR6Lexer
 
 %byaccj
