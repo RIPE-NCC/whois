@@ -164,7 +164,6 @@ ${result}
 
     def send(Message message) {
         message.from = whoisFixture.send(message.subject, message.body.stripIndent())
-        def str=""
         print """\
 >>>>> SEND MESSAGE
 
