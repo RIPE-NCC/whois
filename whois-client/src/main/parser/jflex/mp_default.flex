@@ -17,6 +17,7 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
 
 %public
 %class MpDefaultLexer
+%implements net.ripe.db.whois.common.rpsl.AttributeLexer
 
 %byaccj
 
