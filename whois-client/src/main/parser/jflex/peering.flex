@@ -19,6 +19,7 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
 
 %public
 %class PeeringLexer
+%implements net.ripe.db.whois.common.rpsl.AttributeLexer
 
 %byaccj
 
