@@ -651,9 +651,10 @@ public class WhoisRestService {
     }
 
     private void checkDryRun(final UpdateContext updateContext, final String dryRun) {
-        if (StringUtils.isNotBlank(dryRun)) {
-            updateContext.dryRun();
+        if (dryRun == null || dryRun.equalsIgnoreCase("false")) {
+            return;
         }
+        updateContext.dryRun();
     }
 
     private class RpslObjectStreamer implements StreamingOutput {
