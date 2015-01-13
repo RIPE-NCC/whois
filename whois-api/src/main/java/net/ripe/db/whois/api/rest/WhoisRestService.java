@@ -650,7 +650,7 @@ public class WhoisRestService {
         }
     }
 
-    private void checkDryRun(final UpdateContext updateContext, final String dryRun) {
+    void checkDryRun(final UpdateContext updateContext, final String dryRun) {
         if (dryRun == null || dryRun.equalsIgnoreCase("false")) {
             return;
         }

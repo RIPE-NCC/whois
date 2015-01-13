@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.handler.QueryHandler;
+import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.Before;
@@ -32,7 +33,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WhoisRestServiceTest {
@@ -45,6 +46,7 @@ public class WhoisRestServiceTest {
     @Mock HttpServletRequest request;
     @Mock WhoisService whoisService;
     @Mock WhoisResources whoisResources;
+    @Mock UpdateContext updateContext;
 
     @Mock SourceContext sourceContext;
     private Source source;
@@ -81,5 +83,47 @@ public class WhoisRestServiceTest {
                 assertThat(((WhoisResources)e.getResponse().getEntity()).getErrorMessages().get(0).getText(), is("Disallowed search flag '%s'"));
             }
         }
+    }
+
+    @Test
+    public void dryRun_null() {
+        subject.checkDryRun(updateContext, null);
+
+        verify(updateContext, never()).dryRun();
+    }
+
+    @Test
+    public void dryRun_false() {
+        subject.checkDryRun(updateContext, "fAlsE");
+
+        verify(updateContext, never()).dryRun();
+    }
+
+    @Test
+    public void dryRun_emptyString() {
+        subject.checkDryRun(updateContext, "");
+
+        verify(updateContext).dryRun();
+    }
+
+    @Test
+    public void dryRun_true() {
+        subject.checkDryRun(updateContext, "tRuE");
+
+        verify(updateContext).dryRun();
+    }
+
+    @Test
+    public void dryRun_yes() {
+        subject.checkDryRun(updateContext, "yes");
+
+        verify(updateContext).dryRun();
+    }
+
+    @Test
+    public void dryRun_whatever() {
+        subject.checkDryRun(updateContext, "whatever");
+
+        verify(updateContext).dryRun();
     }
 }
