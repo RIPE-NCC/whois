@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -1045,7 +1044,8 @@ class OrgSpec extends BaseQueryUpdateSpec {
         qry5.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
         def qry2 = query("-Torganisation (qwerty)")
         qry2.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
-// TODO commented out until bug fixed so these queries work
+
+// TODO: [ES] these queries currently don't work, as -Torganisation expects an organisation id (and not part of the organisation name)
 //        def qry3 = query("-Torganisation @")
 //        qry3.contains(/org-name:       ABZ 0123456789 .  _ " * (qwerty) @, & :!'`+\/-/)
 //        def qry4 = query("-Torganisation 0123456789")
