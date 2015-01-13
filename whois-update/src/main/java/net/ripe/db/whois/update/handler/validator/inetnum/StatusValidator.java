@@ -280,7 +280,7 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
             return;
         }
 
-        if (status.equals(NOT_SET)) {   //TODO will this ever succeed?
+        if (status.equals(InetnumStatus.NOT_SET)) {
             updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(NOT_SET));
             return;
         }
