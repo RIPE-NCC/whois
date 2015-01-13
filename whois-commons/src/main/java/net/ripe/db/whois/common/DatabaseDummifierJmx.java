@@ -93,7 +93,7 @@ public class DatabaseDummifierJmx extends JmxBase {
                 final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
                         0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
-                LOGGER.info("Started " + numThreads + " threads");
+                LOGGER.info("Started {} threads", numThreads);
 
                 addWork("last", jdbcTemplate, executorService);
                 addWork("history", jdbcTemplate, executorService);
@@ -116,7 +116,7 @@ public class DatabaseDummifierJmx extends JmxBase {
     }
 
     private void addWork(final String table, final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
-        LOGGER.info("Dummifying " + table);
+        LOGGER.info("Dummifying {}", table);
         transactionTemplate.execute(new TransactionCallback<Object>() {
             @Override
             public Object doInTransaction(TransactionStatus status) {
@@ -133,7 +133,7 @@ public class DatabaseDummifierJmx extends JmxBase {
                 return null;
             }
         });
-        LOGGER.info("Jobs size:" + jobsAdded);
+        LOGGER.info("Jobs size:{}", jobsAdded);
     }
 
     static final class DatabaseObjectProcessor implements Runnable {
@@ -164,11 +164,11 @@ public class DatabaseDummifierJmx extends JmxBase {
 
                         jdbcTemplate.update("UPDATE " + table + " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
                     } catch (RuntimeException e) {
-                        LOGGER.error(table + ": " + objectId + "," + sequenceId + " failed\n" + new String(object), e);
+                        LOGGER.error(String.format("%s: %s,%d failed\n%s", table, objectId, sequenceId, new String(object)), e);
                     }
                     int count = jobsDone.incrementAndGet();
                     if (count % 100000 == 0) {
-                        LOGGER.info("Finished jobs: " + count);
+                        LOGGER.info("Finished jobs: {}", count);
                     }
                     return null;
                 }
