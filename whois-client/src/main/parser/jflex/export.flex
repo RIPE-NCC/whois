@@ -42,6 +42,13 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
         this(r);
         this.yyparser = yyparser;
     }
+
+    /* assign value associated with current token to the external parser variable yylval. */
+    private void storeTokenValue() {
+        if ((this.yyparser != null) && (this.yyparser.yylval != null)) {
+            yyparser.yylval.sval = yytext();
+        }
+    }
 %}
 
 /* macro definitions */
@@ -174,13 +181,13 @@ COST        { return ExportParser.TKN_COST; }
 }
 
 {INT} {
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return ExportParser.TKN_INT;
 }
 
 {DNAME} {
     ParserHelper.validateDomainNameLabel(yytext());
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return ExportParser.TKN_DNS;
 }
 
