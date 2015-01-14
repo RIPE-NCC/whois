@@ -38,6 +38,13 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
         this(r);
         this.yyparser = yyparser;
     }
+
+    /* assign value associated with current token to the external parser variable yylval. */
+    private void storeTokenValue() {
+        if ((this.yyparser != null) && (this.yyparser.yylval != null)) {
+            yyparser.yylval.sval = yytext();
+        }
+    }
 %}
 
 
@@ -149,7 +156,7 @@ PROTOCOL         { return ComponentsParser.KEYW_PROTOCOL; }
 }
 
 {INT} {
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return ComponentsParser.TKN_INT;
 }
 

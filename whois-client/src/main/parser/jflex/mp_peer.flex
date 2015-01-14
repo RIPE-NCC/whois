@@ -38,6 +38,13 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
         this(r);
         this.yyparser = yyparser;
     }
+
+    /* assign value associated with current token to the external parser variable yylval. */
+    private void storeTokenValue() {
+        if ((this.yyparser != null) && (this.yyparser.yylval != null)) {
+            yyparser.yylval.sval = yytext();
+        }
+    }
 %}
 
 /* macro definitions */
@@ -113,7 +120,7 @@ BGP4|MPBGP {
 
 {DNAME} {
     ParserHelper.validateDomainNameLabel(yytext());
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return MpPeerParser.TKN_DNS;
 }
 
