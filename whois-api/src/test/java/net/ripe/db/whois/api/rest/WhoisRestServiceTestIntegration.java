@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Flag;
 import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.InverseAttributes;
@@ -35,6 +36,7 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
@@ -1944,6 +1946,41 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_dryRun() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dryrun=yes")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(1));
+        assertThat(messages.get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
+        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.NOT_FOUND_404));
+    }
+
+    @Test
+    public void create_dryRun_queryparam_with_no_value() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dryrun")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(1));
+        assertThat(messages.get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
+        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.NOT_FOUND_404));
+    }
+
+    @Test
+    public void create_dryRun_equals_false() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dryrun=false")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(0));
+        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.OK_200));
+    }
+
+    @Test
     public void update_person_with_non_latin_chars() throws Exception {
         {
             final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
@@ -2508,6 +2545,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .delete(String.class);
 
         assertFalse(mailSenderStub.anyMoreMessages());
+    }
+
+    @Test
+    public void delete_dryrun() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&dryrun")
+                .request()
+                .delete(WhoisResources.class);
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(1));
+        assertThat(messages.get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
+        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.OK_200));
     }
 
     // update
@@ -3154,6 +3203,24 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "                remark3 # comment3"));
         assertThat(whoisObject.getAttributes().get(9).getValue(), is("         +30 123"));
     }
+
+    @Test
+    public void update_dryrun() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(4, new RpslAttribute(AttributeType.REMARKS, "this_is_another_remark")).get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&dryrun")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(1));
+        assertThat(messages.get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
+
+        final String storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(String.class);
+        assertThat(storedObject, not(containsString("this_is_another_remark")));
+    }
+
 
     // versions
 
