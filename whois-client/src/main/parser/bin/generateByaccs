@@ -59,7 +59,7 @@ PeerParser src/main/parser/byacc/peer.y
 PeeringParser src/main/parser/byacc/peering.y
 V6FilterParser src/main/parser/byacc/v6_filter.y' | while read GENERATED YACCDEF; do
     echo ${GENERATED}
-    $YACC -Jclass=${GENERATED} -Jnodebug -Jnoconstruct -Jimplements='AttributeParser<Void>' -Jpackage='net.ripe.db.whois.common.generated' -J $YACCDEF
+    $YACC -Jclass=${GENERATED} -Jnorun -Jnodebug -Jnoconstruct -Jimplements='AttributeParser<Void>' -Jpackage='net.ripe.db.whois.common.generated' -J $YACCDEF
 done
 
 mkdir -p $GENERATED_PATH
