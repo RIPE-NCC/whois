@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.scheduler.task.update.PendingUpdatesCleanup
@@ -9,6 +8,7 @@ import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import net.ripe.db.whois.update.dao.PendingUpdateDao
 import org.joda.time.LocalDateTime
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class PendingRouteSpec extends BaseQueryUpdateSpec {
@@ -157,6 +157,68 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         noMoreMessages()
 
         queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+    }
+
+    @Ignore("TODO: [ES] #286 pending route request(s) are not removed")
+    def "create route, pending request is removed on creation"() {
+        when:
+          syncUpdate(new SyncUpdate(data: """
+                inetnum:        192.168.0.0 - 192.169.255.255
+                netname:        EXACT-INETNUM
+                descr:          Exact match inetnum object
+                country:        EU
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                status:         ALLOCATED PA
+                mnt-by:         OWNER-MNT
+                changed:        dbtest@ripe.net
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+          syncUpdate(new SyncUpdate(data: """
+                aut-num:        AS100
+                as-name:        ASTEST
+                descr:          description
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                notify:         notify_as100@ripe.net
+                mnt-by:         OWNER-MNT
+                mnt-by:         AS-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+        then:
+          // route create attempt by AS holder (pending)
+          syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route AS-MNT
+                origin:         AS100
+                mnt-by:         AS-MNT
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password:   as
+                """.stripIndent(), redirect: false))
+        then:
+          queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+        then:
+          // route create attempt by owner (both AS and IP) (success)
+          syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route AS-MNT
+                origin:         AS100
+                mnt-by:         AS-MNT
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password:   owner
+                """.stripIndent(), redirect: false))
+        then:
+          queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+          // TODO: [ES] move to an integration test
+          databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
     }
 
     def "create route, no hierarchical pw supplied"() {
