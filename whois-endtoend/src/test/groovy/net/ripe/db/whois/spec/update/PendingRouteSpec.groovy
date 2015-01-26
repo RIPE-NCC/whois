@@ -159,10 +159,11 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
 
-    @Ignore("TODO: [ES] #286 pending route request(s) are not removed")
-    def "create route, pending request is removed on creation"() {
-        when:
-          syncUpdate(new SyncUpdate(data: """
+    def "Maila are sent upon timeout od confirmation"() {
+
+        given:
+        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        syncUpdate(new SyncUpdate(data: """
                 inetnum:        192.168.0.0 - 192.169.255.255
                 netname:        EXACT-INETNUM
                 descr:          Exact match inetnum object
@@ -175,21 +176,95 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
-          syncUpdate(new SyncUpdate(data: """
+
+        syncUpdate(new SyncUpdate(data: """
                 aut-num:        AS100
                 as-name:        ASTEST
                 descr:          description
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 notify:         notify_as100@ripe.net
-                mnt-by:         OWNER-MNT
                 mnt-by:         AS-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
+
+        expect:
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+
+        when:
+        // route create attempt by AS holder (pending)
+        syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route AS-MNT
+                origin:         AS100
+                mnt-by:         AS-MNT
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password:   as
+                """.stripIndent(), redirect: false))
         then:
-          // route create attempt by AS holder (pending)
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 1
+
+
+        when:
+        clearAllMails()
+        whoisFixture.getTestDateTimeProvider().reset()
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+
+        then:
+        def notifOwner = notificationFor "updto_owner@ripe.net"
+        notifOwner.subject =~ "Notification of RIPE Database pending update timeout on"
+
+        def notifAs = notificationFor "updto_as@ripe.net"
+        notifAs.subject =~ "Notification of RIPE Database pending update timeout on"
+
+        noMoreMessages()
+
+    }
+
+    //@Ignore("TODO: [ES] #286 pending route request(s) are not removed")
+    def "create route, pending request is removed on creation: both parties required"() {
+        given:
+        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        syncUpdate(new SyncUpdate(data: """
+                inetnum:        192.168.0.0 - 192.169.255.255
+                netname:        EXACT-INETNUM
+                descr:          Exact match inetnum object
+                country:        EU
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                status:         ALLOCATED PA
+                mnt-by:         OWNER-MNT
+                changed:        dbtest@ripe.net
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                aut-num:        AS100
+                as-name:        ASTEST
+                descr:          description
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                notify:         notify_as100@ripe.net
+                mnt-by:         AS-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        expect:
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+
+        when:
+
+        // route create attempt by AS holder (pending)
           syncUpdate(new SyncUpdate(data: """
                 route:          192.168.0.0/16
                 descr:          Route AS-MNT
@@ -202,7 +277,8 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 """.stripIndent(), redirect: false))
         then:
           queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
-        then:
+
+        when:
           // route create attempt by owner (both AS and IP) (success)
           syncUpdate(new SyncUpdate(data: """
                 route:          192.168.0.0/16
@@ -215,10 +291,106 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 password:   owner
                 """.stripIndent(), redirect: false))
         then:
-          queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+        queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
-          // TODO: [ES] move to an integration test
-          databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+        def notifOwner = notificationFor "updto_owner@ripe.net"
+        notifOwner.subject =~ "RIPE Database updates, auth request notification"
+
+        def notifAsMnt = notificationFor "mntnfy_as@ripe.net"
+        notifAsMnt.subject =~ "Notification of RIPE Database changes"
+
+        def notifAsInet = notificationFor "mntnfy_owner@ripe.net"
+        notifAsInet.subject =~ "Notification of RIPE Database changes"
+
+        noMoreMessages()
+
+        when:
+        clearAllMails()
+        whoisFixture.getTestDateTimeProvider().reset()
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+
+        then:
+        noMoreMessages()
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+
+    }
+
+    //@Ignore("TODO: [ES] #286 pending route request(s) are not removed")
+    def "create route, pending request is removed on creation, second party could do it all"() {
+        given:
+        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        syncUpdate(new SyncUpdate(data: """
+                inetnum:        192.168.0.0 - 192.169.255.255
+                netname:        EXACT-INETNUM
+                descr:          Exact match inetnum object
+                country:        EU
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                status:         ALLOCATED PA
+                mnt-by:         OWNER-MNT
+                changed:        dbtest@ripe.net
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                aut-num:        AS100
+                as-name:        ASTEST
+                descr:          description
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                notify:         notify_as100@ripe.net
+                mnt-by:         OWNER-MNT
+                mnt-by:         AS-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+        expect:
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+
+
+        when:
+        // route create attempt by AS holder (pending)
+        syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route AS-MNT
+                origin:         AS100
+                mnt-by:         AS-MNT
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password:   as
+                """.stripIndent(), redirect: false))
+        then:
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+        // route create attempt by owner (both AS and IP) (success)
+        syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route AS-MNT
+                origin:         AS100
+                mnt-by:         AS-MNT
+                mnt-by:         OWNER-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                password:   owner
+                """.stripIndent(), redirect: false))
+        then:
+        queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+        clearAllMails()
+        whoisFixture.getTestDateTimeProvider().reset()
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+
+        then:
+        noMoreMessages()
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
     }
 
     def "create route, no hierarchical pw supplied"() {

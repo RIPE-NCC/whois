@@ -252,6 +252,19 @@ public class Authenticator {
                 && pendingAuths.size() < supportedPendingAuths.size();
     }
 
+    public boolean doesTypeSupportPendingAuthentication( ObjectType objectType ) {
+
+        for (final AuthenticationStrategy authenticationStrategy : authenticationStrategies) {
+            for (final ObjectType ot : authenticationStrategy.getTypesWithPendingAuthenticationSupport()) {
+                if (ot.equals(objectType)) {
+                    return true;
+                }
+            }
+        }
+
+         return false;
+    }
+
     private void filterAuthentication(UpdateContext updateContext, PreparedUpdate update, Set<String> passedAuthentications, Set<String> failedAuthentications, Map<String, Collection<RpslObject>> pendingAuthentications) {
         // we only have pending filter ATM
         if (isPending(update, updateContext, pendingAuthentications.keySet())) {
