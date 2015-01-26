@@ -24,5 +24,5 @@ CREATE TABLE `forgot_password_audit_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 TRUNCATE version;
-INSERT INTO version VALUES ('internals-1.77-2');
+INSERT INTO version VALUES ('internals-1.77-1');
 
