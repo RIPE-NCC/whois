@@ -284,6 +284,11 @@ ${response}
         !whoisFixture.anyMoreMessages()
     }
 
+    def clearAllMails() {
+        whoisFixture.getMailSender().reset()
+    }
+
+
     def object(String string) {
         return RpslObject.parse(string.stripIndent()).toString()
     }
