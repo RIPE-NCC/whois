@@ -195,13 +195,13 @@ public class WhoisRestService {
             @QueryParam("override") final String override,
             @QueryParam("dryrun") final String dryRun) {
 
-        checkForMainSource(request, source);
-        checkDryRun(updateContext, dryRun);
-
-        final Origin origin = updatePerformer.createOrigin(request);
-        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
-
         try {
+            final Origin origin = updatePerformer.createOrigin(request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+
+            checkForMainSource(request, source);
+            checkDryRun(updateContext, dryRun);
+
             RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
 
             ssoTranslator.populateCacheAuthToUsername(updateContext, originalObject);
@@ -234,15 +234,16 @@ public class WhoisRestService {
             @QueryParam("override") final String override,
             @QueryParam("dryrun") final String dryRun) {
 
-        checkForMainSource(request, source);
-        checkDryRun(updateContext, dryRun);
-
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
-        final Origin origin = updatePerformer.createOrigin(request);
-        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
         try {
+            final Origin origin = updatePerformer.createOrigin(request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+
+            checkForMainSource(request, source);
+            checkDryRun(updateContext, dryRun);
+
             return updatePerformer.performUpdate(
                     updateContext,
                     origin,
@@ -269,15 +270,16 @@ public class WhoisRestService {
             @QueryParam("override") final String override,
             @QueryParam("dryrun") final String dryRun) {
 
-        checkForMainSource(request, source);
-        checkDryRun(updateContext, dryRun);
-
-        final RpslObject submittedObject = getSubmittedObject(request, resource);
-        validateSubmittedCreateObject(request, submittedObject, objectType);
-
-        final Origin origin = updatePerformer.createOrigin(request);
-        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
         try {
+            final Origin origin = updatePerformer.createOrigin(request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+
+            checkForMainSource(request, source);
+            checkDryRun(updateContext, dryRun);
+
+            final RpslObject submittedObject = getSubmittedObject(request, resource);
+            validateSubmittedCreateObject(request, submittedObject, objectType);
+
             return updatePerformer.performUpdate(
                     updateContext,
                     origin,
