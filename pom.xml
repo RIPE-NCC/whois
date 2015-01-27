@@ -18,7 +18,6 @@
             <url>https://raw.github.com/RIPE-NCC/whois/master/LICENSE.txt</url>
             <distribution>repo</distribution>
         </license>
-
     </licenses>
 
     <properties>
@@ -721,12 +720,15 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.7</version>
                 <configuration>
                     <showWeaveInfo>false</showWeaveInfo>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <Xlint>warning</Xlint>
+                    <verbose>true</verbose>
+                    <forceAjcCompile>true</forceAjcCompile>
+                    <showWeaveInfo>true</showWeaveInfo>
                     <complianceLevel>${java.version}</complianceLevel>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <verbose>false</verbose>
