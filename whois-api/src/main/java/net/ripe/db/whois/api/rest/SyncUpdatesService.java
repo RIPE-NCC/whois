@@ -166,8 +166,6 @@ public class SyncUpdatesService {
 
     private Response doSyncUpdate(final HttpServletRequest httpServletRequest, final Request request, final Charset charset) {
         loggerContext.init(getRequestId(request.getRemoteAddress()));
-        InternalUpdatePerformer.logHttpHeaders(loggerContext, httpServletRequest);
-        InternalUpdatePerformer.logHttpUri(loggerContext, httpServletRequest);
 
         try {
             if (!sourceMatchesContext(request.getSource())) {
@@ -195,6 +193,8 @@ public class SyncUpdatesService {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Invalid request").build();
             }
 
+            InternalUpdatePerformer.logHttpHeaders(loggerContext, httpServletRequest);
+            InternalUpdatePerformer.logHttpUri(loggerContext, httpServletRequest);
 
             loggerContext.log("msg-in.txt", new SyncUpdateLogCallback(request.toString()));
 

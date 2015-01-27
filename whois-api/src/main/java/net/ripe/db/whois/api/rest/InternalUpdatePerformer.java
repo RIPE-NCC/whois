@@ -83,6 +83,9 @@ public class InternalUpdatePerformer {
     public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
                                   final String content, final Keyword keyword, final HttpServletRequest request) {
 
+        logHttpHeaders(loggerContext, request);
+        logHttpUri(loggerContext, request);
+
         loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
 
         final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
