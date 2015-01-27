@@ -159,7 +159,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
 
-    def "Maila are sent upon timeout od confirmation"() {
+    def "Mails are sent when confirmation by other mntner times out"() {
 
         given:
         whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
@@ -228,8 +228,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     }
 
-    //@Ignore("TODO: [ES] #286 pending route request(s) are not removed")
-    def "create route, pending request is removed on creation: both parties required"() {
+    def "Create route, pending request is removed on creation: both parties required"() {
         given:
         whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
         syncUpdate(new SyncUpdate(data: """
@@ -263,7 +262,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
 
         when:
-
         // route create attempt by AS holder (pending)
           syncUpdate(new SyncUpdate(data: """
                 route:          192.168.0.0/16
@@ -293,17 +291,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         then:
         queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
-        def notifOwner = notificationFor "updto_owner@ripe.net"
-        notifOwner.subject =~ "RIPE Database updates, auth request notification"
-
-        def notifAsMnt = notificationFor "mntnfy_as@ripe.net"
-        notifAsMnt.subject =~ "Notification of RIPE Database changes"
-
-        def notifAsInet = notificationFor "mntnfy_owner@ripe.net"
-        notifAsInet.subject =~ "Notification of RIPE Database changes"
-
-        noMoreMessages()
-
         when:
         clearAllMails()
         whoisFixture.getTestDateTimeProvider().reset()
@@ -316,7 +303,154 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     }
 
-    //@Ignore("TODO: [ES] #286 pending route request(s) are not removed")
+    def "Create route, with 3 involved maintainers"() {
+        given:
+        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        syncUpdate(new SyncUpdate(data: """
+                mntner:      AS200-MNT
+                descr:       used for aut-num 200
+                admin-c:     TP1-TEST
+                upd-to:      updto_as@ripe.net
+                mnt-nfy:     mntnfy_as@ripe.net
+                notify:      notify_as@ripe.net
+                auth:        MD5-PW \$1\$oHHeFFDr\$wUBxFsxTb6GQykxSlZN4S.  #pinet
+                mnt-by:      AS200-MNT
+                referral-by: AS200-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                inetnum:        37.221.216.0 - 37.221.223.255
+                netname:        EXACT-INETNUM-1
+                descr:          Exact match inetnum object
+                country:        EU
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                status:         ALLOCATED PA
+                mnt-by:         AS-MNT
+                mnt-routes:     AS200-MNT
+                changed:        dbtest@ripe.net
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                aut-num:        AS200
+                as-name:        ASTEST200
+                descr:          description
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                notify:         notify_as100@ripe.net
+                mnt-by:         AS200-MNT
+                mnt-routes:     AS200-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                inetnum:        37.221.220.0 - 37.221.221.255
+                netname:        EXACT-INETNUM-0
+                descr:          Exact match inetnum object
+                country:        EU
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                status:         ASSIGNED PA
+                mnt-by:         AS-MNT
+                changed:        dbtest@ripe.net
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                mntner:      AS100-MNT
+                descr:       used for aut-num 100
+                admin-c:     TP1-TEST
+                upd-to:      updto_as@ripe.net
+                mnt-nfy:     mntnfy_as@ripe.net
+                notify:      notify_as@ripe.net
+                auth:        MD5-PW \$1\$oHHeFFDr\$wUBxFsxTb6GQykxSlZN4S.  #pinet
+                mnt-by:      AS100-MNT
+                referral-by: AS100-MNT
+                changed:     dbtest@ripe.net
+                source:      TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                aut-num:        AS100
+                as-name:        ASTEST100
+                descr:          description
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                notify:         notify_as100@ripe.net
+                mnt-by:         AS100-MNT
+                changed:        noreply@ripe.net 20120101
+                mnt-routes:     AS100-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                route:          37.221.216.0/21
+                descr:          Route AS200-MNT
+                origin:         AS200
+                mnt-by:         AS200-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        expect:
+        queryObject("-rGBT inetnum 37.221.216.0 - 37.221.223.255", "inetnum", "37.221.216.0 - 37.221.223.255")
+        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
+        queryObject("-rGBT route 37.221.216.0/21", "route", "37.221.216.0/21")
+        queryObject("-rGBT inetnum 37.221.220.0 - 37.221.221.255", "inetnum", "37.221.220.0 - 37.221.221.255")
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+
+        when:
+        def message = send new Message(
+                    subject: "",
+                    body: """\
+                    route:          37.221.220.0/24
+                    descr:          Route AS-MNT
+                    origin:         AS100
+                    mnt-by:         AS-MNT
+                    changed:        noreply@ripe.net 20120101
+                    source:         TEST
+
+                    password: as
+                    """.stripIndent()
+        )
+        then:
+        queryObjectNotFound("-rGBT route 37.221.220.0/24", "route", "37.221.220.0/24")
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[route] 37.221.220.0/24AS100" }
+        ack.errorMessagesFor("Create", "[route] 37.221.220.0/24AS100") == [
+                "Authorisation for [aut-num] AS100 failed using \"mnt-routes:\" not authenticated by: AS100-MNT",
+                "Authorisation for [route] 37.221.216.0/21AS200 failed using \"mnt-by:\" not authenticated by: AS200-MNT"
+        ]
+
+        when:
+        clearAllMails()
+        whoisFixture.getTestDateTimeProvider().reset()
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+
+        then:
+        noMoreMessages()
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+    }
+
     def "create route, pending request is removed on creation, second party could do it all"() {
         given:
         whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
