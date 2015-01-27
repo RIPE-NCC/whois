@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest.client;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
@@ -416,6 +417,9 @@ public class RestClientTarget {
     private static RestClientException createException(final ClientErrorException e) {
         try {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            if (whoisResources == null) {
+                return createExceptionFromMessage(e);
+            }
             return new RestClientException(whoisResources.getErrorMessages());
         } catch (ProcessingException | IllegalStateException e1) {
             return createExceptionFromMessage(e);
@@ -424,7 +428,11 @@ public class RestClientTarget {
 
     private static RestClientException createExceptionFromMessage(final ClientErrorException e) {
         try {
-            return new RestClientException(e.getResponse().readEntity(String.class));
+            final String entity = e.getResponse().readEntity(String.class);
+            if (Strings.isNullOrEmpty(entity)) {
+                return new RestClientException(e);
+            }
+            return new RestClientException(entity);
         } catch (ProcessingException | IllegalStateException e1) {
             // stream has already been closed
             return new RestClientException(e1.getCause());

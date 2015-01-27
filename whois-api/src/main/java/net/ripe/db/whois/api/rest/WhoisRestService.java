@@ -45,6 +45,7 @@ import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -157,8 +158,8 @@ public class WhoisRestService {
     private final WhoisObjectServerMapper whoisObjectServerMapper;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
-
     private final WhoisService whoisService;
+    private final LoggerContext loggerContext;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
@@ -169,7 +170,8 @@ public class WhoisRestService {
                             final WhoisObjectServerMapper whoisObjectServerMapper,
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator,
-                            final WhoisService whoisService) {
+                            final WhoisService whoisService,
+                            final LoggerContext loggerContext) {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
@@ -179,6 +181,7 @@ public class WhoisRestService {
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
         this.whoisService = whoisService;
+        this.loggerContext = loggerContext;
     }
 
     @DELETE
@@ -199,6 +202,8 @@ public class WhoisRestService {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
+            auditlogRequest(request);
+
             checkForMainSource(request, source);
             checkDryRun(updateContext, dryRun);
 
@@ -214,6 +219,10 @@ public class WhoisRestService {
                     updatePerformer.createContent(originalObject, passwords, reason, override),
                     Keyword.NONE,
                     request);
+
+        } catch (Exception e) {
+            updatePerformer.logWarning(String.format("Caught %s for %s: %s", e.getClass().toString(), key, e.getMessage()));
+            throw e;
         } finally {
             updatePerformer.closeContext();
         }
@@ -241,6 +250,8 @@ public class WhoisRestService {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
+            auditlogRequest(request);
+
             checkForMainSource(request, source);
             checkDryRun(updateContext, dryRun);
 
@@ -251,6 +262,9 @@ public class WhoisRestService {
                     updatePerformer.createContent(submittedObject, passwords, null, override),
                     Keyword.NONE,
                     request);
+        } catch (Exception e) {
+            updatePerformer.logWarning(String.format("Caught %s for %s: %s", e.getClass().toString(), key, e.getMessage()));
+            throw e;
         } finally {
             updatePerformer.closeContext();
         }
@@ -274,6 +288,8 @@ public class WhoisRestService {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
+            auditlogRequest(request);
+
             checkForMainSource(request, source);
             checkDryRun(updateContext, dryRun);
 
@@ -287,6 +303,9 @@ public class WhoisRestService {
                     updatePerformer.createContent(submittedObject, passwords, null, override),
                     Keyword.NEW,
                     request);
+        } catch (Exception e) {
+            updatePerformer.logWarning(String.format("Caught %s: %s", e.getClass().toString(), e.getMessage()));
+            throw e;
         } finally {
             updatePerformer.closeContext();
         }
@@ -554,6 +573,11 @@ public class WhoisRestService {
                     .entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType)))
                     .build());
         }
+    }
+
+    private void auditlogRequest(final HttpServletRequest request) {
+        InternalUpdatePerformer.logHttpHeaders(loggerContext, request);
+        InternalUpdatePerformer.logHttpUri(loggerContext, request);
     }
 
     private class VersionsResponseHandler extends ApiResponseHandler {
