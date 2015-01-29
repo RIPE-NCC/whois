@@ -46,19 +46,13 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
     }
 %}
 
-FLTRNAME       = FLTR-[a-zA-Z0-9_-]*[a-zA-Z0-9]
-RSNAME         = RS-[a-zA-Z0-9_-]*[a-zA-Z0-9]
-PRNGNAME       = PRNG-[a-zA-Z0-9_-]*[a-zA-Z0-9]
-RTRSNAME       = RTRS-[a-zA-Z0-9_-]*[a-zA-Z0-9]
 INT            = [0-9]+
 QUAD           = [0-9A-Fa-f]{1,4}
 IPV4           = {INT}(\.{INT}){3}
 IPV6           = {QUAD}(:{QUAD}){7}
 IPV6DC         = (({QUAD}:){0,6}{QUAD})?::({QUAD}(:{QUAD}){0,6})?
 COMM_NO        = {INT}:{INT}
-ENCAPSULATION  = GRE|IPINIP
 ASNO           = AS([0-9]|[1-9][0-9]{1,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]|429496729[0-5])
-ASNAME         = AS-[A-Za-z0-9_-]*[A-Za-z0-9]
 
 
 %%

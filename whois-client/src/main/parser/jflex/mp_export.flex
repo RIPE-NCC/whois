@@ -52,7 +52,6 @@ FLTRNAME       = FLTR-[A-Za-z0-9_-]*{ALNUM}
 ASNAME         = AS-[A-Za-z0-9_-]*{ALNUM}
 RSNAME         = RS-[A-Za-z0-9_-]*{ALNUM}
 PRNGNAME       = PRNG-[A-Za-z0-9_-]*{ALNUM}
-RTRSNAME       = RTRS-[A-Za-z0-9_-]*{ALNUM}
 INT            = [0-9]+
 QUAD           = [0-9A-Fa-f]{1,4}
 IPV4           = {INT}(\.{INT}){3}
