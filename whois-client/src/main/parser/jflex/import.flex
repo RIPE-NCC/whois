@@ -55,14 +55,11 @@ FLTRNAME       = FLTR-[a-zA-Z0-9_-]*[a-zA-Z0-9]
 ASNAME         = AS-[a-zA-Z0-9_-]*[a-zA-Z0-9]
 RSNAME         = RS-[a-zA-Z0-9_-]*[a-zA-Z0-9]
 PRNGNAME       = PRNG-[a-zA-Z0-9_-]*[a-zA-Z0-9]
-RTRSNAME       = RTRS-[a-zA-Z0-9_-]*[a-zA-Z0-9]
 INT            = [0-9]+
 IPV4           = {INT}(\.{INT}){3}
 PRFXV4         = {IPV4}\/{INT}
 PRFXV4RNG      = {PRFXV4}("^+"|"^-"|"^"{INT}|"^"{INT}-{INT})
 COMM_NO        = {INT}:{INT}
-PROTOCOL_NAME  = BGP4|OSPF|RIP|IGRP|IS-IS|STATIC|RIPng|DVMRP|PIM-DM|PIM-SM|CBT|MOSPF
-ALNUM          = [0-9a-zA-Z]
 DNAME          = [a-zA-Z]([0-9a-zA-Z-]*[0-9a-zA-Z])?
 
 %%
