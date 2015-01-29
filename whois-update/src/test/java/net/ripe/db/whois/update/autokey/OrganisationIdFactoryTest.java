@@ -101,7 +101,7 @@ public class OrganisationIdFactoryTest {
             subject.claim("ORG-DW10-RIPE");
             fail("claim() supported?");
         } catch (ClaimException e) {
-            assertThat(e.getErrorMessage(), is(ValidationMessages.syntaxError("ORG-DW10-RIPE")));
+            assertThat(e.getErrorMessage(), is(ValidationMessages.syntaxError("ORG-DW10-RIPE (must be AUTO-nnn for create)")));
         }
     }
 }
