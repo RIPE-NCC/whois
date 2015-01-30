@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest.client;
 
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -8,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -58,5 +60,20 @@ public class StreamingRestClientTest {
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
         assertThat(exceptions.get(), is(0));
+    }
+
+    @Test
+    public void read_error_response() {
+        final WhoisResources whoisResources = StreamingRestClient.unMarshalError(
+                new ByteArrayInputStream((
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                        "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
+                        "<link xlink:type=\"locator\" xlink:href=\"http://localhost:57744/search?query-ng=bla\"/>" +
+                        "<errormessages><errormessage severity=\"Error\" text=\"Query param 'query-string' cannot be empty\"/></errormessages>" +
+                        "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
+                        "</whois-resources>\n").getBytes()));
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().get(0).getText(), is("Query param 'query-string' cannot be empty"));
     }
 }
