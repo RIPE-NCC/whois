@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.rest.client;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -16,8 +15,6 @@ public class StreamingRestClientTest {
 
     private static final int NUM_THREADS = 10;
 
-    // TODO: [ES] concurrency issue in StreamingRestClient (NullPointerExceptions).
-    @Ignore
     @Test
     public void concurrent_test() throws Exception {
         final AtomicInteger exceptions = new AtomicInteger();

@@ -18,26 +18,32 @@ import java.util.Iterator;
 
 public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
     private static final JAXBContext jaxbContext;
-    private static final Unmarshaller unmarshaller;
     private static final XMLInputFactory xmlInputFactory;
     private static final EventFilter whoisObjectFilter = new WhoisObjectEventFilter();
 
     static {
         try {
             jaxbContext = JAXBContext.newInstance(WhoisResources.class.getPackage().getName());
-            unmarshaller = jaxbContext.createUnmarshaller();
             xmlInputFactory = XMLInputFactory.newFactory();
         } catch (JAXBException e) {
             throw new IllegalStateException(e);
         }
     }
 
+    private final Unmarshaller unmarshaller;
     private final XMLEventReader eventReader;
     private final XMLEventReader filteredReader;
     private final InputStream inputStream;
 
     public StreamingRestClient(final InputStream inputStream) {
+        try {
+            unmarshaller = jaxbContext.createUnmarshaller();
+        } catch (JAXBException e) {
+            throw new StreamingException(e);
+        }
+
         this.inputStream = inputStream;
+
         try {
             eventReader = xmlInputFactory.createXMLEventReader(inputStream);
             filteredReader = xmlInputFactory.createFilteredReader(eventReader, whoisObjectFilter);
@@ -79,8 +85,9 @@ public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
     }
 
     public static WhoisResources unMarshalError(final InputStream inputStream) {
+        final StreamingRestClient streamingRestClient = new StreamingRestClient(inputStream);
         try {
-            return (WhoisResources)unmarshaller.unmarshal(inputStream);
+            return (WhoisResources) streamingRestClient.unmarshaller.unmarshal(inputStream);
         } catch (JAXBException e) {
             throw new StreamingException(e);
         }
