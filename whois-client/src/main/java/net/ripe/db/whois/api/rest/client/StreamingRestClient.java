@@ -63,11 +63,7 @@ public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
 
     @Override
     public WhoisObject next() {
-        try {
-            return (WhoisObject) unmarshaller.unmarshal(eventReader);
-        } catch (JAXBException e) {
-            throw new StreamingException(e);
-        }
+        return (WhoisObject) unmarshal();
     }
 
     @Override
@@ -84,13 +80,16 @@ public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
         }
     }
 
-    public static WhoisResources unMarshalError(final InputStream inputStream) {
-        final StreamingRestClient streamingRestClient = new StreamingRestClient(inputStream);
+    private Object unmarshal() {
         try {
-            return (WhoisResources) streamingRestClient.unmarshaller.unmarshal(inputStream);
+            return unmarshaller.unmarshal(eventReader);
         } catch (JAXBException e) {
             throw new StreamingException(e);
         }
+    }
+
+    public static WhoisResources unMarshalError(final InputStream inputStream) {
+        return (WhoisResources) (new StreamingRestClient(inputStream)).unmarshal();
     }
 
     private static class WhoisObjectEventFilter implements EventFilter {
