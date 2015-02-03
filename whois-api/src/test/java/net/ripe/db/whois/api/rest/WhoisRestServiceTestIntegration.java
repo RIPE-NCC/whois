@@ -68,6 +68,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
@@ -1371,6 +1375,77 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
+
+    @Test
+    public void create_concurrent() throws Exception {
+        final int numThreads = 10;
+        final AtomicInteger exceptions = new AtomicInteger();
+
+        final ExecutorService requestsWithInvalidSource = Executors.newFixedThreadPool(numThreads);
+        for (int thread = 0; thread < numThreads; thread++) {
+            requestsWithInvalidSource.submit(new Runnable() {
+                @Override public void run() {
+                    final RpslObject person = RpslObject.parse(
+                            "person:    Pauleth Palthen\n" +
+                            "address:   Singel 258\n" +
+                            "phone:     +31-1234567890\n" +
+                            "e-mail:    noreply@ripe.net\n" +
+                            "mnt-by:    OWNER-MNT\n" +
+                            "nic-hdl:   AUTO-1\n" +
+                            "changed:   noreply@ripe.net 20120101\n" +
+                            "remarks:   remark\n" +
+                            "source:    INVALID\n");
+
+                    try {
+                        RestTest.target(getPort(), "whois/INVALID/person?password=test")
+                                .request()
+                                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, person), MediaType.APPLICATION_XML), WhoisResources.class);
+                        fail();
+                    } catch (BadRequestException e) {
+                        // expected
+                        exceptions.incrementAndGet();
+                    }
+                }
+            });
+        }
+
+        requestsWithInvalidSource.shutdown();
+        requestsWithInvalidSource.awaitTermination(10, TimeUnit.SECONDS);
+        assertThat(exceptions.getAndSet(0), is(numThreads));
+
+        final ExecutorService createRequests = Executors.newFixedThreadPool(numThreads);
+        for (int thread = 0; thread < numThreads; thread++) {
+            createRequests.submit(new Runnable() {
+                @Override public void run() {
+                    final RpslObject person = RpslObject.parse(
+                            "person:    Pauleth Palthen\n" +
+                            "address:   Singel 258\n" +
+                            "phone:     +31-1234567890\n" +
+                            "e-mail:    noreply@ripe.net\n" +
+                            "mnt-by:    OWNER-MNT\n" +
+                            "nic-hdl:   AUTO-1\n" +
+                            "changed:   noreply@ripe.net 20120101\n" +
+                            "remarks:   remark\n" +
+                            "source:    TEST\n");
+
+                    try {
+                        RestTest.target(getPort(), "whois/test/person?password=test")
+                                .request()
+                                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, person), MediaType.APPLICATION_XML), WhoisResources.class);
+                        fail();
+                    } catch (Exception e) {
+                        // unexpected
+                        exceptions.incrementAndGet();
+                    }
+                }
+            });
+        }
+
+        createRequests.shutdown();
+        createRequests.awaitTermination(10, TimeUnit.SECONDS);
+        assertThat(exceptions.get(), is(0));
+    }
+
 
     @Test
     public void create_password_attribute_in_body() throws Exception {
