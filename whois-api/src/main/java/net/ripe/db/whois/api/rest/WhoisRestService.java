@@ -196,7 +196,7 @@ public class WhoisRestService {
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override,
-            @QueryParam("dryrun") final String dryRun) {
+            @QueryParam("dry-run") final String dryRun) {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
@@ -205,7 +205,7 @@ public class WhoisRestService {
             auditlogRequest(request);
 
             checkForMainSource(request, source);
-            checkDryRun(updateContext, dryRun);
+            setDryRun(updateContext, dryRun);
 
             RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
 
@@ -241,7 +241,7 @@ public class WhoisRestService {
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override,
-            @QueryParam("dryrun") final String dryRun) {
+            @QueryParam("dry-run") final String dryRun) {
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedUpdateObject(request, submittedObject, objectType, key);
@@ -253,7 +253,7 @@ public class WhoisRestService {
             auditlogRequest(request);
 
             checkForMainSource(request, source);
-            checkDryRun(updateContext, dryRun);
+            setDryRun(updateContext, dryRun);
 
             return updatePerformer.performUpdate(
                     updateContext,
@@ -282,7 +282,7 @@ public class WhoisRestService {
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override,
-            @QueryParam("dryrun") final String dryRun) {
+            @QueryParam("dry-run") final String dryRun) {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
@@ -291,7 +291,7 @@ public class WhoisRestService {
             auditlogRequest(request);
 
             checkForMainSource(request, source);
-            checkDryRun(updateContext, dryRun);
+            setDryRun(updateContext, dryRun);
 
             final RpslObject submittedObject = getSubmittedObject(request, resource);
             validateSubmittedCreateObject(request, submittedObject, objectType);
@@ -661,11 +661,10 @@ public class WhoisRestService {
         }
     }
 
-    void checkDryRun(final UpdateContext updateContext, final String dryRun) {
-        if (dryRun == null || dryRun.equalsIgnoreCase("false")) {
-            return;
+    void setDryRun(final UpdateContext updateContext, final String dryRun) {
+        if (dryRun != null && (dryRun.isEmpty() || dryRun.equalsIgnoreCase("true"))) {
+            updateContext.dryRun();
         }
-        updateContext.dryRun();
     }
 
     private class RpslObjectStreamer implements StreamingOutput {
