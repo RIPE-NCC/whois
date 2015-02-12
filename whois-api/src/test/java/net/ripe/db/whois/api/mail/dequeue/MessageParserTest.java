@@ -4,9 +4,13 @@ import com.google.common.base.Charsets;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.ContentWithCredentials;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.PgpCredential;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
@@ -23,11 +27,18 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
-import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageParserTest {
@@ -160,7 +171,7 @@ public class MessageParserTest {
 
         MailMessage result = subject.parse(messageWithInvalidReplyTo, updateContext);
 
-        assertTrue(StringUtils.isBlank(result.getReplyTo()));
+        assertThat(result.getReplyTo(), isEmptyString());
     }
 
     @Test
@@ -323,7 +334,7 @@ public class MessageParserTest {
         List<ContentWithCredentials> contentWithCredentials = message.getContentWithCredentials();
         assertThat(contentWithCredentials, hasSize(1));
         assertThat(contentWithCredentials.get(0).getContent(), is(expectedValue));
-        assertTrue(contentWithCredentials.get(0).getCredentials().get(0) instanceof PgpCredential);
+        assertThat(contentWithCredentials.get(0).getCredentials().get(0), is(instanceOf(PgpCredential.class)));
     }
 
     @Test
@@ -468,7 +479,7 @@ public class MessageParserTest {
         assertThat(mailMessage.getContentWithCredentials(), hasSize(1));
         final ContentWithCredentials contentWithCredentials = mailMessage.getContentWithCredentials().get(0);
         assertThat(contentWithCredentials.getCredentials(), hasSize(1));
-        assertTrue(contentWithCredentials.getCredentials().get(0) instanceof PgpCredential);
+        assertThat(contentWithCredentials.getCredentials().get(0), is(instanceOf(PgpCredential.class)));
         assertThat(contentWithCredentials.getContent(), is("" +
                 "person:  First Person\n" +
                 "address: St James Street\n" +
@@ -640,7 +651,7 @@ public class MessageParserTest {
                 "source:         RIPE\n\n" +
                 "changed: email@foobar.net\n\n\n\n"));
         assertThat(contentWithCredentialsList.get(0).getCredentials(), hasSize(1));
-        assertTrue(contentWithCredentialsList.get(0).getCredentials().get(0) instanceof X509Credential);
+        assertThat(contentWithCredentialsList.get(0).getCredentials().get(0), is(instanceOf(X509Credential.class)));
     }
 
     @Test
@@ -656,7 +667,7 @@ public class MessageParserTest {
         assertThat(contentWithCredentialsList, hasSize(1));
         assertThat(contentWithCredentialsList.get(0).getContent(), is(expectedValue));
         assertThat(contentWithCredentialsList.get(0).getCredentials(), hasSize(1));
-        assertTrue(contentWithCredentialsList.get(0).getCredentials().get(0) instanceof X509Credential);
+        assertThat(contentWithCredentialsList.get(0).getCredentials().get(0), is(instanceOf(X509Credential.class)));
     }
 
     @Test
@@ -756,7 +767,7 @@ public class MessageParserTest {
                 "changed: email@foobar.net\n" +
                 "source: RIPE\n\n"));
         assertThat(contentWithCredentialsList.get(0).getCredentials(), hasSize(1));
-        assertTrue(contentWithCredentialsList.get(0).getCredentials().get(0) instanceof X509Credential);
+        assertThat(contentWithCredentialsList.get(0).getCredentials().get(0), is(instanceOf(X509Credential.class)));
     }
 
     @Test
