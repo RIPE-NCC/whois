@@ -5332,7 +5332,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -i mu LIR2-MNT", "inetnum", "192.168.128.0 - 192.168.255.255")
     }
 
-    //ToDo delete this test when we deprecate EARLY-REGISTRATION status
+    // TODO delete this test when we deprecate EARLY-REGISTRATION status
     def "modify EARLY-REGISTRATION, mnt-by RS and user, change mnt-lower"() {
       given:
         syncUpdate(getTransient("EARLY-USER") + "override: denis,override1")
@@ -5375,7 +5375,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
     }
 
-    //ToDo delete this test when we deprecate EARLY-REGISTRATION status
+    // TODO delete this test when we deprecate EARLY-REGISTRATION status
     def "modify EARLY-REGISTRATION, mnt-by user only, change mnt-lower"() {
         given:
         syncUpdate(getTransient("EARLY-USER-ONLY") + "override: denis,override1")
