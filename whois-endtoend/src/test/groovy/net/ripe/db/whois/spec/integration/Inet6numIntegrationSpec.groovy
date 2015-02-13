@@ -465,7 +465,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         def update = syncUpdate(new SyncUpdate(data: """\
                                         inet6num:  2221::/64
                                         netname: RIPE-NCC
-                                        descr: other descr
+                                        descr: some descr
                                         country: DK
                                         admin-c: TEST-PN
                                         tech-c: TEST-PN
@@ -479,7 +479,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                     """.stripIndent()))
       then:
         update =~ /FAIL/
-//        update =~ /Error:   Changing first "DESCR:" value requires administrative authorisation/
+//        update =~ /Error:   Changing first "DESCR:" value requires administrative authorisation/      // TODO
         update =~ /Error:   Changing "mnt-lower:" value requires administrative authorisation/
     }
 

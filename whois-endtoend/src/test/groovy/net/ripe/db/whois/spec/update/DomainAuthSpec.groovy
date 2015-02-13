@@ -1537,7 +1537,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 2.1-3.1.193.in-addr.arpa" }
 //        ack.errorMessagesFor("Create", "[domain] 2.1-3.1.193.in-addr.arpa") ==
-//              ["Syntax error in 2.1-3.1.193.in-addr.arpa"] ToDo need an ack.errorMessagesForMatching
+//              ["Syntax error in 2.1-3.1.193.in-addr.arpa"] TODO need an ack.errorMessagesForMatching
 
         queryObjectNotFound("-rGBT domain 2.1-3.1.193.in-addr.arpa", "domain", "2.1-3.1.193.in-addr.arpa")
     }
@@ -1574,7 +1574,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 148-149.201.193.in-addr.arpa" }
-//        ack.errorMessagesFor("Create", "[domain] 148-149.201.193.in-addr.arpa") == //ToDo - need an ack.errorMessagesForMatches so I can pick out the error message bit I want
+//        ack.errorMessagesFor("Create", "[domain] 148-149.201.193.in-addr.arpa") == //TODO - need an ack.errorMessagesForMatches so I can pick out the error message bit I want
 //              ["Syntax error in 148-149.201.193.in-addr.arpa"]
 
         queryObjectNotFound("-rGBT domain 148-149.201.193.in-addr.arpa", "domain", "148-149.201.193.in-addr.arpa")
@@ -1612,7 +1612,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 201-202.193.in-addr.arpa" }
-//        ack.errorMessagesFor("Create", "[domain] 201-202.193.in-addr.arpa") ==
+//        ack.errorMessagesFor("Create", "[domain] 201-202.193.in-addr.arpa") ==    // TODO
 //              ["Syntax error in 201-202.193.in-addr.arpa"]
 
         queryObjectNotFound("-rGBT domain 201-202.193.in-addr.arpa", "domain", "201-202.193.in-addr.arpa")
@@ -1650,7 +1650,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 1-193.in-addr.arpa" }
-//        ack.errorMessagesFor("Create", "[domain] 1-193.in-addr.arpa") ==
+//        ack.errorMessagesFor("Create", "[domain] 1-193.in-addr.arpa") ==      // TODO
 //              ["Syntax error in 1-193.in-addr.arpa"]
 
         queryObjectNotFound("-rGBT domain 1-193.in-addr.arpa", "domain", "1-193.in-addr.arpa")
@@ -2502,7 +2502,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 0-1.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa" }
 //        ack.errorMessagesFor("Create", "[domain] 0-1.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa") ==
-//              ["Syntax error in 0-1.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa"] ToDo - ack.errorMessagesForMatches
+//              ["Syntax error in 0-1.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa"] TODO - ack.errorMessagesForMatches
 
         queryObjectNotFound("-rGBT domain 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa", "domain", "0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa")
     }
