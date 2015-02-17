@@ -725,14 +725,15 @@
                     <showWeaveInfo>false</showWeaveInfo>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <complianceLevel>${java.version}</complianceLevel>
                     <Xlint>warning</Xlint>
                     <verbose>true</verbose>
                     <forceAjcCompile>true</forceAjcCompile>
                     <showWeaveInfo>true</showWeaveInfo>
-                    <complianceLevel>${java.version}</complianceLevel>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <verbose>false</verbose>
                     <warn>true</warn>
+                    <Xlintfile>${basedir}/../Xlint.properties</Xlintfile>
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>
