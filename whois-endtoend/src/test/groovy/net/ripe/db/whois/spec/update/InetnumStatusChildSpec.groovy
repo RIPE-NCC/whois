@@ -674,7 +674,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO: needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -1443,7 +1443,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -2168,7 +2168,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -2975,7 +2975,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
 
             password: hm
             password: lir
-            """.stripIndent())  // <--- needs bug fix for assigned PI creation
+            """.stripIndent())  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.199.0 - 192.168.200.255", "inetnum", "192.168.199.0 - 192.168.200.255")
 
       expect:
@@ -3726,7 +3726,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -4482,7 +4482,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -5268,7 +5268,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -6041,7 +6041,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:

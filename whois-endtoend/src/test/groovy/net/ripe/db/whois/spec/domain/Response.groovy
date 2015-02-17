@@ -40,7 +40,6 @@ abstract class Response extends BasicResponse {
             if (!matcher.matches()) {
                 return null
             }
-//            println "ERRORS section string[\n" + matcher.group(3) + "\n]"
 
             List<String> errors = (matcher.group(3) =~ /(?m)^\*\*\*Error:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)
             List<String> warnings = (matcher.group(3) =~ /(?m)^\*\*\*Warning:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)
@@ -77,8 +76,6 @@ abstract class Response extends BasicResponse {
                 return null
             }
 
-//            println "SUCCESS section string[\n" + matcher.group(3) + "\n]"
-
             List<String> warnings = (matcher.group(3) =~ /(?m)^\*\*\*Warning:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)
             List<String> infos = (matcher.group(3) =~ /(?m)^\*\*\*Info:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)
             new Success(operation: matcher.group(1).trim(), key: matcher.group(2).trim(), object: matcher.group(3).trim(), warnings: warnings, infos: infos)
@@ -94,9 +91,7 @@ abstract class Response extends BasicResponse {
             if (!matcher.matches()) {
                 return null
             }
-
-//            println "PENDING section string[\n" + matcher.group(3) + "\n]"
-
+            
             List<String> warnings = (matcher.group(3) =~ /(?m)^\*\*\*Warning:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)
             List<String> infos = (matcher.group(3) =~ /(?m)^\*\*\*Info:\s*((.*)(\n[ ]+.*)*)$/).collect(removeNewLines)
             new Success(operation: matcher.group(1).trim(), key: matcher.group(2).trim(), object: matcher.group(3).trim(), warnings: warnings, infos: infos)
