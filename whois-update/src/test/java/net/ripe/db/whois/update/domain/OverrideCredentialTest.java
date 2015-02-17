@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import java.util.Set;
 
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -23,7 +22,7 @@ public class OverrideCredentialTest {
     public void parse_one_value() {
         final OverrideCredential overrideCredential = OverrideCredential.parse("password");
 
-        assertTrue(overrideCredential.getPossibleCredentials().isEmpty());
+        assertThat(overrideCredential.getPossibleCredentials(), is(empty()));
     }
 
     @Test
