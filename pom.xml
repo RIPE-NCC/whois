@@ -722,7 +722,6 @@
                 <artifactId>aspectj-maven-plugin</artifactId>
                 <version>1.7</version>
                 <configuration>
-                    <showWeaveInfo>false</showWeaveInfo>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <complianceLevel>${java.version}</complianceLevel>
@@ -731,7 +730,6 @@
                     <forceAjcCompile>true</forceAjcCompile>
                     <showWeaveInfo>true</showWeaveInfo>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <verbose>false</verbose>
                     <warn>none</warn>
                     <Xlintfile>${basedir}/../Xlint.properties</Xlintfile>
                     <aspectLibraries>
