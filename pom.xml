@@ -731,7 +731,6 @@
                     <showWeaveInfo>true</showWeaveInfo>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <warn>none</warn>
-                    <Xlintfile>${basedir}/../Xlint.properties</Xlintfile>
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>
