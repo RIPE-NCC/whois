@@ -732,7 +732,7 @@
                     <showWeaveInfo>true</showWeaveInfo>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <verbose>false</verbose>
-                    <warn>true</warn>
+                    <warn>none</warn>
                     <Xlintfile>${basedir}/../Xlint.properties</Xlintfile>
                     <aspectLibraries>
                         <aspectLibrary>
