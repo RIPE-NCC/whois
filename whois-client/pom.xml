@@ -100,6 +100,19 @@
             <groupId>de.jflex</groupId>
             <artifactId>jflex</artifactId>
         </dependency>
+
+        <!-- AspectJ -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
     <build>
         <resources>
