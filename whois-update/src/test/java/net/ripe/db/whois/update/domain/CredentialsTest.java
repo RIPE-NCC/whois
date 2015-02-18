@@ -1,15 +1,14 @@
 package net.ripe.db.whois.update.domain;
 
+import com.google.common.collect.Sets;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import com.google.common.collect.Sets;
 
 public class CredentialsTest {
     @Test
@@ -39,6 +38,7 @@ public class CredentialsTest {
             subject.single(Credential.class);
             fail("Expected error on multiple credentials of the same type");
         } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage(), is("More than 1 credentials of type: interface net.ripe.db.whois.update.domain.Credential"));
         }
 
         assertThat(subject.has(PgpCredential.class), is(false));
