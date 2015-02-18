@@ -35,7 +35,9 @@ public class AutNum {
 
         try {
             numericValue = Long.parseLong(num);
-        } catch (NumberFormatException e) {}
+        } catch (NumberFormatException ignored) {
+            // must be a number
+        }
 
         if (numericValue < 0 || numericValue > 4294967295L) {
             throw new AttributeParseException("AS number has to be between 0 and 4294967295", value);
