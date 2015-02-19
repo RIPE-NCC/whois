@@ -120,9 +120,12 @@ public class AttributeSanitizer {
         return new RpslObject(sanitizeKeyAttributes(keyRelatedAttributes)).getKey();
     }
 
+    // TODO: messages are added at object level, not at attribute level (so not clear to which attribute the message relates to)
+    //
     public RpslObject sanitize(final RpslObject object, final ObjectMessages objectMessages) {
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
         for (final RpslAttribute attribute : object.getAttributes()) {
+
             final AttributeType type = attribute.getType();
             String newValue = null;
 
@@ -135,7 +138,7 @@ public class AttributeSanitizer {
             try {
                 newValue = sanitizer.sanitize(attribute);
             } catch (IllegalArgumentException ignored) {
-                // no break on syntactically broken objects
+                // no break on syntactically broken objects  TODO: investigate why this is
             }
 
             if (newValue == null) {

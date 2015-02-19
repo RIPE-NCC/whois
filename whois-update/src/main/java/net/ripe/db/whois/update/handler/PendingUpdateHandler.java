@@ -12,10 +12,12 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -33,6 +35,19 @@ class PendingUpdateHandler {
         this.updateObjectHandler = updateObjectHandler;
         this.dateTimeProvider = dateTimeProvider;
         this.loggerContext = loggerContext;
+    }
+
+    public void cleanup(final PreparedUpdate preparedUpdate, final UpdateContext updateContext ) {
+
+        if (Action.CREATE.equals(preparedUpdate.getAction()) && UpdateStatus.SUCCESS.equals(updateContext.getStatus(preparedUpdate)) ) {
+            final RpslObject rpslObject = preparedUpdate.getUpdatedObject();
+
+            List<PendingUpdate> pendingUpdates = pendingUpdateDao.findByTypeAndKey(rpslObject.getType(), rpslObject.getKey().toString());
+            for( PendingUpdate update: pendingUpdates ) {
+                loggerContext.log(new Message(Messages.Type.INFO, "Pending update exist for object; dropping from DB"));
+                pendingUpdateDao.remove(update);
+            }
+        }
     }
 
     public void handle(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {

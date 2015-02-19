@@ -28,6 +28,6 @@ public class OrganisationIdFactory extends AbstractAutoKeyFactory<OrganisationId
 
     @Override
     public OrganisationId claim(final String key) throws ClaimException {
-        throw new ClaimException(ValidationMessages.syntaxError(key));
+        throw new ClaimException(ValidationMessages.syntaxError(key, "must be AUTO-nnn for create"));
     }
 }

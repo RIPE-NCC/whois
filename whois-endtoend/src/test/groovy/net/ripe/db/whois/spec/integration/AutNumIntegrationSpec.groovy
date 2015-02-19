@@ -957,7 +957,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /SUCCESS/
         then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
-        println autnum
         autnum.equals(RpslObject.parse("""\
                         aut-num:        AS100
                         as-name:        End-User

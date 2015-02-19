@@ -15,7 +15,9 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
 */
 %%
 
+%public
 %class InjectLexer
+%implements net.ripe.db.whois.common.rpsl.AttributeLexer
 
 %byaccj
 
@@ -36,20 +38,22 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
         this(r);
         this.yyparser = yyparser;
     }
+
+    /* assign value associated with current token to the external parser variable yylval. */
+    private void storeTokenValue() {
+        if ((this.yyparser != null) && (this.yyparser.yylval != null)) {
+            yyparser.yylval.sval = yytext();
+        }
+    }
 %}
 
 ALNUM          = [0-9a-zA-Z]
-FLTRNAME       = FLTR-[A-Za-z0-9_-]*{ALNUM}
-ASNAME         = AS-[A-Za-z0-9_-]*{ALNUM}
-RSNAME         = RS-[A-Za-z0-9_-]*{ALNUM}
-PRNGNAME       = PRNG-[A-Za-z0-9_-]*{ALNUM}
 RTRSNAME       = RTRS-[A-Za-z0-9_-]*{ALNUM}
 INT            = [0-9]+
 IPV4           = {INT}(\.{INT}){3}
 PRFXV4         = {IPV4}\/{INT}
 PRFXV4RNG      = {PRFXV4}("^+"|"^-"|"^"{INT}|"^"{INT}-{INT})
 COMM_NO        = {INT}:{INT}
-PROTOCOL_NAME  = BGP4|OSPF|RIP|IGRP|IS-IS|STATIC|RIPng|DVMRP|PIM-DM|PIM-SM|CBT|MOSPF
 DNAME          = [a-zA-Z]([0-9a-zA-Z-]*{ALNUM})?
 ASNO           = AS([0-9]|[1-9][0-9]{1,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]|429496729[0-5])
 
@@ -125,13 +129,13 @@ COST        { return InjectParser.TKN_COST; }
 }
 
 {INT} {
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return InjectParser.TKN_INT;
 }
 
 {DNAME} {
     ParserHelper.validateDomainNameLabel(yytext());
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return InjectParser.TKN_DNS;
 }
 

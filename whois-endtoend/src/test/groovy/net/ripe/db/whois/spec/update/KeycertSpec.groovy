@@ -2654,7 +2654,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT key-cert X509-99", "key-cert", "X509-99")
     }
 
-    @Ignore // TODO: [ES]
+    @Ignore // TODO: [ES] GitHub issue #275
     def "#275 delete keycert object doesn't match version in database"() {
       given:
         syncUpdate(getTransient("PGPKEY-F6A10C2D") + "password: lir")

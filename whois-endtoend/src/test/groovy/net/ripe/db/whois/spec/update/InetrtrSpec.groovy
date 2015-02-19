@@ -120,8 +120,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
             queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
         when:
-            def response2 = syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
-            println "Aut-num create status : ${response2}"
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
         then:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
 
@@ -269,10 +268,9 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
     def "create inetrtr with primary key with a trailing dot"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
-
-            def response2 = syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
-            println "Aut-num create status : ${response2}"
+            syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
         expect:
+            queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
 
         when:
@@ -314,10 +312,9 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
             syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
-
-            def response = syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
-            println "RTR-SET create status : ${response}"
+            syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
         expect:
+            queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
             queryObject("-r -T rtr-set RTRS-TESTNET", "rtr-set", "RTRS-TESTNET")
 
@@ -356,7 +353,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inet-rtr test.net", "inet-rtr", "test.net","mnt-by:\\s*TST-MNT3")
     }
 
-    // create inetrtr with member-of a non-existing rtr-set
     def "create inetrtr with member-of a non-existing rtr-set"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
@@ -404,8 +400,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
             syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
-            def response1 = syncUpdate(getTransient("test2.net") + "password:test3")
-            println "Inet-rtr object : ${response1}"
+            syncUpdate(getTransient("test2.net") + "password:test3")
         expect:
             queryObject("-r -T rtr-set RTRS-TESTNET", "rtr-set", "RTRS-TESTNET")
             queryObject("-r -T inet-rtr test2.net", "inet-rtr", "test2.net")
@@ -476,7 +471,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         then:
         def ack = new AckResponse("", message)
         ack.summary.nrFound == 1
-        println "Delete status : ${ack}"
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
@@ -489,9 +483,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
             syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
             syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
-
-            def response = syncUpdate(getTransient("AS28816") + "password:test")
-            println "RTR-SET create status : ${response}"
+            syncUpdate(getTransient("AS28816") + "password:test")
         expect:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
             queryObject("-r -T rtr-set RTRS-TESTNET:AS28816", "rtr-set", "RTRS-TESTNET:AS28816")
@@ -533,8 +525,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
 
     def "create inetrtr with non-existing local-as value"() {
         given:
-            def response = syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
-            println "RTR-SET create status : ${response}"
+            syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
         expect:
             queryObjectNotFound("-r -T aut-num AS250", "aut-num", "AS250")
             queryObject("-r -T rtr-set RTRS-TESTNET", "rtr-set", "RTRS-TESTNET")
@@ -578,9 +569,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
             syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
-
-            def response = syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
-            println "RTR-SET create status : ${response}"
+            syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
         expect:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
             queryObject("-r -T rtr-set RTRS-TESTNET", "rtr-set", "RTRS-TESTNET")
@@ -625,9 +614,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
             syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
-
-            def response = syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
-            println "RTR-SET create status : ${response}"
+            syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
         expect:
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
             queryObject("-r -T rtr-set RTRS-TESTNET", "rtr-set", "RTRS-TESTNET")
@@ -766,11 +753,9 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
 
     def "create inetrtr without local-as attribute"() {
         given:
-            def response = syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
-            println "RTR-SET create status : ${response}"
+            syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
         expect:
             queryObject("-r -T rtr-set RTRS-TESTNET", "rtr-set", "RTRS-TESTNET")
-
 
         when:
         def message = send new Message(
@@ -811,10 +796,9 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "password:dbm")
             syncUpdate(getTransient("AS250") + "password:hm\npassword:locked\npassword:owner3")
-
-            def response = syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
-            println "RTR-SET create status : ${response}"
+            syncUpdate(getTransient("RTRS-TESTNET") + "password:test")
         expect:
+            queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
             queryObject("-r -T aut-num AS250", "aut-num", "AS250")
             queryObject("-r -T rtr-set RTRS-TESTNET", "rtr-set", "RTRS-TESTNET")
 
@@ -1073,9 +1057,8 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet-rtr] test2.net" }
-        def res = queryObject("-r -T inet-rtr test2.net", "inet-rtr", "test2.net")
-        println "Modified Object : ${res}"
 
+        queryObject("-r -T inet-rtr test2.net", "inet-rtr", "test2.net")
         queryObject("-rGBT inet-rtr test2.net", "inet-rtr", "test2.net")
         query_object_not_matches("-rGBT inet-rtr test2.net", "inet-rtr", "test2.net","mp-peer:\\s*146.188.49.13 asno(AS7775535)")
         ack.errorMessagesFor("Modify","[inet-rtr] test2.net") == ["Syntax error in 146.188.49.13 asno(AS7775535)"]

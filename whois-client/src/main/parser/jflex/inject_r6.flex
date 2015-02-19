@@ -13,7 +13,9 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
 */
 %%
 
+%public
 %class InjectR6Lexer
+%implements net.ripe.db.whois.common.rpsl.AttributeLexer
 
 %byaccj
 
@@ -34,13 +36,16 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
         this(r);
         this.yyparser = yyparser;
     }
+
+    /* assign value associated with current token to the external parser variable yylval. */
+    private void storeTokenValue() {
+        if ((this.yyparser != null) && (this.yyparser.yylval != null)) {
+            yyparser.yylval.sval = yytext();
+        }
+    }
 %}
 
 ALNUM          = [0-9a-zA-Z]
-FLTRNAME       = FLTR-[A-Za-z0-9_-]*{ALNUM}
-ASNAME         = AS-[A-Za-z0-9_-]*{ALNUM}
-RSNAME         = RS-[A-Za-z0-9_-]*{ALNUM}
-PRNGNAME       = PRNG-[A-Za-z0-9_-]*{ALNUM}
 RTRSNAME       = RTRS-[A-Za-z0-9_-]*{ALNUM}
 INT            = [0-9]+
 QUAD           = [0-9A-Fa-f]{1,4}
@@ -165,13 +170,13 @@ COST        { return InjectR6Parser.TKN_COST; }
 }
 
 {INT} {
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return InjectR6Parser.TKN_INT;
 }
 
 {DNAME} {
     ParserHelper.validateDomainNameLabel(yytext());
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return InjectR6Parser.TKN_DNS;
 }
 

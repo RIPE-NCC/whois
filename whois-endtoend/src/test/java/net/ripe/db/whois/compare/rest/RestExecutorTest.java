@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rest.compare;
+package net.ripe.db.whois.compare.rest;
 
 import org.junit.Test;
 

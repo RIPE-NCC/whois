@@ -8,6 +8,11 @@ import static org.junit.Assert.assertThat;
 public class AttributeSyntaxTest {
 
     @Test
+    public void address() {
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.ADDRESS, "gcyudgyducgdugcuydguycd cgduyagcduygcduy gcdyugcyudgcduygcd cdhiuchdghcdiughciudhciudhcdiu cyudghiucdghucidgcdiugdcdiu cduihciudhudcdc");
+    }
+
+    @Test
     public void adminc() {
         verifySuccess(ObjectType.AS_SET, AttributeType.ADMIN_C, "HIA1-AFRINIC");
         verifySuccess(ObjectType.AS_SET, AttributeType.ADMIN_C, "HIA1-ARIN");

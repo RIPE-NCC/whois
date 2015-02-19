@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.endtoend.compare.query;
+package net.ripe.db.whois.compare.telnet;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -7,10 +7,10 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.io.ByteArrayInput;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.ByteArrayContains;
-import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
+import net.ripe.db.whois.compare.common.ComparisonExecutor;
 import net.ripe.db.whois.query.domain.MessageObject;
-import net.ripe.db.whois.query.endtoend.compare.ComparisonExecutor;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -19,24 +19,27 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class QueryExecutor implements ComparisonExecutor {
+public class TelnetQueryExecutor implements ComparisonExecutor {
+    final QueryExecutorConfiguration configuration;
+
     private static final byte[] DOUBLE_NEWLINE = new byte[]{'\n', '\n'};
     private static final byte[] STUPID_NEWLINE = new byte[]{'\r'};
 
-    private final QueryExecutorConfiguration configuration;
+    private final TelnetWhoisClient telnetWhoisClient;
 
-    public QueryExecutor(final QueryExecutorConfiguration configuration) throws UnknownHostException {
+    public TelnetQueryExecutor(final QueryExecutorConfiguration configuration, final TelnetWhoisClient telnetWhoisClient) throws UnknownHostException {
         this.configuration = configuration;
+        this.telnetWhoisClient = telnetWhoisClient;
     }
 
     @Override
     public List<ResponseObject> getResponse(final String query) throws IOException {
-        final TelnetWhoisClient client = new TelnetWhoisClient(configuration.getHost(), configuration.getQueryPort());
+
         final String response;
 
         final Stopwatch stopWatch = Stopwatch.createStarted();
         try {
-            response = client.sendQuery(query);
+            response = telnetWhoisClient.sendQuery(query);
         } finally {
             stopWatch.stop();
         }
@@ -44,7 +47,7 @@ public class QueryExecutor implements ComparisonExecutor {
         return parseWhoisResponseIntoRpslObjects(query, response);
     }
 
-    private List<ResponseObject> parseWhoisResponseIntoRpslObjects(final String query, String response) throws IOException {
+    private List<ResponseObject> parseWhoisResponseIntoRpslObjects(final String query, final String response) throws IOException {
         byte[] whoisServerOutput = response.getBytes();
 
         List<ResponseObject> ret = Lists.newArrayList();
@@ -82,6 +85,10 @@ public class QueryExecutor implements ComparisonExecutor {
         } while (begin < whoisServerOutput.length);
 
         return ret;
+    }
+
+    public QueryExecutorConfiguration getExecutorConfig() {
+        return configuration;
     }
 
     /* indexOfIgnoring() is the core feature of the end-to-end testing, hence I've put it here */

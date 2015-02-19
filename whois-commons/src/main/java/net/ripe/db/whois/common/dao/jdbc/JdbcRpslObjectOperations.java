@@ -44,7 +44,8 @@ import java.util.Set;
 @Component
 public class JdbcRpslObjectOperations {
     private static final Logger LOGGER = LoggerFactory.getLogger(JdbcRpslObjectOperations.class);
-    private static final Set<String> UNTRUNCATABLE_TABLES = Sets.newHashSet("version", "object_version", "object_reference", "forgot_password_audit_log", "email_links");
+
+    private static final Set<String> UNTRUNCATABLE_TABLES = Sets.newHashSet("version", "forgot_password_audit_log", "email_links");
 
     public static void insertIntoTables(final JdbcTemplate jdbcTemplate, final RpslObjectInfo rpslObjectInfo, final RpslObject rpslObject) {
         final Set<CIString> missing = insertIntoTablesIgnoreMissing(jdbcTemplate, rpslObjectInfo, rpslObject);
@@ -409,6 +410,7 @@ public class JdbcRpslObjectOperations {
         }
     }
 
+    @CheckForNull
     public static Integer getAgeOfExactOrNextExistingSerial(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final int serialId) {
         try {
             //[TP] this is for NRTM to cover some cases where there are gaps in the serials table.

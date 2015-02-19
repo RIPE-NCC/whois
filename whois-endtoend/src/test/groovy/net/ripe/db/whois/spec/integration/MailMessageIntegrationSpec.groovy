@@ -1,8 +1,7 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.Message
-import spock.lang.Ignore;
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
@@ -621,6 +620,43 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.success
         ack.summary.nrFound == 1
         ack.contents =~ /\*\*\*Warning: Attribute "address" value changed due to conversion into the ISO-8859-1 (Latin-1) character set/
+    }
+
+    def "blank lines are replaced by plus continuation character"() {
+        when:
+          def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                  "From: noreply@ripe.net\n" +
+                  "To: test-dbm@ripe.net\n" +
+                  "Subject: NEW\n" +
+                  "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                  "\n" +
+                  "password: owner\n" +
+                  "person: First Person\n" +
+                  "\t\t\t\n" +
+                  "address:   St James Street\n" +
+                  "\t\t\t\n" +
+                  "address: Burnley\n" +
+                  "\t\t\t\n" +
+                  "address: UK\n" +
+                  "\t\t\t\n" +
+                  "phone: +44 282 420469\n" +
+                  "\t\t\t\n" +
+                  "nic-hdl: FP1-TEST\n" +
+                  "\t\t\t\n" +
+                  "mnt-by:  OWNER-MNT\n" +
+                  "\t\t\t\n" +
+                  "changed: noreply@ripe.net 20010201\n" +
+                  "\t\t\t\n" +
+                  "source:  TEST\n" +
+                  "\t\t\t\n" +
+                  "\n"
+        then:
+          def ack = ackFor message
+
+          ack.success
+          ack.summary.nrFound == 1
+        then:
+          queryObject("-r FP1-TEST", "person", "First Person")
     }
 
 }

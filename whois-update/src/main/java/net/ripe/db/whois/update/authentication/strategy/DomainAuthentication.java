@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.IpTree;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
@@ -13,7 +14,6 @@ import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -88,9 +88,11 @@ public class DomainAuthentication extends AuthenticationStrategyBase {
             return authenticated;
         }
 
-        authenticated.addAll(authenticate(update, updateContext, ipObject, AttributeType.MNT_LOWER));
-        if (!authenticated.isEmpty()) {
-            return authenticated;
+        if (!reverseIp.equals(ipEntry.getKey())) {
+            authenticated.addAll(authenticate(update, updateContext, ipObject, AttributeType.MNT_LOWER));
+            if (!authenticated.isEmpty()) {
+                return authenticated;
+            }
         }
 
         return authenticate(update, updateContext, ipObject, AttributeType.MNT_BY);

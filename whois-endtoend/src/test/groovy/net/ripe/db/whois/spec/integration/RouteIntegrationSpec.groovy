@@ -264,7 +264,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         responseAutnum =~ /SUCCESS/
-        println "Delete Autnum response: ${responseAutnum}"
 
       when:
         def deleteRoute = new SyncUpdate(data: """\
@@ -283,8 +282,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         responseRoute =~ /SUCCESS/
-        println "Delete Route response: ${responseRoute}"
-
     }
 
     def "create route, delete referenced autnum object, modify route object"() {
@@ -321,7 +318,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         responseAutnum =~ /SUCCESS/
-        println "Delete Autnum response: ${responseAutnum}"
 
       when:
         def modifyRoute = new SyncUpdate(data: """\
@@ -340,8 +336,6 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         responseRoute =~ /ERROR/
         responseRoute =~ /Unknown object referenced AS12726/
-        println "Modify Route response: ${responseRoute}"
-
     }
 
     def "modify route noop"() {

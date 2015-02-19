@@ -14,64 +14,64 @@ public class RpslAttributeTest {
     private RpslAttribute subject;
 
     @Test
-    public void remove_comments_single_line() throws Exception {
+    public void remove_comments_single_line() {
         subject = new RpslAttribute("source", "    RIPE #");
         assertThat(subject.getCleanValue().toString(), is("RIPE"));
         assertThat(subject.getCleanComment(), equalTo(null));
     }
 
     @Test
-    public void remove_comments_on_single_line() throws Exception {
+    public void remove_comments_on_single_line() {
         subject = new RpslAttribute("source", "    RIPE # Some comment");
         assertThat(subject.getCleanValue().toString(), is("RIPE"));
         assertThat(subject.getCleanComment(), is("Some comment"));
     }
 
     @Test
-    public void remove_comments_multiple_lines() throws Exception {
+    public void remove_comments_multiple_lines() {
         subject = new RpslAttribute("source", "    RIPE #\n RIPE");
         assertThat(subject.getCleanValue().toString(), is("RIPE RIPE"));
         assertThat(subject.getCleanComment(), equalTo(null));
     }
 
     @Test
-    public void remove_comments_multiple_lines_with_continuation() throws Exception {
+    public void remove_comments_multiple_lines_with_continuation() {
         subject = new RpslAttribute("source", "    RIPE #\n+ RIPE");
         assertThat(subject.getCleanValue().toString(), is("RIPE RIPE"));
     }
 
     @Test
-    public void remove_comments_with_plus() throws Exception {
+    public void remove_comments_with_plus() {
         subject = new RpslAttribute("source", "    RIPE + RIPE");
         assertThat(subject.getCleanValue().toString(), is("RIPE + RIPE"));
     }
 
     @Test
-    public void remove_comments_with_plusses() throws Exception {
+    public void remove_comments_with_plusses() {
         subject = new RpslAttribute("domain", "186.35.194.in-addr.arpa\n+\n+\n");
         assertThat(subject.getCleanValue().toString(), is("186.35.194.in-addr.arpa"));
     }
 
     @Test
-    public void remove_comments_with_plusses_and_data() throws Exception {
+    public void remove_comments_with_plusses_and_data() {
         subject = new RpslAttribute("domain", "186.35.194.in-addr.arpa\n+\n+\n+     asd");
         assertThat(subject.getCleanValue().toString(), is("186.35.194.in-addr.arpa asd"));
     }
 
     @Test
-    public void remove_comments_with_plusses_and_plus() throws Exception {
+    public void remove_comments_with_plusses_and_plus() {
         subject = new RpslAttribute("domain", "186.35.194.in-addr.arpa\n+\n+\n+++     asd");
         assertThat(subject.getCleanValue().toString(), is("186.35.194.in-addr.arpa ++ asd"));
     }
 
     @Test
-    public void remove_comments_with_plusses_and() throws Exception {
+    public void remove_comments_with_plusses_and() {
         subject = new RpslAttribute("domain", "186.35.194.in-addr.arpa\n+\n+\n+asd\n");
         assertThat(subject.getCleanValue().toString(), is("186.35.194.in-addr.arpa asd"));
     }
 
     @Test
-    public void remove_comments_with_spaces() throws Exception {
+    public void remove_comments_with_spaces() {
         subject = new RpslAttribute("domain", "foo       bar");
         assertThat(subject.getCleanValue().toString(), is("foo bar"));
     }
@@ -184,7 +184,7 @@ public class RpslAttributeTest {
     }
 
     @Test
-    public void get_comment_in_second_line() throws Exception {
+    public void get_comment_in_second_line() {
         subject = new RpslAttribute("remarks", "remark1\n remark2 # comment");
         assertThat(subject.getCleanComment(), is("comment"));
 
@@ -193,7 +193,7 @@ public class RpslAttributeTest {
     }
 
     @Test
-    public void preserve_and_allign_multiline_attributes(){
+    public void preserve_and_allign_multiline_attributes() {
         //[TP] we do not support leading spaces in values for formatting.
         //all attribute value lines are automatically aligned to RpslAttribute.LEADING_CHARS(_SHORTHAND)
         subject = new RpslAttribute("remarks",
@@ -215,5 +215,326 @@ public class RpslAttributeTest {
                 "remarks:        start\n" +
                 "                line\n" +
                 "                line\n"));
+    }
+
+    @Test
+    public void single_space_continuation_character() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                " \n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                " \n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "+\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "+\n" +
+                "                line\n\n"));
+    }
+
+    @Test
+    public void single_plus_continuation_character() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "+\n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "+\n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "+\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "+\n" +
+                "                line\n\n"));
+     }
+
+    @Test
+    public void single_tab_continuation_character() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "\t\n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "\t\n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "+\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "+\n" +
+                "                line\n\n"));
+    }
+
+    @Test
+    public void single_space_continuation_character_and_value() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                " line\n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                " line\n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "                line\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "                line\n" +
+                "                line\n\n"));
+    }
+
+    @Test
+    public void single_plus_continuation_character_and_value() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "+line\n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "+line\n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "+               line\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "+               line\n" +
+                "                line\n\n"));
+    }
+
+    @Test
+    public void single_tab_continuation_character_and_value() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "\tline\n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "\tline\n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "                line\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "                line\n" +
+                "                line\n\n"));
+    }
+
+    @Test
+    public void multiple_space_continuation_characters() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "   \n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "   \n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "+\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "+\n" +
+                "                line\n\n"));
+    }
+
+    @Test
+    public void multiple_plus_continuation_characters() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "+++\n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "+++\n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "+               ++\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "+               ++\n" +
+                "                line\n\n"));
+    }
+
+    @Test
+    public void multiple_tab_continuation_characters() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "\t\t\t\n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "\t\t\t\n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "+\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "+\n" +
+                "                line\n\n"));
+    }
+
+    @Test
+    public void multiple_space_continuation_characters_and_value() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "   line\n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "   line\n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "                line\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "                line\n" +
+                "                line\n\n"));
+    }
+
+    @Test
+    public void multiple_plus_continuation_characters_and_value() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "+++line\n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "+++line\n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "+               ++line\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "+               ++line\n" +
+                "                line\n\n"));
+    }
+
+    @Test
+    public void multiple_tab_continuation_characters_and_value() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "\t\t\tline\n" +
+                "line\n");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "\t\t\tline\n" +
+                "line\n"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "                line\n" +
+                "                line\n"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "                line\n" +
+                "                line\n\n"));
+    }
+
+    @Test
+    public void single_space_continuation_character_at_end_of_attribute() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                " ");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                " "));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "+"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "+\n"));
+    }
+
+    @Test
+    public void single_plus_continuation_character_at_end_of_attribute() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "+");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "+"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "+"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "+\n"));
+    }
+
+    @Test
+    public void single_tab_continuation_character_at_end_of_attribute() {
+        subject = new RpslAttribute("remarks",
+                " start\n" +
+                "\t");
+
+        assertThat(subject.getValue(), is(
+                " start\n" +
+                "\t"));
+        assertThat(subject.getFormattedValue(), is(
+                "        start\n" +
+                "+"));
+        assertThat(subject.toString(), is(
+                "remarks:        start\n" +
+                "+\n"));
+    }
+
+    @Test
+    public void empty_attribute_value() {
+        subject = new RpslAttribute("remarks", "");
+
+        assertThat(subject.getValue(), is(""));
+        assertThat(subject.getFormattedValue(), is(""));
+        assertThat(subject.toString(), is("remarks:\n"));
+    }
+
+    @Test
+    public void spaces_only_in_attribute_value() {
+        subject = new RpslAttribute("remarks", "   ");
+
+        assertThat(subject.getValue(), is("   "));
+        assertThat(subject.getFormattedValue(), is(""));
+        assertThat(subject.toString(), is("remarks:\n"));
     }
 }

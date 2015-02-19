@@ -4810,6 +4810,192 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "LIR-PARTITIONED PA")
     }
 
+    def "delete and re-create 3 objects, change status"() {
+      given:
+        syncUpdate(getTransient("EARLY") + "password: hm\npassword: owner3")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+        syncUpdate(getTransient("PART-PA") + "password: lir")
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255")
+        syncUpdate(getTransient("ASS-END") + "password: lir\npassword: end")
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+      expect:
+        queryObjectNotFound("-r -T inetnum 62.59.192.2 - 92.59.192.30", "inetnum", "62.59.192.2 - 92.59.192.30")
+
+      when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LIR-PARTITIONED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                delete:       changing status
+
+                inetnum:      192.168.200.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       SUB-ALLOCATED PA
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       END-USER-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                delete:       changing status
+
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LIR-PARTITIONED PA
+                mnt-by:       END-USER-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       EARLY-REGISTRATION
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                DELETE:       changing status
+
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: hm
+                password: lir
+                password: end
+                password: owner3
+                """.stripIndent()
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 6
+        ack.summary.assertSuccess(6, 3, 0, 3, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
+        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ALLOCATED PA")
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255", "SUB-ALLOCATED PA")
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "LIR-PARTITIONED PA")
+    }
+
+    def "delete inetnum with cidr notation not supported"() {
+        given:
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
+
+        syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.207.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                org:          ORG-LIR1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: hm
+                password: lir
+                password: end
+                password: owner3
+                """.stripIndent()
+        )
+        expect:
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
+        queryObject("-r -T inetnum 192.168.200/21", "inetnum", "192.168.200.0 - 192.168.207.255")
+
+        when:
+        syncUpdate("""\
+                inetnum:      192.168.200/21
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                org:          ORG-LIR1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                DELETE:       changing status
+
+                password: lir
+                """.stripIndent()
+        )
+        then:
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
+
+        when:
+        syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.207.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                org:          ORG-LIR1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                DELETE:       changing status
+
+                password: lir
+                """.stripIndent()
+        )
+        then:
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
+    }
+
     def "modify PI assignment, pw supplied, add remarks:"() {
       given:
         syncUpdate(getTransient("ASSPI") + "password: hm")
@@ -4932,6 +5118,84 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
     }
 
+    def "modify assignment, user mnt-by, add RS mntner with RS auth only allowed by override"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        syncUpdate(getTransient("ASS") + "password: lir\npassword: end")
+        queryObject("-GBr -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+      when:
+        def ack = syncUpdateWithResponse("""\
+        inetnum:      192.168.200.0 - 192.168.200.255
+        netname:      RIPE-NET1
+        descr:        /24 assigned
+        country:      NL
+        admin-c:      TP1-TEST
+        tech-c:       TP1-TEST
+        status:       ASSIGNED PA
+        mnt-by:       END-USER-MNT
+        mnt-by:       RIPE-NCC-HM-MNT
+        changed:      dbtest@ripe.net 20020101
+        source:       TEST
+        override:     denis,override1
+        """.stripIndent())
+
+
+      then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
+    }
+
+    def "modify assignment, user mnt-by, add RS mntner with RS auth should not be allowed"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        syncUpdate(getTransient("ASS") + "password: lir\npassword: end")
+        queryObject("-GBr -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def message = send new Message(
+        subject: "",
+        body: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       END-USER-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: end
+                password: hm
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Adding or removing a RIPE NCC maintainer requires administrative authorisation"]
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "END-USER-MNT")
+    }
+
     def "modify assignment, user mnt-by, add DB mntner without DB auth"() {
       given:
         syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
@@ -4972,6 +5236,42 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 ["Adding or removing a RIPE NCC maintainer requires administrative authorisation"]
 
         query_object_not_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-DBM-MNT")
+    }
+
+    def "modify assignment, user mnt-by, add DB mntner should only be allowed by ripe"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        syncUpdate(getTransient("ASS") + "password: lir\npassword: end")
+        queryObject("-GBr -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+      when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       END-USER-MNT
+                mnt-by:       RIPE-DBM-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                override:     denis,override1
+                """.stripIndent()
+        )
+
+      then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-DBM-MNT")
     }
 
     def "Remove mnt-routes, inverse lookup"() {
@@ -5032,7 +5332,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -i mu LIR2-MNT", "inetnum", "192.168.128.0 - 192.168.255.255")
     }
 
-    //ToDo delete this test when we deprecate EARLY-REGISTRATION status
+    // TODO delete this test when we deprecate EARLY-REGISTRATION status
     def "modify EARLY-REGISTRATION, mnt-by RS and user, change mnt-lower"() {
       given:
         syncUpdate(getTransient("EARLY-USER") + "override: denis,override1")
@@ -5075,7 +5375,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
     }
 
-    //ToDo delete this test when we deprecate EARLY-REGISTRATION status
+    // TODO delete this test when we deprecate EARLY-REGISTRATION status
     def "modify EARLY-REGISTRATION, mnt-by user only, change mnt-lower"() {
         given:
         syncUpdate(getTransient("EARLY-USER-ONLY") + "override: denis,override1")
