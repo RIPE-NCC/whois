@@ -1,32 +1,43 @@
 package net.ripe.db.whois.update.generator;
 
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.ISODateTimeFormat;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TimestampAttributeGenerator extends AttributeGenerator {
+    private final DateTimeProvider dateTimeProvider;
 
+    @Autowired
+    TimestampAttributeGenerator( DateTimeProvider dateTimeProvider ) {
+        this.dateTimeProvider = dateTimeProvider;
+    }
+
+    @Override
     public RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
-        RpslObject adjusted = null;
-        if (updatedObject.containsAttribute(AttributeType.CREATED)) {
-            updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.CREATED));
-            adjusted = new RpslObjectBuilder(updatedObject).removeAttributeType(AttributeType.CREATED).
-        }
-        if (updatedObject.containsAttribute(AttributeType.LAST_MODIFIED)) {
-            updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.LAST_MODIFIED));
+        RpslObject adjusted = updatedObject;
+
+        if (updateContext.getAction(update) == Action.CREATE || updateContext.getAction(update) == Action.MODIFY) {
+            DateTime now = dateTimeProvider.getCurrentUtcTime();
+            String timestampString = now.toString(ISODateTimeFormat.dateTimeNoMillis());
+
+            if (updateContext.getAction(update) == Action.CREATE) {
+                adjusted = cleanupAttributeType(update, updateContext, updatedObject, AttributeType.CREATED, timestampString);
+            }
+
+            return cleanupAttributeType(update, updateContext, adjusted, AttributeType.LAST_MODIFIED, timestampString);
         }
 
-        if (updateContext.getAction(update) == Action.CREATE) {
-            //new RpslObjectBuilder(updatedObject).removeAttribute(AttributeType.CREATED).addAttribute(AttributeType.CREATED).build();
-        } else if (updateContext.getAction(update) == Action.MODIFY) {
-            //new RpslObjectBuilder(updatedObject).removeAttribute(AttributeType.CREATED).addAttribute(CREATED).build();
-        }
+        return updatedObject;
     }
 
 }
