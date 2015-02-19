@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.scheduler;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.domain.Hosts;
 import org.joda.time.LocalDate;
@@ -21,12 +22,15 @@ public class DailyScheduler {
 
     private final DateTimeProvider dateTimeProvider;
     private final DailySchedulerDao dailySchedulerDao;
+    private final MaintenanceMode maintenanceMode;
     private List<DailyScheduledTask> scheduledTasks = Collections.emptyList();
 
     @Autowired
-    public DailyScheduler(final DateTimeProvider dateTimeProvider, DailySchedulerDao dailySchedulerDao) {
+    public DailyScheduler(final DateTimeProvider dateTimeProvider, DailySchedulerDao dailySchedulerDao,
+                          final MaintenanceMode maintenanceMode) {
         this.dateTimeProvider = dateTimeProvider;
         this.dailySchedulerDao = dailySchedulerDao;
+        this.maintenanceMode = maintenanceMode;
     }
 
     @Autowired(required = false)
@@ -36,8 +40,13 @@ public class DailyScheduler {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void executeScheduledTasks() {
-        final LocalDate date = dateTimeProvider.getCurrentDate();
 
+        if (!maintenanceMode.allowUpdate()) {
+            LOGGER.info("Scheduled tasks not allowed due to maintenance-mode");
+            return;
+        }
+
+        final LocalDate date = dateTimeProvider.getCurrentDate();
         for (final DailyScheduledTask task : scheduledTasks) {
             if (!dailySchedulerDao.acquireDailyTask(date, task.getClass(), Hosts.getLocalHostName())) {
                 continue;

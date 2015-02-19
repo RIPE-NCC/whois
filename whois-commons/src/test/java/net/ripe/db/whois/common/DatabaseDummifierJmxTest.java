@@ -11,35 +11,32 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public class DatabaseDummifierJmxTest {
-    final RpslObject mntnerWithPgp = RpslObject.parse("mntner: NINJA\n" +
+    final RpslObject mntnerWithPgp = RpslObject.parse(
+            "mntner: NINJA\n" +
             "auth: PGP-111\n" +
             "source: test");
 
-    final RpslObject mntnerAfterDummy = RpslObject.parse("mntner: NINJA\n" +
+    final RpslObject mntnerAfterDummy = RpslObject.parse(
+            "mntner: NINJA\n" +
             "auth: md5-pw mwhahaha\n" +
             "source: test");
 
-    final RpslObject mntnerWithMultiplePasswords = RpslObject.parse("mntner: NINJA\n" +
+    final RpslObject mntnerWithMultiplePasswords = RpslObject.parse(
+            "mntner: NINJA\n" +
             "auth: md5-pw mwhahaha\n" +
             "auth: md5-pw minime\n" +
             "source: test");
 
     @Test
-    public void hasPasswordTest() {
-        assertThat(DatabaseDummifierJmx.DatabaseObjectProcessor.hasPassword(mntnerAfterDummy), is(true));
-        assertThat(DatabaseDummifierJmx.DatabaseObjectProcessor.hasPassword(mntnerWithPgp), is(false));
-    }
-
-    @Test
-    public void replacePasswordTest() {
-        final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceWithMntnerNamePassword(mntnerAfterDummy);
+    public void replacePassword() {
+        final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceAuthAttributes(mntnerAfterDummy);
         final RpslAttribute authAttr = rpslObject.findAttribute(AttributeType.AUTH);
         assertThat(PasswordHelper.authenticateMd5Passwords(authAttr.getCleanValue().toString(), "NINJA"), is(true));
     }
 
     @Test
-    public void replaceMultiplePasswordTest() {
-        final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceWithMntnerNamePassword(mntnerWithMultiplePasswords);
+    public void replaceMultiplePasswords() {
+        final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceAuthAttributes(mntnerWithMultiplePasswords);
         assertThat(rpslObject.findAttributes(AttributeType.AUTH), hasSize(1));
 
         final RpslAttribute authAttr = rpslObject.findAttribute(AttributeType.AUTH);
@@ -47,9 +44,11 @@ public class DatabaseDummifierJmxTest {
     }
 
     @Test
-    public void replacePgpPasswordTest() {
-        final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceWithMntnerNamePassword(mntnerWithPgp);
-        final RpslAttribute authAttr = rpslObject.findAttribute(AttributeType.AUTH);
+    public void replacePasswordButNotPgp() {
+        final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceAuthAttributes(mntnerWithPgp);
+
+        assertThat(rpslObject.findAttributes(AttributeType.AUTH), hasSize(2));
+        final RpslAttribute authAttr = rpslObject.findAttributes(AttributeType.AUTH).get(0);
         assertThat(PasswordHelper.authenticateMd5Passwords(authAttr.getCleanValue().toString(), "NINJA"), is(true));
     }
 }

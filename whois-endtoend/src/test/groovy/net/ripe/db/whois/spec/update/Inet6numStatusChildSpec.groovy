@@ -2029,7 +2029,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/48")
     }
 
-    @Ignore("https://www.pivotaltracker.com/story/show/84370066")
+    @Ignore("Ref. Assignment-size can't be smaller than 48")
     def "create child AGGREGATED-BY-LIR, assignment-size = 0"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
@@ -2078,7 +2078,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
     }
 
-    @Ignore("https://www.pivotaltracker.com/story/show/84370066")
+    @Ignore("Ref. Assignment-size can't be smaller than 48")
     def "create child AGGREGATED-BY-LIR, assignment-size = 40"() {
         given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
@@ -2123,7 +2123,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
     }
 
-    @Ignore("https://www.pivotaltracker.com/story/show/84370066")
+    @Ignore("Ref. Assignment-size can't be smaller than 48")
     def "create child AGGREGATED-BY-LIR, assignment-size = 128"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
@@ -2171,7 +2171,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
     }
 
-    @Ignore("https://www.pivotaltracker.com/story/show/84370066")
+    @Ignore("Ref. Assignment-size can't be smaller than 48")
     def "create child AGGREGATED-BY-LIR, assignment-size > 128"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")

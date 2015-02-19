@@ -1,8 +1,6 @@
 package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.domain.IpRanges;
 import org.eclipse.jetty.http.HttpHeaders;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +18,11 @@ import java.util.Collections;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RemoteAddressFilterTest {
@@ -28,7 +30,6 @@ public class RemoteAddressFilterTest {
     @Mock HttpServletResponse response;
 
     @Mock FilterChain filterChain;
-    @Mock IpRanges ipRanges;
 
     @InjectMocks RemoteAddressFilter subject;
 
@@ -72,35 +73,23 @@ public class RemoteAddressFilterTest {
     }
 
     @Test
-    public void forward_header_with_zone_index() throws Exception {
-        when(request.getHeaders(HttpHeaders.X_FORWARDED_FOR)).thenReturn(Collections.enumeration(Lists.newArrayList("193.0.20.1%1024")));
-        when(request.getRemoteAddr()).thenReturn("10.0.0.0");
-
-        subject.doFilter(request, response, filterChain);
-
-        verify(filterChain).doFilter(argThat(new CheckRemoteAddress("193.0.20.1")), any(ServletResponse.class));
-    }
-
-    @Test
-    public void forward_header_ripe_range() throws Exception {
-        when(ipRanges.isTrusted(IpInterval.parse("193.0.20.1"))).thenReturn(true);
-        when(request.getHeaders(HttpHeaders.X_FORWARDED_FOR)).thenReturn(Collections.enumeration(Lists.newArrayList("74.125.136.99, 193.0.20.1")));
-        when(request.getRemoteAddr()).thenReturn("10.0.0.0");
-
-        subject.doFilter(request, response, filterChain);
-
-        verify(filterChain).doFilter(argThat(new CheckRemoteAddress("74.125.136.99")), any(ServletResponse.class));
-    }
-
-    @Test
     public void forward_headers_ripe_range() throws Exception {
-        when(ipRanges.isTrusted(IpInterval.parse("193.0.20.1"))).thenReturn(true);
         when(request.getHeaders(HttpHeaders.X_FORWARDED_FOR)).thenReturn(Collections.enumeration(Lists.newArrayList("74.125.136.99", "193.0.20.1")));
         when(request.getRemoteAddr()).thenReturn("10.0.0.0");
 
         subject.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(argThat(new CheckRemoteAddress("74.125.136.99")), any(ServletResponse.class));
+    }
+
+    @Test
+    public void forward_header_comma_separated_values() throws Exception {
+        when(request.getHeaders(HttpHeaders.X_FORWARDED_FOR)).thenReturn(Collections.enumeration(Lists.newArrayList("74.125.136.99, 193.0.20.1")));
+        when(request.getRemoteAddr()).thenReturn("10.0.0.0");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(argThat(new CheckRemoteAddress("193.0.20.1")), any(ServletResponse.class));
     }
 
     private static class CheckRemoteAddress extends ArgumentMatcher<ServletRequest> {

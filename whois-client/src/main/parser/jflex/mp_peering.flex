@@ -14,7 +14,9 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
 
 %%
 
+%public
 %class MpPeeringLexer
+%implements net.ripe.db.whois.common.rpsl.AttributeLexer
 
 %byaccj
 
@@ -35,13 +37,17 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
         this(r);
         this.yyparser = yyparser;
     }
+
+    /* assign value associated with current token to the external parser variable yylval. */
+    private void storeTokenValue() {
+        if ((this.yyparser != null) && (this.yyparser.yylval != null)) {
+            yyparser.yylval.sval = yytext();
+        }
+    }
 %}
 
-FLTRNAME       = FLTR-[A-Za-z0-9_-]*[A-Za-z0-9]
 ASNAME         = AS-[A-Za-z0-9_-]*[A-Za-z0-9]
-RSNAME         = RS-[A-Za-z0-9_-]*[A-Za-z0-9]
 PRNGNAME       = PRNG-[A-Za-z0-9_-]*[A-Za-z0-9]
-RTRSNAME       = RTRS-[A-Za-z0-9_-]*[A-Za-z0-9]
 INT            = [0-9]+
 QUAD           = [0-9A-Fa-f]{1,4}
 IPV4           = {INT}(\.{INT}){3}
@@ -90,7 +96,7 @@ EXCEPT      { return MpPeeringParser.KEYW_EXCEPT; }
 
 {DNAME} {
     ParserHelper.validateDomainNameLabel(yytext());
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return MpPeeringParser.TKN_DNS;
 }
 

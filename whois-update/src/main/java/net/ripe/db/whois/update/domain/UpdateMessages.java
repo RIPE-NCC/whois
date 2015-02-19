@@ -27,6 +27,7 @@ public final class UpdateMessages {
     }
 
     private UpdateMessages() {
+        // do not instantiate
     }
 
     public static Message invalidKeywordsFound(final CharSequence subject) {
@@ -254,11 +255,6 @@ public final class UpdateMessages {
     // NOTE: this errormessage is being used by webupdates.
     public static Message authorisationRequiredForSetStatus(final CharSequence status) {
         return new Message(Type.ERROR, "Setting status %s requires administrative authorisation", status);
-    }
-
-    // NOTE: this errormessage is being used by webupdates.
-    public static Message authorisationRequiredForFirstAttrChange(final AttributeType attributeType) {
-        return new Message(Type.ERROR, "Changing first \"%s:\" value requires administrative authorisation", attributeType);
     }
 
     // NOTE: this errormessage is being used by webupdates.

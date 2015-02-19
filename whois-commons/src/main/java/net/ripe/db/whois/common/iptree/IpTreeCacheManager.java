@@ -20,6 +20,7 @@ import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -93,7 +94,7 @@ public class IpTreeCacheManager {
                 try {
                     update(ipTreeUpdate);
                 } catch (IntersectingIntervalException e) {
-                    LOGGER.warn("Skipping intersecting entry in " + cacheEntry.sourceConfiguration.getSource() + ": " + e.getMessage());
+                    LOGGER.warn("Skipping intersecting entry in {}: {}", cacheEntry.sourceConfiguration.getSource(), e.getMessage());
                 } catch (RuntimeException e) {
                     LOGGER.warn("Unable to update object {}: {}", ipTreeUpdate, e.getMessage());
                 }
@@ -197,6 +198,8 @@ public class IpTreeCacheManager {
         if (cacheEntry.updateLock.tryAcquire()) {
             try {
                 update(sourceConfiguration.getJdbcTemplate(), cacheEntry);
+            } catch (DataAccessException e) {
+                LOGGER.warn("Unable to update {} due to {}", sourceConfiguration, e.getMessage());
             } finally {
                 cacheEntry.updateLock.release();
             }

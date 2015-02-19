@@ -164,7 +164,6 @@ ${result}
 
     def send(Message message) {
         message.from = whoisFixture.send(message.subject, message.body.stripIndent())
-        def str=""
         print """\
 >>>>> SEND MESSAGE
 
@@ -284,6 +283,11 @@ ${response}
     def noMoreMessages() {
         !whoisFixture.anyMoreMessages()
     }
+
+    def clearAllMails() {
+        whoisFixture.getMailSender().reset()
+    }
+
 
     def object(String string) {
         return RpslObject.parse(string.stripIndent()).toString()
