@@ -123,7 +123,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                 loadedObjects.put(objectId, (RpslObject) identifiable);
             } else {
                 if (queryBuilder.length() > 0) {
-                    // In MySQL, UNION ALL is much faster than IN
+                    // UNION ALL is much faster than IN
                     queryBuilder.append(" UNION ALL ");
                 }
 

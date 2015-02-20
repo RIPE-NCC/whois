@@ -18,6 +18,7 @@ class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
 
     // MySQL 5.1 bug workaround: if 64-bit integer has its msb bit set, the comparison fails
     // (proved to be working in mysql 5.5; we can drop the Long.toString() then
+    // TODO: [ES] fix for MariaDB
     @Override
     public int addToIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo, final RpslObject object, final String value) {
         final Ipv6Resource resource = Ipv6Resource.parse(objectInfo.getKey());
@@ -44,6 +45,7 @@ class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
 
         // MySQL 5.1 bug workaround: if 64-bit integer has its msb bit set, the comparison fails
         // (proved to be working in mysql 5.5; we can drop the Long.toString() then
+        // TODO: [ES] fix for MariaDB
         return jdbcTemplate.query(" " +
                 "SELECT l.object_id, l.object_type, l.pkey " +
                 "  FROM inet6num " +
