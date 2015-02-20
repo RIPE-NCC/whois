@@ -36,6 +36,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -77,8 +78,8 @@ public class TimestampAttributeGeneratorTest2 {
 
         final RpslObject updatedObject = subject.generateAttributes(null, autnum, update, updateContext);
 
-        validateAttributeType(updatedObject, AttributeType.CREATED, TIMESTAMP_STRING);
-        validateAttributeType(updatedObject, AttributeType.LAST_MODIFIED, TIMESTAMP_STRING);
+        assertThat(updatedObject.findAttribute(AttributeType.CREATED).getValue(), is(TIMESTAMP_STRING));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING));
         validateMessages();
     }
 
@@ -98,7 +99,9 @@ public class TimestampAttributeGeneratorTest2 {
 
         final RpslObject updatedObject = subject.generateAttributes(null, autnum, update, updateContext);
 
-        validateAttributeType(updatedObject, AttributeType.LAST_MODIFIED, TIMESTAMP_STRING);
+        assertThat(updatedObject.containsAttribute(AttributeType.CREATED), is(false));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING));
+
         validateMessages();
     }
 
@@ -144,15 +147,27 @@ public class TimestampAttributeGeneratorTest2 {
                 ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.CREATED));
     }
 
-    private void validateAttributeType(final RpslObject rpslObject, final AttributeType attributeType, final String... values) {
-        final List attributes = Lists.transform(Arrays.asList(values), new Function<String, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final String input) {
-                return new RpslAttribute(attributeType, input);
-            }
-        });
+    @Test
+    public void what_to_do_upon_delete() throws Exception {
+        final RpslObject autnum = RpslObject.parse(
+                "aut-num: AS3333\n" +
+                        "descr: ninj-AS\n" +
+                        "remarks:\n" +
+                        "remarks: My remark\n" +
+                        "created: " + TIMESTAMP_STRING_MODIFIED + "\n"+
+                        "last-modified:" + TIMESTAMP_STRING_MODIFIED + "\n"+
+                        "status: OTHER\n" +
+                        "mnt-by: TEST-MNT\n" +
+                        "source: RIPE\n");
 
-        assertThat(rpslObject.findAttributes(attributeType), is(attributes));
+
+        final RpslObject updatedObject = subject.generateAttributes(null, autnum, update, updateContext);
+
+        assertThat(updatedObject.containsAttribute(AttributeType.CREATED), is(false));
+        assertThat(updatedObject.containsAttribute(AttributeType.LAST_MODIFIED), is(false));
+        validateMessages(
+                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.CREATED),
+                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.LAST_MODIFIED));
     }
 
     private void validateMessages(final Message... messages) {
