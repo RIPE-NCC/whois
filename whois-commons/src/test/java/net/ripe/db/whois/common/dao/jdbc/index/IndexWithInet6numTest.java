@@ -41,6 +41,7 @@ public class IndexWithInet6numTest extends IndexTestBase {
         checkRows(0);
     }
 
+    // TODO: [ES] review for MariaDB
     @Test
     public void mysqlBotchesOn64bitSignedInteger() {
         databaseHelper.addObject("inet6num: 2001:db8:60::/48\nnetname: testnet");

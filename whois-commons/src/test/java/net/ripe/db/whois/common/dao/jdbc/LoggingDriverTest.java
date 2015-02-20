@@ -51,24 +51,24 @@ public class LoggingDriverTest {
 
     @Test
     public void acceptsUrl() {
-        assertTrue(subject.acceptsURL("jdbc:log:mysql"));
-        assertFalse(subject.acceptsURL("jdbc:mysql"));
+        assertTrue(subject.acceptsURL("jdbc:log:mariadb"));
+        assertFalse(subject.acceptsURL("jdbc:mariadb"));
         assertFalse(subject.acceptsURL(null));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void connect_no_driver() throws Exception {
-        subject.connect("jdbc:log:mysql://localhost;logger=" + TestLoggingHandler.class.getName(), new Properties());
+        subject.connect("jdbc:log:mariadb://localhost;logger=" + TestLoggingHandler.class.getName(), new Properties());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void connect_unknown_driver() throws Exception {
-        connection = subject.connect("jdbc:log:mysql://localhost;driver=SomeUnknownDriver;logger=" + TestLoggingHandler.class.getName(), new Properties());
+        connection = subject.connect("jdbc:log:mariadb://localhost;driver=SomeUnknownDriver;logger=" + TestLoggingHandler.class.getName(), new Properties());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void connect_invalid_driver() throws Exception {
-        connection = subject.connect("jdbc:log:mysql://localhost;driver=java.lang.String;logger=" + TestLoggingHandler.class.getName(), new Properties());
+        connection = subject.connect("jdbc:log:mariadb://localhost;driver=java.lang.String;logger=" + TestLoggingHandler.class.getName(), new Properties());
     }
 
     public void connect_unsupported_url() throws SQLException {
