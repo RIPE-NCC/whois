@@ -152,7 +152,7 @@ public class LoggingDriver implements Driver {
 
     @Override
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
-        return DriverManager.getDriver(getTarget(url).getUrl()).getPropertyInfo(url, info);
+        throw new UnsupportedOperationException("not implemented in MariaDB driver");
     }
 
     @Override
