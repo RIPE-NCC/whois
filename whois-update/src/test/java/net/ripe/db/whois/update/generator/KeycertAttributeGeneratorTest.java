@@ -10,7 +10,6 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Update;
-import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
@@ -27,10 +26,6 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -41,6 +36,8 @@ public class KeycertAttributeGeneratorTest {
     @Mock private Maintainers maintainers;
     @Mock private RpslObjectDao rpslObjectDao;
     @InjectMocks private KeycertAttributeGenerator subject;
+
+    @InjectMocks private AttributeGeneratorTestHelper testHelper;
 
     @Test
     public void generate_attributes_for_x509_certificate() {
@@ -305,13 +302,6 @@ public class KeycertAttributeGeneratorTest {
     }
 
     private void validateMessages(final Message... messages) {
-        if (messages.length == 0) {
-            verify(updateContext, never()).addMessage(any(UpdateContainer.class), any(Message.class));
-        } else {
-            verify(updateContext, times(messages.length)).addMessage(any(UpdateContainer.class), any(Message.class));
-            for (final Message message : messages) {
-                verify(updateContext).addMessage(update, message);
-            }
-        }
+        testHelper.validateMessages(messages);
     }
 }
