@@ -18,7 +18,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
     private final DateTimeProvider dateTimeProvider;
 
     @Autowired
-    TimestampAttributeGenerator( DateTimeProvider dateTimeProvider ) {
+    TimestampAttributeGenerator( final DateTimeProvider dateTimeProvider ) {
         this.dateTimeProvider = dateTimeProvider;
     }
 
@@ -28,7 +28,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
 
         if (updateContext.getAction(update) == Action.CREATE || updateContext.getAction(update) == Action.MODIFY) {
             DateTime now = dateTimeProvider.getCurrentUtcTime();
-            String timestampString = now.toString(ISODateTimeFormat.dateTimeNoMillis());
+            String timestampString = now.toString(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC));
 
             if (updateContext.getAction(update) == Action.CREATE) {
                 adjusted = cleanupAttributeType(update, updateContext, updatedObject, AttributeType.CREATED, timestampString);
