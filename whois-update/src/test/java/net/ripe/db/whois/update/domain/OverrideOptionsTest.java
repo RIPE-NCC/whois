@@ -117,6 +117,11 @@ public class OverrideOptionsTest {
         verify(updateContext).addMessage(update, UpdateMessages.overrideOptionInvalid("unknown=123"));
     }
 
+    @Test
+    public void override_last_modified() {
+        useCredentialWithRemarks("{last-modified=false}");
+    }
+
     private void useCredentialWithRemarks(final String remarks) {
         when(update.getCredentials()).thenReturn(new Credentials(Collections.<Credential>singleton(OverrideCredential.parse("user,pw," + remarks))));
     }
