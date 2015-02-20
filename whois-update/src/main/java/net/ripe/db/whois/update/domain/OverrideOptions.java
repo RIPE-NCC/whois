@@ -13,14 +13,16 @@ public class OverrideOptions {
     private static final Splitter OPTION_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
     private static final Pattern OPTION_PATTERN = Pattern.compile("(.+)=(.+)");
 
-    public static final OverrideOptions NONE = new OverrideOptions(null, null);
+    public static final OverrideOptions NONE = new OverrideOptions(null, null, null);
 
     private final Integer objectId;
     private final Boolean notify;
+    private final Boolean lastModified;
 
-    OverrideOptions(final Integer objectId, final Boolean notify) {
+    OverrideOptions(final Integer objectId, final Boolean notify, final Boolean lastModified) {
         this.objectId = objectId;
         this.notify = notify;
+        this.lastModified = lastModified;
     }
 
     public boolean isObjectIdOverride() {
@@ -35,8 +37,14 @@ public class OverrideOptions {
         return notify != null;
     }
 
+    // TODO: [ES] possibly null
     public boolean isNotify() {
         return notify;
+    }
+
+    // TODO: [ES] possibly null
+    public boolean isLastModified() {
+        return lastModified;
     }
 
     public static OverrideOptions parse(final Update update, final UpdateContext updateContext) {
@@ -60,6 +68,7 @@ public class OverrideOptions {
         final String options = optionMatcher.group(1);
         Integer objectId = null;
         Boolean notify = null;
+        Boolean lastModified = null;
 
         for (final String option : OPTION_SPLITTER.split(options)) {
             final Matcher matcher = OPTION_PATTERN.matcher(option);
@@ -70,12 +79,18 @@ public class OverrideOptions {
                 final String value = matcher.group(2);
 
                 try {
-                    if ("oid".equals(key)) {
-                        objectId = Integer.parseInt(value);
-                    } else if ("notify".equals(key)) {
-                        notify = Boolean.parseBoolean(value);
-                    } else {
-                        updateContext.addMessage(update, UpdateMessages.overrideOptionInvalid(option));
+                    switch (key) {
+                        case "oid":
+                            objectId = Integer.parseInt(value);
+                            break;
+                        case "notify":
+                            notify = Boolean.parseBoolean(value);
+                            break;
+                        case "last-modified":
+                            lastModified = Boolean.parseBoolean(value);
+                            break;
+                        default:
+                            updateContext.addMessage(update, UpdateMessages.overrideOptionInvalid(option));
                     }
                 } catch (RuntimeException e) {
                     updateContext.addMessage(update, UpdateMessages.overrideOptionInvalid(option));
@@ -83,6 +98,6 @@ public class OverrideOptions {
             }
         }
 
-        return new OverrideOptions(objectId, notify);
+        return new OverrideOptions(objectId, notify, lastModified);
     }
 }
