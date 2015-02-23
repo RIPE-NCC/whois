@@ -52,6 +52,9 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
     }
 
     private void cleanupTimestampAttributes( final RpslObjectBuilder builder, final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final boolean withWarnings ) {
+        final Action action = updateContext.getAction(update);
+        Preconditions.checkArgument(action == CREATE || action == MODIFY || action == DELETE);
+
         if( updatedObject.containsAttribute(AttributeType.CREATED)) {
             builder.removeAttributeType(CREATED);
             if( withWarnings ) {
@@ -85,7 +88,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
             builder.addAttributeSorted(new RpslAttribute(CREATED, createdString));
             builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
         } else  if( action == DELETE ) {
-            // for delete we just ignore what was passed in and pass on the correctlt stored version
+            // for delete we just ignore what was passed in and make sure object looks like stored version
             if( originalObject.containsAttribute(CREATED)) {
                 String createdString = originalObject.getValueForAttribute(CREATED).toString();
                 builder.addAttributeSorted(new RpslAttribute(CREATED, createdString));

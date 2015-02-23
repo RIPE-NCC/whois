@@ -61,7 +61,9 @@ public class TimestampAttributeGeneratorTest {
         testDateTimeProvider.setTime(actionTime());
         when(updateContext.getAction(update)).thenReturn(CREATE);
 
-        final RpslObject updatedObject = subject.generateAttributes(null, TEMPLATE, update, updateContext);
+        final RpslObject input = TEMPLATE;
+
+        final RpslObject updatedObject = subject.generateAttributes(null, input, update, updateContext);
 
         assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_ACTION));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
@@ -96,7 +98,10 @@ public class TimestampAttributeGeneratorTest {
         testDateTimeProvider.setTime(actionTime());
         when(updateContext.getAction(update)).thenReturn(MODIFY);
 
-        final RpslObject updatedObject = subject.generateAttributes(TEMPLATE, TEMPLATE, update, updateContext);
+        final RpslObject original = TEMPLATE;
+        final RpslObject input = TEMPLATE;
+
+        final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
         assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_ZERO));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
@@ -113,8 +118,9 @@ public class TimestampAttributeGeneratorTest {
                 .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
                 .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
+        final RpslObject input = TEMPLATE;
 
-        final RpslObject updatedObject = subject.generateAttributes(original, TEMPLATE, update, updateContext);
+        final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
         assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
@@ -209,8 +215,9 @@ public class TimestampAttributeGeneratorTest {
                 .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
                 .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
+        final RpslObject input = TEMPLATE;
 
-        final RpslObject updatedObject = subject.generateAttributes(original, TEMPLATE, update, updateContext);
+        final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
         assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
