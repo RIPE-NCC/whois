@@ -27,7 +27,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class TimestampAttributeGeneratorTest {
     final private static DateTimeFormatter ISO_FORMATER = ISODateTimeFormat.dateTimeNoMillis();
@@ -41,6 +40,7 @@ public class TimestampAttributeGeneratorTest {
     private TestDateTimeProvider testDateTimeProvider = new TestDateTimeProvider();
     private TimestampAttributeGenerator subject = new TimestampAttributeGenerator(testDateTimeProvider);
 
+    private static final String TIMESTAMP_STRING_ZERO = "2000-01-01T00:00:00Z";
     private static final String TIMESTAMP_STRING_PAST = "2014-01-26T11:44:59Z";
     private static final String TIMESTAMP_STRING_ACTION = "2015-02-27T12:45:00Z";
     private static final String TIMESTAMP_STRING_OTHER = "2016-02-27T12:45:00Z";
@@ -100,12 +100,10 @@ public class TimestampAttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(TEMPLATE, TEMPLATE, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_ACTION));
+        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_ZERO));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
-        testHelper.validateMessages(
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED),
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
+        testHelper.validateMessages();
     }
 
     @Test
@@ -123,7 +121,8 @@ public class TimestampAttributeGeneratorTest {
         assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
-        testHelper.validateMessages(ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED));
+        testHelper.validateMessages();
+
     }
 
     @Test
@@ -172,12 +171,10 @@ public class TimestampAttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
-        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_OTHER));
+        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_OTHER));
 
-        testHelper.validateMessages(
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED),
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
+        testHelper.validateMessages();
     }
 
     @Test
@@ -191,14 +188,17 @@ public class TimestampAttributeGeneratorTest {
                 .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
 
-        final RpslObject updatedObject = subject.generateAttributes(original, original, update, updateContext);
+        final RpslObject input = new RpslObjectBuilder(TEMPLATE)
+                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .get();
+
+        final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
         assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
 
-        testHelper.validateMessages(
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED),
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
+        testHelper.validateMessages();
     }
 
     @Test
@@ -214,11 +214,9 @@ public class TimestampAttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(original, TEMPLATE, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
-        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.containsAttribute(CREATED), is(false));
+        assertThat(updatedObject.containsAttribute(LAST_MODIFIED), is(false));
 
-        testHelper.validateMessages(
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED),
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
+        testHelper.validateMessages();
     }
 }
