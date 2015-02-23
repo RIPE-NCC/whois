@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.generator;
 
+import com.google.common.base.Preconditions;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -38,43 +39,61 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
 
         final Action action = updateContext.getAction(update);
         if (action == CREATE || action == MODIFY ) {
-            cleanupTimestampAttributes(builder, updatedObject, update, updateContext);
+            cleanupTimestampAttributes(builder, updatedObject, update, updateContext, true);
+        } else if( action == DELETE) {
+            cleanupTimestampAttributes(builder, updatedObject, update, updateContext, false);
+        }
 
+        if (action == CREATE || action == MODIFY || action == DELETE) {
             generateTimestampAttributes(builder, originalObject, updatedObject, update, updateContext);
-
-        } else if (action == DELETE) {
-            // do nothing for now
         }
 
         return builder.get();
     }
 
-    private void cleanupTimestampAttributes( final RpslObjectBuilder builder, final RpslObject updatedObject, final Update update, final UpdateContext updateContext ) {
+    private void cleanupTimestampAttributes( final RpslObjectBuilder builder, final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final boolean withWarnings ) {
         if( updatedObject.containsAttribute(AttributeType.CREATED)) {
             builder.removeAttributeType(CREATED);
-            updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED));
+            if( withWarnings ) {
+                updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED));
+            }
         }
         if( updatedObject.containsAttribute(LAST_MODIFIED)) {
             builder.removeAttributeType(LAST_MODIFIED);
-            updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
+            if( withWarnings ) {
+                updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
+            }
         }
     }
 
     private void generateTimestampAttributes( final RpslObjectBuilder builder, final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext ) {
+        final Action action = updateContext.getAction(update);
+
+        Preconditions.checkArgument(action == CREATE || action == MODIFY || action == DELETE);
+
         final DateTime now = dateTimeProvider.getCurrentUtcTime();
         final String nowString = now.toString(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC));
 
-        final Action action = updateContext.getAction(update);
         if (action == CREATE) {
             builder.addAttributeSorted(new RpslAttribute(CREATED, nowString));
-        } else if( action == MODIFY ) {
+            builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
+        } else  if( action == MODIFY ) {
             String createdString = BEGINNING_OF_TIMES;
             if( originalObject.containsAttribute(CREATED)) {
                 createdString = originalObject.getValueForAttribute(CREATED).toString();
             }
             builder.addAttributeSorted(new RpslAttribute(CREATED, createdString));
+            builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
+        } else  if( action == DELETE ) {
+            // for delete we just ignore what was passed in and pass on the correctlt stored version
+            if( originalObject.containsAttribute(CREATED)) {
+                String createdString = originalObject.getValueForAttribute(CREATED).toString();
+                builder.addAttributeSorted(new RpslAttribute(CREATED, createdString));
+            }
+            if( originalObject.containsAttribute(LAST_MODIFIED)) {
+                String lastModifiedString = originalObject.getValueForAttribute(CREATED).toString();
+                builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, lastModifiedString));
+            }
         }
-        builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
-
     }
 }
