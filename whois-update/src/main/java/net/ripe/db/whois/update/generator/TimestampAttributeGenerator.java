@@ -94,7 +94,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
                 builder.addAttributeSorted(new RpslAttribute(CREATED, createdString));
             }
             if( originalObject.containsAttribute(LAST_MODIFIED)) {
-                String lastModifiedString = originalObject.getValueForAttribute(CREATED).toString();
+                String lastModifiedString = originalObject.getValueForAttribute(LAST_MODIFIED).toString();
                 builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, lastModifiedString));
             }
         }
