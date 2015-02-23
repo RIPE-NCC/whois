@@ -35,11 +35,11 @@ public class TimestampAttributeGeneratorTest2 {
     @Mock private Update update;
     @Mock private UpdateContext updateContext;
     @Mock private RpslObjectDao rpslObjectDao;
-    private TestDateTimeProvider testDateTimeProvider = new TestDateTimeProvider();
-    @InjectMocks private TimestampAttributeGenerator subject = new TimestampAttributeGenerator(testDateTimeProvider);
+    @Mock  private TestDateTimeProvider testDateTimeProvider = new TestDateTimeProvider();
+    @InjectMocks private TimestampAttributeGenerator subject; // = new TimestampAttributeGenerator(testDateTimeProvider);
 
     private static String TIMESTAMP_STRING = "2015-02-27T12:45:00Z";
-    private static String TIMESTAMP_STRING_MODIFIED = "2014-01-26T11:44:59Z";
+    private static String TIMESTAMP_STRING_OTHER = "2014-01-26T11:44:59Z";
 
     private DateTime time() {
         DateTimeFormatter parser = ISODateTimeFormat.dateTimeNoMillis();
@@ -98,8 +98,8 @@ public class TimestampAttributeGeneratorTest2 {
                         "descr: ninj-AS\n" +
                         "remarks:\n" +
                         "remarks: My remark\n" +
-                        "created: " + TIMESTAMP_STRING_MODIFIED + "\n"+
-                        "last-modified:" + TIMESTAMP_STRING_MODIFIED + "\n"+
+                        "created: " + TIMESTAMP_STRING_OTHER + "\n"+
+                        "last-modified:" + TIMESTAMP_STRING_OTHER + "\n"+
                         "status: OTHER\n" +
                         "mnt-by: TEST-MNT\n" +
                         "source: RIPE\n");
@@ -120,7 +120,7 @@ public class TimestampAttributeGeneratorTest2 {
                         "descr: ninj-AS\n" +
                         "remarks:\n" +
                         "remarks: My remark\n" +
-                        "created: " + TIMESTAMP_STRING_MODIFIED + "\n"+
+                        "created: " + TIMESTAMP_STRING_OTHER + "\n"+
                         "status: OTHER\n" +
                         "mnt-by: TEST-MNT\n" +
                         "source: RIPE\n");
@@ -140,8 +140,8 @@ public class TimestampAttributeGeneratorTest2 {
                         "descr: ninj-AS\n" +
                         "remarks:\n" +
                         "remarks: My remark\n" +
-                        "created: " + TIMESTAMP_STRING_MODIFIED + "\n"+
-                        "last-modified:" + TIMESTAMP_STRING_MODIFIED + "\n"+
+                        "created: " + TIMESTAMP_STRING_OTHER + "\n"+
+                        "last-modified:" + TIMESTAMP_STRING_OTHER + "\n"+
                         "status: OTHER\n" +
                         "mnt-by: TEST-MNT\n" +
                         "source: RIPE\n");
@@ -149,8 +149,8 @@ public class TimestampAttributeGeneratorTest2 {
 
         final RpslObject updatedObject = subject.generateAttributes(null, autnum, update, updateContext);
 
-        assertThat(updatedObject.containsAttribute(AttributeType.CREATED), is(false));
-        assertThat(updatedObject.containsAttribute(AttributeType.LAST_MODIFIED), is(false));
+        assertThat(updatedObject.containsAttribute(AttributeType.CREATED), is(true));
+        assertThat(updatedObject.containsAttribute(AttributeType.LAST_MODIFIED), is(true));
         validateMessages(
                 ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.CREATED),
                 ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.LAST_MODIFIED));
