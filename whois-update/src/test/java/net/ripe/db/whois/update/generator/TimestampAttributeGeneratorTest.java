@@ -103,7 +103,7 @@ public class TimestampAttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_ZERO));
+        assertThat(updatedObject.containsAttribute(CREATED), is(false));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
         testHelper.validateMessages();
