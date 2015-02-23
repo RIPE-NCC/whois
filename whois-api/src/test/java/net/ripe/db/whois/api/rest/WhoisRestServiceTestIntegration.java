@@ -25,6 +25,7 @@ import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
+import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
@@ -42,6 +43,9 @@ import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -187,6 +191,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private MailSenderStub mailSenderStub;
+    @Autowired private TestDateTimeProvider dateTimeProvider;
 
     @Before
     public void setup() {
@@ -1354,6 +1359,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_succeeds() throws Exception {
+        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
@@ -1362,7 +1369,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
 
-        assertThat(object.getAttributes(), contains(
+        assertThat(object.getAttributes(), containsInAnyOrder(
                 new Attribute("person", "Pauleth Palthen"),
                 new Attribute("address", "Singel 258"),
                 new Attribute("phone", "+31-1234567890"),
@@ -1371,6 +1378,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("nic-hdl", "PP1-TEST"),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
                 new Attribute("remarks", "remark"),
+                new Attribute("created", currentDate),
+                new Attribute("last-modified", currentDate),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
@@ -1764,6 +1773,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_person_xml_text() {
+        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_JSON), String.class);
@@ -1790,16 +1800,20 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "                <attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>\n" +
                 "                <attribute name=\"changed\" value=\"noreply@ripe.net 20120101\"/>\n" +
                 "                <attribute name=\"remarks\" value=\"remark\"/>\n" +
+                "                <attribute name=\"created\" value=\"%s\"/>\n" +
+                "                <attribute name=\"last-modified\" value=\"%s\"/>\n" +
                 "                <attribute name=\"source\" value=\"TEST\"/>\n" +
                 "            </attributes>\n" +
                 "        </object>\n" +
                 "    </objects>\n" +
                 "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
-                "</whois-resources>", getPort())));
+                "</whois-resources>", getPort(), currentDate, currentDate)));
     }
 
     @Test
     public void create_person_json_text() {
+        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_JSON), String.class);
@@ -1857,6 +1871,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "          \"name\" : \"remarks\",\n" +
                 "          \"value\" : \"remark\"\n" +
                 "        }, {\n" +
+                "          \"name\" : \"created\",\n" +
+                "          \"value\" : \"%s\"\n" +
+                "        }, {\n" +
+                "          \"name\" : \"last-modified\",\n" +
+                "          \"value\" : \"%s\"\n" +
+                "        }, {\n" +
                 "          \"name\" : \"source\",\n" +
                 "          \"value\" : \"TEST\"\n" +
                 "        } ]\n" +
@@ -1867,7 +1887,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
-                "}", getPort())));
+                "}", getPort(), currentDate, currentDate)));
     }
 
     // TODO: [ES] no warning on conversion of \u03A3 to ? in latin-1 charset
@@ -2640,6 +2660,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void update_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
+        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
 
         WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
@@ -2658,6 +2679,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("remarks", "updated"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("last-modified", currentDate),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
@@ -2814,6 +2836,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "  }\n" +
                 "}";
 
+        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
         final String response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .put(Entity.entity(update, MediaType.APPLICATION_JSON), String.class);
@@ -2881,6 +2904,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "          \"name\" : \"changed\",\n" +
                 "          \"value\" : \"dbtest@ripe.net 20120101\"\n" +
                 "        }, {\n" +
+                "          \"name\" : \"last-modified\",\n" +
+                "          \"value\" : \"%s\"\n" +
+                "        }, {\n" +
                 "          \"name\" : \"source\",\n" +
                 "          \"value\" : \"TEST\"\n" +
                 "        } ]\n" +
@@ -2891,7 +2917,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
-                "}", getPort())));
+                "}", getPort(), currentDate)));
     }
 
     @Test
@@ -3060,7 +3086,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
+        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -3079,6 +3106,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("remarks", "updated"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("last-modified", currentDate),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
@@ -3276,7 +3304,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisObject.getAttributes().get(7).getValue(), is("        remark1 # comment1\n" +
                 "                remark2 # comment2\n" +
                 "                remark3 # comment3"));
-        assertThat(whoisObject.getAttributes().get(9).getValue(), is("         +30 123"));
+        assertThat(whoisObject.getAttributes().get(10).getValue(), is("         +30 123"));
     }
 
     @Test
