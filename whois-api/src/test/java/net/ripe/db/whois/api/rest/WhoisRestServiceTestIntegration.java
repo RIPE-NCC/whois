@@ -1774,7 +1774,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_person_xml_text() {
-        final DateTime currentUtcTime = dateTimeProvider.getCurrentUtcTime();
+        final DateTime currentUtcTime = DateTime.now(DateTimeZone.UTC);
         final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(currentUtcTime);
         when(dateTimeProvider.getCurrentUtcTime()).thenReturn(currentUtcTime);
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
