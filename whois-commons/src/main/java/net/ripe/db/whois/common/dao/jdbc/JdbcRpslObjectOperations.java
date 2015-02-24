@@ -410,6 +410,7 @@ public class JdbcRpslObjectOperations {
         }
     }
 
+    @CheckForNull
     public static Integer getAgeOfExactOrNextExistingSerial(final DateTimeProvider dateTimeProvider, final JdbcTemplate jdbcTemplate, final int serialId) {
         try {
             //[TP] this is for NRTM to cover some cases where there are gaps in the serials table.

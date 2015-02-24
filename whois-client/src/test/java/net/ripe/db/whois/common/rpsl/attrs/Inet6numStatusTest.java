@@ -270,6 +270,8 @@ public class Inet6numStatusTest {
         try {
             Inet6numStatus.getStatusFor(CIString.ciString("AGGREGATED-BY-RIR"));
             fail();
-        } catch (Exception expected) {}
+        } catch (IllegalArgumentException expected) {
+            assertThat(expected.getMessage(), is("AGGREGATED-BY-RIR is not a valid inet6numstatus"));
+        }
     }
 }

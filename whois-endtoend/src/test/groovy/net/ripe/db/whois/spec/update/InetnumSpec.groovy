@@ -4926,6 +4926,76 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "LIR-PARTITIONED PA")
     }
 
+    def "delete inetnum with cidr notation not supported"() {
+        given:
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
+
+        syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.207.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                org:          ORG-LIR1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: hm
+                password: lir
+                password: end
+                password: owner3
+                """.stripIndent()
+        )
+        expect:
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
+        queryObject("-r -T inetnum 192.168.200/21", "inetnum", "192.168.200.0 - 192.168.207.255")
+
+        when:
+        syncUpdate("""\
+                inetnum:      192.168.200/21
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                org:          ORG-LIR1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                DELETE:       changing status
+
+                password: lir
+                """.stripIndent()
+        )
+        then:
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
+
+        when:
+        syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.207.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                org:          ORG-LIR1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                DELETE:       changing status
+
+                password: lir
+                """.stripIndent()
+        )
+        then:
+        queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
+    }
+
     def "modify PI assignment, pw supplied, add remarks:"() {
       given:
         syncUpdate(getTransient("ASSPI") + "password: hm")
@@ -5262,7 +5332,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -i mu LIR2-MNT", "inetnum", "192.168.128.0 - 192.168.255.255")
     }
 
-    //ToDo delete this test when we deprecate EARLY-REGISTRATION status
+    // TODO delete this test when we deprecate EARLY-REGISTRATION status
     def "modify EARLY-REGISTRATION, mnt-by RS and user, change mnt-lower"() {
       given:
         syncUpdate(getTransient("EARLY-USER") + "override: denis,override1")
@@ -5305,7 +5375,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
     }
 
-    //ToDo delete this test when we deprecate EARLY-REGISTRATION status
+    // TODO delete this test when we deprecate EARLY-REGISTRATION status
     def "modify EARLY-REGISTRATION, mnt-by user only, change mnt-lower"() {
         given:
         syncUpdate(getTransient("EARLY-USER-ONLY") + "override: denis,override1")

@@ -156,6 +156,9 @@ public class SingleUpdateHandler {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
+            if( authenticator.doesTypeSupportPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) ) {
+                pendingUpdateHandler.cleanup(preparedUpdate, updateContext);
+            }
         }
     }
 

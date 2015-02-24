@@ -91,7 +91,7 @@ private int yylex() {
 		yyl_return = lexer.yylex();
 	}
 	catch (java.io.IOException e) {
-		ParserHelper.log("IO error :" + e);
+		ParserHelper.log(e);
 	}
 	return yyl_return;
 }

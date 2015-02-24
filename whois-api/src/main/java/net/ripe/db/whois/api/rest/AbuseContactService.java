@@ -42,6 +42,7 @@ public class AbuseContactService {
         this.accessControlListManager = accessControlListManager;
     }
 
+    //TODO [TP]: in case abuse contact is empty we should return 404 instead of 200 + empty string!
     @GET
     @Path("/{key:.*}")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})

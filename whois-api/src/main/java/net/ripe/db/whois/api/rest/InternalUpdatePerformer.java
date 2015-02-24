@@ -83,9 +83,6 @@ public class InternalUpdatePerformer {
     public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
                                   final String content, final Keyword keyword, final HttpServletRequest request) {
 
-        logHttpHeaders(loggerContext, request);
-        logHttpUri(loggerContext, request);
-
         loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
 
         final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
@@ -226,7 +223,16 @@ public class InternalUpdatePerformer {
         }
     }
 
+    public void logInfo(final String message) {
+        loggerContext.log(new Message(Messages.Type.INFO, message));
+    }
+
+    public void logWarning(final String message) {
+        loggerContext.log(new Message(Messages.Type.WARNING, message));
+    }
+
     // TODO: [AH] format logging of this properly (e.g. add proper global message support for headers and request url
+    // TODO: [ES] remove static, use internal logging context which has been initialised properly
     public static void logHttpHeaders(final LoggerContext loggerContext, final HttpServletRequest request) {
         final Enumeration<String> names = request.getHeaderNames();
         while (names.hasMoreElements()) {

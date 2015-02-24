@@ -13,7 +13,9 @@ public class Hosts {
         if (StringUtils.isBlank(hostName)) {
             try {
                 hostName = InetAddress.getLocalHost().getHostName();
-            } catch (UnknownHostException e) {}
+            } catch (UnknownHostException ignored) {
+                // ignored
+            }
 
             if (StringUtils.isBlank(hostName)) {
                 System.err.println("Acquiring HOSTNAME failed! Try\nexport HOSTNAME=$(hostname -s)\n");

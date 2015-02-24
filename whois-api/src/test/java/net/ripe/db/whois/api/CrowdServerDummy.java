@@ -137,7 +137,7 @@ public class CrowdServerDummy implements Stub {
         this.port = server.getConnectors()[0].getLocalPort();
 
         final String restUrl = String.format("http://localhost:%s/crowd", getPort());
-        LOGGER.info("Crowd dummy server restUrl: "+restUrl);
+        LOGGER.info("Crowd dummy server restUrl: {}", restUrl);
         ReflectionTestUtils.setField(crowdClient, "restUrl", restUrl);
     }
 

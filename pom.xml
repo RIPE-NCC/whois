@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.77-SNAPSHOT</version>
+    <version>1.79-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -23,11 +23,11 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring.version>3.2.10.RELEASE</spring.version>
+        <spring.version>3.2.13.RELEASE</spring.version>
         <aspectj.version>1.7.4</aspectj.version>
         <java.version>1.7</java.version>
-        <jersey.version>2.11</jersey.version>
-        <lucene.version>4.10.0</lucene.version>
+        <jersey.version>2.16</jersey.version>
+        <lucene.version>4.10.3</lucene.version>
         <jetty.version>8.1.16.v20140903</jetty.version>
         <whois.main>OVERRIDE</whois.main>
         <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
@@ -363,6 +363,11 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-webapp</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-jmx</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
 
@@ -731,16 +736,17 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.7</version>
                 <configuration>
-                    <showWeaveInfo>false</showWeaveInfo>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <Xlint>warning</Xlint>
                     <complianceLevel>${java.version}</complianceLevel>
+                    <Xlint>warning</Xlint>
+                    <verbose>true</verbose>
+                    <forceAjcCompile>true</forceAjcCompile>
+                    <showWeaveInfo>true</showWeaveInfo>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <verbose>false</verbose>
-                    <warn>true</warn>
+                    <warn>none</warn>
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>

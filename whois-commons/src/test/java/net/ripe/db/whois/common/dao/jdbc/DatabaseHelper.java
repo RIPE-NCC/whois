@@ -405,7 +405,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         try {
             Object bean = applicationContext.getBean("objectLoader");
             bean.getClass().getMethod("claimIds", RpslObject.class).invoke(bean, rpslObject);
-            LOGGER.info("Claimed IDs for " + rpslObject.getFormattedKey());
+            LOGGER.info("Claimed IDs for {}", rpslObject.getFormattedKey());
         } catch (Exception ignored) {}
     }
 
