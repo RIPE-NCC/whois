@@ -49,7 +49,6 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.kubek2k.springockito.annotations.ReplaceWithMock;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -94,7 +93,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
 
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
 @Category(IntegrationTest.class)
@@ -193,7 +191,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private MailSenderStub mailSenderStub;
-    @Autowired @ReplaceWithMock private TestDateTimeProvider dateTimeProvider;
+    @Autowired private TestDateTimeProvider dateTimeProvider;
 
     @Before
     public void setup() {
@@ -203,6 +201,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.updateObject(TEST_ROLE);
         maintenanceMode.set("FULL,FULL");
+        dateTimeProvider.setTime(new DateTime());
     }
 
     // lookup
@@ -1775,9 +1774,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_person_xml_text() {
-        final DateTime currentUtcTime = DateTime.now(DateTimeZone.UTC);
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(currentUtcTime);
-        when(dateTimeProvider.getCurrentUtcTime()).thenReturn(currentUtcTime);
+        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_JSON), String.class);
@@ -2664,11 +2661,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void update_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
-        final DateTime currentUtcTime = DateTime.now(DateTimeZone.UTC);
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(currentUtcTime);
-        when(dateTimeProvider.getCurrentUtcTime()).thenReturn(currentUtcTime);
+        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
 
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -3092,9 +3087,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        final DateTime currentUtcTime = DateTime.now(DateTimeZone.UTC);
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(currentUtcTime);
-        when(dateTimeProvider.getCurrentUtcTime()).thenReturn(currentUtcTime);
+        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
