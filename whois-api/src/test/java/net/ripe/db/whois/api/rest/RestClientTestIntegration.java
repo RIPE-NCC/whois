@@ -633,7 +633,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .addParam("password", "test")
                 .create(person);
 
-        assertThat(created, is(person));
+        final RpslObject forComparison = new RpslObjectBuilder(person).remove(6).get();
+        assertThat(created.toString(), containsString(forComparison.toString()));
     }
 
     @Test
