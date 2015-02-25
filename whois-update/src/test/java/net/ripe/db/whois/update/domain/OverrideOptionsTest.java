@@ -119,7 +119,7 @@ public class OverrideOptionsTest {
 
     @Test
     public void override_last_modified() {
-        useCredentialWithRemarks("{last-modified=false}");
+        useCredentialWithRemarks("{skip-last-modified=false}");
     }
 
     private void useCredentialWithRemarks(final String remarks) {

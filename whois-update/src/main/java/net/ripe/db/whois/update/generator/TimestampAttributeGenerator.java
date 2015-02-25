@@ -1,13 +1,13 @@
 package net.ripe.db.whois.update.generator;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.OverrideOptions;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import org.joda.time.DateTime;
@@ -78,7 +78,16 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
             if (originalObject.containsAttribute(CREATED)) {
                 builder.addAttributeSorted(new RpslAttribute(CREATED, originalObject.getValueForAttribute(CREATED)));
             }
-            builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
+
+            final OverrideOptions overrideOptions = updateContext.getPreparedUpdate(update).getOverrideOptions();
+            if (overrideOptions.isSkipLastModified()) {
+                if (originalObject.containsAttribute(LAST_MODIFIED)) {
+                    builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, originalObject.getValueForAttribute(LAST_MODIFIED)));
+                }
+            } else {
+                builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
+            }
+
         } else if (action == DELETE) {
             // for delete we just ignore what was passed in and make sure object looks like stored version
             if (originalObject.containsAttribute(CREATED)) {
