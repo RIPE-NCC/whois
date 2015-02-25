@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Action;
-import net.ripe.db.whois.update.domain.OverrideOptions;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import org.joda.time.DateTime;
@@ -70,32 +69,39 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
         final DateTime now = dateTimeProvider.getCurrentUtcTime();
         final String nowString = now.toString(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC));
 
-        if (action == CREATE) {
-            builder.addAttributeSorted(new RpslAttribute(CREATED, nowString));
-            builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
-        } else  if (action == MODIFY) {
-            // only set created when we're certain
-            if (originalObject.containsAttribute(CREATED)) {
-                builder.addAttributeSorted(new RpslAttribute(CREATED, originalObject.getValueForAttribute(CREATED)));
-            }
+        switch (action) {
 
-            final OverrideOptions overrideOptions = updateContext.getPreparedUpdate(update).getOverrideOptions();
-            if (overrideOptions.isSkipLastModified()) {
+            case CREATE:
+                builder.addAttributeSorted(new RpslAttribute(CREATED, nowString));
+                builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
+                break;
+
+            case MODIFY:
+                if (originalObject.containsAttribute(CREATED)) {
+                    builder.addAttributeSorted(new RpslAttribute(CREATED, originalObject.getValueForAttribute(CREATED)));
+                }
+
+                if (updateContext.getPreparedUpdate(update).getOverrideOptions().isSkipLastModified()) {
+                    if (originalObject.containsAttribute(LAST_MODIFIED)) {
+                        builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, originalObject.getValueForAttribute(LAST_MODIFIED)));
+                    }
+                } else {
+                    builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
+                }
+                break;
+
+            case DELETE:
+                // for delete we just ignore what was passed in and make sure object looks like stored version
+                if (originalObject.containsAttribute(CREATED)) {
+                    builder.addAttributeSorted(new RpslAttribute(CREATED, originalObject.getValueForAttribute(CREATED)));
+                }
                 if (originalObject.containsAttribute(LAST_MODIFIED)) {
                     builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, originalObject.getValueForAttribute(LAST_MODIFIED)));
                 }
-            } else {
-                builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
-            }
+                break;
 
-        } else if (action == DELETE) {
-            // for delete we just ignore what was passed in and make sure object looks like stored version
-            if (originalObject.containsAttribute(CREATED)) {
-                builder.addAttributeSorted(new RpslAttribute(CREATED, originalObject.getValueForAttribute(CREATED)));
-            }
-            if (originalObject.containsAttribute(LAST_MODIFIED)) {
-                builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, originalObject.getValueForAttribute(LAST_MODIFIED)));
-            }
+            case NOOP:
+                break;
         }
     }
 }
