@@ -2345,6 +2345,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT person FP1-TEST", "person", "First Person")
     }
 
+    @Ignore("update databaseHelper too after the created/last-modified switch has been implemented")
     def "modify key-cert with single key, wrong generated values"() {
       expect:
         queryObject("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0")
