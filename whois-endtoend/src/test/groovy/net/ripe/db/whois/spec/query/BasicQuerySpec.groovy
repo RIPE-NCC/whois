@@ -746,6 +746,8 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
                 "referral-by:    [mandatory]  [single]     [ ]\n" +
                 "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "created:        [generated]  [single]     [ ]\n" +
+                "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]")
     }
 

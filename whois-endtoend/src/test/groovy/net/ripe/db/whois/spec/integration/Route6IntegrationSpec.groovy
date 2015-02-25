@@ -3,6 +3,7 @@ package net.ripe.db.whois.spec.integration
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class Route6IntegrationSpec extends BaseWhoisSourceSpec {
@@ -1206,6 +1207,7 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
     }
 
+    @Ignore("update databaseHelper too after the created/last-modified switch has been implemented")
     def "create route6 pending auth, 2nd update identical to first update"() {
         when:
         def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
