@@ -5,16 +5,17 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
+import net.ripe.db.whois.update.domain.OverrideOptions;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -27,15 +28,25 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
+
 @RunWith(MockitoJUnitRunner.class)
 public class TimestampAttributeGeneratorTest {
     final private static DateTimeFormatter ISO_FORMATER = ISODateTimeFormat.dateTimeNoMillis();
 
     @Mock private Update update;
     @Mock private UpdateContext updateContext;
+    @Mock private PreparedUpdate preparedUpdate;
+    @Mock private OverrideOptions overrideOptions;
 
-    @InjectMocks
     private AttributeGeneratorTestHelper testHelper;
+
+    @Before
+    public void before(){
+        testHelper = new AttributeGeneratorTestHelper(updateContext, update);
+        when(updateContext.getPreparedUpdate(update)).thenReturn(preparedUpdate);
+        when(preparedUpdate.getOverrideOptions()).thenReturn(overrideOptions);
+    }
+
 
     private TestDateTimeProvider testDateTimeProvider = new TestDateTimeProvider();
     private TimestampAttributeGenerator subject = new TimestampAttributeGenerator(testDateTimeProvider);
@@ -76,6 +87,7 @@ public class TimestampAttributeGeneratorTest {
 
         testDateTimeProvider.setTime(actionTime());
         when(updateContext.getAction(update)).thenReturn(CREATE);
+        when(overrideOptions.isSkipLastModified()).thenReturn(false);
 
         final RpslObject input = new RpslObjectBuilder(TEMPLATE)
                 .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
@@ -97,6 +109,7 @@ public class TimestampAttributeGeneratorTest {
     public void modify_original_has_no_timestamps_input_has_no_timestamps() {
         testDateTimeProvider.setTime(actionTime());
         when(updateContext.getAction(update)).thenReturn(MODIFY);
+        when(overrideOptions.isSkipLastModified()).thenReturn(false);
 
         final RpslObject original = TEMPLATE;
         final RpslObject input = TEMPLATE;
@@ -113,6 +126,7 @@ public class TimestampAttributeGeneratorTest {
     public void modify_original_has_timestamps_input_has_no_timestamps() {
         testDateTimeProvider.setTime(actionTime());
         when(updateContext.getAction(update)).thenReturn(MODIFY);
+        when(overrideOptions.isSkipLastModified()).thenReturn(false);
 
         final RpslObject original = new RpslObjectBuilder(TEMPLATE)
                 .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
@@ -134,6 +148,7 @@ public class TimestampAttributeGeneratorTest {
         
         testDateTimeProvider.setTime(actionTime());
         when(updateContext.getAction(update)).thenReturn(MODIFY);
+        when(overrideOptions.isSkipLastModified()).thenReturn(false);
 
         final RpslObject original = new RpslObjectBuilder(TEMPLATE)
                 .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
@@ -154,6 +169,44 @@ public class TimestampAttributeGeneratorTest {
         testHelper.validateMessages(
                 ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED),
                 ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
+    }
+
+    @Test
+    public void modify_original_has_timestamps_input_has_no_timestamps_skipLastModified_true() {
+        testDateTimeProvider.setTime(actionTime());
+        when(updateContext.getAction(update)).thenReturn(MODIFY);
+        when(overrideOptions.isSkipLastModified()).thenReturn(true);
+
+        final RpslObject original = new RpslObjectBuilder(TEMPLATE)
+                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .get();
+        final RpslObject input = TEMPLATE;
+
+        final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
+
+        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
+
+        testHelper.validateMessages();
+    }
+
+
+    @Test
+    public void modify_original_has_no_timestamps_input_has_no_timestamps_skipLastModified_true() {
+        testDateTimeProvider.setTime(actionTime());
+        when(updateContext.getAction(update)).thenReturn(MODIFY);
+        when(overrideOptions.isSkipLastModified()).thenReturn(true);
+
+        final RpslObject original = new RpslObjectBuilder(TEMPLATE).get();
+        final RpslObject input = TEMPLATE;
+
+        final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
+
+        assertThat(updatedObject.containsAttribute(CREATED), is(false));
+        assertThat(updatedObject.containsAttribute(LAST_MODIFIED), is(false));
+
+        testHelper.validateMessages();
     }
 
     @Test

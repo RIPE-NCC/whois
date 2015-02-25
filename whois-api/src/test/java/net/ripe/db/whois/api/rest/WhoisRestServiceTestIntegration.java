@@ -3325,6 +3325,69 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(storedObject, not(containsString("this_is_another_remark")));
     }
 
+    @Test
+    public void use_override_to_skip_updating_last_modified() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
+        final DateTime oldDate = dateTimeProvider.getCurrentUtcTime();
+        final DateTime newDate = oldDate.plusDays(10);
+        final String oldDateStr = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(oldDate);
+        final String newDateStr = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(newDate);
+
+        dateTimeProvider.setTime(oldDate);
+
+        final WhoisResources initialObject = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", oldDateStr)));
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", oldDateStr)));
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(4, new RpslAttribute(AttributeType.REMARKS, "this_is_another_remark")).get();
+
+        dateTimeProvider.setTime(newDate);
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("override", encode("dbint,dbint,{skip-last-modified=true}"))
+                        .request()
+                        .put(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final WhoisResources storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", oldDateStr)));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", newDateStr))));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", oldDateStr)));
+    }
+
+    @Test
+    public void use_override_explicit_not_skip_updating_last_modified() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
+        final DateTime oldDate = dateTimeProvider.getCurrentUtcTime();
+        final DateTime newDate = oldDate.plusDays(10);
+        final String oldDateStr = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(oldDate);
+        final String newDateStr = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(newDate);
+
+        dateTimeProvider.setTime(oldDate);
+
+        final WhoisResources initialObject = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", oldDateStr)));
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", oldDateStr)));
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(4, new RpslAttribute(AttributeType.REMARKS, "this_is_another_remark")).get();
+
+        dateTimeProvider.setTime(newDate);
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("override", encode("dbint,dbint,{skip-last-modified=true}"))
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final WhoisResources storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", oldDateStr)));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", newDateStr))));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", oldDateStr)));
+    }
 
     // versions
 
