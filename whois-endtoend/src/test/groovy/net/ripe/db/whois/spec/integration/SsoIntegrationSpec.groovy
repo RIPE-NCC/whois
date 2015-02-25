@@ -1,9 +1,13 @@
 package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
+import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import org.joda.time.format.ISODateTimeFormat
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class SsoIntegrationSpec extends BaseWhoisSourceSpec {
@@ -28,6 +32,13 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                     changed: dbtest@ripe.net 20120707
                     source: TEST
                 """]
+    }
+
+    static TestDateTimeProvider dateTimeProvider;
+
+    def setupSpec() {
+        dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);
+        dateTimeProvider.setTime(new DateTime())
     }
 
     def "create sso mntner stores uuid in db, shows username in ack, filters auth in query"() {
@@ -65,7 +76,8 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
         def mntner = databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT")
 
       then:
-        mntner.toString() ==
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        mntner.toString().equals(String.format(
                 "mntner:         SSO-MNT\n" +
                 "descr:          sso mntner\n" +
                 "admin-c:        TEST-PN\n" +
@@ -75,7 +87,9 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                 "referral-by:    TEST-MNT3\n" +
                 "mnt-by:         TEST-MNT3\n" +
                 "changed:        ripe@test.net 20091015\n" +
-                "source:         TEST\n"
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
+                "source:         TEST\n", currentDate, currentDate))
 
       when:
         def query = query("SSO-MNT")
@@ -96,6 +110,8 @@ auth:           MD5-PW # Filtered
 referral-by:    TEST-MNT3
 mnt-by:         TEST-MNT3
 changed:        ripe@test.net 20091015
+created:        ${currentDate}
+last-modified:  ${currentDate}
 source:         TEST # Filtered/
     }
 
@@ -166,6 +182,8 @@ auth:           MD5-PW # Filtered
 referral-by:    TEST-MNT3
 mnt-by:         TEST-MNT3
 changed:        ripe@test.net 20091015
+created:        \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z
+last-modified:  \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z
 source:         TEST # Filtered/
     }
 }
