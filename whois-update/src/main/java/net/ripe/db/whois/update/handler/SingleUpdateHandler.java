@@ -156,18 +156,18 @@ public class SingleUpdateHandler {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
-            if( authenticator.doesTypeSupportPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) ) {
+            if (authenticator.doesTypeSupportPendingAuthentication(preparedUpdate.getUpdatedObject().getType())) {
                 pendingUpdateHandler.cleanup(preparedUpdate, updateContext);
             }
         }
     }
 
     @CheckForNull
-    private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext ) {
-        RpslObject submittedObject = update.getSubmittedObject();
-        for( RpslAttribute attribute: submittedObject.getAttributes() ) {
-            if( ! CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue() )) {
-                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()) );
+    private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext) {
+        final RpslObject submittedObject = update.getSubmittedObject();
+        for (RpslAttribute attribute: submittedObject.getAttributes()) {
+            if (!CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue())) {
+                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()));
             }
         }
     }
