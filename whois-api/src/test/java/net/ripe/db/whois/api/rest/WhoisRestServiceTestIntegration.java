@@ -3378,14 +3378,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         dateTimeProvider.setTime(newDate);
         RestTest.target(getPort(), "whois/test/person/PP1-TEST")
-                .queryParam("override", encode("dbint,dbint,{skip-last-modified=true}"))
+                .queryParam("override", encode("dbint,dbint,{skip-last-modified=false}"))
                 .request()
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
         final WhoisResources storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
 
-        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", oldDateStr)));
-        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", newDateStr))));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", newDateStr)));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", oldDateStr))));
         assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", oldDateStr)));
     }
 
