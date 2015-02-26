@@ -1007,6 +1007,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create, single notif to irt-nfy"() {
       when:
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
         def irt = """\
                 inet6num: 2001::/48
                 netname: RIPE-NCC
@@ -1045,7 +1046,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
         def notifIrt = notificationFor "irt@test.net"
         notifIrt.subject.equals("Notification of RIPE Database changes")
-        notifIrt.contents.contains("" +
+        notifIrt.contents.contains(String.format(
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
                 "inet6num:       2001::/48\n" +
@@ -1058,7 +1059,9 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:         TEST-MNT\n" +
                 "mnt-irt:        irt-IRT1\n" +
                 "changed:        org@ripe.net 20120505\n" +
-                "source:         TEST"
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
+                "source:         TEST", currentDate, currentDate)
         )
         noMoreMessages()
     }
