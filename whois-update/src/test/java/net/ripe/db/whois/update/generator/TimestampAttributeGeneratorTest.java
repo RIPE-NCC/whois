@@ -104,7 +104,6 @@ public class TimestampAttributeGeneratorTest {
                 ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
     }
 
-
     @Test
     public void modify_original_has_no_timestamps_input_has_no_timestamps() {
         testDateTimeProvider.setTime(actionTime());
@@ -116,6 +115,9 @@ public class TimestampAttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
+        //TODO [TP]: The attribute generator should ensure the correctness of the objects. The created/last-modified
+        //TODO [TP]:    will be mandatory in final phase. Therefore by the time the batch job filling the timestamps
+        //TODO [TP]:    finishes, at latest, the code and this assertion should be changed
         assertThat(updatedObject.containsAttribute(CREATED), is(false));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
