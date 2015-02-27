@@ -256,7 +256,7 @@ public class Authenticator {
                 && pendingAuths.size() < supportedPendingAuths.size();
     }
 
-    public boolean doesTypeSupportPendingAuthentication(final ObjectType objectType) {
+    public boolean supportsPendingAuthentication(final ObjectType objectType) {
         final Set<String> supportedPendingAuths = typesWithPendingAuthenticationSupport.get(objectType);
         return supportedPendingAuths != null && !supportedPendingAuths.isEmpty();
     }

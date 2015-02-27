@@ -155,10 +155,16 @@ public class SingleUpdateHandler {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
-            if (authenticator.doesTypeSupportPendingAuthentication(preparedUpdate.getUpdatedObject().getType())) {
-                pendingUpdateHandler.cleanup(preparedUpdate, updateContext);
+            if (eligibleForPendingUpdateCleanup(preparedUpdate, updateContext)) {
+                pendingUpdateHandler.cleanup(preparedUpdate.getUpdatedObject());
             }
         }
+    }
+
+    private boolean eligibleForPendingUpdateCleanup(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
+        return authenticator.supportsPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) &&
+                Action.CREATE == preparedUpdate.getAction() &&
+                UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
     }
 
     @CheckForNull
