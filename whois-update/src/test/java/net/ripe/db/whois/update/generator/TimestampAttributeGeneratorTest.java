@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.TestTimestampsMode;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.OverrideOptions;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -38,18 +39,26 @@ public class TimestampAttributeGeneratorTest {
     @Mock private PreparedUpdate preparedUpdate;
     @Mock private OverrideOptions overrideOptions;
 
+    private TestTimestampsMode testTimestampsMode;
     private AttributeGeneratorTestHelper testHelper;
+
+    private TimestampAttributeGenerator subject;
 
     @Before
     public void before(){
         testHelper = new AttributeGeneratorTestHelper(updateContext, update);
+        testTimestampsMode = new TestTimestampsMode();
+        testTimestampsMode.setTimestampsOff(false);
+        subject = new TimestampAttributeGenerator(testDateTimeProvider, testTimestampsMode);
+
         when(updateContext.getPreparedUpdate(update)).thenReturn(preparedUpdate);
         when(preparedUpdate.getOverrideOptions()).thenReturn(overrideOptions);
     }
 
 
     private TestDateTimeProvider testDateTimeProvider = new TestDateTimeProvider();
-    private TimestampAttributeGenerator subject = new TimestampAttributeGenerator(testDateTimeProvider);
+
+
 
     private static final String TIMESTAMP_STRING_ZERO = "2000-01-01T00:00:00Z";
     private static final String TIMESTAMP_STRING_PAST = "2014-01-26T11:44:59Z";
