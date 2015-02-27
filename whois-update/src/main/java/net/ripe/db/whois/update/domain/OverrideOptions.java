@@ -78,6 +78,8 @@ public class OverrideOptions {
                 final String value = matcher.group(2);
 
                 try {
+                    //TODO [TP]: parseBoolean does not throw an exception for a non true/false value.
+                    //TODO [TP]:  It defaults to false which is dangerous. We should be stricter in what we accept.
                     switch (key) {
                         case "oid":
                             objectId = Integer.parseInt(value);
