@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.TimestampsMode;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
@@ -24,14 +25,21 @@ import static net.ripe.db.whois.update.domain.Action.MODIFY;
 @Component
 public class TimestampAttributeGenerator extends AttributeGenerator {
     private final DateTimeProvider dateTimeProvider;
+    private final TimestampsMode timestampsMode;
 
     @Autowired
-    TimestampAttributeGenerator(final DateTimeProvider dateTimeProvider) {
+    TimestampAttributeGenerator(final DateTimeProvider dateTimeProvider, final TimestampsMode timestampsMode) {
         this.dateTimeProvider = dateTimeProvider;
+        this.timestampsMode = timestampsMode;
     }
 
     @Override
     public RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
+
+        if (timestampsMode.isTimestampsOff()) {
+            return updatedObject;
+        }
+
         final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
 
         final Action action = updateContext.getAction(update);
