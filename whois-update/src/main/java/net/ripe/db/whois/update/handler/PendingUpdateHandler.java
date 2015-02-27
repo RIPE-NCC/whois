@@ -37,16 +37,10 @@ class PendingUpdateHandler {
         this.loggerContext = loggerContext;
     }
 
-    public void cleanup(final PreparedUpdate preparedUpdate, final UpdateContext updateContext ) {
-
-        if (Action.CREATE.equals(preparedUpdate.getAction()) && UpdateStatus.SUCCESS.equals(updateContext.getStatus(preparedUpdate)) ) {
-            final RpslObject rpslObject = preparedUpdate.getUpdatedObject();
-
-            List<PendingUpdate> pendingUpdates = pendingUpdateDao.findByTypeAndKey(rpslObject.getType(), rpslObject.getKey().toString());
-            for( PendingUpdate update: pendingUpdates ) {
-                loggerContext.log(new Message(Messages.Type.INFO, "Pending update exist for object; dropping from DB"));
-                pendingUpdateDao.remove(update);
-            }
+    public void cleanup(final RpslObject rpslObject) {
+        for (PendingUpdate pendingUpdate : pendingUpdateDao.findByTypeAndKey(rpslObject.getType(), rpslObject.getKey().toString())) {
+            loggerContext.log(new Message(Messages.Type.INFO, "Pending update exist for object; dropping from DB"));
+            pendingUpdateDao.remove(pendingUpdate);
         }
     }
 
