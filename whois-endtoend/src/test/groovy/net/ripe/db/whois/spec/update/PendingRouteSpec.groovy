@@ -1,4 +1,5 @@
 package net.ripe.db.whois.spec.update
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.scheduler.task.update.PendingUpdatesCleanup
@@ -8,10 +9,8 @@ import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import net.ripe.db.whois.update.dao.PendingUpdateDao
 import org.joda.time.LocalDateTime
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-@Ignore("fails unrelated to created/last-modified")
 class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -268,11 +267,11 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 route:          192.168.0.0/16
                 descr:          Route AS-MNT
                 origin:         AS100
-                mnt-by:         AS-MNT
-                mnt-by:         OWNER-MNT
+                mnt-by:         AS2-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password:   as
+                password:   as2
                 """.stripIndent(), redirect: false))
         then:
           queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
@@ -283,11 +282,11 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 route:          192.168.0.0/16
                 descr:          Route AS-MNT
                 origin:         AS100
-                mnt-by:         AS-MNT
-                mnt-by:         OWNER-MNT
+                mnt-by:         AS2-MNT
                 changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password:   owner
+                password:   as2
                 """.stripIndent(), redirect: false))
         then:
         queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
