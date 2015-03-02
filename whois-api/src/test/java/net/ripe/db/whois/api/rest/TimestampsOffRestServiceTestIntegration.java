@@ -2,7 +2,9 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -28,7 +30,10 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
@@ -112,5 +117,45 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
             assertThat(errorMessages, hasItems(new ErrorMessage(ValidationMessages.unknownAttribute("created"))));
             assertThat(errorMessages, hasItems(new ErrorMessage(ValidationMessages.unknownAttribute("last-modified"))));
         }
+    }
+
+    @Test
+    public void lookup_person_timestamps_in_db_timestamps_switched_off() {
+        testTimestampsMode.setTimestampsOff(true);
+
+        databaseHelper.addObject(new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeAfter(new RpslAttribute("created", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .addAttributeAfter(new RpslAttribute("last-modified", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .get());
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), not(hasItems(
+                new Attribute("created", "2001-02-04T17:00:00Z"),
+                new Attribute("last-modified", "last-modified"))));
+    }
+
+    @Test
+    //TODO TP this test should be in whoisrestservicetestintegration
+    public void lookup_person_timestamps_in_db_timestamps_switched_on() {
+        testTimestampsMode.setTimestampsOff(false);
+
+        databaseHelper.addObject(new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeAfter(new RpslAttribute("created", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .addAttributeAfter(new RpslAttribute("last-modified", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .get());
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes(), hasItems(
+                new Attribute("created", "2001-02-04T17:00:00Z"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z")));
     }
 }
