@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.generator;
 
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 
@@ -29,5 +30,9 @@ public class AttributeGeneratorTestHelper {
                 verify(updateContext).addMessage(update, message);
             }
         }
+    }
+
+    public void validateAttributeMessage(final RpslAttribute rpslAttribute, final Message message) {
+        verify(updateContext, times(1)).addMessage(update, rpslAttribute, message);
     }
 }
