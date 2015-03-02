@@ -105,11 +105,13 @@ public class RpslResponseDecorator {
         decoratedResult = applyOutputFilters(query, decoratedResult);
         decoratedResult = applySyntaxFilter(query, decoratedResult);
 
+        //TODO [TP] remove when timestamps are always on
         decoratedResult = filterTimestampAttributes(decoratedResult);
 
         return decoratedResult;
     }
 
+    //TODO [TP] remove when timestamps are always on
     private Iterable<? extends ResponseObject> filterTimestampAttributes(final Iterable<? extends ResponseObject> objects) {
         return Iterables.transform(objects, timestampFilterFunction);
     }

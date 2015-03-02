@@ -64,6 +64,7 @@ public class RpslResponseDecoratorTest {
     @Mock CrowdClient crowdClient;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
+    //TODO [TP] remove when timestamps are always on
     private TimestampFilterFunction timestampFilterFunction = new TimestampFilterFunction(new PropertyTimestampsMode(false));
 
     RpslResponseDecorator subject;

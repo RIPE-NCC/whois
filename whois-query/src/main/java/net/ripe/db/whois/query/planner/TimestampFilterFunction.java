@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.util.Collections;
 
+//TODO [TP] remove when timestamps are always on
 @Component
 public class TimestampFilterFunction implements Function<ResponseObject, ResponseObject> {
 
