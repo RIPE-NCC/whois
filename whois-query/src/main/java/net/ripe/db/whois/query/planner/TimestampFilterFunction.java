@@ -7,20 +7,18 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.TimestampsMode;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Collections;
 
 //TODO [TP] remove when timestamps are always on
-@Component
+@Named
 public class TimestampFilterFunction implements Function<ResponseObject, ResponseObject> {
-
-    @Autowired
     private final TimestampsMode timestampsMode;
 
-    @Autowired
+    @Inject
     public TimestampFilterFunction(final TimestampsMode timestampsMode) {
         this.timestampsMode = timestampsMode;
     }
@@ -28,14 +26,11 @@ public class TimestampFilterFunction implements Function<ResponseObject, Respons
     @Nullable
     @Override
     public ResponseObject apply(final ResponseObject input) {
-
-        if (timestampsMode.isTimestampsOff() && input instanceof RpslObject){
-            final RpslObject object = (RpslObject) input;
-            return new RpslObjectBuilder(object).removeAttributeTypes(
+        if (timestampsMode.isTimestampsOff() && input instanceof RpslObject) {
+            return new RpslObjectBuilder((RpslObject) input).removeAttributeTypes(
                     Collections.unmodifiableList(Lists.newArrayList(AttributeType.CREATED, AttributeType.LAST_MODIFIED))).get();
         }
 
         return input;
     }
-
 }
