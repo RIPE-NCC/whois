@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.PropertyTimestampsMode;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -63,6 +64,8 @@ public class RpslResponseDecoratorTest {
     @Mock CrowdClient crowdClient;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
+    private TimestampFilterFunction timestampFilterFunction = new TimestampFilterFunction(new PropertyTimestampsMode(false));
+
     RpslResponseDecorator subject;
 
     @Before
@@ -77,6 +80,7 @@ public class RpslResponseDecoratorTest {
                 abuseCInfoDecorator,
                 ssoTokenTranslator,
                 crowdClient,
+                timestampFilterFunction,
                 decorator);
         when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));

@@ -18,4 +18,6 @@ public class TestTimestampsMode implements TimestampsMode {
     public void setTimestampsOff(final boolean timestampsOff) {
         this.timestampsOff = timestampsOff;
     }
+
+
 }

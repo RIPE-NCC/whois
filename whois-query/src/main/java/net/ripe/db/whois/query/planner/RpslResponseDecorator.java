@@ -58,6 +58,7 @@ public class RpslResponseDecorator {
     private final Set<PrimaryObjectDecorator> decorators;
     private final SsoTokenTranslator ssoTokenTranslator;
     private final CrowdClient crowdClient;
+    private final TimestampFilterFunction timestampFilterFunction;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -70,6 +71,7 @@ public class RpslResponseDecorator {
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final SsoTokenTranslator ssoTokenTranslator,
                                  final CrowdClient crowdClient,
+                                 final TimestampFilterFunction timestampFilterFunction,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -83,6 +85,7 @@ public class RpslResponseDecorator {
         this.filterTagsDecorator = filterTagsDecorator;
         this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
         this.briefAbuseCFunction = new BriefAbuseCFunction(abuseCFinder);
+        this.timestampFilterFunction = timestampFilterFunction;
         this.decorators = Sets.newHashSet(decorators);
     }
 
@@ -100,8 +103,15 @@ public class RpslResponseDecorator {
         decoratedResult = filterAuth(query, decoratedResult);
 
         decoratedResult = applyOutputFilters(query, decoratedResult);
+        decoratedResult = applySyntaxFilter(query, decoratedResult);
+
+        decoratedResult = filterTimestampAttributes(decoratedResult);
 
         return decoratedResult;
+    }
+
+    private Iterable<? extends ResponseObject> filterTimestampAttributes(final Iterable<? extends ResponseObject> objects) {
+        return Iterables.transform(objects, timestampFilterFunction);
     }
 
     private Iterable<? extends ResponseObject> applySyntaxFilter(final Query query, final Iterable<? extends ResponseObject> result) {
@@ -182,6 +192,7 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> applyOutputFilters(final Query query, final Iterable<? extends ResponseObject> objects) {
+
         if (query.isShortHand()) {
             return Iterables.transform(objects, new ToShorthandFunction());
         }
@@ -195,6 +206,7 @@ public class RpslResponseDecorator {
                     Collections.singletonList(new MessageObject(QueryMessages.primaryKeysOnlyNotice())),
                     Iterables.transform(objects, new ToKeysFunction()));
         }
+
 
         return objects;
     }
