@@ -1,21 +1,29 @@
 package net.ripe.db.whois.query.executor;
 
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
-import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-public class TemplateQueryExecutorTest {
-    private TemplateQueryExecutor subject;
+//TODO [TP] remove activeprofile, application context dependencey when timestamps are always on
+@Component
+@ActiveProfiles(WhoisProfile.TEST)
+@ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml"})
+public class TemplateQueryExecutorTest extends AbstractJUnit4SpringContextTests {
 
-    @Before
-    public void setUp() throws Exception {
-        subject = new TemplateQueryExecutor();
-    }
+    @Autowired
+    private TemplateQueryExecutor subject;
 
     @Test
     public void supports_template() {
