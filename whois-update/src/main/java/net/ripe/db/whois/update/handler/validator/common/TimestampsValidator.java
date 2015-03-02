@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.TimestampsMode;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Action;
@@ -38,12 +39,13 @@ public class TimestampsValidator implements BusinessRuleValidator {
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         if (timestampsMode.isTimestampsOff()) {
-            if (update.getSubmittedObject().containsAttribute(AttributeType.CREATED)) {
-                updateContext.addMessage(update, ValidationMessages.unknownAttribute(AttributeType.CREATED.getName()));
+            final RpslObject submittedObject = update.getSubmittedObject();
+            if (submittedObject.containsAttribute(AttributeType.CREATED)) {
+                updateContext.addMessage(update, submittedObject.findAttributes(AttributeType.CREATED).get(0), ValidationMessages.unknownAttribute(AttributeType.CREATED.getName()));
             }
 
-            if (update.getSubmittedObject().containsAttribute(AttributeType.LAST_MODIFIED)) {
-                updateContext.addMessage(update, ValidationMessages.unknownAttribute(AttributeType.LAST_MODIFIED.getName()));
+            if (submittedObject.containsAttribute(AttributeType.LAST_MODIFIED)) {
+                updateContext.addMessage(update, submittedObject.findAttributes(AttributeType.LAST_MODIFIED).get(0), ValidationMessages.unknownAttribute(AttributeType.LAST_MODIFIED.getName()));
             }
         }
     }
