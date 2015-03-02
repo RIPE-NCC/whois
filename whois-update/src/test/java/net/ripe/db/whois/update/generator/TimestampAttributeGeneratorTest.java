@@ -100,8 +100,9 @@ public class TimestampAttributeGeneratorTest {
         assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_ACTION));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
-        testHelper.validateMessages(
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED),
+        testHelper.validateAttributeMessage(updatedObject.findAttribute(CREATED),
+                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED));
+        testHelper.validateAttributeMessage(updatedObject.findAttribute(LAST_MODIFIED),
                 ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
     }
 
@@ -169,8 +170,9 @@ public class TimestampAttributeGeneratorTest {
         assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
-        testHelper.validateMessages(
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED),
+        testHelper.validateAttributeMessage(updatedObject.findAttribute(CREATED),
+                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED));
+        testHelper.validateAttributeMessage(updatedObject.findAttribute(LAST_MODIFIED),
                 ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
     }
 
