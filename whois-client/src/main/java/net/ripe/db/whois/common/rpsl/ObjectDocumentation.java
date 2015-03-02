@@ -4,7 +4,8 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
-class ObjectDocumentation {
+//TODO [TP] changed class back to default from public when timestamps are always on
+public class ObjectDocumentation {
 
     private ObjectDocumentation() {}
 
