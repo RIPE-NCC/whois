@@ -130,7 +130,7 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
     }
 
     @Test
-    public void lookup_person_timestamps_in_db_timestamps_switched_off() {
+    public void mode_off_timestamps_in_db_lookup() {
         testTimestampsMode.setTimestampsOff(true);
 
         databaseHelper.addObject(new RpslObjectBuilder(PAULETH_PALTHEN)
@@ -151,7 +151,7 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
 
     @Test
     //TODO TP this test should be in whoisrestservicetestintegration
-    public void lookup_person_timestamps_in_db_timestamps_switched_on() {
+    public void mode_on_timestamps_in_db_lookup() {
         testTimestampsMode.setTimestampsOff(false);
 
         databaseHelper.addObject(new RpslObjectBuilder(PAULETH_PALTHEN)
@@ -170,7 +170,7 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
     }
 
     @Test
-    public void search_person_timestamps_in_db_timestamps_switched_off() {
+    public void mode_off_timestamps_in_db_search() {
         testTimestampsMode.setTimestampsOff(true);
 
         final RpslObject pp1 = new RpslObjectBuilder(PAULETH_PALTHEN)
@@ -203,7 +203,7 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
 
     @Test
     //TODO TP this test should be in whoisrestservicetestintegration
-    public void search_person_timestamps_in_db_timestamps_switched_on() {
+    public void mode_on_timestamps_in_db_search() {
         testTimestampsMode.setTimestampsOff(false);
 
         final RpslObject pp1 = new RpslObjectBuilder(PAULETH_PALTHEN)

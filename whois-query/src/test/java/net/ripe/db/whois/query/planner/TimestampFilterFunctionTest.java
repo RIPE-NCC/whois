@@ -15,6 +15,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+//TODO [TP] remove when timestamps are always on
 @Component
 @ActiveProfiles(WhoisProfile.TEST)
 @ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml"})
