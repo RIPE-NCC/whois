@@ -136,7 +136,7 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getAttributes(), not(hasItems(
                 new Attribute("created", "2001-02-04T17:00:00Z"),
-                new Attribute("last-modified", "last-modified"))));
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"))));
     }
 
     @Test
@@ -155,6 +155,71 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getAttributes(), hasItems(
+                new Attribute("created", "2001-02-04T17:00:00Z"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+    }
+
+    @Test
+    public void search_person_timestamps_in_db_timestamps_switched_off() {
+        testTimestampsMode.setTimestampsOff(true);
+
+        final RpslObject pp1 = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeAfter(new RpslAttribute("created", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .addAttributeAfter(new RpslAttribute("last-modified", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .get();
+
+        final RpslObject pp2 = new RpslObjectBuilder(pp1).replaceAttribute(
+                new RpslAttribute(AttributeType.NIC_HDL, "PP1-TEST"), new RpslAttribute(AttributeType.NIC_HDL, "PP2-TEST")).get();
+
+        databaseHelper.addObjects(pp1, pp2);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=Pauleth&source=TEST")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+
+        final WhoisObject obj1 = whoisResources.getWhoisObjects().get(0);
+        assertThat(obj1.getAttributes(), not(hasItems(
+                new Attribute("created", "2001-02-04T17:00:00Z"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"))));
+
+        final WhoisObject obj2 = whoisResources.getWhoisObjects().get(1);
+        assertThat(obj2.getAttributes(), not(hasItems(
+                new Attribute("created", "2001-02-04T17:00:00Z"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"))));
+    }
+
+    @Test
+    //TODO TP this test should be in whoisrestservicetestintegration
+    public void search_person_timestamps_in_db_timestamps_switched_on() {
+        testTimestampsMode.setTimestampsOff(false);
+
+        final RpslObject pp1 = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeAfter(new RpslAttribute("created", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .addAttributeAfter(new RpslAttribute("last-modified", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .get();
+
+        final RpslObject pp2 = new RpslObjectBuilder(pp1).replaceAttribute(
+                new RpslAttribute(AttributeType.NIC_HDL, "PP1-TEST"), new RpslAttribute(AttributeType.NIC_HDL, "PP2-TEST")).get();
+
+        databaseHelper.addObjects(pp1, pp2);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=Pauleth&source=TEST")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+
+        final WhoisObject obj1 = whoisResources.getWhoisObjects().get(0);
+        assertThat(obj1.getAttributes(), hasItems(
+                new Attribute("created", "2001-02-04T17:00:00Z"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+
+        final WhoisObject obj2 = whoisResources.getWhoisObjects().get(1);
+        assertThat(obj2.getAttributes(), hasItems(
                 new Attribute("created", "2001-02-04T17:00:00Z"),
                 new Attribute("last-modified", "2001-02-04T17:00:00Z")));
     }
