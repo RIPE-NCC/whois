@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -38,10 +39,9 @@ import java.util.List;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.CREATED;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LAST_MODIFIED;
-import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
@@ -57,7 +57,6 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
             "mnt-by:    OWNER-MNT\n" +
             "nic-hdl:   PP1-TEST\n" +
             "changed:   noreply@ripe.net 20120101\n" +
-            "remarks:   remark\n" +
             "source:    TEST\n");
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
@@ -138,15 +137,22 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
                 .addAttributeAfter(new RpslAttribute("last-modified", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
                 .get());
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?unfiltered").request().get(WhoisResources.class);
 
 
         assertThat(whoisResources.getErrorMessages(), Matchers.empty());
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getAttributes(), not(hasItems(
-                new Attribute("created", "2001-02-04T17:00:00Z"),
-                new Attribute("last-modified", "2001-02-04T17:00:00Z"))));
+
+        assertThat(whoisObject.getAttributes(), containsInAnyOrder(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("source", "TEST", null, null, null)));
     }
 
     @Test
@@ -159,14 +165,23 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
                 .addAttributeAfter(new RpslAttribute("last-modified", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
                 .get());
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?unfiltered").request().get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), empty());
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getAttributes(), hasItems(
+
+        assertThat(whoisObject.getAttributes(), containsInAnyOrder(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("e-mail", "noreply@ripe.net"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("created", "2001-02-04T17:00:00Z"),
-                new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
+                new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("source", "TEST", null, null, null)));
     }
 
     @Test
@@ -191,14 +206,22 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
         assertThat(whoisResources.getWhoisObjects(), hasSize(2));
 
         final WhoisObject obj1 = whoisResources.getWhoisObjects().get(0);
-        assertThat(obj1.getAttributes(), not(hasItems(
-                new Attribute("created", "2001-02-04T17:00:00Z"),
-                new Attribute("last-modified", "2001-02-04T17:00:00Z"))));
+        assertThat(obj1.getAttributes(), containsInAnyOrder(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST", "Filtered", null, null)));
 
         final WhoisObject obj2 = whoisResources.getWhoisObjects().get(1);
-        assertThat(obj2.getAttributes(), not(hasItems(
-                new Attribute("created", "2001-02-04T17:00:00Z"),
-                new Attribute("last-modified", "2001-02-04T17:00:00Z"))));
+        assertThat(obj2.getAttributes(), containsInAnyOrder(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("nic-hdl", "PP2-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
     @Test
@@ -224,14 +247,26 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
         assertThat(whoisResources.getWhoisObjects(), hasSize(2));
 
         final WhoisObject obj1 = whoisResources.getWhoisObjects().get(0);
-        assertThat(obj1.getAttributes(), hasItems(
+        assertThat(obj1.getAttributes(), containsInAnyOrder(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("nic-hdl", "PP1-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("created", "2001-02-04T17:00:00Z"),
-                new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
+                new Attribute("source", "TEST", "Filtered", null, null)));
 
         final WhoisObject obj2 = whoisResources.getWhoisObjects().get(1);
-        assertThat(obj2.getAttributes(), hasItems(
+        assertThat(obj2.getAttributes(), containsInAnyOrder(
+                new Attribute("person", "Pauleth Palthen"),
+                new Attribute("address", "Singel 258"),
+                new Attribute("phone", "+31-1234567890"),
+                new Attribute("nic-hdl", "PP2-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("created", "2001-02-04T17:00:00Z"),
-                new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
+                new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
     public void explicit_mode_on_allows_created_last_modified() {
