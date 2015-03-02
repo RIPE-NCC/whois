@@ -74,7 +74,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
     private void generateTimestampAttributes( final RpslObjectBuilder builder, final RpslObject originalObject, final Update update, final UpdateContext updateContext) {
         final Action action = updateContext.getAction(update);
 
-        final DateTime now = dateTimeProvider.getCurrentUtcTime();
+        final DateTime now = dateTimeProvider.getCurrentDateTimeUtc();
         final String nowString = now.toString(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC));
 
         switch (action) {

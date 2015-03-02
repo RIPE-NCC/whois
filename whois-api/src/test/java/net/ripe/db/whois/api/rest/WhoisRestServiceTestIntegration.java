@@ -44,8 +44,7 @@ import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.ISODateTimeFormat;
+import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -191,7 +190,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private MailSenderStub mailSenderStub;
-    @Autowired private TestDateTimeProvider dateTimeProvider;
+    @Autowired private TestDateTimeProvider testDateTimeProvider;
 
     @Before
     public void setup() {
@@ -201,7 +200,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.updateObject(TEST_ROLE);
         maintenanceMode.set("FULL,FULL");
-        dateTimeProvider.setTime(new DateTime());
+        testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
     }
 
     // lookup
@@ -1360,8 +1359,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_succeeds() throws Exception {
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
-
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
@@ -1379,8 +1376,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("nic-hdl", "PP1-TEST"),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
                 new Attribute("remarks", "remark"),
-                new Attribute("created", currentDate),
-                new Attribute("last-modified", currentDate),
+                new Attribute("created", "2001-02-04T17:00:00Z"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
@@ -1774,12 +1771,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_person_xml_text() {
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, is(String.format("" +
+        assertThat(response, is(String.format(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
                 "    <link xlink:type=\"locator\" xlink:href=\"http://localhost:%d/test/person\"/>\n" +
@@ -1801,20 +1797,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "                <attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>\n" +
                 "                <attribute name=\"changed\" value=\"noreply@ripe.net 20120101\"/>\n" +
                 "                <attribute name=\"remarks\" value=\"remark\"/>\n" +
-                "                <attribute name=\"created\" value=\"%s\"/>\n" +
-                "                <attribute name=\"last-modified\" value=\"%s\"/>\n" +
+                "                <attribute name=\"created\" value=\"2001-02-04T17:00:00Z\"/>\n" +
+                "                <attribute name=\"last-modified\" value=\"2001-02-04T17:00:00Z\"/>\n" +
                 "                <attribute name=\"source\" value=\"TEST\"/>\n" +
                 "            </attributes>\n" +
                 "        </object>\n" +
                 "    </objects>\n" +
                 "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
-                "</whois-resources>", getPort(), currentDate, currentDate)));
+                "</whois-resources>", getPort())));
     }
 
     @Test
     public void create_person_json_text() {
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
-
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_JSON), String.class);
@@ -1873,10 +1867,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "          \"value\" : \"remark\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"created\",\n" +
-                "          \"value\" : \"%s\"\n" +
+                "          \"value\" : \"2001-02-04T17:00:00Z\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"last-modified\",\n" +
-                "          \"value\" : \"%s\"\n" +
+                "          \"value\" : \"2001-02-04T17:00:00Z\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"source\",\n" +
                 "          \"value\" : \"TEST\"\n" +
@@ -1888,7 +1882,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
-                "}", getPort(), currentDate, currentDate)));
+                "}", getPort())));
     }
 
     // TODO: [ES] no warning on conversion of \u03A3 to ? in latin-1 charset
@@ -2661,7 +2655,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void update_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
@@ -2680,7 +2673,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("remarks", "updated"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
-                new Attribute("last-modified", currentDate),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
@@ -2837,7 +2830,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "  }\n" +
                 "}";
 
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
         final String response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .put(Entity.entity(update, MediaType.APPLICATION_JSON), String.class);
@@ -2906,7 +2898,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "          \"value\" : \"dbtest@ripe.net 20120101\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"last-modified\",\n" +
-                "          \"value\" : \"%s\"\n" +
+                "          \"value\" : \"2001-02-04T17:00:00Z\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"source\",\n" +
                 "          \"value\" : \"TEST\"\n" +
@@ -2918,7 +2910,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    \"type\" : \"locator\",\n" +
                 "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
                 "  }\n" +
-                "}", getPort(), currentDate)));
+                "}", getPort())));
     }
 
     @Test
@@ -3087,7 +3079,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
@@ -3107,7 +3098,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("remarks", "updated"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
-                new Attribute("last-modified", currentDate),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
@@ -3328,23 +3319,22 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void use_override_to_skip_updating_last_modified() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
-        final DateTime oldDate = dateTimeProvider.getCurrentUtcTime();
-        final DateTime newDate = oldDate.plusDays(10);
-        final String oldDateStr = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(oldDate);
-        final String newDateStr = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(newDate);
 
-        dateTimeProvider.setTime(oldDate);
+        final DateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final DateTime newDateTime = oldDateTime.plusDays(10);
+        testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
 
         final WhoisResources initialObject = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", oldDateStr)));
-        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", oldDateStr)));
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z")));
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(4, new RpslAttribute(AttributeType.REMARKS, "this_is_another_remark")).get();
 
-        dateTimeProvider.setTime(newDate);
+        testDateTimeProvider.setTime(newDateTime.toLocalDateTime());
+
         RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .queryParam("override", encode("dbint,dbint,{skip-last-modified=true}"))
                         .request()
@@ -3352,31 +3342,30 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final WhoisResources storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
 
-        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", oldDateStr)));
-        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", newDateStr))));
-        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", oldDateStr)));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", "2001-02-14T17:00:00Z"))));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
     }
 
     @Test
     public void use_override_explicit_not_skip_updating_last_modified() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
-        final DateTime oldDate = dateTimeProvider.getCurrentUtcTime();
-        final DateTime newDate = oldDate.plusDays(10);
-        final String oldDateStr = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(oldDate);
-        final String newDateStr = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(newDate);
 
-        dateTimeProvider.setTime(oldDate);
+        final DateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final DateTime newDateTime = oldDateTime.plusDays(10);
+        testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
 
         final WhoisResources initialObject = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", oldDateStr)));
-        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", oldDateStr)));
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z")));
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(4, new RpslAttribute(AttributeType.REMARKS, "this_is_another_remark")).get();
 
-        dateTimeProvider.setTime(newDate);
+        testDateTimeProvider.setTime(newDateTime.toLocalDateTime());
+
         RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .queryParam("override", encode("dbint,dbint,{skip-last-modified=false}"))
                 .request()
@@ -3384,9 +3373,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final WhoisResources storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
 
-        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", newDateStr)));
-        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", oldDateStr))));
-        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", oldDateStr)));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-14T17:00:00Z")));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z"))));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
     }
 
     // versions

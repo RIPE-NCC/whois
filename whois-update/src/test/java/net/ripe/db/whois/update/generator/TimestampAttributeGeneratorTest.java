@@ -10,8 +10,8 @@ import net.ripe.db.whois.update.domain.OverrideOptions;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
@@ -34,6 +34,19 @@ import static org.mockito.Mockito.when;
 public class TimestampAttributeGeneratorTest {
     final private static DateTimeFormatter ISO_FORMATER = ISODateTimeFormat.dateTimeNoMillis();
 
+    private static final String TIMESTAMP_STRING_ZERO = "2000-01-01T00:00:00Z";
+    private static final String TIMESTAMP_STRING_PAST = "2014-01-26T11:44:59Z";
+    private static final String TIMESTAMP_STRING_ACTION = "2015-02-27T12:45:00Z";
+    private static final String TIMESTAMP_STRING_OTHER = "2016-02-27T12:45:00Z";
+
+    private static final RpslObject TEMPLATE = RpslObject.parse(
+            "aut-num: AS3333\n" +
+            "descr: ninj-AS\n" +
+            "status: OTHER\n" +
+            "mnt-by: TEST-MNT\n" +
+            "source: RIPE\n");
+
+
     @Mock private Update update;
     @Mock private UpdateContext updateContext;
     @Mock private PreparedUpdate preparedUpdate;
@@ -41,7 +54,7 @@ public class TimestampAttributeGeneratorTest {
 
     private TestTimestampsMode testTimestampsMode;
     private AttributeGeneratorTestHelper testHelper;
-
+    private TestDateTimeProvider testDateTimeProvider = new TestDateTimeProvider();
     private TimestampAttributeGenerator subject;
 
     @Before
@@ -53,27 +66,6 @@ public class TimestampAttributeGeneratorTest {
 
         when(updateContext.getPreparedUpdate(update)).thenReturn(preparedUpdate);
         when(preparedUpdate.getOverrideOptions()).thenReturn(overrideOptions);
-    }
-
-
-    private TestDateTimeProvider testDateTimeProvider = new TestDateTimeProvider();
-
-
-
-    private static final String TIMESTAMP_STRING_ZERO = "2000-01-01T00:00:00Z";
-    private static final String TIMESTAMP_STRING_PAST = "2014-01-26T11:44:59Z";
-    private static final String TIMESTAMP_STRING_ACTION = "2015-02-27T12:45:00Z";
-    private static final String TIMESTAMP_STRING_OTHER = "2016-02-27T12:45:00Z";
-    
-    private static final RpslObject TEMPLATE = RpslObject.parse(
-            "aut-num: AS3333\n" +
-                    "descr: ninj-AS\n" +
-                    "status: OTHER\n" +
-                    "mnt-by: TEST-MNT\n" +
-                    "source: RIPE\n");
-
-    private DateTime actionTime() {
-        return ISO_FORMATER.parseDateTime(TIMESTAMP_STRING_ACTION).withZone(DateTimeZone.UTC);
     }
 
     @Test
@@ -156,7 +148,7 @@ public class TimestampAttributeGeneratorTest {
 
     @Test
     public void modify_original_has_timestamps_input_has_timestamps() {
-        
+
         testDateTimeProvider.setTime(actionTime());
         when(updateContext.getAction(update)).thenReturn(MODIFY);
         when(overrideOptions.isSkipLastModified()).thenReturn(false);
@@ -308,5 +300,9 @@ public class TimestampAttributeGeneratorTest {
         assertThat(updatedObject.containsAttribute(LAST_MODIFIED), is(false));
 
         testHelper.validateMessages();
+    }
+
+    private LocalDateTime actionTime() {
+        return ISO_FORMATER.parseDateTime(TIMESTAMP_STRING_ACTION).withZone(DateTimeZone.UTC).toLocalDateTime();
     }
 }

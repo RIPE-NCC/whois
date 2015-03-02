@@ -23,7 +23,7 @@ public class ClockDateTimeProvider implements DateTimeProvider {
     }
 
     @Override
-    public DateTime getCurrentUtcTime() {
+    public DateTime getCurrentDateTimeUtc() {
         return DateTime.now(DateTimeZone.UTC);
     }
 

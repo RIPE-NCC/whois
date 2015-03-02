@@ -8,17 +8,16 @@ import org.joda.time.LocalDateTime;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
 @Component
 public class TestDateTimeProvider implements DateTimeProvider, Stub {
     private LocalDateTime localDateTime;
-    private DateTime utcDateTime;
-    private long nanoTime;
 
     @Override
     public void reset() {
         localDateTime = null;
-        nanoTime = 0;
     }
 
     @Override
@@ -32,24 +31,20 @@ public class TestDateTimeProvider implements DateTimeProvider, Stub {
     }
 
     @Override
-    public DateTime getCurrentUtcTime() {
-        return utcDateTime == null ? DateTime.now(DateTimeZone.UTC) : utcDateTime;
+    public DateTime getCurrentDateTimeUtc() {
+        return localDateTime.toDateTime(DateTimeZone.UTC);
     }
 
     @Override
     public long getNanoTime() {
-        return nanoTime;
+        return localDateTime.toDateTime().getMillis();
     }
 
     public void setTime(LocalDateTime dateTime) {
         localDateTime = dateTime;
     }
 
-    public void setTime(DateTime utcDateTime) {
-        this.utcDateTime = utcDateTime;
-    }
-
     public void setNanoTime(long nanoTime) {
-        nanoTime = nanoTime;
+        localDateTime = LocalDateTime.fromDateFields(new Date(nanoTime));
     }
 }
