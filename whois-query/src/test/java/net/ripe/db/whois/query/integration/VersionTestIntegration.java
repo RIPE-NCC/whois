@@ -3,6 +3,8 @@ package net.ripe.db.whois.query.integration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.TestTimestampsMode;
+import net.ripe.db.whois.common.rpsl.TimestampsMode;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
@@ -18,6 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static net.ripe.db.whois.query.integration.VersionTestIntegration.VersionMatcher.containsFilteredVersion;
@@ -28,6 +31,8 @@ import static org.hamcrest.Matchers.not;
 
 @Category(IntegrationTest.class)
 public class VersionTestIntegration extends AbstractQueryIntegrationTest {
+    @Autowired
+    private TestTimestampsMode timestampsMode;
 
     @Before
     public void startup() {
@@ -218,15 +223,52 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(response, containsString("mntner:         TEST-DBM"));
     }
 
+    @Test
+    public void showVersion_timestampModeOff() {
+        timestampsMode.setTimestampsOff(true);
+        databaseHelper.addObject("" +
+               "organisation: TO1-TEST\n" +
+               "org-name: Test Organisation\n" +
+               "changed: test@ripe.net 20120101\n" +
+               "created: 2015-02-02T11:12:13Z\n" +
+               "last-modified: 2015-02-02T11:12:13Z\n" +
+               "source: TEST");
+
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1 TO1-TEST"));
+        assertThat(response, not(containsString("created:        2015-02-02T11:12:13Z")));
+        assertThat(response, not(containsString("last-modified:  2015-02-02T11:12:13Z")));
+        assertThat(response, containsString("" +
+                "organisation:   TO1-TEST\n" +
+                "org-name:       Test Organisation\n" +
+                "source:         TEST # Filtered"));
+    }
+
+
+    @Test
+    public void showVersion_timestampModeOn() {
+        timestampsMode.setTimestampsOff(false);
+        databaseHelper.addObject("" +
+                "organisation: TO1-TEST\n" +
+                "org-name: Test Organisation\n" +
+                "changed: test@ripe.net 20120101\n" +
+                "created: 2015-02-02T11:12:13Z\n" +
+                "last-modified: 2015-02-02T11:12:13Z\n" +
+                "source: TEST");
+
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1 TO1-TEST"));
+        assertThat(response, containsString("created:        2015-02-02T11:12:13Z"));
+        assertThat(response, containsString("last-modified:  2015-02-02T11:12:13Z"));
+    }
+
     public static class VersionMatcher extends BaseMatcher<String> {
         private final String expected;
 
-        public VersionMatcher(String expected) {
+        public VersionMatcher(final String expected) {
             this.expected = expected;
         }
 
         @Override
-        public boolean matches(Object item) {
+        public boolean matches(final Object item) {
             return item instanceof String && ((String) item).contains(expected);
         }
 
@@ -236,24 +278,17 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
         }
 
         @Factory
-        public static Matcher<String> containsUnfilteredVersion(RpslObject object) {
-            return new VersionMatcher(makeMatcherString(object, false));
-        }
-
-        @Factory
-        public static Matcher<String> containsFilteredVersion(RpslObject object) {
+        public static Matcher<String> containsFilteredVersion(final RpslObject object) {
             return new VersionMatcher(makeMatcherString(object, true));
         }
 
-        private static String makeMatcherString(RpslObject object, boolean filtered) {
-            StringBuilder expecting = new StringBuilder();
-
-            FilterAuthFunction authFilter = new FilterAuthFunction();
+        private static String makeMatcherString(final RpslObject object, final boolean filtered) {
+            final StringBuilder expecting = new StringBuilder();
+            final FilterAuthFunction authFilter = new FilterAuthFunction();
             RpslObject filteredObject = authFilter.apply(object);
 
             if (filtered) {
-                FilterEmailFunction emailFilter = new FilterEmailFunction();
-                filteredObject = emailFilter.apply(filteredObject);
+                filteredObject = new FilterEmailFunction().apply(filteredObject);
             }
 
             expecting.append(filteredObject != null ? filteredObject.toString() : null);
