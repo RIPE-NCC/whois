@@ -70,6 +70,8 @@ public class TemplateQueryExecutor implements QueryExecutor {
 
 
     //TODO [TP] remove when timestamps are always on
+    // This code below is horrible because it is almost the same as the code in object template.
+    // I did not make it elegant, or refactor it because it needs to be removed as is, when the feature is always on.
     public void executeTimestampsOff(final Query query, final ResponseHandler responseHandler) {
         final String objectTypeString = query.isTemplate() ? query.getTemplateOption() : query.getVerboseOption();
         final ObjectType objectType = ObjectType.getByNameOrNull(objectTypeString);
