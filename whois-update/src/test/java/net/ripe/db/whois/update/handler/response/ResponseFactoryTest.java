@@ -51,6 +51,7 @@ public class ResponseFactoryTest {
 
     @Mock DateTimeProvider dateTimeProvider;
     @Mock UpdateContext updateContext;
+    @Mock TimestampFilterFunction timestampFilter;
     @InjectMocks ResponseFactory subject;
 
     private Origin origin;
@@ -381,7 +382,7 @@ public class ResponseFactoryTest {
         final Update update2 = new Update(new Paragraph(object2.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object2);
         final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
 
-        final Notification notification = new Notification("notify@me.com");
+        final Notification notification = new Notification("notify@me.com", timestampFilter);
         notification.add(Notification.Type.SUCCESS, create1, updateContext);
         notification.add(Notification.Type.SUCCESS, create2, updateContext);
 
@@ -420,7 +421,7 @@ public class ResponseFactoryTest {
         final Update update = new Update(new Paragraph(object.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object);
         final PreparedUpdate create = new PreparedUpdate(update, null, object, Action.CREATE);
 
-        final Notification notification = new Notification("notify@me.com");
+        final Notification notification = new Notification("notify@me.com", timestampFilter);
         notification.add(Notification.Type.SUCCESS, create, updateContext);
 
 
@@ -455,7 +456,7 @@ public class ResponseFactoryTest {
         final Update update2 = new Update(new Paragraph(object2.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object2);
         final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
 
-        final Notification notification = new Notification("notify@me.com");
+        final Notification notification = new Notification("notify@me.com", timestampFilter);
         notification.add(Notification.Type.SUCCESS_REFERENCE, create1, updateContext);
         notification.add(Notification.Type.SUCCESS_REFERENCE, create2, updateContext);
 
@@ -490,7 +491,7 @@ public class ResponseFactoryTest {
         final Update update2 = new Update(new Paragraph(object2.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object2);
         final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
 
-        final Notification notification = new Notification("notify@me.com");
+        final Notification notification = new Notification("notify@me.com", timestampFilter);
         notification.add(Notification.Type.FAILED_AUTHENTICATION, create1, updateContext);
         notification.add(Notification.Type.FAILED_AUTHENTICATION, create2, updateContext);
 

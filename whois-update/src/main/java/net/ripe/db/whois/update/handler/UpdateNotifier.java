@@ -13,6 +13,8 @@ import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.TimestampsMode;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Notification;
 import net.ripe.db.whois.update.domain.OverrideOptions;
@@ -42,18 +44,21 @@ public class UpdateNotifier {
     private final MailGateway mailGateway;
     private final VersionDao versionDao;
     private final Maintainers maintainers;
+    private final TimestampFilterFunction timestampsFilter;
 
     @Autowired
     public UpdateNotifier(final RpslObjectDao rpslObjectDao,
                           final ResponseFactory responseFactory,
                           final MailGateway mailGateway,
                           final VersionDao versionDao,
-                          final Maintainers maintainers) {
+                          final Maintainers maintainers,
+                          final TimestampsMode timestampsFilter) {
         this.rpslObjectDao = rpslObjectDao;
         this.responseFactory = responseFactory;
         this.mailGateway = mailGateway;
         this.versionDao = versionDao;
         this.maintainers = maintainers;
+        this.timestampsFilter = timestampsFilter;
     }
 
     public void sendNotifications(final UpdateRequest updateRequest, final UpdateContext updateContext) {
@@ -105,7 +110,10 @@ public class UpdateNotifier {
     }
 
     private void addNotifications(final Map<CIString, Notification> notifications, final PreparedUpdate update, final UpdateContext updateContext) {
-        final RpslObject object = update.getReferenceObject();
+        RpslObject object = update.getReferenceObject();
+        if (timestampsFilter.isTimestampsOff()) {
+            object = new RpslObjectBuilder(object).removeAttributeType(AttributeType.CREATED).removeAttributeType(AttributeType.LAST_MODIFIED).get();
+        }
 
             switch (updateContext.getStatus(update)) {
                 case SUCCESS:
@@ -143,7 +151,7 @@ public class UpdateNotifier {
             for (final CIString email : object.getValuesForAttribute(attributeType)) {
                 Notification notification = notifications.get(email);
                 if (notification == null) {
-                    notification = new Notification(email.toString());
+                    notification = new Notification(email.toString(), timestampsFilter);
                     notifications.put(email, notification);
                 }
 
