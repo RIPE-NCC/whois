@@ -13,21 +13,21 @@ import java.util.Date;
 @Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
 @Component
 public class TestDateTimeProvider implements DateTimeProvider, Stub {
-    private LocalDateTime localDateTime;
+    private LocalDateTime localDateTime = LocalDateTime.now();
 
     @Override
     public void reset() {
-        localDateTime = null;
+        localDateTime = LocalDateTime.now();
     }
 
     @Override
     public LocalDate getCurrentDate() {
-        return localDateTime == null ? LocalDate.now() : localDateTime.toLocalDate();
+        return localDateTime.toLocalDate();
     }
 
     @Override
     public LocalDateTime getCurrentDateTime() {
-        return localDateTime == null ? LocalDateTime.now() : localDateTime;
+        return localDateTime;
     }
 
     @Override
