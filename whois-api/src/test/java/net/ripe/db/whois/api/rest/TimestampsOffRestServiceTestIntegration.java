@@ -361,7 +361,6 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
 
         assertThat(notification, not(containsString("-created:")));
         assertThat(notification, not(containsString("-last-modified:")));
-        System.out.println(notification);
     }
 
     @Test
