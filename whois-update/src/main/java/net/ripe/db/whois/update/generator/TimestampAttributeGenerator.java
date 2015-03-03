@@ -44,7 +44,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
         }
 
         final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
-        List<AttributeType> warnFor = null;
+        List<AttributeType> warnFor = Lists.newArrayList();
 
         final Action action = updateContext.getAction(update);
         if (action == CREATE || action == MODIFY) {
