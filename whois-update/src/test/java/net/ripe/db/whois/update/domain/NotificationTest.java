@@ -13,17 +13,19 @@ import java.util.Set;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NotificationTest {
     @Mock Update update;
     @Mock UpdateContext updateContext;
+    @Mock TimestampFilterFunction filterFunction;
     Notification subject;
 
     @Before
     public void setUp() throws Exception {
-        subject = new Notification("test@me.now");
+        subject = new Notification("test@me.now", filterFunction);
     }
 
     @Test

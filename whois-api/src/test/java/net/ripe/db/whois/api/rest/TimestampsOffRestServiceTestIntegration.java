@@ -43,6 +43,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 
@@ -63,7 +64,8 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
             "admin-c:     TP1-TEST\n" +
-            "upd-to:      noreply@ripe.net\n" +
+            "upd-to:      updnoreply@ripe.net\n" +
+            "notify:      notify@ripe.net\n" +
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
@@ -318,6 +320,47 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
                 "***Error:   \"last-modified\" is not a known RPSL attribute\n" +
                 "created:        %s\n" +
                 "***Error:   \"created\" is not a known RPSL attribute", currentDate, currentDate)));
+    }
+
+    @Test
+    public void mode_on_create_object_then_mode_off_update_then_check_notification() throws MessagingException, IOException {
+        testTimestampsMode.setTimestampsOff(false);
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person: Switch Mode\n" +
+                "address: masd asdf\n" +
+                "phone: +311234678\n" +
+                "nic-hdl: auto-1\n" +
+                "notify: switchmodenotif@ripe.net\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "changed: sw@ripe.net\n" +
+                "source: TEST");
+
+        final String createResult = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObject), MediaType.APPLICATION_JSON), String.class);
+        assertThat(createResult, containsString("<attribute name=\"created\""));
+        assertThat(createResult, containsString("<attribute name=\"last-modified\""));
+        mailSender.getMessage("switchmodenotif@ripe.net");
+        testTimestampsMode.setTimestampsOff(true);
+
+        final RpslObject update = new RpslObjectBuilder(rpslObject)
+                .replaceAttribute(new RpslAttribute(AttributeType.NIC_HDL, "auto-1"), new RpslAttribute(AttributeType.NIC_HDL, "SM1-TEST"))
+                .addAttribute(5, new RpslAttribute(AttributeType.REMARKS, "update"))
+                .get();
+        final String updateResult = RestTest.target(getPort(), "whois/test/person/SM1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_JSON), String.class);
+
+        assertThat(updateResult, not(containsString("<attribute name=\"created\"")));
+        assertThat(updateResult, not(containsString("<attribute name=\"last-modified\"")));
+
+        // check notifications
+        final MimeMessage notificationMail = mailSender.getMessage("switchmodenotif@ripe.net");
+        final String notification = notificationMail.getContent().toString();
+
+        assertThat(notification, not(containsString("-created:")));
+        assertThat(notification, not(containsString("-last-modified:")));
     }
 
     @Test
