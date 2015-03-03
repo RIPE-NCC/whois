@@ -103,7 +103,6 @@ public class RpslResponseDecorator {
         decoratedResult = filterAuth(query, decoratedResult);
 
         decoratedResult = applyOutputFilters(query, decoratedResult);
-        decoratedResult = applySyntaxFilter(query, decoratedResult);
 
         //TODO [TP] remove when timestamps are always on
         decoratedResult = filterTimestampAttributes(decoratedResult);
