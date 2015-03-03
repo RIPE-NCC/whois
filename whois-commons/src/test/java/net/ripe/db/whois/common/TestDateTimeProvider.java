@@ -32,12 +32,12 @@ public class TestDateTimeProvider implements DateTimeProvider, Stub {
 
     @Override
     public DateTime getCurrentDateTimeUtc() {
-        return localDateTime.toDateTime(DateTimeZone.UTC);
+        return getCurrentDateTime().toDateTime(DateTimeZone.UTC);
     }
 
     @Override
     public long getNanoTime() {
-        return localDateTime.toDateTime().getMillis();
+        return getCurrentDateTime().toDateTime().getMillis();
     }
 
     public void setTime(LocalDateTime dateTime) {
