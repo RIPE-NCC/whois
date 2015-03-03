@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.TimestampsMode;
+import net.ripe.db.whois.common.rpsl.transform.TimestampFilterFunction;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Notification;
 import net.ripe.db.whois.update.domain.OverrideOptions;
@@ -52,7 +53,7 @@ public class UpdateNotifier {
                           final MailGateway mailGateway,
                           final VersionDao versionDao,
                           final Maintainers maintainers,
-                          final TimestampsMode timestampsFilter) {
+                          final TimestampFilterFunction timestampsFilter) {
         this.rpslObjectDao = rpslObjectDao;
         this.responseFactory = responseFactory;
         this.mailGateway = mailGateway;
@@ -110,10 +111,7 @@ public class UpdateNotifier {
     }
 
     private void addNotifications(final Map<CIString, Notification> notifications, final PreparedUpdate update, final UpdateContext updateContext) {
-        RpslObject object = update.getReferenceObject();
-        if (timestampsFilter.isTimestampsOff()) {
-            object = new RpslObjectBuilder(object).removeAttributeType(AttributeType.CREATED).removeAttributeType(AttributeType.LAST_MODIFIED).get();
-        }
+        final RpslObject object = update.getReferenceObject();
 
             switch (updateContext.getStatus(update)) {
                 case SUCCESS:
