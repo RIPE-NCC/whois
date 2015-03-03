@@ -22,7 +22,7 @@ import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
-import net.ripe.db.whois.query.planner.TimestampFilterFunction;
+import net.ripe.db.whois.common.rpsl.transform.TimestampFilterFunction;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
