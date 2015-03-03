@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.planner;
+package net.ripe.db.whois.common.rpsl.transform;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;

@@ -1,4 +1,4 @@
-package net.ripe.db.whois.query.planner;
+package net.ripe.db.whois.common.rpsl.transform;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 //TODO [TP] remove when timestamps are always on
 @Component
 @ActiveProfiles(WhoisProfile.TEST)
-@ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml"})
+@ContextConfiguration(locations = {"classpath:applicationContext-commons-test.xml"})
 public class TimestampFilterFunctionTest  extends AbstractJUnit4SpringContextTests {
 
     @Autowired
