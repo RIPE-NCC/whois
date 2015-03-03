@@ -38,6 +38,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
 
     @Override
     public RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
+        //TODO TP : remove when timestamps always on
         if (timestampsMode.isTimestampsOff()) {
             return updatedObject;
         }
