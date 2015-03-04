@@ -665,7 +665,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
             crowdClient.logout(USER1);
         }
 
-        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_0/000.audit.xml.gz"));
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_981475200000/000.audit.xml.gz"));
         final Iterable<String> linesContainingPassword = new IterableTransformer<String>(Splitter.on('\n').split(audit)) {
             @Override
             public void apply(String input, Deque<String> result) {
