@@ -139,7 +139,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def setupSpec() {
         dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);
-//        dateTimeProvider.setTime(new DateTime())
         dateTimeProvider.reset();
     }
 
