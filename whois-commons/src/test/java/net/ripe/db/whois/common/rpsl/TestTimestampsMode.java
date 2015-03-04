@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Profile;
 
 import javax.inject.Named;
 
-@Profile({WhoisProfile.TEST})
+@Profile({WhoisProfile.TEST, WhoisProfile.ENDTOEND})
 @Named
 public class TestTimestampsMode implements TimestampsMode {
     private boolean timestampsOff;
