@@ -1,9 +1,7 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.LocalDateTime
 import org.joda.time.format.ISODateTimeFormat
@@ -47,7 +45,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def setupSpec() {
         dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);
-        dateTimeProvider.setTime(new DateTime())
+        dateTimeProvider.reset();
     }
 
     def "create, single object, notif sent to notify"() {
@@ -497,7 +495,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
     def "update, multiple objects, notif sent to notify"() {
       when:
         setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def updates = """\
                     password: update
 
@@ -671,7 +669,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
     def "create, multiple objects, notif to ref-nfy and notify"() {
       when:
         setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def objects =
             """\
             organisation: AUTO-1
@@ -783,7 +781,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
     def "update, organisation, multiple objects"() {
       when:
       setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
-      def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+      def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def objects =
             """\
             organisation: AUTO-1
@@ -1030,7 +1028,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create, single notif to irt-nfy"() {
       when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def irt = """\
                 inet6num: 2001::/48
                 netname: RIPE-NCC
@@ -1091,7 +1089,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "update, single notif to irt-nfy"() {
       when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def irt = """\
                 inet6num: 2001::/48
                 netname: RIPE-NCC
