@@ -2,10 +2,17 @@ package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.TestDateTimeProvider
+import net.ripe.db.whois.common.rpsl.*
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
+import org.joda.time.LocalDateTime
 import org.joda.time.format.ISODateTimeFormat
+
+import javax.mail.MessagingException
+import javax.mail.internet.MimeMessage
+
+import static org.hamcrest.core.StringContains.containsString
+import static org.junit.Assert.assertThat
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
@@ -35,16 +42,17 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             """];
     }
     static TestDateTimeProvider dateTimeProvider;
+    static TestTimestampsMode testTimestampsMode;
 
     def setupSpec() {
         dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);
+        testTimestampsMode = getApplicationContext().getBean(net.ripe.db.whois.common.rpsl.TestTimestampsMode.class);
     }
 
 
     def "create object with created and last-modified generates new values"() {
         given:
-        dateTimeProvider.setTime(new DateTime())
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
 
         def update = new SyncUpdate(data: """\
         person:        Test Person
@@ -101,8 +109,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "modify object created attribute stays the same"() {
         given:
-        dateTimeProvider.setTime(new DateTime().minusDays(1))
-        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
+        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
 
         syncUpdate(new SyncUpdate(data: """\
             person:  Other Person
@@ -125,7 +133,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
 
         when:
-        dateTimeProvider.setTime(new DateTime())
+        dateTimeProvider.setTime(new LocalDateTime())
 
         def update = new SyncUpdate(data: """\
             person:  Other Person
@@ -154,8 +162,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "modify object without created generates last-modified only"() {
         given:
-        dateTimeProvider.setTime(new DateTime())
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.currentDateTimeUtc);
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
@@ -194,8 +201,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "modify object with last-modified updates last-modified"() {
         given:
-        dateTimeProvider.setTime(new DateTime().minusDays(1))
-        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
+        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
@@ -231,8 +238,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         updated =~ /last-modified:  ${yesterday}/
 
         when:
-        dateTimeProvider.setTime(new DateTime())
-        def today = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        dateTimeProvider.setTime(new LocalDateTime())
+        def today = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
 
         def updateToday = syncUpdate(new SyncUpdate(data:
                         "mntner:  LOOP-MNT\n" +
@@ -259,7 +266,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "delete object with incorrect created or last-modified succeeds"() {
         given:
-        dateTimeProvider.setTime(new DateTime().minusDays(1))
+        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
 
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
@@ -277,8 +284,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
 
         when:
-        dateTimeProvider.setTime(new DateTime())
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        dateTimeProvider.setTime(new LocalDateTime())
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def delete = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
                 address:       Singel 258
@@ -298,9 +305,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "delete object with correct created and last-modified succeeds"() {
-        given:
-        dateTimeProvider.setTime(new DateTime())
-
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
@@ -317,7 +321,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
 
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def delete = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
                 address:       Singel 258
@@ -336,9 +340,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         delete =~ /SUCCESS/
     }
     def "delete object with no created or last-modified succeeds"() {
-        given:
-        dateTimeProvider.setTime(new DateTime())
-
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
@@ -376,5 +377,74 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         delete =~ /SUCCESS/
+    }
+
+    def mode_off_syncupdates_created_last_modified_raises_warnings() {
+        testTimestampsMode.setTimestampsOff(true);
+
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());
+        def pauleth = RpslObject.parse("person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "changed:   noreply@ripe.net 20120101\n" +
+                "source:    TEST\n")
+        def object = new RpslObjectBuilder(pauleth)
+                .addAttributeAfter(new RpslAttribute("created", currentDate), AttributeType.MNT_BY)
+                .addAttributeAfter(new RpslAttribute("last-modified", currentDate), AttributeType.MNT_BY)
+                .get();
+
+        def result = syncUpdate(new SyncUpdate(data: object.toString() + "\npassword: test\n"))
+
+        assertThat(result, containsString("" +
+                "Create FAILED: [person] PP1-TEST   Pauleth Palthen"));
+        assertThat(result, containsString(String.format("" +
+                "last-modified:  %s\n" +
+                "***Error:   \"last-modified\" is not a known RPSL attribute\n" +
+                "created:        %s\n" +
+                "***Error:   \"created\" is not a known RPSL attribute", currentDate, currentDate)));
+    }
+
+    def mode_off_mailcreate_created_last_modified_raises_warnings() throws MessagingException, IOException {
+        testTimestampsMode.setTimestampsOff(true);
+
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());
+
+        def pauleth = RpslObject.parse("person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "changed:   noreply@ripe.net 20120101\n" +
+                "source:    TEST\n")
+        def object = new RpslObjectBuilder(pauleth)
+                .addAttributeAfter(new RpslAttribute("created", currentDate), AttributeType.MNT_BY)
+                .addAttributeAfter(new RpslAttribute("last-modified", currentDate), AttributeType.MNT_BY)
+                .get();
+
+                send(
+                "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: NEW\n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: UTF-8\n" +
+                "\n" +
+                object.toString() + "\npassword: test\n");
+        final MimeMessage message = mailSender.getMessage("noreply@ripe.net");
+        final String result = message.getContent().toString();
+
+        assertThat(result, containsString("" +
+                "Create FAILED: [person] PP1-TEST   Pauleth Palthen"));
+        assertThat(result, containsString(String.format("" +
+                "last-modified:  %s\n" +
+                "***Error:   \"last-modified\" is not a known RPSL attribute\n" +
+                "created:        %s\n" +
+                "***Error:   \"created\" is not a known RPSL attribute", currentDate, currentDate)));
     }
 }

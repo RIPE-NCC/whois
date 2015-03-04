@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
@@ -10,7 +9,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -95,7 +93,6 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
 
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private TestTimestampsMode testTimestampsMode;
-    @Autowired private MailUpdatesTestSupport mailUpdatesTestSupport;
     @Autowired private MailSenderStub mailSender;
 
     @Before
@@ -291,38 +288,6 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
     }
 
     @Test
-    public void mode_off_syncupdates_created_last_modified_raises_warnings() {
-        testTimestampsMode.setTimestampsOff(true);
-
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());
-
-        final RpslObject object = new RpslObjectBuilder(PAULETH_PALTHEN)
-                .addAttributeAfter(new RpslAttribute("created", currentDate), AttributeType.MNT_BY)
-                .addAttributeAfter(new RpslAttribute("last-modified", currentDate), AttributeType.MNT_BY)
-                .get();
-
-        final String result = new SyncUpdateBuilder()
-                .setHost("localhost")
-                .setPort(getPort())
-                .setSource("TEST")
-                .setData(object.toString() + "\npassword: test\n")
-                .setHelp(false)
-                .setDiff(false)
-                .setNew(true)
-                .setRedirect(false)
-                .build()
-                .post();
-
-        assertThat(result, containsString("" +
-                "Create FAILED: [person] PP1-TEST   Pauleth Palthen"));
-        assertThat(result, containsString(String.format("" +
-                "last-modified:  %s\n" +
-                "***Error:   \"last-modified\" is not a known RPSL attribute\n" +
-                "created:        %s\n" +
-                "***Error:   \"created\" is not a known RPSL attribute", currentDate, currentDate)));
-    }
-
-    @Test
     public void mode_on_create_object_then_mode_off_update_then_check_notification() throws MessagingException, IOException {
         testTimestampsMode.setTimestampsOff(false);
 
@@ -361,39 +326,5 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
 
         assertThat(notification, not(containsString("-created:")));
         assertThat(notification, not(containsString("-last-modified:")));
-    }
-
-    @Test
-    public void mode_off_mailcreate_created_last_modified_raises_warnings() throws MessagingException, IOException {
-        testTimestampsMode.setTimestampsOff(true);
-
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());
-
-        final RpslObject object = new RpslObjectBuilder(PAULETH_PALTHEN)
-                .addAttributeAfter(new RpslAttribute("created", currentDate), AttributeType.MNT_BY)
-                .addAttributeAfter(new RpslAttribute("last-modified", currentDate), AttributeType.MNT_BY)
-                .get();
-
-        mailUpdatesTestSupport.insert("" +
-                "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
-                "From: noreply@ripe.net\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Subject: NEW\n" +
-                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
-                "Content-Type: text/plain; charset=\"utf-8\"\n" +
-                "MIME-Version: 1.0\n" +
-                "Content-Transfer-Encoding: UTF-8\n" +
-                "\n" +
-                object.toString() + "\npassword: test\n");
-        final MimeMessage message = mailSender.getMessage("noreply@ripe.net");
-        final String result = message.getContent().toString();
-
-        assertThat(result, containsString("" +
-                "Create FAILED: [person] PP1-TEST   Pauleth Palthen"));
-        assertThat(result, containsString(String.format("" +
-                "last-modified:  %s\n" +
-                "***Error:   \"last-modified\" is not a known RPSL attribute\n" +
-                "created:        %s\n" +
-                "***Error:   \"created\" is not a known RPSL attribute", currentDate, currentDate)));
     }
 }
