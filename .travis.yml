@@ -8,6 +8,10 @@ before_install:
 before_script:
  - mysql -u root -e "CREATE USER 'dbint'@'localhost' IDENTIFIED BY ''"
  - mysql -u root -e "GRANT ALL on *.* TO 'dbint'@'localhost'"
+ - mysql -u root -e 'set global connect_timeout = 60'
+ - mysql -u root -e 'set global net_read_timeout = 60'
+ - mysql -u root -e 'set global net_write_timeout = 60'
+ - mysql -u root -e 'set max_connect_errors = 999999999'
 
 branches:
   only:
