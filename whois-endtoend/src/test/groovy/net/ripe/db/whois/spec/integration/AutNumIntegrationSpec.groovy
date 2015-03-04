@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.ISODateTimeFormat
 
@@ -140,7 +139,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def setupSpec() {
         dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);
-        dateTimeProvider.setTime(new DateTime())
+//        dateTimeProvider.setTime(new DateTime())
+        dateTimeProvider.reset();
     }
 
     def "delete aut-num object"() {
@@ -713,7 +713,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /Warning: "status:" attribute cannot be removed/
 
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
 
         then:
@@ -733,7 +733,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "update autnum object, user maintainer, status cannot be removed"() {
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def create = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -801,7 +801,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "update autnum object, user maintainer, moving remark is allowed"() {
         given:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
 
         when:
         def create = syncUpdate new SyncUpdate(data: """\
@@ -872,7 +872,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create aut-num object, rs maintainer, generate ASSIGNED status, generate remark"() {
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -907,7 +907,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create aut-num object, rs maintainer, generate ASSIGNED status, user-specified remark is moved beside status"() {
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -945,7 +945,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create aut-num object, user maintainer, replace invalid status"() {
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -982,7 +982,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create aut-num object, user maintainer, duplicate status"() {
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentUtcTime());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
