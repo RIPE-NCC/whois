@@ -27,7 +27,7 @@ public class NrtmTimestampsOffTestIntegration extends AbstractNrtmIntegrationBas
     }
 
     @Test
-    public void nrtm_optional_timestamp_attributes_mode_off() {
+    public void nrtm_timestamp_attributes_mode_off() {
         setTimestampsModeOff(true);
 
         databaseHelper.addObject("" +
@@ -62,7 +62,7 @@ public class NrtmTimestampsOffTestIntegration extends AbstractNrtmIntegrationBas
     }
 
     @Test
-    public void nrtm_retains_optional_timestamp_attributes_mode_on() {
+    public void nrtm_retains_timestamp_attributes_mode_on() {
         setTimestampsModeOff(false);
 
         databaseHelper.addObject("" +
@@ -95,7 +95,7 @@ public class NrtmTimestampsOffTestIntegration extends AbstractNrtmIntegrationBas
     }
 
     @Test
-    public void nrtm_discards_optional_timestamp_attributes_mode_off_organisation() {
+    public void nrtm_discards_timestamp_attributes_mode_off_organisation() {
         setTimestampsModeOff(true);
 
         databaseHelper.addObject("" +
@@ -134,7 +134,7 @@ public class NrtmTimestampsOffTestIntegration extends AbstractNrtmIntegrationBas
     }
 
     @Test
-    public void nrtm_optional_timestamp_attributes_mode_on_organisation() {
+    public void nrtm_timestamp_attributes_mode_on_organisation() {
         setTimestampsModeOff(false);
 
         databaseHelper.addObject("" +
