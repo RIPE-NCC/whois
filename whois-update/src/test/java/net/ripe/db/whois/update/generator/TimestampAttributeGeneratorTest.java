@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 public class TimestampAttributeGeneratorTest {
     final private static DateTimeFormatter ISO_FORMATER = ISODateTimeFormat.dateTimeNoMillis();
 
-    private static final String TIMESTAMP_STRING_ZERO = "2000-01-01T00:00:00Z";
     private static final String TIMESTAMP_STRING_PAST = "2014-01-26T11:44:59Z";
     private static final String TIMESTAMP_STRING_ACTION = "2015-02-27T12:45:00Z";
     private static final String TIMESTAMP_STRING_OTHER = "2016-02-27T12:45:00Z";
@@ -99,11 +98,6 @@ public class TimestampAttributeGeneratorTest {
 
         assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_ACTION));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
-
-        testHelper.validateAttributeMessage(updatedObject.findAttribute(CREATED),
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED));
-        testHelper.validateAttributeMessage(updatedObject.findAttribute(LAST_MODIFIED),
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
     }
 
     @Test
@@ -170,8 +164,8 @@ public class TimestampAttributeGeneratorTest {
         assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
         assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
-        testHelper.validateAttributeMessage(updatedObject.findAttribute(CREATED),
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED));
+//        testHelper.validateAttributeMessage(updatedObject.findAttribute(CREATED),
+//                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED));
         testHelper.validateAttributeMessage(updatedObject.findAttribute(LAST_MODIFIED),
                 ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
     }

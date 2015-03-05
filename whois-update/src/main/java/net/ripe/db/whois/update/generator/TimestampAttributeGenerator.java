@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.generator;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.CREATED;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LAST_MODIFIED;
@@ -47,25 +49,31 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
         List<AttributeType> warnFor = Lists.newArrayList();
 
         final Action action = updateContext.getAction(update);
-        if (action == CREATE || action == MODIFY) {
-            warnFor = cleanupTimestampAttributesAndGatherWarnings(builder, updatedObject, true);
-        } else if (action == DELETE) {
-            warnFor = cleanupTimestampAttributesAndGatherWarnings(builder, updatedObject, false);
-        }
-
         if (action == CREATE || action == MODIFY || action == DELETE) {
+            boolean addWarnings = updateContext.getPreparedUpdate(update).getOverrideOptions().isSkipLastModified() ? false : true;
+            warnFor = cleanupTimestampAttributesAndGatherWarnings(builder, updatedObject, addWarnings);
             generateTimestampAttributes(builder, originalObject, update, updateContext);
         }
 
         final RpslObject resultObject = builder.get();
-        addWarnings(warnFor, resultObject, update, updateContext);
+        if (action != DELETE) {
+            for (AttributeType attributeType : warnFor) {
+                addWarning(attributeType, originalObject, resultObject, update, updateContext);
+            }
+        }
 
         return resultObject;
     }
 
-    private void addWarnings(final List<AttributeType> warnFor, final RpslObject rpslObject, final Update update, final UpdateContext updateContext) {
-        for (AttributeType attributeType : warnFor) {
-            updateContext.addMessage(update, rpslObject.findAttribute(attributeType), ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(attributeType));
+    private void addWarning(final AttributeType attributeType, final RpslObject original, final RpslObject resultObject, final Update update, final UpdateContext updateContext) {
+        Set<RpslAttribute> originalAttribute = Sets.newLinkedHashSet();
+        if (original != null) {
+            originalAttribute = Sets.newLinkedHashSet(original.findAttributes(attributeType));
+        }
+
+        final Set<RpslAttribute> updatedAttribute = Sets.newLinkedHashSet(resultObject.findAttributes(attributeType));
+        if (!Sets.symmetricDifference(originalAttribute, updatedAttribute).isEmpty()) {
+            updateContext.addMessage(update, resultObject.findAttribute(attributeType), ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(attributeType));
         }
     }
 
