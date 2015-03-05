@@ -72,9 +72,9 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         response =~ /Create SUCCEEDED: \[person\] TP3-TEST   Test Person/
-        response =~ /Warning: Supplied attribute 'created' has been replaced with a generated
+        response !=~ /Warning: Supplied attribute 'created' has been replaced with a generated
             value/
-        response =~ /Warning: Supplied attribute 'last-modified' has been replaced with a
+        response !=~ /Warning: Supplied attribute 'last-modified' has been replaced with a
             generated value/
 
         when:

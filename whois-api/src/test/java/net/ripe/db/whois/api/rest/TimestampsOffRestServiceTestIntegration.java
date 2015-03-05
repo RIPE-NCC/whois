@@ -12,12 +12,17 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.TestTimestampsMode;
+import net.ripe.db.whois.common.rpsl.ValidationMessages;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.glassfish.jersey.uri.UriComponent;
 import org.hamcrest.Matchers;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
@@ -85,7 +90,7 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
             "address:   Singel 258\n" +
             "phone:     +31 6 12345678\n" +
             "nic-hdl:   TR1-TEST\n" +
-            "admin-c:   TR1-TEST\n" +
+            "admin-c:   TP1-TEST\n" +
             "abuse-mailbox: abuse@test.net\n" +
             "mnt-by:    OWNER-MNT\n" +
             "changed:   dbtest@ripe.net 20120101\n" +
@@ -125,6 +130,54 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
             assertThat(errorMessages.get(0).toString(), is(new ErrorMessage(new Message(Messages.Type.ERROR, "\"created\" is not a known RPSL attribute")).toString()));
             assertThat(errorMessages.get(1).toString(), is(new ErrorMessage(new Message(Messages.Type.ERROR, "\"last-modified\" is not a known RPSL attribute")).toString()));
         }
+    }
+
+    @Test
+    public void update_using_skiplastmodified_should_not_warn() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.ROLE));
+        final RpslObject object = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeAfter(new RpslAttribute("created", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .addAttributeAfter(new RpslAttribute("last-modified", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .addAttribute(3, new RpslAttribute("e-mail", "test@ripe.net"))
+                .get();
+        final String encodedQueryParam = UriComponent.encode("agoston,zoh,reason {skip-last-modified=true}", UriComponent.Type.QUERY_PARAM, false);
+
+        final WhoisResources result = RestTest.target(getPort(), "whois/test/role/TR1-TEST?password=test")
+                .queryParam("override", encodedQueryParam)
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, object), MediaType.APPLICATION_XML), WhoisResources.class);
+        final List<ErrorMessage> messages = result.getErrorMessages();
+        assertThat(messages.size(), is(1));
+        assertThat(messages.get(0).toString(), is(new ErrorMessage(UpdateMessages.overrideAuthenticationUsed()).toString()));
+    }
+
+    @Test
+    public void update_with_same_created_should_not_warn() {
+        final RpslObject object = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeAfter(new RpslAttribute("created", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .addAttributeAfter(new RpslAttribute("last-modified", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
+                .addAttribute(3, new RpslAttribute("e-mail", "test@ripe.net"))
+                .replaceAttribute(new RpslAttribute("nic-hdl", "TR1-TEST"), new RpslAttribute("nic-hdl", "WO1-TEST"))
+                .get();
+
+        // create the object
+        RestTest.target(getPort(), "whois/test/role?password=test")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, object), MediaType.APPLICATION_XML), String.class);
+
+        final RpslObject updated = new RpslObjectBuilder(object)
+                .addAttribute(3, new RpslAttribute(AttributeType.REMARKS, "updated"))
+                .get();
+
+        testDateTimeProvider.setTime(LocalDateTime.parse("2005-12-12T09:13:00"));
+        // supplying correct created shouldn't warn
+        final WhoisResources result = RestTest.target(getPort(), "whois/test/role/WO1-TEST?password=test")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final List<ErrorMessage> messages = result.getErrorMessages();
+        assertThat(messages.size(), is(1));
+        assertThat(messages.get(0).toString(), is(new ErrorMessage(ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED)).toString()));
     }
 
     @Test
