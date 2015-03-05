@@ -134,6 +134,7 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
 
     @Test
     public void update_using_skiplastmodified_should_not_warn() {
+        testTimestampsMode.setTimestampsOff(false);
         databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.ROLE));
         final RpslObject object = new RpslObjectBuilder(TEST_ROLE)
                 .addAttributeAfter(new RpslAttribute("created", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
@@ -153,6 +154,7 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
 
     @Test
     public void update_with_same_created_should_not_warn() {
+        testTimestampsMode.setTimestampsOff(false);
         final RpslObject object = new RpslObjectBuilder(TEST_ROLE)
                 .addAttributeAfter(new RpslAttribute("created", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
                 .addAttributeAfter(new RpslAttribute("last-modified", "2001-02-04T17:00:00Z"), AttributeType.MNT_BY)
