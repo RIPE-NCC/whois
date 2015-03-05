@@ -156,7 +156,7 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
     }
 
     @Test
-    public void nrtm_keeps_optional_timestamp_attributes() throws Exception {
+    public void nrtm_keeps_timestamp_attributes() throws Exception {
         databaseHelper.addObject("" +
                 "role:          Denis Walker\n" +
                 "nic-hdl:       DW-RIPE\n" +
