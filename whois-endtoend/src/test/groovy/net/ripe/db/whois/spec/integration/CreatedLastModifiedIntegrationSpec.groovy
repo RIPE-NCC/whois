@@ -2,17 +2,15 @@ package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.TestDateTimeProvider
-import net.ripe.db.whois.common.rpsl.*
+import net.ripe.db.whois.common.rpsl.RpslObject
+import net.ripe.db.whois.common.rpsl.TestTimestampsMode
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.joda.time.DateTimeZone
 import org.joda.time.LocalDateTime
 import org.joda.time.format.ISODateTimeFormat
+import spock.lang.Ignore
 
-import javax.mail.MessagingException
 import javax.mail.internet.MimeMessage
-
-import static org.hamcrest.core.StringContains.containsString
-import static org.junit.Assert.assertThat
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
@@ -379,51 +377,52 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         delete =~ /SUCCESS/
     }
 
-    def mode_off_syncupdates_created_last_modified_raises_warnings() {
+    def "mode off syncupdates raises warnings"() {
+        given:
         testTimestampsMode.setTimestampsOff(true);
 
+        when:
         def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());
-        def pauleth = RpslObject.parse("person:    Pauleth Palthen\n" +
+        def object = RpslObject.parse("person:    Pauleth Palthen\n" +
                 "address:   Singel 258\n" +
                 "phone:     +31-1234567890\n" +
                 "e-mail:    noreply@ripe.net\n" +
                 "mnt-by:    OWNER-MNT\n" +
                 "nic-hdl:   PP1-TEST\n" +
                 "changed:   noreply@ripe.net 20120101\n" +
+                "created:  ${currentDate}\n" +
+                "last-modified:  ${currentDate}\n" +
                 "source:    TEST\n")
-        def object = new RpslObjectBuilder(pauleth)
-                .addAttributeAfter(new RpslAttribute("created", currentDate), AttributeType.MNT_BY)
-                .addAttributeAfter(new RpslAttribute("last-modified", currentDate), AttributeType.MNT_BY)
-                .get();
 
         def result = syncUpdate(new SyncUpdate(data: object.toString() + "\npassword: test\n"))
 
-        assertThat(result, containsString("" +
-                "Create FAILED: [person] PP1-TEST   Pauleth Palthen"));
-        assertThat(result, containsString(String.format("" +
-                "last-modified:  %s\n" +
-                "***Error:   \"last-modified\" is not a known RPSL attribute\n" +
-                "created:        %s\n" +
-                "***Error:   \"created\" is not a known RPSL attribute", currentDate, currentDate)));
+        then:
+        println(result)
+        result =~ /Create FAILED: \[person\] PP1-TEST   Pauleth Palthen/
+        result =~ /created:        ${currentDate}
+\*\*\*Error:   "created" is not a known RPSL attribute
+last-modified:  ${currentDate}
+\*\*\*Error:   "last-modified" is not a known RPSL attribute/
     }
 
-    def mode_off_mailcreate_created_last_modified_raises_warnings() throws MessagingException, IOException {
+    def "mode off mailcreate raises warnings"() {
+        given:
         testTimestampsMode.setTimestampsOff(true);
 
+        when:
         def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());
 
-        def pauleth = RpslObject.parse("person:    Pauleth Palthen\n" +
+        def object = RpslObject.parse(
+                "person:    Pauleth Palthen\n" +
                 "address:   Singel 258\n" +
                 "phone:     +31-1234567890\n" +
                 "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    TST-MNT\n" +
+                "created:   ${currentDate}\n" +
+                "last-modified:   ${currentDate}\n" +
                 "nic-hdl:   PP1-TEST\n" +
                 "changed:   noreply@ripe.net 20120101\n" +
                 "source:    TEST\n")
-        def object = new RpslObjectBuilder(pauleth)
-                .addAttributeAfter(new RpslAttribute("created", currentDate), AttributeType.MNT_BY)
-                .addAttributeAfter(new RpslAttribute("last-modified", currentDate), AttributeType.MNT_BY)
-                .get();
 
                 send(
                 "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
@@ -435,16 +434,65 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "MIME-Version: 1.0\n" +
                 "Content-Transfer-Encoding: UTF-8\n" +
                 "\n" +
-                object.toString() + "\npassword: test\n");
+                object.toString() + "\npassword: update\n");
         final MimeMessage message = mailSender.getMessage("noreply@ripe.net");
         final String result = message.getContent().toString();
 
-        assertThat(result, containsString("" +
-                "Create FAILED: [person] PP1-TEST   Pauleth Palthen"));
-        assertThat(result, containsString(String.format("" +
-                "last-modified:  %s\n" +
-                "***Error:   \"last-modified\" is not a known RPSL attribute\n" +
-                "created:        %s\n" +
-                "***Error:   \"created\" is not a known RPSL attribute", currentDate, currentDate)));
+        then:
+        result =~ /created:        ${currentDate}
+\*\*\*Error:   "created" is not a known RPSL attribute
+last-modified:  ${currentDate}
+\*\*\*Error:   "last-modified" is not a known RPSL attribute/
+    }
+
+    @Ignore
+    def "mode off create invalid attributes"() {
+        given:
+        testTimestampsMode.setTimestampsOff(true);
+
+        when:
+        def object = RpslObject.parse(
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "invalid:   some text\n" +
+                "inv-again: more text\n" +
+                "changed:   noreply@ripe.net 20120101\n" +
+                "source:    TEST\n")
+
+        def result = syncUpdate(new SyncUpdate(data: object.toString() + "\npassword: test\n"))
+
+        then:
+        result =~ /invalid:        some text
+\*\*\*Error:   "invalid" is not a known RPSL attribute
+inv-again:      more text
+\*\*\*Error:   "inv-again" is not a known RPSL attribute/
+
+        when:
+        def comparison = RpslObject.parse(
+                "person:    Created LastModified\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   CLM1-TEST\n" +
+                "invalid:   some text\n" +
+                "created:   should show up\n" +
+                "last-modified:   should also show up\n" +
+                "changed:   noreply@ripe.net 20120101\n" +
+                "source:    TEST\n")
+
+        def comparisonResult = syncUpdate(new SyncUpdate(data: comparison.toString() + "\npassword: test\n"))
+
+        then:
+        comparisonResult =~ /invalid:        some text
+\*\*\*Error:   "invalid" is not a known RPSL attribute
+created:        should show up
+\*\*\*Error:   "created" is not a known RPSL attribute
+last-modified:  should also show up
+\*\*\*Error:   "last-modified" is not a known RPSL attribute/
     }
 }
