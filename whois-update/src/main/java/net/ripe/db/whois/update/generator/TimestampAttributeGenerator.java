@@ -21,12 +21,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Set;
 
-import static net.ripe.db.whois.common.rpsl.AttributeType.CREATED;
-import static net.ripe.db.whois.common.rpsl.AttributeType.LAST_MODIFIED;
-import static net.ripe.db.whois.update.domain.Action.CREATE;
-import static net.ripe.db.whois.update.domain.Action.DELETE;
-import static net.ripe.db.whois.update.domain.Action.MODIFY;
-
 @Component
 public class TimestampAttributeGenerator extends AttributeGenerator {
     private final DateTimeProvider dateTimeProvider;
@@ -49,14 +43,14 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
         List<AttributeType> warnFor = Lists.newArrayList();
 
         final Action action = updateContext.getAction(update);
-        if (action == CREATE || action == MODIFY || action == DELETE) {
+        if (action == Action.CREATE || action == Action.MODIFY || action == Action.DELETE) {
             boolean addWarnings = updateContext.getPreparedUpdate(update).getOverrideOptions().isSkipLastModified() ? false : true;
             warnFor = cleanupTimestampAttributesAndGatherWarnings(builder, updatedObject, addWarnings);
             generateTimestampAttributes(builder, originalObject, update, updateContext);
         }
 
         final RpslObject resultObject = builder.get();
-        if (action != DELETE) {
+        if (action != Action.DELETE) {
             for (AttributeType attributeType : warnFor) {
                 addWarning(attributeType, originalObject, resultObject, update, updateContext);
             }
@@ -79,8 +73,8 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
 
     private List<AttributeType> cleanupTimestampAttributesAndGatherWarnings(final RpslObjectBuilder builder, final RpslObject updatedObject, final boolean addWarnings) {
         final List<AttributeType> warnFor = Lists.newArrayList();
-        removeAttribute(updatedObject, builder, CREATED, warnFor, addWarnings);
-        removeAttribute(updatedObject, builder, LAST_MODIFIED, warnFor, addWarnings);
+        removeAttribute(updatedObject, builder, AttributeType.CREATED, warnFor, addWarnings);
+        removeAttribute(updatedObject, builder, AttributeType.LAST_MODIFIED, warnFor, addWarnings);
 
         return warnFor;
     }
@@ -103,31 +97,31 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
         switch (action) {
 
             case CREATE:
-                builder.addAttributeSorted(new RpslAttribute(CREATED, nowString));
-                builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
+                builder.addAttributeSorted(new RpslAttribute(AttributeType.CREATED, nowString));
+                builder.addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, nowString));
                 break;
 
             case MODIFY:
-                if (originalObject.containsAttribute(CREATED)) {
-                    builder.addAttributeSorted(new RpslAttribute(CREATED, originalObject.getValueForAttribute(CREATED)));
+                if (originalObject.containsAttribute(AttributeType.CREATED)) {
+                    builder.addAttributeSorted(new RpslAttribute(AttributeType.CREATED, originalObject.getValueForAttribute(AttributeType.CREATED)));
                 }
 
                 if (updateContext.getPreparedUpdate(update).getOverrideOptions().isSkipLastModified()) {
-                    if (originalObject.containsAttribute(LAST_MODIFIED)) {
-                        builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, originalObject.getValueForAttribute(LAST_MODIFIED)));
+                    if (originalObject.containsAttribute(AttributeType.LAST_MODIFIED)) {
+                        builder.addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, originalObject.getValueForAttribute(AttributeType.LAST_MODIFIED)));
                     }
                 } else {
-                    builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, nowString));
+                    builder.addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, nowString));
                 }
                 break;
 
             case DELETE:
                 // for delete we just ignore what was passed in and make sure object looks like stored version
-                if (originalObject.containsAttribute(CREATED)) {
-                    builder.addAttributeSorted(new RpslAttribute(CREATED, originalObject.getValueForAttribute(CREATED)));
+                if (originalObject.containsAttribute(AttributeType.CREATED)) {
+                    builder.addAttributeSorted(new RpslAttribute(AttributeType.CREATED, originalObject.getValueForAttribute(AttributeType.CREATED)));
                 }
-                if (originalObject.containsAttribute(LAST_MODIFIED)) {
-                    builder.addAttributeSorted(new RpslAttribute(LAST_MODIFIED, originalObject.getValueForAttribute(LAST_MODIFIED)));
+                if (originalObject.containsAttribute(AttributeType.LAST_MODIFIED)) {
+                    builder.addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, originalObject.getValueForAttribute(AttributeType.LAST_MODIFIED)));
                 }
                 break;
 

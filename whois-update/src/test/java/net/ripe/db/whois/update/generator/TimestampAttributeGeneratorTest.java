@@ -1,11 +1,13 @@
 package net.ripe.db.whois.update.generator;
 
 import net.ripe.db.whois.common.TestDateTimeProvider;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.TestTimestampsMode;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.OverrideOptions;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
@@ -20,11 +22,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static net.ripe.db.whois.common.rpsl.AttributeType.CREATED;
-import static net.ripe.db.whois.common.rpsl.AttributeType.LAST_MODIFIED;
-import static net.ripe.db.whois.update.domain.Action.CREATE;
-import static net.ripe.db.whois.update.domain.Action.DELETE;
-import static net.ripe.db.whois.update.domain.Action.MODIFY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
@@ -70,14 +67,14 @@ public class TimestampAttributeGeneratorTest {
     @Test
     public void create_input_has_no_timestamps() {
         testDateTimeProvider.setTime(actionTime());
-        when(updateContext.getAction(update)).thenReturn(CREATE);
+        when(updateContext.getAction(update)).thenReturn(Action.CREATE);
 
         final RpslObject input = TEMPLATE;
 
         final RpslObject updatedObject = subject.generateAttributes(null, input, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_ACTION));
-        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
+        assertThat(updatedObject.findAttribute(AttributeType.CREATED).getValue(), is(TIMESTAMP_STRING_ACTION));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
         testHelper.validateMessages();
     }
@@ -86,24 +83,24 @@ public class TimestampAttributeGeneratorTest {
     public void create_input_has_timestamps() {
 
         testDateTimeProvider.setTime(actionTime());
-        when(updateContext.getAction(update)).thenReturn(CREATE);
+        when(updateContext.getAction(update)).thenReturn(Action.CREATE);
         when(overrideOptions.isSkipLastModified()).thenReturn(false);
 
         final RpslObject input = new RpslObjectBuilder(TEMPLATE)
-                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
-                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
 
         final RpslObject updatedObject = subject.generateAttributes(null, input, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_ACTION));
-        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
+        assertThat(updatedObject.findAttribute(AttributeType.CREATED).getValue(), is(TIMESTAMP_STRING_ACTION));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
     }
 
     @Test
     public void modify_original_has_no_timestamps_input_has_no_timestamps() {
         testDateTimeProvider.setTime(actionTime());
-        when(updateContext.getAction(update)).thenReturn(MODIFY);
+        when(updateContext.getAction(update)).thenReturn(Action.MODIFY);
         when(overrideOptions.isSkipLastModified()).thenReturn(false);
 
         final RpslObject original = TEMPLATE;
@@ -111,11 +108,11 @@ public class TimestampAttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        //TODO [TP]: The attribute generator should ensure the correctness of the objects. The created/last-modified
+        //TODO [TP]: The attribute generator should ensure the correctness of the objects. The AttributeType.CREATED/last-modified
         //TODO [TP]:    will be mandatory in final phase. Therefore by the time the batch job filling the timestamps
         //TODO [TP]:    finishes, at latest, the code and this assertion should be changed
-        assertThat(updatedObject.containsAttribute(CREATED), is(false));
-        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
+        assertThat(updatedObject.containsAttribute(AttributeType.CREATED), is(false));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
         testHelper.validateMessages();
     }
@@ -123,19 +120,19 @@ public class TimestampAttributeGeneratorTest {
     @Test
     public void modify_original_has_timestamps_input_has_no_timestamps() {
         testDateTimeProvider.setTime(actionTime());
-        when(updateContext.getAction(update)).thenReturn(MODIFY);
+        when(updateContext.getAction(update)).thenReturn(Action.MODIFY);
         when(overrideOptions.isSkipLastModified()).thenReturn(false);
 
         final RpslObject original = new RpslObjectBuilder(TEMPLATE)
-                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
-                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
         final RpslObject input = TEMPLATE;
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
-        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
+        assertThat(updatedObject.findAttribute(AttributeType.CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
         testHelper.validateMessages();
 
@@ -145,47 +142,47 @@ public class TimestampAttributeGeneratorTest {
     public void modify_original_has_timestamps_input_has_timestamps() {
 
         testDateTimeProvider.setTime(actionTime());
-        when(updateContext.getAction(update)).thenReturn(MODIFY);
+        when(updateContext.getAction(update)).thenReturn(Action.MODIFY);
         when(overrideOptions.isSkipLastModified()).thenReturn(false);
 
         final RpslObject original = new RpslObjectBuilder(TEMPLATE)
-                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
-                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
 
         final RpslObject input = new RpslObjectBuilder(TEMPLATE)
-                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_OTHER))
-                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_OTHER))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_OTHER))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_OTHER))
                 .get();
 
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
-        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
+        assertThat(updatedObject.findAttribute(AttributeType.CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
-//        testHelper.validateAttributeMessage(updatedObject.findAttribute(CREATED),
-//                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(CREATED));
-        testHelper.validateAttributeMessage(updatedObject.findAttribute(LAST_MODIFIED),
-                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED));
+//        testHelper.validateAttributeMessage(updatedObject.findAttribute(AttributeType.CREATED),
+//                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.CREATED));
+        testHelper.validateAttributeMessage(updatedObject.findAttribute(AttributeType.LAST_MODIFIED),
+                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.LAST_MODIFIED));
     }
 
     @Test
     public void modify_original_has_timestamps_input_has_no_timestamps_skipLastModified_true() {
         testDateTimeProvider.setTime(actionTime());
-        when(updateContext.getAction(update)).thenReturn(MODIFY);
+        when(updateContext.getAction(update)).thenReturn(Action.MODIFY);
         when(overrideOptions.isSkipLastModified()).thenReturn(true);
 
         final RpslObject original = new RpslObjectBuilder(TEMPLATE)
-                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
-                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
         final RpslObject input = TEMPLATE;
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
-        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(AttributeType.CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
 
         testHelper.validateMessages();
     }
@@ -194,7 +191,7 @@ public class TimestampAttributeGeneratorTest {
     @Test
     public void modify_original_has_no_timestamps_input_has_no_timestamps_skipLastModified_true() {
         testDateTimeProvider.setTime(actionTime());
-        when(updateContext.getAction(update)).thenReturn(MODIFY);
+        when(updateContext.getAction(update)).thenReturn(Action.MODIFY);
         when(overrideOptions.isSkipLastModified()).thenReturn(true);
 
         final RpslObject original = new RpslObjectBuilder(TEMPLATE).get();
@@ -202,8 +199,8 @@ public class TimestampAttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        assertThat(updatedObject.containsAttribute(CREATED), is(false));
-        assertThat(updatedObject.containsAttribute(LAST_MODIFIED), is(false));
+        assertThat(updatedObject.containsAttribute(AttributeType.CREATED), is(false));
+        assertThat(updatedObject.containsAttribute(AttributeType.LAST_MODIFIED), is(false));
 
         testHelper.validateMessages();
     }
@@ -212,23 +209,23 @@ public class TimestampAttributeGeneratorTest {
     public void delete_original_has_timestamps_input_has_different_timestamps() {
 
         testDateTimeProvider.setTime(actionTime());
-        when(updateContext.getAction(update)).thenReturn(DELETE);
+        when(updateContext.getAction(update)).thenReturn(Action.DELETE);
 
         final RpslObject original = new RpslObjectBuilder(TEMPLATE)
-                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
-                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
 
         final RpslObject input = new RpslObjectBuilder(TEMPLATE)
-                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_OTHER))
-                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_OTHER))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_OTHER))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_OTHER))
                 .get();
 
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
-        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(AttributeType.CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
 
         testHelper.validateMessages();
     }
@@ -237,22 +234,22 @@ public class TimestampAttributeGeneratorTest {
     public void delete_original_has_timestamps_input_has_same_timestamps() {
 
         testDateTimeProvider.setTime(actionTime());
-        when(updateContext.getAction(update)).thenReturn(DELETE);
+        when(updateContext.getAction(update)).thenReturn(Action.DELETE);
 
         final RpslObject original = new RpslObjectBuilder(TEMPLATE)
-                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
-                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
 
         final RpslObject input = new RpslObjectBuilder(TEMPLATE)
-                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
-                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
-        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(AttributeType.CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
 
         testHelper.validateMessages();
     }
@@ -261,18 +258,18 @@ public class TimestampAttributeGeneratorTest {
     public void delete_original_has_timestamps_input_has_no_timestamps() {
 
         testDateTimeProvider.setTime(actionTime());
-        when(updateContext.getAction(update)).thenReturn(DELETE);
+        when(updateContext.getAction(update)).thenReturn(Action.DELETE);
 
         final RpslObject original = new RpslObjectBuilder(TEMPLATE)
-                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
-                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
         final RpslObject input = TEMPLATE;
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        assertThat(updatedObject.findAttribute(CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
-        assertThat(updatedObject.findAttribute(LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(AttributeType.CREATED).getValue(), is(TIMESTAMP_STRING_PAST));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_PAST));
 
         testHelper.validateMessages();
     }
@@ -281,19 +278,19 @@ public class TimestampAttributeGeneratorTest {
     public void delete_original_no_timestamps_input_has_timestamps() {
 
         testDateTimeProvider.setTime(actionTime());
-        when(updateContext.getAction(update)).thenReturn(DELETE);
+        when(updateContext.getAction(update)).thenReturn(Action.DELETE);
 
         final RpslObject original = TEMPLATE;
 
         final RpslObject input = new RpslObjectBuilder(TEMPLATE)
-                .addAttributeSorted(new RpslAttribute(CREATED, TIMESTAMP_STRING_PAST))
-                .addAttributeSorted(new RpslAttribute(LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_PAST))
                 .get();
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        assertThat(updatedObject.containsAttribute(CREATED), is(false));
-        assertThat(updatedObject.containsAttribute(LAST_MODIFIED), is(false));
+        assertThat(updatedObject.containsAttribute(AttributeType.CREATED), is(false));
+        assertThat(updatedObject.containsAttribute(AttributeType.LAST_MODIFIED), is(false));
 
         testHelper.validateMessages();
     }
