@@ -167,7 +167,7 @@ public class NrtmTimestampsOffTestIntegration extends AbstractNrtmIntegrationBas
                 "source:         TEST\n"));
     }
 
-    private void setTimestampsModeOff(boolean timestampsOff){
+    private void setTimestampsModeOff(boolean timestampsOff) {
         System.setProperty("rpsl.timestamps.off", String.valueOf(timestampsOff));
     }
 }

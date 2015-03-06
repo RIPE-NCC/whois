@@ -8,7 +8,6 @@ import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.joda.time.DateTimeZone
 import org.joda.time.LocalDateTime
 import org.joda.time.format.ISODateTimeFormat
-import spock.lang.Ignore
 
 import javax.mail.internet.MimeMessage
 
