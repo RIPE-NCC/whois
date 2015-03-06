@@ -445,7 +445,7 @@ last-modified:  ${currentDate}
 \*\*\*Error:   "last-modified" is not a known RPSL attribute/
     }
 
-    @Ignore
+
     def "mode off create invalid attributes"() {
         given:
         testTimestampsMode.setTimestampsOff(true);
@@ -456,14 +456,14 @@ last-modified:  ${currentDate}
                 "address:   Singel 258\n" +
                 "phone:     +31-1234567890\n" +
                 "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    TST-MNT\n" +
                 "nic-hdl:   PP1-TEST\n" +
                 "invalid:   some text\n" +
                 "inv-again: more text\n" +
                 "changed:   noreply@ripe.net 20120101\n" +
                 "source:    TEST\n")
 
-        def result = syncUpdate(new SyncUpdate(data: object.toString() + "\npassword: test\n"))
+        def result = syncUpdate(new SyncUpdate(data: object.toString() + "\npassword: update\n"))
 
         then:
         result =~ /invalid:        some text
@@ -477,7 +477,7 @@ inv-again:      more text
                 "address:   Singel 258\n" +
                 "phone:     +31-1234567890\n" +
                 "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    TST-MNT\n" +
                 "nic-hdl:   CLM1-TEST\n" +
                 "invalid:   some text\n" +
                 "created:   should show up\n" +
@@ -485,7 +485,7 @@ inv-again:      more text
                 "changed:   noreply@ripe.net 20120101\n" +
                 "source:    TEST\n")
 
-        def comparisonResult = syncUpdate(new SyncUpdate(data: comparison.toString() + "\npassword: test\n"))
+        def comparisonResult = syncUpdate(new SyncUpdate(data: comparison.toString() + "\npassword: update\n"))
 
         then:
         comparisonResult =~ /invalid:        some text
@@ -493,6 +493,27 @@ inv-again:      more text
 created:        should show up
 \*\*\*Error:   "created" is not a known RPSL attribute
 last-modified:  should also show up
+\*\*\*Error:   "last-modified" is not a known RPSL attribute/
+
+        when:
+        def onlyCreatedLastModified = RpslObject.parse(
+                "person:    Created LastModified\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    TST-MNT\n" +
+                "nic-hdl:   CLM1-TEST\n" +
+                "created:   should show up only once\n" +
+                "last-modified:   should also show up only once\n" +
+                "changed:   noreply@ripe.net 20120101\n" +
+                "source:    TEST\n")
+
+        def response = syncUpdate(new SyncUpdate(data: onlyCreatedLastModified.toString() + "\npassword: update\n"))
+
+        then:
+        response =~ /created:        should show up only once
+\*\*\*Error:   "created" is not a known RPSL attribute
+last-modified:  should also show up only once
 \*\*\*Error:   "last-modified" is not a known RPSL attribute/
     }
 }
