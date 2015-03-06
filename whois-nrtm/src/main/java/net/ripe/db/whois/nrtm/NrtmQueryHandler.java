@@ -213,8 +213,8 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         return serial;
     }
 
-    private RpslObject stripTimestampAttributes(final RpslObject rpslObject, final boolean timestampsOff){
-        if (timestampsOff){
+    private RpslObject stripTimestampAttributes(final RpslObject rpslObject, final boolean timestampsOff) {
+        if (timestampsOff) {
             return new RpslObjectBuilder(rpslObject).
                     removeAttributeTypes(Lists.newArrayList(AttributeType.CREATED, AttributeType.LAST_MODIFIED)).get();
         }
