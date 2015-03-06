@@ -1,31 +1,18 @@
 package net.ripe.db.whois.common.rpsl.transform;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.TestTimestampsMode;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 //TODO [TP] remove when timestamps are always on
-@Component
-@ActiveProfiles(WhoisProfile.TEST)
-@ContextConfiguration(locations = {"classpath:applicationContext-commons-test.xml"})
-public class TimestampFilterFunctionTest  extends AbstractJUnit4SpringContextTests {
-
-    @Autowired
-    private TestTimestampsMode testTimestampsMode;
-
-    @Autowired
-    private TimestampFilterFunction timestampFilterFunction;
+public class TimestampFilterFunctionTest {
+    private TestTimestampsMode testTimestampsMode = new TestTimestampsMode();
+    private TimestampFilterFunction timestampFilterFunction = new TimestampFilterFunction(testTimestampsMode);
 
     @Test
     public void attributes_in_db_timestamps_off() {
@@ -111,6 +98,4 @@ public class TimestampFilterFunctionTest  extends AbstractJUnit4SpringContextTes
         assertThat(result.toString(), containsString("created"));
         assertThat(result.toString(), containsString("last-modified"));
     }
-
-
 }
