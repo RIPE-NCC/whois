@@ -10,15 +10,14 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
-public class NrtmTimestampsOffTestIntegration extends AbstractNrtmIntegrationBase {
+public class NrtmTimestampsOnTestIntegration extends AbstractNrtmIntegrationBase {
 
     @BeforeClass
     public static void setup() {
-        System.setProperty("rpsl.timestamps.off", "true");
+        System.setProperty("rpsl.timestamps.off", "false");
     }
 
     @Before
@@ -32,7 +31,7 @@ public class NrtmTimestampsOffTestIntegration extends AbstractNrtmIntegrationBas
     }
 
     @Test
-    public void nrtm_timestamp_attributes_mode_off() {
+    public void nrtm_retains_timestamp_attributes_mode_on() {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
@@ -47,10 +46,9 @@ public class NrtmTimestampsOffTestIntegration extends AbstractNrtmIntegrationBas
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
                 "changed:        unread@ripe.net 20000101\n" +
+                "created:        2001-02-04T17:00:00Z\n" +
+                "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n"));
-
-        assertThat(legacyResponse, not(containsString("created")));
-        assertThat(legacyResponse, not(containsString("last-modified")));
 
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
 
@@ -58,21 +56,18 @@ public class NrtmTimestampsOffTestIntegration extends AbstractNrtmIntegrationBas
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
                 "changed:        ***@ripe.net 20000101\n" +
+                "created:        2001-02-04T17:00:00Z\n" +
+                "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n"));
-
-        assertThat(response, not(containsString("created")));
-        assertThat(response, not(containsString("last-modified")));
     }
 
-
-
     @Test
-    public void nrtm_discards_timestamp_attributes_mode_off_organisation() {
+    public void nrtm_timestamp_attributes_mode_on_organisation() {
         databaseHelper.addObject("" +
                 "organisation:   ORG1-TEST\n" +
                 "org-name:       Wasp Corp\n" +
                 "org-type:       OTHER\n" +
-                "changed:        noreply@ripe.net 20000101\n" +
+                "changed:        unread@ripe.net 20000101\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n");
@@ -86,10 +81,6 @@ public class NrtmTimestampsOffTestIntegration extends AbstractNrtmIntegrationBas
                 "changed:        unread@ripe.net 20000101\n" +
                 "source:         TEST\n"));
 
-        assertThat(legacyResponse, not(containsString("created")));
-        assertThat(legacyResponse, not(containsString("last-modified")));
-
-
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
 
         assertThat(response, containsString("" +
@@ -97,9 +88,8 @@ public class NrtmTimestampsOffTestIntegration extends AbstractNrtmIntegrationBas
                 "org-name:       Wasp Corp\n" +
                 "org-type:       OTHER\n" +
                 "changed:        ***@ripe.net 20000101\n" +
+                "created:        2001-02-04T17:00:00Z\n" +
+                "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n"));
-
-        assertThat(response, not(containsString("created")));
-        assertThat(response, not(containsString("last-modified")));
     }
 }

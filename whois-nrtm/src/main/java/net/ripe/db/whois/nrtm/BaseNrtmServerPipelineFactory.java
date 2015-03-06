@@ -40,12 +40,14 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
     private final String version;
     private final String source;
     private final long updateInterval;
+    private final boolean timestampsOff;
 
+//    TODO remove timestampsOff whenever timestamps goes live [AS]
     protected BaseNrtmServerPipelineFactory(final NrtmChannelsRegistry nrtmChannelsRegistry,
                                             final NrtmExceptionHandler exceptionHandler, final AccessControlHandler aclHandler,
                                             final SerialDao serialDao, final NrtmLog nrtmLog, final Dummifier dummifier,
                                             final TaskScheduler clientSynchronisationScheduler, final MaintenanceHandler maintenanceHandler, final String version,
-                                            final String source, final long updateInterval) {
+                                            final String source, final long updateInterval, final boolean timestampsOff) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
         this.exceptionHandler = exceptionHandler;
         this.aclHandler = aclHandler;
@@ -58,6 +60,7 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
         this.version = version;
         this.source = source;
         this.updateInterval = updateInterval;
+        this.timestampsOff = timestampsOff;
     }
 
     @Override
@@ -74,7 +77,7 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
 
         pipeline.addLast("UD-execution", executionHandler);
 
-        pipeline.addLast("U-query-handler", new NrtmQueryHandler(serialDao, dummifier, clientSynchronisationScheduler, nrtmLog, version, source, updateInterval));
+        pipeline.addLast("U-query-handler", new NrtmQueryHandler(serialDao, dummifier, clientSynchronisationScheduler, nrtmLog, version, source, updateInterval, timestampsOff));
 
         pipeline.addLast("U-exception-handler", exceptionHandler);
 
