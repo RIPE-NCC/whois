@@ -56,7 +56,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             "% The RIPE Database is subject to Terms and Conditions.\n" +
             "% See http://www.ripe.net/db/support/db-terms-conditions.pdf";
 
-    public NrtmQueryHandler(final SerialDao serialDao, final Dummifier dummifier, final TaskScheduler clientSynchronisationScheduler, final NrtmLog nrtmLog, final String applicationVersion, final String source, final long updateInterval) {
+    public NrtmQueryHandler(final SerialDao serialDao, final Dummifier dummifier, final TaskScheduler clientSynchronisationScheduler, final NrtmLog nrtmLog, final String applicationVersion, final String source, final long updateInterval, final boolean timestampsOff) {
         this.serialDao = serialDao;
         this.dummifier = dummifier;
         this.clientSynchronisationScheduler = clientSynchronisationScheduler;
@@ -66,7 +66,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         this.updateInterval = updateInterval;
 
         //TODO TP : remove timestampsOff field when timestamps always on
-        this.timestampsOff = Boolean.valueOf(System.getProperty("rpsl.timestamps.off"));
+        this.timestampsOff = timestampsOff;
         LOGGER.info("Timestamp attribute mode <rpsl.timestamps.off> is {}." , timestampsOff);
     }
 
