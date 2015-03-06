@@ -40,8 +40,6 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
 
-import static net.ripe.db.whois.common.rpsl.AttributeType.CREATED;
-import static net.ripe.db.whois.common.rpsl.AttributeType.LAST_MODIFIED;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
@@ -179,7 +177,7 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
 
         final List<ErrorMessage> messages = result.getErrorMessages();
         assertThat(messages.size(), is(1));
-        assertThat(messages.get(0).toString(), is(new ErrorMessage(ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(LAST_MODIFIED)).toString()));
+        assertThat(messages.get(0).toString(), is(new ErrorMessage(ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.LAST_MODIFIED)).toString()));
     }
 
     @Test
@@ -338,8 +336,8 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, object), MediaType.APPLICATION_XML), WhoisResources.class);
         assertThat(result.getErrorMessages(), hasSize(2));
 
-        assertThat(result.getErrorMessages().get(0), is(new ErrorMessage(new Message(Messages.Type.WARNING, "Supplied attribute '%s' has been replaced with a generated value", CREATED))));
-        assertThat(result.getErrorMessages().get(1), is(new ErrorMessage(new Message(Messages.Type.WARNING, "Supplied attribute '%s' has been replaced with a generated value", LAST_MODIFIED))));
+        assertThat(result.getErrorMessages().get(0), is(new ErrorMessage(new Message(Messages.Type.WARNING, "Supplied attribute '%s' has been replaced with a generated value", AttributeType.CREATED))));
+        assertThat(result.getErrorMessages().get(1), is(new ErrorMessage(new Message(Messages.Type.WARNING, "Supplied attribute '%s' has been replaced with a generated value", AttributeType.LAST_MODIFIED))));
     }
 
     @Test

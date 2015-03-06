@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -43,9 +44,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static net.ripe.db.whois.common.rpsl.AttributeType.CREATED;
-import static net.ripe.db.whois.common.rpsl.AttributeType.LAST_MODIFIED;
 
 @Component
 public class Authenticator {
@@ -275,10 +273,10 @@ public class Authenticator {
 
     @CheckForNull
     private PendingUpdate findAndStorePendingUpdate(final UpdateContext updateContext, final PreparedUpdate update) {
-        final RpslObject rpslObject = new RpslObjectBuilder(update.getUpdatedObject()).removeAttributeType(CREATED).removeAttributeType(LAST_MODIFIED).get();
+        final RpslObject rpslObject = new RpslObjectBuilder(update.getUpdatedObject()).removeAttributeType(AttributeType.CREATED).removeAttributeType(AttributeType.LAST_MODIFIED).get();
 
         for (final PendingUpdate pendingUpdate : pendingUpdateDao.findByTypeAndKey(rpslObject.getType(), rpslObject.getKey().toString())) {
-            final RpslObject pendingObject = new RpslObjectBuilder(pendingUpdate.getObject()).removeAttributeType(CREATED).removeAttributeType(LAST_MODIFIED).get();
+            final RpslObject pendingObject = new RpslObjectBuilder(pendingUpdate.getObject()).removeAttributeType(AttributeType.CREATED).removeAttributeType(AttributeType.LAST_MODIFIED).get();
             if (rpslObject.equals(pendingObject)) {
                 updateContext.addPendingUpdate(update, pendingUpdate);
                 return pendingUpdate;
