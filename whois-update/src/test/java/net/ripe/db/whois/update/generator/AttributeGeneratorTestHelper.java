@@ -32,7 +32,15 @@ public class AttributeGeneratorTestHelper {
         }
     }
 
-    public void validateAttributeMessage(final RpslAttribute rpslAttribute, final Message message) {
+    public void assertNoMessages() {
+        validateMessages();
+    }
+
+    public void assertAttributeMessage(final RpslAttribute rpslAttribute, final Message message) {
         verify(updateContext, times(1)).addMessage(update, rpslAttribute, message);
+    }
+
+    public void assertAttributeMessage(final Message message) {
+        verify(updateContext, times(1)).addMessage(update, message);
     }
 }
