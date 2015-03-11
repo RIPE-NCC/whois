@@ -9,4 +9,8 @@ public class CharacterSetConversion {
     public static boolean isConvertableIntoLatin1(final String value) {
         return (value == null) || LATIN_1_CHARSET.newEncoder().canEncode(value);
     }
+
+    public static String convertToLatin1(final String value) {
+        return new String(value.getBytes(LATIN_1_CHARSET), LATIN_1_CHARSET);
+    }
 }
