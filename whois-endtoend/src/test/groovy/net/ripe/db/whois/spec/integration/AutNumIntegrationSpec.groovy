@@ -138,7 +138,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     static TestDateTimeProvider dateTimeProvider;
 
     def setupSpec() {
-        dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);
+        dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);    // TODO: [ES] autowire and add convenience method to whoisFixture
         dateTimeProvider.reset();
     }
 
@@ -712,7 +712,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /Warning: "status:" attribute cannot be removed/
 
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());       // TODO: [ES] separate out / standard (common) component for date time formatting
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
 
         then:

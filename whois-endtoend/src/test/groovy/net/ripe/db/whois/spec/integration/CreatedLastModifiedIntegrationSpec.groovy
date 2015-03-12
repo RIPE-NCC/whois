@@ -42,14 +42,14 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
     static TestTimestampsMode testTimestampsMode;
 
     def setupSpec() {
-        dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);
+        dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);            // TODO: [ES] autowire component and add convenience method to whoisFixture
         testTimestampsMode = getApplicationContext().getBean(net.ripe.db.whois.common.rpsl.TestTimestampsMode.class);
     }
 
 
     def "create object with created and last-modified generates new values"() {
         given:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());       // TODO: [ES] separate out / standard (common) component for date time formatting
 
         def update = new SyncUpdate(data: """\
         person:        Test Person

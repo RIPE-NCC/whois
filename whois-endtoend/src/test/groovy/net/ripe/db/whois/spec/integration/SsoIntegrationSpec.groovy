@@ -74,7 +74,7 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
         def mntner = databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT")
 
       then:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());           // TODO: [ES] separate out / standard (common) component for date time formatting
         mntner.toString().equals(String.format(
                 "mntner:         SSO-MNT\n" +
                 "descr:          sso mntner\n" +

@@ -30,6 +30,7 @@ public class TimestampsOffTemplateTestIntegration extends AbstractQueryIntegrati
         queryServer.stop(true);
     }
 
+    // TODO: [ES] use not(containsString()) to check attribute is NOT present (more readable)
     @Test
     public void check_template() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-t route");
@@ -64,6 +65,7 @@ public class TimestampsOffTemplateTestIntegration extends AbstractQueryIntegrati
                 "% This query was served by the RIPE Database Query Service"));
     }
 
+    // TODO: [ES] use not(containsString()) to check attribute is NOT present (more readable)
     @Test
     public void check_verbose() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v route6");
@@ -118,6 +120,7 @@ public class TimestampsOffTemplateTestIntegration extends AbstractQueryIntegrati
                 "     \n"));
     }
 
+    // TODO: [ES] use not(containsString()) to check attribute is NOT present (more readable)
     @Test
     public void verbose_description() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v inetnum");
@@ -382,7 +385,7 @@ public class TimestampsOffTemplateTestIntegration extends AbstractQueryIntegrati
                 "     registry name must be a letter or a digit."));
     }
 
-
+    // TODO: [ES] use not(containsString()) to check attribute is NOT present (more readable)
     @Test
     public void verbose_description_autnum() {
         final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-v aut-num");

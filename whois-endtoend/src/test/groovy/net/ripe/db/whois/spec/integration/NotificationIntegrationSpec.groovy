@@ -495,7 +495,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
     def "update, multiple objects, notif sent to notify"() {
       when:
         setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());       // TODO: [ES] separate out / standard (common) component for date time formatting
         def updates = """\
                     password: update
 
@@ -567,7 +567,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:         modify_mntner@ripe.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW # Filtered\n" +
-                "created:        %s\n" +
+                "created:        %s\n" +                            // TODO: [ES] just use constants not String.format(), we know exactly what time it is (we set it in testDateTimeProvider)
                 "last-modified:  %s\n" +
                 "source:         TEST # Filtered\n" +
                 "\n" +
