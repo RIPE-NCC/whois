@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler;
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -41,7 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 
 @Component
@@ -168,6 +166,7 @@ public class SingleUpdateHandler {
         }
     }
 
+    // TODO: [ES] compare with master (appears to be different logic)
     private boolean eligibleForPendingUpdateCleanup(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
         return authenticator.supportsPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) &&
                 Action.CREATE == preparedUpdate.getAction() &&

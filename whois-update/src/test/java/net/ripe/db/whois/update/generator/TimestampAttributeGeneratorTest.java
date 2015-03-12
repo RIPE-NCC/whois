@@ -675,6 +675,6 @@ public class TimestampAttributeGeneratorTest {
     // End of section new-mode with skip-last-modified is true
 
     private LocalDateTime actionTime() {
-        return ISO_FORMATER.parseDateTime(TIMESTAMP_STRING_ACTION).withZone(DateTimeZone.UTC).toLocalDateTime();
+        return ISO_FORMATER.parseDateTime(TIMESTAMP_STRING_ACTION).withZone(DateTimeZone.UTC).toLocalDateTime();     // TODO: [ES] separate out / standard (common) component for date time formatting
     }
 }

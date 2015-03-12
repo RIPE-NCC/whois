@@ -324,7 +324,7 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
     public void explicit_mode_on_allows_created_last_modified() {
         testTimestampsMode.setTimestampsOff(false);
 
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());
+        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());      // TODO: [ES] separate out / standard (common) component for date time formatting
 
         final RpslObject object = new RpslObjectBuilder(PAULETH_PALTHEN)
                 .addAttributeAfter(new RpslAttribute("created", currentDate), AttributeType.MNT_BY)

@@ -52,7 +52,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
         final Action action = updateContext.getAction(update);
 
         final DateTime now = dateTimeProvider.getCurrentDateTimeUtc();
-        final String nowString = now.toString(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC));
+        final String nowString = now.toString(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC));     // TODO: [ES] separate out / standard (common) component for date time formatting
 
         RpslAttribute generatedCreatedAttribute = null;
         RpslAttribute generatedLastModifiedAttribute = null;
