@@ -29,23 +29,23 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
 
     @Override
     public RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
-        RpslObject resultObject = updatedObject;
 
         //TODO TP : remove when timestamps always on
-        if (! timestampsMode.isTimestampsOff()) {
-
-            final Action action = updateContext.getAction(update);
-            if (action == Action.CREATE || action == Action.MODIFY || action == Action.DELETE) {
-                final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
-
-                boolean addWarningsFlag = updateContext.getPreparedUpdate(update).getOverrideOptions().isSkipLastModified() ? false : true;
-
-                generateTimestampAttributes(builder, originalObject, updatedObject, update, updateContext, addWarningsFlag);
-                resultObject = builder.get();
-            }
+        if (timestampsMode.isTimestampsOff()) {
+            return updatedObject;
         }
 
-        return resultObject;
+        final Action action = updateContext.getAction(update);
+        if (action == Action.CREATE || action == Action.MODIFY || action == Action.DELETE) {
+            final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
+
+            boolean addWarningsFlag = !updateContext.getPreparedUpdate(update).getOverrideOptions().isSkipLastModified();
+
+            generateTimestampAttributes(builder, originalObject, updatedObject, update, updateContext, addWarningsFlag);
+            return builder.get();
+        }
+
+        return updatedObject;
     }
 
     private void generateTimestampAttributes(final RpslObjectBuilder builder, final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final boolean addWarningsFlag) {
@@ -103,7 +103,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
             builder.addAttributeSorted(generatedAttribute);
         }
 
-        if (addWarningsFlag == true) {
+        if (addWarningsFlag) {
             final RpslAttribute inputAttribute = updatedObject.containsAttribute(attributeType) ? updatedObject.findAttribute(attributeType) : null;
             if (inputAttribute != null && !inputAttribute.equals(generatedAttribute)) {
                 if (generatedAttribute != null) {
