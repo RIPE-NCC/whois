@@ -18,7 +18,7 @@ import java.util.List;
 
 @Component
 public class TimestampsValidator implements BusinessRuleValidator {
-
+//TODO TP: Remove validator when timestamps always on.
     private final TimestampsMode timestampsMode;
 
     @Autowired
