@@ -27,6 +27,9 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
 
+//TODO [TP]: The attribute generator should ensure the correctness of the objects. The created/last-modified
+//TODO [TP]:    will be mandatory in final phase. Therefore by the time the batch job filling the timestamps
+//TODO [TP]:    finishes, at latest, the tests with "original_has_no_timestamps" should be gone
 @RunWith(MockitoJUnitRunner.class)
 public class TimestampAttributeGeneratorTest {
     final private static DateTimeFormatter ISO_FORMATER = ISODateTimeFormat.dateTimeNoMillis();
@@ -84,6 +87,7 @@ public class TimestampAttributeGeneratorTest {
     }
 
     @Test
+    //TODO [TP]: this unit test does not test anything and it should be an integration test instead.
     public void old_mode_create_input_has_timestamps() {
         testTimestampsMode.setTimestampsOff(true);
 
@@ -124,6 +128,7 @@ public class TimestampAttributeGeneratorTest {
     }
 
     @Test
+    //TODO [TP]: this unit test does not test anything and it should be an integration test instead.
     public void old_mode_modify_original_has_no_timestamps_input_has_wrong_timestamps() {
         testTimestampsMode.setTimestampsOff(true);
 
@@ -142,7 +147,6 @@ public class TimestampAttributeGeneratorTest {
         // cannot be tested any deeper here because request should already be rejected before it reaches this code
 
         testHelper.assertNoMessages();
-
     }
 
     @Test
@@ -186,6 +190,7 @@ public class TimestampAttributeGeneratorTest {
     }
 
     @Test
+    //TODO [TP]: this unit test does not test anything and it should be an integration test instead.
     public void old_mode_delete_original_has_no_timestamps_input_has_wrong_timestamps() {
         testTimestampsMode.setTimestampsOff(true);
 
@@ -300,9 +305,6 @@ public class TimestampAttributeGeneratorTest {
 
         final RpslObject updatedObject = subject.generateAttributes(original, input, update, updateContext);
 
-        //TODO [TP]: The attribute generator should ensure the correctness of the objects. The AttributeType.CREATED/last-modified
-        //TODO [TP]:    will be mandatory in final phase. Therefore by the time the batch job filling the timestamps
-        //TODO [TP]:    finishes, at latest, the code and this assertion should be changed
         assertThat(updatedObject.containsAttribute(AttributeType.CREATED), is(false));
         assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
 
