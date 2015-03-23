@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
@@ -1983,7 +1984,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_non_ascii_characters_are_preserved() {
+    public void create_with_utf8_non_ascii_characters_are_preserved() {
         assertThat(RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity("" +
@@ -2003,7 +2004,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                         "        ] }\n" +
                         "    }] \n" +
-                        "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+                        "}}", new MediaType("application", "json", Charsets.UTF_8.displayName())), String.class), containsString("Flughafenstraße 109/a"));
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON)
@@ -2033,6 +2034,36 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        ] }\n" +
                         "    }] \n" +
                         "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+    }
+
+    @Test
+    public void create_latin1_non_ascii_characters_encoded_in_latin1_fails() {
+        try {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity("" +
+                        "{ \"objects\": {\n" +
+                        "   \"object\": [ {\n" +
+                        "    \"source\": { \"id\": \"RIPE\" }, \n" +
+                        "    \"attributes\": {\n" +
+                        "       \"attribute\": [\n" +
+                        "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                        "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                        "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                        "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                        "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                        "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                        "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                        "        ] }\n" +
+                        "    }] \n" +
+                        "}}", new MediaType("application", "json", Charsets.ISO_8859_1.displayName())), String.class);
+
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().iterator().next().getText(),
+                    containsString("Invalid UTF-8 middle byte"));
+        }
     }
 
     @Test
