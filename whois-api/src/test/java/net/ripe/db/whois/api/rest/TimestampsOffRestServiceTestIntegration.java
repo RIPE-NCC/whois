@@ -380,4 +380,132 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
         assertThat(notification, not(containsString("-created:")));
         assertThat(notification, not(containsString("-last-modified:")));
     }
+
+
+
+
+    @Test
+    public void mode_off_create_object_then_mode_on_query_and_update_and_query_again() throws MessagingException, IOException {
+        testTimestampsMode.setTimestampsOff(true);
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person: Switch Mode\n" +
+                "address: masd asdf\n" +
+                "phone: +311234678\n" +
+                "nic-hdl: SM1-TEST\n" +
+                "notify: switchmodenotif@ripe.net\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "changed: sw@ripe.net\n" +
+                "source: TEST");
+
+        final String createResult = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObject), MediaType.APPLICATION_JSON), String.class);
+        assertThat(createResult, not(containsString("<attribute name=\"created\"")));
+        assertThat(createResult, not(containsString("<attribute name=\"last-modified\"")));
+
+        mailSender.getMessage("switchmodenotif@ripe.net");
+
+        testTimestampsMode.setTimestampsOff(false);
+
+        final String queryResult = RestTest.target(getPort(), "whois/test/person/SM1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(String.class);
+
+        assertThat(queryResult, not(containsString("<attribute name=\"created\"")));
+        assertThat(queryResult, not(containsString("<attribute name=\"last-modified\"")));
+
+
+
+        final RpslObject update = new RpslObjectBuilder(rpslObject)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "update"))
+                .get();
+
+        final String updateResult = RestTest.target(getPort(), "whois/test/person/SM1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_JSON), String.class);
+
+        assertThat(updateResult, not(containsString("<attribute name=\"created\"")));
+        assertThat(updateResult, containsString("<attribute name=\"last-modified\""));
+
+        // check notifications
+        final MimeMessage notificationMail = mailSender.getMessage("switchmodenotif@ripe.net");
+        final String notification = notificationMail.getContent().toString();
+
+        assertThat(notification, not(containsString("created:")));
+        assertThat(notification, containsString("+last-modified:"));
+
+        final String queryUpdatedResult = RestTest.target(getPort(), "whois/test/person/SM1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(String.class);
+
+        assertThat(queryUpdatedResult, not(containsString("<attribute name=\"created\"")));
+        assertThat(queryUpdatedResult, containsString("<attribute name=\"last-modified\""));
+    }
+
+    @Test
+    public void mode_on_create_object_query_then_mode_off_query_and_update_then_check_notification_and_query() throws MessagingException, IOException {
+        testTimestampsMode.setTimestampsOff(false);
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person: Switch Mode\n" +
+                "address: masd asdf\n" +
+                "phone: +311234678\n" +
+                "nic-hdl: SM1-TEST\n" +
+                "notify: switchmodenotif@ripe.net\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "changed: sw@ripe.net\n" +
+                "source: TEST");
+
+        final String createResult = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObject), MediaType.APPLICATION_JSON), String.class);
+        assertThat(createResult, containsString("<attribute name=\"created\""));
+        assertThat(createResult, containsString("<attribute name=\"last-modified\""));
+        mailSender.getMessage("switchmodenotif@ripe.net");
+
+
+        final String queryResult = RestTest.target(getPort(), "whois/test/person/SM1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(String.class);
+
+        assertThat(queryResult, containsString("<attribute name=\"created\""));
+        assertThat(queryResult, containsString("<attribute name=\"last-modified\""));
+
+        testTimestampsMode.setTimestampsOff(true);
+
+        final String queryResultModeOff = RestTest.target(getPort(), "whois/test/person/SM1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(String.class);
+
+        assertThat(queryResultModeOff, not(containsString("<attribute name=\"created\"")));
+        assertThat(queryResultModeOff, not(containsString("<attribute name=\"last-modified\"")));
+
+
+        final RpslObject update = new RpslObjectBuilder(rpslObject)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "update"))
+                .get();
+        final String updateResult = RestTest.target(getPort(), "whois/test/person/SM1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_JSON), String.class);
+
+        assertThat(updateResult, not(containsString("<attribute name=\"created\"")));
+        assertThat(updateResult, not(containsString("<attribute name=\"last-modified\"")));
+
+        // check notifications
+        final MimeMessage notificationMail = mailSender.getMessage("switchmodenotif@ripe.net");
+        final String notification = notificationMail.getContent().toString();
+
+        assertThat(notification, not(containsString("-created:")));
+        assertThat(notification, not(containsString("-last-modified:")));
+
+        final String queryResultModeOffAfterUpdate = RestTest.target(getPort(), "whois/test/person/SM1-TEST?password=test")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(String.class);
+
+        assertThat(queryResultModeOffAfterUpdate, not(containsString("<attribute name=\"created\"")));
+        assertThat(queryResultModeOffAfterUpdate, not(containsString("<attribute name=\"last-modified\"")));
+
+    }
+
 }
