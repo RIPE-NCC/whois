@@ -94,8 +94,8 @@ public class DummifierLegacy implements Dummifier {
 
         final List<RpslAttribute> attributes = Lists.newArrayList(rpslObject.getAttributes());
 
-        stripOptionalAttributes(attributes, objectType);
-        dummifyMandatoryAttributes(attributes, rpslObject.getKey());
+        stripSomeNonMandatoryAttributes(attributes, objectType);
+        dummifyRemainingAttributes(attributes, rpslObject.getKey());
         insertPlaceholder(attributes);
 
         attributes.addAll(getDummificationRemarks(rpslObject));
@@ -103,7 +103,7 @@ public class DummifierLegacy implements Dummifier {
         return new RpslObject(rpslObject, attributes);
     }
 
-    private void stripOptionalAttributes(List<RpslAttribute> attributes, ObjectType objectType) {
+    private void stripSomeNonMandatoryAttributes(List<RpslAttribute> attributes, ObjectType objectType) {
         if (!STRIPPED_OBJECT_TYPES.contains(objectType)) {
             return;
         }
@@ -113,13 +113,18 @@ public class DummifierLegacy implements Dummifier {
         for (Iterator<RpslAttribute> iterator = attributes.iterator(); iterator.hasNext(); ) {
             final RpslAttribute attribute = iterator.next();
 
-            if (!mandatoryAttributes.contains(attribute.getType()) && !AttributeType.ABUSE_C.equals(attribute.getType())) {
+            if (!mandatoryAttributes.contains(attribute.getType()) && !keepAttributeType(attribute.getType())) {
                 iterator.remove();
             }
         }
     }
 
-    private void dummifyMandatoryAttributes(final List<RpslAttribute> attributes, final CIString key) {
+    private boolean keepAttributeType(final AttributeType attributeType){
+        final List<AttributeType> attributeTypesToKeep = Lists.newArrayList(AttributeType.ABUSE_C, AttributeType.LAST_MODIFIED, AttributeType.CREATED);
+        return attributeTypesToKeep.contains(attributeType);
+    }
+
+    private void dummifyRemainingAttributes(final List<RpslAttribute> attributes, final CIString key) {
         final Set<AttributeType> seenAttributes = Sets.newHashSet();
 
         for (int i = 0; i < attributes.size(); i++) {
