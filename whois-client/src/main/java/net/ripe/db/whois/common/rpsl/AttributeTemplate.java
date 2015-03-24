@@ -7,20 +7,32 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class AttributeTemplate {
+    private static final String ATTRIBUTE_MANDATORY = "mandatory";
+    private static final String ATTRIBUTE_OPTIONAL = "optional";
+    private static final String ATTRIBUTE_GENERATED = "generated";
+    private static final String ATTRIBUTE_DEPRECATED = "deprecated";
+
     public static enum Requirement {
-        MANDATORY("mandatory"),
-        OPTIONAL("optional"),
-        GENERATED("generated");
+        MANDATORY(ATTRIBUTE_MANDATORY,ATTRIBUTE_MANDATORY),
+        OPTIONAL(ATTRIBUTE_OPTIONAL,ATTRIBUTE_OPTIONAL),
+        GENERATED(ATTRIBUTE_GENERATED,ATTRIBUTE_GENERATED),
+        DEPRECATED(ATTRIBUTE_DEPRECATED,ATTRIBUTE_OPTIONAL);
 
         private final String name;
+        private final String externalName;
 
-        private Requirement(final String name) {
+        private Requirement(final String name,final String externalName) {
             this.name = name;
+            this.externalName = externalName;
         }
 
         public String getName() {
             return name;
         }
+        public String getExternalName() {
+            return externalName;
+        }
+
     }
 
     public static enum Cardinality {
@@ -105,7 +117,7 @@ public class AttributeTemplate {
     @Override
     public String toString() {
         final String name = attributeType.getName() + ":";
-        final String requirementString = "[" + requirement.getName() + "]";
+        final String requirementString = "[" + requirement.getExternalName() + "]";
         final String cardinalityString = "[" + cardinality.getName() + "]";
         final String keyString;
 
