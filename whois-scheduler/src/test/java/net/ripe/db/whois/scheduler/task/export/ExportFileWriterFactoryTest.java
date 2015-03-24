@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class ExportFileWriterFactoryTest {
     private static final int LAST_SERIAL = 1234;
+    private boolean timestampsOff = true;
 
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
@@ -33,7 +34,7 @@ public class ExportFileWriterFactoryTest {
 
     @Before
     public void setup() {
-        subject = new ExportFileWriterFactory(dummifierLegacy, dummifierCurrent, "internal", "dbase_new", "dbase");
+        subject = new ExportFileWriterFactory(dummifierLegacy, dummifierCurrent, "internal", "dbase_new", "dbase",timestampsOff);
     }
 
     @Test(expected = IllegalStateException.class)

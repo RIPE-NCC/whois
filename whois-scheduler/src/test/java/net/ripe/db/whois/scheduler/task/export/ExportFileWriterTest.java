@@ -54,13 +54,13 @@ public class ExportFileWriterTest {
                 return (RpslObject) invocation.getArguments()[0];
             }
         });
-
-        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy);
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void write() throws IOException {
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,true);
+
         subject.write(RpslObject.parse("mntner: DEV-MNT1"), Collections.EMPTY_LIST);
         subject.write(RpslObject.parse("mntner: DEV-MNT2"), Collections.EMPTY_LIST);
         subject.write(RpslObject.parse("mntner: DEV-MNT3"), Collections.EMPTY_LIST);
@@ -97,6 +97,56 @@ public class ExportFileWriterTest {
         }
     }
 
+    private static final String givenWithTimestamp = ""+
+            "inetnum:        193.0.0.0 - 193.0.0.10\n" +
+            "created:        1971-02-27T03:58:59Z\n" +
+            "last-modified:  2003-02-11T12:13:14Z\n";
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void checkTimestampsOff() throws IOException {
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,true);
+
+        subject.write(RpslObject.parse(givenWithTimestamp), Collections.EMPTY_LIST);
+        subject.close();
+
+        final File[] files = folder.getRoot().listFiles();
+        Assert.assertNotNull(files);
+        boolean fileFound = false;
+        for (final File file : files) {
+            final String fileName = file.getName();
+            if (fileName.endsWith("inetnum.gz")) {
+                fileFound = true;
+                checkFile(file, "" +
+                        "inetnum:        193.0.0.0 - 193.0.0.10\n" );
+                break;
+            }
+        }
+        Assert.assertThat(fileFound,Matchers.is(true));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void checkTimestampsOn() throws IOException {
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,false);
+
+        subject.write(RpslObject.parse(givenWithTimestamp), Collections.EMPTY_LIST);
+        subject.close();
+
+        final File[] files = folder.getRoot().listFiles();
+        Assert.assertNotNull(files);
+        boolean fileFound = false;
+        for (final File file : files) {
+            final String fileName = file.getName();
+            if (fileName.endsWith("inetnum.gz")) {
+                fileFound = true;
+                checkFile(file, givenWithTimestamp );
+                break;
+            }
+        }
+        Assert.assertThat(fileFound,Matchers.is(true));
+    }
+
     private void checkFile(final File file, final String expectedContents) throws IOException {
         final String content = FileCopyUtils.copyToString(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), Charsets.ISO_8859_1));
         Assert.assertThat(content, Matchers.is(QueryMessages.termsAndConditionsDump() + "\n" + expectedContents));
@@ -104,6 +154,6 @@ public class ExportFileWriterTest {
 
     @Test(expected = RuntimeException.class)
     public void unexisting_folder() throws IOException {
-        new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy);
+        new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, true);
     }
 }

@@ -25,16 +25,21 @@ class ExportFileWriterFactory {
     private final String externalExportDir;
     private final String internalExportDir;
 
+    // TODO: remove once timestamps are always on (MG)
+    private final boolean timestampsOff;
+
     @Autowired
     ExportFileWriterFactory(final DummifierLegacy dummifierLegacy, final DummifierCurrent dummifierCurrent,
-                            @Value("${dir.rpsl.export.internal}") String internalExportDir,
-                            @Value("${dir.rpsl.export.external}") String externalExportDir,
-                            @Value("${dir.rpsl.export.external.legacy}") String legacyExternalExportDir) {
+                            @Value("${dir.rpsl.export.internal}") final String internalExportDir,
+                            @Value("${dir.rpsl.export.external}") final String externalExportDir,
+                            @Value("${dir.rpsl.export.external.legacy}") final String legacyExternalExportDir,
+                            @Value("${rpsl.timestamps.off}") final boolean timestampsOff) {
         this.dummifierLegacy = dummifierLegacy;
         this.dummifierCurrent = dummifierCurrent;
         this.internalExportDir = internalExportDir;
         this.externalExportDir = externalExportDir;
         this.legacyExternalExportDir = legacyExternalExportDir;
+        this.timestampsOff = timestampsOff;
     }
 
     public List<ExportFileWriter> createExportFileWriters(final File baseDir, final int lastSerial) {
@@ -54,11 +59,11 @@ class ExportFileWriterFactory {
         }
 
         return Lists.newArrayList(
-                new ExportFileWriter(fullDir, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy)),
-                new ExportFileWriter(splitDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy)),
-                new ExportFileWriter(fullDirNew, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent)),
-                new ExportFileWriter(splitDirNew, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent)),
-                new ExportFileWriter(internalDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.None())
+                new ExportFileWriter(fullDir, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy),timestampsOff),
+                new ExportFileWriter(splitDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy),timestampsOff),
+                new ExportFileWriter(fullDirNew, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent),timestampsOff),
+                new ExportFileWriter(splitDirNew, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent),timestampsOff),
+                new ExportFileWriter(internalDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.None(),timestampsOff)
         );
     }
 
