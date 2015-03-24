@@ -28,6 +28,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.PRIMARY_KEY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.TEMPLATE_ORDER;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.USER_ORDER;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.DEPRECATED;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.GENERATED;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.MANDATORY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.OPTIONAL;
@@ -355,7 +356,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_MAILBOX, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(REFERRAL_BY, MANDATORY, SINGLE),
+                        new AttributeTemplate(REFERRAL_BY, DEPRECATED, SINGLE),
                         new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
                         new AttributeTemplate(CREATED, GENERATED, SINGLE),
                         new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
@@ -780,6 +781,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
             final AttributeType attributeType = attributeTemplate.getAttributeType();
             final int attributeTypeCount = attributeCount.get(attributeType);
+
+            if( attributeTemplate.getRequirement() == DEPRECATED && attributeTypeCount > 0) {
+                objectMessages.addMessage(ValidationMessages.deprecatedAttributeFound(attributeType));
+            }
 
             if (attributeTemplate.getRequirement() == MANDATORY && attributeTypeCount == 0) {
                 objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));
