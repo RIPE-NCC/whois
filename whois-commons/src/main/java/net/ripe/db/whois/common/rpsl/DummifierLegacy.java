@@ -72,6 +72,7 @@ public class DummifierLegacy implements Dummifier {
     );
 
     static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
+    static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(AttributeType.ABUSE_C, AttributeType.LAST_MODIFIED, AttributeType.CREATED);
 
     static {
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.ADDRESS, "Dummy address for %s");
@@ -113,15 +114,10 @@ public class DummifierLegacy implements Dummifier {
         for (Iterator<RpslAttribute> iterator = attributes.iterator(); iterator.hasNext(); ) {
             final RpslAttribute attribute = iterator.next();
 
-            if (!mandatoryAttributes.contains(attribute.getType()) && !keepAttributeType(attribute.getType())) {
+            if (!mandatoryAttributes.contains(attribute.getType()) && !ATTRIBUTES_TO_KEEP.contains(attribute.getType())) {
                 iterator.remove();
             }
         }
-    }
-
-    private boolean keepAttributeType(final AttributeType attributeType){
-        final List<AttributeType> attributeTypesToKeep = Lists.newArrayList(AttributeType.ABUSE_C, AttributeType.LAST_MODIFIED, AttributeType.CREATED);
-        return attributeTypesToKeep.contains(attributeType);
     }
 
     private void dummifyRemainingAttributes(final List<RpslAttribute> attributes, final CIString key) {
