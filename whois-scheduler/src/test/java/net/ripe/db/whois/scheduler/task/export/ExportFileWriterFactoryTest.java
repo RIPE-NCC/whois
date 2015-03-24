@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class ExportFileWriterFactoryTest {
     private static final int LAST_SERIAL = 1234;
+    // TODO change when timestamps have become the norm (MG)
     private boolean timestampsOff = true;
 
     @Rule public TemporaryFolder folder = new TemporaryFolder();
