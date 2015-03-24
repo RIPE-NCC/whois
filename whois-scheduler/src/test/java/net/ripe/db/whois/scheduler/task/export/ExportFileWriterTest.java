@@ -59,7 +59,8 @@ public class ExportFileWriterTest {
     @SuppressWarnings("unchecked")
     @Test
     public void write() throws IOException {
-        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,true);
+        boolean timestampsOff = true;
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,timestampsOff);
 
         subject.write(RpslObject.parse("mntner: DEV-MNT1"), Collections.EMPTY_LIST);
         subject.write(RpslObject.parse("mntner: DEV-MNT2"), Collections.EMPTY_LIST);
@@ -97,50 +98,75 @@ public class ExportFileWriterTest {
         }
     }
 
-    private static final String givenWithTimestamp = ""+
-            "inetnum:        193.0.0.0 - 193.0.0.10\n" +
+    private static final String givenMntnerWithTimestamp = ""+
+            "mntner:         DEV-MNT5\n" +
             "created:        1971-02-27T03:58:59Z\n" +
             "last-modified:  2003-02-11T12:13:14Z\n";
 
+    // TODO remove when timestamps have become the norm
     @SuppressWarnings("unchecked")
     @Test
-    public void checkTimestampsOff() throws IOException {
-        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,true);
+    public void checkMntnerTimestampsOff() throws IOException {
+        boolean timestampsOff = true;
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,timestampsOff);
 
-        subject.write(RpslObject.parse(givenWithTimestamp), Collections.EMPTY_LIST);
+        subject.write(RpslObject.parse(givenMntnerWithTimestamp), Collections.EMPTY_LIST);
         subject.close();
 
-        final File[] files = folder.getRoot().listFiles();
-        Assert.assertNotNull(files);
-        boolean fileFound = false;
-        for (final File file : files) {
-            final String fileName = file.getName();
-            if (fileName.endsWith("inetnum.gz")) {
-                fileFound = true;
-                checkFile(file, "" +
-                        "inetnum:        193.0.0.0 - 193.0.0.10\n" );
-                break;
-            }
-        }
-        Assert.assertThat(fileFound,Matchers.is(true));
+        checkFileInDir(folder,"mntner.gz","mntner:         DEV-MNT5\n" );
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void checkTimestampsOn() throws IOException {
-        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,false);
+    public void checkMntnerTimestampsOn() throws IOException {
+        boolean timestampsOff = false;
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,timestampsOff);
 
-        subject.write(RpslObject.parse(givenWithTimestamp), Collections.EMPTY_LIST);
+        subject.write(RpslObject.parse(givenMntnerWithTimestamp), Collections.EMPTY_LIST);
         subject.close();
 
+        checkFileInDir(folder,"mntner.gz", givenMntnerWithTimestamp);
+    }
+
+    private static final String givenInetnumWithTimestamp = ""+
+            "inetnum:        193.0.0.0 - 193.0.0.10\n" +
+            "created:        1971-02-27T03:58:59Z\n" +
+            "last-modified:  2003-02-11T12:13:14Z\n";
+
+    // TODO remove when timestamps have become the norm
+    @SuppressWarnings("unchecked")
+    @Test
+    public void checkInetnumTimestampsOff() throws IOException {
+        boolean timestampsOff = true;
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,timestampsOff);
+
+        subject.write(RpslObject.parse(givenInetnumWithTimestamp), Collections.EMPTY_LIST);
+        subject.close();
+
+        checkFileInDir(folder,"inetnum.gz","inetnum:        193.0.0.0 - 193.0.0.10\n" );
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void checkInetnumTimestampsOn() throws IOException {
+        boolean timestampsOff = false;
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,timestampsOff);
+
+        subject.write(RpslObject.parse(givenInetnumWithTimestamp), Collections.EMPTY_LIST);
+        subject.close();
+
+        checkFileInDir(folder,"inetnum.gz", givenInetnumWithTimestamp);
+    }
+
+    private void checkFileInDir(TemporaryFolder folder, String filenameEnd, final String expectedContents) throws IOException {
         final File[] files = folder.getRoot().listFiles();
         Assert.assertNotNull(files);
         boolean fileFound = false;
         for (final File file : files) {
             final String fileName = file.getName();
-            if (fileName.endsWith("inetnum.gz")) {
+            if (fileName.endsWith(filenameEnd)) {
                 fileFound = true;
-                checkFile(file, givenWithTimestamp );
+                checkFile(file, expectedContents);
                 break;
             }
         }
