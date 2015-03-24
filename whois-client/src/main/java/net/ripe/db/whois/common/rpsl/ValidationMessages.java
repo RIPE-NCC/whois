@@ -56,7 +56,7 @@ public final class ValidationMessages {
     }
 
     public static Message deprecatedAttributeFound(final AttributeType type) {
-        return new Message(Messages.Type.WARNING, "Deprecated attribute \"%s\"", type.getName());
+        return new Message(Messages.Type.WARNING, "Deprecated attribute \"%s\". This attribute will be removed in the future.", type.getName());
     }
 
 }
