@@ -1033,7 +1033,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         assertThat(diff.getAdded().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(0));
-        assertThat(diff.getRemoved().getAll(), hasSize(10));
+        assertThat(diff.getRemoved().getAll(), hasSize(9));
         assertThat(diff.getRemoved().getTable("upd_to"), hasSize(1));
         assertThat(diff.getRemoved().getTable("abuse_mailbox"), hasSize(1));
         assertThat(diff.getRemoved().getTable("mnt_nfy"), hasSize(1));
