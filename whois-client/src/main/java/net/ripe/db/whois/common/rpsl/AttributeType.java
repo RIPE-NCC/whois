@@ -559,7 +559,7 @@ public enum AttributeType implements Documented {
             .syntax(POETIC_FORM_SYNTAX)),
 
     REFERRAL_BY(new Builder("referral-by", "rb")
-            .doc("Mandatory historical attribute referencing a mntner name. Not used. Suggest setting it to this mntner name.")
+            .doc("Deprecated attribute referencing a mntner name. Will be removed in the near future.")
             .syntax(REFERRAL_SYNTAX)
             .references(ObjectType.MNTNER)),
 
