@@ -35,7 +35,6 @@ public class IndexWithAuthTest extends IndexTestBase {
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "referral-by: OWNER-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 

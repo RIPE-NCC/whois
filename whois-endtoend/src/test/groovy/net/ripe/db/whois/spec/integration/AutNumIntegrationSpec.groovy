@@ -18,7 +18,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: AP1-TEST
             mnt-by: UPD-MNT
-            referral-by: UPD-MNT
             upd-to: noreply@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -39,7 +38,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: AP1-TEST
             mnt-by:  RIPE-NCC-HM-MNT
-            referral-by: RIPE-NCC-HM-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$tnG/zrDw\$nps8tg76q4jgg5zg5o6os. # hm
             changed: dbtest@ripe.net 20120707
@@ -50,7 +48,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: AP1-TEST
             mnt-by:  RIPE-NCC-LEGACY-MNT
-            referral-by: RIPE-NCC-LEGACY-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
             changed: dbtest@ripe.net 20120707

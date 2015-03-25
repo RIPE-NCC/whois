@@ -221,7 +221,6 @@ public class DummifierLegacyTest {
                 "auth: SSO 1234-5678-9abc-dead-beef\n" +
                 "notify: guy@ripe.net\n" +
                 "mnt-by: AARDVARK-MNT\n" +
-                "referral-by: AARDVARK-MNT\n" +
                 "changed: guy@ripe.net 20120510\n" +
                 "source: RIPE # Filtered");
 

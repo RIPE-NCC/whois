@@ -24,7 +24,6 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
                 admin-c:        TP1-TEST
                 upd-to:         dbtest@ripe.net
                 auth:           MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
-                referral-by:    TST-MNT
                 changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,

@@ -20,7 +20,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  TST-MNT
-            referral-by: TST-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -165,7 +164,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "descr:   description\n" +
                 "admin-c: TEST-RIPE\n" +
                 "mnt-by:  LOOP-MNT\n" +
-                "referral-by: TST-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed: dbtest@ripe.net 20120707\n" +
@@ -178,7 +176,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c: TEST-RIPE\n" +
                 "mnt-by:  LOOP-MNT\n" +
                 "remarks:  updated\n" +
-                "referral-by: TST-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed: dbtest@ripe.net 20120707\n" +
@@ -205,7 +202,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "descr:   description\n" +
                 "admin-c: TEST-RIPE\n" +
                 "mnt-by:  LOOP-MNT\n" +
-                "referral-by: TST-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed: dbtest@ripe.net 20120707\n" +
@@ -218,7 +214,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                         "admin-c: TEST-RIPE\n" +
                         "remarks: yesterday\n" +
                         "mnt-by:  LOOP-MNT\n" +
-                        "referral-by: TST-MNT\n" +
                         "upd-to:  dbtest@ripe.net\n" +
                         "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                         "changed: dbtest@ripe.net 20120707\n" +
@@ -244,7 +239,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                         "admin-c: TEST-RIPE\n" +
                         "remarks: today\n" +
                         "mnt-by:  LOOP-MNT\n" +
-                        "referral-by: TST-MNT\n" +
                         "upd-to:  dbtest@ripe.net\n" +
                         "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                         "changed: dbtest@ripe.net 20120707\n" +
@@ -271,7 +265,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "descr:   description\n" +
                 "admin-c: TEST-RIPE\n" +
                 "mnt-by:  LOOP-MNT\n" +
-                "referral-by: TST-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed: dbtest@ripe.net 20120707\n" +
@@ -288,7 +281,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                         "admin-c: TEST-RIPE\n" +
                         "remarks: yesterday\n" +
                         "mnt-by:  LOOP-MNT\n" +
-                        "referral-by: TST-MNT\n" +
                         "upd-to:  dbtest@ripe.net\n" +
                         "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                         "changed: dbtest@ripe.net 20120707\n" +
@@ -316,7 +308,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "descr:   description\n" +
                 "admin-c: TEST-RIPE\n" +
                 "mnt-by:  LOOP-MNT\n" +
-                "referral-by: TST-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed: dbtest@ripe.net 20120707\n" +
@@ -331,7 +322,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                         "admin-c: TEST-RIPE\n" +
                         "remarks: yesterday\n" +
                         "mnt-by:  LOOP-MNT\n" +
-                        "referral-by: TST-MNT\n" +
                         "upd-to:  dbtest@ripe.net\n" +
                         "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                         "changed: dbtest@ripe.net 20120707\n" +

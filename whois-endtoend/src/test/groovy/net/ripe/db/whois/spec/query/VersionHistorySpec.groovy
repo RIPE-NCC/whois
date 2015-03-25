@@ -36,7 +36,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 descr:          description
                 admin-c:        TP1-TEST
                 mnt-by:         OLD-MNT
-                referral-by:    OLD-MNT
                 upd-to:         updto_cre@ripe.net
                 auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 auth:           CRYPT-PW QQtm3kRqZXWAu
@@ -116,7 +115,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 descr:   description
                 admin-c: TP1-TEST
                 mnt-by:  SELF-MNT
-                referral-by: SELF-MNT
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -127,7 +125,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 descr:   description
                 admin-c: TP1-TEST
                 mnt-by:  PAUL
-                referral-by: PAUL
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -653,7 +650,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 descr:   description
                 admin-c: TP1-TEST
                 mnt-by:  ff1-TEST
-                referral-by: ff1-TEST
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -821,7 +817,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 descr:   description
                 admin-c: TP1-TEST
                 mnt-by:  SELF-MNT
-                referral-by: SELF-MNT
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 remarks: version 2
@@ -863,7 +858,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 descr:   description
                 admin-c: TP1-TEST
                 mnt-by:  PAUL
-                referral-by: PAUL
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 remarks: version 2
@@ -1674,7 +1668,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 descr:          description
                 admin-c:        TP1-TEST
                 mnt-by:         OLD-MNT
-                referral-by:    OLD-MNT
                 upd-to:         updto_cre@ripe.net
                 auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed:        dbtest@ripe.net 20120707

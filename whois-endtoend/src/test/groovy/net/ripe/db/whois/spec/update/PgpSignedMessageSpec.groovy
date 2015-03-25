@@ -75,7 +75,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        PGPKEY-EBEEB05E
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -87,7 +86,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 auth:         MD5-PW \$1\$tTr8D75J\$ruGCSs6bNrwr25ZrervtR0 # test-dbm
                 upd-to:       dbtest@ripe.net
                 mnt-by:       TST-MNT
-                referral-by:  TST-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
@@ -125,7 +123,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        PGPKEY-EBEEB05E
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 
@@ -160,7 +157,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        PGPKEY-EBEEB05E
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 
@@ -196,7 +192,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:       dbtest@ripe.net
                 auth:         MD5-PW \$1\$12345678\$knzUanD5W.zU11AJAAbNw/   # test-dbm
                 mnt-by:       TST-MNT
-                referral-by:  TST-MNT
                 changed:      dbtest@ripe.net 20130110
                 source:       TEST
                 override:     denis,override1
@@ -288,7 +283,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        PGPKEY-EBEEB05E
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 
@@ -328,7 +322,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 auth:        PGPKEY-EBEEB05E
                 auth:        PGPKEY-44AF2B48
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 
@@ -368,7 +361,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:       dbtest@ripe.net
                 auth:         MD5-PW \$1\$12345678\$knzUanD5W.zU11AJAAbNw/   # test-dbm
                 mnt-by:       TST-MNT
-                referral-by:  TST-MNT
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:     denis,override1
@@ -415,7 +407,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:       dbtest@ripe.net
                 auth:         MD5-PW \$1\$tTr8D75J\$ruGCSs6bNrwr25ZrervtR0 # test-dbm
                 mnt-by:       TST-MNT
-                referral-by:  TST-MNT2
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:     denis,override1
@@ -442,7 +433,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TEST-DBM-MNT" }
 
-        query_object_matches("-rBT mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT", "referral-by:\\s*TST-MNT2")
+        query_object_matches("-rBT mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT")
     }
 
     def "create irt using pgp key using override"() {
@@ -599,7 +590,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        PGPKEY-EBEEB05E
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 

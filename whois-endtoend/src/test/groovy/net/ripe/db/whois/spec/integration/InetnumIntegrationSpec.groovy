@@ -29,7 +29,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: TEST2-MNT
                     admin-c: TEST-PN
                     mnt-by: TEST2-MNT
-                    referral-by: TEST2-MNT
                     upd-to: dbtest@ripe.net
                     auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
                     source: TEST
@@ -39,7 +38,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:   description
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-HM-MNT
-                    referral-by: RIPE-NCC-HM-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss.  #hm
                     changed: dbtest@ripe.net 20120707
@@ -50,7 +48,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:   description
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-END-MNT
-                    referral-by: RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     changed: dbtest@ripe.net 20120707
@@ -61,7 +58,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:   description
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-LEGACY-MNT
-                    referral-by: RIPE-NCC-LEGACY-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
                     changed: dbtest@ripe.net 20120707

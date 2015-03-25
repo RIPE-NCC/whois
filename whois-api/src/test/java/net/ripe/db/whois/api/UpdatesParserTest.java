@@ -126,7 +126,6 @@ public class UpdatesParserTest {
                         "descr: description\n" +
                         "admin-c: TEST-RIPE\n" +
                         "mnt-by: UPD-MNT\n" +
-                        "referral-by: ADMIN-MNT\n" +
                         "delete: reason\n" +
                         "upd-to: dbtest@ripe.net\n" +
                         "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
@@ -145,7 +144,6 @@ public class UpdatesParserTest {
                 "descr: description\n" +
                 "admin-c: TEST-RIPE\n" +
                 "mnt-by: UPD-MNT\n" +
-                "referral-by: ADMIN-MNT\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed: dbtest@ripe.net 20120707\n" +
@@ -680,7 +678,6 @@ public class UpdatesParserTest {
                 "auth:        MD5-PW $1$8Lm6as7E$ZwbUWIP3BfNAHjhS/RGHi.\n" +
                 "auth:        PGPKEY-28F6CD6C\n" +
                 "mnt-by:      SHRYANE-MNT\n" +
-                "referral-by: SHRYANE-MNT\n" +
                 "changed:     eshryane@ripe.net 20120212\n" +
                 "remarks:     3\n" +
                 "source:      RIPE\n" +
@@ -708,7 +705,6 @@ public class UpdatesParserTest {
                 "auth:        MD5-PW $1$8Lm6as7E$ZwbUWIP3BfNAHjhS/RGHi.\n" +
                 "auth:        PGPKEY-28F6CD6C\n" +
                 "mnt-by:      SHRYANE-MNT\n" +
-                "referral-by: SHRYANE-MNT\n" +
                 "changed:     eshryane@ripe.net 20120212\n" +
                 "remarks:     3\n" +
                 "source:      RIPE"));

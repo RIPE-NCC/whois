@@ -27,7 +27,6 @@ public class RpslObjectTest {
             "auth:            MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\n" +
             "remarks:         password: secret\n" +
             "mnt-by:      DEV-MNT\n" +
-            "referral-by:     DEV-MNT\n" +
             "changed:         BECHA@example.net 20101010\n" +
             "source:          DEV\n";
 
@@ -180,7 +179,6 @@ public class RpslObjectTest {
                 "auth:           MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\n" +
                 "remarks:        password: secret\n" +
                 "mnt-by:         DEV-MNT\n" +
-                "referral-by:    DEV-MNT\n" +
                 "changed:        BECHA@example.net 20101010\n" +
                 "source:         DEV\n"));
 
@@ -296,7 +294,6 @@ public class RpslObjectTest {
                 "auth:            MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\n" +
                 "remarks:         password: secret\n" +
                 "mnt-by:      DEV-MNT\n" +
-                "referral-by:     DEV-MNT\n" +
                 "changed:         BECHA@example.net 20101010\n" +
                 "source:          DEV\n");
         assertThat(subject.getKey().toString(), is("DEV-MNT"));
@@ -369,7 +366,6 @@ public class RpslObjectTest {
                 "auth:            MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\r\n" +
                 "remarks:         password: secret\r\n" +
                 "mnt-by:      DEV-MNT\r\n" +
-                "referral-by:     DEV-MNT\r\n" +
                 "changed:         BECHA@example.net 20101010\r\n" +
                 "source:          DEV\r\n");
 

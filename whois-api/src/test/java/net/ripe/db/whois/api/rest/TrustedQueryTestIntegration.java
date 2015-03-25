@@ -84,7 +84,6 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "referral-by:   SSO-MNT\n" +
                 "changed:       noreply@ripe.net 20120801\n" +
                 "source:        TEST"));
     }

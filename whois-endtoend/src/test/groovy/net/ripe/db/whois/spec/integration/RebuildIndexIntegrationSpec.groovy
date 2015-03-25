@@ -17,7 +17,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  TST-MNT
-            referral-by: TST-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -28,7 +27,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  TST-MNT2
-            referral-by: TST-MNT2
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \\\$1\\\$fU9ZMQN9\\\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -39,7 +37,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  RIPE-NCC-HM-MNT
-            referral-by: RIPE-NCC-HM-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -564,7 +561,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:    TST-MNT\n" +
                 "notify:    notify@ripe.net\n" +
                 "abuse-mailbox: abuse@ripe.net\n" +
-                "referral-by: TST-MNT\n" +
                 "upd-to:    dbtest@ripe.net\n" +
                 "auth:      MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed:   dbtest@ripe.net 20120707\n" +

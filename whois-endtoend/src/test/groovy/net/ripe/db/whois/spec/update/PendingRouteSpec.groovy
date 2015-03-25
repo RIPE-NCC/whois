@@ -25,7 +25,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_as@ripe.net
                 auth:        MD5-PW \$1\$eUJDS9FF\$M.Rnslf2/Joum8D1e8cLQ/  #as
                 mnt-by:      AS-MNT
-                referral-by: AS-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -38,7 +37,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_as2@ripe.net
                 auth:        MD5-PW \$1\$xrdaPju9\$pdea/wDdhZd4nGNaCH5xI1  #as2
                 mnt-by:      AS2-MNT
-                referral-by: AS2-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -51,7 +49,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_pinet@ripe.net
                 auth:        MD5-PW \$1\$oHHeFFDr\$wUBxFsxTb6GQykxSlZN4S.  #pinet
                 mnt-by:      P-INET-MNT
-                referral-by: P-INET-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -315,7 +312,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_as@ripe.net
                 auth:        MD5-PW \$1\$oHHeFFDr\$wUBxFsxTb6GQykxSlZN4S.  #pinet
                 mnt-by:      AS200-MNT
-                referral-by: AS200-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 override: denis,override1
@@ -373,7 +369,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_as@ripe.net
                 auth:        MD5-PW \$1\$oHHeFFDr\$wUBxFsxTb6GQykxSlZN4S.  #pinet
                 mnt-by:      AS100-MNT
-                referral-by: AS100-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 override: denis,override1

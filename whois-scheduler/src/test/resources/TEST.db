@@ -29,7 +29,6 @@ mnt-nfy:        bitbucket@ripe.net
 auth:           MD5-PW $1$XXXXXXXX$XXXXXXXXXXXXXXXXXXXXX/ 
 notify:         bitbucket@ripe.net
 mnt-by:         TEST-ROOT-MNT
-referral-by:    TEST-ROOT-MNT
 remarks:        This is an automatically created object.
 changed:        bitbucket@ripe.net 20051031
 source:         TEST
@@ -46,7 +45,6 @@ remarks:        Password is "emptypassword" without the quotes.
 remarks:        ********************************************************************** 
 notify:         bitbucket@ripe.net
 mnt-by:         TEST-ROOT-MNT
-referral-by:    TEST-ROOT-MNT
 remarks:        This is an automatically created object.
 changed:        bitbucket@ripe.net 20051031
 source:         TEST
@@ -200,7 +198,6 @@ auth:           MD5-PW $1$wCDUXtMe$MptgAFcPa3sy9QqQnbX4X/
 notify:         john.smith@example.com
 abuse-mailbox:  abuse@example.com
 mnt-by:         EXAMPLE-MNT
-referral-by:    TEST-DBM-MNT
 changed:        john.smith@example.com 20051104
 source:         TEST
 
@@ -277,7 +274,6 @@ remarks:        ****************************************************************
 remarks:        Password is "emptypassword" without the quotes.
 remarks:        **********************************************************************
 mnt-by:         TEST-ROOT-MNT
-referral-by:    TEST-DBM-MNT
 changed:        me@ripe.net 20010314
 source:         TEST
 
@@ -299,7 +295,6 @@ admin-c:        BADT-RIPE
 upd-to:         bad@ripe.net
 auth:           MD5-PW $1$gzTyjS7h$3ctGphaA6wjahQ6V6WKVY/
 mnt-by:         RIPE-NCC-BA-MNT
-referral-by:    RIPE-NCC-BA-MNT
 changed:        bad@ripe.net 20071025
 source:         TEST
 
@@ -314,7 +309,6 @@ mnt-nfy: unread@ripe.net
 auth: MD5-PW $1$umvARPdD$7HVvS66psAx9qZtkDpmWY/
 notify: unread@ripe.net
 mnt-by: RIPE-DBM-STARTUP-MNT
-referral-by: RIPE-DBM-STARTUP-MNT
 changed: ripe-dbm@ripe.net 20080806
 changed: ripe-dbm@ripe.net 20080909
 source: TEST
@@ -360,7 +354,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by trainer
 admin-c:	TS1-TEST
 mnt-by:		TS1-MNT
-referral-by:	TS1-MNT
 auth:		MD5-PW $1$nhN4mW9L$CtrhHYQwR6m6Q1KdL5V8d1
 changed:	hostmaster@example.org 20121115
 upd-to:		trainer@example.org
@@ -490,7 +483,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 1
 admin-c:	CA1-TEST
 mnt-by:		CM1-MNT
-referral-by:	CM1-MNT
 auth:		MD5-PW $1$FX2KLhzv$z2onl0vKBOXeNyR11rWKs.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -569,7 +561,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 2
 admin-c:	CA2-TEST
 mnt-by:		CM2-MNT
-referral-by:	CM2-MNT
 auth:		MD5-PW $1$1iIgIZez$3m5T8y5GXwvuUYolYG8YJ.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -648,7 +639,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 3
 admin-c:	CA3-TEST
 mnt-by:		CM3-MNT
-referral-by:	CM3-MNT
 auth:		MD5-PW $1$MRAzBivc$vxFE81qLIMRNDi5VI0Fzn.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -727,7 +717,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 4
 admin-c:	CA4-TEST
 mnt-by:		CM4-MNT
-referral-by:	CM4-MNT
 auth:		MD5-PW $1$xtwDyXI0$I..kpGzHD2IZsxfUakPid/
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -806,7 +795,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 5
 admin-c:	CA5-TEST
 mnt-by:		CM5-MNT
-referral-by:	CM5-MNT
 auth:		MD5-PW $1$eNRgFFG1$9X7uk6YmYGTUEEyjEt5ZZ/
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -885,7 +873,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 6
 admin-c:	CA6-TEST
 mnt-by:		CM6-MNT
-referral-by:	CM6-MNT
 auth:		MD5-PW $1$lt5viqIA$VM61cekUhk.nCcnEyikBO1
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -964,7 +951,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 7
 admin-c:	CA7-TEST
 mnt-by:		CM7-MNT
-referral-by:	CM7-MNT
 auth:		MD5-PW $1$BoBcSQmy$OTDmkgl.6nY/5eJ71UiG/1
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1043,7 +1029,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 8
 admin-c:	CA8-TEST
 mnt-by:		CM8-MNT
-referral-by:	CM8-MNT
 auth:		MD5-PW $1$vid76srh$ND3KX0XMfhfsMltRgehc.1
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1122,7 +1107,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 9
 admin-c:	CA9-TEST
 mnt-by:		CM9-MNT
-referral-by:	CM9-MNT
 auth:		MD5-PW $1$7NZhJNFb$62Ca3eb60acmn8/Zj8A86.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1201,7 +1185,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 10
 admin-c:	CA10-TEST
 mnt-by:		CM10-MNT
-referral-by:	CM10-MNT
 auth:		MD5-PW $1$FpVRXzth$Sexp75.TW1GyDJEVD2Q/E1
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1280,7 +1263,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 11
 admin-c:	CA11-TEST
 mnt-by:		CM11-MNT
-referral-by:	CM11-MNT
 auth:		MD5-PW $1$oUTcKCg7$IkIFeYABRdgQgChlwiK4S.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1359,7 +1341,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 12
 admin-c:	CA12-TEST
 mnt-by:		CM12-MNT
-referral-by:	CM12-MNT
 auth:		MD5-PW $1$kEWL8xPp$ccr6YFfASGSu6UnNjMETS0
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1438,7 +1419,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 13
 admin-c:	CA13-TEST
 mnt-by:		CM13-MNT
-referral-by:	CM13-MNT
 auth:		MD5-PW $1$nV3LRovs$uH7UEvIDKYhLa2vDzrD28/
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1517,7 +1497,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 14
 admin-c:	CA14-TEST
 mnt-by:		CM14-MNT
-referral-by:	CM14-MNT
 auth:		MD5-PW $1$92vrBtpP$iVnO8reiNvUUVduHbadbc/
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1596,7 +1575,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 15
 admin-c:	CA15-TEST
 mnt-by:		CM15-MNT
-referral-by:	CM15-MNT
 auth:		MD5-PW $1$SfKfxorc$WxZ2zJeZJVdJIk2gd5uBc/
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1675,7 +1653,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 16
 admin-c:	CA16-TEST
 mnt-by:		CM16-MNT
-referral-by:	CM16-MNT
 auth:		MD5-PW $1$PPgvpJ3C$yuU3LevqFHzj4fhlADwJh.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1754,7 +1731,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 17
 admin-c:	CA17-TEST
 mnt-by:		CM17-MNT
-referral-by:	CM17-MNT
 auth:		MD5-PW $1$HklibzRO$6W4wE3Rta7d5GVhZHhuPd1
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1833,7 +1809,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 18
 admin-c:	CA18-TEST
 mnt-by:		CM18-MNT
-referral-by:	CM18-MNT
 auth:		MD5-PW $1$dQTKgRSx$peQM1JsQk3KJJjDny1hN9.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1912,7 +1887,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 19
 admin-c:	CA19-TEST
 mnt-by:		CM19-MNT
-referral-by:	CM19-MNT
 auth:		MD5-PW $1$pvz2lhAr$9hABRQS7Ki8piCdjjFAqf.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -1991,7 +1965,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 20
 admin-c:	CA20-TEST
 mnt-by:		CM20-MNT
-referral-by:	CM20-MNT
 auth:		MD5-PW $1$JB4gZIOq$wiGHR2NA9QsPkF/NCnwYv1
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -2070,7 +2043,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 21
 admin-c:	CA21-TEST
 mnt-by:		CM21-MNT
-referral-by:	CM21-MNT
 auth:		MD5-PW $1$0TTg5cT9$kMUS8q1csfij.jvZRimLl.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -2149,7 +2121,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 22
 admin-c:	CA22-TEST
 mnt-by:		CM22-MNT
-referral-by:	CM22-MNT
 auth:		MD5-PW $1$4IoxOVaB$AbkpGx7IcdPWo/yc4OyvS.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -2228,7 +2199,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 23
 admin-c:	CA23-TEST
 mnt-by:		CM23-MNT
-referral-by:	CM23-MNT
 auth:		MD5-PW $1$tyJCeBrp$4GYg7KGxbxvGsB8wTMVKq1
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -2307,7 +2277,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 24
 admin-c:	CA24-TEST
 mnt-by:		CM24-MNT
-referral-by:	CM24-MNT
 auth:		MD5-PW $1$gRjcdCYi$aiMhOCJk4lW62Zwn2EMbs.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -2386,7 +2355,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 25
 admin-c:	CA25-TEST
 mnt-by:		CM25-MNT
-referral-by:	CM25-MNT
 auth:		MD5-PW $1$A1EQTwyH$B3.oRwJX1Aj7pKMiAyrPl.
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -2465,7 +2433,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 26
 admin-c:	CA26-TEST
 mnt-by:		CM26-MNT
-referral-by:	CM26-MNT
 auth:		MD5-PW $1$2D2kfoGG$d3XCqy0vUnpU2abXe9Poe/
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -2544,7 +2511,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 27
 admin-c:	CA27-TEST
 mnt-by:		CM27-MNT
-referral-by:	CM27-MNT
 auth:		MD5-PW $1$sMkBNQqo$IXm1vhHFYEKrnX77aaRH9/
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -2623,7 +2589,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 28
 admin-c:	CA28-TEST
 mnt-by:		CM28-MNT
-referral-by:	CM28-MNT
 auth:		MD5-PW $1$rihOr6cf$K/U4VXZZs5dJtGSV/ThHf/
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -2702,7 +2667,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 29
 admin-c:	CA29-TEST
 mnt-by:		CM29-MNT
-referral-by:	CM29-MNT
 auth:		MD5-PW $1$Cq70ClVa$ccLu849vcMsYGG8ub585U0
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -2781,7 +2745,6 @@ descr:		Maintainer for the RIPE NCC training course
 descr:		Managed by attendee 30
 admin-c:	CA30-TEST
 mnt-by:		CM30-MNT
-referral-by:	CM30-MNT
 auth:		MD5-PW $1$y1OeN4vi$2hYgjgi.jP9snzo0kc9s51
 changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
@@ -2867,7 +2830,6 @@ tech-c:BL123-RIPE
 upd-to:noc@ripencc-ts.example.com
 auth:MD5-PW $1$LKfJKnHh$y.fIUZBlKy79elGMES5PU.
 mnt-by:BL123-MNT
-referral-by:BL123-MNT
 changed:andrzej@ripencc-ts.example.com 20120907
 source:TEST
 
@@ -2904,7 +2866,6 @@ admin-c:MB54321-RIPE
 upd-to:marc@laika.example.com
 auth:MD5-PW $1$PYZL9cL7$WIJMB7UALo6zjAik5TOko0
 mnt-by:laika-mnt
-referral-by:laika-mnt
 notify:marc@laika.example.com
 changed:marc@laika.example.com 20120308
 remarks:Accepted the RIPE Database Terms and Conditions
@@ -2950,7 +2911,6 @@ admin-c:     AA1-TEST
 upd-to:      bitbucket@ripe.net
 auth:        PGPKEY-10B066BE
 mnt-by:      TEST-NOPASS-MNT
-referral-by: TEST-NOPASS-MNT
 changed:     bitbucket@ripe.net 20111124
 source:      TEST
 

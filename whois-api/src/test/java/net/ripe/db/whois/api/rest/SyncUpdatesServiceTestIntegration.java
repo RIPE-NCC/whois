@@ -43,7 +43,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
             "notify:        noreply@ripe.net\n" +
             "auth:          MD5-PW $1$TTjmcwVq$zvT9UcvASZDQJeK8u9sNU.    # emptypassword\n" +
             "mnt-by:        mntner\n" +
-            "referral-by:   mntner\n" +
             "changed:       noreply@ripe.net 20120801\n" +
             "source:        TEST";
 
@@ -218,7 +217,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "referral-by:   SSO-MNT\n" +
                 "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST");
 
@@ -249,7 +247,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "referral-by:   SSO-MNT\n" +
                 "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST");
 
@@ -286,7 +283,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        mntner\n" +
-                "referral-by:   mntner\n" +
                 "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST";
 
@@ -312,7 +308,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "referral-by:   SSO-MNT\n" +
                 "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST";
 
@@ -337,7 +332,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
                 "mnt-by:        TESTING-MNT\n" +
-                "referral-by:   TESTING-MNT\n" +
                 "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST";
 
@@ -362,7 +356,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "upd-to:        noreply@ripe.net\n" +
                                 "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
                                 "mnt-by:        TESTING-MNT\n" +
-                                "referral-by:   TESTING-MNT\n" +
                                 "changed:       noreply@ripe.net 20130102\n" +
                                 "source:        TEST\n" +
                                 "password: pass %95{word}?\n"),
@@ -381,7 +374,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "referral-by:   SSO-MNT\n" +
                 "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST";
         databaseHelper.addObject(mntner);

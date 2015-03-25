@@ -20,7 +20,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: TEST-MNT
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT
-                    referral-by: TEST-MNT
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     source: TEST
@@ -30,7 +29,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:   description
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-HM-MNT
-                    referral-by: RIPE-NCC-HM-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     changed: dbtest@ripe.net 20120707
@@ -41,7 +39,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:   description
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-END-MNT
-                    referral-by: RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     changed: dbtest@ripe.net 20120707

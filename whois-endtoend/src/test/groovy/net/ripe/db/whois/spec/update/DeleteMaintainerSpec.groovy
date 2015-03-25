@@ -19,7 +19,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 notify:      notif_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      DEL-MNT
-                referral-by: DEL-MNT
                 changed:     dbtest@ripe.net 20121109
                 source:      TEST
                 """,
@@ -31,7 +30,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      DEL-MNT
-                referral-by: DEL-MNT
                 changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
@@ -42,7 +40,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 upd-to:      updto_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      OWNER-MNT
-                referral-by: DEL2-MNT
                 changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
@@ -344,7 +341,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 notify:      notify_owner@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
                 changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 delete: testing
@@ -389,7 +385,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 notify:      notif_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      DEL-MNT
-                referral-by: DEL-MNT
                 changed:     dbtest@ripe.net 20121109
                 source:      TEST
                 delete: testing
@@ -434,7 +429,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 notify:      notif_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      DEL-MNT
-                referral-by: DEL-MNT
                 changed:     dbtest@ripe.net 20121109
                 source:      TEST
                 delete: testing
@@ -479,7 +473,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 notify:      notif_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      DEL-MNT
-                referral-by: DEL-MNT
                 changed:     dbtest@ripe.net 20121109
                 source:      TEST
                 delete: testing

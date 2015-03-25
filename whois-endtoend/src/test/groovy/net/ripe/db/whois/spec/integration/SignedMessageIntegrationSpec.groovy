@@ -79,7 +79,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss.  #hm
                 mnt-by:      RIPE-NCC-HM-MNT
-                referral-by: RIPE-NCC-HM-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -89,7 +88,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:     TP1-TEST
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
                 upd-to:      dbtest@ripe.net
                 changed:     dbtest@ripe.net
                 source:      TEST

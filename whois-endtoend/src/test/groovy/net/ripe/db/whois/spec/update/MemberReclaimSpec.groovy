@@ -254,7 +254,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:      notify_domains@ripe.net
                 auth:        MD5-PW \$1\$PSgV42pA\$SQsl2cHDMeQx3IsMzdqNH/  #sub2
                 mnt-by:      SUB2-MNT
-                referral-by: SUB2-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
