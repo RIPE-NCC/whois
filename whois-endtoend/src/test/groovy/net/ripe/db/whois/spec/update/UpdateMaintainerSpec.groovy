@@ -193,6 +193,46 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT", "MD5-PW # Filtered")
     }
 
+    def "create maintainer without referral-by succeeds"() {
+        expect:
+        queryNothing("-rGBT mntner SELF-MNT")
+
+        when:
+        def message = send new Message(
+                subject: "NEW",
+                body: """\
+                mntner: SELF-MNT
+                descr: description
+                admin-c: TP1-TEST
+                mnt-by: SELF-MNT
+                upd-to: updto_cre@ripe.net
+                auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                changed: dbtest@ripe.net 20120707
+                source: TEST
+
+                password: update
+                """.stripIndent()
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any {it.operation == "Create" && it.key == "[mntner] SELF-MNT"}
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        ack.successes.find { it.operation == "Create" &&
+                it.key == "[mntner] SELF-MNT"}.warnings != ["Deprecated attribute \"referral-by\". This attribute will be removed in the future."]
+
+        queryObject("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT")
+        query_object_not_matches("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT", "\\\$1\\\$fU9ZMQN9\\\$QQtm3kRqZXWAuLpeOiLN7.")
+        query_object_matches("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT", "MD5-PW # Filtered")
+    }
+
 
     def "create maintainer object, no password value"() {
       given:
