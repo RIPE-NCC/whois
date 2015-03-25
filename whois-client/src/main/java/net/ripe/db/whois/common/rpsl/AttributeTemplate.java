@@ -7,28 +7,18 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class AttributeTemplate {
-    private static final String ATTRIBUTE_MANDATORY = "mandatory";
-    private static final String ATTRIBUTE_OPTIONAL = "optional";
-    private static final String ATTRIBUTE_GENERATED = "generated";
-    private static final String ATTRIBUTE_DEPRECATED = "deprecated";
-
     public static enum Requirement {
-        MANDATORY(ATTRIBUTE_MANDATORY,ATTRIBUTE_MANDATORY),
-        OPTIONAL(ATTRIBUTE_OPTIONAL,ATTRIBUTE_OPTIONAL),
-        GENERATED(ATTRIBUTE_GENERATED,ATTRIBUTE_GENERATED),
-        DEPRECATED(ATTRIBUTE_DEPRECATED,ATTRIBUTE_OPTIONAL);
+        MANDATORY("mandatory"),
+        OPTIONAL("optional"),
+        GENERATED("generated"),
+        DEPRECATED("optional"); // deprecated fields seen as optional from outside perspective
 
-        private final String name;
         private final String externalName;
 
-        private Requirement(final String name,final String externalName) {
-            this.name = name;
+        private Requirement(final String externalName) {
             this.externalName = externalName;
         }
 
-        public String getName() {
-            return name;
-        }
         public String getExternalName() {
             return externalName;
         }
