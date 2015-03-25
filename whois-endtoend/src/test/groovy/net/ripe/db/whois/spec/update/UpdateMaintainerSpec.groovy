@@ -14,7 +14,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             descr: description
             admin-c: TP1-TEST
             mnt-by: OWNER-MNT
-            referral-by: CRE-MNT
             upd-to: updto_cre@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -25,7 +24,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             descr: description
             admin-c: TP1-TEST
             mnt-by: SELF-MNT
-            referral-by: SELF-MNT
             upd-to: updto_cre@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -36,7 +34,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             descr: description
             admin-c: TP1-TEST
             mnt-by: OWNER-MNT
-            referral-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -48,7 +45,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             admin-c: TP1-TEST
             remarks: added comment
             mnt-by: OWNER-MNT
-            referral-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -60,7 +56,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             admin-c: TP1-TEST
             remarks: added comment
             mnt-by: OWNER-MNT
-            referral-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120901
@@ -72,7 +67,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             adminc: TP1-TEST
             remarks: added comment
             mnt-by: OWNER-MNT
-            referral-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120901
@@ -120,7 +114,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 descr: description
                 admin-c: TP1-TEST
                 mnt-by: SELF-MNT
-                referral-by: SELF-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -239,7 +232,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 descr: description
                 admin-c: TP1-TEST
                 mnt-by: OWNER-MNT
-                referral-by: CRE-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -275,7 +267,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 descr: description
                 admin-c: TP1-TEST
                 mnt-by: OWNER-MNT
-                referral-by: CRE-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -498,7 +489,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 admin-c: TP1-TEST
                 mnt-by: CRE-MNT, owner-mnt
                 abuse-mailbox: nfy_cre@ripe.net
-                referral-by: owner-MNT
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 upd-to: updto_cre@ripe.net
@@ -546,7 +536,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 descr:       description
                 admin-c:     TP1-TEST
                 mnt-by:      owner-MNT
-                referral-by: UPD-MNT
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 auth:        PGPKEY-D83C3FBD
@@ -582,7 +571,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 descr: description
                 admin-c: TP1-TEST
                 mnt-by: NEW-MNT
-                referral-by: NEW-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707

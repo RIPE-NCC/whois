@@ -62,7 +62,6 @@ public class GrsImporterJpirrTestIntegration extends AbstractSchedulerIntegratio
                 "mntner:         SOME-MNT\n" +
                 "descr:          description\n" +
                 "mnt-by:         SOME-MNT\n" +
-                "referral-by:    SOME-MNT\n" +
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed:        dbtest@ripe.net 20120707\n" +

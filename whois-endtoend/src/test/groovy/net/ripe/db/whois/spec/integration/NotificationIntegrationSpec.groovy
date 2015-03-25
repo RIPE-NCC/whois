@@ -14,7 +14,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: TEST-MNT
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT
-                    referral-by: TEST-MNT
                     notify: test_test@ripe.net
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
@@ -56,7 +55,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-PN
                 mnt-by: ADMIN-MNT
                 notify: notify_test@ripe.net
-                referral-by: ADMIN-MNT
                 upd-to: dbtest@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -95,7 +93,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-nfy: test_test@ripe.net
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT
-                    referral-by: TEST-MNT
                     notify: test_test@ripe.net
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
@@ -153,7 +150,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-PN
                 mnt-by: ADMIN-MNT
                 notify: notify_test@ripe.net
-                referral-by: ADMIN-MNT
                 upd-to: dbtest@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -164,7 +160,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-PN
                 mnt-by: ADMIN-MNT
                 notify: test_test@ripe.net
-                referral-by: TEST-MNT
                 upd-to: test@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: test@ripe.net 20120707
@@ -202,7 +197,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-PN
                 mnt-by: ADMIN-MNT
                 mnt-nfy: notify_test@ripe.net
-                referral-by: ADMIN-MNT
                 upd-to: dbtest@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -232,7 +226,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-PN
                 mnt-by: ADMIN-MNT
                 mnt-nfy: notify_test@ripe.net
-                referral-by: ADMIN-MNT
                 upd-to: dbtest@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -256,7 +249,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-PN
                 mnt-by: ADMIN-MNT
                 mnt-nfy: notify_test@ripe.net
-                referral-by: ADMIN-MNT
                 upd-to: dbtest@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -284,7 +276,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-PN
                 mnt-by: ADMIN-MNT
                 mnt-nfy: notify_test@ripe.net
-                referral-by: ADMIN-MNT
                 upd-to: dbtest@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: dbtest@ripe.net 20120707
@@ -298,7 +289,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-PN
                 mnt-by: ADMIN-MNT
                 notify: test_test@ripe.net
-                referral-by: TEST-MNT
                 upd-to: test@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 changed: test@ripe.net 20120707
@@ -413,7 +403,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "descr: descr\n" +
                 "mnt-by: TEST-MNT\n" +
                 "mnt-nfy: notif_test@ripe.net\n" +
-                "referral-by: UPD-MNT\n" +
                 "notify: notif_test@ripe.net\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
@@ -426,7 +415,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT
                     descr: test
-                    referral-by: TEST-MNT
                     notify: notif_test@ripe.net
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
@@ -441,8 +429,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
         notif.subject =~ "RIPE Database updates, auth error notification"
 
-        notif.contents.contains("-referral-by:    UPD-MNT\n" +
-                "+descr:          test")
+        notif.contents.contains("+descr:          test")
         !notif.contents.contains("auth: SSO ssotest@ripe.net")
         notif.contents.contains("@@ -9,4 +8,3 @@\n" +
                 " auth:           MD5-PW # Filtered\n" +
@@ -455,7 +442,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: TEST-MNT
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT
-                    referral-by: TEST-MNT
                     notify: test_test@ripe.net
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
@@ -466,7 +452,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: TEST-MNT
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT
-                    referral-by: TEST-MNT
                     notify: test_test@ripe.net
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
@@ -512,7 +497,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: OLW-PN
                     mnt-by: TEST-MNT
                     descr: description
-                    referral-by: TEST-MNT
                     changed: ripe@test.net 20121221
                     notify: modify_mntner@ripe.net
                     upd-to: dbtest@ripe.net
@@ -532,7 +516,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: OLW-PN
                     mnt-by: TEST-MNT
                     descr: description
-                    referral-by: TEST-MNT
                     changed: ripe@test.net 20121221
                     notify: updated_modify_mntner@ripe.net
                     upd-to: dbtest@ripe.net
@@ -562,7 +545,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c:        OLW-PN\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "descr:          description\n" +
-                "referral-by:    TEST-MNT\n" +
                 "changed:        ripe@test.net 20121221\n" +
                 "notify:         modify_mntner@ripe.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
@@ -587,7 +569,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c:        OLW-PN\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "descr:          description\n" +
-                "referral-by:    TEST-MNT\n" +
                 "changed:        ripe@test.net 20121221\n" +
                 "notify:         updated_modify_mntner@ripe.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
@@ -691,7 +672,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c: OLW-PN
             mnt-by: TEST-MNT
             descr: description
-            referral-by: TEST-MNT
             changed: ripe@test.net
             notify: same@test.net
             upd-to: dbtest@ripe.net
@@ -726,7 +706,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c:        OLW-PN\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "descr:          description\n" +
-                "referral-by:    TEST-MNT\n" +
                 "changed:        ripe@test.net 20130625\n" +
                 "notify:         same@test.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
@@ -804,7 +783,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c: OLW-PN
             mnt-by: TEST-MNT
             descr: description
-            referral-by: TEST-MNT
             changed: ripe@test.net 20120505
             notify: same@test.net
             upd-to: dbtest@ripe.net
@@ -843,7 +821,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c: OLW-PN
             mnt-by: TEST-MNT
             descr: description  updated
-            referral-by: TEST-MNT
             changed: ripe@test.net 20120505
             notify: rutger@test.net
             upd-to: dbtest@ripe.net
@@ -901,7 +878,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 " mnt-by:         TEST-MNT\n" +
                 "-descr:          description  updated\n" +
                 "+descr:          description\n" +
-                " referral-by:    TEST-MNT\n" +
                 " changed:        ripe@test.net 20120505\n" +
                 "-notify:         rutger@test.net\n" +
                 "+notify:         same@test.net\n" +
@@ -914,7 +890,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c:        OLW-PN\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "descr:          description\n" +
-                "referral-by:    TEST-MNT\n" +
                 "changed:        ripe@test.net 20120505\n" +
                 "notify:         same@test.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
@@ -932,7 +907,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c:        OLW-PN\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "descr:          description  updated\n" +
-                "referral-by:    TEST-MNT\n" +
                 "changed:        ripe@test.net 20120505\n" +
                 "notify:         rutger@test.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +

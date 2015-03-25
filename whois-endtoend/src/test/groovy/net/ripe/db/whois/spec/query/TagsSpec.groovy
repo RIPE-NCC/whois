@@ -24,7 +24,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$m4UsfkN3\$kLY5AaJuJrxaTR94HW5Ad0  #lir2
                 mnt-by:      LIR2-MNT
-                referral-by: LIR2-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -37,7 +36,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 notify:      notify_domains@ripe.net
                 auth:        MD5-PW \$1\$63qqt67X\$irszXgCNN2RdN6cZC12pK1  #sub
                 mnt-by:      SUB-MNT
-                referral-by: SUB-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,

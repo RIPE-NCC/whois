@@ -38,7 +38,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP2-TEST
                 auth:        MD5-PW \$1\$vuJ5SxxZ\$B4rxOF9eXgwvJPm.zDZxF1 # startup
                 mnt-by:      RIPE-DBM-STARTUP-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """

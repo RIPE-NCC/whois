@@ -188,7 +188,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 notify:      notify_tst4@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      TEST-MNT
-                referral-by: TEST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 org:          ORG-OFA10-TEST

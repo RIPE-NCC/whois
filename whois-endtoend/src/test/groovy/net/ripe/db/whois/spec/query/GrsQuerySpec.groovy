@@ -16,7 +16,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -27,7 +26,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$bnGNJ2PC\$4r38DENnw07.9ktKP//Kf1  #test2
                 mnt-by:      TST-MNT2
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -62,7 +60,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 notify:      notify_owner@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,

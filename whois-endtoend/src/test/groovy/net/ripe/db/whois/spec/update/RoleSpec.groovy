@@ -68,7 +68,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 notify:      notify_owner@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,

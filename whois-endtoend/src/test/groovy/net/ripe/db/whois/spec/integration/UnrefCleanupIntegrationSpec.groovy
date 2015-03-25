@@ -18,7 +18,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: TEST-RIPE
             mnt-by: UPD-MNT
-            referral-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -29,7 +28,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: TEST-RIPE
             mnt-by: ADMIN-MNT
-            referral-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -182,7 +180,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: TEST-RIPE
             mnt-by: UNREF-MNT
-            referral-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -549,7 +546,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: TEST-RIPE
             mnt-by: UPD-MNT
-            referral-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   PGPKEY-28F6CD6C
             changed: dbtest@ripe.net 20120707
@@ -585,7 +581,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            referral-by:    TEST-MNT
             changed:        test@ripe.net 20120404
             source:         TEST
             password:       update
@@ -600,7 +595,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            referral-by:    TEST-MNT
             changed:        test@ripe.net 20120404
             source:         TEST
             password:       update
@@ -615,7 +609,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            referral-by:    TEST-MNT
             changed:        test@ripe.net 20120404
             source:         TEST
             password:       update
@@ -651,7 +644,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            referral-by:    TEST-MNT
             changed:        test@ripe.net 20120404
             source:         TEST
             password:       update

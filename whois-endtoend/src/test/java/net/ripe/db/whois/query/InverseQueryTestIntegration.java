@@ -40,7 +40,6 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
             "auth:        SSO person@net.net\n" +
             "auth:        PGPKEY-A8D16B70\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "referral-by: OWNER-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 

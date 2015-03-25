@@ -27,7 +27,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -76,7 +75,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_owner@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -89,7 +87,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_owner2@ripe.net
                 auth:        MD5-PW \$1\$9vNwegLB\$SrX4itajapDaACGZaLOIY1  #owner2
                 mnt-by:      OWNER2-MNT
-                referral-by: OWNER2-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -102,7 +99,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_owner3@ripe.net
                 auth:        MD5-PW \$1\$u/Ttxt8r\$zeII/ZqRwC2PuRyGyv0U51  #owner3
                 mnt-by:      OWNER3-MNT
-                referral-by: OWNER3-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -117,7 +113,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_owner4@ripe.net
                 auth:        MD5-PW \$1\$69rcgbTr\$Sh0R8PKbHIN5jf/Nv.FKk/  #owner4
                 mnt-by:      OWNER4-MNT
-                referral-by: OWNER4-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -130,7 +125,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_lower@ripe.net
                 auth:        MD5-PW \$1\$dYNAtacz\$p4AOgwz3Igu5CiCVzs4Hz.  #lower
                 mnt-by:      LOWER-MNT
-                referral-by: LOWER-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -143,7 +137,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_routes@ripe.net
                 auth:        MD5-PW \$1\$bCCnYJ3M\$uAVVUpzdGA9TOecv9L.KD/  #routes
                 mnt-by:      ROUTES-MNT
-                referral-by: ROUTES-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -156,7 +149,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_domains@ripe.net
                 auth:        MD5-PW \$1\$anTWxMgQ\$8aBWq5u5ZFHLA5aeZsSxG0  #domains
                 mnt-by:      DOMAINS-MNT
-                referral-by: DOMAINS-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -169,7 +161,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_domains@ripe.net
                 auth:        MD5-PW \$1\$63qqt67X\$irszXgCNN2RdN6cZC12pK1  #sub
                 mnt-by:      SUB-MNT
-                referral-by: SUB-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -182,7 +173,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss.  #hm
                 mnt-by:      RIPE-NCC-HM-MNT
-                referral-by: RIPE-NCC-HM-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -195,7 +185,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$GAdTrvdG\$SEqxCNjKkR3ogcIq7teRv0  #hm2
                 mnt-by:      RIPE-NCC-HM2-MNT
-                referral-by: RIPE-NCC-HM2-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -208,7 +197,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$epUPWc4g\$/6BKqK4lKR/lNqLa7K5qT0  #lir
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -221,7 +209,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$m4UsfkN3\$kLY5AaJuJrxaTR94HW5Ad0  #lir2
                 mnt-by:      LIR2-MNT
-                referral-by: LIR2-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -234,7 +221,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$6WUBtqxZ\$eXeV7vu4Soq7tGjUF0kmr.  #lir3
                 mnt-by:      LIR3-MNT
-                referral-by: LIR3-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -247,7 +233,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$4qnKkEY3\$9NduUoRMNiBbAX9QEDMkh1  #end
                 mnt-by:      END-USER-MNT
-                referral-by: END-USER-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -288,7 +273,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 auth:        MD5-PW # Filtered
                 mnt-by:      RIPE-NCC-END-MNT
                 changed:     dbtest@ripe.net
-                referral-by: RIPE-DBM-MNT
                 source:      TEST
                 """,
                 "TST-MNT2": """\
@@ -298,7 +282,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$bnGNJ2PC\$4r38DENnw07.9ktKP//Kf1  #test2
                 mnt-by:      TST-MNT2
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -309,7 +292,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$p4syt8vq\$AOwjgBvR4MA3o4ccMSMvh0  #test3
                 mnt-by:      OWNER3-MNT
-                referral-by: TST-MNT3
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -321,7 +303,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_tst4@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT4
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -335,7 +316,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
                 mnt-by:      OWNER4-MNT
-                referral-by: TST-MNT5
                 changed:     dbtest@ripe.net 20120101
                 source:      TEST
                 """,
@@ -348,7 +328,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER3-MNT
                 mnt-by:      OWNER4-MNT
-                referral-by: TST-MNT6
                 changed:     dbtest@ripe.net 20120101
                 source:      TEST
                 """,
@@ -357,7 +336,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 descr:        description
                 admin-c:      TP1-TEST
                 mnt-by:       LIM-MNT
-                referral-by:  LIM-MNT
                 upd-to:       dbtest@ripe.net
                 auth:         MD5-PW \$1\$QYTtsWT5\$85vDaZp72krdzAYa7F3X20 # lim
                 changed:      dbtest@ripe.net 20120707
@@ -370,7 +348,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:        PGPKEY-459F13C0    #RSA
                 mnt-by:      PGP-MNT
-                referral-by: PGP-MNT
                 changed:     dbtest@ripe.net 20120101
                 source:      TEST
                 """,
@@ -382,7 +359,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 notify:      notify_tst6@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      TST
-                referral-by: TST
                 changed:     dbtest@ripe.net 20120101
                 source:      TEST
                 """,
@@ -393,7 +369,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:    MD5-PW \$1\$12345678\$28Jr/8MuLiKvwiHIYC1C21  # mb-child
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -404,7 +379,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:    MD5-PW \$1\$12345678\$G.oSSx.FZsRJWiXhhfDD21  # mb-parent
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -415,7 +389,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:    MD5-PW \$1\$12345678\$/iBm2/pCiHFyPqSAiUHyI1  # ml-parent
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -426,7 +399,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:    MD5-PW \$1\$12345678\$9CtqUE3cI5b86PUAhP90p0  # mr-parent
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -437,7 +409,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$aSbOhtjqSm2lwyTQ7Bur/.  # mb-exact
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -448,7 +419,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$3Xfx8h0lFJhhi2tnbPXAF0  # ml-exact
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -459,7 +429,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$rojUwYzu10ruwqO00IKh41  # mr-exact
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -470,7 +439,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$AFX.FXWoEsfqJUYWs4hX8.  # mbi-exact
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -481,7 +449,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$gstFsI6qeiN9pwDIth8pr1  # mbi-parent
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -492,7 +459,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$trXVUy8x5HyizFaU0CHT51  # mb-origin
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -503,7 +469,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$0D0reGeFBPYowpN2PHKDP/  # ml-origin
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -514,7 +479,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$gKLHiPhaIfaniZB0kSZuB1  # mr-origin
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -525,7 +489,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$Sc/q29n8\$r5Ydny1YhQM4/m1mRWXr0/  # mb-dom
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -536,7 +499,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$MrTjfqBG\$rOJhT7Qo9cLNbwalAt9Dd/  # gii
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -1049,7 +1011,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 "\\+admin-c:        TP1-TEST\n" +
                 "\\+auth:           MD5-PW # Filtered\n" +
                 "\\+mnt-by:         OWNER-MNT\n" +
-                "\\+referral-by:    TST-MNT\n" +
                 "\\+source:         TEST # Filtered"
 
       where:
@@ -1072,7 +1033,6 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 "-admin-c:        TP1-TEST\n" +
                 "-auth:           MD5-PW # Filtered\n" +
                 "-mnt-by:         OWNER-MNT\n" +
-                "-referral-by:    TST-MNT\n" +
                 "-source:         TEST # Filtered"
 
       where:

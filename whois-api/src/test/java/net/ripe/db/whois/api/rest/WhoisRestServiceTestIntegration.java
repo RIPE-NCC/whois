@@ -119,7 +119,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "referral-by: OWNER-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 
@@ -130,7 +129,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "upd-to:      noreply@ripe.net\n" +
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "mnt-by:      PASSWORD-ONLY-MNT\n" +
-            "referral-by: PASSWORD-ONLY-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 
@@ -140,7 +138,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "admin-c:        TP1-TEST\n" +
             "auth:           SSO person@net.net\n" +
             "mnt-by:         SSO-ONLY-MNT\n" +
-            "referral-by:    SSO-ONLY-MNT\n" +
             "upd-to:         noreply@ripe.net\n" +
             "changed:        noreply@ripe.net 20120101\n" +
             "source:         TEST");
@@ -152,7 +149,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "auth:           SSO person@net.net\n" +
             "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "mnt-by:         SSO-PASSWORD-MNT\n" +
-            "referral-by:    SSO-PASSWORD-MNT\n" +
             "upd-to:         noreply@ripe.net\n" +
             "changed:        noreply@ripe.net 20120101\n" +
             "source:         TEST");
@@ -239,7 +235,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "auth:           MD5-PW\n" +
                 "auth:           SSO\n" +
                 "mnt-by:         OWNER-MNT\n" +
-                "referral-by:    OWNER-MNT\n" +
                 "source:         TEST")));
     }
 
@@ -393,7 +388,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "referral-by: OWNER-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 
@@ -582,7 +576,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "auth:           SSO test@ripe.net\n" +
                 "mnt-by:         OWNER-MNT\n" +
-                "referral-by:    OWNER-MNT\n" +
                 "changed:        asd@as.com\n" +
                 "source:         TEST");
 
@@ -670,7 +663,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
                 new Attribute("auth", "SSO", "Filtered", null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
@@ -712,7 +704,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
                 new Attribute("auth", "SSO", "Filtered", null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
@@ -732,7 +723,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "SSO person@net.net", null, null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
                 new Attribute("source", "TEST", null, null, null)));
     }
@@ -751,7 +741,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "SSO person@net.net", null, null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
@@ -770,7 +759,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
                 new Attribute("auth", "SSO", "Filtered", null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
@@ -790,7 +778,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "SSO person@net.net", null, null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
                 new Attribute("source", "TEST", null, null, null)));
     }
@@ -806,7 +793,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "auth:        MD5-PW $1$5XCg9Q1W$O7g9bgeJPkpea2CkBGnz/0 #test1\n" +
                 "auth:        MD5-PW $1$ZjlXZmWO$VKyuYp146Vx5b1.398zgH/ #test2\n" +
                 "mnt-by:      AUTH-MNT\n" +
-                "referral-by: AUTH-MNT\n" +
                 "changed:     dbtest@ripe.net 20120101\n" +
                 "source:      TEST");
 
@@ -824,7 +810,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW $1$5XCg9Q1W$O7g9bgeJPkpea2CkBGnz/0", "test1", null, null),
                 new Attribute("auth", "MD5-PW $1$ZjlXZmWO$VKyuYp146Vx5b1.398zgH/", "test2", null, null),
                 new Attribute("mnt-by", "AUTH-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/AUTH-MNT")),
-                new Attribute("referral-by", "AUTH-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/AUTH-MNT")),
                 new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
                 new Attribute("source", "TEST", null, null, null)));
     }
@@ -869,7 +854,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "auth:           MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "auth:           SSO e58f4ee0-5d26-450f-a933-349ce1440fbc\n" +
                         "mnt-by:         MNT-TEST\n" +
-                        "referral-by:    MNT-TEST\n" +
                         "changed:        noreply@ripe.net 20140115\n" +
                         "source:         TEST"
         );
@@ -895,7 +879,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "upd-to:         noreply@ripe.net\n" +
                         "auth:           MD5-PW $1$GVXqt/5m$TaeN0iPr84mNoz8j3IDs//  # auth?auth \n" +
                         "mnt-by:         TEST-MNT\n" +
-                        "referral-by:    TEST-MNT\n" +
                         "changed:        noreply@ripe.net 20140303\n" +
                         "source:         TEST"
         ));
@@ -983,9 +966,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
                 "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
                 "        </attribute>\n" +
-                "        <attribute name=\"referral-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
-                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
-                "        </attribute>\n" +
                 "        <attribute name=\"source\" value=\"TEST\" comment=\"Filtered\"/>\n" +
                 "    </attributes>\n" +
                 "</object>\n" +
@@ -1054,14 +1034,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
                         "      },\n" +
                         "      \"name\" : \"mnt-by\",\n" +
-                        "      \"value\" : \"OWNER-MNT\",\n" +
-                        "      \"referenced-type\" : \"mntner\"\n" +
-                        "    }, {\n" +
-                        "      \"link\" : {\n" +
-                        "        \"type\" : \"locator\",\n" +
-                        "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                        "      },\n" +
-                        "      \"name\" : \"referral-by\",\n" +
                         "      \"value\" : \"OWNER-MNT\",\n" +
                         "      \"referenced-type\" : \"mntner\"\n" +
                         "    }, {\n" +
@@ -1283,7 +1255,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:      noreply@ripe.net\n" +
                 "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:      TEST-MNT\n" +
-                "referral-by: TEST-MNT\n" +
                 "changed:     dbtest@ripe.net 20120101\n" +
                 "source:      TEST");
 
@@ -1705,7 +1676,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:         noreply@ripe.net\n" +
                 "auth:           MD5-PW $1$GVXqt/5m$TaeN0iPr84mNoz8j3IDs//  # auth?auth \n" +
                 "mnt-by:         TEST-MNT\n" +
-                "referral-by:    TEST-MNT\n" +
                 "changed:        noreply@ripe.net 20140303\n" +
                 "source:         TEST"
         );
@@ -2158,7 +2128,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2193,7 +2162,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2232,7 +2200,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2269,7 +2236,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2531,7 +2497,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2567,7 +2532,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2607,7 +2571,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2644,7 +2607,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2775,7 +2737,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:      noreply@ripe.net\n" +
                 "auth:        MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/ # ' spaces '\n" +
                 "mnt-by:      OWNER2-MNT\n" +
-                "referral-by: OWNER2-MNT\n" +
                 "changed:     dbtest@ripe.net 20120101\n" +
                 "source:      TEST"));
 
@@ -2794,7 +2755,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "                <attribute name=\"auth\" value=\"MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/\"/>\n" +
                         "                <attribute name=\"remarks\" value=\"updated\"/>\n" +
                         "                <attribute name=\"mnt-by\" value=\"OWNER2-MNT\"/>\n" +
-                        "                <attribute name=\"referral-by\" value=\"OWNER2-MNT\"/>\n" +
                         "                <attribute name=\"changed\" value=\"dbtest@ripe.net 20120102\"/>\n" +
                         "                <attribute name=\"source\" value=\"TEST\"/>\n" +
                         "            </attributes>\n" +
@@ -2840,10 +2800,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            },\n" +
                 "            {\n" +
                 "              \"name\": \"mnt-by\",\n" +
-                "              \"value\": \"OWNER-MNT\"\n" +
-                "            },\n" +
-                "            {\n" +
-                "              \"name\": \"referral-by\",\n" +
                 "              \"value\": \"OWNER-MNT\"\n" +
                 "            },\n" +
                 "            {\n" +
@@ -2914,14 +2870,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
                 "          },\n" +
                 "          \"name\" : \"mnt-by\",\n" +
-                "          \"value\" : \"OWNER-MNT\",\n" +
-                "          \"referenced-type\" : \"mntner\"\n" +
-                "        }, {\n" +
-                "          \"link\" : {\n" +
-                "            \"type\" : \"locator\",\n" +
-                "            \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "          },\n" +
-                "          \"name\" : \"referral-by\",\n" +
                 "          \"value\" : \"OWNER-MNT\",\n" +
                 "          \"referenced-type\" : \"mntner\"\n" +
                 "        }, {\n" +
@@ -3145,7 +3093,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -3183,7 +3130,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -3225,7 +3171,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -3264,7 +3209,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -4248,7 +4192,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
                 new Attribute("auth", "SSO", "Filtered", null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
 

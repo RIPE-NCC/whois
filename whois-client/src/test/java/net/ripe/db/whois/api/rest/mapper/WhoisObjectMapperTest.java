@@ -36,7 +36,6 @@ public class WhoisObjectMapperTest {
                 "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ # test\n" +
                 "auth:        PGPKEY-28F6CD6C\n" +
                 "mnt-by:      TST-MNT\n" +
-                "referral-by: TST-MNT\n" +
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST\n");
 
@@ -58,7 +57,6 @@ public class WhoisObjectMapperTest {
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "PGPKEY-28F6CD6C", null, null, null),
                 new Attribute("mnt-by", "TST-MNT", null, null, null),
-                new Attribute("referral-by", "TST-MNT", null, null, null),
                 new Attribute("changed", "dbtest@ripe.net", null, null, null),
                 new Attribute("source", "TEST", null, null, null)
         ));

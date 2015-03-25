@@ -61,7 +61,6 @@ public class UpdateNotifierTest {
                 "mnt-nfy: mntnotify2@me.com\n" +
                 "notify: notify1@me.com\n" +
                 "notify: notify2@me.com\n" +
-                "referral-by: ADMIN-MNT\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed: dbtest@ripe.net 20120707\n" +
@@ -90,7 +89,6 @@ public class UpdateNotifierTest {
                 "mnt-nfy: mntnotify1@me.com\n" +
                 "mnt-nfy: mntnotify2@me.com\n" +
                 "notify: notifies us <mailto:notify@me.com>\n" +
-                "referral-by: ADMIN-MNT\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed: dbtest@ripe.net 20120707\n" +

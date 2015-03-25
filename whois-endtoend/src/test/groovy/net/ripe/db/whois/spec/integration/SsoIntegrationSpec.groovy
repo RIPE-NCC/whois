@@ -24,7 +24,6 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT3
                     mnt-nfy: nfy@ripe.net
-                    referral-by: TEST-MNT3
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$dNvmHMUm\$5A3Q0AlFopJ662JB2FY/w. # update3
                     changed: dbtest@ripe.net 20120707
@@ -54,7 +53,6 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                             upd-to: test@ripe.net
                             auth: SSO person@net.net
                             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                            referral-by: TEST-MNT3
                             mnt-by: TEST-MNT3
                             changed: ripe@test.net 20091015
                             source: TEST
@@ -82,7 +80,6 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                 "upd-to:         test@ripe.net\n" +
                 "auth:           SSO 906635c2-0405-429a-800b-0602bd716124\n" +
                 "auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "referral-by:    TEST-MNT3\n" +
                 "mnt-by:         TEST-MNT3\n" +
                 "changed:        ripe@test.net 20091015\n" +
                 "created:        %s\n" +
@@ -105,7 +102,6 @@ admin-c:        TEST-PN
 upd-to:         test@ripe.net
 auth:           SSO # Filtered
 auth:           MD5-PW # Filtered
-referral-by:    TEST-MNT3
 mnt-by:         TEST-MNT3
 changed:        ripe@test.net 20091015
 created:        ${currentDate}
@@ -129,7 +125,6 @@ source:         TEST # Filtered/
                             upd-to: test@ripe.net
                             auth: SSO person@net.net
                             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                            referral-by: TEST-MNT3
                             mnt-by: TEST-MNT3
                             changed: ripe@test.net 20091015
                             source: TEST
@@ -145,7 +140,6 @@ source:         TEST # Filtered/
                             upd-to: test@ripe.net
                             auth: SSO person@net.net
                             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                            referral-by: TEST-MNT3
                             mnt-by: TEST-MNT3
                             changed: ripe@test.net 20091015
                             source: TEST
@@ -177,7 +171,6 @@ admin-c:        TEST-PN
 upd-to:         test@ripe.net
 auth:           SSO # Filtered
 auth:           MD5-PW # Filtered
-referral-by:    TEST-MNT3
 mnt-by:         TEST-MNT3
 changed:        ripe@test.net 20091015
 created:        \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z
