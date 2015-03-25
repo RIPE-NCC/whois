@@ -60,11 +60,11 @@ public class DummifierLegacyTest {
             assertTrue(subject.isAllowed(2, object));
 
             if (objectType.equals(ObjectType.ROLE)) {
-                assertEquals(subject.dummify(1, object), DummifierLegacy.PLACEHOLDER_ROLE_OBJECT);
-                assertEquals(subject.dummify(2, object), DummifierLegacy.PLACEHOLDER_ROLE_OBJECT);
+                assertEquals(subject.dummify(1, object), DummifierLegacy.getPlaceholderRoleObject());
+                assertEquals(subject.dummify(2, object), DummifierLegacy.getPlaceholderRoleObject());
             } else {
-                assertEquals(subject.dummify(1, object), DummifierLegacy.PLACEHOLDER_PERSON_OBJECT);
-                assertEquals(subject.dummify(2, object), DummifierLegacy.PLACEHOLDER_PERSON_OBJECT);
+                assertEquals(subject.dummify(1, object), DummifierLegacy.getPlaceholderPersonObject());
+                assertEquals(subject.dummify(2, object), DummifierLegacy.getPlaceholderPersonObject());
             }
         }
     }
