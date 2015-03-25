@@ -402,6 +402,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
 
                 mntner:       TEST-DBM-MNT
                 descr:        Mntner for RIPE DBM objects.........
+                remarks:      My remarks
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 upd-to:       dbtest@ripe.net
@@ -433,7 +434,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TEST-DBM-MNT" }
 
-        query_object_matches("-rBT mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT")
+        query_object_matches("-rBT mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT", "remarks:\\s*My remarks")
     }
 
     def "create irt using pgp key using override"() {
