@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.generator;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.keycert.KeyWrapper;
@@ -27,13 +28,13 @@ public class KeycertAttributeGenerator extends AttributeGenerator {
     public RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
         switch (updatedObject.getType()) {
             case KEY_CERT:
-                return generateKeycertAttributesForKeycert(updatedObject, update, updateContext);
+                return generateKeycertAttributesForKeycert(originalObject, updatedObject, update, updateContext);
             default:
                 return updatedObject;
         }
     }
 
-    private RpslObject generateKeycertAttributesForKeycert(final RpslObject object, final Update update, final UpdateContext updateContext) {
+    private RpslObject generateKeycertAttributesForKeycert(final RpslObject originalObject, final RpslObject object, final Update update, final UpdateContext updateContext) {
         final KeyWrapper keyWrapper = keyWrapperFactory.createKeyWrapper(object, update, updateContext);
         if (keyWrapper == null) {
             return object;
@@ -41,9 +42,15 @@ public class KeycertAttributeGenerator extends AttributeGenerator {
 
         final RpslObjectBuilder builder = new RpslObjectBuilder(object);
 
-        cleanupAttributeType(update, updateContext, builder, AttributeType.METHOD, keyWrapper.getMethod());
-        cleanupAttributeType(update, updateContext, builder, AttributeType.OWNER, keyWrapper.getOwners());
-        cleanupAttributeType(update, updateContext, builder, AttributeType.FINGERPR, keyWrapper.getFingerprint());
+        if (updateContext.getAction(update) == Action.DELETE) {
+            cleanupAttributeType(update, updateContext, builder, AttributeType.METHOD, originalObject.getValueForAttribute(AttributeType.METHOD).toString());
+            cleanupAttributeType(update, updateContext, builder, AttributeType.OWNER, originalObject.getValueForAttribute(AttributeType.OWNER).toString());
+            cleanupAttributeType(update, updateContext, builder, AttributeType.FINGERPR, originalObject.getValueForAttribute(AttributeType.FINGERPR).toString());
+        } else {
+            cleanupAttributeType(update, updateContext, builder, AttributeType.METHOD, keyWrapper.getMethod());
+            cleanupAttributeType(update, updateContext, builder, AttributeType.OWNER, keyWrapper.getOwners());
+            cleanupAttributeType(update, updateContext, builder, AttributeType.FINGERPR, keyWrapper.getFingerprint());
+        }
 
         return builder.get();
     }
