@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 
@@ -51,7 +52,9 @@ public abstract class AttributeGenerator {
                 found.add(attributeValue);
 
                 if (!validAttributeValues.contains(attributeValue)) {
-                    updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(attributeType));
+                    if (updateContext.getAction(update) != Action.DELETE) {
+                        updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(attributeType));
+                    }
                     iterator.remove();
                 }
             }
