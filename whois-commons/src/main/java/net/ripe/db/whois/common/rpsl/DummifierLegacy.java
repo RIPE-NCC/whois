@@ -80,8 +80,8 @@ public class DummifierLegacy implements Dummifier {
         if (TIMESTAMPS_OFF){
             return  "";
         }
-        return "created:        2001-02-04T17:00:00Z\n" +
-                "last-modified:  2001-02-04T17:00:00Z\n";
+        return "created:        2009-07-24T17:00:00Z\n" +
+                "last-modified:  2009-07-24T17:00:00Z\n";
     }
 
 
