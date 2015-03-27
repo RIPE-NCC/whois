@@ -1,5 +1,16 @@
 ## next
 
+## 1.79
+[all] dependency updates
+[all] added attributes created and last-modified
+[all] added switch for recognising created/last-modified
+[all] batch script to add created/last-modified for all current db objects
+[update] added flag for override to prevent updating last-modified
+[update] #275 Some key-cert objects with multiple owners cannot be deleted
+[all] made attribute referral-by optional
+
+
+
 ## 1.78
 [update] Fixed concurrency issue with LoggerContext (log REST API)
 [update] Added dry-run query parameter to REST API
