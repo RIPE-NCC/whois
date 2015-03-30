@@ -67,7 +67,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
         //TODO TP : remove timestampsOff field when timestamps always on
         this.timestampsOff = timestampsOff;
-        LOGGER.info("Timestamp attribute mode <rpsl.timestamps.off> is {}." , timestampsOff);
     }
 
     @Override
