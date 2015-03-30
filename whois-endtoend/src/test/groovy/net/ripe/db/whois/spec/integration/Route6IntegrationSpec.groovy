@@ -1203,7 +1203,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
     }
 
-    @Ignore("update databaseHelper too after the created/last-modified switch has been implemented")
     def "create route6 pending auth, 2nd update identical to first update"() {
         when:
         def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
