@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.Charsets;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
@@ -562,6 +563,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("???"));
+
         assertThat(response, containsString("Attribute \"address\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set"));
     }
 
@@ -587,7 +590,56 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("???"));
+
         assertThat(response, containsString("Attribute \"address\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set"));
+    }
+
+    @Test
+    public void post_multipart_data_with_latin1_non_ascii_address() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final FormDataMultiPart multipart = new FormDataMultiPart()
+                .field("DATA",
+                        "person:         Test Person\n" +
+                                "address:        ÅçÅç\n" +
+                                "phone:          +31 6 12345678\n" +
+                                "nic-hdl:        TP2-TEST\n" +
+                                "mnt-by:         mntner\n" +
+                                "changed:        dbtest@ripe.net 20120101\n" +
+                                "source:         TEST\n" +
+                                "password: emptypassword")
+                .field("NEW", "yes");
+        RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("ÅçÅç"));
+    }
+
+    @Test
+    public void post_multipart_data_with_latin1_non_ascii_address_latin1_encoded() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final FormDataMultiPart multipart = new FormDataMultiPart()
+                .field("DATA",
+                        "person:         Test Person\n" +
+                                "address:        ÅçÅç\n" +
+                                "phone:          +31 6 12345678\n" +
+                                "nic-hdl:        TP2-TEST\n" +
+                                "mnt-by:         mntner\n" +
+                                "changed:        dbtest@ripe.net 20120101\n" +
+                                "source:         TEST\n" +
+                                "password: emptypassword")
+                .field("NEW", "yes");
+
+        RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", Charsets.ISO_8859_1.displayName())), String.class);
+
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("ÅçÅç"));
     }
 
     @Test

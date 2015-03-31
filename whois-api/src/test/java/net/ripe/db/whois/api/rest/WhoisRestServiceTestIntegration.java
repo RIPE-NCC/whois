@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
@@ -25,6 +26,7 @@ import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
+import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
@@ -42,6 +44,8 @@ import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -187,6 +191,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private MailSenderStub mailSenderStub;
+    @Autowired private TestDateTimeProvider testDateTimeProvider;
 
     @Before
     public void setup() {
@@ -196,6 +201,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.updateObject(TEST_ROLE);
         maintenanceMode.set("FULL,FULL");
+        testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
     }
 
     // lookup
@@ -1362,7 +1368,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
 
-        assertThat(object.getAttributes(), contains(
+        assertThat(object.getAttributes(), containsInAnyOrder(
                 new Attribute("person", "Pauleth Palthen"),
                 new Attribute("address", "Singel 258"),
                 new Attribute("phone", "+31-1234567890"),
@@ -1371,6 +1377,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("nic-hdl", "PP1-TEST"),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
                 new Attribute("remarks", "remark"),
+                new Attribute("created", "2001-02-04T17:00:00Z"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
@@ -1768,7 +1776,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, is(String.format("" +
+        assertThat(response, is(String.format(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
                 "    <link xlink:type=\"locator\" xlink:href=\"http://localhost:%d/test/person\"/>\n" +
@@ -1790,6 +1798,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "                <attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>\n" +
                 "                <attribute name=\"changed\" value=\"noreply@ripe.net 20120101\"/>\n" +
                 "                <attribute name=\"remarks\" value=\"remark\"/>\n" +
+                "                <attribute name=\"created\" value=\"2001-02-04T17:00:00Z\"/>\n" +
+                "                <attribute name=\"last-modified\" value=\"2001-02-04T17:00:00Z\"/>\n" +
                 "                <attribute name=\"source\" value=\"TEST\"/>\n" +
                 "            </attributes>\n" +
                 "        </object>\n" +
@@ -1856,6 +1866,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "        }, {\n" +
                 "          \"name\" : \"remarks\",\n" +
                 "          \"value\" : \"remark\"\n" +
+                "        }, {\n" +
+                "          \"name\" : \"created\",\n" +
+                "          \"value\" : \"2001-02-04T17:00:00Z\"\n" +
+                "        }, {\n" +
+                "          \"name\" : \"last-modified\",\n" +
+                "          \"value\" : \"2001-02-04T17:00:00Z\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"source\",\n" +
                 "          \"value\" : \"TEST\"\n" +
@@ -1968,7 +1984,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_non_ascii_characters_are_preserved() {
+    public void create_with_utf8_non_ascii_characters_are_preserved() {
         assertThat(RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity("" +
@@ -1988,7 +2004,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                         "        ] }\n" +
                         "    }] \n" +
-                        "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+                        "}}", new MediaType("application", "json", Charsets.UTF_8.displayName())), String.class), containsString("Flughafenstraße 109/a"));
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON)
@@ -2021,8 +2037,38 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_latin1_non_ascii_characters_encoded_in_latin1_fails() {
+        try {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity("" +
+                        "{ \"objects\": {\n" +
+                        "   \"object\": [ {\n" +
+                        "    \"source\": { \"id\": \"RIPE\" }, \n" +
+                        "    \"attributes\": {\n" +
+                        "       \"attribute\": [\n" +
+                        "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                        "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                        "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                        "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                        "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                        "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                        "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                        "        ] }\n" +
+                        "    }] \n" +
+                        "}}", new MediaType("application", "json", Charsets.ISO_8859_1.displayName())), String.class);
+
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().iterator().next().getText(),
+                    containsString("Invalid UTF-8 middle byte"));
+        }
+    }
+
+    @Test
     public void create_dryRun() {
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dryrun=yes")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dry-run=true")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -2034,7 +2080,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_dryRun_queryparam_with_no_value() {
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dryrun")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dry-run")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -2046,7 +2092,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_dryRun_equals_false() {
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dryrun=false")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dry-run=false")
                 .request()
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -2625,7 +2671,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void delete_dryrun() {
         databaseHelper.addObject(PAULETH_PALTHEN);
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&dryrun")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&dry-run")
                 .request()
                 .delete(WhoisResources.class);
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
@@ -2641,7 +2687,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(PAULETH_PALTHEN);
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -2658,6 +2704,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("remarks", "updated"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
@@ -2881,6 +2928,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "          \"name\" : \"changed\",\n" +
                 "          \"value\" : \"dbtest@ripe.net 20120101\"\n" +
                 "        }, {\n" +
+                "          \"name\" : \"last-modified\",\n" +
+                "          \"value\" : \"2001-02-04T17:00:00Z\"\n" +
+                "        }, {\n" +
                 "          \"name\" : \"source\",\n" +
                 "          \"value\" : \"TEST\"\n" +
                 "        } ]\n" +
@@ -3060,7 +3110,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -3079,6 +3129,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("remarks", "updated"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
@@ -3276,7 +3327,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisObject.getAttributes().get(7).getValue(), is("        remark1 # comment1\n" +
                 "                remark2 # comment2\n" +
                 "                remark3 # comment3"));
-        assertThat(whoisObject.getAttributes().get(9).getValue(), is("         +30 123"));
+        assertThat(whoisObject.getAttributes().get(10).getValue(), is("         +30 123"));
     }
 
     @Test
@@ -3284,7 +3335,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(PAULETH_PALTHEN);
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(4, new RpslAttribute(AttributeType.REMARKS, "this_is_another_remark")).get();
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&dryrun")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&dry-run")
                 .request()
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -3296,6 +3347,67 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(storedObject, not(containsString("this_is_another_remark")));
     }
 
+    @Test
+    public void use_override_to_skip_updating_last_modified() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
+
+        final DateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final DateTime newDateTime = oldDateTime.plusDays(10);
+        testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
+
+        final WhoisResources initialObject = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(4, new RpslAttribute(AttributeType.REMARKS, "this_is_another_remark")).get();
+
+        testDateTimeProvider.setTime(newDateTime.toLocalDateTime());
+
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("override", encode("dbint,dbint,{skip-last-modified=true}"))
+                        .request()
+                        .put(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final WhoisResources storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", "2001-02-14T17:00:00Z"))));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
+    }
+
+    @Test
+    public void use_override_explicit_not_skip_updating_last_modified() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
+
+        final DateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final DateTime newDateTime = oldDateTime.plusDays(10);
+        testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
+
+        final WhoisResources initialObject = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(4, new RpslAttribute(AttributeType.REMARKS, "this_is_another_remark")).get();
+
+        testDateTimeProvider.setTime(newDateTime.toLocalDateTime());
+
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("override", encode("dbint,dbint,{skip-last-modified=false}"))
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final WhoisResources storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-14T17:00:00Z")));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z"))));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
+    }
 
     // versions
 

@@ -1,3 +1,14 @@
+## next
+
+## 1.78
+[update] Fixed concurrency issue with LoggerContext (log REST API)
+[update] Added dry-run query parameter to REST API
+[update] #286 Pending Create Route requests are not Removed when the Route is Created
+[update] Improved error message when creating organisation without AUTO primary key
+[all] Added maintenance mode to scheduler
+[all] Fixed concurrency issue with REST client
+[all] Improved lex/yacc compilation
+
 ## 1.77
 [update] policy 2012-07: Legacy holder organisations cannot change their organisation name in their org object
             if it is referenced by an INETNUM or AUTNUM that is maintained by RIPE-NCC-LEGACY-MNT.

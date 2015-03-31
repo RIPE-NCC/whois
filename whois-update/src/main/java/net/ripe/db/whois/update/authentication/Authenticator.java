@@ -11,8 +11,10 @@ import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
 import net.ripe.db.whois.update.authentication.strategy.MntByAuthentication;
@@ -241,7 +243,7 @@ public class Authenticator {
     }
 
     boolean isPending(final PreparedUpdate update, final UpdateContext updateContext, final Set<String> pendingAuths) {
-        if (!Action.CREATE.equals(update.getAction())) {
+        if (Action.CREATE != update.getAction()) {
             return false;
         }
 
@@ -252,20 +254,12 @@ public class Authenticator {
                 && pendingAuths.size() < supportedPendingAuths.size();
     }
 
-    public boolean doesTypeSupportPendingAuthentication( ObjectType objectType ) {
-
-        for (final AuthenticationStrategy authenticationStrategy : authenticationStrategies) {
-            for (final ObjectType ot : authenticationStrategy.getTypesWithPendingAuthenticationSupport()) {
-                if (ot.equals(objectType)) {
-                    return true;
-                }
-            }
-        }
-
-         return false;
+    public boolean supportsPendingAuthentication(final ObjectType objectType) {
+        final Set<String> supportedPendingAuths = typesWithPendingAuthenticationSupport.get(objectType);
+        return supportedPendingAuths != null && !supportedPendingAuths.isEmpty();
     }
 
-    private void filterAuthentication(UpdateContext updateContext, PreparedUpdate update, Set<String> passedAuthentications, Set<String> failedAuthentications, Map<String, Collection<RpslObject>> pendingAuthentications) {
+    private void filterAuthentication(final UpdateContext updateContext, final PreparedUpdate update, final Set<String> passedAuthentications, final Set<String> failedAuthentications, final Map<String, Collection<RpslObject>> pendingAuthentications) {
         // we only have pending filter ATM
         if (isPending(update, updateContext, pendingAuthentications.keySet())) {
             final PendingUpdate pendingUpdate = findAndStorePendingUpdate(updateContext, update);
@@ -278,11 +272,12 @@ public class Authenticator {
     }
 
     @CheckForNull
-    private PendingUpdate findAndStorePendingUpdate(UpdateContext updateContext, final PreparedUpdate update) {
-        final RpslObject rpslObject = update.getUpdatedObject();
+    private PendingUpdate findAndStorePendingUpdate(final UpdateContext updateContext, final PreparedUpdate update) {
+        final RpslObject rpslObject = new RpslObjectBuilder(update.getUpdatedObject()).removeAttributeType(AttributeType.CREATED).removeAttributeType(AttributeType.LAST_MODIFIED).get();
 
         for (final PendingUpdate pendingUpdate : pendingUpdateDao.findByTypeAndKey(rpslObject.getType(), rpslObject.getKey().toString())) {
-            if (rpslObject.equals(pendingUpdate.getObject())) {
+            final RpslObject pendingObject = new RpslObjectBuilder(pendingUpdate.getObject()).removeAttributeType(AttributeType.CREATED).removeAttributeType(AttributeType.LAST_MODIFIED).get();
+            if (rpslObject.equals(pendingObject)) {
                 updateContext.addPendingUpdate(update, pendingUpdate);
                 return pendingUpdate;
             }

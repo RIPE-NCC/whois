@@ -1,20 +1,28 @@
 package net.ripe.db.whois.query.executor;
 
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.TimestampsMode;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TemplateQueryExecutorTest {
     private TemplateQueryExecutor subject;
+    @Mock private TimestampsMode timestampsMode;
 
     @Before
     public void setUp() throws Exception {
-        subject = new TemplateQueryExecutor();
+        subject = new TemplateQueryExecutor(timestampsMode);
     }
 
     @Test

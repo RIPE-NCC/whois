@@ -54,13 +54,14 @@ public class ExportFileWriterTest {
                 return (RpslObject) invocation.getArguments()[0];
             }
         });
-
-        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy);
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void write() throws IOException {
+        boolean timestampsOff = true;
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,timestampsOff);
+
         subject.write(RpslObject.parse("mntner: DEV-MNT1"), Collections.EMPTY_LIST);
         subject.write(RpslObject.parse("mntner: DEV-MNT2"), Collections.EMPTY_LIST);
         subject.write(RpslObject.parse("mntner: DEV-MNT3"), Collections.EMPTY_LIST);
@@ -97,6 +98,81 @@ public class ExportFileWriterTest {
         }
     }
 
+    private static final String givenMntnerWithTimestamp = ""+
+            "mntner:         DEV-MNT5\n" +
+            "created:        1971-02-27T03:58:59Z\n" +
+            "last-modified:  2003-02-11T12:13:14Z\n";
+
+    // TODO remove when timestamps have become the norm
+    @SuppressWarnings("unchecked")
+    @Test
+    public void checkMntnerTimestampsOff() throws IOException {
+        boolean timestampsOff = true;
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,timestampsOff);
+
+        subject.write(RpslObject.parse(givenMntnerWithTimestamp), Collections.EMPTY_LIST);
+        subject.close();
+
+        checkFileInDir(folder,"mntner.gz","mntner:         DEV-MNT5\n" );
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void checkMntnerTimestampsOn() throws IOException {
+        boolean timestampsOff = false;
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,timestampsOff);
+
+        subject.write(RpslObject.parse(givenMntnerWithTimestamp), Collections.EMPTY_LIST);
+        subject.close();
+
+        checkFileInDir(folder,"mntner.gz", givenMntnerWithTimestamp);
+    }
+
+    private static final String givenInetnumWithTimestamp = ""+
+            "inetnum:        193.0.0.0 - 193.0.0.10\n" +
+            "created:        1971-02-27T03:58:59Z\n" +
+            "last-modified:  2003-02-11T12:13:14Z\n";
+
+    // TODO remove when timestamps have become the norm
+    @SuppressWarnings("unchecked")
+    @Test
+    public void checkInetnumTimestampsOff() throws IOException {
+        boolean timestampsOff = true;
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,timestampsOff);
+
+        subject.write(RpslObject.parse(givenInetnumWithTimestamp), Collections.EMPTY_LIST);
+        subject.close();
+
+        checkFileInDir(folder,"inetnum.gz","inetnum:        193.0.0.0 - 193.0.0.10\n" );
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void checkInetnumTimestampsOn() throws IOException {
+        boolean timestampsOff = false;
+        subject = new ExportFileWriter(folder.getRoot(), filenameStrategy, decorationStrategy,timestampsOff);
+
+        subject.write(RpslObject.parse(givenInetnumWithTimestamp), Collections.EMPTY_LIST);
+        subject.close();
+
+        checkFileInDir(folder,"inetnum.gz", givenInetnumWithTimestamp);
+    }
+
+    private void checkFileInDir(TemporaryFolder folder, String filenameEnd, final String expectedContents) throws IOException {
+        final File[] files = folder.getRoot().listFiles();
+        Assert.assertNotNull(files);
+        boolean fileFound = false;
+        for (final File file : files) {
+            final String fileName = file.getName();
+            if (fileName.endsWith(filenameEnd)) {
+                fileFound = true;
+                checkFile(file, expectedContents);
+                break;
+            }
+        }
+        Assert.assertThat(fileFound,Matchers.is(true));
+    }
+
     private void checkFile(final File file, final String expectedContents) throws IOException {
         final String content = FileCopyUtils.copyToString(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), Charsets.ISO_8859_1));
         Assert.assertThat(content, Matchers.is(QueryMessages.termsAndConditionsDump() + "\n" + expectedContents));
@@ -104,6 +180,6 @@ public class ExportFileWriterTest {
 
     @Test(expected = RuntimeException.class)
     public void unexisting_folder() throws IOException {
-        new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy);
+        new ExportFileWriter(new File(folder.getRoot().getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, true);
     }
 }

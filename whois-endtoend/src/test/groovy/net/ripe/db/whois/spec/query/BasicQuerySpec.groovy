@@ -448,7 +448,7 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
         queryObject("--brief 192.0/8", "ml", "LIR-mnt")
         queryObject("--brief 192.0/8", "so", "TEST # Filtered")
 
-        queryObjectNotFound("--brief 192.0/8", "oa", "ORG-LIR1-TEST") // should it not return the related objects? probably, wait with fixing until it's been suggested to drop this flag altogether
+        queryObjectNotFound("--brief 192.0/8", "oa", "ORG-LIR1-TEST") // TODO: should it not return the related objects? probably, wait with fixing until it's been suggested to drop this flag altogether
 
     }
 
@@ -746,6 +746,8 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
                 "referral-by:    [mandatory]  [single]     [ ]\n" +
                 "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "created:        [generated]  [single]     [ ]\n" +
+                "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]")
     }
 

@@ -12,6 +12,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.TimestampsMode;
+import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.autokey.AutoKeyResolver;
 import net.ripe.db.whois.update.domain.Action;
@@ -52,6 +54,7 @@ public class SingleUpdateHandler {
     private final IpTreeUpdater ipTreeUpdater;
     private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
+    private final TimestampsMode timestampsMode;
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
@@ -66,7 +69,8 @@ public class SingleUpdateHandler {
                                final RpslObjectDao rpslObjectDao,
                                final IpTreeUpdater ipTreeUpdater,
                                final PendingUpdateHandler pendingUpdateHandler,
-                               final SsoTranslator ssoTranslator) {
+                               final SsoTranslator ssoTranslator,
+                               final TimestampsMode timestampsMode) {
         this.autoKeyResolver = autoKeyResolver;
         this.attributeGenerators = attributeGenerators;
         this.attributeSanitizer = attributeSanitizer;
@@ -77,6 +81,7 @@ public class SingleUpdateHandler {
         this.ipTreeUpdater = ipTreeUpdater;
         this.pendingUpdateHandler = pendingUpdateHandler;
         this.ssoTranslator = ssoTranslator;
+        this.timestampsMode = timestampsMode;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
@@ -139,8 +144,7 @@ public class SingleUpdateHandler {
 
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
-        // TODO: [AH] pending updates is scattered across the code
-        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
+        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION == updateContext.getStatus(preparedUpdate);
 
         if ((pendingAuthentication && !businessRulesOk) || (!pendingAuthentication && updateContext.hasErrors(update))) {
             throw new UpdateFailedException();
@@ -156,18 +160,25 @@ public class SingleUpdateHandler {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
-            if( authenticator.doesTypeSupportPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) ) {
-                pendingUpdateHandler.cleanup(preparedUpdate, updateContext);
+            if (eligibleForPendingUpdateCleanup(preparedUpdate, updateContext)) {
+                pendingUpdateHandler.cleanup(preparedUpdate.getUpdatedObject());
             }
         }
     }
 
+    // TODO: [ES] compare with master (appears to be different logic)
+    private boolean eligibleForPendingUpdateCleanup(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
+        return authenticator.supportsPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) &&
+                Action.CREATE == preparedUpdate.getAction() &&
+                UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
+    }
+
     @CheckForNull
-    private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext ) {
-        RpslObject submittedObject = update.getSubmittedObject();
-        for( RpslAttribute attribute: submittedObject.getAttributes() ) {
-            if( ! CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue() )) {
-                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()) );
+    private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext) {
+        final RpslObject submittedObject = update.getSubmittedObject();
+        for (RpslAttribute attribute: submittedObject.getAttributes()) {
+            if (!CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue())) {
+                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()));
             }
         }
     }
@@ -231,6 +242,15 @@ public class SingleUpdateHandler {
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
+            //TODO Remove this temporary hack as soon as timestamps goes live [AS]
+            if (timestampsMode.isTimestampsOff() && messages.hasErrors()) {
+                for (RpslAttribute attribute : updatedObject.findAttributes(AttributeType.CREATED)) {
+                    messages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
+                }
+                for (RpslAttribute attribute : updatedObject.findAttributes(AttributeType.LAST_MODIFIED)) {
+                    messages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
+                }
+            }
         }
 
         return updatedObject;

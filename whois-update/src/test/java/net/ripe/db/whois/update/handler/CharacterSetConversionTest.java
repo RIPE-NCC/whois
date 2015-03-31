@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler;
 
+import com.google.common.base.Charsets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -37,6 +38,17 @@ public class CharacterSetConversionTest {
     public void should_not_choke_on_empty_input() {
         assertThat(CharacterSetConversion.isConvertableIntoLatin1(""), is(true) );
         assertThat(CharacterSetConversion.isConvertableIntoLatin1(null), is(true) );
+    }
+
+    @Test
+    public void convert_to_latin1() {
+        assertThat(CharacterSetConversion.convertToLatin1("!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"),
+                is("!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"));
+
+        assertThat(CharacterSetConversion.convertToLatin1(" ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"),
+                is(" ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"));
+
+        assertThat(CharacterSetConversion.convertToLatin1("مرحبا"), is("?????"));
     }
 
 }

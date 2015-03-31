@@ -1,9 +1,10 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import org.joda.time.DateTimeZone
 import org.joda.time.LocalDateTime
+import org.joda.time.format.ISODateTimeFormat
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
@@ -38,6 +39,13 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     changed: ripe@test.net 20120505
                     source: TEST"""]
+    }
+
+    static def dateTimeProvider;
+
+    def setupSpec() {
+        dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);
+        dateTimeProvider.reset();
     }
 
     def "create, single object, notif sent to notify"() {
@@ -175,7 +183,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
         def updateNotif = notificationFor "test_test@ripe.net"
         updateNotif.subject =~ "Notification of RIPE Database changes"
-        updateNotif.contents =~ /OBJECT BELOW MODIFIED:\n\n@@ -1,9 \+1,10 @@\n mntner:         TEST-MNT/
+        updateNotif.contents =~ /OBJECT BELOW MODIFIED:\n\n@@ -1,9 \+1,11 @@\n mntner:         TEST-MNT/
         updateNotif.contents =~ /THIS IS THE NEW VERSION OF THE OBJECT:\n\nmntner:         TEST-MNT\ndescr:          description/
         updateNotif.contents =~ /--show-version 2 TEST-MNT/
 
@@ -487,6 +495,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
     def "update, multiple objects, notif sent to notify"() {
       when:
         setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());       // TODO: [ES] separate out / standard (common) component for date time formatting
         def updates = """\
                     password: update
 
@@ -546,7 +555,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
         def notifModifyMaintainer = notificationFor "modify_mntner@ripe.net"
         notifModifyMaintainer.subject.equals("Notification of RIPE Database changes")
 
-        notifModifyMaintainer.contents.contains("" +
+        notifModifyMaintainer.contents.contains(String.format(
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
                 "mntner:         OTHER-MNT\n" +
@@ -558,6 +567,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:         modify_mntner@ripe.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW # Filtered\n" +
+                "created:        %s\n" +                            // TODO: [ES] just use constants not String.format(), we know exactly what time it is (we set it in testDateTimeProvider)
+                "last-modified:  %s\n" +
                 "source:         TEST # Filtered\n" +
                 "\n" +
                 "---\n" +
@@ -581,11 +592,13 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:         updated_modify_mntner@ripe.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW # Filtered\n" +
-                "source:         TEST # Filtered")
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
+                "source:         TEST # Filtered", currentDate, currentDate, currentDate, currentDate))
 
         def notifModifyPerson = notificationFor "modify_person@ripe.net"
         notifModifyPerson.subject.equals("Notification of RIPE Database changes")
-        notifModifyPerson.contents.contains("" +
+        notifModifyPerson.contents.contains(String.format(
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
                 "person:         some one\n" +
@@ -595,11 +608,13 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:         TEST-MNT\n" +
                 "notify:         modify_person@ripe.net\n" +
                 "changed:        ripe@test.net 20130625\n" +
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
                 "source:         TEST\n" +
                 "\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "http://www.ripe.net/db/support/db-terms-conditions.pdf"
+                "http://www.ripe.net/db/support/db-terms-conditions.pdf", currentDate, currentDate)
         )
 
         noMoreMessages()
@@ -654,6 +669,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
     def "create, multiple objects, notif to ref-nfy and notify"() {
       when:
         setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def objects =
             """\
             organisation: AUTO-1
@@ -703,7 +719,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
         def notifCreateObjects = notificationFor "same@test.net"
         notifCreateObjects.subject.equals("Notification of RIPE Database changes")
-        notifCreateObjects.contents.contains("" +
+        notifCreateObjects.contents.contains(String.format(
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
                 "mntner:         OTHER-MNT\n" +
@@ -715,6 +731,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:         same@test.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW # Filtered\n" +
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
                 "source:         TEST # Filtered\n" +
                 "\n" +
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
@@ -735,12 +753,14 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:         TEST-MNT\n" +
                 "ref-nfy:        same@test.net\n" +
                 "changed:        dbtest@ripe.net 20120505\n" +
-                "source:         TEST"
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
+                "source:         TEST", currentDate, currentDate, currentDate, currentDate)
         )
 
         def notifCreatePerson = notificationFor "person@ripe.net"
         notifCreatePerson.subject.equals("Notification of RIPE Database changes")
-        notifCreatePerson.contents.contains("" +
+        notifCreatePerson.contents.contains(String.format(
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
                 "person:         test person\n" +
@@ -750,7 +770,9 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:         TEST-MNT\n" +
                 "notify:         person@ripe.net\n" +
                 "changed:        ripe@test.net 20130625\n" +
-                "source:         TEST"
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
+                "source:         TEST", currentDate, currentDate)
         )
 
         noMoreMessages()
@@ -759,6 +781,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
     def "update, organisation, multiple objects"() {
       when:
       setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
+      def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def objects =
             """\
             organisation: AUTO-1
@@ -854,7 +877,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
         def notifPerson = notificationFor "person@ripe.net"
         notifPerson.subject.equals("Notification of RIPE Database changes")
-        notifPerson.contents.contains("" +
+        notifPerson.contents.contains(String.format(
             "OBJECT BELOW CREATED:\n" +
                 "\n" +
                 "person:         test person\n" +
@@ -864,12 +887,14 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:         TEST-MNT\n" +
                 "notify:         person@ripe.net\n" +
                 "changed:        ripe@test.net 20130625\n" +
-                "source:         TEST"
-        )
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
+                "source:         TEST", currentDate, currentDate))
+
 
         def notifRutger = notificationFor "rutger@test.net"
         notifRutger.subject.equals("Notification of RIPE Database changes")
-        notifRutger.contents.contains("" +
+        notifRutger.contents.contains(String.format(
                 "OBJECT BELOW MODIFIED:\n" +
                 "\n" +
                 "@@ -3,6 +3,6 @@\n" +
@@ -894,6 +919,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:         same@test.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW # Filtered\n" +
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
                 "source:         TEST # Filtered\n" +
                 "\n" +
                 "The old object can be seen in the history using the query options --list-versions and --show-version 1 OTHER-MNT\n" +
@@ -910,12 +937,14 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:         rutger@test.net\n" +
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW # Filtered\n" +
-                "source:         TEST # Filtered"
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
+                "source:         TEST # Filtered", currentDate, currentDate, currentDate, currentDate)
         )
 
         def notifBarry = notificationFor "barry@test.net"
         notifBarry.subject.equals("Notification of RIPE Database changes")
-        notifBarry.contents.contains("" +
+        notifBarry.contents.contains(String.format(
                 "---\n" +
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
@@ -931,6 +960,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "ref-nfy:        same@test.net\n" +
                 "changed:        dbtest@ripe.net 20120505\n" +
                 "notify:         barry@test.net\n" +
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
                 "source:         TEST\n" +
                 "\n" +
                 "---\n" +
@@ -962,6 +993,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "ref-nfy:        notsame@test.net\n" +
                 "changed:        dbtest@ripe.net 20120505\n" +
                 "notify:         barry@test.net\n" +
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
                 "source:         TEST\n" +
                 "\n" +
                 "The old object can be seen in the history using the query options --list-versions and --show-version\n" +
@@ -981,18 +1014,21 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "ref-nfy:        notsame@test.net\n" +
                 "changed:        dbtest@ripe.net 20120505\n" +
                 "notify:         barry@test.net\n" +
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
                 "source:         TEST\n" +
                 "\n" +
                 "***Info:    reason\n" +
                 "\n" +
                 "\n" +
-                "The RIPE Database is subject to Terms and Conditions:")
+                "The RIPE Database is subject to Terms and Conditions:", currentDate, currentDate, currentDate, currentDate, currentDate, currentDate))
 
         noMoreMessages()
     }
 
     def "create, single notif to irt-nfy"() {
       when:
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def irt = """\
                 inet6num: 2001::/48
                 netname: RIPE-NCC
@@ -1031,7 +1067,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
         def notifIrt = notificationFor "irt@test.net"
         notifIrt.subject.equals("Notification of RIPE Database changes")
-        notifIrt.contents.contains("" +
+        notifIrt.contents.contains(String.format(
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
                 "inet6num:       2001::/48\n" +
@@ -1044,13 +1080,16 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:         TEST-MNT\n" +
                 "mnt-irt:        irt-IRT1\n" +
                 "changed:        org@ripe.net 20120505\n" +
-                "source:         TEST"
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
+                "source:         TEST", currentDate, currentDate)
         )
         noMoreMessages()
     }
 
     def "update, single notif to irt-nfy"() {
       when:
+        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
         def irt = """\
                 inet6num: 2001::/48
                 netname: RIPE-NCC
@@ -1105,7 +1144,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
         def notifIrt = notificationFor "irt@test.net"
         notifIrt.subject.equals("Notification of RIPE Database changes")
 
-        notifIrt.contents.contains(
+        notifIrt.contents.contains(String.format(
             "OBJECT BELOW CREATED:\n\n" +
             "inet6num:       2001::/48\n" +
             "netname:        RIPE-NCC\n" +
@@ -1117,7 +1156,9 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
             "mnt-by:         TEST-MNT\n" +
             "mnt-irt:        irt-IRT1\n" +
             "changed:        org@ripe.net 20120505\n" +
-            "source:         TEST")
+            "created:        %s\n" +
+            "last-modified:  %s\n" +
+            "source:         TEST", currentDate, currentDate))
 
         noMoreMessages()
     }
