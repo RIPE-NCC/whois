@@ -513,6 +513,14 @@ public interface AttributeSyntax extends Documented {
             this.description = description;
         }
 
+        public Integer getMaxLength() {
+            return maxLength;
+        }
+
+        public Pattern getMatchPattern() {
+            return matchPattern;
+        }
+
         @Override
         public boolean matches(final ObjectType objectType, final String value) {
             final boolean lengthOk = maxLength == null || value.length() <= maxLength;

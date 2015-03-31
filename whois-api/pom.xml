@@ -112,6 +112,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>stringtemplate</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+
         <!-- testing -->
         <dependency>
             <groupId>net.ripe.db</groupId>

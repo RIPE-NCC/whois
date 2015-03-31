@@ -26,6 +26,10 @@ public class <struct.nameToFirstUpper> {
 
 	<struct:toRpsl()>
 
+	<struct:toRequest()>
+
+	<struct:fromResponse()>
+
 	<struct:builderClass()>
 
 	<struct:constructorFromBuilder()>
@@ -145,6 +149,20 @@ toString( struct ) ::= <<
 		<struct.attributeTemplates:stringAattributePrinter()>
        .toString();
 	}
+
+>>
+
+
+toRequest( struct ) ::= <<
+
+	//public Request toRequest() {}
+
+>>
+
+
+fromResponse( struct ) ::= <<
+
+	//public static <struct.nameToFirstUpper> fromResponse( Response response ) {}
 
 >>
 
