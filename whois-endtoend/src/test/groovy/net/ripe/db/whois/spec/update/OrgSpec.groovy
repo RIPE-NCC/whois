@@ -1415,6 +1415,80 @@ class OrgSpec extends BaseQueryUpdateSpec {
         queryObject("-r -GBT organisation ORG-AMH1-TEST", "organisation", "ORG-AMH1-TEST")
     }
 
+    def "Must be created with auto key"() {
+        given:
+        dbfixture(getTransient("ORG-NAME"))
+        expect:
+        queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def deleteMessage = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-FO1-TEST
+                org-type:        other
+                org-name:        First Org
+                org:             ORG-FO1-TEST
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                changed:         denis@ripe.net 20121016
+                source:          TEST
+                delete:  testing
+
+                password: owner2
+                """.stripIndent()
+        )
+
+        then:
+        def ackForDelete = ackFor deleteMessage
+        ackForDelete.success
+
+        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def createMessage = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-FO1-TEST
+                org-type:        other
+                org-name:        First Org
+                org:             ORG-FO1-TEST
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner3-mnt
+                mnt-by:          owner2-mnt
+                changed:         denis@ripe.net 20121016
+                source:          TEST
+
+                password: owner2
+                password: owner3
+                """.stripIndent()
+        )
+        then:
+        def ackForCreate = ackFor createMessage
+        ackForCreate.errors
+
+        ackForCreate.summary.nrFound == 1
+        ackForCreate.summary.assertSuccess(0, 0, 0, 0, 0)
+        ackForCreate.summary.assertErrors(1, 1, 0, 0)
+
+        ackForCreate.countErrorWarnInfo(1, 0, 0)
+        ackForCreate.errors.any { it.operation == "Create" && it.key == "[organisation] ORG-FO1-TEST" }
+        ackForCreate.errorMessagesFor("Create", "[organisation] ORG-FO1-TEST") =~
+                ["Syntax error in.*(must be AUTO-nnn for create)"]
+
+        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+    }
+
     def "delete self referencing org"() {
         given:
         dbfixture(getTransient("ORG-NAME"))

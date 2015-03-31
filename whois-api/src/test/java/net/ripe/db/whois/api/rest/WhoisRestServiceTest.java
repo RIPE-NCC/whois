@@ -87,43 +87,36 @@ public class WhoisRestServiceTest {
 
     @Test
     public void dryRun_null() {
-        subject.checkDryRun(updateContext, null);
+        subject.setDryRun(updateContext, null);
 
         verify(updateContext, never()).dryRun();
     }
 
     @Test
     public void dryRun_false() {
-        subject.checkDryRun(updateContext, "fAlsE");
+        subject.setDryRun(updateContext, "fAlsE");
 
         verify(updateContext, never()).dryRun();
     }
 
     @Test
     public void dryRun_emptyString() {
-        subject.checkDryRun(updateContext, "");
+        subject.setDryRun(updateContext, "");
 
         verify(updateContext).dryRun();
     }
 
     @Test
     public void dryRun_true() {
-        subject.checkDryRun(updateContext, "tRuE");
-
-        verify(updateContext).dryRun();
-    }
-
-    @Test
-    public void dryRun_yes() {
-        subject.checkDryRun(updateContext, "yes");
+        subject.setDryRun(updateContext, "tRuE");
 
         verify(updateContext).dryRun();
     }
 
     @Test
     public void dryRun_whatever() {
-        subject.checkDryRun(updateContext, "whatever");
+        subject.setDryRun(updateContext, "whatever");
 
-        verify(updateContext).dryRun();
+        verify(updateContext, never()).dryRun();
     }
 }

@@ -208,7 +208,7 @@ public class QueryTest {
                 parse("-" + flag);
                 fail("Missing argument for " + flag + " should throw an exception");
             } catch (QueryException e) {
-                // OK
+                assertThat(e.getMessages(), contains(QueryMessages.malformedQuery()));
             }
         }
     }

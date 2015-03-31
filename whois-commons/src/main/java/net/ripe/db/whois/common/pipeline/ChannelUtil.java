@@ -13,6 +13,7 @@ public final class ChannelUtil {
     public static final Charset BYTE_ENCODING = Charsets.ISO_8859_1;
 
     private ChannelUtil() {
+        // do not instantiate
     }
 
     public static InetAddress getRemoteAddress(final Channel channel) {

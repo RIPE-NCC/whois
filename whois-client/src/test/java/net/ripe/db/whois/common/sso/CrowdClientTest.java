@@ -77,8 +77,8 @@ public class CrowdClientTest {
         try {
             subject.login("test@ripe.net", "password");
             fail();
-        } catch (CrowdClientException ignored) {
-            // expected
+        } catch (CrowdClientException expected) {
+            assertThat(expected.getMessage(), is("message"));
         }
     }
 

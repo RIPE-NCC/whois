@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.transform.TimestampFilterFunction;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,11 +20,12 @@ import static org.mockito.Mockito.when;
 public class NotificationTest {
     @Mock Update update;
     @Mock UpdateContext updateContext;
+    @Mock TimestampFilterFunction filterFunction;
     Notification subject;
 
     @Before
     public void setUp() throws Exception {
-        subject = new Notification("test@me.now");
+        subject = new Notification("test@me.now", filterFunction);
     }
 
     @Test
@@ -48,6 +50,7 @@ public class NotificationTest {
     @Test
     public void add_created() {
         RpslObject created = RpslObject.parse("mntner: DEV-MNT");
+        when(filterFunction.apply(created)).thenReturn(created);
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, null, created, Action.CREATE);
         subject.add(Notification.Type.SUCCESS, preparedUpdate, updateContext);
@@ -73,6 +76,8 @@ public class NotificationTest {
     public void add_modified() {
         RpslObject original = RpslObject.parse("mntner: DEV-MNT");
         RpslObject modified = RpslObject.parse("mntner: DEV-MNT\ndescr: some description");
+        when(filterFunction.apply(original)).thenReturn(original);
+        when(filterFunction.apply(modified)).thenReturn(modified);
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, original, modified, Action.MODIFY);
         subject.add(Notification.Type.SUCCESS_REFERENCE, preparedUpdate, updateContext);
@@ -92,6 +97,7 @@ public class NotificationTest {
     @Test
     public void add_delete() {
         RpslObject original = RpslObject.parse("mntner: DEV-MNT");
+        when(filterFunction.apply(original)).thenReturn(original);
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, original, original, Action.DELETE);
         when(update.getDeleteReasons()).thenReturn(Lists.newArrayList("reason1", "reason2"));
@@ -112,6 +118,7 @@ public class NotificationTest {
     @Test
     public void add_noop() {
         RpslObject original = RpslObject.parse("mntner: DEV-MNT");
+        when(filterFunction.apply(original)).thenReturn(original);
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, original, original, Action.NOOP);
         subject.add(Notification.Type.SUCCESS_REFERENCE, preparedUpdate, updateContext);

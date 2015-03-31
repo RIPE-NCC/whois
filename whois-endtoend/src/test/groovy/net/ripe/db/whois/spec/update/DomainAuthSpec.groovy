@@ -197,7 +197,20 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
-            "ASSIGN6-DOMAIN": """\
+            "ALLOC6-PA-NO-DOM-R": """\
+                inet6num:     2a03:3460::/32
+                netname:      CZ-POSITION-20140915
+                descr:        Position s.r.o
+                country:      CZ
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-BY-RIR
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+                """,            "ASSIGN6-DOMAIN": """\
                 domain:         0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa
                 descr:          reverse domain
                 admin-c:        TP1-TEST
@@ -1524,7 +1537,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 2.1-3.1.193.in-addr.arpa" }
 //        ack.errorMessagesFor("Create", "[domain] 2.1-3.1.193.in-addr.arpa") ==
-//              ["Syntax error in 2.1-3.1.193.in-addr.arpa"] ToDo need an ack.errorMessagesForMatching
+//              ["Syntax error in 2.1-3.1.193.in-addr.arpa"] TODO need an ack.errorMessagesForMatching
 
         queryObjectNotFound("-rGBT domain 2.1-3.1.193.in-addr.arpa", "domain", "2.1-3.1.193.in-addr.arpa")
     }
@@ -1561,7 +1574,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 148-149.201.193.in-addr.arpa" }
-//        ack.errorMessagesFor("Create", "[domain] 148-149.201.193.in-addr.arpa") == //ToDo - need an ack.errorMessagesForMatches so I can pick out the error message bit I want
+//        ack.errorMessagesFor("Create", "[domain] 148-149.201.193.in-addr.arpa") == //TODO - need an ack.errorMessagesForMatches so I can pick out the error message bit I want
 //              ["Syntax error in 148-149.201.193.in-addr.arpa"]
 
         queryObjectNotFound("-rGBT domain 148-149.201.193.in-addr.arpa", "domain", "148-149.201.193.in-addr.arpa")
@@ -1599,7 +1612,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 201-202.193.in-addr.arpa" }
-//        ack.errorMessagesFor("Create", "[domain] 201-202.193.in-addr.arpa") ==
+//        ack.errorMessagesFor("Create", "[domain] 201-202.193.in-addr.arpa") ==    // TODO
 //              ["Syntax error in 201-202.193.in-addr.arpa"]
 
         queryObjectNotFound("-rGBT domain 201-202.193.in-addr.arpa", "domain", "201-202.193.in-addr.arpa")
@@ -1637,7 +1650,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 1-193.in-addr.arpa" }
-//        ack.errorMessagesFor("Create", "[domain] 1-193.in-addr.arpa") ==
+//        ack.errorMessagesFor("Create", "[domain] 1-193.in-addr.arpa") ==      // TODO
 //              ["Syntax error in 1-193.in-addr.arpa"]
 
         queryObjectNotFound("-rGBT domain 1-193.in-addr.arpa", "domain", "1-193.in-addr.arpa")
@@ -2298,6 +2311,45 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT domain 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa", "domain", "0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa")
     }
 
+    def "create reverse domain, ripe IPv6 space, exact match inet6num with mnt-lower no mnt-domains, lower pw supplied"() {
+        given:
+        syncUpdate(getTransient("ALLOC6-PA-NO-DOM-R") + "password: hm\npassword: owner3")
+        queryObject("-r -T inet6num 2a03:3460::/32", "inet6num", "2a03:3460::/32")
+
+        expect:
+        queryObjectNotFound("-rGBT domain 0.6.4.3.3.0.a.2.ip6.arpa", "domain", "0.6.4.3.3.0.a.2.ip6.arpa")
+
+        when:
+        def message = syncUpdate("""\
+                domain:         0.6.4.3.3.0.a.2.ip6.arpa
+                descr:          Reverse delegation for 2a03:3460::
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                zone-c:         TP1-TEST
+                nserver:        pri.authdns.ripe.net
+                nserver:        ns3.nic.fr
+                mnt-by:         owner-MNT
+                changed:        noreply@ripe.net 20120101
+                source:         TEST
+
+                password:   owner
+                password:   lir
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[domain] 0.6.4.3.3.0.a.2.ip6.arpa" }
+        ack.errorMessagesFor("Create", "[domain] 0.6.4.3.3.0.a.2.ip6.arpa") ==
+                ["Authorisation for [inet6num] 2a03:3460::/32 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT"]
+
+        queryObjectNotFound("-rGBT domain 0.6.4.3.3.0.a.2.ip6.arpa", "domain", "0.6.4.3.3.0.a.2.ip6.arpa")
+    }
+
     def "create reverse domain, ripe IPv6 space, in-addra.arpa suffix"() {
       given:
         syncUpdate(getTransient("ALLOC6-PA-LOW-DOM-R") + "password: hm\npassword: owner3")
@@ -2450,7 +2502,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 0-1.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa" }
 //        ack.errorMessagesFor("Create", "[domain] 0-1.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa") ==
-//              ["Syntax error in 0-1.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa"] ToDo - ack.errorMessagesForMatches
+//              ["Syntax error in 0-1.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa"] TODO - ack.errorMessagesForMatches
 
         queryObjectNotFound("-rGBT domain 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa", "domain", "0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa")
     }
