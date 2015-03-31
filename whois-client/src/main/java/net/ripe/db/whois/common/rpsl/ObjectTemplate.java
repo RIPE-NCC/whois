@@ -681,6 +681,38 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         return ObjectType.getSets().contains(objectType);
     }
 
+    private String stripDashes( String in) {
+        return in.replaceAll("-", "");
+    }
+
+    private static String toCamelCase( final String in) {
+        String[] parts = in.split("-");
+        String camelCaseString = "";
+        for (String part : parts){
+            camelCaseString = camelCaseString + toFirstUpper(part);
+        }
+        return camelCaseString;
+    }
+
+    private static String toFirstUpper( final String in ) {
+        return in.substring(0, 1).toUpperCase() + in.substring(1);
+    }
+
+    private static String toFirstLower( String in ) {
+        if( in.equalsIgnoreCase("import") || in.equalsIgnoreCase("default") || in.equalsIgnoreCase("interface") ) {
+            in = in + "_";
+        }
+        return in.substring(0, 1).toLowerCase() + in.substring(1);
+    }
+
+    public String getNameToFirstUpper(  ) {
+        return toFirstUpper(toCamelCase(this.objectType.getName()));
+    }
+
+    public String getNameToFirstLower( ) {
+        return toFirstLower(toCamelCase(this.objectType.getName()));
+    }
+
     @Override
     public boolean equals(final Object o) {
         return this == o || !(o == null || getClass() != o.getClass()) && objectType == ((ObjectTemplate) o).objectType;

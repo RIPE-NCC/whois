@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.generator;
 
+import net.ripe.db.whois.common.rpsl.AttributeSyntax;
+import net.ripe.db.whois.common.rpsl.AttributeTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 
 import java.io.IOException;
@@ -33,6 +35,16 @@ public class MyCodeGenerator {
                             new TemplateFileSpecification(this.templateDirectory, "class.stg"),
                             new TargetFileSpecification("./whois-api/src/main/java/",
                                     PACKAGE_NAME, asJavaClassName(ot.getObjectType().getName()) + ".java"));
+//            for(AttributeTemplate at: ot.getAttributeTemplates() ) {
+//                at.getAttributeType().getSyntax().getDescription();
+//                if( at.getAttributeType().getSyntax() instanceof AttributeSyntax.AttributeSyntaxRegexp) {
+//                    System.err.println("syntax of" + ot.getNameToFirstLower() +": " + "regexp");
+//                    AttributeSyntax.AttributeSyntaxRegexp parser = (AttributeSyntax.AttributeSyntaxRegexp)at.getAttributeType().getSyntax();
+//                } else {
+//                    System.err.println("syntax of" + ot.getNameToFirstLower() +": " + "hard");
+//
+//                }
+//            }
             generator.addContext("package", PACKAGE_NAME);
             generator.addContext("struct", ot);
 
@@ -42,15 +54,27 @@ public class MyCodeGenerator {
         System.out.println("generate entities: end");
     }
 
-    private String asJavaClassName(String in) {
-        return toFirstUpper(in.replaceAll("-", ""));
+    private static String asJavaClassName(String in) {
+        return toFirstUpper(toCamelCase(in));
     }
 
-    public String toFirstUpper(String in) {
+    private static String toCamelCase( final String in) {
+        String[] parts = in.split("-");
+        String camelCaseString = "";
+        for (String part : parts){
+            camelCaseString = camelCaseString + toFirstUpper(part);
+        }
+        return camelCaseString;
+    }
+
+    private static String toFirstUpper( final String in ) {
         return in.substring(0, 1).toUpperCase() + in.substring(1);
     }
 
-    public String toFirstLower(String in) {
+    private static String toFirstLower( String in ) {
+        if( in.equalsIgnoreCase("import") || in.equalsIgnoreCase("default") || in.equalsIgnoreCase("interface") ) {
+            in = in + "_";
+        }
         return in.substring(0, 1).toLowerCase() + in.substring(1);
     }
 }
