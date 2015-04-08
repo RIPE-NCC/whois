@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-;
-
 @Immutable
 public class RpslObject implements Identifiable, ResponseObject {
     private final ObjectType type;
