@@ -1,10 +1,9 @@
 package net.ripe.db.whois.spec.integration
+import net.ripe.db.whois.common.FormatHelper
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import org.joda.time.DateTimeZone
 import org.joda.time.LocalDateTime
-import org.joda.time.format.ISODateTimeFormat
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
@@ -480,7 +479,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
     def "update, multiple objects, notif sent to notify"() {
       when:
         setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());       // TODO: [ES] separate out / standard (common) component for date time formatting
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def updates = """\
                     password: update
 
@@ -538,7 +537,6 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
         def notifModifyMaintainer = notificationFor "modify_mntner@ripe.net"
         notifModifyMaintainer.subject.equals("Notification of RIPE Database changes")
 
-        // TODO: [ES] just use constants not String.format(), we know exactly what time it is (we set it in testDateTimeProvider)
         notifModifyMaintainer.contents.contains(String.format(
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
@@ -576,7 +574,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "auth:           MD5-PW # Filtered\n" +
                 "created:        %s\n" +
                 "last-modified:  %s\n" +
-                "source:         TEST # Filtered", currentDate, currentDate, currentDate, currentDate))
+                "source:         TEST # Filtered", currentDateTime, currentDateTime, currentDateTime, currentDateTime))
 
         def notifModifyPerson = notificationFor "modify_person@ripe.net"
         notifModifyPerson.subject.equals("Notification of RIPE Database changes")
@@ -596,7 +594,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "http://www.ripe.net/db/support/db-terms-conditions.pdf", currentDate, currentDate)
+                "http://www.ripe.net/db/support/db-terms-conditions.pdf", currentDateTime, currentDateTime)
         )
 
         noMoreMessages()
@@ -651,7 +649,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
     def "create, multiple objects, notif to ref-nfy and notify"() {
       when:
         setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def objects =
             """\
             organisation: AUTO-1
@@ -735,7 +733,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "changed:        dbtest@ripe.net 20120505\n" +
                 "created:        %s\n" +
                 "last-modified:  %s\n" +
-                "source:         TEST", currentDate, currentDate, currentDate, currentDate)
+                "source:         TEST", currentDateTime, currentDateTime, currentDateTime, currentDateTime)
         )
 
         def notifCreatePerson = notificationFor "person@ripe.net"
@@ -752,12 +750,13 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "changed:        ripe@test.net 20130625\n" +
                 "created:        %s\n" +
                 "last-modified:  %s\n" +
-                "source:         TEST", currentDate, currentDate)
+                "source:         TEST", currentDateTime, currentDateTime)
         )
 
         noMoreMessages()
     }
 
+    // TODO: [ES] commented out test?
     def "update, organisation, multiple objects"() {
 //      when:
 //      setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
@@ -1003,7 +1002,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create, single notif to irt-nfy"() {
       when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def irt = """\
                 inet6num: 2001::/48
                 netname: RIPE-NCC
@@ -1057,14 +1056,14 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "changed:        org@ripe.net 20120505\n" +
                 "created:        %s\n" +
                 "last-modified:  %s\n" +
-                "source:         TEST", currentDate, currentDate)
+                "source:         TEST", currentDateTime, currentDateTime)
         )
         noMoreMessages()
     }
 
     def "update, single notif to irt-nfy"() {
       when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def irt = """\
                 inet6num: 2001::/48
                 netname: RIPE-NCC
@@ -1133,7 +1132,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
             "changed:        org@ripe.net 20120505\n" +
             "created:        %s\n" +
             "last-modified:  %s\n" +
-            "source:         TEST", currentDate, currentDate))
+            "source:         TEST", currentDateTime, currentDateTime))
 
         noMoreMessages()
     }

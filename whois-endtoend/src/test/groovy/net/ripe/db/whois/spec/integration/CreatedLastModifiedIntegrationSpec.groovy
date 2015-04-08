@@ -1,13 +1,10 @@
 package net.ripe.db.whois.spec.integration
-
+import net.ripe.db.whois.common.FormatHelper
 import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.common.rpsl.TestTimestampsMode
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import org.joda.time.DateTimeZone
 import org.joda.time.LocalDateTime
-import org.joda.time.format.ISODateTimeFormat
 
 import javax.mail.internet.MimeMessage
 
@@ -37,18 +34,16 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             source:  TEST
             """];
     }
-    static TestDateTimeProvider dateTimeProvider;
+
     static TestTimestampsMode testTimestampsMode;
 
     def setupSpec() {
-        dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);            // TODO: [ES] autowire component and add convenience method to whoisFixture
         testTimestampsMode = getApplicationContext().getBean(net.ripe.db.whois.common.rpsl.TestTimestampsMode.class);
     }
 
-
     def "create object with created and last-modified generates new values"() {
         given:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());       // TODO: [ES] separate out / standard (common) component for date time formatting
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
 
         def update = new SyncUpdate(data: """\
         person:        Test Person
@@ -77,8 +72,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def created = query("TP3-TEST")
 
         then:
-        created =~ /created:        ${currentDate}/
-        created =~ /last-modified:  ${currentDate}/
+        created =~ /created:        ${currentDateTime}/
+        created =~ /last-modified:  ${currentDateTime}/
     }
 
     def "create object with no created or last-modified generates new values"() {
@@ -105,8 +100,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "modify object created attribute stays the same"() {
         given:
-        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
-        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        setTime(LocalDateTime.now().minusDays(1))
+        def yesterdayDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
 
         syncUpdate(new SyncUpdate(data: """\
             person:  Other Person
@@ -125,11 +120,10 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def created = query("OP1-TEST");
 
         then:
-        created =~/created:        ${yesterday}/
-
+        created =~/created:        ${yesterdayDateTime}/
 
         when:
-        dateTimeProvider.setTime(new LocalDateTime())
+        setTime(LocalDateTime.now())
 
         def update = new SyncUpdate(data: """\
             person:  Other Person
@@ -153,12 +147,12 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def updated = query("OP1-TEST")
 
         then:
-        updated =~/created:        ${yesterday}/
+        updated =~/created:        ${yesterdayDateTime}/
     }
 
     def "modify object without created generates last-modified only"() {
         given:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.currentDateTimeUtc);
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
@@ -190,13 +184,13 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         updated !=~ /created:/
-        updated =~ /last-modified:  ${currentDate}/
+        updated =~ /last-modified:  ${currentDateTime}/
     }
 
     def "modify object with last-modified updates last-modified"() {
         given:
-        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
-        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        setTime(LocalDateTime.now().minusDays(1))
+        def yesterdayDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
@@ -227,11 +221,11 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def updated = query("-rBG LOOP-MNT")
 
         then:
-        updated =~ /last-modified:  ${yesterday}/
+        updated =~ /last-modified:  ${yesterdayDateTime}/
 
         when:
-        dateTimeProvider.setTime(new LocalDateTime())
-        def today = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        setTime(LocalDateTime.now())
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
 
         def updateToday = syncUpdate(new SyncUpdate(data:
                         "mntner:  LOOP-MNT\n" +
@@ -252,14 +246,14 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def updatedToday = query("-rBG LOOP-MNT")
 
         then:
-        updatedToday =~ /last-modified:  ${today}/
+        updatedToday =~ /last-modified:  ${currentDateTime}/
     }
 
     def "mode off: modify object with existimg created and last-modified"() {
         given:
         testTimestampsMode.setTimestampsOff(false);
-        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
-        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        setTime(LocalDateTime.now().minusDays(1))
+        def yesterdayDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
@@ -294,15 +288,15 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def updated = query("-rBG LOOP-MNT")
 
         then:
-        updated !=~ /last-modified:  ${yesterday}/
+        updated !=~ /last-modified:  ${yesterdayDateTime}/
 
     }
 
     def "mode off: modify object without existimg created and last-modified"() {
         given:
         testTimestampsMode.setTimestampsOff(false);
-        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
-        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        setTime(LocalDateTime.now().minusDays(1))
+        def yesterdayDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
@@ -335,7 +329,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def updated = query("-rBG LOOP-MNT")
 
         then:
-        updated !=~ /last-modified:  ${yesterday}/
+        updated !=~ /last-modified:  ${yesterdayDateTime}/
 
     }
 
@@ -344,7 +338,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
         given:
         testTimestampsMode.setTimestampsOff(false);
-        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
+        setTime(LocalDateTime.now().minusDays(1))
 
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
@@ -362,8 +356,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
 
         when:
-        dateTimeProvider.setTime(new LocalDateTime())
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        setTime(LocalDateTime.now())
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def delete = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
                 address:       Singel 258
@@ -371,8 +365,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 nic-hdl:       TP3-TEST
                 changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
-                created:        ${currentDate}
-                last-modified:  ${currentDate}
+                created:        ${currentDateTime}
+                last-modified:  ${currentDateTime}
                 source:        TEST
                 password: update
                 delete:   reason
@@ -402,7 +396,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
 
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def delete = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
                 address:       Singel 258
@@ -410,8 +404,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 nic-hdl:       TP3-TEST
                 changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
-                created:        ${currentDate}
-                last-modified:  ${currentDate}
+                created:        ${currentDateTime}
+                last-modified:  ${currentDateTime}
                 source:        TEST
                 password: update
                 delete:   reason
@@ -422,7 +416,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "mode off: delete object with created and last-modified present"() {
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
 
         when:
         testTimestampsMode.setTimestampsOff(false);
@@ -433,8 +427,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 nic-hdl:       TP3-TEST
                 changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
-                created:        ${currentDate}
-                last-modified:  ${currentDate}
+                created:        ${currentDateTime}
+                last-modified:  ${currentDateTime}
                 source:        TEST
                 password: update
                 """.stripIndent()))
@@ -450,8 +444,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 nic-hdl:       TP3-TEST
                 changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
-                created:        ${currentDate}
-                last-modified:  ${currentDate}
+                created:        ${currentDateTime}
+                last-modified:  ${currentDateTime}
                 source:        TEST
                 password: update
                 delete:   reason
@@ -459,15 +453,15 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         result =~ /Delete FAILED: \[person\] TP3-TEST   Test Person/
-        result =~ /created:        ${currentDate}
+        result =~ /created:        ${currentDateTime}
 \*\*\*Error:   "created" is not a known RPSL attribute
-last-modified:  ${currentDate}
+last-modified:  ${currentDateTime}
 \*\*\*Error:   "last-modified" is not a known RPSL attribute/
 
     }
 
     def "mode off: delete object with created and last-modified not present"() {
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
 
         when:
         testTimestampsMode.setTimestampsOff(false);
@@ -493,8 +487,8 @@ last-modified:  ${currentDate}
                 nic-hdl:       TP3-TEST
                 changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
-                created:        ${currentDate}
-                last-modified:  ${currentDate}
+                created:        ${currentDateTime}
+                last-modified:  ${currentDateTime}
                 source:        TEST
                 password: update
                 delete:   reason
@@ -502,9 +496,9 @@ last-modified:  ${currentDate}
 
         then:
         result =~ /Delete FAILED: \[person\] TP3-TEST   Test Person/
-        result =~ /created:        ${currentDate}
+        result =~ /created:        ${currentDateTime}
 \*\*\*Error:   "created" is not a known RPSL attribute
-last-modified:  ${currentDate}
+last-modified:  ${currentDateTime}
 \*\*\*Error:   "last-modified" is not a known RPSL attribute/
 
     }
@@ -557,7 +551,7 @@ last-modified:  ${currentDate}
         testTimestampsMode.setTimestampsOff(true);
 
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def object = RpslObject.parse("person:    Pauleth Palthen\n" +
                 "address:   Singel 258\n" +
                 "phone:     +31-1234567890\n" +
@@ -565,8 +559,8 @@ last-modified:  ${currentDate}
                 "mnt-by:    OWNER-MNT\n" +
                 "nic-hdl:   PP1-TEST\n" +
                 "changed:   noreply@ripe.net 20120101\n" +
-                "created:  ${currentDate}\n" +
-                "last-modified:  ${currentDate}\n" +
+                "created:  ${currentDateTime}\n" +
+                "last-modified:  ${currentDateTime}\n" +
                 "source:    TEST\n")
 
         def result = syncUpdate(new SyncUpdate(data: object.toString() + "\npassword: test\n"))
@@ -574,9 +568,9 @@ last-modified:  ${currentDate}
         then:
         println(result)
         result =~ /Create FAILED: \[person\] PP1-TEST   Pauleth Palthen/
-        result =~ /created:        ${currentDate}
+        result =~ /created:        ${currentDateTime}
 \*\*\*Error:   "created" is not a known RPSL attribute
-last-modified:  ${currentDate}
+last-modified:  ${currentDateTime}
 \*\*\*Error:   "last-modified" is not a known RPSL attribute/
     }
 
@@ -585,7 +579,7 @@ last-modified:  ${currentDate}
         testTimestampsMode.setTimestampsOff(true);
 
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
 
         def object = RpslObject.parse(
                 "person:    Pauleth Palthen\n" +
@@ -593,8 +587,8 @@ last-modified:  ${currentDate}
                 "phone:     +31-1234567890\n" +
                 "e-mail:    noreply@ripe.net\n" +
                 "mnt-by:    TST-MNT\n" +
-                "created:   ${currentDate}\n" +
-                "last-modified:   ${currentDate}\n" +
+                "created:   ${currentDateTime}\n" +
+                "last-modified:   ${currentDateTime}\n" +
                 "nic-hdl:   PP1-TEST\n" +
                 "changed:   noreply@ripe.net 20120101\n" +
                 "source:    TEST\n")
@@ -614,9 +608,9 @@ last-modified:  ${currentDate}
         final String result = message.getContent().toString();
 
         then:
-        result =~ /created:        ${currentDate}
+        result =~ /created:        ${currentDateTime}
 \*\*\*Error:   "created" is not a known RPSL attribute
-last-modified:  ${currentDate}
+last-modified:  ${currentDateTime}
 \*\*\*Error:   "last-modified" is not a known RPSL attribute/
     }
 

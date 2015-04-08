@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 //TODO [TP]:    finishes, at latest, the tests with "original_has_no_timestamps" should be gone
 @RunWith(MockitoJUnitRunner.class)
 public class TimestampAttributeGeneratorTest {
-    final private static DateTimeFormatter ISO_FORMATER = ISODateTimeFormat.dateTimeNoMillis();
+    final private static DateTimeFormatter ISO_FORMATTER = ISODateTimeFormat.dateTimeNoMillis();
 
     private static final String TIMESTAMP_STRING_PAST = "2014-01-26T11:44:59Z";
     private static final String TIMESTAMP_STRING_ACTION = "2015-02-27T12:45:00Z";
@@ -677,6 +677,6 @@ public class TimestampAttributeGeneratorTest {
     // End of section new-mode with skip-last-modified is true
 
     private LocalDateTime actionTime() {
-        return ISO_FORMATER.parseDateTime(TIMESTAMP_STRING_ACTION).withZone(DateTimeZone.UTC).toLocalDateTime();     // TODO: [ES] separate out / standard (common) component for date time formatting
+        return ISO_FORMATTER.parseDateTime(TIMESTAMP_STRING_ACTION).withZone(DateTimeZone.UTC).toLocalDateTime();
     }
 }

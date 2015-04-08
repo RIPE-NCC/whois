@@ -1,11 +1,10 @@
 package net.ripe.db.whois.spec.integration
+import net.ripe.db.whois.common.FormatHelper
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import org.joda.time.DateTimeZone
-import org.joda.time.format.ISODateTimeFormat
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class SsoIntegrationSpec extends BaseWhoisSourceSpec {
@@ -72,7 +71,7 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
         def mntner = databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT")
 
       then:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());           // TODO: [ES] separate out / standard (common) component for date time formatting
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         mntner.toString().equals(String.format(
                 "mntner:         SSO-MNT\n" +
                 "descr:          sso mntner\n" +
@@ -84,7 +83,7 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                 "changed:        ripe@test.net 20091015\n" +
                 "created:        %s\n" +
                 "last-modified:  %s\n" +
-                "source:         TEST\n", currentDate, currentDate))
+                "source:         TEST\n", currentDateTime, currentDateTime))
 
       when:
         def query = query("SSO-MNT")
@@ -104,8 +103,8 @@ auth:           SSO # Filtered
 auth:           MD5-PW # Filtered
 mnt-by:         TEST-MNT3
 changed:        ripe@test.net 20091015
-created:        ${currentDate}
-last-modified:  ${currentDate}
+created:        ${currentDateTime}
+last-modified:  ${currentDateTime}
 source:         TEST # Filtered/
     }
 

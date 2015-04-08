@@ -9,6 +9,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -24,9 +25,7 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.glassfish.jersey.uri.UriComponent;
 import org.hamcrest.Matchers;
-import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
-import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -323,11 +322,10 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
     public void explicit_mode_on_allows_created_last_modified() {
         testTimestampsMode.setTimestampsOff(false);
 
-        final String currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());      // TODO: [ES] separate out / standard (common) component for date time formatting
-
+        final String currentDateTime = FormatHelper.dateTimeToUtcString(testDateTimeProvider.getCurrentDateTimeUtc());
         final RpslObject object = new RpslObjectBuilder(PAULETH_PALTHEN)
-                .addAttributeAfter(new RpslAttribute("created", currentDate), AttributeType.MNT_BY)
-                .addAttributeAfter(new RpslAttribute("last-modified", currentDate), AttributeType.MNT_BY)
+                .addAttributeAfter(new RpslAttribute("created", currentDateTime), AttributeType.MNT_BY)
+                .addAttributeAfter(new RpslAttribute("last-modified", currentDateTime), AttributeType.MNT_BY)
                 .get();
 
         final WhoisResources result = RestTest.target(getPort(), "whois/test/person?password=test")

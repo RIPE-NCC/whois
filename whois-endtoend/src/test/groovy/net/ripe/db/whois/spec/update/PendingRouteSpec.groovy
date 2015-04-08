@@ -159,7 +159,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
     def "Mails are sent when confirmation by other mntner times out"() {
 
         given:
-        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
         syncUpdate(new SyncUpdate(data: """
                 inetnum:        192.168.0.0 - 192.169.255.255
                 netname:        EXACT-INETNUM
@@ -227,7 +227,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "Create route, pending request is removed on creation: both parties required"() {
         given:
-        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
         syncUpdate(new SyncUpdate(data: """
                 inetnum:        192.168.0.0 - 192.169.255.255
                 netname:        EXACT-INETNUM
@@ -302,7 +302,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "Create route, with 3 involved maintainers"() {
         given:
-        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
         syncUpdate(new SyncUpdate(data: """
                 mntner:      AS200-MNT
                 descr:       used for aut-num 200
@@ -448,7 +448,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, pending request is removed on creation, second party could do it all"() {
         given:
-        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
         syncUpdate(new SyncUpdate(data: """
                 inetnum:        192.168.0.0 - 192.169.255.255
                 netname:        EXACT-INETNUM
@@ -1280,7 +1280,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
         def message = syncUpdate(new SyncUpdate(data: """\
                 route:          192.168.0.0/16
                 descr:          Route
@@ -1375,7 +1375,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
         def message = syncUpdate(new SyncUpdate(data: """\
                 route:          192.168.0.0/16
                 descr:          Route
