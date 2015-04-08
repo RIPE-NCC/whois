@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.generator;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -10,11 +11,10 @@ import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Nullable;
 
 @Component
 public class TimestampAttributeGenerator extends AttributeGenerator {
@@ -50,17 +50,15 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
 
     private void generateTimestampAttributes(final RpslObjectBuilder builder, final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final boolean addWarningsFlag) {
         final Action action = updateContext.getAction(update);
-
-        final DateTime now = dateTimeProvider.getCurrentDateTimeUtc();
-        final String nowString = now.toString(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC));     // TODO: [ES] separate out / standard (common) component for date time formatting
+        final String currentDateTime = FormatHelper.dateTimeToUtcString(dateTimeProvider.getCurrentDateTimeUtc());
 
         RpslAttribute generatedCreatedAttribute = null;
         RpslAttribute generatedLastModifiedAttribute = null;
 
         switch (action) {
             case CREATE:
-                generatedCreatedAttribute = new RpslAttribute(AttributeType.CREATED, nowString);
-                generatedLastModifiedAttribute = new RpslAttribute(AttributeType.LAST_MODIFIED, nowString);
+                generatedCreatedAttribute = new RpslAttribute(AttributeType.CREATED, currentDateTime);
+                generatedLastModifiedAttribute = new RpslAttribute(AttributeType.LAST_MODIFIED, currentDateTime);
                 break;
 
             case MODIFY:
@@ -73,7 +71,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
                         generatedLastModifiedAttribute = new RpslAttribute(AttributeType.LAST_MODIFIED, originalObject.getValueForAttribute(AttributeType.LAST_MODIFIED));
                     }
                 } else {
-                    generatedLastModifiedAttribute = new RpslAttribute(AttributeType.LAST_MODIFIED, nowString);
+                    generatedLastModifiedAttribute = new RpslAttribute(AttributeType.LAST_MODIFIED, currentDateTime);
                 }
                 break;
 
@@ -97,7 +95,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
 
     }
 
-    private void warnAndAdd(final Update update, final UpdateContext updateContext, final RpslObjectBuilder builder, final RpslObject updatedObject, final AttributeType attributeType, final RpslAttribute generatedAttribute, final boolean addWarningsFlag) {
+    private void warnAndAdd(final Update update, final UpdateContext updateContext, final RpslObjectBuilder builder, final RpslObject updatedObject, final AttributeType attributeType, @Nullable final RpslAttribute generatedAttribute, final boolean addWarningsFlag) {
         builder.removeAttributeType(attributeType);
         if (generatedAttribute != null) {
             builder.addAttributeSorted(generatedAttribute);
