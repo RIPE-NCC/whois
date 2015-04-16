@@ -1,4 +1,5 @@
 package net.ripe.db.whois.spec.update
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -511,7 +512,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        auto-1
                 auth:        AuTo-2
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 password:    owner
@@ -585,7 +585,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        aUtO-1
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 password:    owner
@@ -630,7 +629,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$bnGNJ2PC\$4r38DENnw07.9ktKP//Kf1  #test2
                 auth:        aUtO-2
                 mnt-by:      TST-MNT2
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 
@@ -855,7 +853,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        auto-1
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 
@@ -938,7 +935,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        auto-2
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 
@@ -1147,7 +1143,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 
@@ -1463,7 +1458,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        auto-3
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 
@@ -1512,7 +1506,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        auto-3
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 
@@ -2345,6 +2338,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT person FP1-TEST", "person", "First Person")
     }
 
+    @Ignore("update databaseHelper too after the created/last-modified switch has been implemented")
     def "modify key-cert with single key, wrong generated values"() {
       expect:
         queryObject("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0")
@@ -2654,11 +2648,12 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT key-cert X509-99", "key-cert", "X509-99")
     }
 
-    @Ignore // TODO: [ES]
+    // GitHub issue #275
     def "#275 delete keycert object doesn't match version in database"() {
       given:
         syncUpdate(getTransient("PGPKEY-F6A10C2D") + "password: lir")
         databaseHelper.whoisTemplate.update("UPDATE last SET object = ? WHERE pkey = ?", getTransient("PGPKEY-F6A10C2D"), "PGPKEY-F6A10C2D")
+
       when:
         def message = send new Message(
                 subject: "",
@@ -2717,7 +2712,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 certif:       =X7rJ
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       LIR-MNT
-                changed:      noreply@ripe.net 20020516
+                changed:      kju@fqdn.org 20020516
                 source:       TEST
                 delete:  reason
                 password: lir

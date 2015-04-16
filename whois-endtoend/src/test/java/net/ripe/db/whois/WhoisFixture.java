@@ -172,6 +172,10 @@ public class WhoisFixture {
         return mailSender.getMessage(to);
     }
 
+    public void clearAllMails()  {
+        mailSender.reset();
+    }
+
     public boolean anyMoreMessages() {
         return mailSender.anyMoreMessages();
     }

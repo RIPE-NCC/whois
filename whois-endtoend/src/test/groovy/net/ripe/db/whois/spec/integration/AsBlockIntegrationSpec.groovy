@@ -67,7 +67,6 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 notify:         john.smith@example.com
                 abuse-mailbox:  abuse@example.com
                 mnt-by:         RIPE-DBM-MNT
-                referral-by:    RIPE-DBM-MNT
                 changed:        john.smith@example.com 20051104
                 source:         TEST # Filtered
                 """,

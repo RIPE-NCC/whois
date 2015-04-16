@@ -21,7 +21,6 @@ public class RpslObjectFilterTest {
                 "auth:            MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\n" +
                 "remarks:         password: secret\n" +
                 "mnt-by:          DEV-MNT\n" +
-                "referral-by:     DEV-MNT\n" +
                 "changed:         BECHA@example.net 20101010\n" +
                 "source:          DEV\n"
         );

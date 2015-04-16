@@ -168,6 +168,9 @@ public class SyncUpdatesService {
         loggerContext.init(getRequestId(request.getRemoteAddress()));
 
         try {
+            InternalUpdatePerformer.logHttpHeaders(loggerContext, httpServletRequest);
+            InternalUpdatePerformer.logHttpUri(loggerContext, httpServletRequest);
+
             if (!sourceMatchesContext(request.getSource())) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Invalid source specified: " + request.getSource()).build();
             }
@@ -192,9 +195,6 @@ public class SyncUpdatesService {
             if (!request.hasParam(Command.DATA) && !request.isParam(Command.HELP)) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Invalid request").build();
             }
-
-            InternalUpdatePerformer.logHttpHeaders(loggerContext, httpServletRequest);
-            InternalUpdatePerformer.logHttpUri(loggerContext, httpServletRequest);
 
             loggerContext.log("msg-in.txt", new SyncUpdateLogCallback(request.toString()));
 

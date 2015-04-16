@@ -1,4 +1,6 @@
 package net.ripe.db.whois.spec.integration
+
+import net.ripe.db.whois.common.FormatHelper
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
@@ -15,7 +17,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: AP1-TEST
             mnt-by: UPD-MNT
-            referral-by: UPD-MNT
             upd-to: noreply@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -36,7 +37,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: AP1-TEST
             mnt-by:  RIPE-NCC-HM-MNT
-            referral-by: RIPE-NCC-HM-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$tnG/zrDw\$nps8tg76q4jgg5zg5o6os. # hm
             changed: dbtest@ripe.net 20120707
@@ -47,7 +47,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: AP1-TEST
             mnt-by:  RIPE-NCC-LEGACY-MNT
-            referral-by: RIPE-NCC-LEGACY-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
             changed: dbtest@ripe.net 20120707
@@ -700,23 +699,29 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS102/
         update =~ /Warning: "status:" attribute cannot be removed/
-        then:
+
+        when:
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
-        autnum.equals(RpslObject.parse("""\
-                        aut-num:        AS102
-                        as-name:        RS-2
-                        descr:          description
-                        admin-c:        AP1-TEST
-                        tech-c:         AP1-TEST
-                        status:         ASSIGNED
-                        mnt-by:         RIPE-NCC-HM-MNT
-                        changed:        noreply@ripe.net 20120101
-                        source:         TEST
-                        """.stripIndent()))
+
+        then:
+        autnum.equals(RpslObject.parse(
+                String.format(  "aut-num:        AS102\n" +
+                                "as-name:        RS-2\n" +
+                                "descr:          description\n" +
+                                "admin-c:        AP1-TEST\n" +
+                                "tech-c:         AP1-TEST\n" +
+                                "status:         ASSIGNED\n" +
+                                "mnt-by:         RIPE-NCC-HM-MNT\n" +
+                                "changed:        noreply@ripe.net 20120101\n" +
+                                "created:        %s\n" +
+                                "last-modified:  %s\n" +
+                                "source:         TEST", currentDateTime, currentDateTime)))
     }
 
     def "update autnum object, user maintainer, status cannot be removed"() {
         when:
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def create = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -730,20 +735,23 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         """.stripIndent())
         then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS100/
+
         then:
         def createdAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
-        createdAutnum.equals(RpslObject.parse("""\
-                        aut-num:        AS100
-                        as-name:        End-User
-                        descr:          description
-                        admin-c:        AP1-TEST
-                        tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
-                        status:         OTHER
-                        mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
-                        source:         TEST
-                        """.stripIndent()))
+        createdAutnum.equals(RpslObject.parse(String.format(
+                        "aut-num:        AS100\n" +
+                        "as-name:        End-User\n" +
+                        "descr:          description\n" +
+                        "admin-c:        AP1-TEST\n" +
+                        "tech-c:         AP1-TEST\n" +
+                        "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
+                        "status:         OTHER\n" +
+                        "mnt-by:         UPD-MNT\n" +
+                        "changed:        noreply@ripe.net 20120101\n" +
+                        "created:        %s\n" +
+                        "last-modified:  %s\n" +
+                        "source:         TEST", currentDateTime, currentDateTime)))
+
         when:
         def update = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
@@ -760,24 +768,29 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS100/
         update =~ /\*\*\*Warning: "status:" attribute cannot be removed/
+
         then:
         def updatedAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
-        updatedAutnum.equals(RpslObject.parse("""\
-                        aut-num:        AS100
-                        as-name:        End-User
-                        descr:          description
-                        admin-c:        AP1-TEST
-                        tech-c:         AP1-TEST
-                        remarks:        remarks
-                        status:         OTHER
-                        mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
-                        source:         TEST
-                        """.stripIndent()))
+        updatedAutnum.equals(RpslObject.parse(String.format(
+                "aut-num:        AS100\n" +
+                "as-name:        End-User\n" +
+                "descr:          description\n" +
+                "admin-c:        AP1-TEST\n" +
+                "tech-c:         AP1-TEST\n" +
+                "remarks:        remarks\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         UPD-MNT\n" +
+                "changed:        noreply@ripe.net 20120101\n" +
+                "created:        %s\n" +
+                "last-modified:  %s\n" +
+                "source:         TEST", currentDateTime, currentDateTime)))
     }
 
 
     def "update autnum object, user maintainer, moving remark is allowed"() {
+        given:
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+
         when:
         def create = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
@@ -792,20 +805,23 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         """.stripIndent())
         then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS100/
+
         then:
         def createdAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
-        createdAutnum.equals(RpslObject.parse("""\
-                        aut-num:        AS100
-                        as-name:        End-User
-                        descr:          description
-                        admin-c:        AP1-TEST
-                        tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
-                        status:         OTHER
-                        mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
-                        source:         TEST
-                        """.stripIndent()))
+        createdAutnum.equals(RpslObject.parse(String.format(
+                        "aut-num:        AS100\n" +
+                        "as-name:        End-User\n" +
+                        "descr:          description\n" +
+                        "admin-c:        AP1-TEST\n" +
+                        "tech-c:         AP1-TEST\n" +
+                        "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
+                        "status:         OTHER\n" +
+                        "mnt-by:         UPD-MNT\n" +
+                        "changed:        noreply@ripe.net 20120101\n" +
+                        "created:        %s\n" +
+                        "last-modified:  %s\n" +
+                        "source:         TEST", currentDateTime, currentDateTime)))
+
         when:
         def update = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
@@ -820,26 +836,31 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
+
         then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS100/
+
         then:
+
         def updatedAutnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
-        updatedAutnum.equals(RpslObject.parse("""\
-                        aut-num:        AS100
-                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
-                        as-name:        End-User
-                        descr:          description
-                        admin-c:        AP1-TEST
-                        tech-c:         AP1-TEST
-                        status:         OTHER
-                        mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
-                        source:         TEST
-                        """.stripIndent()))
+        updatedAutnum.equals(RpslObject.parse(String.format(
+                        "aut-num:        AS100\n" +
+                        "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
+                        "as-name:        End-User\n" +
+                        "descr:          description\n" +
+                        "admin-c:        AP1-TEST\n" +
+                        "tech-c:         AP1-TEST\n" +
+                        "status:         OTHER\n" +
+                        "mnt-by:         UPD-MNT\n" +
+                        "changed:        noreply@ripe.net 20120101\n" +
+                        "created:        %s\n" +
+                        "last-modified:  %s\n" +
+                        "source:         TEST", currentDateTime, currentDateTime)))
     }
 
     def "create aut-num object, rs maintainer, generate ASSIGNED status, generate remark"() {
         when:
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -854,24 +875,27 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         """.stripIndent())
         then:
         response =~ /SUCCESS/
+
         then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
-        autnum.equals(RpslObject.parse("""\
-                        aut-num:        AS102
-                        as-name:        RS-2
-                        descr:          description
-                        admin-c:        AP1-TEST
-                        tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
-                        status:         ASSIGNED
-                        mnt-by:         RIPE-NCC-HM-MNT
-                        changed:        noreply@ripe.net 20120101
-                        source:         TEST
-                        """.stripIndent()))
+        autnum.equals(RpslObject.parse(String.format(
+                        "aut-num:        AS102\n" +
+                        "as-name:        RS-2\n" +
+                        "descr:          description\n" +
+                        "admin-c:        AP1-TEST\n" +
+                        "tech-c:         AP1-TEST\n" +
+                        "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
+                        "status:         ASSIGNED\n" +
+                        "mnt-by:         RIPE-NCC-HM-MNT\n" +
+                        "changed:        noreply@ripe.net 20120101\n" +
+                        "created:        %s\n" +
+                        "last-modified:  %s\n" +
+                        "source:         TEST", currentDateTime, currentDateTime)))
     }
 
     def "create aut-num object, rs maintainer, generate ASSIGNED status, user-specified remark is moved beside status"() {
         when:
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -888,25 +912,28 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         """.stripIndent())
         then:
         response =~ /SUCCESS/
+
         then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
-        autnum.equals(RpslObject.parse("""\
-                        aut-num:        AS102
-                        as-name:        RS-2
-                        descr:          description
-                        remarks:        user remark
-                        admin-c:        AP1-TEST
-                        tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
-                        status:         ASSIGNED
-                        mnt-by:         RIPE-NCC-HM-MNT
-                        changed:        noreply@ripe.net 20120101
-                        source:         TEST
-                        """.stripIndent()))
+        autnum.equals(RpslObject.parse(String.format(
+                    "aut-num:        AS102\n" +
+                    "as-name:        RS-2\n" +
+                    "descr:          description\n" +
+                    "remarks:        user remark\n" +
+                    "admin-c:        AP1-TEST\n" +
+                    "tech-c:         AP1-TEST\n" +
+                    "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
+                    "status:         ASSIGNED\n" +
+                    "mnt-by:         RIPE-NCC-HM-MNT\n" +
+                    "changed:        noreply@ripe.net 20120101\n" +
+                    "created:        %s\n" +
+                    "last-modified:  %s\n" +
+                    "source:         TEST", currentDateTime, currentDateTime)))
     }
 
     def "create aut-num object, user maintainer, replace invalid status"() {
         when:
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -922,24 +949,28 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
         response =~ /SUCCESS/
+
         then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
-        autnum.equals(RpslObject.parse("""\
-                        aut-num:        AS100
-                        as-name:        End-User
-                        descr:          description
-                        admin-c:        AP1-TEST
-                        tech-c:         AP1-TEST
-                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
-                        status:         OTHER
-                        mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
-                        source:         TEST
-                        """.stripIndent()))
+        autnum.equals(RpslObject.parse(String.format(
+                        "aut-num:        AS100\n" +
+                        "as-name:        End-User\n" +
+                        "descr:          description\n" +
+                        "admin-c:        AP1-TEST\n" +
+                        "tech-c:         AP1-TEST\n" +
+                        "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
+                        "status:         OTHER\n" +
+                        "mnt-by:         UPD-MNT\n" +
+                        "changed:        noreply@ripe.net 20120101\n" +
+                        "created:        %s\n" +
+                        "last-modified:  %s\n" +
+                        "source:         TEST", currentDateTime, currentDateTime)))
+
     }
 
     def "create aut-num object, user maintainer, duplicate status"() {
         when:
+        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -953,22 +984,26 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         """.stripIndent())
+
         then:
         response =~ /SUCCESS/
+
         then:
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
-        autnum.equals(RpslObject.parse("""\
-                        aut-num:        AS100
-                        as-name:        End-User
-                        remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
-                        status:         OTHER
-                        descr:          description
-                        admin-c:        AP1-TEST
-                        tech-c:         AP1-TEST
-                        mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
-                        source:         TEST
-                        """.stripIndent()))
+        autnum.equals(RpslObject.parse(String.format(
+                        "aut-num:        AS100\n" +
+                        "as-name:        End-User\n" +
+                        "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
+                        "status:         OTHER\n" +
+                        "descr:          description\n" +
+                        "admin-c:        AP1-TEST\n" +
+                        "tech-c:         AP1-TEST\n" +
+                        "mnt-by:         UPD-MNT\n" +
+                        "changed:        noreply@ripe.net 20120101\n" +
+                        "created:        %s\n" +
+                        "last-modified:  %s\n" +
+                        "source:         TEST", currentDateTime, currentDateTime)))
+
     }
 
     // sponsoring org

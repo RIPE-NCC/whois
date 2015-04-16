@@ -84,7 +84,6 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "referral-by:   SSO-MNT\n" +
                 "changed:       noreply@ripe.net 20120801\n" +
                 "source:        TEST"));
     }
@@ -107,7 +106,7 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void inverse_lookup_sponsoring_org_from_untrusted_range_succeeds() {
+    public void inverse_lookup_sponsoring_org_from_trusted_range_succeeds() {
         ipRanges.setTrusted("127/8","::1");
         final String response = RestTest.target(getPort(), "whois/search?query-string=ORG-SPONSOR&inverse-attribute=sponsoring-org").request().get(String.class);
         assertThat(response, containsString("<attribute name=\"inetnum\" value=\"194.0.0.0 - 194.255.255.255\"/>"));

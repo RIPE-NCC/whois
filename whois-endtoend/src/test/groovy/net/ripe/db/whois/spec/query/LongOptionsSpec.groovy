@@ -484,6 +484,7 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
                                        "--persistent-connection"])
                               .get(1), "inetnum","192.168.0.0 - 192.169.255.255")
 
+// TODO
 //        "-rBG -T inetnum -k 192.168.200.0 - 192.168.200.255\n\n-rBG -T inetnum 192.168.0.0 - 192.169.255.255\n\n-k", "inetnum", "192.168.0.0 - 192.169.255.255")
 //        "-rBG -T inetnum --persistent-connection 192.168.200.0 - 192.168.200.255\n\n-rBG -T inetnum 192.168.0.0 - 192.169.255.255\n\n--persistent-connection", "inetnum", "192.168.0.0 - 192.169.255.255")
 

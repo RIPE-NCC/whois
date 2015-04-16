@@ -11,8 +11,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DummifierLegacyTest {
@@ -23,6 +28,8 @@ public class DummifierLegacyTest {
         final List<RpslAttribute> attributeList = Lists.newArrayList();
 
         attributeList.add(new RpslAttribute(AttributeType.getByName(type.getName()), pkey));
+        attributeList.add(new RpslAttribute(AttributeType.CREATED, "2001-02-04T17:00:00Z"));
+        attributeList.add(new RpslAttribute(AttributeType.LAST_MODIFIED, "2001-02-04T17:00:00Z"));
 
         switch (type) {
             case ROUTE:
@@ -53,11 +60,11 @@ public class DummifierLegacyTest {
             assertTrue(subject.isAllowed(2, object));
 
             if (objectType.equals(ObjectType.ROLE)) {
-                assertEquals(subject.dummify(1, object), DummifierLegacy.PLACEHOLDER_ROLE_OBJECT);
-                assertEquals(subject.dummify(2, object), DummifierLegacy.PLACEHOLDER_ROLE_OBJECT);
+                assertEquals(subject.dummify(1, object), DummifierLegacy.getPlaceholderRoleObject());
+                assertEquals(subject.dummify(2, object), DummifierLegacy.getPlaceholderRoleObject());
             } else {
-                assertEquals(subject.dummify(1, object), DummifierLegacy.PLACEHOLDER_PERSON_OBJECT);
-                assertEquals(subject.dummify(2, object), DummifierLegacy.PLACEHOLDER_PERSON_OBJECT);
+                assertEquals(subject.dummify(1, object), DummifierLegacy.getPlaceholderPersonObject());
+                assertEquals(subject.dummify(2, object), DummifierLegacy.getPlaceholderPersonObject());
             }
         }
     }
@@ -99,7 +106,7 @@ public class DummifierLegacyTest {
             attributes.add(attribute);
         }
 
-        assertThat(attributes, hasSize(1 + 2 * DummifierLegacy.PERSON_ROLE_REFERENCES.size()));
+        assertThat(attributes, hasSize(3 + 2 * DummifierLegacy.PERSON_ROLE_REFERENCES.size()));
 
         attributes.add(new RpslAttribute(AttributeType.SOURCE, "TEST"));
 
@@ -111,6 +118,8 @@ public class DummifierLegacyTest {
             assertThat(personRoleReference.toString(), rpslAttributes, hasSize(1));
             assertThat(rpslAttributes.get(0).getValue(), is(not(tempValue)));
         }
+
+        assertThat(dummifiedObject.findAttributes(AttributeType.CREATED, AttributeType.LAST_MODIFIED), hasSize(2));
     }
 
     @Test
@@ -118,6 +127,7 @@ public class DummifierLegacyTest {
         RpslObject dummifiedObject = subject.dummify(3, makeObject(ObjectType.ROUTE, "10/8", new RpslAttribute(AttributeType.SOURCE, "TEST")));
 
         assertThat(dummifiedObject.findAttributes(AttributeType.REMARKS), hasSize(7));
+        assertThat(dummifiedObject.findAttributes(AttributeType.CREATED, AttributeType.LAST_MODIFIED), hasSize(2));
     }
 
     @Test
@@ -128,7 +138,11 @@ public class DummifierLegacyTest {
 
             List<RpslAttribute> optionalAttributes = Lists.newArrayList();
             for (AttributeType attributeType : AttributeType.values()) {
-                if (!attributeType.equals(objectAttributeType)) {
+                if (!attributeType.equals(objectAttributeType)
+                        //we have already added created/last mod. in the make object method
+                        && attributeType != AttributeType.CREATED
+                        && attributeType != AttributeType.LAST_MODIFIED) {
+
                     final RpslAttribute rpslAttribute = new RpslAttribute(attributeType, "FOO");
                     optionalAttributes.add(rpslAttribute);
                 }
@@ -137,8 +151,9 @@ public class DummifierLegacyTest {
             final RpslObject rpslObject = makeObject(objectType, "FOO", optionalAttributes.toArray(new RpslAttribute[optionalAttributes.size()]));
             final RpslObject dummifiedObject = subject.dummify(3, rpslObject);
 
-            assertThat(dummifiedObject.getAttributes(), hasSize(ObjectTemplate.getTemplate(objectType).getMandatoryAttributes().size() + 1));
+            assertThat(dummifiedObject.getAttributes(), hasSize(ObjectTemplate.getTemplate(objectType).getMandatoryAttributes().size() + 3));
             assertThat(dummifiedObject.findAttributes(AttributeType.ABUSE_C), hasSize(1));
+            assertThat(dummifiedObject.findAttributes(AttributeType.CREATED, AttributeType.LAST_MODIFIED), hasSize(2));
         }
     }
 
@@ -169,6 +184,7 @@ public class DummifierLegacyTest {
                     assertThat(attribute.getValue(), is(not(tempValue)));
                 }
             }
+            assertThat(dummifiedObject.findAttributes(AttributeType.CREATED, AttributeType.LAST_MODIFIED), hasSize(2));
         }
     }
 
@@ -176,17 +192,25 @@ public class DummifierLegacyTest {
     public void allow_role_with_abuse_mailbox() {
         final RpslObject rpslObject = RpslObject.parse(1, "" +
                 "role:          Test Role\n" +
+                "created:       2001-02-04T17:00:00Z\n" +
+                "last-modified: 2001-02-04T17:00:00Z\n" +
                 "nic-hdl:       TR1-TEST\n" +
                 "abuse-mailbox: abuse@mailbox.com\n" +
                 "source:        TEST");
 
+        final RpslObject dummifiedObject = subject.dummify(3, rpslObject);
+
         assertTrue(subject.isAllowed(3, rpslObject));
+        assertThat(dummifiedObject.findAttributes(AttributeType.CREATED, AttributeType.LAST_MODIFIED), hasSize(2));
+        assertThat(dummifiedObject.getValueForAttribute(AttributeType.ROLE).toString(), is("Test Role"));
     }
 
     @Test
     public void dummify_role_with_abuse_mailbox() {
         final RpslObject rpslObject = RpslObject.parse(1, "" +
                 "role:          Test Role\n" +
+                "created:       2001-02-04T17:00:00Z\n" +
+                "last-modified: 2001-02-04T17:00:00Z\n" +
                 "nic-hdl:       TR1-TEST\n" +
                 "abuse-mailbox: abuse@mailbox.com\n" +
                 "source:        TEST");
@@ -195,6 +219,8 @@ public class DummifierLegacyTest {
 
         assertThat(dummified.toString(), is("" +
                 "role:           Test Role\n" +
+                "created:        2001-02-04T17:00:00Z\n" +
+                "last-modified:  2001-02-04T17:00:00Z\n" +
                 "nic-hdl:        TR1-TEST\n" +
                 "abuse-mailbox:  abuse@mailbox.com\n" +
                 "source:         TEST\n" +
@@ -221,13 +247,16 @@ public class DummifierLegacyTest {
                 "auth: SSO 1234-5678-9abc-dead-beef\n" +
                 "notify: guy@ripe.net\n" +
                 "mnt-by: AARDVARK-MNT\n" +
-                "referral-by: AARDVARK-MNT\n" +
                 "changed: guy@ripe.net 20120510\n" +
+                "created: 2001-02-04T17:00:00Z\n" +
+                "last-modified: 2001-02-04T17:00:00Z\n" +
                 "source: RIPE # Filtered");
 
         final RpslObject dummified = subject.dummify(3, mntner);
 
         RpslAttribute expectedDummifiedAuth = new RpslAttribute("auth", "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.");
         assertThat(dummified.findAttribute(AttributeType.AUTH), is(expectedDummifiedAuth));
+        assertThat(dummified.getValueForAttribute(AttributeType.CREATED).toString(), is("2001-02-04T17:00:00Z"));
+        assertThat(dummified.getValueForAttribute(AttributeType.LAST_MODIFIED).toString(), is("2001-02-04T17:00:00Z"));
     }
 }

@@ -103,21 +103,21 @@ public final class PgpSignedMessage {
             // write out signed section using the local line separator.
             // note: trailing white space needs to be removed from the end of
             // each line RFC 4880 Section 7.1
-            ByteArrayOutputStream lineOut = new ByteArrayOutputStream();
+            final ByteArrayOutputStream lineOut = new ByteArrayOutputStream();
             int lookAhead = readInputLine(lineOut, in);
-            byte[] lineSep = getLineSeparator();
+            final byte[] lineSeparator = getLineSeparator();
 
             if (lookAhead != -1 && in.isClearText()) {
                 byte[] line = lineOut.toByteArray();
                 signedSectionOut.write(line, 0, getLengthWithoutSeparatorOrTrailingWhitespace(line));
-                signedSectionOut.write(lineSep);
+                signedSectionOut.write(lineSeparator);
 
                 while (lookAhead != -1 && in.isClearText()) {
                     lookAhead = readInputLine(lineOut, lookAhead, in);
 
                     line = lineOut.toByteArray();
                     signedSectionOut.write(line, 0, getLengthWithoutSeparatorOrTrailingWhitespace(line));
-                    signedSectionOut.write(lineSep);
+                    signedSectionOut.write(lineSeparator);
                 }
             }
 
@@ -135,7 +135,7 @@ public final class PgpSignedMessage {
 
     public boolean verify(final PGPPublicKey publicKey) {
         try {
-            PGPSignature pgpSignature = getPgpSignature();
+            final PGPSignature pgpSignature = getPgpSignature();
             if (pgpSignature.getKeyAlgorithm() != publicKey.getAlgorithm()) {
                 return false;
             }
@@ -180,9 +180,9 @@ public final class PgpSignedMessage {
     }
 
     public String getKeyId() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
 
-        byte[] keyId = ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(getPgpSignature().getKeyID()).array();
+        final byte[] keyId = ByteBuffer.allocate(Long.SIZE / Byte.SIZE).putLong(getPgpSignature().getKeyID()).array();
         for (int n = keyId.length - 4; n < keyId.length; n++) {
             builder.append(String.format("%02X", keyId[n]));
         }

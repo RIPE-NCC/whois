@@ -84,11 +84,7 @@ public class IndexTemplate implements Closeable {
             indexWriter.commit();
 
             readerManager.maybeRefresh();
-        } catch (IOException e) {
-            LOGGER.error("Unexpected", e);
-            rollback();
-            throw e;
-        } catch (RuntimeException e) {
+        } catch (IOException | RuntimeException e) {
             LOGGER.error("Unexpected", e);
             rollback();
             throw e;
@@ -115,7 +111,7 @@ public class IndexTemplate implements Closeable {
         taxonomyWriter = new DirectoryTaxonomyWriter(taxonomy);
         addFacetCategories(taxonomyWriter);
 
-        config = new IndexWriterConfig(Version.LUCENE_4_10_0, config.getAnalyzer());
+        config = new IndexWriterConfig(Version.LUCENE_4_10_3, config.getAnalyzer());
         indexWriter = new IndexWriter(index, config);
 
         taxonomyWriter.commit();

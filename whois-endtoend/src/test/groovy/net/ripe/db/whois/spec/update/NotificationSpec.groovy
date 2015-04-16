@@ -19,7 +19,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 upd-to:      updto_test@ripe.net
                 auth:        MD5-PW \$1\$Bsso7xK2\$u1I7XvRIJyMQlF2rYWbYx.  #modify
                 mnt-by:      MOD-MNT
-                referral-by: MOD-MNT
                 changed:     dbtest@ripe.net 20010601
                 source:      TEST
                 """,
@@ -31,7 +30,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 notify:      notify_test@ripe.net
                 auth:        MD5-PW \$1\$Bsso7xK2\$u1I7XvRIJyMQlF2rYWbYx.  #modify
                 mnt-by:      MOD-MNT
-                referral-by: MOD-MNT
                 changed:     dbtest@ripe.net 20120901
                 source:      TEST
                 """,
@@ -43,7 +41,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 notify:      new_notify_test@ripe.net
                 auth:        MD5-PW \$1\$Bsso7xK2\$u1I7XvRIJyMQlF2rYWbYx.  #modify
                 mnt-by:      MOD-MNT
-                referral-by: MOD-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -54,7 +51,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 upd-to:      updto_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      OWNER-MNT
-                referral-by: DEL2-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -65,7 +61,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER2-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -76,7 +71,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$p4syt8vq\$AOwjgBvR4MA3o4ccMSMvh0  #test3
                 mnt-by:      OWNER2-MNT
-                referral-by: TST-MNT3
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -90,7 +84,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
                 mnt-by:      OWNER4-MNT
-                referral-by: TST-MNT5
                 changed:     dbtest@ripe.net 20130601
                 source:      TEST
                 """,
@@ -104,7 +97,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER3-MNT
                 mnt-by:      OWNER4-MNT
-                referral-by: TST-MNT6
                 changed:     dbtest@ripe.net 20120101
                 changed:     dbtest@ripe.net 20120901
                 source:      TEST
@@ -118,7 +110,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 notify:      notify_create@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: CREATE-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -1645,7 +1636,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 notify:      notify_create@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: CREATE-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 password: null

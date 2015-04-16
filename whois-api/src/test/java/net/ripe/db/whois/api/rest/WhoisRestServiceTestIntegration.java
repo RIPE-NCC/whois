@@ -1,10 +1,12 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Flag;
 import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.InverseAttributes;
@@ -24,6 +26,7 @@ import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
+import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
@@ -35,11 +38,14 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.update.mail.MailSenderStub;
+import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.uri.UriComponent;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -66,6 +72,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
@@ -109,7 +119,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "referral-by: OWNER-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 
@@ -120,7 +129,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "upd-to:      noreply@ripe.net\n" +
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "mnt-by:      PASSWORD-ONLY-MNT\n" +
-            "referral-by: PASSWORD-ONLY-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 
@@ -130,7 +138,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "admin-c:        TP1-TEST\n" +
             "auth:           SSO person@net.net\n" +
             "mnt-by:         SSO-ONLY-MNT\n" +
-            "referral-by:    SSO-ONLY-MNT\n" +
             "upd-to:         noreply@ripe.net\n" +
             "changed:        noreply@ripe.net 20120101\n" +
             "source:         TEST");
@@ -142,7 +149,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "auth:           SSO person@net.net\n" +
             "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "mnt-by:         SSO-PASSWORD-MNT\n" +
-            "referral-by:    SSO-PASSWORD-MNT\n" +
             "upd-to:         noreply@ripe.net\n" +
             "changed:        noreply@ripe.net 20120101\n" +
             "source:         TEST");
@@ -181,6 +187,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private MailSenderStub mailSenderStub;
+    @Autowired private TestDateTimeProvider testDateTimeProvider;
 
     @Before
     public void setup() {
@@ -190,6 +197,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.updateObject(TEST_PERSON);
         databaseHelper.updateObject(TEST_ROLE);
         maintenanceMode.set("FULL,FULL");
+        testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
     }
 
     // lookup
@@ -227,7 +235,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "auth:           MD5-PW\n" +
                 "auth:           SSO\n" +
                 "mnt-by:         OWNER-MNT\n" +
-                "referral-by:    OWNER-MNT\n" +
                 "source:         TEST")));
     }
 
@@ -381,7 +388,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "referral-by: OWNER-MNT\n" +
             "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 
@@ -570,7 +576,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "auth:           SSO test@ripe.net\n" +
                 "mnt-by:         OWNER-MNT\n" +
-                "referral-by:    OWNER-MNT\n" +
                 "changed:        asd@as.com\n" +
                 "source:         TEST");
 
@@ -658,7 +663,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
                 new Attribute("auth", "SSO", "Filtered", null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
@@ -700,7 +704,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
                 new Attribute("auth", "SSO", "Filtered", null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
@@ -720,7 +723,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "SSO person@net.net", null, null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
                 new Attribute("source", "TEST", null, null, null)));
     }
@@ -739,7 +741,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "SSO person@net.net", null, null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
@@ -758,7 +759,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
                 new Attribute("auth", "SSO", "Filtered", null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)));
     }
 
@@ -778,7 +778,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "SSO person@net.net", null, null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
                 new Attribute("source", "TEST", null, null, null)));
     }
@@ -794,7 +793,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "auth:        MD5-PW $1$5XCg9Q1W$O7g9bgeJPkpea2CkBGnz/0 #test1\n" +
                 "auth:        MD5-PW $1$ZjlXZmWO$VKyuYp146Vx5b1.398zgH/ #test2\n" +
                 "mnt-by:      AUTH-MNT\n" +
-                "referral-by: AUTH-MNT\n" +
                 "changed:     dbtest@ripe.net 20120101\n" +
                 "source:      TEST");
 
@@ -812,7 +810,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW $1$5XCg9Q1W$O7g9bgeJPkpea2CkBGnz/0", "test1", null, null),
                 new Attribute("auth", "MD5-PW $1$ZjlXZmWO$VKyuYp146Vx5b1.398zgH/", "test2", null, null),
                 new Attribute("mnt-by", "AUTH-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/AUTH-MNT")),
-                new Attribute("referral-by", "AUTH-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/AUTH-MNT")),
                 new Attribute("changed", "dbtest@ripe.net 20120101", null, null, null),
                 new Attribute("source", "TEST", null, null, null)));
     }
@@ -857,7 +854,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "auth:           MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "auth:           SSO e58f4ee0-5d26-450f-a933-349ce1440fbc\n" +
                         "mnt-by:         MNT-TEST\n" +
-                        "referral-by:    MNT-TEST\n" +
                         "changed:        noreply@ripe.net 20140115\n" +
                         "source:         TEST"
         );
@@ -883,7 +879,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "upd-to:         noreply@ripe.net\n" +
                         "auth:           MD5-PW $1$GVXqt/5m$TaeN0iPr84mNoz8j3IDs//  # auth?auth \n" +
                         "mnt-by:         TEST-MNT\n" +
-                        "referral-by:    TEST-MNT\n" +
                         "changed:        noreply@ripe.net 20140303\n" +
                         "source:         TEST"
         ));
@@ -971,9 +966,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
                 "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
                 "        </attribute>\n" +
-                "        <attribute name=\"referral-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
-                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
-                "        </attribute>\n" +
                 "        <attribute name=\"source\" value=\"TEST\" comment=\"Filtered\"/>\n" +
                 "    </attributes>\n" +
                 "</object>\n" +
@@ -1042,14 +1034,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
                         "      },\n" +
                         "      \"name\" : \"mnt-by\",\n" +
-                        "      \"value\" : \"OWNER-MNT\",\n" +
-                        "      \"referenced-type\" : \"mntner\"\n" +
-                        "    }, {\n" +
-                        "      \"link\" : {\n" +
-                        "        \"type\" : \"locator\",\n" +
-                        "        \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                        "      },\n" +
-                        "      \"name\" : \"referral-by\",\n" +
                         "      \"value\" : \"OWNER-MNT\",\n" +
                         "      \"referenced-type\" : \"mntner\"\n" +
                         "    }, {\n" +
@@ -1271,7 +1255,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:      noreply@ripe.net\n" +
                 "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:      TEST-MNT\n" +
-                "referral-by: TEST-MNT\n" +
                 "changed:     dbtest@ripe.net 20120101\n" +
                 "source:      TEST");
 
@@ -1356,7 +1339,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
 
-        assertThat(object.getAttributes(), contains(
+        assertThat(object.getAttributes(), containsInAnyOrder(
                 new Attribute("person", "Pauleth Palthen"),
                 new Attribute("address", "Singel 258"),
                 new Attribute("phone", "+31-1234567890"),
@@ -1365,10 +1348,83 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("nic-hdl", "PP1-TEST"),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
                 new Attribute("remarks", "remark"),
+                new Attribute("created", "2001-02-04T17:00:00Z"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
+
+    @Test
+    public void create_concurrent() throws Exception {
+        final int numThreads = 10;
+        final AtomicInteger exceptions = new AtomicInteger();
+
+        final ExecutorService requestsWithInvalidSource = Executors.newFixedThreadPool(numThreads);
+        for (int thread = 0; thread < numThreads; thread++) {
+            requestsWithInvalidSource.submit(new Runnable() {
+                @Override public void run() {
+                    final RpslObject person = RpslObject.parse(
+                            "person:    Pauleth Palthen\n" +
+                            "address:   Singel 258\n" +
+                            "phone:     +31-1234567890\n" +
+                            "e-mail:    noreply@ripe.net\n" +
+                            "mnt-by:    OWNER-MNT\n" +
+                            "nic-hdl:   AUTO-1\n" +
+                            "changed:   noreply@ripe.net 20120101\n" +
+                            "remarks:   remark\n" +
+                            "source:    INVALID\n");
+
+                    try {
+                        RestTest.target(getPort(), "whois/INVALID/person?password=test")
+                                .request()
+                                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, person), MediaType.APPLICATION_XML), WhoisResources.class);
+                        fail();
+                    } catch (BadRequestException e) {
+                        // expected
+                        exceptions.incrementAndGet();
+                    }
+                }
+            });
+        }
+
+        requestsWithInvalidSource.shutdown();
+        requestsWithInvalidSource.awaitTermination(10, TimeUnit.SECONDS);
+        assertThat(exceptions.getAndSet(0), is(numThreads));
+
+        final ExecutorService createRequests = Executors.newFixedThreadPool(numThreads);
+        for (int thread = 0; thread < numThreads; thread++) {
+            createRequests.submit(new Runnable() {
+                @Override public void run() {
+                    final RpslObject person = RpslObject.parse(
+                            "person:    Pauleth Palthen\n" +
+                            "address:   Singel 258\n" +
+                            "phone:     +31-1234567890\n" +
+                            "e-mail:    noreply@ripe.net\n" +
+                            "mnt-by:    OWNER-MNT\n" +
+                            "nic-hdl:   AUTO-1\n" +
+                            "changed:   noreply@ripe.net 20120101\n" +
+                            "remarks:   remark\n" +
+                            "source:    TEST\n");
+
+                    try {
+                        RestTest.target(getPort(), "whois/test/person?password=test")
+                                .request()
+                                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, person), MediaType.APPLICATION_XML), WhoisResources.class);
+                        fail();
+                    } catch (Exception e) {
+                        // unexpected
+                        exceptions.incrementAndGet();
+                    }
+                }
+            });
+        }
+
+        createRequests.shutdown();
+        createRequests.awaitTermination(10, TimeUnit.SECONDS);
+        assertThat(exceptions.get(), is(0));
+    }
+
 
     @Test
     public void create_password_attribute_in_body() throws Exception {
@@ -1620,7 +1676,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:         noreply@ripe.net\n" +
                 "auth:           MD5-PW $1$GVXqt/5m$TaeN0iPr84mNoz8j3IDs//  # auth?auth \n" +
                 "mnt-by:         TEST-MNT\n" +
-                "referral-by:    TEST-MNT\n" +
                 "changed:        noreply@ripe.net 20140303\n" +
                 "source:         TEST"
         );
@@ -1691,7 +1746,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML_TYPE)
                 .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_JSON), String.class);
 
-        assertThat(response, is(String.format("" +
+        assertThat(response, is(String.format(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
                 "    <link xlink:type=\"locator\" xlink:href=\"http://localhost:%d/test/person\"/>\n" +
@@ -1713,6 +1768,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "                <attribute name=\"nic-hdl\" value=\"PP1-TEST\"/>\n" +
                 "                <attribute name=\"changed\" value=\"noreply@ripe.net 20120101\"/>\n" +
                 "                <attribute name=\"remarks\" value=\"remark\"/>\n" +
+                "                <attribute name=\"created\" value=\"2001-02-04T17:00:00Z\"/>\n" +
+                "                <attribute name=\"last-modified\" value=\"2001-02-04T17:00:00Z\"/>\n" +
                 "                <attribute name=\"source\" value=\"TEST\"/>\n" +
                 "            </attributes>\n" +
                 "        </object>\n" +
@@ -1779,6 +1836,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "        }, {\n" +
                 "          \"name\" : \"remarks\",\n" +
                 "          \"value\" : \"remark\"\n" +
+                "        }, {\n" +
+                "          \"name\" : \"created\",\n" +
+                "          \"value\" : \"2001-02-04T17:00:00Z\"\n" +
+                "        }, {\n" +
+                "          \"name\" : \"last-modified\",\n" +
+                "          \"value\" : \"2001-02-04T17:00:00Z\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"source\",\n" +
                 "          \"value\" : \"TEST\"\n" +
@@ -1891,7 +1954,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_non_ascii_characters_are_preserved() {
+    public void create_with_utf8_non_ascii_characters_are_preserved() {
         assertThat(RestTest.target(getPort(), "whois/test/person?password=test")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity("" +
@@ -1911,7 +1974,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
                         "        ] }\n" +
                         "    }] \n" +
-                        "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+                        "}}", new MediaType("application", "json", Charsets.UTF_8.displayName())), String.class), containsString("Flughafenstraße 109/a"));
 
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON)
@@ -1941,6 +2004,71 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        ] }\n" +
                         "    }] \n" +
                         "}}", MediaType.APPLICATION_JSON), String.class), containsString("Flughafenstraße 109/a"));
+    }
+
+    @Test
+    public void create_latin1_non_ascii_characters_encoded_in_latin1_fails() {
+        try {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity("" +
+                        "{ \"objects\": {\n" +
+                        "   \"object\": [ {\n" +
+                        "    \"source\": { \"id\": \"RIPE\" }, \n" +
+                        "    \"attributes\": {\n" +
+                        "       \"attribute\": [\n" +
+                        "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                        "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/a\" },\n" +
+                        "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                        "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                        "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                        "        { \"name\": \"changed\", \"value\": \"noreply@ripe.net\" },\n" +
+                        "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                        "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                        "        ] }\n" +
+                        "    }] \n" +
+                        "}}", new MediaType("application", "json", Charsets.ISO_8859_1.displayName())), String.class);
+
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().iterator().next().getText(),
+                    containsString("Invalid UTF-8 middle byte"));
+        }
+    }
+
+    @Test
+    public void create_dryRun() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dry-run=true")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(1));
+        assertThat(messages.get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
+        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.NOT_FOUND_404));
+    }
+
+    @Test
+    public void create_dryRun_queryparam_with_no_value() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dry-run")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(1));
+        assertThat(messages.get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
+        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.NOT_FOUND_404));
+    }
+
+    @Test
+    public void create_dryRun_equals_false() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dry-run=false")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(0));
+        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.OK_200));
     }
 
     @Test
@@ -2000,7 +2128,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2035,7 +2162,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2074,7 +2200,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2111,7 +2236,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2373,7 +2497,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2409,7 +2532,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2449,7 +2571,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2486,7 +2607,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -2510,6 +2630,18 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertFalse(mailSenderStub.anyMoreMessages());
     }
 
+    @Test
+    public void delete_dryrun() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&dry-run")
+                .request()
+                .delete(WhoisResources.class);
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(1));
+        assertThat(messages.get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
+        assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.OK_200));
+    }
+
     // update
 
     @Test
@@ -2517,7 +2649,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(PAULETH_PALTHEN);
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -2534,6 +2666,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("remarks", "updated"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
@@ -2604,7 +2737,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:      noreply@ripe.net\n" +
                 "auth:        MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/ # ' spaces '\n" +
                 "mnt-by:      OWNER2-MNT\n" +
-                "referral-by: OWNER2-MNT\n" +
                 "changed:     dbtest@ripe.net 20120101\n" +
                 "source:      TEST"));
 
@@ -2623,7 +2755,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "                <attribute name=\"auth\" value=\"MD5-PW $1$d9fKeTr2$NitG3QQZnA4z6zp1o.qmm/\"/>\n" +
                         "                <attribute name=\"remarks\" value=\"updated\"/>\n" +
                         "                <attribute name=\"mnt-by\" value=\"OWNER2-MNT\"/>\n" +
-                        "                <attribute name=\"referral-by\" value=\"OWNER2-MNT\"/>\n" +
                         "                <attribute name=\"changed\" value=\"dbtest@ripe.net 20120102\"/>\n" +
                         "                <attribute name=\"source\" value=\"TEST\"/>\n" +
                         "            </attributes>\n" +
@@ -2669,10 +2800,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            },\n" +
                 "            {\n" +
                 "              \"name\": \"mnt-by\",\n" +
-                "              \"value\": \"OWNER-MNT\"\n" +
-                "            },\n" +
-                "            {\n" +
-                "              \"name\": \"referral-by\",\n" +
                 "              \"value\": \"OWNER-MNT\"\n" +
                 "            },\n" +
                 "            {\n" +
@@ -2746,16 +2873,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "          \"value\" : \"OWNER-MNT\",\n" +
                 "          \"referenced-type\" : \"mntner\"\n" +
                 "        }, {\n" +
-                "          \"link\" : {\n" +
-                "            \"type\" : \"locator\",\n" +
-                "            \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                "          },\n" +
-                "          \"name\" : \"referral-by\",\n" +
-                "          \"value\" : \"OWNER-MNT\",\n" +
-                "          \"referenced-type\" : \"mntner\"\n" +
-                "        }, {\n" +
                 "          \"name\" : \"changed\",\n" +
                 "          \"value\" : \"dbtest@ripe.net 20120101\"\n" +
+                "        }, {\n" +
+                "          \"name\" : \"last-modified\",\n" +
+                "          \"value\" : \"2001-02-04T17:00:00Z\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"source\",\n" +
                 "          \"value\" : \"TEST\"\n" +
@@ -2936,7 +3058,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?override=agoston,zoh,reason")
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
@@ -2955,6 +3077,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("remarks", "updated"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("changed", "noreply@ripe.net 20120101"),
+                new Attribute("last-modified", "2001-02-04T17:00:00Z"),
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
@@ -2970,7 +3093,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -3008,7 +3130,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -3050,7 +3171,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -3089,7 +3209,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-nfy:       mnt-nfy@ripe.net\n" +
                         "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
                         "mnt-by:        TEST-MNT\n" +
-                        "referral-by:   TEST-MNT\n" +
                         "changed:       noreply@ripe.net 20140115\n" +
                         "source:        TEST"
         );
@@ -3152,7 +3271,86 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisObject.getAttributes().get(7).getValue(), is("        remark1 # comment1\n" +
                 "                remark2 # comment2\n" +
                 "                remark3 # comment3"));
-        assertThat(whoisObject.getAttributes().get(9).getValue(), is("         +30 123"));
+        assertThat(whoisObject.getAttributes().get(10).getValue(), is("         +30 123"));
+    }
+
+    @Test
+    public void update_dryrun() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(4, new RpslAttribute(AttributeType.REMARKS, "this_is_another_remark")).get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&dry-run")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(1));
+        assertThat(messages.get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
+
+        final String storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(String.class);
+        assertThat(storedObject, not(containsString("this_is_another_remark")));
+    }
+
+    @Test
+    public void use_override_to_skip_updating_last_modified() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
+
+        final DateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final DateTime newDateTime = oldDateTime.plusDays(10);
+        testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
+
+        final WhoisResources initialObject = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(4, new RpslAttribute(AttributeType.REMARKS, "this_is_another_remark")).get();
+
+        testDateTimeProvider.setTime(newDateTime.toLocalDateTime());
+
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("override", encode("dbint,dbint,{skip-last-modified=true}"))
+                        .request()
+                        .put(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final WhoisResources storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", "2001-02-14T17:00:00Z"))));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
+    }
+
+    @Test
+    public void use_override_explicit_not_skip_updating_last_modified() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("dbint", "dbint", ObjectType.PERSON));
+
+        final DateTime oldDateTime = testDateTimeProvider.getCurrentDateTimeUtc();
+        final DateTime newDateTime = oldDateTime.plusDays(10);
+        testDateTimeProvider.setTime(oldDateTime.toLocalDateTime());
+
+        final WhoisResources initialObject = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
+        assertThat(initialObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z")));
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).addAttribute(4, new RpslAttribute(AttributeType.REMARKS, "this_is_another_remark")).get();
+
+        testDateTimeProvider.setTime(newDateTime.toLocalDateTime());
+
+        RestTest.target(getPort(), "whois/test/person/PP1-TEST")
+                .queryParam("override", encode("dbint,dbint,{skip-last-modified=false}"))
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(DirtyClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final WhoisResources storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
+
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("last-modified", "2001-02-14T17:00:00Z")));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), not(hasItem(new Attribute("last-modified", "2001-02-04T17:00:00Z"))));
+        assertThat(storedObject.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("created", "2001-02-04T17:00:00Z")));
     }
 
     // versions
@@ -3994,7 +4192,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("auth", "MD5-PW", "Filtered", null, null),
                 new Attribute("auth", "SSO", "Filtered", null, null),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
-                new Attribute("referral-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
                 new Attribute("source", "TEST", "Filtered", null, null)
         ));
 

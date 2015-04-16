@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.handler;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.transform.TimestampFilterFunction;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.mail.MailGateway;
@@ -25,6 +26,7 @@ public class UpdateNotifierTest {
     @Mock ResponseFactory responseFactory;
     @Mock MailGateway mailGateway;
     @Mock ResponseMessage responseMessage;
+    @Mock TimestampFilterFunction timestampFilter;
 
     @InjectMocks UpdateNotifier subject;
 
@@ -59,7 +61,6 @@ public class UpdateNotifierTest {
                 "mnt-nfy: mntnotify2@me.com\n" +
                 "notify: notify1@me.com\n" +
                 "notify: notify2@me.com\n" +
-                "referral-by: ADMIN-MNT\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed: dbtest@ripe.net 20120707\n" +
@@ -88,7 +89,6 @@ public class UpdateNotifierTest {
                 "mnt-nfy: mntnotify1@me.com\n" +
                 "mnt-nfy: mntnotify2@me.com\n" +
                 "notify: notifies us <mailto:notify@me.com>\n" +
-                "referral-by: ADMIN-MNT\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "changed: dbtest@ripe.net 20120707\n" +

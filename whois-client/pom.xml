@@ -4,12 +4,12 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.78-SNAPSHOT</version>
+        <version>1.80-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>whois-client</artifactId>
-    <version>1.78-SNAPSHOT</version>
+    <version>1.80-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <!-- TODO: [AH] minimize the amount of dependencies in whois-client -->
@@ -100,6 +100,19 @@
             <groupId>de.jflex</groupId>
             <artifactId>jflex</artifactId>
         </dependency>
+
+        <!-- AspectJ -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
     <build>
         <resources>

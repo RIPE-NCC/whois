@@ -22,6 +22,7 @@ import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
+import net.ripe.db.whois.common.rpsl.transform.TimestampFilterFunction;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,14 +44,15 @@ public class VersionQueryExecutor implements QueryExecutor {
 
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
-
+    private final TimestampFilterFunction timestampFilterFunction;
     protected final VersionDao versionDao;
     protected final BasicSourceContext sourceContext;
 
     @Autowired
-    public VersionQueryExecutor(final BasicSourceContext sourceContext,  @Qualifier("jdbcVersionDao") final VersionDao versionDao) {
-        this.versionDao = versionDao;
+    public VersionQueryExecutor(final BasicSourceContext sourceContext, @Qualifier("jdbcVersionDao") final VersionDao versionDao, final TimestampFilterFunction timestampFilterFunction) {
         this.sourceContext = sourceContext;
+        this.versionDao = versionDao;
+        this.timestampFilterFunction = timestampFilterFunction;
     }
 
     @Override
@@ -77,7 +79,7 @@ public class VersionQueryExecutor implements QueryExecutor {
             @Override
             public ResponseObject apply(final ResponseObject input) {
                 if (input instanceof RpslObject) {
-                    ResponseObject filtered = FILTER_EMAIL_FUNCTION.apply(FILTER_AUTH_FUNCTION.apply((RpslObject) input));
+                    ResponseObject filtered = filter((RpslObject) input);
                     if (query.isObjectVersion()) {
                         filtered = new VersionWithRpslResponseObject((RpslObject) filtered, query.getObjectVersion());
                     }
@@ -225,8 +227,8 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private RpslObject filter(final RpslObject rpslObject) {
-        return FILTER_AUTH_FUNCTION.apply(
-                FILTER_EMAIL_FUNCTION.apply(rpslObject));
+        return (RpslObject)timestampFilterFunction.apply(FILTER_AUTH_FUNCTION.apply(
+                FILTER_EMAIL_FUNCTION.apply(rpslObject)));
     }
 
 }

@@ -20,7 +20,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: TEST-MNT
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT
-                    referral-by: TEST-MNT
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     source: TEST
@@ -30,7 +29,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:   description
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-HM-MNT
-                    referral-by: RIPE-NCC-HM-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
                     changed: dbtest@ripe.net 20120707
@@ -40,7 +38,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: OTHER-MNT
                     admin-c: TEST-PN
                     mnt-by: OTHER-MNT
-                    referral-by: OTHER-MNT
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$bdQftquX\$S10GZRVq2SNG9SWmMHliI. # otherpassword
                     source: TEST
@@ -50,7 +47,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:   description
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-END-MNT
-                    referral-by: RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     changed: dbtest@ripe.net 20120707
@@ -460,12 +456,12 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /Error:   "assignment-size:" value cannot be changed/
     }
 
-    def "modify, status ASSIGNED ANYCAST needs endusermntner auth for changing org, 1st descr, and remove mnt-lower"() {
+    def "modify, status ASSIGNED ANYCAST needs endusermntner auth for changing org, and remove mnt-lower"() {
       when:
         def update = syncUpdate(new SyncUpdate(data: """\
                                         inet6num:  2221::/64
                                         netname: RIPE-NCC
-                                        descr: other descr
+                                        descr: some descr
                                         country: DK
                                         admin-c: TEST-PN
                                         tech-c: TEST-PN
@@ -479,7 +475,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                     """.stripIndent()))
       then:
         update =~ /FAIL/
-//        update =~ /Error:   Changing first "DESCR:" value requires administrative authorisation/
         update =~ /Error:   Changing "mnt-lower:" value requires administrative authorisation/
     }
 

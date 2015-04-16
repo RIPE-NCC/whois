@@ -28,6 +28,10 @@ public class SponsoringOrgAttributeGenerator extends AttributeGenerator {
         final boolean authByRS = updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER);
         final boolean isOverride = updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER);
 
+        if(updatedObject.findAttributes(AttributeType.SPONSORING_ORG).size() > 1) {
+            updateContext.addMessage(update, ValidationMessages.tooManyAttributesOfType(AttributeType.SPONSORING_ORG));
+        }
+
         if (!(authByRS || isOverride) && sponsoringOrgWasRemoved(originalObject, updatedObject)) {
             updateContext.addMessage(update, ValidationMessages.attributeCanBeRemovedOnlyByRipe(AttributeType.SPONSORING_ORG));
             return cleanupAttributeType(update, updateContext, updatedObject, AttributeType.SPONSORING_ORG, originalObject.getValueForAttribute(SPONSORING_ORG).toString());

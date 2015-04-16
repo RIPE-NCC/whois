@@ -69,7 +69,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "upd-to:      noreply@ripe.net\n" +
                     "auth:        MD5-PW $1$fyALLXZB$V5Cht4.DAIM3vi64EpC0w/  #owner\n" +
                     "mnt-by:      OWNER-MNT\n" +
-                    "referral-by: OWNER-MNT\n" +
                     "changed:     dbtest@ripe.net 20120101\n" +
                     "source:      TEST"))
 
@@ -82,7 +81,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "notify:      notify_hm@ripe.net\n" +
                     "auth:        MD5-PW $1$mV2gSZtj$1oVwjZr0ecFZQHsNbw2Ss.  #hm\n" +
                     "mnt-by:      RIPE-NCC-HM-MNT\n" +
-                    "referral-by: RIPE-NCC-HM-MNT\n" +
                     "changed:     dbtest@ripe.net\n" +
                     "source:      TEST"))
 
@@ -93,7 +91,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "upd-to:      updto_lir@ripe.net\n" +
                     "auth:        MD5-PW $1$4qnKkEY3$9NduUoRMNiBbAX9QEDMkh1  #end\n" +
                     "mnt-by:      END-USER-MNT\n" +
-                    "referral-by: END-USER-MNT\n" +
                     "changed:     dbtest@ripe.net 20120101\n" +
                     "source:      TEST"))
 
@@ -665,7 +662,7 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
             crowdClient.logout(USER1);
         }
 
-        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_0/000.audit.xml.gz"));
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_981475200000/000.audit.xml.gz"));
         final Iterable<String> linesContainingPassword = new IterableTransformer<String>(Splitter.on('\n').split(audit)) {
             @Override
             public void apply(String input, Deque<String> result) {
@@ -712,7 +709,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                 "mnt-nfy:     mntnfy_{0}@ripe.net\n" +
                 "notify:      notify_{0}@ripe.net\n" +
                 "mnt-by:      {0}-MNT\n" +
-                "referral-by: {0}-MNT\n" +
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST", pkey), attributes);
     }

@@ -45,7 +45,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "upd-to:        noreply@ripe.net\n" +
             "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "mnt-by:        OWNER-MNT\n" +
-            "referral-by:   OWNER-MNT\n" +
             "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
@@ -65,7 +64,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "upd-to:        noreply@ripe.net\n" +
             "auth:          MD5-PW $1$1ZnhrEYU$h8QUAsDPLZYOYVjm3uGQr1 #secondmnt\n" +
             "mnt-by:        OWNER-MNT\n" +
-            "referral-by:   OWNER-MNT\n" +
             "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
@@ -177,7 +175,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "auth:          SSO random@ripe.net\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "referral-by:   SSO-MNT\n" +
                 "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST"));
 
@@ -199,7 +196,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "referral-by:   SSO-MNT\n" +
                 "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST"));
 
@@ -220,7 +216,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-XX-MNT\n" +
-                "referral-by:   SSO-XX-MNT\n" +
                 "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST");
 
@@ -257,7 +252,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "auth:          MD5-PW $1$L9a6Y39t$wuu.ykzgp596KK56tpJm31 #thirdmnt\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "mnt-by:        SECOND-MNT\n" +
-                "referral-by:   OWNER-MNT\n" +
                 "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST");
 
@@ -280,7 +274,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
                 "mnt-by:        AA1-MNT\n" +
-                "referral-by:   AA1-MNT\n" +
                 "changed:       noreply@ripe.net\n" +
                 "source:        TEST");
 
@@ -633,7 +626,8 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .addParam("password", "test")
                 .create(person);
 
-        assertThat(created, is(person));
+        final RpslObject forComparison = new RpslObjectBuilder(person).remove(6).get();
+        assertThat(created.toString(), containsString(forComparison.toString()));
     }
 
     @Test

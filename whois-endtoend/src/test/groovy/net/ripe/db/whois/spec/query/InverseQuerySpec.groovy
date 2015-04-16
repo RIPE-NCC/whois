@@ -45,7 +45,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-nfy:     mntnfy_inverse@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      BY-MNT
-                referral-by: BY-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -58,7 +57,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 notify:      notify_lower@ripe.net
                 auth:        MD5-PW \$1\$dYNAtacz\$p4AOgwz3Igu5CiCVzs4Hz.  #lower
                 mnt-by:      LOWER-MNT
-                referral-by: LOWER-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -71,7 +69,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 notify:      notify_routes@ripe.net
                 auth:        MD5-PW \$1\$bCCnYJ3M\$uAVVUpzdGA9TOecv9L.KD/  #routes
                 mnt-by:      ROUTES-MNT
-                referral-by: ROUTES-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -84,7 +81,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 notify:      notify_domains@ripe.net
                 auth:        MD5-PW \$1\$anTWxMgQ\$8aBWq5u5ZFHLA5aeZsSxG0  #domains
                 mnt-by:      DOMAINS-MNT
-                referral-by: DOMAINS-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -96,7 +92,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-nfy:     mntnfy_inverse@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      REF-MNT
-                referral-by: REF-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,
@@ -108,7 +103,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-nfy:     dbtest@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      MBRS-MNT
-                referral-by: MBRS-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
                 """,

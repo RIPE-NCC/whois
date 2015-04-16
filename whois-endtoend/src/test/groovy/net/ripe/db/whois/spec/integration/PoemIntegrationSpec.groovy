@@ -14,7 +14,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: TEST-RIPE
             mnt-by: UPD-MNT
-            referral-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -25,7 +24,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: TEST-RIPE
             mnt-by: LIM-MNT
-            referral-by: LIM-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707

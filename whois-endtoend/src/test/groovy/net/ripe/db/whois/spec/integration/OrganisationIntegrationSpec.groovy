@@ -1,8 +1,6 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
@@ -15,7 +13,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  TST-MNT
-            referral-by: TST-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -26,7 +23,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  TST-MNT2
-            referral-by: TST-MNT2
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \\\$1\\\$fU9ZMQN9\\\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -37,7 +33,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  RIPE-NCC-HM-MNT
-            referral-by: RIPE-NCC-HM-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -131,7 +126,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
     }
 
-    def "illegal character in key"() {
+    def "blank line in organisation object is converted to a continuation character"() {
         def org = new SyncUpdate(data:
             "organisation: AUTO-1\n" +
             "org-name:     Ripe NCC organisation\n" +

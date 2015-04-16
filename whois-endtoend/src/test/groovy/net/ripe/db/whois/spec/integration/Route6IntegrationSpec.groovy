@@ -3,6 +3,7 @@ package net.ripe.db.whois.spec.integration
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class Route6IntegrationSpec extends BaseWhoisSourceSpec {
@@ -21,7 +22,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: TEST-MNT
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT
-                    referral-by: TEST-MNT
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     source: TEST
@@ -30,7 +30,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: TEST-MNT2
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT2
-                    referral-by: TEST-MNT2
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$5aMDZg3w\$zL59TnpAszf6Ft.zs148X0 # update2
                     source: TEST
@@ -39,7 +38,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: ROUTES-MNT
                     admin-c: TEST-PN
                     mnt-by: ROUTES-MNT
-                    referral-by: ROUTES-MNT
                     upd-to: dbtest@ripe.net
                     auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
                     source: TEST
@@ -48,7 +46,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: LOWER-MNT
                     admin-c: TEST-PN
                     mnt-by: LOWER-MNT
-                    referral-by: LOWER-MNT
                     upd-to: dbtest@ripe.net
                     auth: MD5-PW \$1\$bdQftquX\$S10GZRVq2SNG9SWmMHliI. # otherpassword
                     source: TEST

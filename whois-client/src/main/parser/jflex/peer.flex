@@ -14,7 +14,9 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
 
 %%
 
+%public
 %class PeerLexer
+%implements net.ripe.db.whois.common.rpsl.AttributeLexer
 
 %byaccj
 
@@ -35,6 +37,13 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
         this(r);
         this.yyparser = yyparser;
     }
+
+    /* assign value associated with current token to the external parser variable yylval. */
+    private void storeTokenValue() {
+        if ((this.yyparser != null) && (this.yyparser.yylval != null)) {
+            yyparser.yylval.sval = yytext();
+        }
+    }
 %}
 
 /* macro definitions */
@@ -45,7 +54,6 @@ DNAME          = [a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?
 PRNGNAME       = PRNG-[a-zA-Z0-9_-]*[a-zA-Z0-9]
 RTRSNAME       = RTRS-[a-zA-Z0-9_-]*[a-zA-Z0-9]
 ASNO           = AS([0-9]|[1-9][0-9]{1,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]|429496729[0-5])
-ASNAME         = AS-[a-zA-Z0-9_-]*[a-zA-Z0-9]
 
 %%
 
@@ -97,7 +105,7 @@ BGP4 {
 
 {DNAME} {
     ParserHelper.validateDomainNameLabel(yytext());
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return PeerParser.TKN_DNS;
 }
 

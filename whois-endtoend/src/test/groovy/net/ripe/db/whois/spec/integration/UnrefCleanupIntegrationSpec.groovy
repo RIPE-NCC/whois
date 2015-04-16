@@ -18,7 +18,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: TEST-RIPE
             mnt-by: UPD-MNT
-            referral-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -29,7 +28,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: TEST-RIPE
             mnt-by: ADMIN-MNT
-            referral-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -52,7 +50,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "cleanup none"() {
       when:
-        setTime(new LocalDateTime().plusDays(100))
+        setTime(LocalDateTime.now().plusDays(100))
         unrefCleanup()
 
       then:
@@ -114,7 +112,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         objectExists(ObjectType.PERSON, "UNRF-RIPE")
 
       when:
-        setTime(new LocalDateTime().plusDays(10))
+        setTime(LocalDateTime.now().plusDays(10))
         unrefCleanup()
 
       then:
@@ -124,7 +122,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         tags.contains(new Tag(CIString.ciString("unref"), rpslObjectDao.findByKey(ObjectType.PERSON, "UNRF-RIPE").objectId, "80"))
 
       when:
-        setTime(new LocalDateTime().plusDays(20))
+        setTime(LocalDateTime.now().plusDays(20))
         unrefCleanup()
 
       then:
@@ -134,7 +132,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         tags2.contains(new Tag(CIString.ciString("unref"), rpslObjectDao.findByKey(ObjectType.PERSON, "UNRF-RIPE").objectId, "70"))
 
       when:
-        setTime(new LocalDateTime().plusDays(100))
+        setTime(LocalDateTime.now().plusDays(100))
         unrefCleanup()
 
       then:
@@ -162,7 +160,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         objectExists(ObjectType.PERSON, "UNRF-RIPE")
 
       when:
-        setTime(new LocalDateTime().plusDays(100))
+        setTime(LocalDateTime.now().plusDays(100))
         unrefCleanup()
 
       then:
@@ -182,7 +180,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: TEST-RIPE
             mnt-by: UNREF-MNT
-            referral-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             changed: dbtest@ripe.net 20120707
@@ -195,7 +192,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         objectExists(ObjectType.MNTNER, "UNREF-MNT")
 
       when:
-        setTime(new LocalDateTime().plusDays(100))
+        setTime(LocalDateTime.now().plusDays(100))
         unrefCleanup()
 
       then:
@@ -246,7 +243,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         tags.contains(new Tag(CIString.ciString("unref"), rpslObjectDao.findByKey(ObjectType.ROLE, "RL-TEST").objectId, "90"))
 
       when:
-        setTime(new LocalDateTime().plusDays(100))
+        setTime(LocalDateTime.now().plusDays(100))
         unrefCleanup()
 
       then:
@@ -255,7 +252,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         tagsDao.getTagsOfType(CIString.ciString("unref")).isEmpty()
 
       when:
-        setTime(new LocalDateTime().plusDays(101))
+        setTime(LocalDateTime.now().plusDays(101))
         unrefCleanup()
 
       then:
@@ -295,7 +292,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         objectExists(ObjectType.PERSON, "REFR-RIPE")
 
       when:
-        setTime(new LocalDateTime().plusDays(100))
+        setTime(LocalDateTime.now().plusDays(100))
         unrefCleanup()
 
       then:
@@ -304,7 +301,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         tagsDao.getTagsOfType(CIString.ciString("unref")).isEmpty()
 
       when:
-        setTime(new LocalDateTime())
+        setTime(LocalDateTime.now())
         def deleteResponse = syncUpdate(new SyncUpdate(data: """\
             as-set:         AS-TEST
             descr:          test as-set
@@ -325,7 +322,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         objectExists(ObjectType.PERSON, "REFR-RIPE")
 
       when:
-        setTime(new LocalDateTime().plusDays(50))
+        setTime(LocalDateTime.now().plusDays(50))
         unrefCleanup()
 
       then:
@@ -335,7 +332,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         tags[0].value == "40"
 
       when:
-        setTime(new LocalDateTime().plusDays(100))
+        setTime(LocalDateTime.now().plusDays(100))
         unrefCleanup()
 
       then:
@@ -345,7 +342,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "do not cleanup person referenced by as-set deleted 10 days ago"() {
       given:
-        def now = new LocalDateTime()
+        def now = LocalDateTime.now()
 
       when:
         syncUpdate(new SyncUpdate(data: """\
@@ -492,7 +489,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
         objectExists(ObjectType.KEY_CERT, "PGPKEY-28F6CD6C")
 
       when:
-        setTime(new LocalDateTime().plusDays(100))
+        setTime(LocalDateTime.now().plusDays(100))
         unrefCleanup()
 
       then:
@@ -549,7 +546,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: TEST-RIPE
             mnt-by: UPD-MNT
-            referral-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   PGPKEY-28F6CD6C
             changed: dbtest@ripe.net 20120707
@@ -575,7 +571,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "tagging uses latest change for number of days unreferenced"() {
       given:
-        def now = new LocalDateTime()
+        def now = LocalDateTime.now()
 
       when:
         def initUpdate = syncUpdate(new SyncUpdate(data: """\
@@ -585,7 +581,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            referral-by:    TEST-MNT
             changed:        test@ripe.net 20120404
             source:         TEST
             password:       update
@@ -600,7 +595,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            referral-by:    TEST-MNT
             changed:        test@ripe.net 20120404
             source:         TEST
             password:       update
@@ -615,7 +609,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            referral-by:    TEST-MNT
             changed:        test@ripe.net 20120404
             source:         TEST
             password:       update
@@ -641,7 +634,7 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "tagging unmodified unreferenced objects"() {
       given:
-        def now = new LocalDateTime()
+        def now = LocalDateTime.now()
 
       when:
         def initUpdate = syncUpdate(new SyncUpdate(data: """\
@@ -651,7 +644,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            referral-by:    TEST-MNT
             changed:        test@ripe.net 20120404
             source:         TEST
             password:       update

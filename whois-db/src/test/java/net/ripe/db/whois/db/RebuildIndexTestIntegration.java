@@ -993,7 +993,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "descr:         description\n" +
                 "admin-c:       TP1-TEST\n" +
                 "mnt-by:        UPD-MNT\n" +
-                "referral-by:   UPD-MNT\n" +
                 "upd-to:        dbtest@ripe.net\n" +
                 "auth:          MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "org:           ORG-TOL1-TEST\n" +
@@ -1001,7 +1000,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-nfy:       nfy@test.net\n" +
                 "notify:        notify@ripe.net\n" +
                 "abuse-mailbox: abuse@ripe.net\n" +
-                "referral-by:   TST-MNT\n" +
                 "changed:       dbtest@ripe.net 20120707\n" +
                 "source:        TEST\n");
 
@@ -1019,7 +1017,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "descr:         description\n" +
                 "admin-c:       TP1-TEST\n" +
                 "mnt-by:        UPD-MNT\n" +
-                "referral-by:   UPD-MNT\n" +
                 "upd-to:        dbtest@ripe.net\n" +
                 "auth:          MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
                 "org:           ORG-TOL1-TEST\n" +
@@ -1036,7 +1033,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         assertThat(diff.getAdded().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(0));
-        assertThat(diff.getRemoved().getAll(), hasSize(10));
+        assertThat(diff.getRemoved().getAll(), hasSize(9));
         assertThat(diff.getRemoved().getTable("upd_to"), hasSize(1));
         assertThat(diff.getRemoved().getTable("abuse_mailbox"), hasSize(1));
         assertThat(diff.getRemoved().getTable("mnt_nfy"), hasSize(1));
@@ -1046,7 +1043,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         assertThat(diff.getRemoved().getTable("mnt_by"), hasSize(1));
         assertThat(diff.getRemoved().getTable("org"), hasSize(1));
         assertThat(diff.getRemoved().getTable("mntner"), hasSize(1));
-        assertThat(diff.getRemoved().getTable("referral_by"), hasSize(1));
     }
 
     @Test

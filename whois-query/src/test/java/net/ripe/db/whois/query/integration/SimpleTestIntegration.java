@@ -518,7 +518,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "admin-c:     ADM-TEST\n" +
                 "upd-to:      dbtest@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
-                "referral-by: DEL-MNT\n" +
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
@@ -536,7 +535,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "admin-c:     ADM-TEST\n" +
                 "upd-to:      dbtest_at_ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
-                "referral-by: DEL-MNT\n" +
                 "mnt-by:      DEL-MNT\n" +
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
@@ -555,7 +553,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "admin-c:     ADM-TEST\n" +
                 "upd-to:      dbtest@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
-                "referral-by: DEL-MNT\n" +
                 "mnt-by:      DEL-MNT\n" +
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
@@ -589,7 +586,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "admin-c:     ADM-TEST\n" +
                 "upd-to:      dbtest_at_ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
-                "referral-by: DEL-MNT\n" +
                 "mnt-by:      DEL-MNT\n" +
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
@@ -608,7 +604,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "admin-c:     ADM-TEST\n" +
                 "upd-to:      dbtest@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
-                "referral-by: DEL-MNT\n" +
                 "mnt-by:      DEL-MNT\n" +
                 "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");

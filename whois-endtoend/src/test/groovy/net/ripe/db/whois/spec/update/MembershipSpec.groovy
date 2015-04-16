@@ -184,7 +184,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$hDtpxh4D\$.mEfvYAiRmAQCynxMuE4J1  #ref
                 mnt-by:      ref-MNT
-                referral-by: ref-MNT
                 changed:     dbtest@ripe.net 20121212
                 source:      TEST
                 """
@@ -758,7 +757,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$hDtpxh4D\$.mEfvYAiRmAQCynxMuE4J1  #ref
                 mnt-by:      ref-MNT
-                referral-by: ref-MNT
                 changed:     dbtest@ripe.net 20121212
                 source:      TEST
                 delete:      testing

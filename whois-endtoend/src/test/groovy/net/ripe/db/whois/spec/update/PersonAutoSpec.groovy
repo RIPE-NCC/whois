@@ -462,7 +462,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        auto-2
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
                 changed:     dbtest@ripe.net
                 source:      TEST
 

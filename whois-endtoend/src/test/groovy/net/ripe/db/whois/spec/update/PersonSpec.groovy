@@ -1024,7 +1024,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
 
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP1   First Person"}
-//        ack.errorMessagesFor("Create", "[person] FP1   First Person") ==
+//        ack.errorMessagesFor("Create", "[person] FP1   First Person") ==          // TODO
  //               ["Syntax error in FP1"]
 
         queryObject("-rBT person FP1", "person", "First Person")

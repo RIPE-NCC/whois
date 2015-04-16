@@ -169,7 +169,6 @@ public class DummifierCurrentTest {
                 "auth: SSO 1234-5678-9abc-dead-beef\n" +
                 "notify: guy@ripe.net\n" +
                 "mnt-by: AARDVARK-MNT\n" +
-                "referral-by: AARDVARK-MNT\n" +
                 "changed: guy@ripe.net 20120510\n" +
                 "source: RIPE # Filtered");
 
@@ -187,7 +186,6 @@ public class DummifierCurrentTest {
                 new RpslAttribute("auth", "SSO # Filtered"),
                 new RpslAttribute("notify", "***@ripe.net"),
                 new RpslAttribute("mnt-by", "AARDVARK-MNT"),
-                new RpslAttribute("referral-by", "AARDVARK-MNT"),
                 new RpslAttribute("changed", "***@ripe.net 20120510"),
                 new RpslAttribute("source", "RIPE")
         ));

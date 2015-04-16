@@ -37,7 +37,6 @@ public class QueryLogTestIntegration extends AbstractIntegrationTest {
             "upd-to:        noreply@ripe.net\n" +
             "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "mnt-by:        OWNER-MNT\n" +
-            "referral-by:   OWNER-MNT\n" +
             "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
