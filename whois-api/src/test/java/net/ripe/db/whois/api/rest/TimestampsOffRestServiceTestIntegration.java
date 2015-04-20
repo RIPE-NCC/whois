@@ -27,7 +27,6 @@ import org.glassfish.jersey.uri.UriComponent;
 import org.hamcrest.Matchers;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +45,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 // TODO: [ES] simplify tests - only test one thing per test method
@@ -413,7 +413,6 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
         assertThat(queryResult, not(containsString("<attribute name=\"last-modified\"")));
 
 
-
         final RpslObject update = new RpslObjectBuilder(rpslObject)
                 .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "update"))
                 .get();
@@ -505,54 +504,72 @@ public class TimestampsOffRestServiceTestIntegration extends AbstractIntegration
 
     }
 
-    @Ignore("TODO: [ES] validate this scenario")
+    @Test
+    public void modify_object_containing_timestamps_when_timestamps_turned_off() {
+        databaseHelper.updateObject("" +
+                "role:      Test Role\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31 6 12345678\n" +
+                "e-mail:    test@ripe.net\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "admin-c:   TP1-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "changed:   dbtest@ripe.net 20120101\n" +
+                "created:   2001-02-04T10:00:00Z\n" +
+                "last-modified: 2001-02-04T15:00:00Z\n" +
+                "source:    TEST\n");
+
+        RpslObject update = RpslObject.parse("" +
+                "role:      Test Role\n" +
+                "address:   Singel 300\n" +
+                "phone:     +31 6 12345678\n" +
+                "e-mail:    eva@ripe.net\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "admin-c:   TP1-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "changed:   dbtest@ripe.net 20120101\n" +
+                "source:    TEST\n");
+
+        //TODO MG: Remove when timestamps always on.
+        testTimestampsMode.setTimestampsOff(true);
+
+        RestTest.target(getPort(), "whois/test/role/TR1-TEST")
+                .queryParam("password", "test")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_JSON), String.class);
+    }
+
+
     @Test
     public void delete_object_containing_timestamps_when_timestamps_turned_off() {
-        databaseHelper.updateObject(
+        databaseHelper.updateObject("" +
                 "role:      Test Role\n" +
-                        "address:   Singel 258\n" +
-                        "phone:     +31 6 12345678\n" +
-                        "nic-hdl:   TR1-TEST\n" +
-                        "admin-c:   TP1-TEST\n" +
-                        "abuse-mailbox: abuse@test.net\n" +
-                        "mnt-by:    OWNER-MNT\n" +
-                        "changed:   dbtest@ripe.net 20120101\n" +
-                        "created:   2001-02-04T10:00:00Z\n" +
-                        "last-modified: 2001-02-04T15:00:00Z\n" +
-                        "source:    TEST\n");
+                "address:   Singel 258\n" +
+                "phone:     +31 6 12345678\n" +
+                "e-mail:    test@ripe.net\n" +
+                "nic-hdl:   TR1-TEST\n" +
+                "admin-c:   TP1-TEST\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "changed:   dbtest@ripe.net 20120101\n" +
+                "created:   2001-02-04T10:00:00Z\n" +
+                "last-modified: 2001-02-04T15:00:00Z\n" +
+                "source:    TEST\n");
+
+        //TODO MG: Remove when timestamps always on.
         testTimestampsMode.setTimestampsOff(true);
 
         try {
             RestTest.target(getPort(), "whois/test/role/TR1-TEST")
                     .queryParam("password", "test")
                     .request()
-                    .delete(WhoisResources.class);
-        } catch (BadRequestException e) {
-            // TODO: [ES] fails with "is not a known timestamp" error
-            assertThat(e.getResponse().readEntity(String.class), Matchers.containsString("xxxx"));
+                    .delete(String.class);
+            // not reached
+            assertFalse(true);
+        } catch( BadRequestException exc) {
+
         }
-    }
-
-    @Ignore("TODO: [ES] validate this scenario")
-    @Test
-    public void delete_object_containing_timestamps_when_timestamps_turned_on() {
-        databaseHelper.updateObject(
-                "role:      Test Role\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31 6 12345678\n" +
-                "nic-hdl:   TR1-TEST\n" +
-                "admin-c:   TP1-TEST\n" +
-                "abuse-mailbox: abuse@test.net\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "changed:   dbtest@ripe.net 20120101\n" +       // TODO: [ES] attributes MUST be in this order for delete to succeed? cross-check with batch and create/update code
-                "created:   2001-02-04T10:00:00Z\n" +
-                "last-modified: 2001-02-04T15:00:00Z\n" +
-                "source:    TEST\n");
-        testTimestampsMode.setTimestampsOff(false);
-
-        RestTest.target(getPort(), "whois/test/role/TR1-TEST")
-                .queryParam("password", "test")
-                .request()
-                .delete(WhoisResources.class);
     }
 }
