@@ -98,7 +98,7 @@ public class DummifierLegacy implements Dummifier {
     );
 
     static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
-    static final Set<AttributeType> ATTRIBUTES_TO_KEEP = Sets.newHashSet(AttributeType.ABUSE_C, AttributeType.LAST_MODIFIED, AttributeType.CREATED);
+    static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(AttributeType.ABUSE_C, AttributeType.LAST_MODIFIED, AttributeType.CREATED);
 
     static {
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.ADDRESS, "Dummy address for %s");
