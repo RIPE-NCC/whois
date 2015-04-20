@@ -41,11 +41,11 @@ public class TimestampsValidator implements BusinessRuleValidator {
         if (timestampsMode.isTimestampsOff()) {
             final RpslObject submittedObject = update.getSubmittedObject();
             if (submittedObject.containsAttribute(AttributeType.CREATED)) {
-                updateContext.addMessage(update, submittedObject.findAttributes(AttributeType.CREATED).get(0), ValidationMessages.unknownAttribute(AttributeType.CREATED.getName()));
+                updateContext.addMessage(update, submittedObject.findAttribute(AttributeType.CREATED), ValidationMessages.unknownAttribute(AttributeType.CREATED.getName()));
             }
 
             if (submittedObject.containsAttribute(AttributeType.LAST_MODIFIED)) {
-                updateContext.addMessage(update, submittedObject.findAttributes(AttributeType.LAST_MODIFIED).get(0), ValidationMessages.unknownAttribute(AttributeType.LAST_MODIFIED.getName()));
+                updateContext.addMessage(update, submittedObject.findAttribute(AttributeType.LAST_MODIFIED), ValidationMessages.unknownAttribute(AttributeType.LAST_MODIFIED.getName()));
             }
         }
     }
