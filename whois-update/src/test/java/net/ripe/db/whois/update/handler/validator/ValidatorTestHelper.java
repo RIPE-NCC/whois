@@ -21,4 +21,15 @@ public final class ValidatorTestHelper {
 
         return updateContext.getMessages(preparedUpdate);
     }
+
+    public static ObjectMessages validateDelete(final BusinessRuleValidator subject, final RpslObject originalObject, final RpslObject updatedObject) {
+        final Update update = new Update(new Paragraph(updatedObject.toString()), Operation.UNSPECIFIED, null, updatedObject);
+
+        final PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, Action.DELETE);
+        final UpdateContext updateContext = new UpdateContext(mock(LoggerContext.class));
+
+        subject.validate(preparedUpdate, updateContext);
+
+        return updateContext.getMessages(preparedUpdate);
+    }
 }
