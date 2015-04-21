@@ -135,7 +135,6 @@ public class TimestampsOffSyncUpdatesServiceTestIntegration extends AbstractInte
         assertThat(response, containsString("Delete SUCCEEDED: [role] TR1-TEST   Test Role"));
     }
 
-//    @Ignore
     @Test
     public void delete_with_timestamps_org_contains_timestamps_when_timestamps_off() {
         databaseHelper.updateObject("" +
