@@ -4,18 +4,21 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.TestTimestampsMode;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class TimestampsOffSyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
@@ -80,7 +83,7 @@ public class TimestampsOffSyncUpdatesServiceTestIntegration extends AbstractInte
         testTimestampsMode.setTimestampsOff(true);
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
-                "DATA=" + SyncUpdateUtils.encode(""+
+                "DATA=" + SyncUpdateUtils.encode("" +
                 "role:      Test Role\n" +
                 "address:   Singel 258\n" +
                 "phone:     +31 6 12345678\n" +
@@ -100,6 +103,10 @@ public class TimestampsOffSyncUpdatesServiceTestIntegration extends AbstractInte
         assertThat(response, containsString("Delete FAILED: [role] TR1-TEST   Test Role"));
         assertThat(response, containsString("***Error:   \"created\" is not a known RPSL attribute"));
         assertThat(response, containsString("***Error:   \"last-modified\" is not a known RPSL attribute"));
+
+        RpslObject onDisk = databaseHelper.lookupObject(ObjectType.ROLE, "TR1-TEST");
+        assertThat(onDisk, is(notNullValue()));
+
     }
 
     @Test
@@ -117,7 +124,7 @@ public class TimestampsOffSyncUpdatesServiceTestIntegration extends AbstractInte
         testTimestampsMode.setTimestampsOff(true);
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
-                "DATA=" + SyncUpdateUtils.encode(""+
+                "DATA=" + SyncUpdateUtils.encode("" +
                 "role:      Test Role\n" +
                 "address:   Singel 258\n" +
                 "phone:     +31 6 12345678\n" +
@@ -133,6 +140,12 @@ public class TimestampsOffSyncUpdatesServiceTestIntegration extends AbstractInte
                 .get(String.class);
 
         assertThat(response, containsString("Delete SUCCEEDED: [role] TR1-TEST   Test Role"));
+
+        try {
+            databaseHelper.lookupObject(ObjectType.ROLE, "TR1-TEST");
+            fail();
+        } catch (EmptyResultDataAccessException exc) {
+        }
     }
 
     @Test
@@ -152,7 +165,7 @@ public class TimestampsOffSyncUpdatesServiceTestIntegration extends AbstractInte
         testTimestampsMode.setTimestampsOff(true);
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
-                "DATA=" + SyncUpdateUtils.encode(""+
+                "DATA=" + SyncUpdateUtils.encode("" +
                 "role:      Test Role\n" +
                 "address:   Singel 258\n" +
                 "phone:     +31 6 12345678\n" +
@@ -172,6 +185,9 @@ public class TimestampsOffSyncUpdatesServiceTestIntegration extends AbstractInte
         assertThat(response, containsString("Delete FAILED: [role] TR1-TEST   Test Role"));
         assertThat(response, containsString("***Error:   \"created\" is not a known RPSL attribute"));
         assertThat(response, containsString("***Error:   \"last-modified\" is not a known RPSL attribute"));
+
+        RpslObject onDisk = databaseHelper.lookupObject(ObjectType.ROLE, "TR1-TEST");
+        assertThat(onDisk, is(notNullValue()));
     }
 
     @Test
@@ -191,7 +207,7 @@ public class TimestampsOffSyncUpdatesServiceTestIntegration extends AbstractInte
         testTimestampsMode.setTimestampsOff(true);
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
-                "DATA=" + SyncUpdateUtils.encode(""+
+                "DATA=" + SyncUpdateUtils.encode("" +
                 "role:      Test Role\n" +
                 "address:   Singel 258\n" +
                 "phone:     +31 6 12345678\n" +
@@ -206,8 +222,13 @@ public class TimestampsOffSyncUpdatesServiceTestIntegration extends AbstractInte
                 .request()
                 .get(String.class);
 
-        System.err.println("resp:" + response);
         assertThat(response, containsString("Delete SUCCEEDED: [role] TR1-TEST   Test Role"));
+
+        try {
+            databaseHelper.lookupObject(ObjectType.ROLE, "TR1-TEST");
+            fail();
+        } catch (EmptyResultDataAccessException exc) {
+        }
     }
 
 }

@@ -41,9 +41,9 @@ public class ObjectMismatchValidator implements BusinessRuleValidator {
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
 
         if (timestampsMode.isTimestampsOff() && update.getAction() == Action.DELETE) {
-            RpslObject orig = stripCreatedLastModified(update.getReferenceObject());
+            RpslObject referenced = stripCreatedLastModified(update.getReferenceObject());
             RpslObject submitted = stripCreatedLastModified(update.getUpdatedObject());
-            if ( !orig.equals(submitted)) {
+            if ( !referenced.equals(submitted)) {
                 updateContext.addMessage(update, UpdateMessages.objectMismatch(update.getUpdatedObject().getFormattedKey()));
             }
         } else {
@@ -55,12 +55,8 @@ public class ObjectMismatchValidator implements BusinessRuleValidator {
 
     private RpslObject stripCreatedLastModified(RpslObject input) {
         final RpslObjectBuilder builder = new RpslObjectBuilder(input);
-        if (input.containsAttribute(AttributeType.CREATED)) {
-            builder.removeAttributeType(AttributeType.CREATED);
-        }
-        if (input.containsAttribute(AttributeType.LAST_MODIFIED)) {
-            builder.removeAttributeType(AttributeType.LAST_MODIFIED);
-        }
+        builder.removeAttributeType(AttributeType.CREATED);
+        builder.removeAttributeType(AttributeType.LAST_MODIFIED);
         return builder.get();
     }
 }
