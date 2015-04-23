@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.generator.gen;
 
-
+/*
 import nl.grol.whois.data.model.Inetnum;
 
 public class Response {
@@ -20,3 +20,5 @@ public class Response {
     }
 
 }
+
+*/

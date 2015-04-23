@@ -1,0 +1,255 @@
+group structureGroup;
+
+main( package, struct ) ::= <<
+package <package>;
+
+/* automatically generated: do not edit manually */
+
+import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+public class <struct.nameToFirstUpper> {
+
+	<struct.attributeTemplates:attributeDeclaration()>
+
+	<struct:factoryWithNamedParameters()>
+
+	<struct.attributeTemplates:attributeGetter()>
+
+	<struct:validate()>
+
+	<struct:toString()>
+
+	<struct:toRpsl()>
+
+	<struct:toRequest()>
+
+	<struct:fromResponse()>
+
+	<struct:builderClass()>
+
+	<struct:constructorFromBuilder()>
+
+};
+>>
+
+attributeDeclaration( attributeTemplate ) ::= <<
+    <if( attributeTemplate.multiple )>
+	private List\<String\> <attributeTemplate.attributeType.nameToFirstLower> = Lists.newArrayList();
+    <else>
+	private String <attributeTemplate.attributeType.nameToFirstLower> = null;
+    <endif>
+
+>>
+
+factoryWithNamedParameters( struct ) ::= <<
+
+	private <struct.nameToFirstUpper>() {
+	}
+
+	private static enum AttributeType {
+        <struct.attributeTemplates:attributeTypeLiteral();separator=",">
+    }
+
+    public static class Attribute {
+        private final AttributeType name;
+        private final String value;
+        private Attribute(AttributeType name, String value){
+            this.name = name;
+            this.value = value;
+        }
+    }
+
+    public static <struct.nameToFirstUpper> New<struct.nameToFirstUpper>(Attribute... opts ) {
+        <struct.nameToFirstUpper> obj = new <struct.nameToFirstUpper>();
+
+        for ( Attribute op : opts ) {
+            <struct.attributeTemplates:namedAttributeAssignment()>
+        }
+        obj.validate();
+        return obj;
+    }
+
+    <struct.attributeTemplates:namedAttributeFactory()>
+
+>>
+
+attributeTypeLiteral( attributeTemplate ) ::= <<
+	<attributeTemplate.attributeType.nameToFirstLower>
+>>
+
+namedAttributeAssignment( attributeTemplate ) ::= <<
+    if( op.name == AttributeType.<attributeTemplate.attributeType.nameToFirstLower> ) {
+        <if( attributeTemplate.multiple )>
+            obj.<attributeTemplate.attributeType.nameToFirstLower>.add( op.value );
+        <else>
+            obj.<attributeTemplate.attributeType.nameToFirstLower> = op.value;
+        <endif>
+    }
+
+>>
+
+namedAttributeFactory( attributeTemplate ) ::= <<
+    public static Attribute <attributeTemplate.attributeType.nameToFirstLower>(String value) {
+        return new Attribute(AttributeType.<attributeTemplate.attributeType.nameToFirstLower>, value);
+    }
+
+>>
+
+methodParameter( attributeType ) ::= <<
+	String <attributeType.nameToFirstLower>
+>>
+
+attributeGetter( attributeTemplate )  ::= <<
+
+    <if( attributeTemplate.multiple )>
+        public List\<String\> get<attributeTemplate.attributeType.nameToFirstUpper>() {
+    		return this.<attributeTemplate.attributeType.nameToFirstLower>;
+    	}
+        public String getFirst<attributeTemplate.attributeType.nameToFirstUpper>() {
+    		return this.<attributeTemplate.attributeType.nameToFirstLower> != null ? this.<attributeTemplate.attributeType.nameToFirstLower>.get(0) : null;
+    	}
+    <else>
+        public String get<attributeTemplate.attributeType.nameToFirstUpper>() {
+            return this.<attributeTemplate.attributeType.nameToFirstLower>;
+        }
+    <endif>
+
+>>
+
+
+validate( struct ) ::= <<
+
+	public void validate() {
+		<struct.attributeTemplates:attributeValidator()>
+	}
+
+>>
+
+attributeValidator( attributeTemplate )  ::= <<
+    <if( attributeTemplate.mandatory  )>
+        <if( attributeTemplate.multiple )>
+            Preconditions.checkState( <attributeTemplate.attributeType.nameToFirstLower>.size() > 0, "Missing (multiple) mandatory attribute '<attributeTemplate.attributeType.name>'" );
+        <else>
+            Preconditions.checkState( <attributeTemplate.attributeType.nameToFirstLower> != null, "Missing (single) mandatory attribute '<attributeTemplate.attributeType.name>'" );
+        <endif>
+    <endif>
+
+>>
+
+toString( struct ) ::= <<
+
+	public String toString() {
+	
+	return Objects.toStringHelper(this)
+		<struct.attributeTemplates:stringAattributePrinter()>
+       .toString();
+	}
+
+>>
+
+
+toRequest( struct ) ::= <<
+
+	//public Request toRequest() {}
+
+>>
+
+
+fromResponse( struct ) ::= <<
+
+	//public static <struct.nameToFirstUpper> fromResponse( Response response ) {}
+
+>>
+
+stringAattributePrinter( attributeTemplate )  ::= <<
+    .add( "<attributeTemplate.attributeType.name>", this.<attributeTemplate.attributeType.nameToFirstLower> )
+
+>>
+
+toRpsl( struct ) ::= <<
+
+	public String toRpsl() {
+	    StringBuffer sb = new StringBuffer();
+		sb.append("\n" );
+		<struct.attributeTemplates:rpslAttributePrinter()>
+		sb.append("\n" );
+       return sb.toString();
+	}
+
+    private void appendRpslAttribute(StringBuffer sb, String key, String value) {
+        if( value != null ) {
+            sb.append(String.format("\t%-20s%s\n", String.format("%s:", key), value));
+        }
+
+    }
+
+    private void appendRpslAttribute(StringBuffer sb, String key, List\<String\> values) {
+        for (String value : values) {
+            sb.append(String.format("\t%-20s%s\n", String.format("%s:", key), value));
+        }
+    }
+
+
+>>
+
+rpslAttributePrinter( attributeTemplate )  ::= <<
+    appendRpslAttribute( sb, "<attributeTemplate.attributeType.name>", this.<attributeTemplate.attributeType.nameToFirstLower> );
+
+>>
+
+builderClass( struct ) ::= <<
+    public static class Builder {
+
+    	<struct.attributeTemplates:attributeDeclaration()>
+
+    	<struct.attributeTemplates:builderAttributeSetter()>
+
+    	<struct:buildMethod( )>
+    };
+
+>>
+
+builderAttributeSetter( attributeTemplate  )  ::= <<
+
+        <if( attributeTemplate.multiple )>
+        public Builder <if( attributeTemplate.mandatory )>mandatory<else>optional<endif>Add<attributeTemplate.attributeType.nameToFirstUpper>( <methodParameter(attributeTemplate.attributeType)> ) {
+            this.<attributeTemplate.attributeType.nameToFirstLower>.add( <attributeTemplate.attributeType.nameToFirstLower> );
+            return this;
+        }
+        <else>
+        public Builder <if( attributeTemplate.mandatory )>mandatory<else>optional<endif>Set<attributeTemplate.attributeType.nameToFirstUpper>( <methodParameter(attributeTemplate.attributeType)> ) {
+            this.<attributeTemplate.attributeType.nameToFirstLower> = <attributeTemplate.attributeType.nameToFirstLower>;
+            return this;
+        }
+        <endif>
+
+>>
+
+buildMethod( struct )  ::= <<
+    public <struct.nameToFirstUpper> build () {
+        <struct.nameToFirstUpper> obj = new <struct.nameToFirstUpper>( this );
+        obj.validate();
+        return obj;
+    }
+>>
+
+constructorFromBuilder( struct ) ::= <<
+
+    public <struct.nameToFirstUpper>( Builder builder ) {
+
+        <struct.attributeTemplates:builderConstructorParameterAssignment()>
+
+    }
+
+>>
+
+builderConstructorParameterAssignment( attributeTemplate ) ::= <<
+
+    this.<attributeTemplate.attributeType.nameToFirstLower> = builder.<attributeTemplate.attributeType.nameToFirstLower>;
+
+>>
