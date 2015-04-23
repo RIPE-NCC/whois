@@ -22,15 +22,15 @@ public class <struct.nameToFirstUpper> {
 
 	<struct.attributeTemplates:attributeDeclaration()>
 
+	<struct:constructorFromBuilder()>
+
 	<struct.attributeTemplates:attributeGetter()>
 
 	<struct:validate()>
 
-	<struct:toString()>
-
 	<struct:toRequest()>
 
-	<struct:constructorFromBuilder()>
+	<struct:toString()>
 
     <struct:builderClass()>
 
@@ -51,9 +51,17 @@ methodParameter( attributeType ) ::= <<
 >>
 
 attributeGetter( attributeTemplate )  ::= <<
-
+    // <attributeTemplate.attributeType.name>
     <if( attributeTemplate.multiple )>
-        public List\<String\> get<attributeTemplate.attributeType.nameToFirstUpper>() {
+        <if( ! attributeTemplate.mandatory )>
+            public boolean has<attributeTemplate.attributeType.nameToFirstUpper>() {
+                return this.<attributeTemplate.attributeType.nameToFirstLower>.size() > 0;
+            }
+        <endif>
+        public List\<CommentedValue\> get<attributeTemplate.attributeType.nameToFirstUpper>() {
+    		return this.<attributeTemplate.attributeType.nameToFirstLower>;
+    	}
+        public List\<String\> get<attributeTemplate.attributeType.nameToFirstUpper>Values() {
             List\<String\> values = new ArrayList\<String\>();
             for( CommentedValue value: this.<attributeTemplate.attributeType.nameToFirstLower> ) {
     		    values.add( value.getValue() );
@@ -61,25 +69,25 @@ attributeGetter( attributeTemplate )  ::= <<
     		return values;
     	}
 
-        public String getFirst<attributeTemplate.attributeType.nameToFirstUpper>() {
-            String value = null;
-    		if( this.<attributeTemplate.attributeType.nameToFirstLower>.size() > 0 ) {
-    		    value = this.<attributeTemplate.attributeType.nameToFirstLower>.get(0).getValue();
-    		}
-    	    return value;
-    	}
     <else>
-        public String get<attributeTemplate.attributeType.nameToFirstUpper>() {
+        <if( ! attributeTemplate.mandatory )>
+            public boolean has<attributeTemplate.attributeType.nameToFirstUpper>() {
+                return this.<attributeTemplate.attributeType.nameToFirstLower> != null;
+            }
+        <endif>
+        public CommentedValue get<attributeTemplate.attributeType.nameToFirstUpper>() {
+            return this.<attributeTemplate.attributeType.nameToFirstLower>;
+        }
+        public String get<attributeTemplate.attributeType.nameToFirstUpper>Value() {
             String value = null;
             if( this.<attributeTemplate.attributeType.nameToFirstLower> != null ) {
-                this.<attributeTemplate.attributeType.nameToFirstLower>.getValue();
+                value = this.<attributeTemplate.attributeType.nameToFirstLower>.getValue();
             }
     	    return value;
         }
     <endif>
 
 >>
-
 
 validate( struct ) ::= <<
 
@@ -92,12 +100,11 @@ validate( struct ) ::= <<
 attributeValidator( attributeTemplate )  ::= <<
     <if( attributeTemplate.mandatory  )>
         <if( attributeTemplate.multiple )>
-            Preconditions.checkState( <attributeTemplate.attributeType.nameToFirstLower>.size() > 0, "Missing (multiple) mandatory attribute '<attributeTemplate.attributeType.name>'" );
+            Preconditions.checkState( <attributeTemplate.attributeType.nameToFirstLower> != null && <attributeTemplate.attributeType.nameToFirstLower>.size() > 0, "Missing (multiple) mandatory attribute '<attributeTemplate.attributeType.name>'" );
         <else>
-            Preconditions.checkState( <attributeTemplate.attributeType.nameToFirstLower>.getValue() != null, "Missing (single) mandatory attribute '<attributeTemplate.attributeType.name>'" );
+            Preconditions.checkState( <attributeTemplate.attributeType.nameToFirstLower> != null && <attributeTemplate.attributeType.nameToFirstLower>.getValue() != null, "Missing (single) mandatory attribute '<attributeTemplate.attributeType.name>'" );
         <endif>
     <endif>
-
 >>
 
 
@@ -110,14 +117,13 @@ toRequest( struct ) ::= <<
         whoisObject.setSource(new Source(this.source.getValue()));
         whoisObject.setType("<struct.objectType.name>");
 
-        List<Attribute> attributes = Lists.newArrayList();
+        List\<Attribute\> attributes = new ArrayList\<Attribute\>();
         <struct.attributeTemplates:attributeCopierFrom()>
         whoisObject.setAttributes(attributes);
 
         whoisResources.setWhoisObjects(Arrays.asList(whoisObject));
         return  whoisResources;
     }
-
 >>
 
 attributeCopierFrom( attribute ) ::= <<
@@ -138,13 +144,10 @@ attributeCopierFrom( attribute ) ::= <<
         <endif>
         }
     }
-
 >>
-
 
 stringAattributePrinter( attributeTemplate )  ::= <<
     .add( "<attributeTemplate.attributeType.name>", this.<attributeTemplate.attributeType.nameToFirstLower> )
-
 >>
 
 toString( struct ) ::= <<
@@ -170,30 +173,23 @@ toString( struct ) ::= <<
             sb.append(String.format("\t%-20s%s%s\n", String.format("%s:", key), value.getValue(), comment));
         }
     }
-
 >>
 
 rpslAttributePrinter( attributeTemplate )  ::= <<
-
     appendRpslAttribute( sb, "<attributeTemplate.attributeType.name>", this.<attributeTemplate.attributeType.nameToFirstLower> );
-
 >>
 
-
-
 builderClass( struct ) ::= <<
-
     public static class Builder {
 
-    	<struct.attributeTemplates:attributeDeclaration()>
+        <struct.attributeTemplates:attributeDeclaration()>
 
-      <struct:builderFromResponse()>
+        <struct:builderFromResponse()>
 
     	<struct.attributeTemplates:builderAttributeSetterGetter()>
 
     	<struct:buildMethod( )>
     };
-
 >>
 
 builderFromResponse( struct ) ::= <<
@@ -215,13 +211,13 @@ builderFromResponse( struct ) ::= <<
 
 attributeCopierTo( attribute ) ::= <<
     <if( attribute.multiple )>
-    if( attr.getName().equals("<attribute.attributeType.name>")) {
-         builder.add<attribute.attributeType.nameToFirstUpper>WithComment(attr.getValue(),attr.getComment() );
-    }
+        if( attr.getName().equals("<attribute.attributeType.name>")) {
+             builder.add<attribute.attributeType.nameToFirstUpper>(attr.getValue(),attr.getComment() );
+        }
     <else>
-    if( attr.getName().equals("<attribute.attributeType.name>")) {
-         builder.set<attribute.attributeType.nameToFirstUpper>WithComment(attr.getValue(),attr.getComment() );
-    }
+        if( attr.getName().equals("<attribute.attributeType.name>")) {
+             builder.set<attribute.attributeType.nameToFirstUpper>(attr.getValue(),attr.getComment() );
+        }
     <endif>
 >>
 
@@ -229,63 +225,98 @@ attributeCopierTo( attribute ) ::= <<
 
 builderAttributeSetterGetter( attributeTemplate  )  ::= <<
 
+        // <attributeTemplate.attributeType.name>
         <if( attributeTemplate.multiple )>
-        public Builder <if( attributeTemplate.mandatory )>mandatory<else>optional<endif>Add<attributeTemplate.attributeType.nameToFirstUpper>( <methodParameter(attributeTemplate.attributeType)> ) {
-            this.<attributeTemplate.attributeType.nameToFirstLower>.add( new CommentedValue(<attributeTemplate.attributeType.nameToFirstLower>) );
-            return this;
-        }
-        public Builder <if( attributeTemplate.mandatory )>mandatory<else>optional<endif>Add<attributeTemplate.attributeType.nameToFirstUpper>( CommentedValue cvalue ) {
-            this.<attributeTemplate.attributeType.nameToFirstLower>.add( new CommentedValue(cvalue.getValue(), cvalue.getComment()) );
-            return this;
-        }
-        public Builder add<attributeTemplate.attributeType.nameToFirstUpper>( <methodParameter(attributeTemplate.attributeType)> ) {
-            this.<attributeTemplate.attributeType.nameToFirstLower>.add( new CommentedValue(<attributeTemplate.attributeType.nameToFirstLower>) );
-            return this;
-        }
-        public Builder add<attributeTemplate.attributeType.nameToFirstUpper>WithComment( <methodParameter(attributeTemplate.attributeType)>,String comment ) {
-            this.<attributeTemplate.attributeType.nameToFirstLower>.add( new CommentedValue(<attributeTemplate.attributeType.nameToFirstLower>,comment ));
-            return this;
-        }
-        public List\<CommentedValue\> get<attributeTemplate.attributeType.nameToFirstUpper>WithComment() {
-            return this.<attributeTemplate.attributeType.nameToFirstLower>;
-        }
-        public List\<String\> get<attributeTemplate.attributeType.nameToFirstUpper>() {
-            List\<String\> values = new ArrayList<String>();
-            for( CommentedValue value : <attributeTemplate.attributeType.nameToFirstLower> ) {
-                values.add( value.getValue() );
+            <if( ! attributeTemplate.mandatory )>
+                public boolean has<attributeTemplate.attributeType.nameToFirstUpper>() {
+                    return this.<attributeTemplate.attributeType.nameToFirstLower>.size() > 0;
+                }
+            <endif>
+            public List\<CommentedValue\> get<attributeTemplate.attributeType.nameToFirstUpper>() {
+                return this.<attributeTemplate.attributeType.nameToFirstLower>;
             }
-            return values;
-        }
-
+            public List\<String\> get<attributeTemplate.attributeType.nameToFirstUpper>Values() {
+                List\<String\> values = new ArrayList\<String\>();
+                for( CommentedValue value : <attributeTemplate.attributeType.nameToFirstLower> ) {
+                    values.add( value.getValue() );
+                }
+                return values;
+            }
+            public Builder set<attributeTemplate.attributeType.nameToFirstUpper>( final List\<CommentedValue\> values ) {
+                Preconditions.checkState(values != null );
+                this.<attributeTemplate.attributeType.nameToFirstLower> = values;
+                return this;
+            }
+            public Builder add<attributeTemplate.attributeType.nameToFirstUpper>( final String value) {
+                Preconditions.checkState(value != null );
+                this.<attributeTemplate.attributeType.nameToFirstLower>.add( new CommentedValue(value) );
+                return this;
+            }
+            public Builder add<attributeTemplate.attributeType.nameToFirstUpper>( final String value, final String comment ) {
+                Preconditions.checkState(value != null );
+                this.<attributeTemplate.attributeType.nameToFirstLower>.add( new CommentedValue(value,comment ));
+                return this;
+            }
+            public Builder remove<attributeTemplate.attributeType.nameToFirstUpper>All() {
+                this.<attributeTemplate.attributeType.nameToFirstLower>.clear();
+                return this;
+            }
+            public Builder remove<attributeTemplate.attributeType.nameToFirstUpper>At( int index) {
+                Preconditions.checkState(index \>= 0 && index \< <attributeTemplate.attributeType.nameToFirstLower>.size(), "Invalid remove-at index for (multiple) attribute '<attributeTemplate.attributeType.name>'" );
+                this.<attributeTemplate.attributeType.nameToFirstLower>.remove(index);
+                return this;
+            }
+            // nice to have indication of multiplicity in settter name
+            public Builder <if( attributeTemplate.mandatory )>mandatory<else>optional<endif>Add<attributeTemplate.attributeType.nameToFirstUpper>( final String value ) {
+                Preconditions.checkState(value != null );
+                return add<attributeTemplate.attributeType.nameToFirstUpper>(value);
+            }
+            public Builder <if( attributeTemplate.mandatory )>mandatory<else>optional<endif>Add<attributeTemplate.attributeType.nameToFirstUpper>( final String value, final String comment ) {
+                Preconditions.checkState(value != null );
+                return add<attributeTemplate.attributeType.nameToFirstUpper>(value,comment);
+            }
         <else>
-        public Builder <if( attributeTemplate.mandatory )>mandatory<else>optional<endif>Set<attributeTemplate.attributeType.nameToFirstUpper>( <methodParameter(attributeTemplate.attributeType)> ) {
-            this.<attributeTemplate.attributeType.nameToFirstLower> = new CommentedValue(<attributeTemplate.attributeType.nameToFirstLower>);
-            return this;
-        }
-        public Builder <if( attributeTemplate.mandatory )>mandatory<else>optional<endif>Set<attributeTemplate.attributeType.nameToFirstUpper>( CommentedValue cvalue ) {
-            this.<attributeTemplate.attributeType.nameToFirstLower> = new CommentedValue(cvalue.getValue(), cvalue.getComment() );
-            return this;
-        }
-        public Builder set<attributeTemplate.attributeType.nameToFirstUpper>( <methodParameter(attributeTemplate.attributeType)> ) {
-            this.<attributeTemplate.attributeType.nameToFirstLower> = new CommentedValue(<attributeTemplate.attributeType.nameToFirstLower>);
-            return this;
-        }
-        public Builder set<attributeTemplate.attributeType.nameToFirstUpper>WithComment( <methodParameter(attributeTemplate.attributeType)>,String comment ) {
-            this.<attributeTemplate.attributeType.nameToFirstLower> = new CommentedValue(<attributeTemplate.attributeType.nameToFirstLower>, comment);
-            return this;
-        }
-        public CommentedValue get<attributeTemplate.attributeType.nameToFirstUpper>WithComment( ) {
-            return this.<attributeTemplate.attributeType.nameToFirstLower>;
-        }
-        public String get<attributeTemplate.attributeType.nameToFirstUpper>( ) {
-            String value = null;
-            if( this.<attributeTemplate.attributeType.nameToFirstLower> != null ) {
-                value = this.<attributeTemplate.attributeType.nameToFirstLower>.getValue();
+            <if( ! attributeTemplate.mandatory )>
+                public boolean has<attributeTemplate.attributeType.nameToFirstUpper>( ) {
+                    return this.<attributeTemplate.attributeType.nameToFirstLower> != null;
+                }
+            <endif>
+            public CommentedValue get<attributeTemplate.attributeType.nameToFirstUpper>( ) {
+                return this.<attributeTemplate.attributeType.nameToFirstLower>;
             }
-            return value;
-        }
+            public String get<attributeTemplate.attributeType.nameToFirstUpper>Value( ) {
+                String value = null;
+                if( this.<attributeTemplate.attributeType.nameToFirstLower> != null ) {
+                    value = this.<attributeTemplate.attributeType.nameToFirstLower>.getValue();
+                }
+                return value;
+            }
+            public Builder set<attributeTemplate.attributeType.nameToFirstUpper>( final String value ) {
+                Preconditions.checkState(value != null );
+                this.<attributeTemplate.attributeType.nameToFirstLower> = new CommentedValue(value);
+                return this;
+            }
+            public Builder set<attributeTemplate.attributeType.nameToFirstUpper>( final String value, final String comment ) {
+                Preconditions.checkState(value != null );
+                this.<attributeTemplate.attributeType.nameToFirstLower> = new CommentedValue(value, comment);
+                return this;
+            }
+            public Builder remove<attributeTemplate.attributeType.nameToFirstUpper>(  ) {
+                this.<attributeTemplate.attributeType.nameToFirstLower> = null;
+                return this;
+            }
+            // nice to have indication of multiplicity in settter name
+            public Builder <if( attributeTemplate.mandatory )>mandatory<else>optional<endif>Set<attributeTemplate.attributeType.nameToFirstUpper>( final String value ) {
+                Preconditions.checkState(value != null );
+                this.set<attributeTemplate.attributeType.nameToFirstUpper>(value);
+                return this;
+            }
+            public Builder <if( attributeTemplate.mandatory )>mandatory<else>optional<endif>Set<attributeTemplate.attributeType.nameToFirstUpper>( final String value, final String comment ) {
+                Preconditions.checkState(value != null );
+                this.set<attributeTemplate.attributeType.nameToFirstUpper>( value, comment );
+                return this;
+            }
         <endif>
-
 >>
 
 
@@ -298,17 +329,12 @@ buildMethod( struct )  ::= <<
 >>
 
 constructorFromBuilder( struct ) ::= <<
-
-    public <struct.nameToFirstUpper>( Builder builder ) {
-
+    public <struct.nameToFirstUpper>( final Builder builder ) {
+        Preconditions.checkState(builder != null );
         <struct.attributeTemplates:builderConstructorParameterAssignment()>
-
     }
-
 >>
 
 builderConstructorParameterAssignment( attributeTemplate ) ::= <<
-
     this.<attributeTemplate.attributeType.nameToFirstLower> = builder.<attributeTemplate.attributeType.nameToFirstLower>;
-
 >>

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.generator.gen;
 
-
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import nl.grol.whois.data.model.CommentedValue;
@@ -58,9 +57,9 @@ public class TestGenerator {
                 .mandatoryAddCountry("nl")
                 .mandatoryAddAdminCRef("GROL-RIPE")
                 .mandatoryAddTechCRef("GROL-RIPE")
-                .mandatorySetStatus(new CommentedValue("ASSIGNED", "strange status"))
+                .mandatorySetStatus("ASSIGNED", "my first comment")
                 .mandatoryAddMntByRef("GROL-MNT")
-                .mandatoryAddChanged("27022015")
+                .mandatoryAddChanged("mgrol@ripe.net 20150423")
                 .mandatorySetSource("RIPE")
                 .optionalSetOrgRef("MY-ORG")
                 .build();
