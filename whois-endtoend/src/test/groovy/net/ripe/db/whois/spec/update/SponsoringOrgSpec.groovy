@@ -6,7 +6,7 @@ import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class SponsorSpec extends BaseQueryUpdateSpec {
+class SponsoringOrgSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getFixtures() {
