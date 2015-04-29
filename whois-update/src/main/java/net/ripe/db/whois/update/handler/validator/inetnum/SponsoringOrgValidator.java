@@ -20,6 +20,8 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +41,9 @@ import static net.ripe.db.whois.update.domain.UpdateMessages.sponsoringOrgNotLIR
 
 @Component
 public class SponsoringOrgValidator implements BusinessRuleValidator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SponsoringOrgValidator.class);
+
     private static final List<Action> ACTIONS = ImmutableList.of(CREATE, MODIFY);
     private static final List<ObjectType> OBJECT_TYPES = ImmutableList.of(INETNUM, INET6NUM, AUT_NUM);
     private static final Set<? extends InetStatus> ALLOWED_STATUSES = ImmutableSet.of(InetnumStatus.ASSIGNED_PI, InetnumStatus.ASSIGNED_ANYCAST, InetnumStatus.LEGACY, Inet6numStatus.ASSIGNED_PI, Inet6numStatus.ASSIGNED_ANYCAST);
@@ -104,6 +109,8 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
                 updateContext.addMessage(update, UpdateMessages.sponsoringOrgRemoved());
             } else if (sponsoringOrgChanged(refSponsoringOrg, updSponsoringOrg, action)) {
                 updateContext.addMessage(update, UpdateMessages.sponsoringOrgChanged());
+            } else {
+                LOGGER.warn("Unexpected action {}, ref {} upd {}", action.getDescription(), refSponsoringOrg, updSponsoringOrg);
             }
         }
     }
