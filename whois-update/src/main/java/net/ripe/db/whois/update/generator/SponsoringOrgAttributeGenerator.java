@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.SPONSORING_ORG;
 
+// TODO: [ES] move to a validator
 @Component
 public class SponsoringOrgAttributeGenerator extends AttributeGenerator {
 
