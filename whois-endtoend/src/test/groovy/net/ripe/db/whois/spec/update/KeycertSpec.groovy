@@ -2726,4 +2726,156 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Delete" && it.key == "[key-cert] PGPKEY-F6A10C2D" }
     }
 
+    def "keycert object with multiple owners"() {
+      expect:
+        queryObjectNotFound("-r -T key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
+
+      when:
+        def createResponse = syncUpdate("""\
+                key-cert:     PGPKEY-A9B98446
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Version: GnuPG v1
+                certif:       Comment: GPGTools - http://gpgtools.org
+                certif:
+                certif:       mI0EVUngSwEEALM4Bo/7klJLW0tQPc3l5PDYNYiyt8bl5H7KAlC6noOrprJDP7I8
+                certif:       aUffODojNvMYrPY9qbJFqinajnkbSHqpNu9knHpbuTEpHn9dJpE/Qfs+9HAH42IK
+                certif:       cVLv+FRYb80zZ1GeISBHyXwYw273ojXZrDbFR/pzt4IFMqiUzLnsf9W3ABEBAAG0
+                certif:       G05vIFJlcGx5IDxub3JlcGx5QHJpcGUubmV0Poi4BBMBAgAiBQJVSeBLAhsDBgsJ
+                certif:       CAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBAvAzEu0YzQJ+NA/48qhokmbjVuUEm
+                certif:       5I1nvmiOwcO/aa0tA/JuLLq3IO5iGB9oUKshd8FDo5h7G+/ksLS2tEMYQoInjofK
+                certif:       spRAEaGU/OFT5wR5UCoMdqlNNRWcgy1qIUDBD6Yd5OQYMH+xRu1QKagv+Xtuo6Hh
+                certif:       WsH7Ql4P614M8zh71cnkfoWSRm4t+LQZVW5rbm93biA8dW5yZWFkQHJpcGUubmV0
+                certif:       Poi4BBMBAgAiBQJVSeCVAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBA
+                certif:       vAzEu0YzQLU2BACrCdr2aWEN5Mc2AtlSm50C//uFTYfyIxr7H4p7aW1xaBy2Z/D/
+                certif:       g96e1xvzqQIjJLCe8afXnlV/QAZfudoKzYPP5GLFXi0z98D+o1klWpiJ77gG8IPQ
+                certif:       a4iPr04FFSuxfxI0jIXS1CNUgq7QNj4TTeproBia5d6gJUfxZaYRUyghNbiNBFVJ
+                certif:       4EsBBACxgrTLvkplgf7HC+5r7ckRPmMl6tF8xWuwrm21W5HqWEMc/d6CpQIDL6bS
+                certif:       Q0edzhVOq+z4D3MjQm1DYp/DYljLFvizPOcc0pFrIyt6iK0kgsNgz1naQjHcYNl2
+                certif:       QIYIRuYUFlHET/qjjhxHzE4iJWnSOSzrQY8QwoATagJnC7aEvQARAQABiJ8EGAEC
+                certif:       AAkFAlVJ4EsCGwwACgkQQLwMxLtGM0BeEAP9E1sdWG42A9Rvra9P1356qZomu6+4
+                certif:       YDfDeT5/GV9FCYleV3Who8cfRfc5POWfR8TQHY3JENsJC8CmHLaNx9s6O/xez9fY
+                certif:       atzEY1G/dR+rFkHMSwaQgEp3hCsuUSsy3XjYfDaW0f4iE+2/PAGOlL8nhuDfYa3+
+                certif:       C/iqTixGmdgjTk4=
+                certif:       =GTeW
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                remarks:      public key with multiple uids
+                notify:       noreply@ripe.net
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20040101
+                source:       TEST
+
+                password: lir
+                """.stripIndent())
+
+      then:
+        def createAck = new AckResponse("", createResponse)
+
+        createAck.summary.nrFound == 1
+        createAck.summary.assertSuccess(1, 1, 0, 0, 0)
+        createAck.summary.assertErrors(0, 0, 0, 0)
+        createAck.countErrorWarnInfo(0, 0, 0)
+
+      then:
+        def createdKeycert = queryObject("-rGBT key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
+        createdKeycert =~ "owner:          Unknown <unread@ripe.net>"
+        createdKeycert =~ "owner:          No Reply <noreply@ripe.net>"
+
+      then:
+        def updateResponse = syncUpdate("""\
+                key-cert:     PGPKEY-A9B98446
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Version: GnuPG v1
+                certif:       Comment: GPGTools - http://gpgtools.org
+                certif:
+                certif:       mI0EVUngSwEEALM4Bo/7klJLW0tQPc3l5PDYNYiyt8bl5H7KAlC6noOrprJDP7I8
+                certif:       aUffODojNvMYrPY9qbJFqinajnkbSHqpNu9knHpbuTEpHn9dJpE/Qfs+9HAH42IK
+                certif:       cVLv+FRYb80zZ1GeISBHyXwYw273ojXZrDbFR/pzt4IFMqiUzLnsf9W3ABEBAAG0
+                certif:       G05vIFJlcGx5IDxub3JlcGx5QHJpcGUubmV0Poi4BBMBAgAiBQJVSeBLAhsDBgsJ
+                certif:       CAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBAvAzEu0YzQJ+NA/48qhokmbjVuUEm
+                certif:       5I1nvmiOwcO/aa0tA/JuLLq3IO5iGB9oUKshd8FDo5h7G+/ksLS2tEMYQoInjofK
+                certif:       spRAEaGU/OFT5wR5UCoMdqlNNRWcgy1qIUDBD6Yd5OQYMH+xRu1QKagv+Xtuo6Hh
+                certif:       WsH7Ql4P614M8zh71cnkfoWSRm4t+LQZVW5rbm93biA8dW5yZWFkQHJpcGUubmV0
+                certif:       Poi4BBMBAgAiBQJVSeCVAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBA
+                certif:       vAzEu0YzQLU2BACrCdr2aWEN5Mc2AtlSm50C//uFTYfyIxr7H4p7aW1xaBy2Z/D/
+                certif:       g96e1xvzqQIjJLCe8afXnlV/QAZfudoKzYPP5GLFXi0z98D+o1klWpiJ77gG8IPQ
+                certif:       a4iPr04FFSuxfxI0jIXS1CNUgq7QNj4TTeproBia5d6gJUfxZaYRUyghNbiNBFVJ
+                certif:       4EsBBACxgrTLvkplgf7HC+5r7ckRPmMl6tF8xWuwrm21W5HqWEMc/d6CpQIDL6bS
+                certif:       Q0edzhVOq+z4D3MjQm1DYp/DYljLFvizPOcc0pFrIyt6iK0kgsNgz1naQjHcYNl2
+                certif:       QIYIRuYUFlHET/qjjhxHzE4iJWnSOSzrQY8QwoATagJnC7aEvQARAQABiJ8EGAEC
+                certif:       AAkFAlVJ4EsCGwwACgkQQLwMxLtGM0BeEAP9E1sdWG42A9Rvra9P1356qZomu6+4
+                certif:       YDfDeT5/GV9FCYleV3Who8cfRfc5POWfR8TQHY3JENsJC8CmHLaNx9s6O/xez9fY
+                certif:       atzEY1G/dR+rFkHMSwaQgEp3hCsuUSsy3XjYfDaW0f4iE+2/PAGOlL8nhuDfYa3+
+                certif:       C/iqTixGmdgjTk4=
+                certif:       =GTeW
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                remarks:      updated remarks
+                notify:       noreply@ripe.net
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20040101
+                source:       TEST
+
+                password: lir
+                """.stripIndent())
+
+      then:
+        def updateAck = new AckResponse("", updateResponse)
+
+        updateAck.summary.nrFound == 1
+        updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
+        updateAck.summary.assertErrors(0, 0, 0, 0)
+        updateAck.countErrorWarnInfo(0, 0, 0)
+
+      then:
+        def deleteResponse = syncUpdate("""\
+                key-cert:     PGPKEY-A9B98446
+                method:       PGP
+                fingerpr:     1293 BC61 A96F 7152 64CB  9F4E 40BC 0CC4 BB46 3340
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Version: GnuPG v1
+                certif:       Comment: GPGTools - http://gpgtools.org
+                certif:
+                certif:       mI0EVUngSwEEALM4Bo/7klJLW0tQPc3l5PDYNYiyt8bl5H7KAlC6noOrprJDP7I8
+                certif:       aUffODojNvMYrPY9qbJFqinajnkbSHqpNu9knHpbuTEpHn9dJpE/Qfs+9HAH42IK
+                certif:       cVLv+FRYb80zZ1GeISBHyXwYw273ojXZrDbFR/pzt4IFMqiUzLnsf9W3ABEBAAG0
+                certif:       G05vIFJlcGx5IDxub3JlcGx5QHJpcGUubmV0Poi4BBMBAgAiBQJVSeBLAhsDBgsJ
+                certif:       CAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBAvAzEu0YzQJ+NA/48qhokmbjVuUEm
+                certif:       5I1nvmiOwcO/aa0tA/JuLLq3IO5iGB9oUKshd8FDo5h7G+/ksLS2tEMYQoInjofK
+                certif:       spRAEaGU/OFT5wR5UCoMdqlNNRWcgy1qIUDBD6Yd5OQYMH+xRu1QKagv+Xtuo6Hh
+                certif:       WsH7Ql4P614M8zh71cnkfoWSRm4t+LQZVW5rbm93biA8dW5yZWFkQHJpcGUubmV0
+                certif:       Poi4BBMBAgAiBQJVSeCVAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBA
+                certif:       vAzEu0YzQLU2BACrCdr2aWEN5Mc2AtlSm50C//uFTYfyIxr7H4p7aW1xaBy2Z/D/
+                certif:       g96e1xvzqQIjJLCe8afXnlV/QAZfudoKzYPP5GLFXi0z98D+o1klWpiJ77gG8IPQ
+                certif:       a4iPr04FFSuxfxI0jIXS1CNUgq7QNj4TTeproBia5d6gJUfxZaYRUyghNbiNBFVJ
+                certif:       4EsBBACxgrTLvkplgf7HC+5r7ckRPmMl6tF8xWuwrm21W5HqWEMc/d6CpQIDL6bS
+                certif:       Q0edzhVOq+z4D3MjQm1DYp/DYljLFvizPOcc0pFrIyt6iK0kgsNgz1naQjHcYNl2
+                certif:       QIYIRuYUFlHET/qjjhxHzE4iJWnSOSzrQY8QwoATagJnC7aEvQARAQABiJ8EGAEC
+                certif:       AAkFAlVJ4EsCGwwACgkQQLwMxLtGM0BeEAP9E1sdWG42A9Rvra9P1356qZomu6+4
+                certif:       YDfDeT5/GV9FCYleV3Who8cfRfc5POWfR8TQHY3JENsJC8CmHLaNx9s6O/xez9fY
+                certif:       atzEY1G/dR+rFkHMSwaQgEp3hCsuUSsy3XjYfDaW0f4iE+2/PAGOlL8nhuDfYa3+
+                certif:       C/iqTixGmdgjTk4=
+                certif:       =GTeW
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                remarks:      updated remarks
+                notify:       noreply@ripe.net
+                mnt-by:       LIR-MNT
+                changed:      dbtest@ripe.net 20040101
+                source:       TEST
+                delete: reason
+
+                password: lir
+                """.stripIndent())
+
+      then:
+        def deleteAck = new AckResponse("", deleteResponse)
+
+        deleteAck.summary.nrFound == 1
+        deleteAck.summary.assertSuccess(1, 0, 0, 1, 0)
+        deleteAck.summary.assertErrors(0, 0, 0, 0)
+        deleteAck.countErrorWarnInfo(0, 0, 0)
+
+      then:
+        queryObjectNotFound("-r -T key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
+    }
+
+
 }
