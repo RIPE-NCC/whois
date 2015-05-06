@@ -273,4 +273,30 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         ! (update =~ /To create the first person\/mntner pair of objects /)
     }
+
+    def "updating mntner with no changes should result in noop"() {
+      setup:
+        def mntner = """
+            mntner:         OTHER-MNT
+            descr:          description
+            admin-c:        TEST-RIPE
+            mnt-by:         OTHER-MNT
+            upd-to:         dbtest@ripe.net
+            auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+            changed:        dbtest@ripe.net 20120707
+            source:         TEST
+            password:       update
+        """.stripIndent()
+      when:
+        def create = syncUpdate new SyncUpdate(data: mntner)
+      then:
+        create =~ /Create SUCCEEDED: \[mntner\] OTHER-MNT/
+      then:
+        // force time change (changes last-modified)
+        testDateTimeProvider.setTime(testDateTimeProvider.getCurrentDateTime().plusSeconds(10))
+      then:
+        def update =  syncUpdate new SyncUpdate(data: mntner)
+      then:
+        update =~ /No operation: \[mntner\] OTHER-MNT/
+    }
 }

@@ -1,5 +1,8 @@
 package net.ripe.db.whois.update.handler;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -40,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 
 @Component
@@ -265,10 +269,36 @@ public class SingleUpdateHandler {
             return Action.CREATE;
         }
 
-        if (originalObject.equals(updatedObject) && !updateContext.hasErrors(update)) {
+        if (attributesEqual(originalObject, updatedObject) && !updateContext.hasErrors(update)) {
             return Action.NOOP;
         }
 
         return Action.MODIFY;
     }
+
+    // TODO: refactor (move code into separate class)
+
+    // compare attributes, ignore generated
+    private boolean attributesEqual(final RpslObject originalObject, final RpslObject updatedObject) {
+        return Iterables.elementsEqual(
+            Iterables.filter(originalObject.getAttributes(), NOT_GENERATED_PREDICATE_INSTANCE),
+            Iterables.filter(updatedObject.getAttributes(), NOT_GENERATED_PREDICATE_INSTANCE));
+    }
+
+    private static class NotGeneratedPredicate implements Predicate<RpslAttribute> {
+        private static final List<AttributeType> GENERATED_ATTRIBUTES =
+            Lists.newArrayList(
+                AttributeType.CREATED,
+                AttributeType.LAST_MODIFIED,
+                AttributeType.FINGERPR,
+                AttributeType.OWNER,
+                AttributeType.METHOD);
+
+        @Override
+        public boolean apply(@Nullable RpslAttribute input) {
+            return !GENERATED_ATTRIBUTES.contains(input.getType());
+        }
+    }
+
+    private static final NotGeneratedPredicate NOT_GENERATED_PREDICATE_INSTANCE = new NotGeneratedPredicate();
 }
