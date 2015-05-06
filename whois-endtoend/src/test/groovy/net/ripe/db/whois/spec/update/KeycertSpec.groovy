@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -2648,12 +2647,11 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT key-cert X509-99", "key-cert", "X509-99")
     }
 
-    // GitHub issue #275
+    @Ignore // TODO: [ES] GitHub issue #275
     def "#275 delete keycert object doesn't match version in database"() {
       given:
         syncUpdate(getTransient("PGPKEY-F6A10C2D") + "password: lir")
         databaseHelper.whoisTemplate.update("UPDATE last SET object = ? WHERE pkey = ?", getTransient("PGPKEY-F6A10C2D"), "PGPKEY-F6A10C2D")
-
       when:
         def message = send new Message(
                 subject: "",
@@ -2712,7 +2710,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 certif:       =X7rJ
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       LIR-MNT
-                changed:      kju@fqdn.org 20020516
+                changed:      noreply@ripe.net 20020516
                 source:       TEST
                 delete:  reason
                 password: lir
