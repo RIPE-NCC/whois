@@ -141,7 +141,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate update
 
         then:
-        response =~ /Modify SUCCEEDED: \[person\] OP1-TEST   Other Person/
+        response =~ /No operation: \[person\] OP1-TEST   Other Person/
 
         when:
         def updated = query("OP1-TEST")
