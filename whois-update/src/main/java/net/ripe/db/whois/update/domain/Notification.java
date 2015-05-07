@@ -53,6 +53,7 @@ public final class Notification {
         return !updates.get(type).isEmpty();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     @Immutable
     public static class Update {
         private static final Map<Action, String> RESULT_MAP = Maps.newEnumMap(Action.class);
