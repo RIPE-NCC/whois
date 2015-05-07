@@ -388,10 +388,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         updateResponse =~ /No operation: \[key-cert\] PGPKEY-28F6CD6C/
-        updateResponse =~ /\*\*\*Warning: Supplied attribute 'owner' has been replaced with a generated value/
-        updateResponse =~ /\*\*\*Warning: Supplied attribute 'method' has been replaced with a generated value/
-        updateResponse =~ /\*\*\*Warning: Supplied attribute 'fingerpr' has been replaced with a generated
-            value/
     }
 
     def "update PGP keycert certificate changed has subkeys"() {
