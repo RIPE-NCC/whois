@@ -32,6 +32,6 @@ public class PasswordCredential implements Credential {
 
     @Override
     public String toString() {
-        return "PasswordCredential{password = '<undisclosed>'}";
+        return "PasswordCredential";
     }
 }
