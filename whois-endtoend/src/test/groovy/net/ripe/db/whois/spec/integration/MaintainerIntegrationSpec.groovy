@@ -291,7 +291,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
         def create = syncUpdate new SyncUpdate(data: mntner)
       then:
         create =~ /Create SUCCEEDED: \[mntner\] OTHER-MNT/
-      then:
+      when:
         // force time change (changes last-modified)
         setTime(getTime().plusSeconds(10))
       then:
