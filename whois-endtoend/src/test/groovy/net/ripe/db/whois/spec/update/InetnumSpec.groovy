@@ -427,6 +427,59 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
     }
 
+    def "create inetnum with mntner that still has referral-by"() {
+        given:
+        dbfixture(  """\
+            mntner:  REFERRALBY-MNT
+            descr:   description
+            admin-c: TP1-TEST
+            mnt-by:  REFERRALBY-MNT
+            upd-to:  dbtest@ripe.net
+            auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+            referral-by: REFERRALBY-MNT
+            changed: dbtest@ripe.net 20120707
+            source:  TEST
+            """.stripIndent()
+        )
+
+        expect:
+        queryObject("-r -T mntner REFERRALBY-MNT", "mntner", "REFERRALBY-MNT")
+        queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.128.2 - 192.168.128.2
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       REFERRALBY-MNT
+                changed:      dbtest@ripe.net 20020101
+                source:       TEST
+
+                password: update
+                password: hm
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.2 - 192.168.128.2" }
+
+        queryObject("-rGBT inetnum 192.168.128.2 - 192.168.128.2", "inetnum", "192.168.128.2 - 192.168.128.2")
+        query_object_matches("-r -T mntner REFERRALBY-MNT", "mntner", "REFERRALBY-MNT", "mnt-by:\\s*REFERRALBY-MNT")
+    }
+
     def "create ALLOCATED UNSPECIFIED, with LIR mntner, lir password"() {
       given:
         syncUpdate(getTransient("ALLOC-UNS") + "password: owner3\npassword:hm")

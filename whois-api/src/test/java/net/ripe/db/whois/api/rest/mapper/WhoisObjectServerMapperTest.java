@@ -53,7 +53,6 @@ public class WhoisObjectServerMapperTest {
         when(referencedTypeResolver.getReferencedType(AttributeType.ADMIN_C, ciString("TP1-TEST"))).thenReturn("person");
         when(referencedTypeResolver.getReferencedType(AttributeType.AUTH, ciString("PGPKEY-28F6CD6C"))).thenReturn("key-cert");
         when(referencedTypeResolver.getReferencedType(AttributeType.MNT_BY, ciString("TST-MNT"))).thenReturn("mntner");
-        when(referencedTypeResolver.getReferencedType(AttributeType.REFERRAL_BY, ciString("TST-MNT"))).thenReturn("mntner");
 
         final RpslObject rpslObject = RpslObject.parse(
                 "mntner:      TST-MNT\n" +
