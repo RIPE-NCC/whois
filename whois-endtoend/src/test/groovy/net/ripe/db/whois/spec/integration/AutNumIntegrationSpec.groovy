@@ -1,6 +1,5 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.FormatHelper
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
@@ -701,7 +700,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /Warning: "status:" attribute cannot be removed/
 
         when:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
         def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS102")
 
         then:
@@ -721,7 +720,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "update autnum object, user maintainer, status cannot be removed"() {
         when:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
         def create = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -789,7 +788,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "update autnum object, user maintainer, moving remark is allowed"() {
         given:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
 
         when:
         def create = syncUpdate new SyncUpdate(data: """\
@@ -860,7 +859,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create aut-num object, rs maintainer, generate ASSIGNED status, generate remark"() {
         when:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -895,7 +894,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create aut-num object, rs maintainer, generate ASSIGNED status, user-specified remark is moved beside status"() {
         when:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
                         as-name:        RS-2
@@ -933,7 +932,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create aut-num object, user maintainer, replace invalid status"() {
         when:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -970,7 +969,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create aut-num object, user maintainer, duplicate status"() {
         when:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User

@@ -1,7 +1,6 @@
 package net.ripe.db.whois.spec.integration
-import net.ripe.db.whois.common.FormatHelper
+
 import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
@@ -30,11 +29,8 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                 """]
     }
 
-    static TestDateTimeProvider dateTimeProvider;
-
     def setupSpec() {
-        dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);
-        dateTimeProvider.reset();
+        resetTime()
     }
 
     def "create sso mntner stores uuid in db, shows username in ack, filters auth in query"() {
@@ -71,7 +67,7 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
         def mntner = databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT")
 
       then:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
         mntner.toString().equals(String.format(
                 "mntner:         SSO-MNT\n" +
                 "descr:          sso mntner\n" +

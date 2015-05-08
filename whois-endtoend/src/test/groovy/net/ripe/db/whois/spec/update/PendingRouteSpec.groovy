@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.scheduler.task.update.PendingUpdatesCleanup
@@ -8,7 +7,6 @@ import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import net.ripe.db.whois.update.dao.PendingUpdateDao
-import org.joda.time.LocalDateTime
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class PendingRouteSpec extends BaseQueryUpdateSpec {
@@ -159,7 +157,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
     def "Mails are sent when confirmation by other mntner times out"() {
 
         given:
-        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
+        setTime(getTime().minusWeeks(2))
         syncUpdate(new SyncUpdate(data: """
                 inetnum:        192.168.0.0 - 192.169.255.255
                 netname:        EXACT-INETNUM
@@ -211,7 +209,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         when:
         clearAllMails()
-        whoisFixture.getTestDateTimeProvider().reset()
+        resetTime()
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
         then:
@@ -227,7 +225,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "Create route, pending request is removed on creation: both parties required"() {
         given:
-        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
+        setTime(getTime().minusWeeks(2))
         syncUpdate(new SyncUpdate(data: """
                 inetnum:        192.168.0.0 - 192.169.255.255
                 netname:        EXACT-INETNUM
@@ -290,7 +288,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         when:
         clearAllMails()
-        whoisFixture.getTestDateTimeProvider().reset()
+        resetTime()
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
         then:
@@ -302,7 +300,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "Create route, with 3 involved maintainers"() {
         given:
-        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
+        setTime(getTime().minusWeeks(2))
         syncUpdate(new SyncUpdate(data: """
                 mntner:      AS200-MNT
                 descr:       used for aut-num 200
@@ -437,7 +435,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         when:
         clearAllMails()
-        whoisFixture.getTestDateTimeProvider().reset()
+        resetTime()
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
         then:
@@ -448,7 +446,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
     def "create route, pending request is removed on creation, second party could do it all"() {
         given:
-        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
+        setTime(getTime().minusWeeks(2))
         syncUpdate(new SyncUpdate(data: """
                 inetnum:        192.168.0.0 - 192.169.255.255
                 netname:        EXACT-INETNUM
@@ -513,7 +511,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
 
         when:
         clearAllMails()
-        whoisFixture.getTestDateTimeProvider().reset()
+        resetTime()
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
         then:
@@ -1280,7 +1278,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
+        setTime(getTime().minusWeeks(2))
         def message = syncUpdate(new SyncUpdate(data: """\
                 route:          192.168.0.0/16
                 descr:          Route
@@ -1317,7 +1315,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        whoisFixture.getTestDateTimeProvider().reset()
+        resetTime()
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
       then:
@@ -1375,7 +1373,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        whoisFixture.getTestDateTimeProvider().setTime(LocalDateTime.now().minusWeeks(2))
+        setTime(getTime().minusWeeks(2))
         def message = syncUpdate(new SyncUpdate(data: """\
                 route:          192.168.0.0/16
                 descr:          Route
@@ -1411,7 +1409,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
         when:
-        whoisFixture.getTestDateTimeProvider().reset()
+        resetTime()
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
       then:

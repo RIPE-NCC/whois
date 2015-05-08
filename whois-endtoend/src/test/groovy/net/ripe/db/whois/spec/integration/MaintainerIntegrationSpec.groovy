@@ -293,7 +293,7 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
         create =~ /Create SUCCEEDED: \[mntner\] OTHER-MNT/
       then:
         // force time change (changes last-modified)
-        testDateTimeProvider.setTime(testDateTimeProvider.getCurrentDateTime().plusSeconds(10))
+        setTime(getTime().plusSeconds(10))
       then:
         def update =  syncUpdate new SyncUpdate(data: mntner)
       then:
