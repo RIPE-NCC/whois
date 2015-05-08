@@ -112,6 +112,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
             changed: dbtest@ripe.net 20120101
+            remarks: created
             source:  TEST
             password: update
             """.stripIndent()))
@@ -134,6 +135,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
             changed: dbtest@ripe.net 20120101
+            remarks: updated
             source:  TEST
             password: update
             """.stripIndent())
@@ -148,6 +150,45 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         updated =~/created:        ${yesterdayDateTime}/
+    }
+
+    def "modify object no operation"() {
+      given:
+        setTime(LocalDateTime.now().minusDays(1))
+        queryObjectNotFound("-r OP1-TEST", "person", "OP1-TEST")
+      when:
+        def createResponse = syncUpdate new SyncUpdate(data: """\
+            person:  Other Person
+            address: New Road
+            address: Town
+            address: UK
+            phone:   +44 282 411141
+            nic-hdl: OP1-TEST
+            mnt-by:  TST-MNT
+            changed: dbtest@ripe.net 20120101
+            source:  TEST
+            password: update
+            """.stripIndent())
+      then:
+        createResponse =~ /Create SUCCEEDED: \[person\] OP1-TEST   Other Person/
+      then:
+        queryObject("OP1-TEST", "person", "Other Person")
+      when:
+        setTime(LocalDateTime.now())
+        def updateResponse = syncUpdate new SyncUpdate(data: """\
+            person:  Other Person
+            address: New Road
+            address: Town
+            address: UK
+            phone:   +44 282 411141
+            nic-hdl: OP1-TEST
+            mnt-by:  TST-MNT
+            changed: dbtest@ripe.net 20120101
+            source:  TEST
+            password: update
+            """.stripIndent())
+        then:
+          updateResponse =~ /No operation: \[person\] OP1-TEST   Other Person/
     }
 
     def "modify object without created generates last-modified only"() {
