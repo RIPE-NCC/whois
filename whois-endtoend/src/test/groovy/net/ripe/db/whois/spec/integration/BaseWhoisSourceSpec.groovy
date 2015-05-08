@@ -1,5 +1,6 @@
 package net.ripe.db.whois.spec.integration
 
+import net.ripe.db.whois.common.FormatHelper
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
@@ -40,10 +41,21 @@ abstract class BaseWhoisSourceSpec extends BaseEndToEndSpec {
         whoisFixture.setRipeRanges(ripeRanges)
     }
 
-    def setTime(LocalDateTime dateTime) {
-        whoisFixture.setTime(dateTime)
+    def setTime(LocalDateTime localDateTime) {
+        whoisFixture.setTime(localDateTime)
     }
 
+    def getTime() {
+        return whoisFixture.getTestDateTimeProvider().currentDateTime;
+    }
+
+    def getTimeUtcString() {
+        return FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+    }
+
+    def resetTime() {
+        whoisFixture.getTestDateTimeProvider().reset()
+    }
 
     def objectExists(ObjectType objectType, String pkey) {
         whoisFixture.objectExists(objectType, pkey)

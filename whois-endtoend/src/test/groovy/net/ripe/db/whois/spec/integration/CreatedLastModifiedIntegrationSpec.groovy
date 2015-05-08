@@ -1,5 +1,5 @@
 package net.ripe.db.whois.spec.integration
-import net.ripe.db.whois.common.FormatHelper
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.common.rpsl.TestTimestampsMode
@@ -43,7 +43,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "create object with created and last-modified generates new values"() {
         given:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
 
         def update = new SyncUpdate(data: """\
         person:        Test Person
@@ -101,7 +101,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
     def "modify object created attribute stays the same"() {
         given:
         setTime(LocalDateTime.now().minusDays(1))
-        def yesterdayDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def yesterdayDateTime = getTimeUtcString()
 
         syncUpdate(new SyncUpdate(data: """\
             person:  Other Person
@@ -152,7 +152,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "modify object without created generates last-modified only"() {
         given:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
@@ -190,7 +190,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
     def "modify object with last-modified updates last-modified"() {
         given:
         setTime(LocalDateTime.now().minusDays(1))
-        def yesterdayDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def yesterdayDateTime = getTimeUtcString()
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
@@ -225,7 +225,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
         when:
         setTime(LocalDateTime.now())
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
 
         def updateToday = syncUpdate(new SyncUpdate(data:
                         "mntner:  LOOP-MNT\n" +
@@ -253,7 +253,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         given:
         testTimestampsMode.setTimestampsOff(false);
         setTime(LocalDateTime.now().minusDays(1))
-        def yesterdayDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def yesterdayDateTime = getTimeUtcString()
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
@@ -296,7 +296,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         given:
         testTimestampsMode.setTimestampsOff(false);
         setTime(LocalDateTime.now().minusDays(1))
-        def yesterdayDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def yesterdayDateTime = getTimeUtcString()
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
@@ -357,7 +357,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
         when:
         setTime(LocalDateTime.now())
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
         def delete = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
                 address:       Singel 258
@@ -396,7 +396,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
 
         when:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
         def delete = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
                 address:       Singel 258
@@ -416,7 +416,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "mode off: delete object with created and last-modified present"() {
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
 
         when:
         testTimestampsMode.setTimestampsOff(false);
@@ -461,7 +461,7 @@ last-modified:  ${currentDateTime}
     }
 
     def "mode off: delete object with created and last-modified not present"() {
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
 
         when:
         testTimestampsMode.setTimestampsOff(false);
@@ -551,7 +551,7 @@ last-modified:  ${currentDateTime}
         testTimestampsMode.setTimestampsOff(true);
 
         when:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
         def object = RpslObject.parse("person:    Pauleth Palthen\n" +
                 "address:   Singel 258\n" +
                 "phone:     +31-1234567890\n" +
@@ -579,7 +579,7 @@ last-modified:  ${currentDateTime}
         testTimestampsMode.setTimestampsOff(true);
 
         when:
-        def currentDateTime = FormatHelper.dateTimeToUtcString(whoisFixture.testDateTimeProvider.currentDateTimeUtc)
+        def currentDateTime = getTimeUtcString()
 
         def object = RpslObject.parse(
                 "person:    Pauleth Palthen\n" +
