@@ -157,6 +157,11 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(query("-i tech-c TEST-HM3"), containsString("Another Maintainer"));
     }
 
+    @Test
+    public void inverse_referral_by_is_invalid() {
+        assertThat(query("-i referral-by TEST"), containsString("\"referral-by\" is not a known attribute."));
+    }
+
     private String query(final String query) {
         return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }

@@ -161,6 +161,50 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         noMoreMessages()
     }
 
+    def "delete maintainer with referral-by"() {
+        given:
+        def toDelete = dbfixture( """\
+                mntner:      DEL-MNT
+                descr:       MNTNER for test
+                admin-c:     TP1-TEST
+                upd-to:      updto_test@ripe.net
+                mnt-nfy:     mntnfy_test@ripe.net
+                notify:      notif_test@ripe.net
+                auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
+                referral-by: DEL-MNT
+                mnt-by:      DEL-MNT
+                changed:     dbtest@ripe.net 20121109
+                source:      TEST
+                """.stripIndent())
+
+        expect:
+        queryObject("-r -T mntner DEL-MNT", "mntner", "DEL-MNT")
+
+        when:
+        def message = send new Message(
+                subject: "delete DEL-MNT",
+                body: toDelete + "delete: testing mntner delete\npassword: delete"
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 2, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[mntner] DEL-MNT" }
+
+        queryNothing("-r -T mntner DEL-MNT")
+
+        def notif = notificationFor "notif_test@ripe.net"
+        notif.deleted.any { it.type == "mntner" && it.key == "DEL-MNT" }
+
+        noMoreMessages()
+    }
+
     def "delete non self-maintained maintainer"() {
       given:
         def toDelete = dbfixture(getTransient("DEL2-MNT"))

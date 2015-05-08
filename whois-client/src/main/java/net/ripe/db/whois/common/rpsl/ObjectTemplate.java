@@ -119,7 +119,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.PINGABLE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PING_HDL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.POEM;
 import static net.ripe.db.whois.common.rpsl.AttributeType.POETIC_FORM;
-import static net.ripe.db.whois.common.rpsl.AttributeType.REFERRAL_BY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.REF_NFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.REMARKS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
@@ -356,7 +355,6 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_MAILBOX, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(REFERRAL_BY, DEPRECATED, SINGLE),
                         new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
                         new AttributeTemplate(CREATED, GENERATED, SINGLE),
                         new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
