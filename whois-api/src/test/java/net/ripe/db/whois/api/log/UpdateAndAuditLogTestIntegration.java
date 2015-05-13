@@ -13,7 +13,10 @@ import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.mail.MailSenderStub;
@@ -31,6 +34,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Cookie;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -97,7 +101,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_gets_logged() {
+    public void rest_create_gets_logged() {
         final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
         restClient.request()
                 .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
@@ -122,7 +126,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_gets_logged() {
+    public void rest_update_gets_logged() {
         final RpslObject updatedPerson = buildGenericObject(TEST_PERSON, "remarks: i will be back");
         restClient.request()
                 .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
@@ -147,7 +151,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delete_gets_logged() {
+    public void rest_delete_gets_logged() {
         final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
         databaseHelper.addObject(secondPerson);
         restClient.request()
@@ -173,7 +177,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delete_nonexistant_object_gets_logged() {
+    public void rest_delete_nonexistant_object_gets_logged() {
         final RpslObject nonexistantPerson = buildGenericObject(TEST_PERSON, "nic-hdl: ZYZ-TEST");
 
         try {
@@ -193,7 +197,26 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void syncupdate_gets_logged() throws Exception {
+    public void rest_create_with_sso_auth_gets_logged() {
+        restClient.request()
+                .addParam("password", "test")
+                .update(new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get());
+        updateLog.reset();
+
+        final RpslObject person = buildGenericObject(TEST_PERSON, "nic-hdl: ZYZ-TEST");
+
+        restClient.request()
+                .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .addCookie(new Cookie("crowd.token_key", "valid-token"))
+                .create(person);
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+ZYZ-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH SSO - WhoisRestApi(10.20.30.40)"));
+    }
+
+    @Test
+    public void syncupdates_create_gets_logged() throws Exception {
         final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
         RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(secondPerson + "\npassword: test") + "&NEW=yes")
                 .request()
@@ -224,6 +247,26 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         assertThat(updateLog.getMessages(), hasSize(1));
         assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
         assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - SyncUpdate(10.20.30.40)"));
+    }
+
+    @Test
+    public void syncupdates_create_with_sso_auth_gets_logged() {
+        restClient.request()
+                .addParam("password", "test")
+                .update(new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get());
+        updateLog.reset();
+
+        final RpslObject person = buildGenericObject(TEST_PERSON, "nic-hdl: ZYZ-TEST");
+
+        RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person.toString()) + "&NEW=yes")
+                .request()
+                .cookie(new Cookie("crowd.token_key", "valid-token"))
+                .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .get(String.class);
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+ZYZ-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH SSO - SyncUpdate(10.20.30.40)"));
     }
 
     @Test
