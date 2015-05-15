@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.transform.TimestampFilterFunction;
 import net.ripe.db.whois.update.domain.Ack;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Notification;
@@ -37,7 +36,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,7 +51,6 @@ public class ResponseFactoryTest {
 
     @Mock DateTimeProvider dateTimeProvider;
     @Mock UpdateContext updateContext;
-    @Mock TimestampFilterFunction timestampFilter;
     @InjectMocks ResponseFactory subject;
 
     private Origin origin;
@@ -377,16 +374,14 @@ public class ResponseFactoryTest {
     @Test
     public void notification_success() {
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
-        when(timestampFilter.apply(object1)).thenReturn(object1);
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
         final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
 
         final RpslObject object2 = RpslObject.parse("mntner: DEV-ROOT2-MNT");
-        when(timestampFilter.apply(object2)).thenReturn(object2);
         final Update update2 = new Update(new Paragraph(object2.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object2);
         final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
 
-        final Notification notification = new Notification("notify@me.com", timestampFilter);
+        final Notification notification = new Notification("notify@me.com");
         notification.add(Notification.Type.SUCCESS, create1, updateContext);
         notification.add(Notification.Type.SUCCESS, create2, updateContext);
 
@@ -422,18 +417,10 @@ public class ResponseFactoryTest {
                 "source: RIPE"
         );
 
-        final RpslObject filteredObject = RpslObject.parse("" +
-                        "mntner: DEV-MNT\n" +
-                        "auth: MD5-PW # Filtered\n" +
-                        "source: RIPE # Filtered"
-        );
-
-        when(timestampFilter.apply(filteredObject)).thenReturn(filteredObject);
-
         final Update update = new Update(new Paragraph(object.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object);
         final PreparedUpdate create = new PreparedUpdate(update, null, object, Action.CREATE);
 
-        final Notification notification = new Notification("notify@me.com", timestampFilter);
+        final Notification notification = new Notification("notify@me.com");
         notification.add(Notification.Type.SUCCESS, create, updateContext);
 
 
@@ -461,16 +448,14 @@ public class ResponseFactoryTest {
     @Test
     public void notification_success_reference() {
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
-        when(timestampFilter.apply(object1)).thenReturn(object1);
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
         final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
 
         final RpslObject object2 = RpslObject.parse("mntner: DEV-ROOT2-MNT");
-        when(timestampFilter.apply(object2)).thenReturn(object2);
         final Update update2 = new Update(new Paragraph(object2.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object2);
         final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
 
-        final Notification notification = new Notification("notify@me.com", timestampFilter);
+        final Notification notification = new Notification("notify@me.com");
         notification.add(Notification.Type.SUCCESS_REFERENCE, create1, updateContext);
         notification.add(Notification.Type.SUCCESS_REFERENCE, create2, updateContext);
 
@@ -498,16 +483,14 @@ public class ResponseFactoryTest {
     @Test
     public void notification_auth_failed() {
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
-        when(timestampFilter.apply(object1)).thenReturn(object1);
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
         final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
 
         final RpslObject object2 = RpslObject.parse("mntner: DEV-ROOT2-MNT");
-        when(timestampFilter.apply(object2)).thenReturn(object2);
         final Update update2 = new Update(new Paragraph(object2.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object2);
         final PreparedUpdate create2 = new PreparedUpdate(update2, null, object2, Action.CREATE);
 
-        final Notification notification = new Notification("notify@me.com", timestampFilter);
+        final Notification notification = new Notification("notify@me.com");
         notification.add(Notification.Type.FAILED_AUTHENTICATION, create1, updateContext);
         notification.add(Notification.Type.FAILED_AUTHENTICATION, create2, updateContext);
 
