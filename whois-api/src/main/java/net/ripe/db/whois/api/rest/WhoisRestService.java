@@ -26,11 +26,8 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.TimestampsMode;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryMessages;
@@ -163,7 +160,6 @@ public class WhoisRestService {
     private final SsoTranslator ssoTranslator;
     private final WhoisService whoisService;
     private final LoggerContext loggerContext;
-    private final TimestampsMode timestampsMode;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
@@ -175,8 +171,7 @@ public class WhoisRestService {
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator,
                             final WhoisService whoisService,
-                            final LoggerContext loggerContext,
-                            final TimestampsMode timestampsMode) {
+                            final LoggerContext loggerContext) {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
@@ -187,7 +182,6 @@ public class WhoisRestService {
         this.ssoTranslator = ssoTranslator;
         this.whoisService = whoisService;
         this.loggerContext = loggerContext;
-        this.timestampsMode = timestampsMode;
     }
 
     @DELETE
@@ -214,12 +208,6 @@ public class WhoisRestService {
             setDryRun(updateContext, dryRun);
 
             RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
-            if( timestampsMode.isTimestampsOff()) {
-                RpslObjectBuilder builder = new RpslObjectBuilder(originalObject);
-                builder.removeAttributeType(AttributeType.CREATED);
-                builder.removeAttributeType(AttributeType.LAST_MODIFIED);
-                originalObject = builder.get();
-            }
 
             ssoTranslator.populateCacheAuthToUsername(updateContext, originalObject);
             originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);

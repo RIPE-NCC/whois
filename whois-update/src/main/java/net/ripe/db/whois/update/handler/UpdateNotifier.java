@@ -13,7 +13,6 @@ import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.transform.TimestampFilterFunction;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Notification;
 import net.ripe.db.whois.update.domain.OverrideOptions;
@@ -43,21 +42,18 @@ public class UpdateNotifier {
     private final MailGateway mailGateway;
     private final VersionDao versionDao;
     private final Maintainers maintainers;
-    private final TimestampFilterFunction timestampsFilter;
 
     @Autowired
     public UpdateNotifier(final RpslObjectDao rpslObjectDao,
                           final ResponseFactory responseFactory,
                           final MailGateway mailGateway,
                           final VersionDao versionDao,
-                          final Maintainers maintainers,
-                          final TimestampFilterFunction timestampsFilter) {
+                          final Maintainers maintainers) {
         this.rpslObjectDao = rpslObjectDao;
         this.responseFactory = responseFactory;
         this.mailGateway = mailGateway;
         this.versionDao = versionDao;
         this.maintainers = maintainers;
-        this.timestampsFilter = timestampsFilter;
     }
 
     public void sendNotifications(final UpdateRequest updateRequest, final UpdateContext updateContext) {
@@ -147,7 +143,7 @@ public class UpdateNotifier {
             for (final CIString email : object.getValuesForAttribute(attributeType)) {
                 Notification notification = notifications.get(email);
                 if (notification == null) {
-                    notification = new Notification(email.toString(), timestampsFilter);
+                    notification = new Notification(email.toString());
                     notifications.put(email, notification);
                 }
 

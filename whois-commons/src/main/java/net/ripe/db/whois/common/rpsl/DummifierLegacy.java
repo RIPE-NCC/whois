@@ -7,8 +7,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
@@ -20,14 +18,6 @@ import java.util.Set;
 public class DummifierLegacy implements Dummifier {
     private static final Logger LOGGER = LoggerFactory.getLogger(DummifierLegacy.class);
 
-
-    //TODO [TP] remove this dirty hack to set the static variable when timestamps are always on
-    public static boolean TIMESTAMPS_OFF = false;
-
-    @Autowired
-    public void setTimestampsOff(@Value("${rpsl.timestamps.off}") boolean timestampsOff) {
-        TIMESTAMPS_OFF = timestampsOff;
-    }
     public static RpslObject getPlaceholderPersonObject() {
         return RpslObject.parse("" +
                         "person:         Placeholder Person Object\n" +
@@ -45,7 +35,8 @@ public class DummifierLegacy implements Dummifier {
                         "remarks:        * http://www.ripe.net/whois\n" +
                         "remarks:        **********************************************************\n" +
                         "changed:        ripe-dbm@ripe.net 20090724\n" +
-                        getFakeTimestampsIfNeeded() +
+                        "created:        2009-07-24T17:00:00Z\n" +
+                        "last-modified:  2009-07-24T17:00:00Z\n" +
                         "source:         RIPE"
         );
     }
@@ -70,20 +61,11 @@ public class DummifierLegacy implements Dummifier {
                         "remarks:        * http://www.ripe.net/whois\n" +
                         "remarks:        **********************************************************\n" +
                         "changed:        ripe-dbm@ripe.net 20090724\n" +
-                        getFakeTimestampsIfNeeded() +
+                        "created:        2009-07-24T17:00:00Z\n" +
+                        "last-modified:  2009-07-24T17:00:00Z\n" +
                         "source:         RIPE"
         );
     }
-
-    private static String getFakeTimestampsIfNeeded(){
-        //TODO remove when TIMESTAMPS are always on
-        if (TIMESTAMPS_OFF){
-            return  "";
-        }
-        return "created:        2009-07-24T17:00:00Z\n" +
-                "last-modified:  2009-07-24T17:00:00Z\n";
-    }
-
 
     static final Set<ObjectType> SKIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.PERSON, ObjectType.ROLE);
     static final Set<ObjectType> STRIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.MNTNER, ObjectType.ORGANISATION);

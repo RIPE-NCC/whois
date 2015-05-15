@@ -10,7 +10,6 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
-import net.ripe.db.whois.common.rpsl.transform.TimestampFilterFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
@@ -59,7 +58,6 @@ public class RpslResponseDecorator {
     private final Set<PrimaryObjectDecorator> decorators;
     private final SsoTokenTranslator ssoTokenTranslator;
     private final CrowdClient crowdClient;
-    private final TimestampFilterFunction timestampFilterFunction;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -72,7 +70,6 @@ public class RpslResponseDecorator {
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final SsoTokenTranslator ssoTokenTranslator,
                                  final CrowdClient crowdClient,
-                                 final TimestampFilterFunction timestampFilterFunction,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -86,7 +83,6 @@ public class RpslResponseDecorator {
         this.filterTagsDecorator = filterTagsDecorator;
         this.filterPlaceholdersDecorator = filterPlaceholdersDecorator;
         this.briefAbuseCFunction = new BriefAbuseCFunction(abuseCFinder);
-        this.timestampFilterFunction = timestampFilterFunction;
         this.decorators = Sets.newHashSet(decorators);
     }
 
@@ -105,15 +101,7 @@ public class RpslResponseDecorator {
 
         decoratedResult = applyOutputFilters(query, decoratedResult);
 
-        //TODO [TP] remove when timestamps are always on
-        decoratedResult = filterTimestampAttributes(decoratedResult);
-
         return decoratedResult;
-    }
-
-    //TODO [TP] remove when timestamps are always on
-    private Iterable<? extends ResponseObject> filterTimestampAttributes(final Iterable<? extends ResponseObject> objects) {
-        return Iterables.transform(objects, timestampFilterFunction);
     }
 
     private Iterable<? extends ResponseObject> applySyntaxFilter(final Query query, final Iterable<? extends ResponseObject> result) {
@@ -194,7 +182,6 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> applyOutputFilters(final Query query, final Iterable<? extends ResponseObject> objects) {
-
         if (query.isShortHand()) {
             return Iterables.transform(objects, new ToShorthandFunction());
         }
@@ -208,7 +195,6 @@ public class RpslResponseDecorator {
                     Collections.singletonList(new MessageObject(QueryMessages.primaryKeysOnlyNotice())),
                     Iterables.transform(objects, new ToKeysFunction()));
         }
-
 
         return objects;
     }
