@@ -13,7 +13,6 @@ import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.log4j.helpers.NullEnumeration;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
@@ -21,17 +20,14 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
-import java.util.Hashtable;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -47,66 +43,7 @@ public class InternalUpdatePerformerTest {
     @Mock private UpdateContext updateContextMock;
     @InjectMocks private InternalUpdatePerformer subject;
 
-    @Test
-    public void logHttpHeaders_header() {
-        final MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/ripe/mntner/TEST-MNT");
-        request.addHeader("name", "value");
 
-        subject.logHttpHeaders(loggerContextMock, request);
-
-        verify(loggerContextMock).log(new Message(Messages.Type.INFO, "Header: name=value"));
-        verifyNoMoreInteractions(loggerContextMock);
-    }
-
-    @Test
-    public void logHttpHeaders_headers() {
-        final Hashtable hashTable = new Hashtable();
-        hashTable.put("header1", "value1");
-        hashTable.put("header2", "value2");
-        hashTable.put("header3", "value3");
-
-        when(requestMock.getHeaderNames()).thenReturn(hashTable.keys());
-
-        when(requestMock.getHeaders("header1")).thenReturn(Collections.enumeration(Collections.singleton("value1")));
-        when(requestMock.getHeaders("header2")).thenReturn(Collections.enumeration(Collections.singleton("value2")));
-        when(requestMock.getHeaders("header3")).thenReturn(Collections.enumeration(Collections.singleton("value3")));
-
-        subject.logHttpHeaders(loggerContextMock, requestMock);
-
-        verify(loggerContextMock).log(new Message(Messages.Type.INFO, String.format("Header: header1=value1")));
-        verify(loggerContextMock).log(new Message(Messages.Type.INFO, String.format("Header: header2=value2")));
-        verify(loggerContextMock).log(new Message(Messages.Type.INFO, String.format("Header: header3=value3")));
-    }
-
-    @Test
-    public void logHttpHeaders_no_headers() {
-        when(requestMock.getHeaderNames()).thenReturn(NullEnumeration.getInstance());
-
-        subject.logHttpHeaders(loggerContextMock, requestMock);
-
-        verifyZeroInteractions(loggerContextMock);
-    }
-
-    @Test
-    public void logHttpUri_no_querystring() {
-        when(requestMock.getQueryString()).thenReturn("");
-        when(requestMock.getRequestURI()).thenReturn("www.test.net");
-
-        subject.logHttpUri(loggerContextMock, requestMock);
-
-        verify(loggerContextMock).log(new Message(Messages.Type.INFO, "www.test.net"));
-    }
-
-    @Test
-    public void log_http_uri() {
-        final MockHttpServletRequest request = new MockHttpServletRequest("GET", "/ripe/mntner/RIPE-DBM-MNT");
-        request.setQueryString("password=secret&unfiltered");
-
-        InternalUpdatePerformer.logHttpUri(loggerContextMock, request);
-
-        verify(loggerContextMock).log(new Message(Messages.Type.INFO, "/ripe/mntner/RIPE-DBM-MNT?password=secret&unfiltered"));
-        verifyNoMoreInteractions(loggerContextMock);
-    }
 
     @Test
     public void createContent_no_passwords() {

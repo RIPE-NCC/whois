@@ -57,8 +57,12 @@ public class OverrideOptions {
         }
 
         final OverrideCredential overrideCredential = overrideCredentials.iterator().next();
-        final String remarks = overrideCredential.getRemarks();
 
+        if (!overrideCredential.getOverrideValues().isPresent()){
+            return NONE;
+        }
+
+        final String remarks = overrideCredential.getOverrideValues().get().getRemarks();
         final Matcher optionMatcher = OPTIONS_PATTERN.matcher(remarks);
         if (!optionMatcher.find()) {
             return NONE;
