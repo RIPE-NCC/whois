@@ -1,67 +1,63 @@
 package net.ripe.db.whois.update.domain;
 
+import com.google.common.base.Optional;
 import org.junit.Test;
 
-import java.util.Set;
-
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
 public class OverrideCredentialTest {
+    final Optional<OverrideCredential.OverrideValues> absent = Optional.absent();
+
     @Test
     public void parse_empty() {
         final OverrideCredential overrideCredential = OverrideCredential.parse("");
 
-        assertThat(overrideCredential.toString(), is(""));
+        assertThat(overrideCredential.toString(), is("OverrideCredential{NOT_VALID}"));
 
-        final Set<OverrideCredential.UsernamePassword> possibleCredentials = overrideCredential.getPossibleCredentials();
-        assertThat(possibleCredentials, hasSize(0));
+        final Optional<OverrideCredential.OverrideValues> possibleCredentials = overrideCredential.getOverrideValues();
+        assertThat(possibleCredentials, is(absent));
     }
 
     @Test
     public void parse_one_value() {
         final OverrideCredential overrideCredential = OverrideCredential.parse("password");
 
-        assertThat(overrideCredential.getPossibleCredentials(), is(empty()));
+        assertThat(overrideCredential.getOverrideValues(), is(absent));
     }
 
     @Test
     public void parse_two_values() {
         final OverrideCredential overrideCredential = OverrideCredential.parse("user,password");
 
-        assertThat(overrideCredential.toString(), is("user,password"));
+        assertThat(overrideCredential.toString(), is("OverrideCredential{user,FILTERED}"));
 
-        final Set<OverrideCredential.UsernamePassword> possibleCredentials = overrideCredential.getPossibleCredentials();
-        assertThat(possibleCredentials, hasSize(1));
-        assertThat(possibleCredentials, containsInAnyOrder(new OverrideCredential.UsernamePassword("user", "password")));
-
-        assertThat(overrideCredential.getRemarks(), is(""));
+        final Optional<OverrideCredential.OverrideValues> possibleCredentials = overrideCredential.getOverrideValues();
+        assertThat(possibleCredentials, not(is(absent)));
+        assertThat(possibleCredentials.get(), is(new OverrideCredential.OverrideValues("user", "password", "")));
     }
 
     @Test
     public void parse_three_values() {
         final OverrideCredential overrideCredential = OverrideCredential.parse("user,password,remarks");
 
-        assertThat(overrideCredential.toString(), is("user,password,remarks"));
+        assertThat(overrideCredential.toString(), is("OverrideCredential{user,FILTERED,remarks}"));
 
-        final Set<OverrideCredential.UsernamePassword> possibleCredentials = overrideCredential.getPossibleCredentials();
-        assertThat(possibleCredentials, hasSize(1));
-        assertThat(possibleCredentials, containsInAnyOrder(new OverrideCredential.UsernamePassword("user", "password")));
-
-        assertThat(overrideCredential.getRemarks(), is("remarks"));
+        final Optional<OverrideCredential.OverrideValues> overrideValues = overrideCredential.getOverrideValues();
+        assertThat(overrideValues, not(is(absent)));
+        assertThat(overrideValues.get(), is(new OverrideCredential.OverrideValues("user", "password", "remarks")));
     }
 
     @Test
     public void parse_more_values() {
         final OverrideCredential overrideCredential = OverrideCredential.parse("user,password,remarks, and some more");
 
-        assertThat(overrideCredential.toString(), is("user,password,remarks, and some more"));
+        assertThat(overrideCredential.toString(), is("OverrideCredential{user,FILTERED,remarks, and some more}"));
 
-        final Set<OverrideCredential.UsernamePassword> possibleCredentials = overrideCredential.getPossibleCredentials();
-        assertThat(possibleCredentials, hasSize(1));
-        assertThat(possibleCredentials, containsInAnyOrder(new OverrideCredential.UsernamePassword("user", "password")));
-
-        assertThat(overrideCredential.getRemarks(), is("remarks, and some more"));
+        final Optional<OverrideCredential.OverrideValues> possibleCredentials = overrideCredential.getOverrideValues();
+        assertThat(possibleCredentials, not(is(absent)));
+        assertThat(possibleCredentials.get(), is(new OverrideCredential.OverrideValues("user", "password", "remarks, and some more")));
     }
 
     @Test
@@ -78,5 +74,15 @@ public class OverrideCredentialTest {
     @Test
     public void hash() {
         assertThat(OverrideCredential.parse("user,password,remarks").hashCode(), is(OverrideCredential.parse("user,password,remarks").hashCode()));
+    }
+
+    @Test
+    public void testToString() {
+        assertThat(OverrideCredential.parse("").toString(), is("OverrideCredential{NOT_VALID}"));
+        assertThat(OverrideCredential.parse("user").toString(), is("OverrideCredential{NOT_VALID}"));
+        assertThat(OverrideCredential.parse("user,password").toString(), is("OverrideCredential{user,FILTERED}"));
+        assertThat(OverrideCredential.parse("user, password").toString(), is("OverrideCredential{user,FILTERED}"));
+        assertThat(OverrideCredential.parse("user, password, remarks").toString(), is("OverrideCredential{user,FILTERED,remarks}"));
+        assertThat(OverrideCredential.parse("user,password,remarks,more remarks").toString(), is("OverrideCredential{user,FILTERED,remarks,more remarks}"));
     }
 }

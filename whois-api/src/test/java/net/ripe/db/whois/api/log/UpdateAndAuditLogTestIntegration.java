@@ -9,11 +9,16 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -34,7 +39,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -54,13 +61,15 @@ import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
+    private static final String PASSWORD = "team-red4321";
+    private static final String OVERRIDE_PASSWORD = "team-red1234";
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:        OWNER-MNT\n" +
             "descr:         Owner Maintainer\n" +
             "admin-c:       TP1-TEST\n" +
             "upd-to:        noreply@ripe.net\n" +
-            "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+            "auth:          MD5-PW $1$GUKzBg/F$PoCZBbhTNxCKM3K9VF8y60\n" + // #team-red4321
             "mnt-by:        OWNER-MNT\n" +
             "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
@@ -81,6 +90,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     @Autowired CrowdClient crowdClient;
     @Autowired MailUpdatesTestSupport mailUpdatesTestSupport;
     @Autowired MailSenderStub mailSenderStub;
+    @Autowired private WhoisObjectMapper whoisObjectMapper;
 
     @Autowired
     private RestClient restClient;
@@ -89,7 +99,6 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     public void setup() throws Exception {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T13:00:00"));
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
-
 
         ReflectionTestUtils.setField(restClient, "restApiUrl", String.format("http://localhost:%d/whois", getPort()));
         ReflectionTestUtils.setField(restClient, "sourceName", "TEST");
@@ -101,28 +110,61 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_gets_logged_override() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("personadmin", OVERRIDE_PASSWORD, ObjectType.values()));
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
+
+        RestTest.target(getPort(), "whois/TEST/person")
+                .queryParam("override", SyncUpdateUtils.encode("personadmin," + OVERRIDE_PASSWORD + ",my reason"))
+                .request()
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, secondPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_981288000000/000.audit.xml.gz"));
+        assertThat(audit, containsString("<query"));
+        assertThat(audit, containsString("<sql"));
+        assertThat(audit, containsString("<message><![CDATA[POST /whois/TEST/person?override=personadmin,FILTERED,my%2Breason"));
+        assertThat(audit, not(containsString(OVERRIDE_PASSWORD)));
+
+        final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_981288000000/001.msg-in.txt.gz"));
+        assertThat(msgIn, containsString("person:         Test Person"));
+        assertThat(msgIn, not(containsString(OVERRIDE_PASSWORD)));
+
+        final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_981288000000/002.ack.txt.gz"));
+        assertThat(ack, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(ack, not(containsString(OVERRIDE_PASSWORD)));
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I1> AUTH OVERRIDE - WhoisRestApi(127.0.0.1)"));
+        assertThat(updateLog.getMessage(0), not(containsString(OVERRIDE_PASSWORD)));
+    }
+
     public void rest_create_gets_logged() {
         final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
         restClient.request()
                 .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
-                .addParam("password", "test")
+                .addParam("password", PASSWORD)
                 .create(secondPerson);
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_981288000000/000.audit.xml.gz"));
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
-        assertThat(audit, containsString("<message><![CDATA[Header: X-Forwarded-For=10.20.30.40]]></message>"));
-        assertThat(audit, containsString("<message><![CDATA[/whois/TEST/person?password=test]]></message>"));
+        assertThat(audit, containsString("Header: X-Forwarded-For=10.20.30.40"));
+        assertThat(audit, containsString("<message><![CDATA[POST /whois/TEST/person?password=FILTERED"));
+        assertThat(audit, not(containsString(PASSWORD)));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_981288000000/001.msg-in.txt.gz"));
         assertThat(msgIn, containsString("person:         Test Person"));
+        assertThat(msgIn, not(containsString(PASSWORD)));
 
         final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_981288000000/002.ack.txt.gz"));
         assertThat(ack, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(ack, not(containsString(PASSWORD)));
 
         assertThat(updateLog.getMessages(), hasSize(1));
         assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
         assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - WhoisRestApi(10.20.30.40)"));
+        assertThat(updateLog.getMessage(0), not(containsString(PASSWORD)));
     }
 
     @Test
@@ -130,24 +172,28 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         final RpslObject updatedPerson = buildGenericObject(TEST_PERSON, "remarks: i will be back");
         restClient.request()
                 .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
-                .addParam("password", "test")
+                .addParam("password", PASSWORD)
                 .update(updatedPerson);
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_981288000000/000.audit.xml.gz"));
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
-        assertThat(audit, containsString("<message><![CDATA[Header: X-Forwarded-For=10.20.30.40]]></message>"));
-        assertThat(audit, containsString("<message><![CDATA[/whois/TEST/person/TP1-TEST?password=test]]></message>"));
+        assertThat(audit, containsString("Header: X-Forwarded-For=10.20.30.40"));
+        assertThat(audit, containsString("<message><![CDATA[PUT /whois/TEST/person/TP1-TEST?password=FILTERED"));
+        assertThat(audit, not(containsString(PASSWORD)));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_981288000000/001.msg-in.txt.gz"));
         assertThat(msgIn, containsString("person:         Test Person"));
+        assertThat(msgIn, not(containsString(PASSWORD)));
 
         final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_981288000000/002.ack.txt.gz"));
         assertThat(ack, containsString("Modify SUCCEEDED: [person] TP1-TEST   Test Person"));
+        assertThat(ack, not(containsString(PASSWORD)));
 
         assertThat(updateLog.getMessages(), hasSize(1));
         assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD MODIFY person\\s+TP1-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
         assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - WhoisRestApi(10.20.30.40)"));
+        assertThat(updateLog.getMessage(0), not(containsString(PASSWORD)));
     }
 
     @Test
@@ -156,24 +202,28 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject(secondPerson);
         restClient.request()
                 .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
-                .addParam("password", "test")
+                .addParam("password", PASSWORD)
                 .delete(secondPerson);
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_981288000000/000.audit.xml.gz"));
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
-        assertThat(audit, containsString("<message><![CDATA[Header: X-Forwarded-For=10.20.30.40]]></message>"));
-        assertThat(audit, containsString("<message><![CDATA[/whois/TEST/person/TP2-TEST?password=test]]></message>"));
+        assertThat(audit, containsString("Header: X-Forwarded-For=10.20.30.40"));
+        assertThat(audit, containsString("<message><![CDATA[DELETE /whois/TEST/person/TP2-TEST?password=FILTERED"));
+        assertThat(audit, not(containsString(PASSWORD)));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_981288000000/001.msg-in.txt.gz"));
         assertThat(msgIn, containsString("person:         Test Person"));
+        assertThat(msgIn, not(containsString(PASSWORD)));
 
         final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_981288000000/002.ack.txt.gz"));
         assertThat(ack, containsString("Delete SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(ack, not(containsString(PASSWORD)));
 
         assertThat(updateLog.getMessages(), hasSize(1));
         assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD DELETE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
         assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - WhoisRestApi(10.20.30.40)"));
+        assertThat(updateLog.getMessage(0), not(containsString(PASSWORD)));
     }
 
     @Test
@@ -183,7 +233,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         try {
             restClient.request()
                     .addHeader(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
-                    .addParam("password", "test")
+                    .addParam("password", PASSWORD)
                     .delete(nonexistantPerson);
             fail();
         } catch (RestClientException e) {
@@ -192,14 +242,101 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         }
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_981288000000/000.audit.xml.gz"));
-        assertThat(audit, containsString("<message><![CDATA[/whois/TEST/person/ZYZ-TEST?password=test]]></message>"));
+        assertThat(audit, containsString("<message><![CDATA[DELETE /whois/TEST/person/ZYZ-TEST?password=FILTERED"));
         assertThat(audit, containsString("<message><![CDATA[Caught class org.springframework.dao.EmptyResultDataAccessException for ZYZ-TEST: Incorrect result size: expected 1, actual 0]]></message>"));
+        assertThat(audit, not(containsString(PASSWORD)));
+    }
+
+    @Test
+    public void syncupdate_gets_logged_override() throws Exception {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("personadmin", OVERRIDE_PASSWORD, ObjectType.values()));
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
+        RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(secondPerson + "override: personadmin," + OVERRIDE_PASSWORD) + "&NEW=yes")
+                .request()
+                .header(HttpHeaders.X_FORWARDED_FOR, "127.0.0.1")
+                .get(String.class);
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_981288000000/000.audit.xml.gz"));
+        assertThat(audit, containsString("<query"));
+        assertThat(audit, containsString("<sql"));
+        assertThat(audit, containsString("Header: X-Forwarded-For=127.0.0.1"));
+        assertThat(audit, containsString("<message><![CDATA[GET /whois/syncupdates/test?DATA"));
+        assertThat(audit, not(containsString(OVERRIDE_PASSWORD)));
+        assertThat(audit, containsString("override%3A+personadmin,FILTERED"));
+
+        final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_981288000000/001.msg-in.txt.gz"));
+        assertThat(msgIn, containsString("REQUEST FROM:127.0.0.1"));
+        assertThat(msgIn, containsString("NEW=yes"));
+        assertThat(msgIn, containsString("DATA="));
+        assertThat(msgIn, containsString("Test Person"));
+        assertThat(msgIn, not(containsString(OVERRIDE_PASSWORD)));
+        assertThat(msgIn, containsString("override:personadmin,FILTERED"));
+
+        final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_981288000000/002.ack.txt.gz"));
+        assertThat(ack, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(ack, not(containsString(OVERRIDE_PASSWORD)));
+
+        final String msgOut = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_981288000000/003.msg-out.txt.gz"));
+        assertThat(msgOut, containsString("SUMMARY OF UPDATE:"));
+        assertThat(msgOut, containsString("DETAILED EXPLANATION:"));
+        assertThat(msgOut, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(msgOut, not(containsString(OVERRIDE_PASSWORD)));
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I1> AUTH OVERRIDE - SyncUpdate(127.0.0.1)"));
+        assertThat(updateLog.getMessage(0), not(containsString(PASSWORD)));
+    }
+
+    @Test
+    public void syncupdate_post_gets_logged_override() throws Exception {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("personadmin", OVERRIDE_PASSWORD, ObjectType.values()));
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
+
+        RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .header(HttpHeaders.X_FORWARDED_FOR, "127.0.0.1")
+                .post(Entity.entity("DATA=" +
+                                        SyncUpdateUtils.encode(secondPerson + "override: personadmin," + OVERRIDE_PASSWORD + ",reason") + "&NEW=yes",
+                                MediaType.valueOf("application/x-www-form-urlencoded")),
+                        String.class);
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_981288000000/000.audit.xml.gz"));
+        assertThat(audit, containsString("<query"));
+        assertThat(audit, containsString("<sql"));
+        assertThat(audit, containsString("Header: X-Forwarded-For=127.0.0.1"));
+        assertThat(audit, containsString("<message><![CDATA[POST /whois/syncupdates/test"));
+        assertThat(audit, not(containsString(OVERRIDE_PASSWORD)));
+        assertThat(audit, containsString("OverrideCredential{personadmin,FILTERED,reason}"));
+
+        final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_981288000000/001.msg-in.txt.gz"));
+        assertThat(msgIn, containsString("REQUEST FROM:127.0.0.1"));
+        assertThat(msgIn, containsString("NEW=yes"));
+        assertThat(msgIn, containsString("DATA="));
+        assertThat(msgIn, containsString("Test Person"));
+        assertThat(msgIn, not(containsString(OVERRIDE_PASSWORD)));
+        assertThat(msgIn, containsString("override:personadmin,FILTERED,reason"));
+
+        final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_981288000000/002.ack.txt.gz"));
+        assertThat(ack, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(ack, not(containsString(OVERRIDE_PASSWORD)));
+
+        final String msgOut = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_981288000000/003.msg-out.txt.gz"));
+        assertThat(msgOut, containsString("SUMMARY OF UPDATE:"));
+        assertThat(msgOut, containsString("DETAILED EXPLANATION:"));
+        assertThat(msgOut, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(msgOut, not(containsString(OVERRIDE_PASSWORD)));
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I1> AUTH OVERRIDE - SyncUpdate(127.0.0.1)"));
+        assertThat(updateLog.getMessage(0), not(containsString(PASSWORD)));
     }
 
     @Test
     public void rest_create_with_sso_auth_gets_logged() {
         restClient.request()
-                .addParam("password", "test")
+                .addParam("password", "team-red4321")
                 .update(new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get());
         updateLog.reset();
 
@@ -211,6 +348,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
                 .create(person);
 
         assertThat(updateLog.getMessages(), hasSize(1));
+        System.err.println(updateLog.getMessage(0));
         assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+ZYZ-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
         assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH SSO - WhoisRestApi(10.20.30.40)"));
     }
@@ -218,7 +356,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     @Test
     public void syncupdates_create_gets_logged() throws Exception {
         final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
-        RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(secondPerson + "\npassword: test") + "&NEW=yes")
+        RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(secondPerson + "\npassword: " + PASSWORD) + "&NEW=yes")
                 .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
                 .get(String.class);
@@ -226,33 +364,40 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_10.20.30.40_981288000000/000.audit.xml.gz"));
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
-        assertThat(audit, containsString("<message><![CDATA[Header: X-Forwarded-For=10.20.30.40]]></message>"));
-        assertThat(audit, containsString("<message><![CDATA[/whois/syncupdates/test?DATA"));
+        assertThat(audit, containsString("Header: X-Forwarded-For=10.20.30.40"));
+        assertThat(audit, containsString("<message><![CDATA[GET /whois/syncupdates/test?DATA"));
+        assertThat(audit, not(containsString(PASSWORD)));
+        assertThat(audit, containsString("password%3AFILTERED"));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_10.20.30.40_981288000000/001.msg-in.txt.gz"));
         assertThat(msgIn, containsString("REQUEST FROM:10.20.30.40"));
         assertThat(msgIn, containsString("NEW=yes"));
         assertThat(msgIn, containsString("DATA="));
         assertThat(msgIn, containsString("Test Person"));
-        assertThat(msgIn, containsString("password: test"));
+        assertThat(msgIn, not(containsString(PASSWORD)));
+        assertThat(msgIn, containsString("password:FILTERED"));
 
         final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_10.20.30.40_981288000000/002.ack.txt.gz"));
         assertThat(ack, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(ack, not(containsString(PASSWORD)));
 
         final String msgOut = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_10.20.30.40_981288000000/003.msg-out.txt.gz"));
         assertThat(msgOut, containsString("SUMMARY OF UPDATE:"));
         assertThat(msgOut, containsString("DETAILED EXPLANATION:"));
         assertThat(msgOut, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(msgOut, not(containsString(PASSWORD)));
 
         assertThat(updateLog.getMessages(), hasSize(1));
         assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
         assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - SyncUpdate(10.20.30.40)"));
+        assertThat(updateLog.getMessage(0), not(containsString(PASSWORD)));
     }
+
 
     @Test
     public void syncupdates_create_with_sso_auth_gets_logged() {
         restClient.request()
-                .addParam("password", "test")
+                .addParam("password", "team-red4321")
                 .update(new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get());
         updateLog.reset();
 
@@ -272,18 +417,18 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     @Test
     public void syncupdates_invalid_data_gets_logged() {
         RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=invalid")
-                    .request()
-                    .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
-                    .get(String.class);
+                .request()
+                .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .get(String.class);
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_10.20.30.40_981288000000/000.audit.xml.gz"));
 
-        assertThat(audit, containsString("<message><![CDATA[/whois/syncupdates/test?DATA=invalid]]></message>"));
+        assertThat(audit, containsString("<message><![CDATA[GET /whois/syncupdates/test?DATA=invalid"));
     }
 
     @Test
     public void mailupdate_gets_logged() throws Exception {
-        final String response = mailUpdatesTestSupport.insert("NEW", buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST").toString() + "\npassword: test");
+        final String response = mailUpdatesTestSupport.insert("NEW", buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST").toString() + "\npassword: " + PASSWORD);
 
         final MimeMessage message = mailSenderStub.getMessage(response);
 
@@ -297,23 +442,28 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
         assertThat(audit, containsString("Test Person"));
+        assertThat(audit, not(containsString(PASSWORD)));
 
         final String msgIn = FileHelper.fetchGzip(new File(logDirectory + "001.msg-in.txt.gz"));
         assertThat(msgIn, containsString("Subject: NEW"));
         assertThat(msgIn, containsString("Test Person"));
-        assertThat(msgIn, containsString("password: test"));
+        assertThat(msgIn, not(containsString(PASSWORD)));
+        assertThat(msgIn, containsString("password:FILTERED"));
 
         final String ack = FileHelper.fetchGzip(new File(logDirectory + "002.ack.txt.gz"));
         assertThat(ack, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(ack, not(containsString(PASSWORD)));
 
         final String msgOut = FileHelper.fetchGzip(new File(logDirectory + "003.msg-out.txt.gz"));
         assertThat(msgOut, containsString("SUMMARY OF UPDATE:"));
         assertThat(msgOut, containsString("DETAILED EXPLANATION:"));
         assertThat(msgOut, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
+        assertThat(msgOut, not(containsString(PASSWORD)));
 
         assertThat(updateLog.getMessages(), hasSize(1));
         assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+TP2-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
         assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH PWD - Mail"));
+        assertThat(updateLog.getMessage(0), not(containsString(PASSWORD)));
     }
 
     // helper methods
