@@ -641,21 +641,17 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
 
     @Test
     public void modify_person__mntby_SSO_and_pw__logged_in_pw_supplied__sso_authentication_takes_precedence_over_password() {
-        RpslObject person = buildGenericObject(baseFixtures.get("TP1-TEST"), "nic-hdl: TP2-TEST", "mnt-by: LIR-MNT");
-        databaseHelper.addObjects(person,
-                makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"));
-
-        RpslObject updatedPerson = buildGenericObject(person, "remarks: look at me, all updated");
-
+        final RpslObject person = buildGenericObject(baseFixtures.get("TP1-TEST"), "nic-hdl: TP2-TEST", "mnt-by: LIR-MNT");
+        databaseHelper.addObjects(person, makeMntner("LIR", "auth: SSO " + USER1, "auth: MD5-PW $1$7AEhjSjo$KvxW0YOJFkHpoZqBkpTiO0 # lir"));
+        final RpslObject updatedPerson = buildGenericObject(person, "remarks: look at me, all updated");
         final String token = crowdClient.login(USER1, PASSWORD1);
 
         try {
-            String whoisResources = RestTest.target(getPort(), "whois/test/person/TP2-TEST?password=lir")
+            RestTest.target(getPort(), "whois/test/person/TP2-TEST?password=lir")
                     .request(mediaType)
                     .cookie("crowd.token_key", token)
                     .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedPerson), mediaType), String.class);
-            System.err.println(whoisResources);
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         } finally {
@@ -673,7 +669,8 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
             // TODO when we add message to ack about which MNTNER authorises update, split pw and SSO into different MNTNERs and check the correct MNTENR authorised the update
         };
 
-        assertThat(linesContainingPassword, contains("<message><![CDATA[/whois/test/person/TP2-TEST?password=lir]]></message>",
+        assertThat(linesContainingPassword, contains(
+                "<message><![CDATA[PUT /whois/test/person/TP2-TEST?password=FILTERED",
                 "<credential>PasswordCredential</credential>"));
     }
 
