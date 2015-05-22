@@ -130,7 +130,7 @@ class GrsSourceImporter {
                         try {
                             rpslObject = RpslObject.parse(rpslObjectString);
                         } catch (RuntimeException e) {
-                            logger.info("Unable to parse input as object:\n\n{}\n", rpslObjectString);
+                            logger.info("Unable to parse input as object: {}\n\n{}\n", e.getMessage(), rpslObjectString);
                             return;
                         }
 
