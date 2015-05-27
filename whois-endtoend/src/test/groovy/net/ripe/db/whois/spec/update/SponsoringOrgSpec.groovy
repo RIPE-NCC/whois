@@ -22,7 +22,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "RIR-ALLOC-20" : """\
@@ -36,7 +35,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
                 "AS222 - AS333": """\
@@ -44,7 +42,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
                 "ROLE-A"       : """\
@@ -58,7 +55,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 nic-hdl:      AH1-TEST
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20121016
                 source:       TEST
                 """,
                 "ORGLIR-A"     : """\
@@ -73,7 +69,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       ripe-ncc-hm-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
                 """,
                 "ORG-OTH-A"    : """\
@@ -88,7 +83,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
                 """,
                 "ORGRIR"       : """\
@@ -100,7 +94,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         ripe-ncc-hm-mnt
                 mnt-by:          ripe-ncc-hm-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 """,
                 "ORGLIR-A2"    : """\
@@ -115,7 +108,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       ripe-ncc-hm-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
                 """,
                 "ASSPI"        : """\
@@ -130,7 +122,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASSANY"       : """\
@@ -145,7 +136,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASSPI-64"     : """\
@@ -160,7 +150,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
                 "ASSANY-64"    : """\
@@ -175,7 +164,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
                 "AS333"        : """\
@@ -192,7 +180,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
         ]
@@ -214,7 +201,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASSANYSPON"  : """\
@@ -230,7 +216,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASSPI-64SPON": """\
@@ -246,7 +231,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
                 "AS222SPON"   : """
@@ -264,7 +248,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
         ]
@@ -288,7 +271,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -303,7 +285,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -318,7 +299,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS222
@@ -335,7 +315,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: nccend
@@ -380,7 +359,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -394,7 +372,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -408,7 +385,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS222
@@ -424,7 +400,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: nccend
@@ -479,7 +454,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: nccend
@@ -522,7 +496,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: nccend
@@ -563,7 +536,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: nccend
@@ -601,7 +573,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -616,7 +587,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS222
@@ -633,7 +603,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-OFA10-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: nccend
@@ -684,7 +653,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -699,7 +667,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-RIR-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS222
@@ -716,7 +683,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-RIR-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: nccend
@@ -766,7 +732,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -781,7 +746,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS222
@@ -798,7 +762,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -843,7 +806,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:     denis,override1
 
@@ -859,7 +821,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:     denis,override1
 
@@ -877,7 +838,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:     denis,override1
 
@@ -920,7 +880,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:     denis,override1
 
@@ -936,7 +895,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:     denis,override1
 
@@ -954,7 +912,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-OFA10-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:     denis,override1
 
@@ -1002,7 +959,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:     denis,override1
 
@@ -1057,7 +1013,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       %s%s
                 sponsoring-org: ORG-OFA10-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:     denis,override1
 
@@ -1136,7 +1091,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -1151,7 +1105,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -1166,7 +1119,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA2-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS222
@@ -1183,7 +1135,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA2-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: nccend
@@ -1237,7 +1188,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -1252,7 +1202,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -1267,7 +1216,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA2-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS222
@@ -1284,7 +1232,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA2-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -1345,7 +1292,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -1359,7 +1305,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -1373,7 +1318,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS222
@@ -1389,7 +1333,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: nccend
@@ -1442,7 +1385,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:     denis,override1
 
@@ -1457,7 +1399,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:     denis,override1
 
@@ -1472,7 +1413,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:     denis,override1
 
@@ -1489,7 +1429,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:     denis,override1
 
@@ -1537,7 +1476,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.101.0 - 192.168.101.255
@@ -1552,7 +1490,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:100::/64
@@ -1567,7 +1504,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA2-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS333
@@ -1584,7 +1520,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA2-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: nccend
@@ -1632,7 +1567,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:   denis,override1
 
@@ -1648,7 +1582,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:   denis,override1
 
@@ -1664,7 +1597,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA2-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:   denis,override1
 
@@ -1682,7 +1614,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-LIRA2-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -1730,7 +1661,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.101.0 - 192.168.101.255
@@ -1745,7 +1675,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:100::/64
@@ -1760,7 +1689,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA2-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS333
@@ -1777,7 +1705,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -1838,7 +1765,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -1852,7 +1778,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -1866,7 +1791,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS222
@@ -1882,7 +1806,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -1930,7 +1853,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override: denis, override1""".stripIndent())
 
@@ -1951,7 +1873,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 password: lir
                 password: nccend
@@ -1982,7 +1903,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override: denis, override1""".stripIndent())
 
@@ -2003,7 +1923,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 password: lir
                 password: owner3
@@ -2034,7 +1953,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override: denis, override1""".stripIndent())
 
@@ -2054,7 +1972,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 password: lir
                 password: nccend
@@ -2085,7 +2002,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override: denis, override1""".stripIndent())
 
@@ -2106,7 +2022,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: reason
                 password: lir
@@ -2144,7 +2059,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       ripe-ncc-hm-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
                 delete:   testing
 
@@ -2188,7 +2102,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:   testing
 
@@ -2231,7 +2144,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.101.0 - 192.168.101.255
@@ -2246,7 +2158,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:100::/64
@@ -2261,7 +2172,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS333
@@ -2278,7 +2188,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -2338,7 +2247,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.101.0 - 192.168.101.255
@@ -2353,7 +2261,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:100::/64
@@ -2368,7 +2275,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS333
@@ -2385,7 +2291,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: nccend
@@ -2441,7 +2346,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:   denis,override1
 
@@ -2457,7 +2361,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:   denis,override1
 
@@ -2473,7 +2376,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:   denis,override1
 
@@ -2491,7 +2393,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:         ASSIGNED
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2553,7 +2454,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -2568,7 +2468,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -2583,7 +2482,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS222
@@ -2600,7 +2498,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-OFA10-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -2666,7 +2563,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -2681,7 +2577,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -2696,7 +2591,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 aut-num:        AS222
@@ -2713,7 +2607,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-OFA10-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password: nccend
@@ -2775,7 +2668,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:    denis,override1
 
@@ -2791,7 +2683,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:    denis,override1
 
@@ -2807,7 +2698,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:    denis,override1
 
@@ -2825,7 +2715,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 sponsoring-org: ORG-OFA10-TEST
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:    denis,override1
 
@@ -2876,7 +2765,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: nccend
@@ -2916,7 +2804,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED
                 sponsoring-org: ORG-LIRA-TEST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: nccend
@@ -2957,7 +2844,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: nccend
@@ -2998,7 +2884,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: nccend
@@ -3039,7 +2924,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                     mnt-by:         LIR-MNT
                     mnt-lower:      RIPE-NCC-HM-MNT
                     status:         ASSIGNED ANYCAST
-                    changed:        dbtest@ripe.net 20130101
                     source:         TEST
                     override:     denis,override1
                     """.stripIndent())
@@ -3065,7 +2949,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                     mnt-by:         LIR-MNT
                     mnt-lower:      RIPE-NCC-HM-MNT
                     status:         ASSIGNED ANYCAST
-                    changed:        dbtest@ripe.net 20130101
                     source:         TEST
                     """.stripIndent())
         then:
@@ -3082,7 +2965,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                     mnt-by:         LIR-MNT
                     mnt-lower:      RIPE-NCC-HM-MNT
                     status:         ASSIGNED ANYCAST
-                    changed:        dbtest@ripe.net 20130101
                     source:         TEST
                     override:     denis,override1
                     """.stripIndent())

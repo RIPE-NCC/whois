@@ -21,7 +21,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-UNS2": """\
@@ -35,7 +34,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA": """\
@@ -50,7 +48,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "JOINT-ALLOC-PA": """\
@@ -65,7 +62,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ERX-ALLOC-PA": """\
@@ -80,7 +76,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA-ROUTES": """\
@@ -96,7 +91,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 mnt-routes:   LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA-DOMAINS": """\
@@ -112,7 +106,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 mnt-domains:  LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PI": """\
@@ -127,7 +120,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ERX-ALLOC-PI": """\
@@ -142,7 +134,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "PART-PA": """\
@@ -154,7 +145,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ASS-END": """\
@@ -166,7 +156,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "LEGACY-ALLOC": """\
@@ -178,7 +167,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LEGACY
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "LEGACY-ALLOC-JOINT": """\
@@ -191,7 +179,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-by:       RIPE-NCC-LEGACY-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "LEGACY_END": """\
@@ -203,7 +190,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LEGACY
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "EXACT-ROUTE": """\
@@ -211,7 +197,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 descr:       exact match route object
                 origin:      AS3000
                 mnt-by:      OWNER2-MNT
-                changed:     dbtest@ripe.net 20020101
                 source:      TEST
                 """,
     ]}
@@ -235,7 +220,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -276,7 +260,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir override
 
@@ -316,7 +299,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 descr:       exact match route object
                 origin:      AS3000
                 mnt-by:      OWNER2-MNT
-                changed:     dbtest@ripe.net 20020101
                 source:      TEST
                 delete:  lir reclaim
 
@@ -356,7 +338,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 descr:       exact match route object
                 origin:      AS3000
                 mnt-by:      OWNER2-MNT
-                changed:     dbtest@ripe.net 20020101
                 source:      TEST
                 delete:  lir reclaim
 
@@ -400,7 +381,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir override
 
@@ -440,7 +420,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir override
 
@@ -480,7 +459,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir override
 
@@ -523,7 +501,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir
 
@@ -568,7 +545,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  RS
 
@@ -608,7 +584,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir override
                 password: lir2
@@ -651,7 +626,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir override
 
@@ -695,7 +669,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LEGACY
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir override
 
@@ -737,7 +710,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LEGACY
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir
 
@@ -779,7 +751,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LEGACY
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir
                 override: denis,override1
@@ -820,7 +791,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LEGACY
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  lir override
 
@@ -862,7 +832,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LEGACY
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:  asdf
 
@@ -892,7 +861,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 descr:       exact match route object
                 origin:      AS3000
                 mnt-by:      OWNER2-MNT
-                changed:     dbtest@ripe.net 20020101
                 source:      TEST
                 delete:  lir reclaim
 

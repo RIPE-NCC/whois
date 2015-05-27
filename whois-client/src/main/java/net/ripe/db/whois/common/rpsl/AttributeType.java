@@ -156,8 +156,9 @@ public enum AttributeType implements Documented {
             .syntax(CERTIF_SYNTAX)),
 
     CHANGED(new Builder("changed", "ch")
-            .doc("Specifies who submitted the update, and when the object was updated. " +
-                    "This attribute is filtered from the default whois output.")
+            .doc("Specifies who submitted the update, and when the object was updated.\n" +
+                    "This attribute is filtered from the default whois output.\n" +
+                    "This attribute is deprecated and will be removed in a next release.")
             .syntax(CHANGED_SYNTAX)),
 
     COMPONENTS(new Builder("components", "co")

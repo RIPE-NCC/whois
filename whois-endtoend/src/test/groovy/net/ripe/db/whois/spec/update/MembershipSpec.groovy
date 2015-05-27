@@ -18,7 +18,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
             "ASN352": """\
@@ -33,7 +32,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
             "ASN1309": """\
@@ -49,7 +47,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
             "ASN94967295": """\
@@ -62,7 +59,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
             "TOP-AS-SET": """\
@@ -73,7 +69,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "TOP-SET-NOREF": """\
@@ -83,7 +78,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "TOP-SET-ANY": """\
@@ -94,7 +88,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  ANY
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "REF-AS-SET": """\
@@ -106,7 +99,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  LIR-MNT
                 mbrs-by-ref:  REF-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "REF-AS-SET2": """\
@@ -117,7 +109,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "REF-AS-SET3": """\
@@ -129,7 +120,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  LIR-MNT
                 mbrs-by-ref:  LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "AS-SET-2LEVEL": """\
@@ -141,7 +131,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  LIR-MNT
                 mbrs-by-ref:  LIR3-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "AS-SET-3LEVEL": """\
@@ -152,7 +141,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER3-MNT
                 mnt-lower:    LIR3-MNT
                 mbrs-by-ref:  owner-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "AS-SET-MEMBERS": """\
@@ -164,7 +152,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 members:      AS65536, AS7775535, AS94967295
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "ASB16":"""\
@@ -173,7 +160,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 remarks:        yes
                 org:            ORG-OTO1-TEST
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net   20121214
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
                 """,
@@ -184,7 +170,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$hDtpxh4D\$.mEfvYAiRmAQCynxMuE4J1  #ref
                 mnt-by:      ref-MNT
-                changed:     dbtest@ripe.net 20121212
                 source:      TEST
                 """
     ]}
@@ -209,7 +194,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 member-of:      AS-TEST
                 mnt-by:         LIR-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -251,7 +235,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 member-of:      AS-TEST
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: hm
@@ -293,7 +276,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 member-of:      AS-TEST
                 mnt-by:         LIR-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -338,7 +320,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 member-of:      AS-TEST2
                 member-of:      AS-TEST
                 mnt-by:         LIR3-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: lir3
@@ -381,7 +362,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 status:         ASSIGNED
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-lower:      owner2-mnt
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: hm
@@ -424,7 +404,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 password: owner2
@@ -467,7 +446,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 as-set:       AS-TEST
@@ -476,7 +454,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       testing
 
@@ -523,7 +500,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 aut-num:        AS352
@@ -537,7 +513,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
-                changed:        dbtest@ripe.net
                 source:         TEST
 
                 password: owner2
@@ -585,7 +560,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 aut-num:        AS352
@@ -598,7 +572,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
-                changed:        dbtest@ripe.net
                 source:         TEST
 
                 password: owner2
@@ -645,7 +618,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 aut-num:        AS352
@@ -658,7 +630,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
-                changed:        dbtest@ripe.net
                 source:         TEST
 
                 as-set:       AS-TEST
@@ -667,7 +638,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       testing
 
@@ -714,7 +684,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 member-of:      AS-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: owner
@@ -757,7 +726,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$hDtpxh4D\$.mEfvYAiRmAQCynxMuE4J1  #ref
                 mnt-by:      ref-MNT
-                changed:     dbtest@ripe.net 20121212
                 source:      TEST
                 delete:      testing
 
@@ -801,7 +769,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:      testing
 
@@ -840,7 +807,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  ANY
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 password: owner2
@@ -882,7 +848,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 member-of:      AS-TEST2
                 mnt-by:         LIR-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -926,7 +891,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  ANY
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 aut-num:        AS352
@@ -940,7 +904,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
-                changed:        dbtest@ripe.net 20121212
                 source:         TEST
 
                 password: owner2
@@ -962,7 +925,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
 
         query_object_matches("-r -T as-set AS-TEST", "as-set", "AS-TEST", "mbrs-by-ref:\\s*ANY")
         query_object_matches("-rBT aut-num AS352", "aut-num", "AS352", "member-of:\\s*AS-TEST")
-        query_object_matches("-rBT aut-num AS352", "aut-num", "AS352", "20121212")
     }
 
     def "create aut-num obj, member-of 2 existing sets, ref mntner used for auth"() {
@@ -991,7 +953,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 member-of:      AS-TEST2
                 mnt-by:         LIR-MNT
                 mnt-by:         LIR2-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -1039,7 +1000,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 aut-num:        AS1309
@@ -1054,7 +1014,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         LIR-MNT
                 mnt-lower:      owner2-mnt
-                changed:        dbtest@ripe.net 20121212
                 source:         TEST
 
                 password: owner2
@@ -1103,7 +1062,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 member-of:      AS123:AS-TEST
                 mnt-by:         LIR-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 aut-num:        AS789
@@ -1114,7 +1072,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 member-of:      AS123:AS-TEST
                 mnt-by:         LIR3-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -1165,7 +1122,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:         LIR-MNT
                 mnt-by:         LIR2-MNT
                 mnt-by:         LIR3-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -1203,7 +1159,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
                 mbrs-by-ref:  aardvark-mnt
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 password: owner2
@@ -1244,7 +1199,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1291,7 +1245,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1339,7 +1292,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 members:      AS65536, AS7775535, AS94967295
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       testing members
 
@@ -1388,7 +1340,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 delete:       testing members
 
@@ -1437,7 +1388,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: owner
@@ -1487,7 +1437,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 member-of:      AS-test
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 as-set:       AS-TEST
@@ -1499,7 +1448,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mbrs-by-ref:  owner-mnt
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 password: owner2
@@ -1553,7 +1501,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mbrs-by-ref:  owner-mnt
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 aut-num:        AS123
@@ -1564,7 +1511,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 member-of:      AS-test
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 as-set:       AS-TEST
@@ -1576,7 +1522,6 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mbrs-by-ref:  owner-mnt
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       test ing
 

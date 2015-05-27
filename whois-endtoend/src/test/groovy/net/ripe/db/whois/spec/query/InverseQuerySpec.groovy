@@ -23,7 +23,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 411141
                 nic-hdl: IP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "INVERSE-PN2": """\
@@ -34,7 +33,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 411141
                 nic-hdl: IP2-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "BY-MNT": """\
@@ -45,7 +43,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-nfy:     mntnfy_inverse@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      BY-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "LOWER-MNT": """\
@@ -57,7 +54,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 notify:      notify_lower@ripe.net
                 auth:        MD5-PW \$1\$dYNAtacz\$p4AOgwz3Igu5CiCVzs4Hz.  #lower
                 mnt-by:      LOWER-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ROUTES-MNT": """\
@@ -69,7 +65,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 notify:      notify_routes@ripe.net
                 auth:        MD5-PW \$1\$bCCnYJ3M\$uAVVUpzdGA9TOecv9L.KD/  #routes
                 mnt-by:      ROUTES-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "DOMAINS-MNT": """\
@@ -81,7 +76,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 notify:      notify_domains@ripe.net
                 auth:        MD5-PW \$1\$anTWxMgQ\$8aBWq5u5ZFHLA5aeZsSxG0  #domains
                 mnt-by:      DOMAINS-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "REF-MNT": """\
@@ -92,7 +86,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-nfy:     mntnfy_inverse@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      REF-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "MBRS-MNT": """\
@@ -103,7 +96,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-nfy:     dbtest@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      MBRS-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ORGSUB": """\
@@ -116,7 +108,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 notify:          notify-inverse@ripe.net
                 mnt-ref:         ref-mnt
                 mnt-by:          lir-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
         ]
@@ -136,7 +127,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LOWER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "SUB-LOW-R-D": """\
@@ -152,7 +142,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LOWER-MNT
                 mnt-routes:   ROUTES-MNT
                 mnt-domains:  DOMAINS-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "SUB-LOW": """\
@@ -166,7 +155,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LOWER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASS-END": """\
@@ -180,7 +168,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       BY-MNT
                 mnt-routes:   ROUTES-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "PING": """\
@@ -189,7 +176,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 origin:         AS1000
                 mnt-by:         LIR-MNT
                 ping-hdl:       IP1-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "PING2": """\
@@ -198,7 +184,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 origin:         AS2000
                 mnt-by:         LIR-MNT
                 ping-hdl:       IP2-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS1000": """\
@@ -211,7 +196,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 tech-c:      IP2-TEST
                 notify:      notify-inverse@ripe.net
                 mnt-by:      LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "AS2000": """\
@@ -221,7 +205,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      BY-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ZONE": """\
@@ -233,7 +216,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS-SET-ANY": """\
@@ -244,7 +226,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 mbrs-by-ref:  ANY
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "ROUTE-SET": """\
@@ -255,7 +236,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 mbrs-by-ref:  MBRS-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "IRT": """\
@@ -267,7 +247,6 @@ class InverseQuerySpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
         ]

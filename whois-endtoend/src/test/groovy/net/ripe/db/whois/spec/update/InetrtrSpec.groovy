@@ -22,7 +22,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "AS250":"""\
@@ -39,7 +38,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 notify:         noreply@ripe.net
                 mnt-by:         RIPE-NCC-HM-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS222 - AS333":"""\
@@ -55,7 +53,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
                 """,
@@ -68,7 +65,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
                 mnt-by:       TST-MNT
-                changed:      dbtest@ripe.net   20121214
                 source:       TEST
             """,
             "AS28816":"""\
@@ -80,7 +76,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
                 mnt-by:       TST-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
             """,
             "test2.net":"""\
@@ -96,7 +91,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net   20121214
                 source:      TEST
             """,
             "INET6NUM-2001":"""\
@@ -108,7 +102,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 status:      ASSIGNED
                 mnt-by:      TST-MNT
-                changed:     ripe@test.net 20120505
                 source:      TEST
             """
     ]}
@@ -138,7 +131,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test
@@ -197,7 +189,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP2-TEST
                 mnt-by:      TST-MNT2
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test2
@@ -245,7 +236,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT2
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test2
@@ -287,7 +277,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test
@@ -333,7 +322,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -374,7 +362,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -415,7 +402,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
                 mnt-by:       TST-MNT
-                changed:      dbtest@ripe.net   20121214
                 source:       TEST
                 delete:       test delete
 
@@ -460,7 +446,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net   20121214
                 source:      TEST
                 delete:      test delete
 
@@ -503,7 +488,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -545,7 +529,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -590,7 +573,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -636,7 +618,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -684,7 +665,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -731,7 +711,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -771,7 +750,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -817,7 +795,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test
@@ -861,7 +838,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test
@@ -907,7 +883,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -952,7 +927,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -997,7 +971,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -1042,7 +1015,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -1090,7 +1062,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT3
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test3
@@ -1133,7 +1104,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 mp-peer:     BGP4 146.188.49.13 asno(AS7775535)
                 mnt-by:      TST-MNT
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test
@@ -1177,7 +1147,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test
@@ -1219,7 +1188,6 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      TST-MNT2
                 notify:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test

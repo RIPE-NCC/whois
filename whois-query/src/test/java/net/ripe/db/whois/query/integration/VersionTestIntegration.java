@@ -223,7 +223,6 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
         databaseHelper.addObject("" +
                 "organisation: TO1-TEST\n" +
                 "org-name: Test Organisation\n" +
-                "changed: test@ripe.net 20120101\n" +
                 "created: 2015-02-02T11:12:13Z\n" +
                 "last-modified: 2015-02-02T11:12:13Z\n" +
                 "source: TEST");

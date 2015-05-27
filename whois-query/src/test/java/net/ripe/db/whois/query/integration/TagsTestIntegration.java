@@ -28,7 +28,7 @@ public class TagsTestIntegration extends AbstractQueryIntegrationTest {
         final RpslObject root = RpslObject.parse("inetnum:0.0.0.0 - 255.255.255.255\nnetname: NN\nmnt-by: RIPE-NCC-HM-MNT");
         final RpslObject rsMaintainer = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\norg: ORG-TEST1-TEST\nadmin-c:TP1-TEST");
         final RpslObject org = RpslObject.parse("organisation: ORG-TEST1-TEST\nadmin-c:TP1-TEST");
-        final RpslObject person = RpslObject.parse("person: Test Person\naddress: Street\nphone: +31324243\nnic-hdl:TP1-TEST\nmnt-by:RIPE-NCC-HM-MNT\nchanged:test@ripe.net\nsource:TEST");
+        final RpslObject person = RpslObject.parse("person: Test Person\naddress: Street\nphone: +31324243\nnic-hdl:TP1-TEST\nmnt-by:RIPE-NCC-HM-MNT\nnotify:noreply@ripe.net\nsource:TEST");
         final RpslObject unusedMnt = RpslObject.parse("mntner: UNUSED-MNT\nmnt-by: UNUSED-MNT\nadmin-c: TP1-TEST");
         final RpslObject mtagMnt = RpslObject.parse("mntner: MTAG-MNT\nmnt-by: MTAG-MNT\nadmin-c: TP1-TEST\norg: ORG-TEST1-TEST");
 

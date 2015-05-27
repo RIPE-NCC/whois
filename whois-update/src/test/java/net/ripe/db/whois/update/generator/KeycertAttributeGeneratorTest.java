@@ -228,7 +228,7 @@ public class KeycertAttributeGeneratorTest {
                 "key-cert:     PGPKEY-5763950D\n" +
                 "fingerpr:     884F 8E23 69E5 E6F1 9FB3  63F4 BBCC BB2D 5763 950D\n" +
                 "certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
-                "certif:       Version: GnuPG v1.4.12 (Darwin)\n" +
+                "certif:       Version: GnuPG v1\n" +
                 "certif:       \n" +
                 "certif:       mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+\n" +
                 "certif:       yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH\n" +

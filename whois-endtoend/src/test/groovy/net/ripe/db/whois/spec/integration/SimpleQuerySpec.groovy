@@ -15,7 +15,6 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
                 phone:          +44 282 420469
                 nic-hdl:        TP1-TEST
                 mnt-by:         TST-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
                 "TST-MNT": """\
@@ -24,7 +23,6 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
                 admin-c:        TP1-TEST
                 upd-to:         dbtest@ripe.net
                 auth:           MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
                 "ORG1": """\
@@ -36,7 +34,6 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
                 ref-nfy:        dbtest-org@ripe.net
                 mnt-ref:        TST-MNT
                 mnt-by:         TST-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
                 "DOMAIN": """\
@@ -48,7 +45,6 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
                 nserver:        dns.ripe.net
                 notify:         notify@ripe.net
                 mnt-by:         TST-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
                 "ROUTE6": """\
@@ -57,7 +53,6 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
                 origin:         AS123
                 mnt-by:         TST-MNT
                 mnt-lower:      TST-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
                 "INET6NUM": """\
@@ -73,7 +68,6 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
                 mnt-lower:      TST-MNT
                 mnt-routes:     TST-MNT
                 status:         ALLOCATED-BY-RIR
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """
         ]
@@ -97,7 +91,6 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
             mnt-lower:      TST-MNT
             mnt-routes:     TST-MNT
             status:         ALLOCATED-BY-RIR
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
 
             route6:         2001:780::/32
@@ -105,7 +98,6 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
             origin:         AS123
             mnt-by:         TST-MNT
             mnt-lower:      TST-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
 
             domain:         0.8.7.0.1.0.0.2.ip6.arpa
@@ -116,7 +108,6 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
             nserver:        dns.ripe.net
             notify:         notify@ripe.net
             mnt-by:         TST-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
             """.stripIndent()
 

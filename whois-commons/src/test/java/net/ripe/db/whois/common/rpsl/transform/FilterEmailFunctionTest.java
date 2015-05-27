@@ -35,8 +35,6 @@ public class FilterEmailFunctionTest {
                 "e-mail: value\n" +
                 "notify: value\n" +
                 "notify: value\n" +
-                "changed: value\n" +
-                "changed: value\n" +
                 "ref-nfy: value\n" +
                 "ref-nfy: value\n" +
                 "mnt-nfy: value\n" +

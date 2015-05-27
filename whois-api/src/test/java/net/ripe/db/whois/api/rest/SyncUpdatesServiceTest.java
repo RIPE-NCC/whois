@@ -319,7 +319,6 @@ public class SyncUpdatesServiceTest {
                 "phone:    +31-61238-2827\n" +
                 "nic-hdl:  ES222-RIPE\n" +
                 "mnt-by:   TEST-DBM-MNT\n" +
-                "changed:  eshryane@ripe.net 20120829\n" +
                 "source:   test\n" +
                 "remarks:  something\n" +
                 "\n" +
@@ -361,7 +360,6 @@ public class SyncUpdatesServiceTest {
                 "phone:    +31-61238-2827\n" +
                 "nic-hdl:  ES222-RIPE\n" +
                 "mnt-by:   TEST-DBM-MNT\n" +
-                "changed:  eshryane@ripe.net 20120829\n" +
                 "source:   test\n" +
                 "remarks:  something\n" +
                 "\n" +

@@ -16,7 +16,6 @@ class SearchQuerySpec extends BaseWhoisSourceSpec {
             upd-to:         dbtest@ripe.net
             org:            ORG-TOL1-TEST
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed:        dbtest@ripe.net 20120707
             source:         TEST
             """,
                 "ADMIN-MNT": """\
@@ -26,7 +25,6 @@ class SearchQuerySpec extends BaseWhoisSourceSpec {
             mnt-by:         ADMIN-MNT
             upd-to:         dbtest@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed:        dbtest@ripe.net 20120707
             source:         TEST
             """,
                 "ADMIN-PN": """\
@@ -37,7 +35,6 @@ class SearchQuerySpec extends BaseWhoisSourceSpec {
             phone:          +44 282 411141
             nic-hdl:        TEST-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
             """,
                 "ORG1": """\
@@ -49,7 +46,6 @@ class SearchQuerySpec extends BaseWhoisSourceSpec {
             e-mail:       org1@test.com
             mnt-ref:      UPD-MNT
             mnt-by:       UPD-MNT
-            changed:      dbtest@ripe.net 20120505
             source:       TEST
             """
         ]

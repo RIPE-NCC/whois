@@ -23,7 +23,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_as@ripe.net
                 auth:        MD5-PW \$1\$eUJDS9FF\$M.Rnslf2/Joum8D1e8cLQ/  #as
                 mnt-by:      AS-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
                 "AS2-MNT": """\
@@ -35,7 +34,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_as2@ripe.net
                 auth:        MD5-PW \$1\$xrdaPju9\$pdea/wDdhZd4nGNaCH5xI1  #as2
                 mnt-by:      AS2-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
                 "P-INET-MNT": """\
@@ -47,7 +45,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_pinet@ripe.net
                 auth:        MD5-PW \$1\$oHHeFFDr\$wUBxFsxTb6GQykxSlZN4S.  #pinet
                 mnt-by:      P-INET-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
         ]
@@ -61,7 +58,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Full ASN range
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
                 "AS100": """\
@@ -73,7 +69,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:         notify_as100@ripe.net
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         AS-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
                 "AS200": """\
@@ -85,7 +80,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:         notify_as200@ripe.net
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         AS2-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
                 "PARENT-INET": """\
@@ -98,7 +92,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 status:         ALLOCATED PA
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-lower:      P-INET-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
                 "ROUTE": """\
@@ -106,7 +99,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
         ]
@@ -128,7 +120,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -167,7 +158,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 status:         ALLOCATED PA
                 mnt-by:         OWNER-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -180,7 +170,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 notify:         notify_as100@ripe.net
                 mnt-by:         AS-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -196,7 +185,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS100
                 mnt-by:         AS-MNT
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password:   as
                 """.stripIndent(), redirect: false))
@@ -235,7 +223,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 status:         ALLOCATED PA
                 mnt-by:         OWNER-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -248,7 +235,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 notify:         notify_as100@ripe.net
                 mnt-by:         AS-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -263,7 +249,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route AS-MNT
                 origin:         AS100
                 mnt-by:         AS2-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password:   as
                 password:   as2
@@ -278,7 +263,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route AS-MNT
                 origin:         AS100
                 mnt-by:         AS2-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password:   owner
                 password:   as2
@@ -310,7 +294,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_as@ripe.net
                 auth:        MD5-PW \$1\$oHHeFFDr\$wUBxFsxTb6GQykxSlZN4S.  #pinet
                 mnt-by:      AS200-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -325,7 +308,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 status:         ALLOCATED PA
                 mnt-by:         AS-MNT
                 mnt-routes:     AS200-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -339,7 +321,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:         notify_as100@ripe.net
                 mnt-by:         AS200-MNT
                 mnt-routes:     AS200-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -353,7 +334,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 status:         ASSIGNED PA
                 mnt-by:         AS-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -367,7 +347,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_as@ripe.net
                 auth:        MD5-PW \$1\$oHHeFFDr\$wUBxFsxTb6GQykxSlZN4S.  #pinet
                 mnt-by:      AS100-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -380,7 +359,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 notify:         notify_as100@ripe.net
                 mnt-by:         AS100-MNT
-                changed:        noreply@ripe.net 20120101
                 mnt-routes:     AS100-MNT
                 source:         TEST
                 override: denis,override1
@@ -391,7 +369,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route AS200-MNT
                 origin:         AS200
                 mnt-by:         AS200-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -413,7 +390,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                     descr:          Route AS-MNT
                     origin:         AS100
                     mnt-by:         AS-MNT
-                    changed:        noreply@ripe.net 20120101
                     source:         TEST
 
                     password: as
@@ -456,7 +432,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 status:         ALLOCATED PA
                 mnt-by:         OWNER-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -470,7 +445,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:         notify_as100@ripe.net
                 mnt-by:         OWNER-MNT
                 mnt-by:         AS-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override: denis,override1
                 """.stripIndent(), redirect: false))
@@ -487,7 +461,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS100
                 mnt-by:         AS-MNT
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password:   as
                 """.stripIndent(), redirect: false))
@@ -502,7 +475,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS100
                 mnt-by:         AS-MNT
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password:   owner
                 """.stripIndent(), redirect: false))
@@ -538,7 +510,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -579,7 +550,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -619,7 +589,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   as
@@ -660,7 +629,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -701,7 +669,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -750,7 +717,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -799,7 +765,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -838,7 +803,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -882,7 +846,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -921,7 +884,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -961,7 +923,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -974,7 +935,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -987,7 +947,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1018,7 +977,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1030,7 +988,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route 2
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120111
                 source:         TEST
 
                 password:   owner
@@ -1045,7 +1002,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1078,7 +1034,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1117,7 +1072,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1156,7 +1110,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1201,7 +1154,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1240,7 +1192,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   as
@@ -1284,7 +1235,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1331,7 +1281,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1379,7 +1328,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1425,7 +1373,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -1468,7 +1415,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1506,7 +1452,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 remarks:         same same but different
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -1545,7 +1490,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1582,7 +1526,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT  #endoflinecomment
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   as
@@ -1623,7 +1566,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1661,7 +1603,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS100
                 remarks:         same same but different
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1694,7 +1635,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS100
                 remarks:         same same but different
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   as
@@ -1735,7 +1675,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1772,7 +1711,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1809,7 +1747,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   as
@@ -1841,7 +1778,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -1886,7 +1822,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS100
                 mnt-by:         OWNER-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner

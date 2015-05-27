@@ -18,7 +18,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ALLOC-PA": """\
@@ -33,7 +32,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ALLOC-PA-A": """\
@@ -48,7 +46,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "SUB-ALLOC-PA": """\
@@ -62,7 +59,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "SUB-ALLOC-PA-A": """\
@@ -75,7 +71,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 org:          ORG-END1-TEST
                 """,
@@ -90,7 +85,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "LIR-PART-PA": """\
@@ -104,7 +98,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "LIR-PART-PA-A": """\
@@ -117,7 +110,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 org:          ORG-END1-TEST
                 """,
@@ -130,7 +122,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 org:          ORG-END1-TEST
                 """,
@@ -143,7 +134,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASS-END2-NO-A": """\
@@ -155,7 +145,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASS-END-NO-A-ORG": """\
@@ -168,7 +157,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ROUTE": """\
@@ -177,7 +165,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 origin:         AS2000
                 mnt-by:         LIR-MNT
                 ping-hdl:       TP1-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
                 "TEST-MNT": """\
@@ -188,7 +175,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 notify:      notify_tst4@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      TEST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 org:          ORG-OFA10-TEST
                 """,
@@ -205,7 +191,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       OWNER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ROLE":"""\
@@ -219,7 +204,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 nic-hdl: AB-TEST
                 abuse-mailbox: abuse@test.net
                 mnt-by:  TST-MNT2
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
                 "ORG-W-ABUSE_C": """\
@@ -235,7 +219,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 abuse-c:         AB-TEST
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 """,
                 "AUTNUM": """\
@@ -250,7 +233,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """
         ]
@@ -286,7 +268,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -325,7 +306,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       ripe-ncc-hm-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
 
                 password: hm
@@ -371,7 +351,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:       TEST-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -416,7 +395,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -895,7 +873,6 @@ class AbuseQuerySpec extends BaseQueryUpdateSpec {
                     "admin-c:        TP1-TEST\n" +
                     "tech-c:         TP1-TEST\n" +
                     "mnt-by:         OWNER-MNT\n" +
-                    "changed:        noreply@ripe.net 20120101\n" +
                     "source:         TEST")
 
         expect:

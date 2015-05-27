@@ -16,7 +16,6 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 descr:          only seven syllables
                 descr:          in its density
                 admin-c:        TP2-TEST
-                changed:        dbtest@ripe.net 20120707
                 mnt-by:         RIPE-DBM-MNT
                 source:         TEST
                 """,
@@ -26,7 +25,6 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 descr:          only seven syllables
                 descr:          in its density
                 admin-c:        TP1-TEST
-                changed:        dbtest@ripe.net 20120707
                 mnt-by:         RIPE-DBM-MNT
                 source:         TEST
                 """,
@@ -40,7 +38,6 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 text:           When they release
                 text:           Version 3!
                 form:           FORM-HAIKU
-                changed:        dbtest@ripe.net 20120707
                 remarks:        This object is translated from HAIKU type to POEM type.
                 mnt-by:         LIM-MNT
                 source:         TEST
@@ -66,7 +63,6 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 text:           Version 3!
                 form:           FORM-HAIKU
                 author:         TP1-TEST
-                changed:        dbtest@ripe.net 20120707
                 remarks:        This object is translated from HAIKU type to POEM type.
                 mnt-by:         LIM-MNT
                 source:         TEST
@@ -105,7 +101,6 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 text:           When they release
                 text:           Version 3!
                 form:           FORM-HAIKU
-                changed:        dbtest@ripe.net 20120707
                 remarks:        This object is translated from HAIKU type to POEM type.
                 mnt-by:         TST-MNT2
                 source:         TEST
@@ -145,7 +140,6 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 text:           When they release
                 text:           Version 3!
                 form:           FORM-HAIKU
-                changed:        dbtest@ripe.net 20120707
                 remarks:        This object is translated from HAIKU type to POEM type.
                 mnt-by:         LIM-MNT
                 source:         TEST
@@ -188,7 +182,6 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 text:           When they release
                 text:           Version 3!
                 form:           FORM-HAIKU
-                changed:        dbtest@ripe.net 20120707
                 remarks:        This object is translated from HAIKU type to POEM type.
                 mnt-by:         LIM-MNT
                 source:         TEST
@@ -234,7 +227,6 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 text:           When they release
                 text:           Version 3!
                 form:           FORM-LIMERICK
-                changed:        dbtest@ripe.net 20120707
                 remarks:        This object is translated from HAIKU type to POEM type.
                 mnt-by:         LIM-MNT
                 source:         TEST
@@ -277,7 +269,6 @@ class PoemSpec extends BaseQueryUpdateSpec{
                 text:           When they release
                 text:           Version 3!
                 form:           FORM-HAIKU
-                changed:        dbtest@ripe.net 20120707
                 remarks:        This object is translated from HAIKU type to POEM type.
                 mnt-by:         LIM-MNT
                 source:         TEST

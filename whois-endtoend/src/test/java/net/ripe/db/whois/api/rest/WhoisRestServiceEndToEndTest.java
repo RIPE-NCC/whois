@@ -69,7 +69,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "upd-to:      noreply@ripe.net\n" +
                     "auth:        MD5-PW $1$fyALLXZB$V5Cht4.DAIM3vi64EpC0w/  #owner\n" +
                     "mnt-by:      OWNER-MNT\n" +
-                    "changed:     dbtest@ripe.net 20120101\n" +
                     "source:      TEST"))
 
             .put("RIPE-NCC-HM-MNT", RpslObject.parse("" +
@@ -81,7 +80,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "notify:      notify_hm@ripe.net\n" +
                     "auth:        MD5-PW $1$mV2gSZtj$1oVwjZr0ecFZQHsNbw2Ss.  #hm\n" +
                     "mnt-by:      RIPE-NCC-HM-MNT\n" +
-                    "changed:     dbtest@ripe.net\n" +
                     "source:      TEST"))
 
             .put("END-USER-MNT", RpslObject.parse("" +
@@ -91,7 +89,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "upd-to:      updto_lir@ripe.net\n" +
                     "auth:        MD5-PW $1$4qnKkEY3$9NduUoRMNiBbAX9QEDMkh1  #end\n" +
                     "mnt-by:      END-USER-MNT\n" +
-                    "changed:     dbtest@ripe.net 20120101\n" +
                     "source:      TEST"))
 
             .put("TP1-TEST", RpslObject.parse("" +
@@ -100,7 +97,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "phone:     +31 6 12345678\n" +
                     "nic-hdl:   TP1-TEST\n" +
                     "mnt-by:    OWNER-MNT\n" +
-                    "changed:   dbtest@ripe.net 20120101\n" +
                     "source:    TEST\n"))
 
             .put("TR1-TEST", RpslObject.parse("" +
@@ -111,7 +107,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "admin-c:   TR1-TEST\n" +
                     "abuse-mailbox: abuse@test.net\n" +
                     "mnt-by:    OWNER-MNT\n" +
-                    "changed:   dbtest@ripe.net 20120101\n" +
                     "source:    TEST\n"))
 
             .put("ORG-LIR1-TEST", RpslObject.parse("" +
@@ -123,7 +118,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                     "ref-nfy:         dbtest-org@ripe.net\n" +
                     "mnt-ref:         OWNER-MNT\n" +
                     "mnt-by:          OWNER-MNT\n" +
-                    "changed: denis@ripe.net 20121016\n" +
                     "source:  TEST\n"))
 
             .build();
@@ -706,7 +700,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                 "mnt-nfy:     mntnfy_{0}@ripe.net\n" +
                 "notify:      notify_{0}@ripe.net\n" +
                 "mnt-by:      {0}-MNT\n" +
-                "changed:     dbtest@ripe.net\n" +
                 "source:      TEST", pkey), attributes);
     }
 
@@ -721,7 +714,6 @@ public class WhoisRestServiceEndToEndTest extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "mnt-by:       RIPE-NCC-HM-MNT\n" +
                 "status:       ALLOCATED PA\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
                 "source:    TEST\n", pkey), attributes);
     }
 

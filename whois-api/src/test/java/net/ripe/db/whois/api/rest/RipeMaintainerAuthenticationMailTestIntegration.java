@@ -32,7 +32,6 @@ public class RipeMaintainerAuthenticationMailTestIntegration extends AbstractInt
             "phone:     +311234567\n" +
             "mnt-by:    RIPE-NCC-HM-MNT\n" +
             "nic-hdl:   AUTO-1\n" +
-            "changed:   ppalse@ripe.net 20120303\n" +
             "source:    TEST\n" +
             "password:  emptypassword";
 
@@ -46,7 +45,6 @@ public class RipeMaintainerAuthenticationMailTestIntegration extends AbstractInt
                         "mnt-by:  RIPE-NCC-HM-MNT\n" +
                         "upd-to:  dbtest@ripe.net\n" +
                         "auth:    MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0 # emptypassword" +
-                        "changed: dbtest@ripe.net 20120707\n" +
                         "source:  TEST"),
                 RpslObject.parse(
                         "person:  Admin Person\n" +
@@ -56,7 +54,6 @@ public class RipeMaintainerAuthenticationMailTestIntegration extends AbstractInt
                         "phone:   +44 282 411141\n" +
                         "nic-hdl: TEST-RIPE\n" +
                         "mnt-by:  TST-MNT\n" +
-                        "changed: dbtest@ripe.net 20120101\n" +
                         "source:  TEST"),
                 RpslObject.parse("" +
                         "mntner:  TST-MNT\n" +
@@ -65,7 +62,6 @@ public class RipeMaintainerAuthenticationMailTestIntegration extends AbstractInt
                         "mnt-by:  TST-MNT\n" +
                         "upd-to:  dbtest@ripe.net\n" +
                         "auth:    MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                        "changed: dbtest@ripe.net 20120707\n" +
                         "source:  TEST")));
     }
 

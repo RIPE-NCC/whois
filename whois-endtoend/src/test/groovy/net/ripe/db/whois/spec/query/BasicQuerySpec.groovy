@@ -20,7 +20,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-mnt
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "INET6NUM": """\
@@ -33,7 +32,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-HM-MNT
                 status:       OTHER
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
                 "ROUTE": """\
@@ -42,7 +40,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 origin:       AS10000
                 org:          ORG-LIR1-TEST
                 mnt-by:       RIPE-NCC-HM-MNT
-                changed:      noreply@ripe.net 20120101
                 source:       TEST
                 """,
                 "ROUTE6": """\
@@ -50,7 +47,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         RIPE-NCC-HM-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
                 "ROLE": """\
@@ -64,7 +60,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 nic-hdl: AB-TEST
                 abuse-mailbox: abuse@test.net
                 mnt-by:  TST-MNT2
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
                 "DOMAIN": """\
@@ -76,7 +71,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         RIPE-NCC-END-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
                 "ROUTESET": """\
@@ -91,7 +85,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 notify:       dbtest@ripe.net
                 mnt-by:       RIPE-NCC-END-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:       TEST
                 """
         ]
@@ -332,7 +325,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "admin-c:      TP1-TEST\n" +
                 "tech-c:       TP1-TEST\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
                 "source:       TEST")
 
         databaseHelper.addObject("" +
@@ -347,7 +339,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "mnt-by:       RIPE-NCC-HM-MNT\n" +
                 "mnt-lower:    LIR-mnt\n" +
                 "mnt-irt:      irt-test\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
                 "source:       TEST")
 
       expect:
@@ -368,7 +359,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "admin-c:      TP1-TEST\n" +
                 "tech-c:       TP1-TEST\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
                 "source:       TEST")
 
         databaseHelper.addObject("" +
@@ -383,7 +373,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "mnt-by:       RIPE-NCC-HM-MNT\n" +
                 "mnt-lower:    LIR-mnt\n" +
                 "mnt-irt:      irt-test\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
                 "source:       TEST")
 
       expect:
@@ -446,7 +435,7 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
         queryObject("--brief 192.0/8", "st", "ALLOCATED UNSPECIFIED")
         queryObject("--brief 192.0/8", "mb", "RIPE-NCC-HM-MNT")
         queryObject("--brief 192.0/8", "ml", "LIR-mnt")
-        queryObject("--brief 192.0/8", "so", "TEST # Filtered")
+        queryObject("--brief 192.0/8", "so", "TEST")
 
         queryObjectNotFound("--brief 192.0/8", "oa", "ORG-LIR1-TEST") // TODO: should it not return the related objects? probably, wait with fixing until it's been suggested to drop this flag altogether
 
@@ -493,7 +482,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "origin:      AS1000\n" +
                 "org:         ORG-LIR1-TEST\n" +
                 "mnt-by:      PARENT-MB-MNT\n" +
-                "changed:     dbtest@ripe.net\n" +
                 "source:      TEST\n")
 
       expect:
@@ -505,17 +493,16 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
 
     // -B, --no-filtering
 
-    def "--no-filtering notify & changed preserved"() {
+    def "--no-filtering notify preserved"() {
       given:
         databaseHelper.addObject(getTransient("ROUTESET"))
 
       expect:
         queryObject("--no-filtering AS200:RS-CUSTOMERS", "route-set", "AS200:RS-CUSTOMERS")
         queryObject("--no-filtering AS200:RS-CUSTOMERS", "notify", "dbtest@ripe.net")
-        queryObject("--no-filtering AS200:RS-CUSTOMERS", "changed", "dbtest@ripe.net 20120101")
     }
 
-    def "--no-filtering email & changed preserved"() {
+    def "--no-filtering email preserved"() {
       given:
         databaseHelper.addObject(getTransient("ROLE"))
 
@@ -523,7 +510,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
         queryObject("--no-filtering AB-TEST", "role", "Abuse Me")
         queryObject("--no-filtering AB-TEST", "nic-hdl", "AB-TEST")
         queryObject("--no-filtering AB-TEST", "e-mail", "dbtest@ripe.net")
-        queryObject("--no-filtering AB-TEST", "changed", "dbtest@ripe.net 20121016")
     }
 
     // --valid-syntax, --no-valid-syntax
@@ -744,7 +730,7 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "abuse-mailbox:  [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]")

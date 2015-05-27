@@ -13,7 +13,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     nic-hdl: TEST-PN
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net
                     source: TEST
                 """,
             "TEST-MNT" : """\
@@ -39,7 +38,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  RIPE-NCC-HM-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss.  #hm
-                    changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
             "END-MNT"  : """\
@@ -49,7 +47,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                    changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
             "LEGACY-MNT"  : """\
@@ -59,7 +56,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  RIPE-NCC-LEGACY-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
-                    changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
             "ORG1"     : """\
@@ -71,7 +67,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
             "ORG2"     : """\
@@ -83,7 +78,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       TEST-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
             "ORG3"     : """\
@@ -95,7 +89,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
             "ORG4"     : """\
@@ -107,7 +100,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
             "ORG5"     : """\
@@ -119,7 +111,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
             "ORG6"     : """\
@@ -131,7 +122,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST2-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
             "INET1"    : """\
@@ -143,7 +133,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
             "INET2"    : """\
@@ -156,7 +145,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ALLOCATED PA
                     mnt-by: RIPE-NCC-HM-MNT
                     mnt-lower: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
             "INET3"    : """\
@@ -169,7 +157,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ALLOCATED PI
                     mnt-by: TEST-MNT
                     mnt-lower: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
             "INETROOT" : """\
@@ -181,7 +168,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: ALLOCATED UNSPECIFIED
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
 
@@ -193,7 +179,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     mnt-by: TEST-MNT
-                    changed: test@ripe.net 20120505
                     source: TEST
                 """
     ]
@@ -211,7 +196,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 status: SUB-ALLOCATED PA
                 mnt-by: TEST-MNT
                 org: ORG-TOL2-TEST
-                changed: ripe@test.net 20120505
                 source: TEST
                 password:update
                 """.stripIndent()))
@@ -228,7 +212,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 status: SUB-ALLOCATED PA
                 mnt-by: TEST-MNT
                 org: ORG-TOL2-TEST
-                changed: ripe@test.net 20120505
                 source: TEST
                 delete:yes
                 password:update
@@ -250,7 +233,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:    TEST-PN
                 tech-c:     TEST-PN
                 mnt-by:     TEST-MNT
-                changed:    ripe@test.net 20120505
                 source:     TEST
                 """.stripIndent())
       whoisFixture.reloadTrees()
@@ -263,7 +245,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:    TEST-PN
                 tech-c:     TEST-PN
                 mnt-by:     TEST-MNT
-                changed:    ripe@test.net 20120505
                 source:     TEST
                 delete:     yes
                 password:   update
@@ -283,7 +264,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TEST-PN
                 status: SUB-ALLOCATED PA
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20120505
                 source: TEST
                 password:update
                 """.stripIndent())
@@ -303,7 +283,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TEST-PN
                 status: SUB-ALLOCATED PA
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20120505
                 source: TEST
                 password:update
                 """.stripIndent())
@@ -324,7 +303,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ALLOCATED PI
                     mnt-by: RIPE-NCC-HM-MNT
                     org: ORG-TOL5-TEST
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password: update
                     password: hm
@@ -343,7 +321,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             country: DK
                             admin-c: TEST-PN
                             tech-c: TEST-PN
-                            changed: ripe@test.net 20120505
                             org: ORG-TOL1-TEST
                             status: ALLOCATED PI
                             mnt-by:RIPE-NCC-HM-MNT
@@ -362,7 +339,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: TEST-PN
                     tech-c: TEST-PN
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     org: ORG-TOL5-TEST
                     status: ALLOCATED PI
                     source: TEST
@@ -386,7 +362,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             status: ALLOCATED PI
             mnt-by: TEST-MNT
             org: ORG-TOL1-TEST
-            changed: ripe@test.net 20120505
             source: TEST
             password: update
             password: hm
@@ -408,7 +383,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             status: ALLOCATED PI
             mnt-by: TEST-MNT
             org: ORG-TOL1-TEST
-            changed: ripe@test.net 20120505
             source: TEST
             override:denis,override1
         """.stripIndent()))
@@ -428,7 +402,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             status: ALLOCATED PI
             mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL1-TEST
-            changed: ripe@test.net 20120505
             source: TEST
             password: update
             password: hm
@@ -446,7 +419,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             status: ALLOCATED PI
             mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL2-TEST
-            changed: ripe@test.net 20120505
             source: TEST
             password: hm""".stripIndent())
     then:
@@ -467,7 +439,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             status: ALLOCATED PI
             mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL1-TEST
-            changed: ripe@test.net 20120505
             source: TEST
 
             password: update
@@ -482,7 +453,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             status: ALLOCATED PI
             mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL2-TEST
-            changed: ripe@test.net 20120505
             source: TEST
             override:denis,override1""".stripIndent()))
     then:
@@ -502,7 +472,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             status: ALLOCATED PI
                             org: ORG-TOL1-TEST
                             mnt-by: RIPE-NCC-HM-MNT
-                            changed: ripe@test.net 20120505
                             source: TEST
                             password: update
                             password: hm
@@ -519,7 +488,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                             tech-c: TEST-PN
                             status: ALLOCATED PI
                             mnt-by: RIPE-NCC-HM-MNT
-                            changed: ripe@test.net 20120505
                             source: TEST
                             password: hm
                         """.stripIndent()))
@@ -540,7 +508,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: EARLY-REGISTRATION
                     mnt-by: RIPE-NCC-HM-MNT
                     org: ORG-TOL5-TEST
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password: update
                     password: hm
@@ -561,7 +528,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: EARLY-REGISTRATION
                     mnt-by: TEST2-MNT
                     org: ORG-TOL6-TEST
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:emptypassword
                     """.stripIndent()))
@@ -581,7 +547,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: EARLY-REGISTRATION
                     mnt-by: RIPE-NCC-HM-MNT
                     org: ORG-TOL5-TEST
-                    changed: ripe@test.net 20120505
                     source: TEST
                     override:denis,override1
                     """.stripIndent()))
@@ -601,7 +566,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ASSIGNED PA
                     org: ORG-TOL2-TEST
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password: hm
                     password: update
@@ -619,7 +583,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ASSIGNED PA
                     org: ORG-TOL1-TEST
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password: hm
                 """.stripIndent())
@@ -641,7 +604,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ASSIGNED PA
                     org: ORG-TOL2-TEST
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password: hm
                     password: update
@@ -655,7 +617,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ASSIGNED PA
                     org: ORG-TOL1-TEST
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     override:denis,override1
                 """.stripIndent()))
@@ -676,7 +637,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ASSIGNED PA
                     org: ORG-TOL2-TEST
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password: hm
                     password: update
@@ -693,7 +653,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: ASSIGNED PA
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password: hm
                 """.stripIndent())
@@ -713,7 +672,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ASSIGNED PI
                     mnt-by:RIPE-NCC-END-MNT
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     org: ORG-TOL1-TEST
                     source: TEST
                     password:update
@@ -731,7 +689,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: ASSIGNED PI
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     org: ORG-TOL4-TEST
                     source: TEST
                     password:update
@@ -754,7 +711,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ASSIGNED PI
                     mnt-by:RIPE-NCC-END-MNT
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     org: ORG-TOL1-TEST
                     source: TEST
 
@@ -769,7 +725,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: ASSIGNED PI
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     org: ORG-TOL4-TEST
                     source: TEST
                     override:denis,override1
@@ -791,7 +746,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ALLOCATED PA
                     org: ORG-TOL1-TEST
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password: hm
                     password: update
@@ -808,7 +762,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: ALLOCATED PA
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:update
                 """.stripIndent())
@@ -830,7 +783,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org: ORG-TOL1-TEST
                     mnt-by: RIPE-NCC-HM-MNT
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:update
                     password:hm
@@ -851,7 +803,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: LEGACY
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:update
                 """.stripIndent()))
@@ -873,7 +824,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-PN\n" +
               "status: LEGACY\n" +
               "mnt-by: TEST-MNT\n" +
-              "changed: ripe@test.net 20120505\n" +
               "source: TEST")
     when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
@@ -885,7 +835,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: LEGACY
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:update
                 """.stripIndent()))
@@ -905,7 +854,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: LEGACY
                     mnt-by: TEST-MNT
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:hm
                 """.stripIndent()))
@@ -925,7 +873,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-lower:  TEST-MNT
                     mnt-by:     RIPE-NCC-HM-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password:hm
                 """.stripIndent()))
@@ -940,7 +887,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-LEGACY-MNT
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password: update
                 """.stripIndent()))
@@ -960,7 +906,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-PN\n" +
               "status: ASSIGNED PI\n" +
               "mnt-by: TEST-MNT\n" +
-              "changed: ripe@test.net 20120505\n" +
               "source: TEST")
     when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
@@ -973,7 +918,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: LEGACY
                     mnt-by: TEST-MNT
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:hm
                     password:update
@@ -994,7 +938,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-PN\n" +
               "status: LEGACY\n" +
               "mnt-by: TEST-MNT\n" +
-              "changed: ripe@test.net 20120505\n" +
               "source: TEST")
     when:
       def create = syncUpdate(new SyncUpdate(data: """\
@@ -1006,7 +949,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: ASSIGNED PA
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:update
                 """.stripIndent()))
@@ -1035,7 +977,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:      TEST-PN
                 tech-c:       TEST-PN
                 mnt-by:       test2-mnt
-                changed:      test@ripe.net
                 source:       TEST
                 password:     emptypassword
                 """))
@@ -1056,7 +997,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-PN\n" +
               "status: ALLOCATED UNSPECIFIED\n" +
               "mnt-by: TEST-MNT\n" +
-              "changed: ripe@test.net 20120505\n" +
               "source: TEST")
       databaseHelper.addObject("" +
               "inetnum: 192.0.0.0 - 192.0.0.255\n" +
@@ -1067,7 +1007,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-PN\n" +
               "status: LEGACY\n" +
               "mnt-by: TEST-MNT\n" +
-              "changed: ripe@test.net 20120505\n" +
               "source: TEST")
     when:
       def delete = syncUpdate(new SyncUpdate(data: """\
@@ -1079,7 +1018,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: LEGACY
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     delete: reason
                     password:update
@@ -1102,7 +1040,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-PN\n" +
               "status: LEGACY\n" +
               "mnt-by: TEST-MNT\n" +
-              "changed: ripe@test.net 20120505\n" +
               "source: TEST")
       databaseHelper.addObject("" +
               "inetnum: 192.0.0.0 - 192.0.0.255\n" +
@@ -1113,7 +1050,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-PN\n" +
               "status: LEGACY\n" +
               "mnt-by: TEST-MNT\n" +
-              "changed: ripe@test.net 20120505\n" +
               "source: TEST")
     when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
@@ -1125,7 +1061,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: LEGACY
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     delete: reason
                     password:update
@@ -1145,7 +1080,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-PN\n" +
               "status: ASSIGNED PI\n" +
               "mnt-by: TEST-MNT\n" +
-              "changed: ripe@test.net 20120505\n" +
               "source: TEST")
       databaseHelper.addObject("" +
               "inetnum: 192.0.0.0 - 192.0.0.255\n" +
@@ -1156,7 +1090,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-PN\n" +
               "status: LEGACY\n" +
               "mnt-by: RIPE-NCC-HM-MNT\n" +
-              "changed: ripe@test.net 20120505\n" +
               "source: TEST")
     when:
       def delete = syncUpdate(new SyncUpdate(data: """\
@@ -1168,7 +1101,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: LEGACY
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     delete: reason
                     password:hm
@@ -1188,7 +1120,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-PN\n" +
               "status: ASSIGNED PI\n" +
               "mnt-by: TEST-MNT\n" +
-              "changed: ripe@test.net 20120505\n" +
               "source: TEST")
       databaseHelper.addObject("" +
               "inetnum: 192.0.0.0 - 192.0.0.255\n" +
@@ -1199,7 +1130,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-PN\n" +
               "status: LEGACY\n" +
               "mnt-by: TEST-MNT\n" +
-              "changed: ripe@test.net 20120505\n" +
               "source: TEST")
     when:
       def modify = syncUpdate(new SyncUpdate(data: """\
@@ -1211,7 +1141,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: LEGACY
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:update
                 """.stripIndent()))
@@ -1231,7 +1160,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: ASSIGNED ANYCAST
                     mnt-by:RIPE-NCC-END-MNT
                     org:ORG-TOL5-TEST
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password: hm
                     password: update
@@ -1253,7 +1181,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     org: ORG-TOL2-TEST
                     mnt-lower:RIPE-NCC-END-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:update
                 """.stripIndent())
@@ -1273,7 +1200,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             status: ASSIGNED PI
             mnt-by: TEST-MNT
             mnt-by:RIPE-NCC-END-MNT
-            changed: ripe@test.net 20120505
             source: TEST
             org:ORG-TOL1-TEST
             password:update
@@ -1293,7 +1219,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             org: ORG-TOL2-TEST
             mnt-by: RIPE-NCC-HM-MNT
             mnt-lower: TEST-MNT
-            changed: ripe@test.net 20120505
             source: TEST
             """.stripIndent())
     then:
@@ -1313,7 +1238,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             status: ASSIGNED PI
             mnt-by: TEST-MNT
             mnt-by:RIPE-NCC-END-MNT
-            changed: ripe@test.net 20120505
             source: TEST
             org:ORG-TOL1-TEST
 
@@ -1330,7 +1254,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             org: ORG-TOL2-TEST
             mnt-by: RIPE-NCC-HM-MNT
             mnt-lower: TEST-MNT
-            changed: ripe@test.net 20120505
             source: TEST
             override: denis,override1
             """.stripIndent()))
@@ -1352,7 +1275,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     ASSIGNED PI
                     mnt-by:     RIPE-NCC-HM-MNT
                     mnt-lower:  TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     override:denis,override1
                 """.stripIndent()))
@@ -1366,7 +1288,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:     TEST-PN
                     status:     ALLOCATED UNSPECIFIED
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     override:denis,override1
                 """.stripIndent()))
@@ -1381,7 +1302,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:     TEST-PN
                     status:     LEGACY
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password: update
                 """.stripIndent()))
@@ -1402,7 +1322,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-HM-MNT
                     mnt-lower:  TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password:hm
                 """.stripIndent()))
@@ -1415,7 +1334,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:     TEST-PN
                     status:     LEGACY
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password: update
                 """.stripIndent()))
@@ -1429,7 +1347,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:     TEST-PN
                     status:     ASSIGNED PI
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password: update
                 """.stripIndent()))
@@ -1450,7 +1367,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-HM-MNT
                     mnt-lower:  TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password:hm
                 """.stripIndent()))
@@ -1463,7 +1379,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:     TEST-PN
                     status:     LEGACY
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password: update
                 """.stripIndent()))
@@ -1478,7 +1393,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-LEGACY-MNT
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password: update
                 """.stripIndent()))
@@ -1499,7 +1413,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-HM-MNT
                     mnt-lower:  TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password:hm
                 """.stripIndent()))
@@ -1512,7 +1425,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:     TEST-PN
                     status:     LEGACY
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password: update
                 """.stripIndent()))
@@ -1527,7 +1439,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-lower:  RIPE-NCC-LEGACY-MNT
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password: update
                 """.stripIndent()))
@@ -1547,7 +1458,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:     TEST-PN
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-HM-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password:hm
                 """.stripIndent()))
@@ -1561,7 +1471,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:     RIPE-NCC-LEGACY-MNT
                     mnt-by:     TEST-MNT
                     status:     LEGACY
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     override:denis,override1
                 """.stripIndent()))
@@ -1575,7 +1484,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:     TEST-PN
                     status:     LEGACY
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password: update
                 """.stripIndent()))
@@ -1596,7 +1504,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-HM-MNT
                     mnt-lower:  TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password:hm
                 """.stripIndent()))
@@ -1609,7 +1516,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:     TEST-PN
                     mnt-by:     TEST-MNT
                     status:     LEGACY
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password:update
                 """.stripIndent()))
@@ -1624,7 +1530,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-LEGACY-MNT
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     override:denis,override1
                 """.stripIndent()))
@@ -1645,7 +1550,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-HM-MNT
                     mnt-lower:  TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password:hm
                 """.stripIndent()))
@@ -1660,7 +1564,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-LEGACY-MNT
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     override:denis,override1
                 """.stripIndent()))
@@ -1675,7 +1578,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-LEGACY-MNT
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password: update
                 """.stripIndent()))
@@ -1696,7 +1598,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-HM-MNT
                     mnt-lower:  TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password:hm
                 """.stripIndent()))
@@ -1711,7 +1612,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-LEGACY-MNT
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     override:denis,override1
                 """.stripIndent()))
@@ -1727,7 +1627,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status:     LEGACY
                     mnt-by:     RIPE-NCC-LEGACY-MNT
                     mnt-by:     TEST-MNT
-                    changed:    ripe@test.net 20120505
                     source:     TEST
                     password: update
                 """.stripIndent()))
@@ -1748,7 +1647,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
                     org: ORG-TOL2-TEST
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:update
                 """.stripIndent()))
@@ -1764,7 +1662,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     mnt-irt:irt-IRT1
                     org:ORG-TOL2-TEST
@@ -1787,7 +1684,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
                     org: ORG-TOL2-TEST
-                    changed: ripe@test.net 20120505
                     source: TEST
 
                     password:update
@@ -1800,7 +1696,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                     mnt-irt:irt-IRT1
                     org:ORG-TOL2-TEST
@@ -1823,7 +1718,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
                     org: ORG-TOL2-TEST
-                    changed: ripe@test.net 20120505
                     source: TEST
                     password:update
                 """.stripIndent()))
@@ -1840,7 +1734,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
                     mnt-irt: irt-IRT1
-                    changed: ripe@test.net 20120505
                     org:ORG-TOL2-TEST
                     source: TEST
                     password:update
@@ -1862,7 +1755,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       TEST-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 password: update
                 password: hm
@@ -1883,7 +1775,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:       TEST-PN
                 status:       ASSIGNED PA
                 mnt-by:       TEST2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 password:     emptypassword
                 """.stripIndent()))
@@ -1905,7 +1796,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:       TEST-PN
                 status:       ASSIGNED PA
                 mnt-by:       TEST2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:     denis,override1
                 """.stripIndent()))
@@ -1925,7 +1815,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 status:       ASSIGNED PI
                 mnt-by:       TEST2-MNT
                 mnt-by:       RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 password:     emptypassword
                 password:     pimaintainer
@@ -1949,7 +1838,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:       TEST-PN
                 status:       ASSIGNED PI
                 mnt-by:       TEST2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 password:     emptypassword
                 password:     update
@@ -1971,7 +1859,6 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:       TEST-PN
                 status:       ASSIGNED PI
                 mnt-by:       TEST2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 password:     emptypassword
                 password:     update
