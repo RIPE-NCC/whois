@@ -18,7 +18,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: noreply@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "OTHER-MNT"    : """\
@@ -28,7 +27,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: OTHER-MNT
             upd-to: noreply@ripe.net
             auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "PWR-MNT"      : """\
@@ -38,7 +36,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  RIPE-NCC-HM-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$tnG/zrDw\$nps8tg76q4jgg5zg5o6os. # hm
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "LEGACY-MNT"  : """\
@@ -48,7 +45,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  RIPE-NCC-LEGACY-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "AP1-PN"       : """\
@@ -59,7 +55,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: AP1-TEST
             mnt-by:  UPD-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """,
                 "ORG-NCC1-RIPE": """\
@@ -70,7 +65,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             e-mail:        bitbucket@ripe.net
             mnt-ref:      UPD-MNT
             mnt-by:       UPD-MNT
-            changed:      noreply@ripe.net 20120505
             source:       TEST
             """,
                 "AUTNUM101"    : """\
@@ -91,7 +85,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-lower:      UPD-MNT
             mnt-routes:     UPD-MNT
             mnt-by:         UPD-MNT
-            changed:        noreply@ripe.net 20120101
             source:         TEST
             """,
                 "AS-SET1"      : """\
@@ -104,7 +97,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             notify:       noreply@ripe.net
             mnt-by:       UPD-MNT
             mbrs-by-ref:  UPD-MNT
-            changed:      noreply@ripe.net 20120101
             source:       TEST
             """,
                 "AS-BLOCK1"    : """\
@@ -149,7 +141,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-lower:      UPD-MNT
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password:       update
                         delete:         reason
@@ -184,7 +175,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-lower:      UPD-MNT
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -219,7 +209,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-lower:      UPD-MNT
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password:       update
                         """.stripIndent())
@@ -244,7 +233,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         member-of:      AS-NONEXISTING
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -268,7 +256,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         notify:         noreply@ripe.net
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -294,7 +281,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         notify:         noreply@ripe.net
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         password: emptypassword
@@ -318,7 +304,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         notify:         noreply@ripe.net
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: alban
                         """.stripIndent())
@@ -348,7 +333,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         notify:         noreply@ripe.net
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: emptypassword
                         """.stripIndent())
@@ -375,7 +359,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         notify:         noreply@ripe.net
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: emptypassword
                         password: update
@@ -395,7 +378,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         notify:         noreply@ripe.net
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: emptypassword
                         password: update
@@ -414,7 +396,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: emptypassword
                         password: update
@@ -431,7 +412,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         OTHER-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: emptypassword
                         password: update
@@ -453,7 +433,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: emptypassword
                         password: update
@@ -470,7 +449,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         OTHER-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: emptypassword
                         password: update
@@ -491,7 +469,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: emptypassword
                         password: update
@@ -509,7 +486,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: emptypassword
                         password: update
@@ -542,7 +518,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-lower:      _UPD-MNT-MNT-MNT
                         mnt-routes:     UPD-MNT
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -569,7 +544,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -589,7 +563,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         RIPE-NCC-HM-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: hm
                         password: update
@@ -610,7 +583,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -631,7 +603,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -653,7 +624,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         RIPE-NCC-HM-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: hm
                         password: update
@@ -677,7 +647,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         RIPE-NCC-HM-MNT
                         remarks:        For information on "status:" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources
                         status:         ASSIGNED
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: hm
                         password: update
@@ -690,7 +659,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         RIPE-NCC-HM-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: hm
                         password: update
@@ -712,7 +680,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                                 "tech-c:         AP1-TEST\n" +
                                 "status:         ASSIGNED\n" +
                                 "mnt-by:         RIPE-NCC-HM-MNT\n" +
-                                "changed:        noreply@ripe.net 20120101\n" +
                                 "created:        %s\n" +
                                 "last-modified:  %s\n" +
                                 "source:         TEST", currentDateTime, currentDateTime)))
@@ -728,7 +695,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -746,7 +712,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
                         "status:         OTHER\n" +
                         "mnt-by:         UPD-MNT\n" +
-                        "changed:        noreply@ripe.net 20120101\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
                         "source:         TEST", currentDateTime, currentDateTime)))
@@ -760,7 +725,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         tech-c:         AP1-TEST
                         remarks:        remarks
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -779,7 +743,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "remarks:        remarks\n" +
                 "status:         OTHER\n" +
                 "mnt-by:         UPD-MNT\n" +
-                "changed:        noreply@ripe.net 20120101\n" +
                 "created:        %s\n" +
                 "last-modified:  %s\n" +
                 "source:         TEST", currentDateTime, currentDateTime)))
@@ -798,7 +761,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -816,7 +778,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
                         "status:         OTHER\n" +
                         "mnt-by:         UPD-MNT\n" +
-                        "changed:        noreply@ripe.net 20120101\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
                         "source:         TEST", currentDateTime, currentDateTime)))
@@ -831,7 +792,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         tech-c:         AP1-TEST
                         status:         OTHER
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -851,7 +811,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "tech-c:         AP1-TEST\n" +
                         "status:         OTHER\n" +
                         "mnt-by:         UPD-MNT\n" +
-                        "changed:        noreply@ripe.net 20120101\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
                         "source:         TEST", currentDateTime, currentDateTime)))
@@ -867,7 +826,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         RIPE-NCC-HM-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: hm
                         password: update
@@ -886,7 +844,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
                         "status:         ASSIGNED\n" +
                         "mnt-by:         RIPE-NCC-HM-MNT\n" +
-                        "changed:        noreply@ripe.net 20120101\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
                         "source:         TEST", currentDateTime, currentDateTime)))
@@ -904,7 +861,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         RIPE-NCC-HM-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: hm
                         password: update
@@ -924,7 +880,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                     "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
                     "status:         ASSIGNED\n" +
                     "mnt-by:         RIPE-NCC-HM-MNT\n" +
-                    "changed:        noreply@ripe.net 20120101\n" +
                     "created:        %s\n" +
                     "last-modified:  %s\n" +
                     "source:         TEST", currentDateTime, currentDateTime)))
@@ -941,7 +896,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -960,7 +914,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
                         "status:         OTHER\n" +
                         "mnt-by:         UPD-MNT\n" +
-                        "changed:        noreply@ripe.net 20120101\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
                         "source:         TEST", currentDateTime, currentDateTime)))
@@ -979,7 +932,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password: update
                         """.stripIndent())
@@ -998,7 +950,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "admin-c:        AP1-TEST\n" +
                         "tech-c:         AP1-TEST\n" +
                         "mnt-by:         UPD-MNT\n" +
-                        "changed:        noreply@ripe.net 20120101\n" +
                         "created:        %s\n" +
                         "last-modified:  %s\n" +
                         "source:         TEST", currentDateTime, currentDateTime)))
@@ -1023,7 +974,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "ref-nfy:         dbtest-org@ripe.net\n" +
                 "mnt-by:          upd-mnt\n" +
                 "mnt-ref:          upd-mnt\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST")
         when:
         def create = syncUpdate(new SyncUpdate(data: """\
@@ -1034,7 +984,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: ende
                 password: emptypassword
@@ -1062,7 +1011,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "ref-nfy:         dbtest-org@ripe.net\n" +
                 "mnt-by:          upd-mnt\n" +
                 "mnt-ref:          upd-mnt\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST")
         when:
         def create = syncUpdate(new SyncUpdate(data: """\
@@ -1074,7 +1022,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: ende
                 password: emptypassword
@@ -1100,7 +1047,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: ende
                 password: emptypassword
@@ -1126,7 +1072,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "ref-nfy:         dbtest-org@ripe.net\n" +
                 "mnt-by:          upd-mnt\n" +
                 "mnt-ref:          upd-mnt\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST")
         when:
         def create = syncUpdate(new SyncUpdate(data: """\
@@ -1137,7 +1082,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         RIPE-NCC-HM-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: emptypassword
                 password: hm
@@ -1158,7 +1102,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: emptypassword
                 password: update
@@ -1180,7 +1123,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:         AP1-TEST
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: emptypassword
                 password: update
@@ -1201,7 +1143,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: emptypassword
                 password: update
@@ -1219,7 +1160,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: emptypassword
                 password: update
@@ -1241,7 +1181,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
                 mnt-by:         RIPE-NCC-HM-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: emptypassword
                 password: update
@@ -1262,7 +1201,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
                 mnt-by:         RIPE-NCC-HM-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: emptypassword
                 password: update
@@ -1285,7 +1223,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:       denis,override1
                 """.stripIndent())
@@ -1301,7 +1238,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: update
                 """.stripIndent()))
@@ -1322,7 +1258,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:       denis,override1
                 """.stripIndent())
@@ -1337,7 +1272,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: update
                 """.stripIndent()))
@@ -1359,7 +1293,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:       denis,override1
                 """.stripIndent())
@@ -1374,7 +1307,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: update
                 """.stripIndent()))
@@ -1397,7 +1329,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c:        AP1-TEST\n" +
                 "tech-c:         AP1-TEST\n" +
                 "mnt-by:         UPD-MNT\n" +
-                "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST")
         then:
         queryObject("AS400", "aut-num", "AS400")
@@ -1413,7 +1344,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:         no reason
                 password: emptypassword
@@ -1435,7 +1365,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
                 mnt-by:         RIPE-NCC-LEGACY-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: update
                 """.stripIndent())
@@ -1454,7 +1383,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:        AP1-TEST
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: update
                 """.stripIndent())
@@ -1468,7 +1396,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:         AP1-TEST
                 mnt-by:         UPD-MNT
                 mnt-by:         RIPE-NCC-LEGACY-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password: update
                 """.stripIndent())

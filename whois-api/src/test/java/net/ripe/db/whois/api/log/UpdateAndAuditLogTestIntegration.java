@@ -71,7 +71,6 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
             "upd-to:        noreply@ripe.net\n" +
             "auth:          MD5-PW $1$GUKzBg/F$PoCZBbhTNxCKM3K9VF8y60\n" + // #team-red4321
             "mnt-by:        OWNER-MNT\n" +
-            "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
     private static final RpslObject TEST_PERSON = RpslObject.parse("" +
@@ -80,7 +79,6 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
             "phone:         +31 6 12345678\n" +
             "nic-hdl:       TP1-TEST\n" +
             "mnt-by:        OWNER-MNT\n" +
-            "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
     @Value("${dir.update.audit.log}")

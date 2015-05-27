@@ -13,7 +13,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     nic-hdl: TEST-PN
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net
                     source: TEST
                 """,
                 "TEST-MNT": """\
@@ -31,7 +30,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  RIPE-NCC-HM-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                    changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
                 "END-MNT": """\
@@ -41,7 +39,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                    changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
                 "ORG1": """\
@@ -53,7 +50,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "ORG2": """\
@@ -65,7 +61,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       TEST-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "ORG3": """\
@@ -77,7 +72,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "ORG4": """\
@@ -89,7 +83,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "ORG5": """\
@@ -101,7 +94,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "INET1": """\
@@ -113,7 +105,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
                 "INETROOT": """\
@@ -125,7 +116,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: ALLOCATED UNSPECIFIED
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """
         ]
@@ -141,7 +131,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TEST-PN
                 auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 mnt-by: TEST-MNT
-                changed: test@ripe.net 20120505
                 source: TEST
                 password: update
                 """.stripIndent()))
@@ -161,7 +150,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TEST-PN
                 auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 mnt-by: TEST-MNT
-                changed: test@ripe.net 20120505
                 source: TEST
                 password: update
                 """.stripIndent()))
@@ -179,7 +167,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TEST-PN
                 auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 mnt-by: TEST-MNT
-                changed: test@ripe.net 20120505
                 source: TEST
                 password: update
                 """.stripIndent()))
@@ -199,7 +186,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TEST-PN
                 auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 mnt-by: TEST-MNT
-                changed: test@ripe.net 20120505
                 source: TEST
                 password: update
                 """.stripIndent()))
@@ -217,7 +203,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TEST-PN
                 auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 mnt-by: TEST-MNT
-                changed: test@ripe.net 20120505
                 source: TEST
                 password: update
                 delete: test
@@ -240,7 +225,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TEST-PN
                 auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 mnt-by: TEST-MNT
-                changed: test@ripe.net 20120505
                 source: TEST
                 password: update
                 """.stripIndent()))
@@ -295,7 +279,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     certif:       -----END PGP PUBLIC KEY BLOCK-----
                     notify:       noreply@ripe.net
                     mnt-by:       TEST-MNT
-                    changed:      noreply@ripe.net 20120213
                     source:       TEST
                     """.stripIndent()
 
@@ -311,7 +294,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TEST-PN
                 auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 mnt-by: TEST-MNT
-                changed: test@ripe.net 20120505
                 source: TEST
                 password: update
                 """.stripIndent()))
@@ -358,7 +340,6 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         TEST-MNT
-                changed:        noreply@ripe.net 20120213
                 source:         TEST
                 password:       update
                 delete:         test

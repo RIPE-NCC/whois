@@ -16,7 +16,6 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "INVALID-MNT": """\
@@ -26,7 +25,6 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: abcdef
             source: TEST
             """,
                 "ADMIN-MNT": """\
@@ -36,7 +34,6 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "ADMIN-PN": """\
@@ -47,7 +44,6 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  ADMIN-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """,
                 "OWNER-MNT": """\
@@ -59,7 +55,6 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
             notify:      notify_owner@ripe.net
             auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
             mnt-by:      OWNER-MNT
-            changed:     dbtest@ripe.net
             source:      TEST
             """,
                 "OWNER2-MNT": """\
@@ -71,7 +66,6 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
             notify:      notify_owner2@ripe.net
             auth:        MD5-PW \$1\$9vNwegLB\$SrX4itajapDaACGZaLOIY1  #owner2
             mnt-by:      OWNER2-MNT
-            changed:     dbtest@ripe.net
             source:      TEST
             """,
 
@@ -88,7 +82,7 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: abcdef
+            notify: abcdef
             source: TEST
             password: update
             """.stripIndent())
@@ -106,7 +100,7 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:         UPD-MNT\n" +
                 "upd-to:         dbtest@ripe.net\n" +
                 "auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed:        abcdef\n" +
+                "notify:         abcdef\n" +
                 "***Error:   Syntax error in abcdef\n" +
                 "source:         TEST")
     }

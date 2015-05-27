@@ -29,7 +29,6 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                 "mntner:        OWNER-MNT\n" +
                 "descr:         Owner Maintainer\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST");
         databaseHelper.addObject(
                 "person:        Test Person\n" +
@@ -37,7 +36,6 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
         databaseHelper.addObject(
                "inetnum:        0.0.0.0 - 255.255.255.255\n" +
@@ -193,7 +191,6 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
                 "ref-nfy:       dbtest-org@ripe.net\n" +
                 "mnt-ref:       OWNER-MNT\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20121016\n" +
                 "source:        TEST\n");
         databaseHelper.addObject(
                 "inetnum:        10.0.0.0 - 10.255.255.255\n" +

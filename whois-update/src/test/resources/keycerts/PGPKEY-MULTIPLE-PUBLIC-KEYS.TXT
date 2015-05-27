@@ -62,5 +62,4 @@ certif:       =MR9s
 certif:       -----END PGP PUBLIC KEY BLOCK-----
 mnt-by:       UPD-MNT
 notify:       noreply@ripe.net
-changed:      noreply@ripe.net 20120213
 source:       TEST

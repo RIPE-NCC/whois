@@ -28,7 +28,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 """,
             "OLDMNTNER": """\
@@ -39,7 +38,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 upd-to:         updto_cre@ripe.net
                 auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 auth:           CRYPT-PW QQtm3kRqZXWAu
-                changed:        dbtest@ripe.net 20120707
                 source:         TEST
                 """
         ]
@@ -59,7 +57,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ALLOC-PA": """\
@@ -73,7 +70,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ASS-END": """\
@@ -85,7 +81,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "PN-FF": """\
@@ -96,7 +91,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: ff1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "RL-FR": """\
@@ -107,7 +101,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 e-mail:  dbtest@ripe.net
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
             "SELF-MNT": """\
@@ -117,7 +110,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:  SELF-MNT
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source:  TEST
                 """,
             "PAUL": """\
@@ -127,7 +119,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:  PAUL
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source:  TEST
                 """,
             "AS1000": """\
@@ -137,7 +128,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "AS2000": """\
@@ -147,7 +137,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
         ]
@@ -188,7 +177,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -232,7 +220,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -275,7 +262,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -290,7 +276,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 3
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -335,7 +320,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -350,7 +334,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 3
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -393,7 +376,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -408,7 +390,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 3
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -451,7 +432,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -466,7 +446,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 3
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -508,7 +487,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -523,7 +501,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 3
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -538,7 +515,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 3
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:       comment
                 override:  denis,override1
@@ -585,7 +561,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -600,7 +575,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:       comment
                 override:  denis,override1
@@ -616,7 +590,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 1
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -652,7 +625,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:  ff1-TEST
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source:  TEST
                 override: denis,override1
                 """.stripIndent())
@@ -684,7 +656,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 nic-hdl: ff1-TEST
                 mnt-by:  OWNER-MNT
                 remarks: version 2
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 override:  denis,override1
                 """.stripIndent()
@@ -725,7 +696,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
                 remarks: version 2
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 override:  denis,override1
 
@@ -763,7 +733,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 override:  denis,override1
 
@@ -779,7 +748,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
                 remarks: version 2
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 override:  denis,override1
 
@@ -820,7 +788,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 remarks: version 2
-                changed: dbtest@ripe.net 20120707
                 source:  TEST
                 override:  denis,override1
 
@@ -861,7 +828,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 upd-to:  updto_cre@ripe.net
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 remarks: version 2
-                changed: dbtest@ripe.net 20120707
                 source:  TEST
                 override:  denis,override1
 
@@ -913,7 +879,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS1000
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:  denis,override1
 
@@ -922,7 +887,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 origin:         AS1000
                 mnt-by:         LIR-MNT
                 remarks:        version 2
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:  denis,override1
 
@@ -930,7 +894,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:  denis,override1
 
@@ -939,7 +902,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 origin:         AS2000
                 mnt-by:         LIR-MNT
                 remarks:        version 2
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:  denis,override1
 
@@ -988,7 +950,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS1000
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:  denis,override1
 
@@ -997,7 +958,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 origin:         AS1000
                 mnt-by:         LIR-MNT
                 remarks:        version 2
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:  denis,override1
 
@@ -1005,7 +965,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:  denis,override1
 
@@ -1014,7 +973,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 origin:         AS2000
                 mnt-by:         LIR-MNT
                 remarks:        version 2
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:  denis,override1
 
@@ -1023,7 +981,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 origin:         AS2000
                 mnt-by:         LIR-MNT
                 remarks:        version 3
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:  denis,override1
 
@@ -1074,7 +1031,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -1089,7 +1045,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 3
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -1134,7 +1089,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1176,7 +1130,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1219,7 +1172,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1262,7 +1214,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1304,7 +1255,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1345,7 +1295,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1388,7 +1337,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1429,7 +1377,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1470,7 +1417,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1516,7 +1462,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1557,7 +1502,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1598,7 +1542,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1639,7 +1582,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 override:  denis,override1
 
@@ -1670,7 +1612,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:         OLD-MNT
                 upd-to:         updto_cre@ripe.net
                 auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed:        dbtest@ripe.net 20120707
                 source:         TEST
                 override: denis,override1
 
@@ -1713,7 +1654,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -1728,7 +1668,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 3
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -1772,7 +1711,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 2
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 
@@ -1787,7 +1725,6 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 remarks:      version 3
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:  denis,override1
 

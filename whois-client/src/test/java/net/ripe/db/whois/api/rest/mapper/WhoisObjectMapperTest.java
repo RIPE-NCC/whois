@@ -36,7 +36,6 @@ public class WhoisObjectMapperTest {
                 "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ # test\n" +
                 "auth:        PGPKEY-28F6CD6C\n" +
                 "mnt-by:      TST-MNT\n" +
-                "changed:     dbtest@ripe.net\n" +
                 "source:      TEST\n");
 
         final WhoisObject whoisObject = mapper.map(rpslObject, FormattedClientAttributeMapper.class);
@@ -57,7 +56,6 @@ public class WhoisObjectMapperTest {
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "PGPKEY-28F6CD6C", null, null, null),
                 new Attribute("mnt-by", "TST-MNT", null, null, null),
-                new Attribute("changed", "dbtest@ripe.net", null, null, null),
                 new Attribute("source", "TEST", null, null, null)
         ));
     }
@@ -72,7 +70,6 @@ public class WhoisObjectMapperTest {
                 "admin-c:   TS1-TEST\n" +
                 "members:   as1,as2,as3,\n" +
                 "mnt-by:    TS1-MNT\n" +
-                "changed:   hostmaster@ripe.net 20121115\n" +
                 "source:    TEST");
 
         final WhoisObject whoisObject = mapper.map(rpslObject, FormattedClientAttributeMapper.class);
@@ -95,7 +92,6 @@ public class WhoisObjectMapperTest {
                 new Attribute("members", "as3", null, null, null),
                 new Attribute("members", "", null, null, null),     // note: this is incorrect syntax but still handled by the mapper
                 new Attribute("mnt-by", "TS1-MNT", null, null, null),
-                new Attribute("changed", "hostmaster@ripe.net 20121115", null, null, null),
                 new Attribute("source", "TEST", null, null, null)
         ));
     }

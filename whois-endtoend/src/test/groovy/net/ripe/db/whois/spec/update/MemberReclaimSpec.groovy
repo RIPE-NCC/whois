@@ -18,7 +18,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: PP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "ALLOC-UNS": """\
@@ -32,7 +31,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA": """\
@@ -48,7 +46,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 mnt-routes:   PARENT-MR-MNT
                 mnt-domains:  LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "LIR-PART-PA": """\
@@ -62,7 +59,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "SUB-ALLOC": """\
@@ -76,7 +72,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       SUB-MNT
                 mnt-lower:    SUB2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ASS-END": """\
@@ -89,7 +84,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:       end-user@ripe.net
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ASS-DOM": """\
@@ -101,7 +95,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "ASS-ROUTE": """\
@@ -109,7 +102,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "RIR-ALLOC-25-LOW-R-D": """\
@@ -126,7 +118,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-ROUTES:   lir2-MNT
                 mnt-DOMAINS:  lir3-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-ALLOC-30": """\
@@ -140,7 +131,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-MNT
                 mnt-lower:    LiR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-32-48": """\
@@ -155,7 +145,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-48-64": """\
@@ -170,7 +159,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ASS-64": """\
@@ -183,7 +171,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "DOMAIN6": """\
@@ -195,7 +182,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "ROUTE6-PARENT30": """\
@@ -203,7 +189,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         PARENT-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "ROUTE6-CHILD32-1": """\
@@ -211,7 +196,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "ROUTE6-CHILD32-2": """\
@@ -220,7 +204,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 origin:         AS20000
                 ping-hdl:       PP1-TEST
                 mnt-by:         ORIGIN-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS10000": """\
@@ -231,7 +214,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      PARENT-MB-MNT
-                changed:     dbtest@ripe.net 20130101
                 source:      TEST
                 """,
             "AS20000": """\
@@ -242,7 +224,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      PARENT-MB-MNT
-                changed:     dbtest@ripe.net 20130101
                 source:      TEST
                 """,
             "SUB2-MNT": """\
@@ -254,7 +235,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:      notify_domains@ripe.net
                 auth:        MD5-PW \$1\$PSgV42pA\$SQsl2cHDMeQx3IsMzdqNH/  #sub2
                 mnt-by:      SUB2-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
     ]}
@@ -281,7 +261,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:       end-user@ripe.net
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -324,7 +303,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:       end-user@ripe.net
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -367,7 +345,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:       end-user@ripe.net
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -414,7 +391,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:       end-user@ripe.net
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -461,7 +437,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:       end-user@ripe.net
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -509,7 +484,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 remarks:      just added
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -554,7 +528,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 remarks:      just added
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -604,7 +577,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:       end-user@ripe.net
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -653,7 +625,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:       end-user@ripe.net
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -703,7 +674,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       SUB-MNT
                 mnt-lower:    SUB2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -754,7 +724,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       SUB-MNT
                 mnt-lower:    SUB2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -804,7 +773,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:       end-user@ripe.net
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -857,7 +825,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 notify:       end-user@ripe.net
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -912,7 +879,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete: member reclaim
 
@@ -963,7 +929,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete: member reclaim
 
@@ -1013,7 +978,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete: member reclaim
 
@@ -1064,7 +1028,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete: member reclaim
 
@@ -1117,7 +1080,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete: member reclaim
 
@@ -1129,7 +1091,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete: member reclaim
 
@@ -1185,7 +1146,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 mnt-routes:   PARENT-MR-MNT
                 mnt-domains:  LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete: member reclaim
 
@@ -1246,7 +1206,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-ROUTES:   lir2-MNT
                 mnt-DOMAINS:  lir3-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1260,7 +1219,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-MNT
                 mnt-lower:    LiR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1275,7 +1233,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1290,7 +1247,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1303,7 +1259,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1369,7 +1324,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-MNT
                 mnt-lower:    LiR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1384,7 +1338,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1399,7 +1352,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1412,7 +1364,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1429,7 +1380,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-ROUTES:   lir2-MNT
                 mnt-DOMAINS:  lir3-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1519,7 +1469,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-ROUTES:   lir2-MNT
                 mnt-DOMAINS:  lir3-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1533,7 +1482,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-MNT
                 mnt-lower:    LiR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1548,7 +1496,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1563,7 +1510,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1576,7 +1522,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete: member reclaim
 
@@ -1588,7 +1533,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete: member reclaim
 
@@ -1596,7 +1540,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         PARENT-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete: member reclaim
 
@@ -1604,7 +1547,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete: member reclaim
 
@@ -1613,7 +1555,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 origin:         AS20000
                 ping-hdl:       PP1-TEST
                 mnt-by:         ORIGIN-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete: member reclaim
 
@@ -1625,7 +1566,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      PARENT-MB-MNT
-                changed:     dbtest@ripe.net 20130101
                 source:      TEST
                 delete: member reclaim
 
@@ -1636,7 +1576,6 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: PP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 delete: member reclaim
 

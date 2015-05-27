@@ -16,7 +16,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: OWNER-MNT
             upd-to: updto_cre@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
             "SELF-MNT": """\
@@ -26,7 +25,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: SELF-MNT
             upd-to: updto_cre@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
             "UPD-MNT": """\
@@ -36,7 +34,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: OWNER-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
             "UPD2-MNT": """\
@@ -47,7 +44,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: OWNER-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
             "UPD3-MNT": """\
@@ -58,7 +54,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: OWNER-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120901
             source: TEST
             """,
             "UPD4-MNT": """\
@@ -69,7 +64,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: OWNER-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120901
             source: TEST
             """,
             "UPD5-MNT": """\
@@ -80,7 +74,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: OWNER-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120901
             source: TEST
             """,
             "UPD6-MNT": """\
@@ -90,7 +83,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """ ,
             "UPD7-MNT": """\
@@ -100,7 +92,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """
     ]}
@@ -147,7 +138,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 mnt-by: SELF-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: update
@@ -185,7 +175,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 referral-by: SELF-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: update
@@ -294,7 +283,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 mnt-by: OWNER-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: owner
@@ -329,7 +317,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 mnt-by: OWNER-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: update
@@ -554,8 +541,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 upd-to: updto_cre@ripe.net
                 upd-to: updto_cre2@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
-                changed: dbtest@ripe.net
                 source: TEST
                 auth:PGPKEY-D83C3FBD
 
@@ -599,7 +584,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 auth:        PGPKEY-D83C3FBD
-                changed:     dbtest@ripe.net 20121109
                 source:      TEST
 
                 password: owner
@@ -633,7 +617,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 mnt-by: NEW-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: update

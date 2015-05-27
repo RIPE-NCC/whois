@@ -40,7 +40,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:    TST-MNT\n" +
                 "upd-to:    dbtest@ripe.net\n" +
                 "auth:      MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed:   dbtest@ripe.net 20120707\n" +
                 "source:    TEST\n"));
         databaseHelper.updateObject(RpslObject.parse("" +
                 "person:    Test Person\n" +
@@ -48,7 +47,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "phone:     +31 20 123456\n" +
                 "nic-hdl:   TP1-TEST\n" +
                 "mnt-by:    TST-MNT\n" +
-                "changed:   dbtest@ripe.net 20120101\n" +
                 "source:    TEST\n"));
         databaseHelper.addObject(RpslObject.parse("" +
                 "organisation:  ORG-TOL1-TEST\n" +
@@ -58,7 +56,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "e-mail:        testing@ripe.net\n" +
                 "mnt-ref:       TST-MNT\n" +
                 "mnt-by:        TST-MNT\n" +
-                "changed:       testing@ripe.net 20130617\n" +
                 "source: TEST"));
         databaseHelper.addObject(RpslObject.parse("" +
                 "aut-num:    AS123\n" +
@@ -66,7 +63,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "descr:      Testing\n" +
                 "org:        ORG-TOL1-TEST\n" +
                 "mnt-by:     TST-MNT\n" +
-                "changed:    ripe@test.net 20091015\n" +
                 "source:     TEST"));
     }
 
@@ -78,7 +74,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "remarks:        Testing\n" +
                 "org:            ORG-TOL1-TEST\n" +
                 "mnt-by:         TST-MNT\n" +
-                "changed:        ripe@test.net 20130101\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "source:         TEST\n");
 
@@ -97,7 +92,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "remarks:        Testing\n" +
                 "org:            ORG-TOL1-TEST\n" +
                 "mnt-by:         TST-MNT\n" +
-                "changed:        ripe@test.net 20130101\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "source:         TEST\n"));
 
@@ -126,7 +120,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "org:          ORG-TOL1-TEST\n" +
                 "mbrs-by-ref:  ANY\n" +
                 "notify:       asnotify@test.net\n" +
-                "changed:      test@ripe.net 20120101\n" +
                 "source:       TEST\n");
 
         final DatabaseDiff diff = rebuild(object);
@@ -148,7 +141,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "org:          ORG-TOL1-TEST\n" +
                 "mbrs-by-ref:  ANY\n" +
                 "notify:       asnotify@test.net\n" +
-                "changed:      test@ripe.net 20120101\n" +
                 "source:       TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'AS-TEST'");
@@ -180,7 +172,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:       noreply@ripe.net\n" +
                 "mnt-by:       TST-MNT\n" +
                 "mbrs-by-ref:  TST-MNT\n" +
-                "changed:      noreply@ripe.net 20120101\n" +
                 "source:       TEST");
 
         final RpslObject object = RpslObject.parse("" +
@@ -194,7 +185,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
                 "notify:         noreply@ripe.net\n" +
-                "changed:        test@ripe.net 20120101\n" +
                 "source:         TEST\n");
 
         final DatabaseDiff diff = rebuild(object);
@@ -215,7 +205,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:       noreply@ripe.net\n" +
                 "mnt-by:       TST-MNT\n" +
                 "mbrs-by-ref:  TST-MNT\n" +
-                "changed:      noreply@ripe.net 20120101\n" +
                 "source:       TEST");
 
         rebuild(RpslObject.parse("" +
@@ -230,7 +219,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
                 "notify:         noreply@ripe.net\n" +
-                "changed:        test@ripe.net 20120101\n" +
                 "source:         TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'AS101'");
@@ -265,7 +253,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:     notify@ripe.net\n" +
                 "ds-rdata:   52151  1  1  13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
                 "mnt-by:     TST-MNT\n" +
-                "changed:    test@ripe.net 20120505\n" +
                 "source:     TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -290,7 +277,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:     notify@ripe.net\n" +
                 "ds-rdata:   52151  1  1  13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
                 "mnt-by:     TST-MNT\n" +
-                "changed:    test@ripe.net 20120505\n" +
                 "source:     TEST"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = '0.0.10.in-addr.arpa'");
@@ -325,7 +311,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:     notify@ripe.net\n" +
                 "ds-rdata:   52151  1  1  13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
                 "mnt-by:     TST-MNT\n" +
-                "changed:    test@ripe.net 20120505\n" +
                 "source:     TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -355,7 +340,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:         notify@ripe.net\n" +
                 "ds-rdata:       52151 1 1 13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
                 "mnt-by:         TST-MNT\n" +
-                "changed:        test@ripe.net 20120505\n" +
                 "source:         TEST\n"));
     }
 
@@ -371,7 +355,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:       TST-MNT\n" +
                 "mnt-lower:    TST-MNT\n" +
                 "notify:       test@test.net\n" +
-                "changed:      dbtest@ripe.net 20120101\n" +
                 "source:  TEST\n");
 
         final DatabaseDiff diff = rebuild(object);
@@ -393,7 +376,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:       TST-MNT\n" +
                 "mnt-lower:    TST-MNT\n" +
                 "notify:       test@test.net\n" +
-                "changed:      dbtest@ripe.net 20120101\n" +
                 "source:  TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'fltr-test'");
@@ -426,7 +408,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "irt-nfy:   irtnfy@test.net\n" +
                 "notify:    nfy@test.net\n" +
                 "mnt-by:    TST-MNT\n" +
-                "changed:   test@ripe.net 20120505\n" +
                 "source:    TEST");
 
         final RpslObject object = RpslObject.parse("" +
@@ -444,7 +425,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-irt:        irt-IRT1\n" +
                 "notify:         notify@test.net\n" +
                 "org:            ORG-TOL1-TEST\n" +
-                "changed:        ripe@test.net 20120505\n" +
                 "source:         TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -468,7 +448,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "irt-nfy:   irtnfy@test.net\n" +
                 "notify:    nfy@test.net\n" +
                 "mnt-by:    TST-MNT\n" +
-                "changed:   test@ripe.net 20120505\n" +
                 "source:    TEST");
 
         rebuild(RpslObject.parse("" +
@@ -486,7 +465,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-irt:        irt-IRT1\n" +
                 "notify:         notify@test.net\n" +
                 "org:            ORG-TOL1-TEST\n" +
-                "changed:        ripe@test.net 20120505\n" +
                 "source:         TEST"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = '10.0.0.0 - 10.255.255.255'");
@@ -522,7 +500,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "irt-nfy:   irtnfy@test.net\n" +
                 "notify:    nfy@test.net\n" +
                 "mnt-by:    TST-MNT\n" +
-                "changed:   test@ripe.net 20120505\n" +
                 "source:    TEST");
 
         final RpslObject object = RpslObject.parse("" +
@@ -541,7 +518,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:         notify@test.net\n" +
                 "status:         OTHER\n" +
                 "org:            ORG-TOL1-TEST\n" +
-                "changed:        ripe@test.net 20120505\n" +
                 "source:         TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -570,7 +546,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:         notify@test.net\n" +
                 "status:         OTHER\n" +
                 "org:            ORG-TOL1-TEST\n" +
-                "changed:        ripe@test.net 20120505\n" +
                 "source:         TEST\n"));
     }
 
@@ -588,7 +563,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "irt-nfy:   irtnfy@test.net\n" +
                 "notify:    nfy@test.net\n" +
                 "mnt-by:    TST-MNT\n" +
-                "changed:   test@ripe.net 20120505\n" +
                 "source:    TEST");
 
         final RpslObject object = RpslObject.parse("" +
@@ -607,7 +581,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:         notify@test.net\n" +
                 "status:         OTHER\n" +
                 "org:            ORG-TOL1-TEST\n" +
-                "changed:        ripe@test.net 20120505\n" +
                 "source:         TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -631,7 +604,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "irt-nfy:   irtnfy@test.net\n" +
                 "notify:    nfy@test.net\n" +
                 "mnt-by:    TST-MNT\n" +
-                "changed:   test@ripe.net 20120505\n" +
                 "source:    TEST");
 
         rebuild(RpslObject.parse("" +
@@ -650,7 +622,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:         notify@test.net\n" +
                 "status:         OTHER\n" +
                 "org:            ORG-TOL1-TEST\n" +
-                "changed:        ripe@test.net 20120505\n" +
                 "source:         TEST"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = '3333:4444::/48'");
@@ -686,7 +657,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "irt-nfy:   irtnfy@test.net\n" +
                 "notify:    nfy@test.net\n" +
                 "mnt-by:    TST-MNT\n" +
-                "changed:   test@ripe.net 20120505\n" +
                 "source:    TEST");
 
         final RpslObject object = RpslObject.parse("" +
@@ -705,7 +675,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:         notify@test.net\n" +
                 "status:         OTHER\n" +
                 "org:            ORG-TOL1-TEST\n" +
-                "changed:        ripe@test.net 20120505\n" +
                 "source:         TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -734,7 +703,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:         notify@test.net\n" +
                 "status:         OTHER\n" +
                 "org:            ORG-TOL1-TEST\n" +
-                "changed:        ripe@test.net 20120505\n" +
                 "source:         TEST\n"));
     }
 
@@ -748,7 +716,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "admin-c:      TP1-TEST\n" +
                 "mbrs-by-ref:  TST-MNT\n" +
                 "mnt-by:       TST-MNT\n" +
-                "changed:      dbtest@ripe.net\n" +
                 "source:       TEST");
 
         final RpslObject object = RpslObject.parse("" +
@@ -762,7 +729,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "org:        ORG-TOL1-TEST\n" +
                 "notify:     dbtest@ripe.net\n" +
                 "mnt-by:     TST-MNT\n" +
-                "changed:    test@ripe.net 20120622\n" +
                 "source:     TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -782,7 +748,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "admin-c:      TP1-TEST\n" +
                 "mbrs-by-ref:  TST-MNT\n" +
                 "mnt-by:       TST-MNT\n" +
-                "changed:      dbtest@ripe.net\n" +
                 "source:       TEST");
 
         rebuild(RpslObject.parse("" +
@@ -796,7 +761,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "org:        ORG-TOL1-TEST\n" +
                 "notify:     dbtest@ripe.net\n" +
                 "mnt-by:     TST-MNT\n" +
-                "changed:    test@ripe.net 20120622\n" +
                 "source:     TEST"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'test.ripe.net'");
@@ -826,7 +790,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "admin-c:      TP1-TEST\n" +
                 "mbrs-by-ref:  TST-MNT\n" +
                 "mnt-by:       TST-MNT\n" +
-                "changed:      dbtest@ripe.net\n" +
                 "source:       TEST");
 
         final RpslObject object = RpslObject.parse("" +
@@ -840,7 +803,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "org:        ORG-TOL1-TEST\n" +
                 "notify:     dbtest@ripe.net\n" +
                 "mnt-by:     TST-MNT\n" +
-                "changed:    test@ripe.net 20120622\n" +
                 "source:     TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -869,7 +831,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "org:            ORG-TOL1-TEST\n" +
                 "notify:         dbtest@ripe.net\n" +
                 "mnt-by:         TST-MNT\n" +
-                "changed:        test@ripe.net 20120622\n" +
                 "source:         TEST\n"));
     }
 
@@ -886,7 +847,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "irt-nfy:   irtnfy@test.net\n" +
                 "mnt-by:    TST-MNT\n" +
                 "notify:    nfy@test.net\n" +
-                "changed:   test@ripe.net 20120505\n" +
                 "source:    TEST\n");
 
         final DatabaseDiff diff = rebuild(object);
@@ -909,7 +869,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "irt-nfy:   irtnfy@test.net\n" +
                 "mnt-by:    TST-MNT\n" +
                 "notify:    nfy@test.net\n" +
-                "changed:   test@ripe.net 20120505\n" +
                 "source:    TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'irt-IRT1'");
@@ -943,7 +902,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "mnt-by:       TST-MNT\n" +
                 "notify:       test@ripe.net\n" +
-                "changed:      test@ripe.net 20120213\n" +
                 "source:       TEST\n");
 
         final DatabaseDiff diff = rebuild(object);
@@ -967,7 +925,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "mnt-by:       TST-MNT\n" +
                 "notify:       test@ripe.net\n" +
-                "changed:      test@ripe.net 20120213\n" +
                 "source:       TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'PGPKEY-28F6CD6C'");
@@ -1000,7 +957,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-nfy:       nfy@test.net\n" +
                 "notify:        notify@ripe.net\n" +
                 "abuse-mailbox: abuse@ripe.net\n" +
-                "changed:       dbtest@ripe.net 20120707\n" +
                 "source:        TEST\n");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1024,7 +980,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-nfy:       nfy@test.net\n" +
                 "notify:        notify@ripe.net\n" +
                 "abuse-mailbox: abuse@ripe.net\n" +
-                "changed:       dbtest@ripe.net 20120707\n" +
                 "source:        TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'UPD-MNT'");
@@ -1063,7 +1018,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "e-mail:        testing@ripe.net\n" +
                 "mnt-ref:       TST-MNT\n" +
                 "mnt-by:        TST-MNT\n" +
-                "changed:       testing@ripe.net 20130617\n" +
                 "source:        TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1091,7 +1045,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "e-mail:        testing@ripe.net\n" +
                 "mnt-ref:       TST-MNT\n" +
                 "mnt-by:        TST-MNT\n" +
-                "changed:       testing@ripe.net 20130617\n" +
                 "source:        TEST"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'ORG-AOL1-TEST'");
@@ -1128,7 +1081,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "admin-c:       TP1-TEST\n" +
                 "mnt-by:        TST-MNT\n" +
                 "mnt-lower:     TST-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1151,7 +1103,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "admin-c:       TP1-TEST\n" +
                 "mnt-by:        TST-MNT\n" +
                 "mnt-lower:     TST-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'prng-partners'");
@@ -1184,7 +1135,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:        first@last.org\n" +
                 "abuse-mailbox: first@last.org\n" +
                 "mnt-by:        TST-MNT\n" +
-                "changed:       first@last.org\n" +
                 "source:        TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1208,7 +1158,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:        first@last.org\n" +
                 "abuse-mailbox: first@last.org\n" +
                 "mnt-by:        TST-MNT\n" +
-                "changed:       first@last.org\n" +
                 "source:        TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'FL1-TEST'");
@@ -1235,7 +1184,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "phone:        +31 2 12 34 56\n" +
                 "nic-hdl:      AP1-TEST\n" +
                 "mnt-by:       TST-MNT\n" +
-                "changed:      user@ripe.net 20130101\n" +
                 "source:       TEST");
         whoisTemplate.update("UPDATE last SET object = ? WHERE object_id = ?",
                 ("person:      Another Person\n" +
@@ -1244,7 +1192,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "nic-hdl:      AP1-TEST\n" +
                 "mnt-by:       TST-MNT\n" +
                 "e-mail:       12345678901234567890123456789012345678901234567890123456789012345678901234567890@host.org\n" +
-                "changed:      user@ripe.net 20130101\n" +
                 "source:       TEST").getBytes(),
                 person.getObjectId());
 
@@ -1262,7 +1209,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "descr:           haiku\n" +
                 "admin-c:         TP1-TEST\n" +
                 "mnt-by:          TST-MNT\n" +
-                "changed:         ripe-dbm@ripe.net 20060913\n" +
                 "source:          TEST\n"));
 
         final RpslObject object = RpslObject.parse("" +
@@ -1274,7 +1220,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "author:          TP1-TEST\n" +
                 "notify:          nfy@ripe.net\n" +
                 "mnt-by:          TST-MNT\n" +
-                "changed:         test@ripe.net\n" +
                 "source:          TEST\n");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1291,7 +1236,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "descr:           haiku\n" +
                 "admin-c:         TP1-TEST\n" +
                 "mnt-by:          TST-MNT\n" +
-                "changed:         ripe-dbm@ripe.net 20060913\n" +
                 "source:          TEST\n"));
 
         rebuild(RpslObject.parse("" +
@@ -1303,7 +1247,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "author:          TP1-TEST\n" +
                 "notify:          nfy@ripe.net\n" +
                 "mnt-by:          TST-MNT\n" +
-                "changed:         test@ripe.net\n" +
                 "source:          TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'POEM-HAIKU-OBJECT'");
@@ -1328,7 +1271,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "admin-c:         TP1-TEST\n" +
                 "mnt-by:          TST-MNT\n" +
                 "notify:          nfy@ripe.net\n" +
-                "changed:         ripe-dbm@ripe.net 20060913\n" +
                 "source:          TEST\n");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1346,7 +1288,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "admin-c:         TP1-TEST\n" +
                 "mnt-by:          TST-MNT\n" +
                 "notify:          nfy@ripe.net\n" +
-                "changed:         ripe-dbm@ripe.net 20060913\n" +
                 "source:          TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'FORM-HAIKU'");
@@ -1378,7 +1319,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:        first@last.org\n" +
                 "abuse-mailbox: first@last.org\n" +
                 "mnt-by:        TST-MNT\n" +
-                "changed:       first@last.org\n" +
                 "source:        TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1404,7 +1344,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:        first@last.org\n" +
                 "abuse-mailbox: first@last.org\n" +
                 "mnt-by:        TST-MNT\n" +
-                "changed:       first@last.org\n" +
                 "source:        TEST"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'TR1-TEST'");
@@ -1436,7 +1375,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "mbrs-by-ref:  ANY\n" +
                 "notify:       rsnotify@test.net\n" +
-                "changed:      changed@test.com\n" +
                 "source:       TEST"));
 
         final RpslObject object = RpslObject.parse("" +
@@ -1450,7 +1388,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:        notify@test.net\n" +
                 "mnt-lower:     TST-MNT\n" +
                 "mnt-routes:    TST-MNT\n" +
-                "changed:       ripe@test.net 20091015\n" +
                 "source:        TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1471,7 +1408,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "mbrs-by-ref:  ANY\n" +
                 "notify:       rsnotify@test.net\n" +
-                "changed:      changed@test.com\n" +
                 "source:       TEST"));
 
         rebuild(RpslObject.parse("" +
@@ -1485,7 +1421,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:        notify@test.net\n" +
                 "mnt-lower:     TST-MNT\n" +
                 "mnt-routes:    TST-MNT\n" +
-                "changed:       ripe@test.net 20091015\n" +
                 "source:        TEST"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = '10.1.2.0/24AS123'");
@@ -1516,7 +1451,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "mbrs-by-ref:  ANY\n" +
                 "notify:       rsnotify@test.net\n" +
-                "changed:      changed@test.com\n" +
                 "source:       TEST"));
 
         final RpslObject object = RpslObject.parse("" +
@@ -1530,7 +1464,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:        notify@test.net\n" +
                 "mnt-lower:     TST-MNT\n" +
                 "mnt-routes:    TST-MNT\n" +
-                "changed:       ripe@test.net 20091015\n" +
                 "source:        TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1554,7 +1487,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:         notify@test.net\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
-                "changed:        ripe@test.net 20091015\n" +
                 "source:         TEST\n"));
     }
 
@@ -1569,7 +1501,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "mbrs-by-ref:  ANY\n" +
                 "notify:       rsnotify@test.net\n" +
-                "changed:      changed@test.com\n" +
                 "source:       TEST"));
 
         final RpslObject object = RpslObject.parse("" +
@@ -1583,7 +1514,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:        notify@test.net\n" +
                 "mnt-lower:     TST-MNT\n" +
                 "mnt-routes:    TST-MNT\n" +
-                "changed:       ripe@test.net 20091015\n" +
                 "source:        TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1604,7 +1534,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "mbrs-by-ref:  ANY\n" +
                 "notify:       rsnotify@test.net\n" +
-                "changed:      changed@test.com\n" +
                 "source:       TEST"));
 
         rebuild(RpslObject.parse("" +
@@ -1618,7 +1547,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:        notify@test.net\n" +
                 "mnt-lower:     TST-MNT\n" +
                 "mnt-routes:    TST-MNT\n" +
-                "changed:       ripe@test.net 20091015\n" +
                 "source:        TEST"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = '2001:100::/24AS123'");
@@ -1649,7 +1577,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "mbrs-by-ref:  ANY\n" +
                 "notify:       rsnotify@test.net\n" +
-                "changed:      changed@test.com\n" +
                 "source:       TEST"));
 
         final RpslObject object = RpslObject.parse("" +
@@ -1663,7 +1590,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:        notify@test.net\n" +
                 "mnt-lower:     TST-MNT\n" +
                 "mnt-routes:    TST-MNT\n" +
-                "changed:       ripe@test.net 20091015\n" +
                 "source:        TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1687,7 +1613,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "notify:         notify@test.net\n" +
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
-                "changed:        ripe@test.net 20091015\n" +
                 "source:         TEST\n"));
     }
 
@@ -1698,7 +1623,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "descr:      TEST\n" +
                 "origin:     AS123\n" +
                 "mnt-by:     TST-MNT\n" +
-                "changed:    ripe@test.net 20091015\n" +
                 "source:     TEST");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1716,7 +1640,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "descr:          TEST\n" +
                 "origin:         AS123\n" +
                 "mnt-by:         TST-MNT\n" +
-                "changed:        ripe@test.net 20091015\n" +
                 "source:         TEST\n"));
     }
 
@@ -1734,7 +1657,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:     TST-MNT\n" +
                 "org:           ORG-TOL1-TEST\n" +
                 "mbrs-by-ref:   ANY\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1758,7 +1680,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:     TST-MNT\n" +
                 "org:           ORG-TOL1-TEST\n" +
                 "mbrs-by-ref:   ANY\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'RS-101'");
@@ -1792,7 +1713,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "org:           ORG-TOL1-TEST\n" +
                 "mnt-by:       TST-MNT\n" +
                 "mnt-lower:    TST-MNT\n" +
-                "changed:      dbtest@ripe.net 20120101\n" +
                 "source:       TEST\n");
 
         final DatabaseDiff diff = rebuild(object);
@@ -1816,7 +1736,6 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
                 "org:           ORG-TOL1-TEST\n" +
                 "mnt-by:        TST-MNT\n" +
                 "mnt-lower:     TST-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n"));
 
         whoisTemplate.update("DELETE FROM last WHERE pkey = 'RTRS-foo'");

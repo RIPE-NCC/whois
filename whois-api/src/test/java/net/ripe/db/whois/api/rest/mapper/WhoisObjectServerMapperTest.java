@@ -62,7 +62,6 @@ public class WhoisObjectServerMapperTest {
                         "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ # test\n" +
                         "auth:        PGPKEY-28F6CD6C\n" +
                         "mnt-by:      TST-MNT\n" +
-                        "changed:     dbtest@ripe.net\n" +
                         "source:      TEST\n");
 
         final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, FormattedServerAttributeMapper.class);
@@ -83,7 +82,6 @@ public class WhoisObjectServerMapperTest {
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
                 new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", new Link("locator", "http://rest.db.ripe.net/lookup/test/key-cert/PGPKEY-28F6CD6C")),
                 new Attribute("mnt-by", "TST-MNT", null, "mntner", new Link("locator", "http://rest.db.ripe.net/lookup/test/mntner/TST-MNT")),
-                new Attribute("changed", "dbtest@ripe.net", null, null, null),
                 new Attribute("source", "TEST", null, null, null)
         ));
     }
@@ -103,7 +101,6 @@ public class WhoisObjectServerMapperTest {
                 "admin-c:   TS1-TEST\n" +
                 "members:   as1,as2,as3\n" +
                 "mnt-by:    TS1-MNT\n" +
-                "changed:   hostmaster@ripe.net 20121115\n" +
                 "source:    TEST");
 
         final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, FormattedServerAttributeMapper.class);
@@ -125,7 +122,6 @@ public class WhoisObjectServerMapperTest {
                 new Attribute("members", "as2", null, "aut-num", new Link("locator", "http://rest.db.ripe.net/lookup/test/aut-num/as2")),
                 new Attribute("members", "as3", null, "aut-num", new Link("locator", "http://rest.db.ripe.net/lookup/test/aut-num/as3")),
                 new Attribute("mnt-by", "TS1-MNT", null, "mntner", new Link("locator", "http://rest.db.ripe.net/lookup/test/mntner/TS1-MNT")),
-                new Attribute("changed", "hostmaster@ripe.net 20121115", null, null, null),
                 new Attribute("source", "TEST", null, null, null)
         ));
     }

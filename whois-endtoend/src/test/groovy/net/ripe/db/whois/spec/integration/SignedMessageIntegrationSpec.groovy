@@ -1182,8 +1182,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "nic-hdl: FP1-TEST\n" +
               "mnt-by:  OWNER-MNT\n" +
               "changed: denis@ripe.net 20121016\n" +
-              "source:  TEST\n"
-      "-----BEGIN PGP SIGNATURE-----\n" +
+              "source:  TEST\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
               "Version: GnuPG v1.4.12 \\(Darwin\\)\n" +
               "Comment: GPGTools \\- http://gpgtools.org\n" +
               "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK\\+\n" +

@@ -14,7 +14,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  TST-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "ADMIN-PN": """\
@@ -25,7 +24,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """];
     }
@@ -39,7 +37,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         address:       Singel 258
         phone:         +3112346
         nic-hdl:       TP3-TEST
-        changed:       admin@test.com 20120505
         mnt-by:        TST-MNT
         created:       2012-05-03T11:23:66Z
         last-modified: 2012-05-03T11:23:66Z
@@ -71,7 +68,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         address:       Singel 258
         phone:         +3112346
         nic-hdl:       AUTO-1
-        changed:       admin@test.com 20120505
         mnt-by:        TST-MNT
         source:        TEST
         password: update
@@ -100,7 +96,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
             remarks: created
             source:  TEST
             password: update
@@ -123,7 +118,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
             remarks: updated
             source:  TEST
             password: update
@@ -154,7 +148,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             password: update
             """.stripIndent())
@@ -172,7 +165,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             password: update
             """.stripIndent())
@@ -190,7 +182,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:  LOOP-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source:  TEST")
 
         when:
@@ -202,7 +193,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "remarks:  updated\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source:  TEST\n" +
                 "password: update"))
 
@@ -228,7 +218,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:  LOOP-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source:  TEST")
 
         when:
@@ -240,7 +229,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                         "mnt-by:  LOOP-MNT\n" +
                         "upd-to:  dbtest@ripe.net\n" +
                         "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                        "changed: dbtest@ripe.net 20120707\n" +
                         "source:  TEST\n" +
                         "password: update"))
 
@@ -265,7 +253,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                         "mnt-by:  LOOP-MNT\n" +
                         "upd-to:  dbtest@ripe.net\n" +
                         "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                        "changed: dbtest@ripe.net 20120707\n" +
                         "source:  TEST\n" +
                         "password: update"))
 
@@ -290,7 +277,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
                 source:        TEST
                 password: update
@@ -307,7 +293,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
                 created:        ${currentDateTime}
                 last-modified:  ${currentDateTime}
@@ -327,7 +312,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
                 source:        TEST
                 password: update
@@ -343,7 +327,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
                 created:        ${currentDateTime}
                 last-modified:  ${currentDateTime}
@@ -363,7 +346,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
                 source:        TEST
                 password: update
@@ -385,7 +367,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
                 source:        TEST
                 password: update

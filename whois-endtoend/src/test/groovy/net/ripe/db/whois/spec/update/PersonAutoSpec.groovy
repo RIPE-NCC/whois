@@ -19,7 +19,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
              "NO-MB-PN": """\
@@ -29,7 +28,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: UK
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "PN1": """\
@@ -40,7 +38,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: ABC1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "PN3": """\
@@ -51,7 +48,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: ABC3-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """
    ]}
@@ -71,7 +67,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: aUtO-1
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -106,7 +101,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: AuTo-123ABC
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -147,7 +141,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: auto-22ABC
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -187,7 +180,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: auto-2A
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -227,7 +219,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: auto-2ABCDE
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -268,7 +259,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: auto-2ABC-NL
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -311,7 +301,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 tech-c:  AuTo-1
                 nic-hdl: AUTO-1
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -353,7 +342,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 tech-c:  AuTo-1
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -392,7 +380,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: auto-1
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -427,7 +414,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: auto-1
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -462,7 +448,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        auto-2
                 mnt-by:      OWNER-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 person:  First Person
@@ -472,7 +457,6 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: aUtO-2
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner

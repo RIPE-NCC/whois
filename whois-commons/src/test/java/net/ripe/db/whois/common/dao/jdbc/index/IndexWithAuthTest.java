@@ -23,7 +23,6 @@ public class IndexWithAuthTest extends IndexTestBase {
             "e-mail:    noreply@ripe.net\n" +
             "mnt-by:    OWNER-MNT\n" +
             "nic-hdl:   PP1-TEST\n" +
-            "changed:   noreply@ripe.net 20120101\n" +
             "remarks:   remark\n" +
             "source:    TEST\n");
 
@@ -35,7 +34,6 @@ public class IndexWithAuthTest extends IndexTestBase {
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 
     Map<RpslObject,RpslObjectUpdateInfo> objectUpdateInfoMap;

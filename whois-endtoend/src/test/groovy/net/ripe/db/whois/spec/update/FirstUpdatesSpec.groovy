@@ -18,7 +18,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
             """,
             "PN-OPT": """\
@@ -35,7 +34,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 notify:  dbtest-nfy@ripe.net
                 abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
             """,
     ]}
@@ -93,7 +91,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
-                changed: 20121016
 
                 password: owner
                 """.stripIndent()
@@ -107,10 +104,9 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
-                "Syntax error in 20121016",
-                "Mandatory attribute \"source\" is missing",
+                "Mandatory attribute \"source\" is missing"
         ]
 
         queryNothing("-rGBT person FPE1-TEST")
@@ -145,11 +141,10 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(3, 2, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
                 "\"addres\" is not a known RPSL attribute",
-                "Syntax error in 44 282 420469",
-                "Mandatory attribute \"changed\" is missing"]
+                "Syntax error in 44 282 420469"]
 
         queryNothing("-rGBT person SYN-ERR")
     }
@@ -169,7 +164,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
-                changed: 20121016
                 source:  TEST
                 password: owner
                 """.stripIndent()
@@ -205,7 +199,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """
         )
@@ -239,7 +232,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469\n
                 nic-hdl: FPE1-TEST\n
                 mnt-by:  OWNER-MNT\n
-                changed: 20121016\n
                 source:  TEST\n
                 password: owner
                 """.stripIndent()
@@ -276,7 +268,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
-                changed: 20121016
                 source: owner
 
                 qwerty qwerty
@@ -299,9 +290,8 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 1)
+        ack.countErrorWarnInfo(1, 0, 1)
         ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
-                "Syntax error in 20121016",
                 "Unrecognized source: OWNER"
         ]
         ack.infoMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
@@ -328,7 +318,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
-                changed: 20121016
                 source:  TEST
                 delete:  testing
 
@@ -366,7 +355,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net
                 source:  TEST
 
                 password: owner
@@ -403,7 +391,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 password: owner
                 """.stripIndent()
@@ -440,7 +427,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FPEü1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 password: owner
                 """.stripIndent()
@@ -475,7 +461,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -509,7 +494,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 password: owner
                 """.stripIndent()
@@ -537,7 +521,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 delete:  testing
 
@@ -578,7 +561,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl:
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 delete:  testing
 
@@ -624,7 +606,6 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 notify:  dbtest-nfy@ripe.net
                 abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST # some comment not allowed
 
                 password: owner

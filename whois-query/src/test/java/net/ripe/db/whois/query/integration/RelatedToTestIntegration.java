@@ -30,7 +30,6 @@ public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
                 "remarks:      For more information on APNIC assigned blocks, connect\n" +
                 "remarks:      to APNIC's whois database, whois.apnic.net.\n" +
                 "mnt-by:       RIPE-NCC-MNT\n" +
-                "changed:      ripe-dbm@ripe.net 20010411\n" +
                 "source:       RIPE"));
 
         queryServer.start();

@@ -24,7 +24,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$m4UsfkN3\$kLY5AaJuJrxaTR94HW5Ad0  #lir2
                 mnt-by:      LIR2-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
                 "SUB-MNT": """\
@@ -36,7 +35,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 notify:      notify_domains@ripe.net
                 auth:        MD5-PW \$1\$63qqt67X\$irszXgCNN2RdN6cZC12pK1  #sub
                 mnt-by:      SUB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
                 "ORGSUB": """\
@@ -48,7 +46,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
                 "ALLOC-UNS": """\
@@ -62,7 +59,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ALLOC-PA": """\
@@ -76,7 +72,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "PART-PA": """\
@@ -88,7 +83,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "SUB-ALLOC-PA": """\
@@ -102,7 +96,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    SUB-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASS-END": """\
@@ -114,7 +107,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "PART-PA2": """\
@@ -126,7 +118,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASS-END2": """\
@@ -138,7 +129,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ALLOC-PA-192-56": """\
@@ -152,7 +142,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "SUB-ALLOC-PA-192-57": """\
@@ -166,7 +155,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASS-END-192-57": """\
@@ -180,7 +168,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ALLOC-PA-44": """\
@@ -194,7 +181,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASS-END-44": """\
@@ -206,7 +192,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ALLOC-PI": """\
@@ -220,7 +205,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASSPI": """\
@@ -234,7 +218,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "AS1000": """\
@@ -244,7 +227,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
         ]
@@ -261,7 +243,6 @@ class TagsSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 411141
                 nic-hdl: IP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
         ]

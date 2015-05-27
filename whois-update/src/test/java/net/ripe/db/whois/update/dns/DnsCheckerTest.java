@@ -88,8 +88,6 @@ public class DnsCheckerTest {
                 "notify:          notify@test.net\n" +
                 "nserver:         ns1.test.se 80.84.32.12\n" +
                 "nserver:         ns2.test.se 80.84.32.10\n" +
-                "changed:         test@test.net 20010816\n" +
-                "changed:         test@test.net 20121121\n" +
                 "source:          RIPE\n" +
                 "mnt-by:          TEST-MNT"
         ));
