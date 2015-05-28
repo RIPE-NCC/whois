@@ -254,15 +254,17 @@
                 <artifactId>guava</artifactId>
                 <version>18.0</version>
             </dependency>
+            <!-- TODO: [ES] update MySQL connector to latest -->
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.34</version>
+                <version>5.1.21</version>
             </dependency>
+            <!-- TODO: [ES] update c3p0 to latest -->
             <dependency>
-                <groupId>com.mchange</groupId>
+                <groupId>c3p0</groupId>
                 <artifactId>c3p0</artifactId>
-                <version>0.9.5</version>
+                <version>0.9.1.2</version>
             </dependency>
             <!-- TODO: [ES] netty 3.10.0 creates excessive threads during integration tests -->
             <dependency>
