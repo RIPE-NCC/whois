@@ -47,7 +47,7 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.mchange</groupId>
+            <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
         </dependency>
 
