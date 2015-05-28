@@ -3,7 +3,7 @@
 ## 1.80
 [update] remove passwords from audit log
 [all] removed referral-by attribute
-
+[all] changed attribute is optional (phase 2)
 
 ## 1.79.2
 [update] Fixed issue with updates with no changes marked as MODIFY instead of NOOP
