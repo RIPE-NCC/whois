@@ -900,8 +900,10 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Message was signed more than one week ago"]
 
         queryObject("-r -T person FP1-TEST", "person", "First Person")
     }
@@ -1040,8 +1042,10 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Message was signed more than one week ago"]
 
         queryObject("-r -T person FP1-TEST", "person", "First Person")
     }
@@ -1092,9 +1096,10 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
-        // ack.contents =~ "\\*\\*\\*Warning: Message was signed more than one week ago"
+        ack.warningSuccessMessagesFor("Modify", "[person] TP1-TEST   Test Person") == [
+                "Message was signed more than one week ago"]
 
         queryObject("-rBT person TP1-TEST", "person", "Test Person")
     }
@@ -1145,9 +1150,10 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
-        // ack.contents =~ "\\*\\*\\*Warning: Message was signed more than one week ago"
+        ack.warningSuccessMessagesFor("Modify", "[person] TP1-TEST   Test Person") == [
+                "Message was signed more than one week ago"]
 
         queryObject("-rBT person TP1-TEST", "person", "Test Person")
     }
@@ -1201,9 +1207,10 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
-        // ack.contents =~ "\\*\\*\\*Warning: Message was signed more than one week ago"
+        ack.warningSuccessMessagesFor("Modify", "[person] TP1-TEST   Test Person") == [
+                "Message was signed more than one week ago"]
 
         queryObject("-rBT person TP1-TEST", "person", "Test Person")
     }
