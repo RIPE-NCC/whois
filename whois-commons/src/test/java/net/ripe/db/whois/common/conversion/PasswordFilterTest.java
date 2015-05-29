@@ -143,26 +143,32 @@ public class PasswordFilterTest {
 
     }
 
-    private static String uriWithParams(Pair ...params){
-        StringBuffer sb = new StringBuffer();
-        sb.append("/some/path?");
-        int idx = 0;
-        for( Pair param: params ) {
-            String encodedKey =  UriComponent.encode(param.key,UriComponent.Type.QUERY_PARAM, false);
-            String encodedValue = param.value != null ? ("=" + UriComponent.encode(param.value, UriComponent.Type.QUERY_PARAM, false)) : "";
-            sb.append(encodedKey  + encodedValue);
-            if( idx<params.length-1) {
-                sb.append("&");
+    private static String uriWithParams(final Pair ...params) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("/some/path?");
+
+        for (int index = 0; index < params.length; index++) {
+            if (params[index].value == null) {
+                builder.append(encodeQueryParam(params[index].key));
+            } else {
+                builder.append(encodeQueryParam(params[index].key)).append('=').append(encodeQueryParam(params[index].value));
             }
-            idx++;
+            if( index < params.length - 1) {
+                builder.append('&');
+            }
         }
-        return sb.toString();
+
+        return builder.toString();
+    }
+
+    private static String encodeQueryParam(final String value) {
+        return UriComponent.encode(value, UriComponent.Type.QUERY_PARAM, false);
     }
 
     static class Pair {
-        String key;
-        String value;
-        Pair(String key,String value) {
+        final String key;
+        final String value;
+        Pair(final String key, final String value) {
             this.key = key;
             this.value = value;
         }
