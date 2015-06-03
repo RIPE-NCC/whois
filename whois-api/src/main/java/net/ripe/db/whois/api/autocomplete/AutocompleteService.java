@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.freetext.FreeTextSearch;
 import net.ripe.db.whois.api.freetext.SearchResponse;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Autocomplete - Suggestions - Typeahead API
@@ -60,7 +62,17 @@ public class AutocompleteService {
             return badRequest("Query failed.");
         }
 
-        return ok("num found = " + searchResponse.getResult().getNumFound());
+        final List<String> result = Lists.newArrayList();
+
+        for (SearchResponse.Result.Doc doc : searchResponse.getResult().getDocs()) {
+            for (SearchResponse.Str str : doc.getStrs()) {
+                if (str.getName().equals(attributeType.toString())) {
+                    result.add(str.getValue());
+                }
+            }
+        }
+
+        return ok(result);
     }
 
     // helper methods
@@ -69,7 +81,7 @@ public class AutocompleteService {
         return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
     }
 
-    private Response ok(final String message) {
+    private Response ok(final Object message) {
         return Response.ok(message).build();
     }
 
