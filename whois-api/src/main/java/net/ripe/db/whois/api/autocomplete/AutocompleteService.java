@@ -27,8 +27,6 @@ public class AutocompleteService {
 
     private static final int MINIMUM_PREFIX_LENGTH = 3;
 
-    private static final int RESULTS_LIMIT = 10;
-
     private final FreeTextSearch freeTextSearch;
 
     @Autowired
@@ -40,19 +38,39 @@ public class AutocompleteService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response lookup(
                 @QueryParam("q") final String queryString,
-                @QueryParam("t") final ObjectTypeParameter objectType) {
+                @QueryParam("ot") final ObjectTypeParameter objectType,
+                @QueryParam("at") final AttributeTypeParameter attributeType) {
 
-        if (Strings.isNullOrEmpty(queryString) || queryString.length() <= MINIMUM_PREFIX_LENGTH) {
-            throw new IllegalArgumentException("q parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
+        if (Strings.isNullOrEmpty(queryString) || queryString.length() < MINIMUM_PREFIX_LENGTH) {
+            return badRequest("query (q) parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
+        }
+
+        if (attributeType == null) {
+            return badRequest("attribute type (at) parameter is required");
+        }
+
+        if (objectType == null) {
+            return badRequest("object type (ot) parameter is required");
         }
 
         final SearchResponse searchResponse;
         try {
-            searchResponse = freeTextSearch.freeTextSearch(String.format("q=%s+AND+object-type%%3A%s", queryString, objectType.toString()));
+            searchResponse = freeTextSearch.freeTextSearch(String.format("q=(%s:(%s))+AND+(object-type:%s)", attributeType.toString(), queryString, objectType.toString()));
         } catch (IOException e) {
-            throw new IllegalStateException("Query failed.");
+            return badRequest("Query failed.");
         }
 
-        return Response.ok("num found = " + searchResponse.getResult().getNumFound()).build();
+        return ok("num found = " + searchResponse.getResult().getNumFound());
     }
+
+    // helper methods
+
+    private Response badRequest(final String message) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
+    }
+
+    private Response ok(final String message) {
+        return Response.ok(message).build();
+    }
+
 }

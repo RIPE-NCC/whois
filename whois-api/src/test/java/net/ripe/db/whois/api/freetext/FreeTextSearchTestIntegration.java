@@ -424,6 +424,18 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(query("q=193"), containsString("numFound=\"2\""));
     }
 
+
+    @Test
+    public void test() throws Exception {
+        databaseHelper.addObject(
+                "inetnum:        193.0.0.0 - 193.0.0.255\n" +
+                "netname:        RIPE-NCC\n" +
+                "source:         RIPE");
+        freeTextIndex.rebuild();
+
+        assertThat(query("q=RIPE-NCC&object-type=inetnum&field"), containsString("xxx"));
+    }
+
     @Test
     public void search_inet6num() throws Exception {
         databaseHelper.addObject(

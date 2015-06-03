@@ -15,7 +15,7 @@ public class ObjectTypeParameter {
             this.objectType = ObjectType.getByName(objectType);
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity("invalid object type:" + objectType)
+                    .entity("invalid object type: " + objectType)
                     .build());
         }
     }

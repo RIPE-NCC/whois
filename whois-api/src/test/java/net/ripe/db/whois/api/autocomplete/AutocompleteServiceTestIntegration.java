@@ -11,8 +11,12 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.ws.rs.BadRequestException;
+
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest {
@@ -41,18 +45,69 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void single_maintainer_found() {
-        assertThat(query("AA1-MNT", "mntner"), containsString("num found = 1"));
+        assertThat(query("AA1-MNT", "mntner", "mntner"), containsString("num found = 1"));
     }
 
     @Test
     public void no_maintainers_found() {
-        assertThat(query("invalid", "mntner"), containsString("num found = 0"));
+        assertThat(query("invalid", "mntner", "mntner"), containsString("num found = 0"));
+    }
+
+    @Test
+    public void no_parameters() {
+        try {
+            RestTest.target(getPort(), "whois/autocomplete").request().get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("query (q) parameter is required, and must be at least 3 characters long"));
+        }
+    }
+
+    @Test
+    public void attribute_type_parameter_missing() {
+        try {
+            RestTest.target(getPort(), "whois/autocomplete?q=test&ot=mntner").request().get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("attribute type (at) parameter is required"));
+        }
+    }
+
+    @Test
+    public void object_type_parameter_missing() {
+        try {
+            RestTest.target(getPort(), "whois/autocomplete?q=test&at=mntner").request().get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("object type (ot) parameter is required"));
+        }
+    }
+
+    @Test
+    public void invalid_attribute_type_parameter() {
+        try {
+            RestTest.target(getPort(), "whois/autocomplete?q=test&at=invalid").request().get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("invalid attribute type: invalid"));
+        }
+    }
+
+    @Test
+    public void invalid_object_type_parameter() {
+        try {
+            RestTest.target(getPort(), "whois/autocomplete?q=test&ot=invalid").request().get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("invalid object type: invalid"));
+        }
     }
 
     // helper methods
 
-    private String query(final String queryString, final String objectType) {
-        return RestTest.target(getPort(), String.format("whois/autocomplete?q=%s&t=%s", queryString, objectType))
+    private String query(final String queryString, final String objectType, final String attributeType) {
+        return RestTest.target(getPort(),
+                String.format("whois/autocomplete?q=%s&ot=%s&at=%s", queryString, objectType, attributeType))
                 .request()
                 .get(String.class);
     }
