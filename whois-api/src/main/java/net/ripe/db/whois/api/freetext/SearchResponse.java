@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.freetext;
 import javax.xml.bind.annotation.*;
 import java.util.List;
 
-@XmlAccessorType(XmlAccessType.NONE)
+@XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "response")
 public class SearchResponse {
 
@@ -25,6 +25,8 @@ public class SearchResponse {
         this.lsts = lsts;
     }
 
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlRootElement(name = "result")
     public static class Result {
 
         @XmlAttribute(required = true)
@@ -49,28 +51,32 @@ public class SearchResponse {
             this.start = start;
         }
 
+        public List<Doc> getDocs() {
+            return docs;
+        }
+
         public void setDocs(final List<Doc> docs) {
             this.docs = docs;
         }
 
+        @XmlAccessorType(XmlAccessType.FIELD)
         @XmlRootElement(name = "doc")
-        static class Doc {
+        public static class Doc {
 
-            @XmlElements({
-                    @XmlElement(name = "str", type = Str.class)
-            })
+            @XmlElements({@XmlElement(name = "str", type = Str.class)})
             private List<Str> strs;
 
             public void setStrs(final List<Str> strs) {
                 this.strs = strs;
             }
-        }
 
-        public int getNumFound() {
-            return numFound;
+            public List<Str> getStrs() {
+                return strs;
+            }
         }
     }
 
+    @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "lst")
     static class Lst {
         @XmlAttribute(required = true)
@@ -113,6 +119,7 @@ public class SearchResponse {
         }
     }
 
+    @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "arr")
     static class Arr {
         @XmlAttribute(required = true)
@@ -134,8 +141,9 @@ public class SearchResponse {
         }
     }
 
+    @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "str")
-    static class Str {
+    public static class Str {
         @XmlAttribute(required = true)
         private String name;
 
@@ -150,8 +158,17 @@ public class SearchResponse {
             this.name = name;
             this.value = value;
         }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 
+    @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "int")
     static class Int {
         @XmlAttribute(required = true)

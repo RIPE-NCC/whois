@@ -12,8 +12,8 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MediaType;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -41,32 +41,39 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("mntner: AB1-MNT");
         databaseHelper.addObject("mntner: AC1-MNT");
         databaseHelper.addObject("mntner: something-mnt");
+        databaseHelper.addObject("mntner: random1-mnt");
+        databaseHelper.addObject("mntner: random2-mnt");
         rebuildIndex();
     }
 
     @Test
     public void single_maintainer_found() {
-        assertThat(query("AA1-MNT", "mntner", "mntner"), containsString("num found = 1"));
+        assertThat(query("AA1-MNT", "mntner", "mntner"), is("[ \"AA1-MNT\" ]"));
     }
 
     @Test
     public void match_start_of_word_dash_is_tokenised() {
-        assertThat(query("AA1", "mntner", "mntner"), containsString("num found = 1"));
+        assertThat(query("AA1", "mntner", "mntner"), is("[ \"AA1-MNT\" ]"));
     }
 
     @Test
     public void match_start_of_word_first_syllable_only() {
-        assertThat(query("some", "mntner", "mntner"), containsString("num found = 1"));
+        assertThat(query("some", "mntner", "mntner"), is("[ \"something-mnt\" ]"));
     }
 
     @Test
     public void match_start_of_word_first_syllable_only_case_insensitive() {
-        assertThat(query("SoMe", "mntner", "mntner"), containsString("num found = 1"));
+        assertThat(query("SoMe", "mntner", "mntner"), is("[ \"something-mnt\" ]"));
+    }
+
+    @Test
+    public void match_multiple_maintainers() {
+        assertThat(query("random", "mntner", "mntner"), is("[ \"random1-mnt\", \"random2-mnt\" ]"));
     }
 
     @Test
     public void no_maintainers_found() {
-        assertThat(query("invalid", "mntner", "mntner"), containsString("num found = 0"));
+        assertThat(query("invalid", "mntner", "mntner"), is("[ ]"));
     }
 
     @Test
@@ -124,7 +131,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     private String query(final String queryString, final String objectType, final String attributeType) {
         return RestTest.target(getPort(),
                 String.format("whois/autocomplete?q=%s&ot=%s&at=%s", queryString, objectType, attributeType))
-                .request()
+                .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
     }
 
