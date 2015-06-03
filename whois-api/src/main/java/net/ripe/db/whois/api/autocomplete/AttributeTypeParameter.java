@@ -15,7 +15,7 @@ public class AttributeTypeParameter {
             this.attributeType = AttributeType.getByName(attributeType);
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity("invalid attribute type:" + attributeType)
+                    .entity("invalid attribute type: " + attributeType)
                     .build());
         }
     }
@@ -23,5 +23,10 @@ public class AttributeTypeParameter {
     @NotNull
     public AttributeType getAttributeType() {
         return attributeType;
+    }
+
+    @Override
+    public String toString() {
+        return attributeType.getName();
     }
 }
