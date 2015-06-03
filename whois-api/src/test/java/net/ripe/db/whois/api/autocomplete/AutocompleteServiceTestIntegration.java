@@ -40,12 +40,23 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("mntner: AA1-MNT");
         databaseHelper.addObject("mntner: AB1-MNT");
         databaseHelper.addObject("mntner: AC1-MNT");
+        databaseHelper.addObject("mntner: something-mnt");
         rebuildIndex();
     }
 
     @Test
     public void single_maintainer_found() {
         assertThat(query("AA1-MNT", "mntner", "mntner"), containsString("num found = 1"));
+    }
+
+    @Test
+    public void match_start_of_word_dash_is_tokenised() {
+        assertThat(query("AA1", "mntner", "mntner"), containsString("num found = 1"));
+    }
+
+    @Test
+    public void match_start_of_word_first_syllable_only() {
+        assertThat(query("some", "mntner", "mntner"), containsString("num found = 1"));
     }
 
     @Test

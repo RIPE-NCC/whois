@@ -55,7 +55,7 @@ public class AutocompleteService {
 
         final SearchResponse searchResponse;
         try {
-            searchResponse = freeTextSearch.freeTextSearch(String.format("q=(%s:(%s))+AND+(object-type:%s)", attributeType.toString(), queryString, objectType.toString()));
+            searchResponse = freeTextSearch.freeTextSearch(String.format("q=(%s:(%s*))+AND+(object-type:%s)", attributeType.toString(), queryString, objectType.toString()));
         } catch (IOException e) {
             return badRequest("Query failed.");
         }
