@@ -5,13 +5,17 @@ import java.util.List;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "response")
-class SearchResponse {
+public class SearchResponse {
 
     @XmlElement(required = true)
     private Result result;
 
     @XmlElements({@XmlElement(name = "lst", type = Lst.class)})
     private List<Lst> lsts;
+
+    public Result getResult() {
+        return result;
+    }
 
     public void setResult(final Result result) {
         this.result = result;
@@ -21,7 +25,7 @@ class SearchResponse {
         this.lsts = lsts;
     }
 
-    static class Result {
+    public static class Result {
 
         @XmlAttribute(required = true)
         private String name;
@@ -60,6 +64,10 @@ class SearchResponse {
             public void setStrs(final List<Str> strs) {
                 this.strs = strs;
             }
+        }
+
+        public int getNumFound() {
+            return numFound;
         }
     }
 

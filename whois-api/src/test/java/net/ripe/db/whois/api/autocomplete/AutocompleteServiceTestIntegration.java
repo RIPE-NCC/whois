@@ -15,7 +15,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
-public class AutocompleteTestIntegration extends AbstractIntegrationTest {
+public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired FreeTextIndex freeTextIndex;
 
     @Autowired AutocompleteService autocompleteService;
@@ -40,14 +40,19 @@ public class AutocompleteTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void autocomplete() {
-        assertThat(query("test"), containsString("testing"));
+    public void single_maintainer_found() {
+        assertThat(query("AA1-MNT", "mntner"), containsString("num found = 1"));
+    }
+
+    @Test
+    public void no_maintainers_found() {
+        assertThat(query("invalid", "mntner"), containsString("num found = 0"));
     }
 
     // helper methods
 
-    private String query(final String queryString) {
-        return RestTest.target(getPort(), String.format("autocomplete?%s", queryString))
+    private String query(final String queryString, final String objectType) {
+        return RestTest.target(getPort(), String.format("whois/autocomplete?q=%s&t=%s", queryString, objectType))
                 .request()
                 .get(String.class);
     }

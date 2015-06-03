@@ -45,7 +45,7 @@ import static net.ripe.db.whois.api.freetext.FreeTextIndex.INDEX_ANALYZER;
 import static net.ripe.db.whois.api.freetext.FreeTextIndex.PRIMARY_KEY_FIELD_NAME;
 
 @Component
-class FreeTextSearch {
+public class FreeTextSearch {
     private static final Logger LOGGER = LoggerFactory.getLogger(FreeTextSearch.class);
 
     static final Sort SORT_BY_OBJECT_TYPE = new Sort(new SortField(FreeTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING));
@@ -62,13 +62,26 @@ class FreeTextSearch {
     public void freeTextSearch(final String query, final Writer writer) throws IOException {
         try {
             final SearchRequest searchRequest = SearchRequest.parse(query);
-            performFreeTextSearch(searchRequest, writer);
+            search(searchRequest, writer);
         } catch (ParseException e) {
             throw new IllegalArgumentException(String.format("Invalid query: %s", query), e);
         }
     }
 
-    private void performFreeTextSearch(final SearchRequest searchRequest, final Writer writer) throws IOException, ParseException {
+    public SearchResponse freeTextSearch(final String query) throws IOException {
+        try {
+            final SearchRequest searchRequest = SearchRequest.parse(query);
+            return search(searchRequest);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(String.format("Invalid query: %s", query), e);
+        }
+    }
+
+    private void search(final SearchRequest searchRequest, final Writer writer) throws IOException, ParseException {
+        marshaller.marshal(search(searchRequest), new StreamResult(writer));
+    }
+
+    private SearchResponse search(final SearchRequest searchRequest) throws IOException, ParseException {
         if (!"XML".equalsIgnoreCase(searchRequest.getFormat())) {
             throw new IllegalArgumentException(String.format("Unsupported format: %s", searchRequest.getFormat()));
         }
@@ -77,19 +90,15 @@ class FreeTextSearch {
             throw new IllegalArgumentException("Missing query parameter");
         }
 
-        search(searchRequest, writer);
-    }
-
-    private void search(final SearchRequest searchRequest, final Writer writer) throws IOException, ParseException {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         final QueryParser queryParser = new MultiFieldQueryParser(FreeTextIndex.FIELD_NAMES, FreeTextIndex.QUERY_ANALYZER);
         queryParser.setDefaultOperator(org.apache.lucene.queryparser.classic.QueryParser.Operator.AND);
         final Query query = queryParser.parse(searchRequest.getQuery());
 
-        freeTextIndex.search(new IndexTemplate.SearchCallback<Void>() {
+        return freeTextIndex.search(new IndexTemplate.SearchCallback<SearchResponse>() {
             @Override
-            public Void search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
+            public SearchResponse search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
 
                 final int maxResults = Math.max(100, indexReader.numDocs());
                 final TopFieldCollector topFieldCollector = TopFieldCollector.create(SORT_BY_OBJECT_TYPE, maxResults, false, false, false, false);
@@ -124,9 +133,7 @@ class FreeTextSearch {
                 final SearchResponse searchResponse = new SearchResponse();
                 searchResponse.setResult(createResult(searchRequest, documents, topDocs.totalHits));
                 searchResponse.setLsts(responseLstList);
-
-                marshaller.marshal(searchResponse, new StreamResult(writer));
-                return null;
+                return searchResponse;
             }
         });
     }
