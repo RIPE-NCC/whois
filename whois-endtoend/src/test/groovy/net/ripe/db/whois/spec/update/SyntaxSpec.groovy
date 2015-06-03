@@ -18,7 +18,8 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
+                created: 2012-02-22T11:56:08Z
+                last-modified: 2012-02-22T11:56:08Z
                 source:  TEST
                 """
    ]}
@@ -43,7 +44,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """.stripIndent()
         )
@@ -82,7 +82,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """.stripIndent()
         )
@@ -117,7 +116,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """.stripIndent()
         )
@@ -152,7 +150,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """.stripIndent()
         )
@@ -187,7 +184,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -225,7 +221,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -266,7 +261,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -305,7 +299,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -343,7 +336,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -377,7 +369,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -413,7 +404,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST     ### fred's # handle
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -449,7 +439,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST     # source comment
 
                 password: owner
@@ -484,7 +473,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST     #
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -521,7 +509,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -571,10 +558,12 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
                 ["More than one \"changed:\" attribute without date"]
+        ack.warningMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+                ["Deprecated attribute \"changed\". This attribute will be removed in the future."]
 
         queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
     }
@@ -608,8 +597,10 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+                ["Deprecated attribute \"changed\". This attribute will be removed in the future."]
 
         queryObject("-rBT person FP1-TEST", "person", "First Person")
     }
@@ -642,10 +633,12 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
                 ["Syntax error in denis@ripe.net 20129909"]
+        ack.warningMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+                ["Deprecated attribute \"changed\". This attribute will be removed in the future."]
 
         queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
     }
@@ -678,10 +671,12 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
                 ["Syntax error in denis@ripe.net 20120231"]
+        ack.warningMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+                ["Deprecated attribute \"changed\". This attribute will be removed in the future."]
 
         queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
     }
@@ -714,10 +709,12 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
                 ["Syntax error in denis@ripe.net 20121199"]
+        ack.warningMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+                ["Deprecated attribute \"changed\". This attribute will be removed in the future."]
 
         queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
     }
@@ -750,10 +747,12 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
                 ["Date is older than the database itself in changed: attribute \"19010912\""]
+        ack.warningMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+                ["Deprecated attribute \"changed\". This attribute will be removed in the future."]
 
         queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
     }
@@ -786,10 +785,12 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
                 ["Date is in the future in changed: attribute \"20201109\""]
+        ack.warningMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+                ["Deprecated attribute \"changed\". This attribute will be removed in the future."]
 
         queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
     }
@@ -826,8 +827,9 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
+
 
         query_object_matches("-rBG -T person FP1-TEST", "person", "First Person", "\\*\\*\\*@")
         query_object_matches("-rBG -T person FP1-TEST", "person", "First Person", "4\\.\\.")

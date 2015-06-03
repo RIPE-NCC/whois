@@ -18,7 +18,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 upd-to:      updto_test@ripe.net
                 auth:        MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.  #sso
                 mnt-by:      NO-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
                 """,
                 "ONE-SSO-MNT": """\
@@ -29,7 +28,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.  #sso
                 auth:        SSO test@ripe.net
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
                 """,
         ]
@@ -51,7 +49,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.  #sso
                 auth:        SSO db-test@ripe.net
                 mnt-by:      NO-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -93,7 +90,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 upd-to:      updto_test@ripe.net
                 auth:        SSO db-test@ripe.net
                 mnt-by:      NO-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -138,7 +134,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        SSO test@ripe.net
                 auth:        SSO db-test@ripe.net
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -184,7 +179,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        SSO test@ripe.net
                 auth:        SSO db-test@ripe.net
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -229,7 +223,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.  #sso
                 auth:        SSO db-test@ripe.net
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -275,7 +268,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 upd-to:      updto_test@ripe.net
                 auth:        MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.  #sso
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -319,7 +311,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 upd-to:      updto_test@ripe.net
                 auth:        SSO test@ripe.net
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -363,7 +354,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 upd-to:      updto_test@ripe.net
                 auth:        SSO db-test@ripe.net
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -406,7 +396,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 upd-to:      updto_test@ripe.net
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -455,7 +444,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        SSO db-test@ripe.net
                 auth:        SSO person@net.net
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -503,7 +491,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.  #sso
                 auth:        SSO unknown@ripe.net
                 mnt-by:      NO-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -547,7 +534,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        SSO test@ripe.net
                 auth:        SSO unknown@ripe.net
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -591,7 +577,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.  #sso
                 auth:        SSO unknown@ripe.net
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -633,7 +618,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.  #sso
                 auth:        SSO db-test@ripe.net
                 mnt-by:      NO-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -677,7 +661,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.  #sso
                 auth:        SSO unknown@ripe.net
                 mnt-by:      NO-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
 
                 password: sso
@@ -715,7 +698,6 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.  #sso
                 auth:        SSO test@ripe.net
                 mnt-by:      ONE-SSO-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
                 delete:   test
 

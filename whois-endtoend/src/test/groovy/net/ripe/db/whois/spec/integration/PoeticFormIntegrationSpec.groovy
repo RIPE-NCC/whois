@@ -16,7 +16,6 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "LIM-MNT": """\
@@ -26,7 +25,6 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: LIM-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$5aMDZg3w\$zL59TnpAszf6Ft.zs148X0 # update2
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "ADMIN-PN": """\
@@ -37,7 +35,6 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  UPD-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """
         ]
@@ -54,7 +51,6 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             descr:           and it<92>s funny and often perverse
             admin-c:         TEST-RIPE
             mnt-by:          UPD-MNT
-            changed:         ripe-dbm@ripe.net 20060913
             source:          TEST
             password:        update
             """.stripIndent())
@@ -73,7 +69,6 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             descr:           haiku
             admin-c:         TEST-RIPE
             mnt-by:          UPD-MNT
-            changed:         ripe-dbm@ripe.net 20060913
             source:          TEST
             password:        update
             """.stripIndent())
@@ -92,7 +87,6 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             descr:           in its density
             admin-c:         TEST-RIPE
             mnt-by:          UPD-MNT
-            changed:         ripe-dbm@ripe.net 20060913
             source:          TEST
             password:        update
             """.stripIndent())
@@ -111,7 +105,6 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             descr:           haiku
             admin-c:         TEST-RIPE
             mnt-by:          UPD-MNT
-            changed:         ripe-dbm@ripe.net 20060913
             source:          TEST
             password:        update
             """.stripIndent())
@@ -128,7 +121,6 @@ class PoeticFormIntegrationSpec extends BaseWhoisSourceSpec {
             descr:           haiku
             admin-c:         TEST-RIPE
             mnt-by:          UPD-MNT
-            changed:         ripe-dbm@ripe.net 20060913
             source:          TEST
             password:        update
             delete:          test

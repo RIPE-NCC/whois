@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
@@ -168,8 +169,7 @@ public class SyncUpdatesService {
         loggerContext.init(getRequestId(request.getRemoteAddress()));
 
         try {
-            InternalUpdatePerformer.logHttpHeaders(loggerContext, httpServletRequest);
-            InternalUpdatePerformer.logHttpUri(loggerContext, httpServletRequest);
+            loggerContext.log(new HttpRequestMessage(httpServletRequest));
 
             if (!sourceMatchesContext(request.getSource())) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Invalid source specified: " + request.getSource()).build();
@@ -338,7 +338,7 @@ public class SyncUpdatesService {
 
         @Override
         public void log(final OutputStream outputStream) throws IOException {
-            outputStream.write(message.getBytes());
+            outputStream.write(PasswordFilter.filterPasswordsInContents(new String(message.getBytes(), "UTF-8")).getBytes());
         }
     }
 

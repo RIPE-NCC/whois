@@ -27,7 +27,6 @@ public class IndexWithOriginTest extends IndexTestBase {
                 "route:           180.0/8\n" +
                 "descr:           Less specific other route\n" +
                 "origin:          AS12726\n" +
-                "changed:         ripe@test.net 20091015\n" +
                 "source:          TEST\n");
 
         List<RpslObjectInfo> result = subject.findInIndex(whoisTemplate, "AS12726");
@@ -44,7 +43,6 @@ public class IndexWithOriginTest extends IndexTestBase {
                 "route6:          9999::/16\n" +
                 "descr:           Less specific other route\n" +
                 "origin:          AS12726\n" +
-                "changed:         ripe@test.net 20091015\n" +
                 "source:          TEST\n");
 
         List<RpslObjectInfo> result = subject.findInIndex(whoisTemplate, "AS12726");

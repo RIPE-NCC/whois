@@ -149,11 +149,12 @@ public class Authenticator {
         }
 
         final OverrideCredential overrideCredential = overrideCredentials.iterator().next();
-        for (OverrideCredential.UsernamePassword possibleCredential : overrideCredential.getPossibleCredentials()) {
-            final String username = possibleCredential.getUsername();
+        if (overrideCredential.getOverrideValues().isPresent()){
+            OverrideCredential.OverrideValues overrideValues = overrideCredential.getOverrideValues().get();
+            final String username = overrideValues.getUsername();
             try {
                 final User user = userDao.getOverrideUser(username);
-                if (user.isValidPassword(possibleCredential.getPassword()) && user.getObjectTypes().contains(update.getType())) {
+                if (user.isValidPassword(overrideValues.getPassword()) && user.getObjectTypes().contains(update.getType())) {
                     updateContext.addMessage(update, UpdateMessages.overrideAuthenticationUsed());
                     return new Subject(Principal.OVERRIDE_MAINTAINER);
                 }

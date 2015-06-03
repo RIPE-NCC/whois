@@ -815,23 +815,6 @@ CREATE TABLE `ref_nfy` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `referral_by`
---
-
-DROP TABLE IF EXISTS `referral_by`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `referral_by` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `mnt_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`mnt_id`,`object_id`),
-  KEY `object_id` (`object_id`),
-  KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `route`
 --
 

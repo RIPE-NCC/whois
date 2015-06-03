@@ -123,14 +123,13 @@ public class UpdatesParserTest {
         List<ContentWithCredentials> content = Lists.newArrayList();
         content.add(new ContentWithCredentials(
                 "mntner: UPD-MNT\n" +
-                        "descr: description\n" +
-                        "admin-c: TEST-RIPE\n" +
-                        "mnt-by: UPD-MNT\n" +
-                        "delete: reason\n" +
-                        "upd-to: dbtest@ripe.net\n" +
-                        "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                        "changed: dbtest@ripe.net 20120707\n" +
-                        "source: TEST\n"));
+                "descr: description\n" +
+                "admin-c: TEST-RIPE\n" +
+                "mnt-by: UPD-MNT\n" +
+                "delete: reason\n" +
+                "upd-to: dbtest@ripe.net\n" +
+                "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
+                "source: TEST\n"));
 
         final List<Update> updates = subject.parse(updateContext, content);
 
@@ -146,7 +145,6 @@ public class UpdatesParserTest {
                 "mnt-by: UPD-MNT\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source: TEST\n")));
 
         verify(updateContext, never()).ignore(any(Paragraph.class));
@@ -678,20 +676,19 @@ public class UpdatesParserTest {
                 "auth:        MD5-PW $1$8Lm6as7E$ZwbUWIP3BfNAHjhS/RGHi.\n" +
                 "auth:        PGPKEY-28F6CD6C\n" +
                 "mnt-by:      SHRYANE-MNT\n" +
-                "changed:     eshryane@ripe.net 20120212\n" +
                 "remarks:     3\n" +
                 "source:      RIPE\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
+                "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iQEcBAEBAgAGBQJQj5F3AAoJEO6ZHuIo9s1sY1wIAKHMlozy+DDRPmMOVb/YrfrV\n" +
-                "Y++tC3ZWhCWpPGScAWpTryzoKaHolzHZPyjdVPkSQWvEFiYTMuNHRjciOKd3szEE\n" +
-                "qZmH3Lp86h9eEReXET6DRnLUvsEE/EsZv0SmhuPKCTGEoj05+/Io42S93tMn49f4\n" +
-                "5K40BbEVWf8mlm5kChiM9Jfedcus9cAHT8iPQebpnOMaDyBFPYv3sbIfYPaZ18l/\n" +
-                "NrMGhwAPxnGy/MgFl6UAdS+EgZHprTbLKnxiqX89BrC7+VJgYYII7nxjinYzJzD9\n" +
-                "Y/Oo15iqHRecEYlHbttEgkpDiap4NjKRK8ZWrRyd6UZqcfcYcroNRDfZhWkIQdM=\n" +
-                "=5MfA\n" +
+                "iQEcBAEBAgAGBQJVXytBAAoJELvMuy1XY5UNcSkH/3FzhXBSdyYLK0CQjUOAJ5Te\n" +
+                "xR5h69m1MMvBJXfFxpZN34renHxrQKypN0L09wVEKfvUYRPB6u1d/LqATjEOd5cV\n" +
+                "Li6V4AvOx+Kd2IEpWUaXw2rO/v02Iw3d6rXMy3dnl8XN0xFDkGxMXO1jPpGmfL8j\n" +
+                "WXTtKxt9Vcpp9WRkFix0jtMPlvNId4Gy3NOEm70v25fm8DO+X8Lp+GU9Ko4u5VC1\n" +
+                "nPPgO0EH4eWtpaJFQAIFrHzQRa8HxFNsXzjYuFV4B5WO2aGTgGD3eexRAFPGczMG\n" +
+                "z8paI/+V51hgi7uF1I2XzT/NndD/NG7SmrZD0I4DP5LO7TUv4UueB4qz/MRwE/o=\n" +
+                "=LbbV\n" +
                 "-----END PGP SIGNATURE-----\n";
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
@@ -705,7 +702,6 @@ public class UpdatesParserTest {
                 "auth:        MD5-PW $1$8Lm6as7E$ZwbUWIP3BfNAHjhS/RGHi.\n" +
                 "auth:        PGPKEY-28F6CD6C\n" +
                 "mnt-by:      SHRYANE-MNT\n" +
-                "changed:     eshryane@ripe.net 20120212\n" +
                 "remarks:     3\n" +
                 "source:      RIPE"));
 
@@ -716,7 +712,10 @@ public class UpdatesParserTest {
 
     @Test
     public void double_signed_message() {
-        final String firstSigned = "" +
+        final String content = "" +
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA1\n" +
+                "\n" +
                 "- -----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
                 "\n" +
@@ -727,39 +726,33 @@ public class UpdatesParserTest {
                 "phone:   +44 282 411141\n" +
                 "nic-hdl: TEST-RIPE\n" +
                 "mnt-by:  ADMIN-MNT\n" +
-                "changed: dbtest@ripe.net 20120101\n" +
                 "source:  TEST\n" +
                 "- -----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
+                "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iQEcBAEBAgAGBQJQ3V6oAAoJELvMuy1XY5UNXBwH/jzbWzYRrMoKKZemp1MwKFlj\n" +
-                "7zcpiiwieX1LNAIeMg5xx2pBQD3+9ta+TOhVU7IoH3gXTO34djbJILtSBtYMBCK1\n" +
-                "vfh9Lid6A+p8IuZt3/DHYdHq9ORRqKemrKig6y4jDNBfpsQKtInRAmEkh0tiZPTb\n" +
-                "Dp40IN9T3wJ6/TwmsqQqea4qw3lHtJeXgHPSU2DjwEGriegH5zO9sixClJeh1E6A\n" +
-                "wTOBGpJ9CkUVRrvXO5IoEuLUqQqejlhDVycDlVOCak3xuUg2BtGypXHz3YW/0oIu\n" +
-                "slQ254zHaDNMULbEz7s+jH4aaaImAscCyo0w0BjI+0zS8Z3n4cxeftiRrMeoxhY=\n" +
-                "=GZMp\n" +
-                "- -----END PGP SIGNATURE-----\n";
-
-        final String secondSigned = "" +
-                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
-                "Hash: SHA1\n\n" +
-                firstSigned +
+                "iQEcBAEBAgAGBQJVXy2AAAoJELvMuy1XY5UN2EIH/2zL1L/d86Eoh7bZOSvO/lgk\n" +
+                "v0TgTnvYAC/KFK+hL5CMe9bpxoChTDiVTQ4WOD+7dvkFbrXE+bG6rBfxuGz4eANz\n" +
+                "24Wck/6e1OMLtuQsinkjsc7j7QfkldMF3wqHpQQyX2TpOi0zdn5XMXc5vC5KpeOX\n" +
+                "R1XlE2Jr/8WWraOYfJS8PSfsenDjbIUtLABNS/5xXHbthh7Hn+4SSgNlsPS11pxj\n" +
+                "pl+Xl0XLyUYJs6/Eq7mbsjfk29fYl+ESNKUPzLMc0LTTqgRUtL3Z8EVcgxZOZrz1\n" +
+                "pjbi+CjLqMgrCS7krYvCcA60R6mO/ag+zC1OjQUvn38VDiDWg3zSiS1NCQyVeZU=\n" +
+                "=xeQe\n" +
+                "- -----END PGP SIGNATURE-----\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
+                "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iQEcBAEBAgAGBQJQ3V63AAoJEHbKke+BzPl9m6gH/17D1AswMbbJQHyXFNSHEbj3\n" +
-                "h1FL9yUKFzLGnsuZW3mIHjcBPqFCR/7lJpyflVu5htAw1bguxLk1/Ilg/u1++bAR\n" +
-                "pr7SXdhP3DQXlQna139QHd0KLbxi/CLwao7PyP/XBMo/fEqA/KUar0jkJyl6xIvj\n" +
-                "i4sSu3dod9OycdScDTqH7K1Ejs/sWTVRHghrKWECyMpTp9HJhsEvljZFtpaRGQkd\n" +
-                "s1EbnzDV/uhUN+stJav+i6YT4UXwsW5KfyjG2MTAsx/26k+LTtQ54wh7A2h2yZQa\n" +
-                "NjCSNd0cbEE7+G3lI0d+Gs43KXgT1pcrW+BLh3uje5rVp9y2S1fvii6y+9+RKKI=\n" +
-                "=Dowb\n" +
-                "-----END PGP SIGNATURE-----";
+                "iQEcBAEBAgAGBQJVXy2EAAoJELvMuy1XY5UNbNQH/i4ZeTQ27IcYQ7CSyaUEil1p\n" +
+                "WUpExiVZt/cXFtZVpDDVQVkPf9jBYB7Y06k70/4QD+ItOsL6m+JJMvbUAbHgpDfC\n" +
+                "fLB6OjgUbY4qhlW3a1QRDza+CNAOC9ldVaVcXs3LZJr9WLYwHPMfFha/Ar3RtOeo\n" +
+                "tQd99ZsiQ5HswjmtrL+sHHzJ3VnT0FyjMskpE6yk+5szp389KjFw87HT0jvGT5zj\n" +
+                "ysunmUoq8b253oeeWvM3mLhgDPFRlGloOJGwVYFNz/HuxukKtm6LGCi3GBORX12q\n" +
+                "DpeIJbppxGpcCHaesC1KMReltUjun/AKaxd92anuwYPe6kAUk6QeCuy6JmvF7Pc=\n" +
+                "=imcM\n" +
+                "-----END PGP SIGNATURE-----\n";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(secondSigned), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
         assertThat(paragraphs.size(), is(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
@@ -770,7 +763,6 @@ public class UpdatesParserTest {
                 "phone:   +44 282 411141\n" +
                 "nic-hdl: TEST-RIPE\n" +
                 "mnt-by:  ADMIN-MNT\n" +
-                "changed: dbtest@ripe.net 20120101\n" +
                 "source:  TEST"));
 
         assertThat(paragraphs.get(0).getCredentials().ofType(PgpCredential.class), hasSize(2));
@@ -778,7 +770,13 @@ public class UpdatesParserTest {
 
     @Test
     public void triple_signed_message() {
-        final String firstSigned = "" +
+        final String content = "" +
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA1\n" +
+                "\n" +
+                "- -----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA1\n" +
+                "\n" +
                 "- - -----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
                 "\n" +
@@ -789,54 +787,45 @@ public class UpdatesParserTest {
                 "phone:   +44 282 411141\n" +
                 "nic-hdl: TEST-RIPE\n" +
                 "mnt-by:  ADMIN-MNT\n" +
-                "changed: dbtest@ripe.net 20120101\n" +
                 "source:  TEST\n" +
                 "- - -----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
+                "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iQEcBAEBAgAGBQJQ3V6oAAoJELvMuy1XY5UNXBwH/jzbWzYRrMoKKZemp1MwKFlj\n" +
-                "7zcpiiwieX1LNAIeMg5xx2pBQD3+9ta+TOhVU7IoH3gXTO34djbJILtSBtYMBCK1\n" +
-                "vfh9Lid6A+p8IuZt3/DHYdHq9ORRqKemrKig6y4jDNBfpsQKtInRAmEkh0tiZPTb\n" +
-                "Dp40IN9T3wJ6/TwmsqQqea4qw3lHtJeXgHPSU2DjwEGriegH5zO9sixClJeh1E6A\n" +
-                "wTOBGpJ9CkUVRrvXO5IoEuLUqQqejlhDVycDlVOCak3xuUg2BtGypXHz3YW/0oIu\n" +
-                "slQ254zHaDNMULbEz7s+jH4aaaImAscCyo0w0BjI+0zS8Z3n4cxeftiRrMeoxhY=\n" +
-                "=GZMp\n" +
-                "- - -----END PGP SIGNATURE-----\n";
-        final String secondSigned = "" +
-                "- -----BEGIN PGP SIGNED MESSAGE-----\n" +
-                "Hash: SHA1\n\n" +
-                firstSigned +
+                "iQEcBAEBAgAGBQJVXy2AAAoJELvMuy1XY5UN2EIH/2zL1L/d86Eoh7bZOSvO/lgk\n" +
+                "v0TgTnvYAC/KFK+hL5CMe9bpxoChTDiVTQ4WOD+7dvkFbrXE+bG6rBfxuGz4eANz\n" +
+                "24Wck/6e1OMLtuQsinkjsc7j7QfkldMF3wqHpQQyX2TpOi0zdn5XMXc5vC5KpeOX\n" +
+                "R1XlE2Jr/8WWraOYfJS8PSfsenDjbIUtLABNS/5xXHbthh7Hn+4SSgNlsPS11pxj\n" +
+                "pl+Xl0XLyUYJs6/Eq7mbsjfk29fYl+ESNKUPzLMc0LTTqgRUtL3Z8EVcgxZOZrz1\n" +
+                "pjbi+CjLqMgrCS7krYvCcA60R6mO/ag+zC1OjQUvn38VDiDWg3zSiS1NCQyVeZU=\n" +
+                "=xeQe\n" +
+                "- - -----END PGP SIGNATURE-----\n" +
                 "- -----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
+                "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iQEcBAEBAgAGBQJQ3V63AAoJEHbKke+BzPl9m6gH/17D1AswMbbJQHyXFNSHEbj3\n" +
-                "h1FL9yUKFzLGnsuZW3mIHjcBPqFCR/7lJpyflVu5htAw1bguxLk1/Ilg/u1++bAR\n" +
-                "pr7SXdhP3DQXlQna139QHd0KLbxi/CLwao7PyP/XBMo/fEqA/KUar0jkJyl6xIvj\n" +
-                "i4sSu3dod9OycdScDTqH7K1Ejs/sWTVRHghrKWECyMpTp9HJhsEvljZFtpaRGQkd\n" +
-                "s1EbnzDV/uhUN+stJav+i6YT4UXwsW5KfyjG2MTAsx/26k+LTtQ54wh7A2h2yZQa\n" +
-                "NjCSNd0cbEE7+G3lI0d+Gs43KXgT1pcrW+BLh3uje5rVp9y2S1fvii6y+9+RKKI=\n" +
-                "=Dowb\n" +
-                "- -----END PGP SIGNATURE-----\n";
-        final String thirdSigned = "" +
-                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
-                "Hash: SHA1\n\n" +
-                secondSigned +
+                "iQEcBAEBAgAGBQJVXy2EAAoJELvMuy1XY5UNbNQH/i4ZeTQ27IcYQ7CSyaUEil1p\n" +
+                "WUpExiVZt/cXFtZVpDDVQVkPf9jBYB7Y06k70/4QD+ItOsL6m+JJMvbUAbHgpDfC\n" +
+                "fLB6OjgUbY4qhlW3a1QRDza+CNAOC9ldVaVcXs3LZJr9WLYwHPMfFha/Ar3RtOeo\n" +
+                "tQd99ZsiQ5HswjmtrL+sHHzJ3VnT0FyjMskpE6yk+5szp389KjFw87HT0jvGT5zj\n" +
+                "ysunmUoq8b253oeeWvM3mLhgDPFRlGloOJGwVYFNz/HuxukKtm6LGCi3GBORX12q\n" +
+                "DpeIJbppxGpcCHaesC1KMReltUjun/AKaxd92anuwYPe6kAUk6QeCuy6JmvF7Pc=\n" +
+                "=imcM\n" +
+                "- -----END PGP SIGNATURE-----\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
+                "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iQEcBAEBAgAGBQJQ3af4AAoJEO6ZHuIo9s1svFMH/1l53/lD1Y/ohIQ7kTg1FMO1\n" +
-                "Rklha4mvqvPTuLJsyyifA9STR40tArHBdDUGIGAyufKiBtNo5JSpORSpdjyE+HRD\n" +
-                "WIHyicjtGBEfPKUuoCRIahsuMvHyMmcfCDh/knRuiviXSHScXkRjtr+gP+oYwfeA\n" +
-                "MfKxNfzZLzXRdfg5FJnFFLnvH1vg+UhOKJCqFBzuI2htE9o+xEj/PFk9keDzI+HZ\n" +
-                "S9fujlovRgb36VUZZZAH2PZ9X6Wq1Y0ZQNmGpd2yZwQWdLPjBD5/PRATSwQyhwPu\n" +
-                "tL77WF7kVAMapazmY+YViXLzK+H36khuED1PAZIPIVB5CU/xFirraWTBdnOpchM=\n" +
-                "=o4kj\n" +
-                "-----END PGP SIGNATURE-----";
+                "iQEcBAEBAgAGBQJVXy2yAAoJELvMuy1XY5UNo9MH/iQhTzsiY0Z66e3f0YKQNq2y\n" +
+                "wws1+eh1cICMnRBioPyY6CoHzfiTiQRIz7ctFHTg2Nylmn9cz54CZLqZlPM9RFEQ\n" +
+                "g/dV+CwVwNWGAJDq/krrvjN7dae4Kb0Kkf3sy+YbIXPVooVVVcoDZRRsB8yJHLm+\n" +
+                "zHqhq7fdCvgbSigr+uKV73QwPbZA3/h1WMG+kWvONxOQhWkEVuR1QWi/YI8uTHjt\n" +
+                "1+5YTsZkvC/skjIvIO7iIFhxSLR8mq3kdIkyhVOTpORtfGuuTf5idUnu2pad5Y9u\n" +
+                "U6PD8iB1dCatjlsUhqMzunNa0sbbizDZPSvSKlPQ+CJAHrGglfd1hgqFKJxmqEY=\n" +
+                "=aaHZ\n" +
+                "-----END PGP SIGNATURE-----\n";
 
-        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(thirdSigned), updateContext);
+        final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
         assertThat(paragraphs.size(), is(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
@@ -847,7 +836,6 @@ public class UpdatesParserTest {
                 "phone:   +44 282 411141\n" +
                 "nic-hdl: TEST-RIPE\n" +
                 "mnt-by:  ADMIN-MNT\n" +
-                "changed: dbtest@ripe.net 20120101\n" +
                 "source:  TEST"));
 
         assertThat(paragraphs.get(0).getCredentials().ofType(PgpCredential.class), hasSize(3));
@@ -857,26 +845,26 @@ public class UpdatesParserTest {
     public void malformed_pgp_signed_message() {
         final String content = "" +
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
-                "Hash: SHA1\n" +                     // no empty line between header and content
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
-                "source:  TEST\n" +
+                "Hash: SHA1\n" +                       // no empty line between header and content
+                "mntner:      SHRYANE-MNT\n" +
+                "descr:       description\n" +
+                "admin-c:     AA1-TEST\n" +
+                "upd-to:      eshryane@ripe.net\n" +
+                "auth:        MD5-PW $1$8Lm6as7E$ZwbUWIP3BfNAHjhS/RGHi.\n" +
+                "auth:        PGPKEY-28F6CD6C\n" +
+                "mnt-by:      SHRYANE-MNT\n" +
+                "remarks:     3\n" +
+                "source:      RIPE\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.12 (Darwin)\n" +
+                "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +   // no empty line after headers
-                "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+\n" +
-                "fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx\n" +
-                "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
-                "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux\n" +
-                "4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
-                "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
-                "=it26\n" +
+                "iQEcBAEBAgAGBQJVXytBAAoJELvMuy1XY5UNcSkH/3FzhXBSdyYLK0CQjUOAJ5Te\n" +
+                "xR5h69m1MMvBJXfFxpZN34renHxrQKypN0L09wVEKfvUYRPB6u1d/LqATjEOd5cV\n" +
+                "Li6V4AvOx+Kd2IEpWUaXw2rO/v02Iw3d6rXMy3dnl8XN0xFDkGxMXO1jPpGmfL8j\n" +
+                "WXTtKxt9Vcpp9WRkFix0jtMPlvNId4Gy3NOEm70v25fm8DO+X8Lp+GU9Ko4u5VC1\n" +
+                "nPPgO0EH4eWtpaJFQAIFrHzQRa8HxFNsXzjYuFV4B5WO2aGTgGD3eexRAFPGczMG\n" +
+                "z8paI/+V51hgi7uF1I2XzT/NndD/NG7SmrZD0I4DP5LO7TUv4UueB4qz/MRwE/o=\n" +
+                "=LbbV\n" +
                 "-----END PGP SIGNATURE-----";
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);

@@ -48,7 +48,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
     // TODO: [AH] most tests don't taint the DB; have a 'tainted' flag in DBHelper, reinit only if needed
     @Before
     public void startupWhoisServer() {
-        final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nchanged: dbtest@ripe.net 20120707\nnic-hdl: ADM-TEST");
+        final RpslObject person = RpslObject.parse("person: ADM-TEST\naddress: address\nphone: +312342343\nmnt-by:RIPE-NCC-HM-MNT\nadmin-c: ADM-TEST\nnic-hdl: ADM-TEST");
         final RpslObject mntner = RpslObject.parse("mntner: RIPE-NCC-HM-MNT\nmnt-by: RIPE-NCC-HM-MNT\ndescr: description\nadmin-c: ADM-TEST");
         databaseHelper.addObjects(Lists.newArrayList(person, mntner));
 
@@ -389,7 +389,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-lower:    TEST-DBM-MNT\n" +
                 "mnt-routes:   TEST-DBM-MNT\n" +
                 "remarks:      This is an automatically created object.\n" +
-                "changed:      bitbucket@ripe.net 20051031\n" +
+                "notify:       noreply@ripe.net\n" +
                 "source:       TEST\n");
 
         final JdbcTemplate jdbcTemplate = databaseHelper.getWhoisTemplate();
@@ -518,7 +518,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "admin-c:     ADM-TEST\n" +
                 "upd-to:      dbtest@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
-                "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
         final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax DEL-MNT");
@@ -536,7 +535,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "upd-to:      dbtest_at_ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
                 "mnt-by:      DEL-MNT\n" +
-                "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
         final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax DEL-MNT");
@@ -554,7 +552,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "upd-to:      dbtest@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
                 "mnt-by:      DEL-MNT\n" +
-                "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
         final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--valid-syntax DEL-MNT");
@@ -587,7 +584,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "upd-to:      dbtest_at_ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
                 "mnt-by:      DEL-MNT\n" +
-                "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
         final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--no-valid-syntax DEL-MNT");
@@ -605,7 +601,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "upd-to:      dbtest@ripe.net\n" +
                 "auth:        MD5-PW $1$T6B4LEdb$5IeIbPNcRJ35P1tNoXFas/  #delete\n" +
                 "mnt-by:      DEL-MNT\n" +
-                "changed:     dbtest@ripe.net\n" +
                 "source:      TEST");
 
         final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "--no-valid-syntax DEL-MNT");
@@ -622,7 +617,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "descr:           test\n" +
                 "origin:          AS222\n" +
                 "mnt-by:          TEST-MNT\n" +
-                "changed:         test@test.net 20120428\n" +
                 "source:          TEST");
 
         ipTreeUpdater.rebuild();

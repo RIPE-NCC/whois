@@ -200,8 +200,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
+      ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.contents =~ "Warning: Message was signed more than one week ago"
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Message was signed more than one week ago"]
   }
 
   def "inline pgp signed mailupdate with DSA key and RIPEMD160 Hash"() {
@@ -572,8 +575,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
+      ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      //ack.contents =~ "Warning: Message was signed more than one week ago"
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Message was signed more than one week ago"]
   }
 
   def "inline pgp signed mailupdate with invalid keycert referenced by mntner"() {
@@ -1182,8 +1188,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "nic-hdl: FP1-TEST\n" +
               "mnt-by:  OWNER-MNT\n" +
               "changed: denis@ripe.net 20121016\n" +
-              "source:  TEST\n"
-      "-----BEGIN PGP SIGNATURE-----\n" +
+              "source:  TEST\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
               "Version: GnuPG v1.4.12 \\(Darwin\\)\n" +
               "Comment: GPGTools \\- http://gpgtools.org\n" +
               "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK\\+\n" +
@@ -1328,8 +1334,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
+      ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.contents =~ "Warning: Message was signed more than one week ago"
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Message was signed more than one week ago"]
   }
 
   def "inline pgp signed mailupdate with double pgp signed update"() {
@@ -1477,8 +1486,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
+      ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.contents =~ "Warning: Message was signed more than one week ago"
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Message was signed more than one week ago"]
   }
 
   def "mutipart  pgp signed message with crlf stripped from content"() {
@@ -1834,8 +1846,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
+      ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.contents =~ "Warning: Message was signed more than one week ago"
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Message was signed more than one week ago"]
   }
 
   def "multipart plaintext pgp signed message"() {
@@ -1956,8 +1971,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
+      ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.contents =~ "Warning: Message was signed more than one week ago"
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Message was signed more than one week ago"]
   }
 
   def "multipart plaintext pgp signed message with unknown encoding"() {
@@ -2391,8 +2409,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
+      ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.contents =~ "Warning: Message was signed more than one week ago"
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Message was signed more than one week ago"]
   }
 
   def "multipart plaintext X509 signed message"() {
@@ -2513,8 +2534,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
+      ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.contents =~ "Warning: Message was signed more than one week ago"
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Message was signed more than one week ago"]
   }
 
   def "multipart plaintext X509 signed message when maintainer only has pgp keycert"() {
@@ -3836,8 +3860,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
+      ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.contents =~ "Warning: Message was signed more than one week ago"
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Message was signed more than one week ago"]
   }
 
   def "pgp signed message with public key attached is not supported"() {

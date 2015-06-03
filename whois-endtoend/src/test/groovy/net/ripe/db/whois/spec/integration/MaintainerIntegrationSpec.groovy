@@ -16,7 +16,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "ADMIN-MNT": """\
@@ -26,7 +25,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "ADMIN-PN": """\
@@ -37,7 +35,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  ADMIN-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """
         ]
@@ -82,7 +79,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             delete: some reason
             password: update
@@ -104,7 +100,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             password: update
             """.stripIndent())
@@ -125,7 +120,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             password: update
             """.stripIndent())
@@ -160,7 +154,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             upd-to: dbtest@ripe.net
             auth: SSO person@net.net
             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             password: update
             """)
@@ -178,7 +171,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             upd-to: dbtest@ripe.net
             auth: SSO person@net.net
             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             password: update
             """)
@@ -191,7 +183,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             upd-to: dbtest@ripe.net
             auth: SSO person@net.net
             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             password: update
             """)
@@ -208,7 +199,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             password: update
             """.stripIndent())
@@ -229,7 +219,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: FAKE-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             password: update
             """.stripIndent()))
@@ -247,7 +236,6 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             password: update
             """.stripIndent()))
@@ -265,12 +253,36 @@ class MaintainerIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: FAKE-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             password: update
             """.stripIndent()))
 
       then:
         ! (update =~ /To create the first person\/mntner pair of objects /)
+    }
+
+    def "updating mntner with no changes should result in noop"() {
+      setup:
+        def mntner = """
+            mntner:         OTHER-MNT
+            descr:          description
+            admin-c:        TEST-RIPE
+            mnt-by:         OTHER-MNT
+            upd-to:         dbtest@ripe.net
+            auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+            source:         TEST
+            password:       update
+        """.stripIndent()
+      when:
+        def create = syncUpdate new SyncUpdate(data: mntner)
+      then:
+        create =~ /Create SUCCEEDED: \[mntner\] OTHER-MNT/
+      when:
+        // force time change (changes last-modified)
+        setTime(getTime().plusSeconds(10))
+      then:
+        def update =  syncUpdate new SyncUpdate(data: mntner)
+      then:
+        update =~ /No operation: \[mntner\] OTHER-MNT/
     }
 }

@@ -18,7 +18,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
            "PRNG": """\
@@ -31,7 +30,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "PRNG-2LEVEL": """\
@@ -44,7 +42,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "PRNG-2LEVEL-NO-MP": """\
@@ -56,7 +53,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "PRNG-3LEVEL": """\
@@ -69,7 +65,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "ASB16":"""\
@@ -78,7 +73,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 remarks:        yes
                 org:            ORG-OTO1-TEST
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net   20121214
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
                 """,
@@ -101,7 +95,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -141,7 +134,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 peering-set:   prng-partners2
@@ -151,7 +143,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -198,7 +189,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -240,7 +230,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -287,7 +276,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -332,7 +320,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -375,7 +362,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -419,7 +405,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 peering-set:   AS123:prng-partners
@@ -430,7 +415,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       test ing
 
@@ -440,9 +424,9 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 peering:      AS123 at 193.109.219.24
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
+                remarks:      updated
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20121224   # xmas update
                 source:  TEST
 
                 password: lir
@@ -464,7 +448,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
 
         queryObject("-rBT peering-set AS123:prng-partners:AS352", "peering-set", "AS123:prng-partners:AS352")
         queryObjectNotFound("-rBT peering-set AS123:prng-partners", "peering-set", "AS123:prng-partners")
-        query_object_matches("-rBT peering-set AS123:prng-partners:AS352", "peering-set", "AS123:prng-partners:AS352", "20121224   # xmas update")
+        query_object_matches("-rBT peering-set AS123:prng-partners:AS352", "peering-set", "AS123:prng-partners:AS352", "updated")
     }
 
     def "create 3 level peering-set object with mp-peering, 2 level set exists with peering, delete 2 level set, modify 3 level, re-create 2 level"() {
@@ -490,7 +474,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 peering-set:   AS123:prng-partners
@@ -501,7 +484,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       test ing
 
@@ -513,7 +495,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20121224   # xmas update
+                remarks:      updated
                 source:  TEST
 
                 peering-set:   AS123:prng-partners
@@ -524,7 +506,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20121224
+                remarks:      updated
                 source:  TEST
 
                 password: lir
@@ -547,8 +529,8 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
 
         queryObject("-rBT peering-set AS123:prng-partners:AS352", "peering-set", "AS123:prng-partners:AS352")
         queryObject("-rBT peering-set AS123:prng-partners", "peering-set", "AS123:prng-partners")
-        query_object_matches("-rBT peering-set AS123:prng-partners:AS352", "peering-set", "AS123:prng-partners:AS352", "20121224   # xmas update")
-        query_object_matches("-rBT peering-set AS123:prng-partners", "peering-set", "AS123:prng-partners", "20121224")
+        query_object_matches("-rBT peering-set AS123:prng-partners:AS352", "peering-set", "AS123:prng-partners:AS352", "updated")
+        query_object_matches("-rBT peering-set AS123:prng-partners", "peering-set", "AS123:prng-partners", "updated")
     }
 
     def "create peering-set object with only ASN"() {
@@ -574,7 +556,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -626,7 +607,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -667,7 +647,6 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
