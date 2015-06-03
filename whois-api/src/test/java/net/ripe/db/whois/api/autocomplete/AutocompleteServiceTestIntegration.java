@@ -60,6 +60,11 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
+    public void match_start_of_word_first_syllable_only_case_insensitive() {
+        assertThat(query("SoMe", "mntner", "mntner"), containsString("num found = 1"));
+    }
+
+    @Test
     public void no_maintainers_found() {
         assertThat(query("invalid", "mntner", "mntner"), containsString("num found = 0"));
     }
