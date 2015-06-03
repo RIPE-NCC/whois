@@ -19,8 +19,6 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 notify:         unread@ripe.net
                 mnt-by:         RIPE-DBM-MNT
-                changed:        ripe-dbm@ripe.net 20080806
-                changed:        ripe-dbm@ripe.net 20080909
                 source:         TEST
                 """,
                 "AS222 - AS333":"""\
@@ -36,7 +34,6 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-MNT
-                changed:        snigdha.girdhar@gmail.com 20120505
                 mnt-lower:      RIPE-DBM-MNT
                 source:         TEST
                 """,
@@ -51,8 +48,6 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 auth:           MD5-PW \$1\$kBdYtA4E\$EBAWVrVm9yBiLzPhAEQH21. # test
                 notify:         unread@ripe.net
                 mnt-by:         RIPE-DBM-MNT1
-                changed:        ripe-dbm@ripe.net 20080806
-                changed:        ripe-dbm@ripe.net 20080909
                 source:         TEST
                 """,
 
@@ -67,7 +62,6 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 notify:         john.smith@example.com
                 abuse-mailbox:  abuse@example.com
                 mnt-by:         RIPE-DBM-MNT
-                changed:        john.smith@example.com 20051104
                 source:         TEST # Filtered
                 """,
 
@@ -85,8 +79,6 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 remarks:        *******************************
                 mnt-by:         EXAMPLE-MNT
                 abuse-mailbox:  abuse@example.com
-                changed:        john.smith@example.com 20051104
-                changed:        john.smith@example.com 20051105
                 source:         TEST
         """
         ]
@@ -107,7 +99,6 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                         remarks:        within this block in the RIPE Database where a
                         remarks:        routing policy is published in the RIPE Database
                         mnt-by:         RIPE-DBM-MNT
-                        changed:        snigdha.girdhar@gmail.com
                         mnt-lower:      RIPE-DBM-MNT
                         source:         TEST
                         password:       update
@@ -135,7 +126,6 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                         remarks:        within this block in the RIPE Database where a
                         remarks:        routing policy is published in the RIPE Database
                         mnt-by:         RIPE-DBM-MNT
-                        changed:        snigdha.girdhar@gmail.com
                         mnt-lower:      RIPE-DBM-MNT
                         source:         TEST
                         password:       update
@@ -163,7 +153,6 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                         remarks:        within this block in the RIPE Database where a
                         remarks:        routing policy is published in the RIPE Database
                         mnt-by:         RIPE-DBM-MNT1
-                        changed:        snigdha.girdhar@gmail.com
                         mnt-lower:      RIPE-DBM-MNT1
                         source:         TEST
                         password:       test

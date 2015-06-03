@@ -13,7 +13,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     nic-hdl: TEST-PN
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net
                     source: TEST
                 """,
                 "TEST-MNT": """\
@@ -39,7 +38,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  RIPE-NCC-HM-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                    changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
                 "ENUM-MNT": """\
@@ -49,7 +47,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  RIPE-NCC-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                    changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
                 "END-MNT": """\
@@ -59,7 +56,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                    changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
                 "ORG1": """\
@@ -71,7 +67,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "ORG2": """\
@@ -83,7 +78,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       TEST-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "ORG3": """\
@@ -95,7 +89,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "ORG4": """\
@@ -107,7 +100,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "ORG5": """\
@@ -119,7 +111,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "INET1": """\
@@ -131,7 +122,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
                 "INET2": """\
@@ -144,7 +134,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
                     mnt-domains: DOMAIN-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
                 "INETROOT": """\
@@ -156,7 +145,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: ALLOCATED UNSPECIFIED
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
 
@@ -168,7 +156,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     mnt-by: TEST-MNT
-                    changed: test@ripe.net 20120505
                     source: TEST
                 """
         ]
@@ -184,7 +171,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 zone-c:          TEST-PN
                 nserver:         ns.1.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -204,7 +190,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 zone-c:          TEST-PN
                 nserver:         ns.1.net
                 mnt-by:          RIPE-NCC-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -225,7 +210,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -246,7 +230,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -267,7 +250,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -292,7 +274,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -310,7 +291,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -330,7 +310,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net.0.0.193.in-addr.arpa. 10.0.0.0/32
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -355,7 +334,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net 10.0.0.0
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -377,7 +355,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 zone-c:          TEST-PN
                 nserver:         n.s.0.0.0.e164.arpa 10.0.0.0
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -399,7 +376,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -418,7 +394,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net.0.0.193.in-addr.arpa. 10.0.0.0/32
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -443,7 +418,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -459,7 +433,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net.0.0.193.in-addr.arpa. 10.0.0.0/32
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -479,7 +452,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -498,7 +470,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net.4.0.0.193.in-addr.arpa 10.0.0.0
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -521,7 +492,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -540,7 +510,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 delete:          reason
@@ -562,7 +531,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.193.in-addr.arpa
@@ -573,8 +541,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
-                changed:         test@ripe.net 20120606
+                remarks:         updated
                 source:          TEST
 
                 password:        update
@@ -597,7 +564,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.193.in-addr.arpa
@@ -608,7 +574,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 password:        update
@@ -631,7 +596,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.194.in-addr.arpa
@@ -642,7 +606,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 person:          Some person
@@ -651,7 +614,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:          +44 282 411140
                 nic-hdl:         AUTO-1
                 mnt-by:          TEST-MNT
-                changed:         dbtest@ripe.net 20120101
                 source:          TEST
 
                 domain:          0.0.195.in-addr.arpa
@@ -662,7 +624,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.196.in-addr.arpa
@@ -673,7 +634,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.197.in-addr.arpa
@@ -684,7 +644,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.198.in-addr.arpa
@@ -695,7 +654,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.199.in-addr.arpa
@@ -706,7 +664,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.200.in-addr.arpa
@@ -717,7 +674,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.201.in-addr.arpa
@@ -728,7 +684,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.202.in-addr.arpa
@@ -739,7 +694,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.203.in-addr.arpa
@@ -750,7 +704,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.204.in-addr.arpa
@@ -761,7 +714,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 domain:          0.0.205.in-addr.arpa
@@ -772,7 +724,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 password:        update
@@ -818,7 +769,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
 
                 person:          Some person
@@ -827,7 +777,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:          +44 282 411140
                 nic-hdl:         AUTO-1
                 mnt-by:          TEST-MNT
-                changed:         dbtest@ripe.net 20120101
                 source:          TEST
 
                 password:        update
@@ -850,7 +799,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 override:        denis,override1
                 """.stripIndent())
@@ -869,7 +817,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         DMN-MNT
                 upd-to:         dbtest@ripe.net
                 auth:           MD5-PW \$1\$5aMDZg3w\$zL59TnpAszf6Ft.zs148X0 # update2
-                changed:        dbtest@ripe.net 20120707
                 source:         TEST
                 password:       update2
             """.stripIndent())
@@ -887,7 +834,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 status: SUB-ALLOCATED PA
                 mnt-by: TEST-MNT
                 mnt-domains: DMN-MNT
-                changed: ripe@test.net 20120505
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -904,7 +850,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update
                 password:        update2
@@ -924,7 +869,6 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:         ns.foo.net
                 nserver:         ns.bar.net
                 mnt-by:          TEST-MNT
-                changed:         test@ripe.net 20120505
                 source:          TEST
                 password:        update2
                 delete:          reason

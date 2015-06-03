@@ -20,7 +20,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "ADMIN-MNT": """\
@@ -30,7 +29,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: ADMIN-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "TEST-RIPE": """\
@@ -42,7 +40,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl: TEST-RIPE
             mnt-by:  UPD-MNT
             mnt-by:  ADMIN-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """
         ]
@@ -69,7 +66,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             phone:          +44 282 411141
             nic-hdl:        UNRF-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
             password:       update
             """.stripIndent()))
@@ -102,7 +98,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             phone:          +44 282 411141
             nic-hdl:        UNRF-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
             password:       update
             """.stripIndent()))
@@ -150,7 +145,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             phone:          +44 282 411141
             nic-hdl:        UNRF-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
             password:       update
             """.stripIndent()))
@@ -182,7 +176,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UNREF-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             password: update
             """.stripIndent()))
@@ -215,7 +208,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl:        RL-TEST
             mnt-by:         ADMIN-MNT
             notify:         admin@test.com
-            changed:        admin@test.com 20120505
             abuse-mailbox:  admin@test.com
             source:         TEST
 
@@ -224,7 +216,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             phone:          +44 282 411141
             nic-hdl:        RLRF-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
 
             """.stripIndent()))
@@ -272,7 +263,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             phone:          +44 282 411141
             nic-hdl:        REFR-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
 
             as-set:         AS-TEST
@@ -281,7 +271,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:         REFR-RIPE
             admin-c:        REFR-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
 
             """.stripIndent()))
@@ -309,7 +298,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:         REFR-RIPE
             admin-c:        REFR-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
             delete:         reason
             password:       update
@@ -351,7 +339,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             phone:          +44 282 411141
             nic-hdl:        REFR-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
             password:       update
             """.stripIndent()))
@@ -365,7 +352,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:         REFR-RIPE
             admin-c:        REFR-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
             password:       update
             """.stripIndent()))
@@ -379,7 +365,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:         REFR-RIPE
             admin-c:        REFR-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
             password:       update
             """.stripIndent()))
@@ -399,7 +384,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:         REFR-RIPE
             admin-c:        REFR-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
             delete:         reason
             password:       update
@@ -414,7 +398,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:         REFR-RIPE
             admin-c:        REFR-RIPE
             mnt-by:         ADMIN-MNT
-            changed:        dbtest@ripe.net 20120101
             source:         TEST
             delete:         reason
             password:       update
@@ -479,7 +462,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             certif:       -----END PGP PUBLIC KEY BLOCK-----
             mnt-by:       UPD-MNT
             notify:       noreply@ripe.net
-            changed:      noreply@ripe.net 20120213
             source:       TEST
             password:     update
             """.stripIndent()))
@@ -538,7 +520,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             certif:       -----END PGP PUBLIC KEY BLOCK-----
             mnt-by:       UPD-MNT
             notify:       noreply@ripe.net
-            changed:      noreply@ripe.net 20120213
             source:       TEST
 
 
@@ -548,7 +529,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   PGPKEY-28F6CD6C
-            changed: dbtest@ripe.net 20120707
             source: TEST
 
 
@@ -581,7 +561,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed:        test@ripe.net 20120404
             source:         TEST
             password:       update
             """.stripIndent()))
@@ -595,7 +574,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed:        test@ripe.net 20120404
             source:         TEST
             password:       update
             """.stripIndent()))
@@ -609,7 +587,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed:        test@ripe.net 20120404
             source:         TEST
             password:       update
             """.stripIndent()))
@@ -644,7 +621,6 @@ class UnrefCleanupIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        TEST-RIPE
             upd-to:         test@ripe.net
             auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed:        test@ripe.net 20120404
             source:         TEST
             password:       update
             """.stripIndent()))

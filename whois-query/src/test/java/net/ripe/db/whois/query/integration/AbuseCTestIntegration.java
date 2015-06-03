@@ -33,7 +33,6 @@ public class AbuseCTestIntegration extends AbstractQueryIntegrationTest {
             "nic-hdl:       ABU-TEST\n" +
             "abuse-mailbox: abuse@ripe.net\n" +
             "mnt-by:        TEST-MNT\n" +
-            "changed:       ripe-dbm@ripe.net 20010411\n" +
             "source:        TEST",
 
             "organisation:  ORG-TEST-1\n" +

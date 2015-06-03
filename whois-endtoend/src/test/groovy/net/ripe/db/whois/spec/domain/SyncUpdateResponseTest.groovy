@@ -37,7 +37,6 @@ mnt-nfy:     mntnfy_test@ripe.net
 notify:      notif_test@ripe.net
 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
 mnt-by:      DEL-MNT
-changed:     dbtest@ripe.net
 source:      TEST
 ***Error:   Unknown source
 
@@ -54,7 +53,6 @@ mnt-nfy:     mntnfy_test@ripe.net
 notify:      notif_test@ripe.net
 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
 mnt-by:      DEL-MNT
-changed:     dbtest@ripe.net
 source:      TEST
 
 ***Error:   Object [mntner] DEL2-MNT does not exist in the database
@@ -123,7 +121,6 @@ mnt-nfy:     mntnfy_test@ripe.net
 notify:      notif_test@ripe.net
 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
 mnt-by:      DEL-MNT
-changed:     dbtest@ripe.net
 source:      TEST
 ***Error:   Unknown source
 
@@ -140,7 +137,6 @@ mnt-nfy:     mntnfy_test@ripe.net
 notify:      notif_test@ripe.net
 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
 mnt-by:      DEL-MNT
-changed:     dbtest@ripe.net
 source:      TEST
 
 ***Error:   Object [mntner] DEL2-MNT does not exist in the database
@@ -167,7 +163,6 @@ mnt-nfy:     mntnfy_test@ripe.net
 notify:      notif_test@ripe.net
 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
 mnt-by:      DEL-MNT
-changed:     dbtest@ripe.net
 source:      TEST
 ***Error:   Unknown source
 
@@ -186,7 +181,6 @@ mnt-nfy:     mntnfy_test@ripe.net
 notify:      notif_test@ripe.net
 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
 mnt-by:      DEL-MNT
-changed:     dbtest@ripe.net
 source:      TEST
 
 ***Error:   Object [mntner] DEL2-MNT does not exist in the database

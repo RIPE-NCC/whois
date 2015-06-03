@@ -48,7 +48,6 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
                 "e-mail:       org1@test.com\n" +
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20120505\n" +
                 "source:       TEST\n" +
                 ""));
         databaseHelper.addObject(RpslObject.parse("" +
@@ -60,7 +59,6 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
                 "e-mail:       org1@test.com\n" +
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20120505\n" +
                 "source:       TEST\n" +
                 ""));
         databaseHelper.addObject(RpslObject.parse("" +
@@ -75,7 +73,6 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
                 "status:        ALLOCATED PA\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "mnt-lower:     OWNER-MNT\n" +
-                "changed:       ripe@test.net 20120505\n" +
                 "source:        TEST\n"));
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:        SSO-MNT\n" +
@@ -84,7 +81,6 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "changed:       noreply@ripe.net 20120801\n" +
                 "source:        TEST"));
     }
 

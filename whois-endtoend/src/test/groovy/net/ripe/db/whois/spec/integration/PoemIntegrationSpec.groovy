@@ -16,7 +16,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "LIM-MNT": """\
@@ -26,7 +25,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: LIM-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "ADMIN-PN": """\
@@ -37,7 +35,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  UPD-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """,
                 "FORM-HAIKU": """\
@@ -45,7 +42,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             descr:           haiku
             admin-c:         TEST-RIPE
             mnt-by:          UPD-MNT
-            changed:         ripe-dbm@ripe.net 20060913
             source:          TEST
             """
         ]
@@ -61,7 +57,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             text:            It's now generic
             author:          TEST-RIPE
             mnt-by:          LIM-MNT
-            changed:         noc@plaul.de 20050614
             source:          TEST
             password:        update
             """.stripIndent())
@@ -84,7 +79,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             text:            It's now generic
             author:          TEST-RIPE
             mnt-by:          UPD-MNT
-            changed:         noc@plaul.de 20050614
             source:          TEST
             password:        update
             """.stripIndent())
@@ -108,7 +102,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             author:          TEST-RIPE
             mnt-by:          LIM-MNT
             mnt-by:          UPD-MNT
-            changed:         noc@plaul.de 20050614
             source:          TEST
             password:        update
             """.stripIndent())
@@ -129,7 +122,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             text:            ...
             author:          TEST-RIPE
             mnt-by:          LIM-MNT
-            changed:         noc@plaul.de 20050614
             source:          TEST
             password:        update
             """.stripIndent())
@@ -149,7 +141,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             text:            It's now generic
             author:          TEST-RIPE
             mnt-by:          LIM-MNT
-            changed:         noc@plaul.de 20050614
             source:          TEST
             password:        update
             """.stripIndent())
@@ -169,7 +160,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             text:            ...
             author:          TEST-RIPE
             mnt-by:          LIM-MNT
-            changed:         noc@plaul.de 20050614
             source:          TEST
             password:        update
             """.stripIndent())
@@ -187,7 +177,6 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             text:            ...
             author:          TEST-RIPE
             mnt-by:          LIM-MNT
-            changed:         noc@plaul.de 20050614
             source:          TEST
             password:        update
             delete:          test

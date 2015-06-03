@@ -26,7 +26,6 @@ public class SyntaxFilterFunctionTest {
                 "mnt-by:  TST-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source:  TEST");
 
         final Iterable<? extends ResponseObject> result = validSyntaxFilterFunction.apply(object);
@@ -50,7 +49,6 @@ public class SyntaxFilterFunctionTest {
                 "phone:   wrong@address.net\n" +
                 "nic-hdl: tst-ripe\n" +
                 "mnt-by:  TST-MNT\n" +
-                "changed: dbtest@ripe.net 20120101\n" +
                 "source:  TEST");
 
         final Iterable<? extends ResponseObject> result = validSyntaxFilterFunction.apply(object);
@@ -68,7 +66,6 @@ public class SyntaxFilterFunctionTest {
                 "mnt-by:  TST-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source:  TEST");
 
         final Iterable<? extends ResponseObject> result = novalidSyntaxFilterFunction.apply(object);
@@ -87,7 +84,6 @@ public class SyntaxFilterFunctionTest {
                 "phone:   wrong@address.net\n" +
                 "nic-hdl: tst-ripe\n" +
                 "mnt-by:  TST-MNT\n" +
-                "changed: dbtest@ripe.net 20120101\n" +
                 "source:  TEST");
 
         final Iterable<? extends ResponseObject> result = novalidSyntaxFilterFunction.apply(object);

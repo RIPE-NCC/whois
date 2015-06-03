@@ -73,7 +73,7 @@ public class NrtmQueryHandlerTest {
             }
         });
 
-        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, UPDATE_INTERVAL, false);
+        subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, UPDATE_INTERVAL);
         NrtmQueryHandler.PENDING_WRITES.set(channelMock, new AtomicInteger());
     }
 

@@ -22,7 +22,6 @@ public class AttributeTemplate {
         public String getExternalName() {
             return externalName;
         }
-
     }
 
     public static enum Cardinality {

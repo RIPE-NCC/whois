@@ -19,7 +19,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 notify:      notif_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      DEL-MNT
-                changed:     dbtest@ripe.net 20121109
                 source:      TEST
                 """,
             "DEL-DIFF-MNT": """\
@@ -30,7 +29,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      DEL-MNT
-                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "DEL2-MNT": """\
@@ -40,7 +38,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 upd-to:      updto_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      OWNER-MNT
-                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "LOWER": """\
@@ -53,7 +50,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 status:      ASSIGNED PA
                 mnt-by:      OWNER-MNT
                 mnt-lower:   DEL-MNT
-                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "DOM": """\
@@ -66,7 +62,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 status:      ASSIGNED PA
                 mnt-by:      OWNER-MNT
                 mnt-domains: DEL-MNT
-                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "ROUTE": """\
@@ -79,7 +74,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 status:      ASSIGNED PA
                 mnt-by:      OWNER-MNT
                 mnt-routes:  DEL-MNT {10.0.0.0/32}
-                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """
     ]}
@@ -143,6 +137,49 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         )
 
       then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 2, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[mntner] DEL-MNT" }
+
+        queryNothing("-r -T mntner DEL-MNT")
+
+        def notif = notificationFor "notif_test@ripe.net"
+        notif.deleted.any { it.type == "mntner" && it.key == "DEL-MNT" }
+
+        noMoreMessages()
+    }
+
+    def "delete maintainer with referral-by"() {
+        given:
+        def toDelete = dbfixture( """\
+                mntner:      DEL-MNT
+                descr:       MNTNER for test
+                admin-c:     TP1-TEST
+                upd-to:      updto_test@ripe.net
+                mnt-nfy:     mntnfy_test@ripe.net
+                notify:      notif_test@ripe.net
+                auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
+                referral-by: DEL-MNT
+                mnt-by:      DEL-MNT
+                source:      TEST
+                """.stripIndent())
+
+        expect:
+        queryObject("-r -T mntner DEL-MNT", "mntner", "DEL-MNT")
+
+        when:
+        def message = send new Message(
+                subject: "delete DEL-MNT",
+                body: toDelete + "delete: testing mntner delete\npassword: delete"
+        )
+
+        then:
         def ack = ackFor message
 
         ack.success
@@ -341,7 +378,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 notify:      notify_owner@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 delete: testing
 
@@ -385,7 +421,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 notify:      notif_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      DEL-MNT
-                changed:     dbtest@ripe.net 20121109
                 source:      TEST
                 delete: testing
 
@@ -429,7 +464,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 notify:      notif_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      DEL-MNT
-                changed:     dbtest@ripe.net 20121109
                 source:      TEST
                 delete: testing
 
@@ -473,7 +507,6 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 notify:      notif_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      DEL-MNT
-                changed:     dbtest@ripe.net 20121109
                 source:      TEST
                 delete: testing
 

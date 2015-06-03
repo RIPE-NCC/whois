@@ -23,8 +23,6 @@ public class ObjectTemplateTest {
             "auth:            MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\n" +
             "remarks:         password: secret\n" +
             "mnt-by:          DEV-MNT\n" +
-            "referral-by:     DEV-MNT\n" +
-            "changed:         BECHA@example.net 20101010\n" +
             "created:         2014-04-15T13:15:30Z\n" +
             "last-modified:   2014-04-15T13:15:30Z\n" +
             "source:          DEV";
@@ -115,23 +113,6 @@ public class ObjectTemplateTest {
     }
 
     @Test
-    public void validate_deprecated_attribute() {
-        final RpslObject rpslObject = RpslObject.parse(MAINTAINER_OBJECT_STRING);
-
-        final ObjectMessages objectMessages = subject.validate(rpslObject);
-
-        assertThat(objectMessages.hasErrors(), is(false));
-        assertThat(objectMessages.getMessages().getErrors(), hasSize(0));
-
-        assertThat(objectMessages.hasMessages(), is(true));
-        assertThat(objectMessages.getMessages().getWarnings(), hasSize(1));
-        Message warningMessage = objectMessages.getMessages().getWarnings().iterator().next();
-
-        assertThat(warningMessage, is(ValidationMessages.deprecatedAttributeFound(AttributeType.REFERRAL_BY)));
-    }
-
-
-    @Test
     public void isSet() {
         for (ObjectType objectType : ObjectType.values()) {
             assertThat(objectType.getName().toLowerCase().contains("set"), is(ObjectTemplate.getTemplate(objectType).isSet()));
@@ -166,7 +147,7 @@ public class ObjectTemplateTest {
                 "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n"));
@@ -199,7 +180,7 @@ public class ObjectTemplateTest {
                 "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +

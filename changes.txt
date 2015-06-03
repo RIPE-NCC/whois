@@ -1,5 +1,14 @@
 ## next
 
+## 1.80
+[update] remove passwords from audit log
+[all] removed referral-by attribute
+[all] changed attribute is optional (phase 2)
+
+## 1.79.2
+[update] Fixed issue with updates with no changes marked as MODIFY instead of NOOP
+
+
 ## 1.79.1
 [all] allow sponsoring-org on inetnums of status legacy
 [all] bugfix allow delete object in old mode with database in new mode

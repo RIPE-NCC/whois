@@ -34,5 +34,4 @@ certif:       =XRho
 certif:       -----END PGP PUBLIC KEY BLOCK-----
 notify:       noreply@ripe.net
 mnt-by:       UPD-MNT
-changed:      noreply@ripe.net 20120213
 source:       TEST

@@ -156,8 +156,9 @@ public enum AttributeType implements Documented {
             .syntax(CERTIF_SYNTAX)),
 
     CHANGED(new Builder("changed", "ch")
-            .doc("Specifies who submitted the update, and when the object was updated. " +
-                    "This attribute is filtered from the default whois output.")
+            .doc("Specifies who submitted the update, and when the object was updated.\n" +
+                    "This attribute is filtered from the default whois output.\n" +
+                    "This attribute is deprecated and will be removed in a next release.")
             .syntax(CHANGED_SYNTAX)),
 
     COMPONENTS(new Builder("components", "co")
@@ -557,11 +558,6 @@ public enum AttributeType implements Documented {
     POETIC_FORM(new Builder("poetic-form", "pf")
             .doc("Specifies the poem type.")
             .syntax(POETIC_FORM_SYNTAX)),
-
-    REFERRAL_BY(new Builder("referral-by", "rb")
-            .doc("Deprecated attribute referencing a mntner name. This will be removed in the near future.")
-            .syntax(REFERRAL_SYNTAX)
-            .references(ObjectType.MNTNER)),
 
     REF_NFY(new Builder("ref-nfy", "rn")
             .doc("Specifies the e-mail address to be notified when a reference to the organisation object is added " +
