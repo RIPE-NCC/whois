@@ -82,7 +82,17 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
             RestTest.target(getPort(), "whois/autocomplete").request().get(String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("query (q) parameter is required, and must be at least 3 characters long"));
+            assertThat(e.getResponse().readEntity(String.class), is("query (q) parameter is required, and must be at least 2 characters long"));
+        }
+    }
+
+    @Test
+    public void query_parameter_too_short() {
+        try {
+            RestTest.target(getPort(), "whois/autocomplete?q=a&ot=mntner&at=mntner").request().get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("query (q) parameter is required, and must be at least 2 characters long"));
         }
     }
 
@@ -124,6 +134,25 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), is("invalid object type: invalid"));
         }
+    }
+
+    @Test
+    public void query_returns_maximum_results_and_sorted() {
+        databaseHelper.addObject("mntner: ABC0-MNT");
+        databaseHelper.addObject("mntner: ABC1-MNT");
+        databaseHelper.addObject("mntner: ABC2-MNT");
+        databaseHelper.addObject("mntner: ABC3-MNT");
+        databaseHelper.addObject("mntner: ABC4-MNT");
+        databaseHelper.addObject("mntner: ABC5-MNT");
+        databaseHelper.addObject("mntner: ABC6-MNT");
+        databaseHelper.addObject("mntner: ABC7-MNT");
+        databaseHelper.addObject("mntner: ABC8-MNT");
+        databaseHelper.addObject("mntner: ABC9-MNT");
+        databaseHelper.addObject("mntner: ABC10-MNT");
+        databaseHelper.addObject("mntner: ABC11-MNT");
+        rebuildIndex();
+
+        assertThat(query("ABC", "mntner", "mntner"), is("[ \"ABC3-MNT\", \"ABC4-MNT\", \"ABC5-MNT\", \"ABC6-MNT\", \"ABC7-MNT\", \"ABC8-MNT\", \"ABC9-MNT\", \"ABC10-MNT\", \"ABC11-MNT\", \"ABC0-MNT\" ]"));
     }
 
     // helper methods

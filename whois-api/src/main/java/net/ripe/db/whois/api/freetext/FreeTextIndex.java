@@ -58,9 +58,9 @@ public class FreeTextIndex extends RebuildableIndex {
 
     private static final int INDEX_UPDATE_INTERVAL_IN_SECONDS = 60;
 
-    static final String OBJECT_TYPE_FIELD_NAME = "object-type";
-    static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
-    static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
+    public static final String OBJECT_TYPE_FIELD_NAME = "object-type";
+    public static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
+    public static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
 
     static final Analyzer QUERY_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY);
     static final Analyzer INDEX_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.INDEX);
