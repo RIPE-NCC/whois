@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.net.HttpHeaders;
 import org.apache.commons.lang.StringUtils;
@@ -13,6 +12,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 // Ref. http://www.w3.org/TR/cors/
@@ -62,6 +63,11 @@ public class CrossOriginFilter implements ContainerResponseFilter {
     }
 
     private boolean originMatches(final String origin) {
-        return !Strings.isNullOrEmpty(origin) && origin.endsWith(ALLOWED_ORIGIN);
+        try {
+            return (new URL(origin)).getHost().endsWith(ALLOWED_ORIGIN);
+        } catch (MalformedURLException e) {
+            LOGGER.warn("malformed URL " + origin);
+            return false;
+        }
     }
 }
