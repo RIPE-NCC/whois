@@ -13,12 +13,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Autocomplete - Suggestions - Typeahead API
  *
- * TODO: [ES] encapsulate internal freetextsearch / lucene functionality better (query string, sort, operator..)
  *
  */
 @Component
@@ -50,14 +48,11 @@ public class AutocompleteService {
             return badRequest("field (f) parameter is required");
         }
 
-        final List<String> results;
         try {
-            results = autocompleteSearch.search(query, field);
-        } catch (IOException e) {  // TODO: handle internally
+            return ok(autocompleteSearch.search(query, field));
+        } catch (IOException e) {
             return badRequest("Query failed.");
         }
-
-        return ok(results);
     }
 
     // helper methods
