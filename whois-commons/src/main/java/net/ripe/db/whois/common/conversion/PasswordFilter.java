@@ -22,7 +22,7 @@ public class PasswordFilter {
         return result;
     }
 
-    private static final Pattern URI_PASSWORD_PATTERN_PASSWORD_FOR_URL = Pattern.compile("(?<=)(password|override)(:|=|%3A)([^&]*)");
+    private static final Pattern URI_PASSWORD_PATTERN_PASSWORD_FOR_URL = Pattern.compile("(?<=)(password|override)(:|=|%3A)([^&]*)", Pattern.CASE_INSENSITIVE);
     public static String filterPasswordsInUrl(final String url) {
         String result = url;
         if( url != null ) {
