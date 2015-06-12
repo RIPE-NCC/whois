@@ -326,7 +326,7 @@ public interface AttributeSyntax extends Documented {
     }}));
 
     AttributeSyntax MP_PEERING_SYNTAX = new AttributeSyntaxParser(new MpPeeringParser(), "" +
-            "afi <afi> <peering>\n");
+            "<as-expression> [<mp-router-expression-1>] [at <mp-router-expression-2>] | <peering-set-name>\n");
 
     AttributeSyntax NETNAME_SYNTAX = new AttributeSyntaxRegexp(80, Pattern.compile("(?i)^[A-Z]([A-Z0-9_-]*[A-Z0-9])?$"), "" +
             "Made up of letters, digits, the character underscore \"_\",\n" +
