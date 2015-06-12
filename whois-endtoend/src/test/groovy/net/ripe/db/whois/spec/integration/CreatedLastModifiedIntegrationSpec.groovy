@@ -2,6 +2,7 @@ package net.ripe.db.whois.spec.integration
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.joda.time.LocalDateTime
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
@@ -376,4 +377,66 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         delete =~ /SUCCESS/
     }
+
+  @Ignore
+  def "delete fails if created and last-modified attributes are separated"() {
+    given:
+      setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
+    when:
+      def createAck = syncUpdate new SyncUpdate(data: """
+                person:  New Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: NP1-TEST
+                mnt-by:  TST-MNT
+                changed: dbtest@ripe.net 20120101
+                source:  TEST
+                password: update
+             """.stripIndent())
+    then:
+      createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
+    when:
+      setTime(LocalDateTime.parse("2013-06-26T09:00:00"))
+    then:
+      def updateAck = syncUpdate new SyncUpdate(data: """
+                person:  New Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: NP1-TEST
+                mnt-by:  TST-MNT
+                changed: dbtest@ripe.net 20120101
+                created: 2013-06-25T09:00:00Z
+                last-modified: 2013-06-25T09:00:00Z     # BUG: last-modified will be moved below remarks
+                remarks: testing
+                source:  TEST
+                password: update
+             """.stripIndent())
+    then:
+      updateAck.contains("Modify SUCCEEDED: [person] NP1-TEST   New Person")
+    when:
+      setTime(LocalDateTime.parse("2013-06-27T09:00:00"))
+    then:
+      def deleteAck = syncUpdate new SyncUpdate(data: """
+                person:         New Person
+                address:        St James Street
+                address:        Burnley
+                address:        UK
+                phone:          +44 282 420469
+                nic-hdl:        NP1-TEST
+                mnt-by:         TST-MNT
+                changed:        dbtest@ripe.net 20120101
+                created:        2013-06-25T09:00:00Z
+                remarks:        testing
+                last-modified:  2013-06-26T09:00:00Z    # BUG: delete fails due to generated attribute position
+                source:         TEST
+                password: update
+                delete: reason
+             """.stripIndent())
+    then:
+      deleteAck.contains("Delete SUCCEEDED: [person] NP1-TEST   New Person")
+  }
 }
