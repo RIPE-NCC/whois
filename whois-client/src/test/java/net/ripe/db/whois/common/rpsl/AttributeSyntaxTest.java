@@ -799,8 +799,11 @@ public class AttributeSyntaxTest {
 
     @Test
     public void mpPeering() throws Exception {
-        verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS3043 2001:504:17:115::169 at 2001:504:17:115::227");
+        verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS8262");
         verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS702:PRNG-AT-CONTINENTAL");
+        verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS3043 2001:504:17:115::169");
+        verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS3043 2001:504:17:115::169 at 2001:504:17:115::227");
+        verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS8262 146.188.51.222");
         verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS8262 146.188.51.222 At 146.188.51.221");
 
         verifyFailure(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS8262 At 199.999");
