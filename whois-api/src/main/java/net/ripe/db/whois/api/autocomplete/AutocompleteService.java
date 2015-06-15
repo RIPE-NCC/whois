@@ -34,6 +34,8 @@ public class AutocompleteService {
         this.autocompleteSearch = autocompleteSearch;
     }
 
+    // TODO: translate f value to referenced type (i.e. this is the field I want to populate)
+    //       for example, for f=tech-c, then search by referenced type (i.e. person/role lookup key is nic-hdl))
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response lookup(
