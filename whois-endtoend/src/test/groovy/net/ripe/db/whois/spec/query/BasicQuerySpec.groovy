@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.query
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
@@ -391,6 +390,41 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("--irt 192.0/8", "irt", "irt-test")
         queryObject("--irt 192.0/8", "organisation", "ORG-LIR1-TEST")
         queryObject("--irt 192.0/8", "person", "Test Person")
+    }
+
+    // related irt object
+
+    def "related irt object is not returned by default but only with -c/--irt flag"() {
+      given:
+        databaseHelper.addObject("" +
+                "irt:          irt-test\n" +
+                "address:      RIPE NCC\n" +
+                "e-mail:       irt-dbtest@ripe.net\n" +
+                "auth:         PGPKEY-D83C3FBD\n" +
+                "auth:         MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test\n" +
+                "admin-c:      TP1-TEST\n" +
+                "tech-c:       TP1-TEST\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST")
+
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "org:          ORG-LIR1-TEST\n" +
+                "admin-c:      TP1-TEST\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ALLOCATED UNSPECIFIED\n" +
+                "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                "mnt-lower:    LIR-mnt\n" +
+                "mnt-irt:      irt-test\n" +
+                "source:       TEST")
+
+      expect:
+        !queryLineMatches("192/8", "^irt:\\s+irt-test")
+        queryLineMatches("-c 192/8", "^irt:\\s+irt-test")
+        queryLineMatches("--irt 192/8", "^irt:\\s+irt-test")
     }
 
     // -b, --abuse-contact  - see AbuseQuerySpec
