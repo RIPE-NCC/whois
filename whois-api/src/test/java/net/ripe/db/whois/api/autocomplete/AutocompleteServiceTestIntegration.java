@@ -182,6 +182,40 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(query("bla", "mntner"), is("[ \"bla1-mnt\", \"bla2-mnt\", \"bLA3-mnt\" ]"));
     }
 
+    @Test
+    public void getDetails() {
+        databaseHelper.addObject(
+                "person:  person test\n" +
+                        "nic-hdl: ww1-test");
+        databaseHelper.addObject(
+                "role:  role test\n" +
+                        "nic-hdl: ww2-test\n");
+
+        rebuildIndex();
+
+        final String results =
+
+                RestTest.target(getPort(),
+                String.format("whois/autocomplete/details?q=%s&f=%s&a=%s&a=%s", "ww", "admin-c", "last-modified", "e-mail"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+
+        System.out.println("\n\n\nresult = \n" + results+"\n\n");
+//        assertThat(results, containsString(
+//                "[ {\n" +
+//                "  \"primarykey\" : \"ww1-test\",\n" +
+//                "  \"objecttype\" : \"person\",\n" +
+//                "  \"auths\" : [ \"MD5\", \"SSO\" ],\n" +
+//                "  \"descriptions\" : [ \"fake descr\" ]\n" +
+//                "}, {\n" +
+//                "  \"primarykey\" : \"ww2-test\",\n" +
+//                "  \"objecttype\" : \"role\",\n" +
+//                "  \"auths\" : [ \"MD5\", \"SSO\" ],\n" +
+//                "  \"descriptions\" : [ \"fake descr\" ]\n" +
+//                "} ]"));
+
+    }
+
 
     // helper methods
 
