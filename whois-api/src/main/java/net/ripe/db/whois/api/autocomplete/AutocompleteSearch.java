@@ -12,19 +12,15 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TopFieldDocs;
-import org.apache.lucene.search.WildcardQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,14 +65,6 @@ public class AutocompleteSearch {
                 return results;
             }
         });
-    }
-
-    private Query constructQuery2(final Set<String> fields, final String queryString) {
-        final BooleanQuery query = new BooleanQuery();
-        for (final String field : fields) {
-            query.add(new WildcardQuery(new Term(field, String.format("%s*", queryString.toLowerCase()))), BooleanClause.Occur.MUST);
-        }
-        return query;
     }
 
     private Query constructQuery(final Set<String> fields, final String queryString) {
