@@ -13,6 +13,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Autocomplete - Suggestions - Typeahead API
@@ -50,6 +53,30 @@ public class AutocompleteService {
 
         try {
             return ok(autocompleteSearch.search(query, field));
+        } catch (IOException e) {
+            return badRequest("Query failed.");
+        }
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Path("/details")
+    public Response lookupDetailed(
+            @QueryParam("q") final String query,
+            @QueryParam("f") final String field,
+            @QueryParam("a") final Set<String> attributes) {
+
+        if (Strings.isNullOrEmpty(query) || query.length() < MINIMUM_PREFIX_LENGTH) {
+            return badRequest("query (q) parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
+        }
+
+        if (Strings.isNullOrEmpty(field)) {
+            return badRequest("field (f) parameter is required");
+        }
+
+        try {
+            final List<Map<String, Object>> results = autocompleteSearch.searchDetailed(query, field, attributes);
+            return Response.ok(results).build();
         } catch (IOException e) {
             return badRequest("Query failed.");
         }

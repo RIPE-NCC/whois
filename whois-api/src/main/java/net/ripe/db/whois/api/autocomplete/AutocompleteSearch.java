@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.autocomplete;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.freetext.FreeTextAnalyzer;
 import net.ripe.db.whois.api.freetext.FreeTextIndex;
 import net.ripe.db.whois.api.search.IndexTemplate;
@@ -30,6 +31,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -62,6 +64,42 @@ public class AutocompleteSearch {
                     results.add(doc.get(FreeTextIndex.LOOKUP_KEY_FIELD_NAME));
                 }
 
+                return results;
+            }
+        });
+    }
+
+    public List<Map<String, Object>> searchDetailed(final String queryString, final String fieldName, final Set<String> attributes) throws IOException {
+        return freeTextIndex.search(new IndexTemplate.SearchCallback<List<Map<String, Object>>>() {
+            @Override
+            public List<Map<String, Object>> search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
+
+                final List<Map<String, Object>> results = Lists.newArrayList();
+
+                final Query query = constructQuery(getObjectTypeLookupKeys(fieldName), queryString);
+                final TopFieldDocs topDocs = indexSearcher.search(query,
+                        MAX_SEARCH_RESULTS, new Sort(new SortField(FreeTextIndex.LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING)));
+
+                for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+                    final Document doc = indexSearcher.doc(scoreDoc.doc);
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("key", doc.get(FreeTextIndex.LOOKUP_KEY_FIELD_NAME));
+                    result.put("type", doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME));
+
+                    for (String attribute : attributes) {
+                        final ObjectTemplate template = ObjectTemplate.getTemplate(ObjectType.getByName(doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME)));
+
+                        if (template.getMultipleAttributes().contains(AttributeType.getByName(attribute))) {
+                            result.put(attribute, Lists.newArrayList("not", "found"));
+                        } else {
+                            result.put(attribute, "not found");
+                        }
+//                        result.put(attribute, doc.get(attribute));
+                    }
+
+                    results.add(result);
+
+                }
                 return results;
             }
         });
