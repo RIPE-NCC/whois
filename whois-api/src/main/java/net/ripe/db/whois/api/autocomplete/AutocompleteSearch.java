@@ -1,12 +1,23 @@
 package net.ripe.db.whois.api.autocomplete;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.freetext.FreeTextAnalyzer;
 import net.ripe.db.whois.api.freetext.FreeTextIndex;
 import net.ripe.db.whois.api.search.IndexTemplate;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -19,8 +30,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class AutocompleteSearch {
@@ -43,19 +57,58 @@ public class AutocompleteSearch {
 
                 final List<String> results = Lists.newArrayList();
 
-                final Query query = new WildcardQuery(new Term(fieldName, String.format("%s*", queryString.toLowerCase())));
-
-                // TODO: field to sort must be indexed but not tokenized
-
-                final TopFieldDocs topDocs = indexSearcher.search(query, MAX_SEARCH_RESULTS, new Sort(new SortField(fieldName, SortField.Type.STRING)));
+                final Query query = constructQuery(getObjectTypeLookupKeys(fieldName), queryString);
+                final TopFieldDocs topDocs = indexSearcher.search(query,
+                        MAX_SEARCH_RESULTS, new Sort(new SortField(FreeTextIndex.LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING)));
 
                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                     final Document doc = indexSearcher.doc(scoreDoc.doc);
-                    results.add(doc.get(fieldName));
+                    results.add(doc.get(FreeTextIndex.LOOKUP_KEY_FIELD_NAME));
                 }
 
                 return results;
             }
         });
+    }
+
+    private Query constructQuery2(final Set<String> fields, final String queryString) {
+        final BooleanQuery query = new BooleanQuery();
+        for (final String field : fields) {
+            query.add(new WildcardQuery(new Term(field, String.format("%s*", queryString.toLowerCase()))), BooleanClause.Occur.MUST);
+        }
+        return query;
+    }
+
+    private Query constructQuery(final Set<String> fields, final String queryString) {
+        try {
+            final MultiFieldQueryParser parser = new MultiFieldQueryParser(fields.toArray(new String[fields.size()]),
+                    new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY));
+            parser.setAnalyzer(FreeTextIndex.QUERY_ANALYZER);
+            parser.setDefaultOperator(QueryParser.Operator.AND);
+            return parser.parse(String.format("%s*", queryString.toLowerCase()));
+        } catch (ParseException e) {
+            LOGGER.debug("Unable to parse query", e);
+            throw new IllegalStateException(e.getMessage());
+        }
+
+    }
+
+    private Set<String> getObjectTypeLookupKeys(final String fieldType){
+        final AttributeType attributeType = AttributeType.getByNameOrNull(fieldType);
+        if ( attributeType == null ) {
+            throw new IllegalArgumentException("not valid field");
+        }
+
+        if (ObjectType.getByNameOrNull(fieldType) != null) {
+            return Collections.singleton(fieldType);
+        }
+
+        return FluentIterable.from(attributeType.getReferences()).transform(new Function<ObjectType, String>() {
+            @Nullable
+            @Override
+            public String apply(final ObjectType input) {
+                return ObjectTemplate.getTemplate(input).getKeyLookupAttribute().getName();
+            }
+        }).toSet();
     }
 }

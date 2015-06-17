@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,6 +144,44 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         // assertThat(query("ABC", "mntner"), is("[ \"ABC3-MNT\", \"ABC4-MNT\", \"ABC5-MNT\", \"ABC6-MNT\", \"ABC7-MNT\", \"ABC8-MNT\", \"ABC9-MNT\", \"ABC10-MNT\", \"ABC11-MNT\", \"ABC0-MNT\" ]"));  // TODO
         // assertThat(query("ABC", "mntner"), not(containsString("ABC10-MNT")));    // TODO
     }
+
+    @Test
+    public void field_reference_matched_one_result_case_insensitive() {
+        databaseHelper.addObject(
+                "person:  Admin1\n" +
+                "nic-hdl: AD1-TEST");
+
+        rebuildIndex();
+
+        assertThat(query("ad1", "admin-c"), is("[ \"AD1-TEST\" ]"));
+    }
+
+    @Test
+    public void field_references_matched() {
+        databaseHelper.addObject(
+                "person:  person test\n" +
+                "nic-hdl: ww1-test");
+        databaseHelper.addObject(
+                "role:  role test\n" +
+                "nic-hdl: ww2-test\n");
+
+        rebuildIndex();
+
+        assertThat(query("ww", "admin-c"), is("[ \"ww1-test\", \"ww2-test\" ]"));
+    }
+
+    @Ignore("it fails because results are coming in random order")
+    @Test
+    public void field_references_mntners_matched() {
+        databaseHelper.addObject("mntner:  bla1-mnt\n");
+        databaseHelper.addObject("mntner:  bla2-mnt\n");
+        databaseHelper.addObject("mntner:  bLA3-mnt\n");
+
+        rebuildIndex();
+
+        assertThat(query("bla", "mntner"), is("[ \"bla1-mnt\", \"bla2-mnt\", \"bLA3-mnt\" ]"));
+    }
+
 
     // helper methods
 
