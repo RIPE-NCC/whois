@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +74,16 @@ public class AutocompleteService {
 
         if (Strings.isNullOrEmpty(field)) {
             return badRequest("field (f) parameter is required");
+        }
+
+        final Set<String> badAttributes = Sets.newHashSet();
+        for (String attribute : attributes){
+            if (AttributeType.getByNameOrNull(attribute) == null) {
+                badAttributes.add(attribute);
+            }
+        }
+        if (!badAttributes.isEmpty()){
+            return badRequest(String.format("invalid attribute(s) for parameter (a): %s", badAttributes));
         }
 
         try {
