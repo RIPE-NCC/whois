@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,10 +167,11 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        assertThat(query("ww", "admin-c"), is("[ \"ww1-test\", \"ww2-test\" ]"));
+        final String result = query("ww", "admin-c");
+        assertThat(result, containsString("\"ww1-test\""));
+        assertThat(result, containsString("\"ww2-test\""));
     }
 
-    @Ignore("it fails because results are coming in random order")
     @Test
     public void field_references_mntners_matched() {
         databaseHelper.addObject("mntner:  bla1-mnt\n");
@@ -180,7 +180,10 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        assertThat(query("bla", "mntner"), is("[ \"bla1-mnt\", \"bla2-mnt\", \"bLA3-mnt\" ]"));
+        final String result = query("bla", "mntner");
+        assertThat(result, containsString("\"bla1-mnt\""));
+        assertThat(result, containsString("\"bla2-mnt\""));
+        assertThat(result, containsString("\"bLA3-mnt\""));
     }
 
     @Test
@@ -231,7 +234,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void key_type_one_multiple_attributes_returned() {
+    public void key_type_one_multiple_attribute_returned() {
         databaseHelper.addObject(
                 "person:  person test\n" +
                 "nic-hdl: ww1-test\n" +
@@ -276,6 +279,32 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                 "  \"key\" : \"ww1-test\",\n" +
                 "  \"type\" : \"person\",\n" +
                 "  \"remarks\" : [ \"remarks1\", \"remarks2\" ]\n" +
+                "} ]"));
+    }
+
+    @Test
+    public void key_type_auth_attributes_returned() {
+        databaseHelper.addObject(
+                "mntner:  AUTH-MNT\n" +
+                "auth: MD5-PW bla\n" +
+                "auth: PGPKEY-XYZ\n" +
+                "auth: MD5-PW bue\n" +
+                "auth: SSO UUID-123");
+
+        rebuildIndex();
+
+        final String results =
+
+                RestTest.target(getPort(),
+                        String.format("whois/autocomplete/details?q=%s&f=%s&a=%s", "AuTH", "mntner", "auth"))
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .get(String.class);
+
+        assertThat(results, containsString("" +
+                "[ {\n" +
+                "  \"key\" : \"AUTH-MNT\",\n" +
+                "  \"type\" : \"mntner\",\n" +
+                "  \"auth\" : [ \"MD5-PW\", \"PGPKEY-XYZ\", \"MD5-PW\", \"SSO\" ]\n" +
                 "} ]"));
     }
 
