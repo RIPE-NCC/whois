@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -183,37 +184,99 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void getDetails() {
+    public void key_type_one_attribute_returned() {
         databaseHelper.addObject(
                 "person:  person test\n" +
-                        "nic-hdl: ww1-test");
+                "nic-hdl: ww1-test");
+        rebuildIndex();
+
+        final String results =
+
+                RestTest.target(getPort(),
+                String.format("whois/autocomplete/details?q=%s&f=%s&a=%s", "ww", "admin-c", "person"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+
+        assertThat(results, containsString("" +
+                "[ {\n" +
+                "  \"key\" : \"ww1-test\",\n" +
+                "  \"type\" : \"person\",\n" +
+                "  \"person\" : \"person test\"\n" +
+                "} ]"));
+    }
+
+    @Test
+    public void key_type_multiple_single_attributes_returned() {
         databaseHelper.addObject(
-                "role:  role test\n" +
-                        "nic-hdl: ww2-test\n");
+                "person:  person test\n" +
+                "nic-hdl: ww1-test\n" +
+                "created: then");
 
         rebuildIndex();
 
         final String results =
 
                 RestTest.target(getPort(),
-                String.format("whois/autocomplete/details?q=%s&f=%s&a=%s&a=%s", "ww", "admin-c", "last-modified", "e-mail"))
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+                        String.format("whois/autocomplete/details?q=%s&f=%s&a=%s&a=%s", "ww", "admin-c", "person", "created"))
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .get(String.class);
 
-        System.out.println("\n\n\nresult = \n" + results+"\n\n");
-//        assertThat(results, containsString(
-//                "[ {\n" +
-//                "  \"primarykey\" : \"ww1-test\",\n" +
-//                "  \"objecttype\" : \"person\",\n" +
-//                "  \"auths\" : [ \"MD5\", \"SSO\" ],\n" +
-//                "  \"descriptions\" : [ \"fake descr\" ]\n" +
-//                "}, {\n" +
-//                "  \"primarykey\" : \"ww2-test\",\n" +
-//                "  \"objecttype\" : \"role\",\n" +
-//                "  \"auths\" : [ \"MD5\", \"SSO\" ],\n" +
-//                "  \"descriptions\" : [ \"fake descr\" ]\n" +
-//                "} ]"));
+        assertThat(results, containsString("" +
+                "[ {\n" +
+                "  \"key\" : \"ww1-test\",\n" +
+                "  \"type\" : \"person\",\n" +
+                "  \"person\" : \"person test\",\n" +
+                "  \"created\" : \"then\"\n" +
+                "} ]"));
+    }
 
+    @Test
+    public void key_type_one_multiple_attributes_returned() {
+        databaseHelper.addObject(
+                "person:  person test\n" +
+                "nic-hdl: ww1-test\n" +
+                "remarks: remarks1");
+
+        rebuildIndex();
+
+        final String results =
+
+                RestTest.target(getPort(),
+                        String.format("whois/autocomplete/details?q=%s&f=%s&a=%s", "ww", "admin-c", "remarks"))
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .get(String.class);
+
+        assertThat(results, containsString("" +
+                "[ {\n" +
+                "  \"key\" : \"ww1-test\",\n" +
+                "  \"type\" : \"person\",\n" +
+                "  \"remarks\" : [ \"remarks1\" ]\n" +
+                "} ]"));
+    }
+
+    @Test
+    public void key_type_more_multiple_attributes_returned() {
+        databaseHelper.addObject(
+                "person:  person test\n" +
+                "nic-hdl: ww1-test\n" +
+                "remarks: remarks1\n" +
+                "remarks: remarks2");
+
+        rebuildIndex();
+
+        final String results =
+
+                RestTest.target(getPort(),
+                        String.format("whois/autocomplete/details?q=%s&f=%s&a=%s", "ww", "admin-c", "remarks"))
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .get(String.class);
+
+        assertThat(results, containsString("" +
+                "[ {\n" +
+                "  \"key\" : \"ww1-test\",\n" +
+                "  \"type\" : \"person\",\n" +
+                "  \"remarks\" : [ \"remarks1\", \"remarks2\" ]\n" +
+                "} ]"));
     }
 
     @Test

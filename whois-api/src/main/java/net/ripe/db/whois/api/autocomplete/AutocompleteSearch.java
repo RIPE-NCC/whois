@@ -69,7 +69,7 @@ public class AutocompleteSearch {
         });
     }
 
-    public List<Map<String, Object>> searchDetailed(final String queryString, final String fieldName, final Set<String> attributes) throws IOException {
+    public List<Map<String, Object>> searchDetailed(final String queryString, final String fieldName, final List<String> attributes) throws IOException {
         return freeTextIndex.search(new IndexTemplate.SearchCallback<List<Map<String, Object>>>() {
             @Override
             public List<Map<String, Object>> search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
@@ -82,19 +82,18 @@ public class AutocompleteSearch {
 
                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                     final Document doc = indexSearcher.doc(scoreDoc.doc);
-                    Map<String, Object> result = Maps.newHashMap();
+                    Map<String, Object> result = Maps.newLinkedHashMap();
                     result.put("key", doc.get(FreeTextIndex.LOOKUP_KEY_FIELD_NAME));
                     result.put("type", doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME));
 
-                    for (String attribute : attributes) {
+                    for (final String attribute : attributes) {
                         final ObjectTemplate template = ObjectTemplate.getTemplate(ObjectType.getByName(doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME)));
 
                         if (template.getMultipleAttributes().contains(AttributeType.getByName(attribute))) {
-                            result.put(attribute, Lists.newArrayList("not", "found"));
+                            result.put(attribute, Lists.newArrayList(doc.getValues(attribute)));
                         } else {
-                            result.put(attribute, "not found");
+                            result.put(attribute, doc.get(attribute));
                         }
-//                        result.put(attribute, doc.get(attribute));
                     }
 
                     results.add(result);
