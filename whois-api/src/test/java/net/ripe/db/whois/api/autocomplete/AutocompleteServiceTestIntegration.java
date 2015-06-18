@@ -83,37 +83,37 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
             RestTest.target(getPort(), "whois/autocomplete").request().get(String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("query (q) parameter is required, and must be at least 2 characters long"));
+            assertThat(e.getResponse().readEntity(String.class), is("query parameter is required, and must be at least 2 characters long"));
         }
     }
 
     @Test
     public void query_parameter_too_short() {
         try {
-            RestTest.target(getPort(), "whois/autocomplete?q=a&f=mntner").request().get(String.class);
+            RestTest.target(getPort(), "whois/autocomplete?query=a&field=mntner").request().get(String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("query (q) parameter is required, and must be at least 2 characters long"));
+            assertThat(e.getResponse().readEntity(String.class), is("query parameter is required, and must be at least 2 characters long"));
         }
     }
 
     @Test
     public void missing_query_parameter() {
         try {
-            RestTest.target(getPort(), "whois/autocomplete?f=mntner").request().get(String.class);
+            RestTest.target(getPort(), "whois/autocomplete?field=mntner").request().get(String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("query (q) parameter is required, and must be at least 2 characters long"));
+            assertThat(e.getResponse().readEntity(String.class), is("query parameter is required, and must be at least 2 characters long"));
         }
     }
 
     @Test
     public void missing_field_parameter() {
         try {
-            RestTest.target(getPort(), "whois/autocomplete?q=test").request().get(String.class);
+            RestTest.target(getPort(), "whois/autocomplete?query=test").request().get(String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("field (f) parameter is required"));
+            assertThat(e.getResponse().readEntity(String.class), is("field parameter is required"));
         }
     }
 
@@ -186,6 +186,25 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(result, containsString("\"bLA3-mnt\""));
     }
 
+
+    //extended
+    @Test
+    public void key_type_only() {
+        databaseHelper.addObject(
+                "person:  person test\n" +
+                "nic-hdl: ww1-test");
+
+        rebuildIndex();
+
+        final String results = queryExtended("ww", "admin-c");
+
+        assertThat(results, containsString("" +
+                "[ {\n" +
+                "  \"key\" : \"ww1-test\",\n" +
+                "  \"type\" : \"person\"\n" +
+                "} ]"));
+    }
+
     @Test
     public void key_type_one_attribute_returned() {
         databaseHelper.addObject(
@@ -193,12 +212,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                 "nic-hdl: ww1-test");
         rebuildIndex();
 
-        final String results =
-
-                RestTest.target(getPort(),
-                String.format("whois/autocomplete/details?q=%s&f=%s&a=%s", "ww", "admin-c", "person"))
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+        final String results = queryExtended("ww", "admin-c", "person");
 
         assertThat(results, containsString("" +
                 "[ {\n" +
@@ -217,12 +231,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        final String results =
-
-                RestTest.target(getPort(),
-                        String.format("whois/autocomplete/details?q=%s&f=%s&a=%s&a=%s", "ww", "admin-c", "person", "created"))
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .get(String.class);
+        final String results = queryExtended("ww", "admin-c", "person", "created");
 
         assertThat(results, containsString("" +
                 "[ {\n" +
@@ -242,12 +251,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        final String results =
-
-                RestTest.target(getPort(),
-                        String.format("whois/autocomplete/details?q=%s&f=%s&a=%s", "ww", "admin-c", "remarks"))
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .get(String.class);
+        final String results = queryExtended("ww", "admin-c", "remarks");
 
         assertThat(results, containsString("" +
                 "[ {\n" +
@@ -267,12 +271,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        final String results =
-
-                RestTest.target(getPort(),
-                        String.format("whois/autocomplete/details?q=%s&f=%s&a=%s", "ww", "admin-c", "remarks"))
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .get(String.class);
+        final String results = queryExtended("ww", "admin-c", "remarks");
 
         assertThat(results, containsString("" +
                 "[ {\n" +
@@ -293,12 +292,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        final String results =
-
-                RestTest.target(getPort(),
-                        String.format("whois/autocomplete/details?q=%s&f=%s&a=%s", "AuTH", "mntner", "auth"))
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .get(String.class);
+        final String results = queryExtended("AuTH", "mntner", "auth");
 
         assertThat(results, containsString("" +
                 "[ {\n" +
@@ -311,19 +305,33 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     @Test
     public void attribute_parameters_not_valid() {
         try {
-            RestTest.target(getPort(), "whois/autocomplete/details?q=abc&f=mntner&a=mntner&a=invalidAttr").request().get(String.class);
+            queryExtended("abc", "mntner", "invalidAttr");
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), is("invalid attribute(s) for parameter (a): [invalidAttr]"));
+            assertThat(e.getResponse().readEntity(String.class), is("invalid name for attribute(s) : [invalidAttr]"));
         }
     }
 
 
     // helper methods
 
-    private String query(final String query, final String field) {
+    private String queryExtended(final String query, final String field, final String... attributeNames) {
+
+        final StringBuffer attrParams = new StringBuffer("");
+        for (String attributeName : attributeNames) {
+            attrParams.append("&attribute=").append(attributeName);
+        }
+
         return RestTest.target(getPort(),
-                String.format("whois/autocomplete?q=%s&f=%s", query, field))
+                String.format("whois/autocomplete?extended&query=%s&field=%s%s", query, field, attrParams.toString()))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
+    }
+
+    private String query(final String query, final String field) {
+
+        return RestTest.target(getPort(),
+                String.format("whois/autocomplete?query=%s&field=%s", query, field))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
     }
