@@ -16,7 +16,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Autocomplete - Suggestions - Typeahead API
@@ -41,38 +40,21 @@ public class AutocompleteService {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response lookup(
-                @QueryParam("q") final String query,
-                @QueryParam("f") final String field) {
+            @QueryParam("query") final String query,
+            @QueryParam("field") final String field,
+            @QueryParam("extended") final String extended,
+            @QueryParam("attribute") final List<String> attributes) {
 
         if (Strings.isNullOrEmpty(query) || query.length() < MINIMUM_PREFIX_LENGTH) {
-            return badRequest("query (q) parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
+            return badRequest("query parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
         }
 
         if (Strings.isNullOrEmpty(field)) {
-            return badRequest("field (f) parameter is required");
+            return badRequest("field parameter is required");
         }
 
-        try {
-            return ok(autocompleteSearch.search(query, field));
-        } catch (IOException e) {
-            return badRequest("Query failed.");
-        }
-    }
-
-    @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Path("/details")
-    public Response lookupDetailed(
-            @QueryParam("q") final String query,
-            @QueryParam("f") final String field,
-            @QueryParam("a") final List<String> attributes) {
-
-        if (Strings.isNullOrEmpty(query) || query.length() < MINIMUM_PREFIX_LENGTH) {
-            return badRequest("query (q) parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
-        }
-
-        if (Strings.isNullOrEmpty(field)) {
-            return badRequest("field (f) parameter is required");
+        if (AttributeType.getByNameOrNull(field) == null) {
+            return badRequest("invalid name for field");
         }
 
         final List<String> badAttributes = Lists.newArrayList();
@@ -82,15 +64,23 @@ public class AutocompleteService {
             }
         }
         if (!badAttributes.isEmpty()){
-            return badRequest(String.format("invalid attribute(s) for parameter (a): %s", badAttributes));
+            return badRequest(String.format("invalid name for attribute(s) : %s", badAttributes));
         }
 
         try {
-            final List<Map<String, Object>> results = autocompleteSearch.searchDetailed(query, field, attributes);
-            return Response.ok(results).build();
+            if ((isExtendedParameter(extended)) || !attributes.isEmpty()) {
+                return ok(autocompleteSearch.searchExtended(query, field, attributes));
+            }
+
+            return ok(autocompleteSearch.search(query, field));
+
         } catch (IOException e) {
             return badRequest("Query failed.");
         }
+    }
+
+    private boolean isExtendedParameter(final String extended) {
+        return extended != null && (extended.isEmpty() || extended.equalsIgnoreCase("true"));
     }
 
     // helper methods
