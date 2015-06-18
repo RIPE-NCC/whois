@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,6 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Autocomplete - Suggestions - Typeahead API
@@ -66,7 +65,7 @@ public class AutocompleteService {
     public Response lookupDetailed(
             @QueryParam("q") final String query,
             @QueryParam("f") final String field,
-            @QueryParam("a") final Set<String> attributes) {
+            @QueryParam("a") final List<String> attributes) {
 
         if (Strings.isNullOrEmpty(query) || query.length() < MINIMUM_PREFIX_LENGTH) {
             return badRequest("query (q) parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
@@ -76,8 +75,8 @@ public class AutocompleteService {
             return badRequest("field (f) parameter is required");
         }
 
-        final Set<String> badAttributes = Sets.newHashSet();
-        for (String attribute : attributes){
+        final List<String> badAttributes = Lists.newArrayList();
+        for (final String attribute : attributes){
             if (AttributeType.getByNameOrNull(attribute) == null) {
                 badAttributes.add(attribute);
             }
