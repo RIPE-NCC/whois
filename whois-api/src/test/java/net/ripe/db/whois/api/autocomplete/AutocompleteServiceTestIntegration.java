@@ -216,6 +216,16 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
     }
 
+    @Test
+    public void attribute_parameters_not_valid() {
+        try {
+            RestTest.target(getPort(), "whois/autocomplete/details?q=abc&f=mntner&a=mntner&a=invalidAttr").request().get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("invalid attribute(s) for parameter (a): [invalidAttr]"));
+        }
+    }
+
 
     // helper methods
 
