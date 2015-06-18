@@ -67,10 +67,12 @@ public class FreeTextIndex extends RebuildableIndex {
 
     static final String[] FIELD_NAMES;
 
-    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH, AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
+    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
+    private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
 
     private static final FieldType INDEXED_AND_TOKENIZED;
     private static final FieldType INDEXED_NOT_TOKENIZED;
+    private static final FieldType NOT_INDEXED_NOT_TOKENIZED;
 
     static {
         final List<String> names = newArrayListWithExpectedSize(AttributeType.values().length);
@@ -93,6 +95,12 @@ public class FreeTextIndex extends RebuildableIndex {
         INDEXED_NOT_TOKENIZED.setStored(true);
         INDEXED_NOT_TOKENIZED.setTokenized(false);
         INDEXED_NOT_TOKENIZED.freeze();
+
+        NOT_INDEXED_NOT_TOKENIZED = new FieldType();
+        NOT_INDEXED_NOT_TOKENIZED.setIndexed(false);
+        NOT_INDEXED_NOT_TOKENIZED.setStored(true);
+        NOT_INDEXED_NOT_TOKENIZED.setTokenized(false);
+        NOT_INDEXED_NOT_TOKENIZED.freeze();
     }
 
     private final JdbcTemplate jdbcTemplate;
@@ -252,7 +260,9 @@ public class FreeTextIndex extends RebuildableIndex {
         document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_AND_TOKENIZED));
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-            if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
+            if (FILTERED_ATTRIBUTES.contains(attribute.getType())){
+              document.add(new Field(attribute.getKey(), sanitise(filterAttribute(attribute.getValue().trim())), NOT_INDEXED_NOT_TOKENIZED));
+            } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
                 document.add(new Field(attribute.getKey(), sanitise(attribute.getValue().trim()), INDEXED_AND_TOKENIZED));
             }
         }
@@ -268,6 +278,18 @@ public class FreeTextIndex extends RebuildableIndex {
 
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {
         indexWriter.deleteDocuments(new Term(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId())));
+    }
+
+    private String filterAttribute(final String value) {
+        if (value.toLowerCase().startsWith("md5-pw")) {
+            return "MD5-PW";
+        }
+
+        if (value.toLowerCase().startsWith("sso")) {
+            return "SSO";
+        }
+
+        return value;
     }
 
     final class DatabaseObjectProcessor implements Runnable {
