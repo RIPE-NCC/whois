@@ -115,6 +115,12 @@ public class PasswordFilterTest {
         assertThat(PasswordFilter.filterPasswordsInUrl(uriWithParams(new Pair("password", "test$#@!%^*-ab"), new Pair("param", "other"))),
                 is("/some/path?password=FILTERED&param=other"));
 
+        assertThat( PasswordFilter.filterPasswordsInUrl("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0apassword%3a+team-red%0a&NEW=yes"),
+                is("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0apassword%3aFILTERED&NEW=yes"));
+
+        //TODO [TP] : lines after the password are cut off
+        assertThat( PasswordFilter.filterPasswordsInUrl("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0apassword%3a+team-red%0a%0anotify%3a+email%40ripe.net%0a&NEW=yes"),
+                is("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0apassword%3aFILTERED&NEW=yes"));
     }
 
     @Test
@@ -141,6 +147,8 @@ public class PasswordFilterTest {
                         "source%3A+++++++++TEST%0Aoverride%3Apersonadmin%2Cteam-red1234&NEW=yes"),
                 is("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0Aaddress%3A++++++++Singel+258%0Aphone%3A++++++++++%2B31+6+12345678%0Anic-hdl%3A++++++++TP2-TEST%0Amnt-by%3A+++++++++OWNER-MNT%0Achanged%3A++++++++dbtest%40ripe.net+20120101%0Asource%3A+++++++++TEST%0Aoverride%3Apersonadmin,FILTERED&NEW=yes"));
 
+        assertThat( PasswordFilter.filterPasswordsInUrl("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0Aoverride:+admin,teamred,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"),
+                is("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0Aoverride:+admin,FILTERED,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"));
     }
 
     private static String uriWithParams(final Pair ...params) {
