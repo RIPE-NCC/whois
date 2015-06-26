@@ -24,5 +24,4 @@ certif:         =DgsR
 certif:         -----END PGP PUBLIC KEY BLOCK-----
 certif:
 mnt-by:         UPD-MNT
-changed:        dbtest@ripe.net 20120101
 source:         TEST

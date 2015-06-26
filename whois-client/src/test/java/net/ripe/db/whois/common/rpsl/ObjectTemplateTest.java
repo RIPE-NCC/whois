@@ -22,9 +22,9 @@ public class ObjectTemplateTest {
             "mnt-nfy:         auto@example.net\n" +
             "auth:            MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\n" +
             "remarks:         password: secret\n" +
-            "mnt-by:      DEV-MNT\n" +
-            "referral-by:     DEV-MNT\n" +
-            "changed:         BECHA@example.net 20101010\n" +
+            "mnt-by:          DEV-MNT\n" +
+            "created:         2014-04-15T13:15:30Z\n" +
+            "last-modified:   2014-04-15T13:15:30Z\n" +
             "source:          DEV";
 
     private ObjectTemplate subject;
@@ -147,7 +147,9 @@ public class ObjectTemplateTest {
                 "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "changed:        [optional]   [multiple]   [ ]\n" +
+                "created:        [generated]  [single]     [ ]\n" +
+                "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n"));
     }
 
@@ -178,7 +180,9 @@ public class ObjectTemplateTest {
                 "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "changed:        [optional]   [multiple]   [ ]\n" +
+                "created:        [generated]  [single]     [ ]\n" +
+                "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
                 "\n" +
                 "The content of the attributes of the inetnum class are defined below:\n" +

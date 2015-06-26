@@ -200,7 +200,6 @@ help
 -i form FORM-HAIKU
 -i fr FORM-HAIKU
 -rGKi sub-dom 128.135.88.in-addr.arpa
--rGKi referral-by aardvark-mnt
 
 # inverse queries on NIC Hdl
 -i admin-c dw-ripe
@@ -581,7 +580,6 @@ e164.arpa
 -rBGC 2001:0638:0201::/48
 -rT as-block AS0 -as0
 -rGKi sub-dom 128.135.88.in-addr.arpa
--rGKi referral-by aardvark-mnt
 -rGK 128.86.1.2
 -b 193.0.0.1
 -K dw-ripe

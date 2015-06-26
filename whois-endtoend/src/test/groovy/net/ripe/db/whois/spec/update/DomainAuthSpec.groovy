@@ -15,7 +15,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 descr:          Full ASN range
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net 20120202
                 source:         TEST
                 """,
             "ALLOC-PA": """\
@@ -28,7 +27,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA-LOW": """\
@@ -42,7 +40,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA-LOW-DOM": """\
@@ -57,7 +54,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-domains:  LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA-LOW-DOM-R": """\
@@ -73,7 +69,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 mnt-domains:  LIR2-MNT
                 mnt-routes:   LIR3-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ASSIGN-PA-LOW-DOM": """\
@@ -88,7 +83,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER-MNT
                 mnt-lower:    LIR-MNT
                 mnt-domains:  LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA-LOW-R": """\
@@ -103,7 +97,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-routes:   LIR3-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA-R": """\
@@ -117,7 +110,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-routes:   LIR3-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-U": """\
@@ -130,7 +122,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED Unspecified
                 mnt-by:       RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA1": """\
@@ -142,7 +133,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA2": """\
@@ -154,7 +144,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-DOMAIN": """\
@@ -166,7 +155,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "ASSIGN-DOMAIN": """\
@@ -178,7 +166,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "ALLOC6-PA-LOW-DOM-R": """\
@@ -194,7 +181,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 mnt-domains:  LIR2-MNT
                 mnt-routes:   LIR3-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC6-PA-NO-DOM-R": """\
@@ -208,7 +194,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED-BY-RIR
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,            "ASSIGN6-DOMAIN": """\
                 domain:         0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa
@@ -219,7 +204,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "ENUM-ROOT": """\
@@ -231,7 +215,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "ENUM-UK": """\
@@ -244,7 +227,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.uk
                 mnt-by:         owner-MNT
                 mnt-by:         RIPE-GII-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
     ]}
@@ -267,7 +249,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir2
@@ -307,7 +288,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -347,7 +327,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -385,7 +364,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir3
@@ -425,7 +403,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   hm
@@ -465,7 +442,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -505,7 +481,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir3
@@ -545,7 +520,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   hm
@@ -583,7 +557,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   hm
@@ -621,7 +594,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir3
@@ -661,7 +633,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir2
@@ -699,7 +670,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir3
@@ -739,7 +709,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   hm
@@ -779,7 +748,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -817,7 +785,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir3
@@ -857,7 +824,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   hm
@@ -897,7 +863,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   hm
@@ -935,7 +900,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir3
@@ -975,7 +939,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:  denis,override1
 
@@ -1014,7 +977,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -1053,7 +1015,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -1092,7 +1053,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -1131,7 +1091,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -1170,7 +1129,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -1209,7 +1167,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -1248,7 +1205,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -1287,7 +1243,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -1326,7 +1281,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1366,7 +1320,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1404,7 +1357,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1446,7 +1398,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns1.nl-ix.net
                 nserver:        ns2.nl-ix.net
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1482,7 +1433,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns1.nl-ix.net
                 nserver:        ns2.nl-ix.net
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1520,7 +1470,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1558,7 +1507,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns1.nl-ix.net
                 nserver:        ns2.nl-ix.net
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1596,7 +1544,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns1.nl-ix.net
                 nserver:        ns2.nl-ix.net
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1634,7 +1581,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1676,7 +1622,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  testing delete
 
@@ -1716,7 +1661,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  testing delete
                 override:   denis,override1
@@ -1757,7 +1701,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  testing delete
 
@@ -1801,7 +1744,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  testing delete
 
@@ -1845,7 +1787,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  testing delete
 
@@ -1884,7 +1825,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  testing delete
 
@@ -1924,7 +1864,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-dom
@@ -1963,7 +1902,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -2005,7 +1943,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-dom
@@ -2048,7 +1985,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.fr
                 mnt-by:         DOMAIN-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-dom
@@ -2088,7 +2024,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir2
@@ -2126,7 +2061,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir2
@@ -2164,7 +2098,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net.
                 nserver:        ns3.nic.fr.
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir2
@@ -2208,7 +2141,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        tinnie.arin.net
                 mnt-by:         DOMAIN-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-dom
@@ -2249,7 +2181,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 zone-c:         TP1-TEST
                 nserver:        pri.authdns.ripe.net
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir2
@@ -2291,7 +2222,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir2
@@ -2329,7 +2259,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -2368,7 +2297,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override: denis,override1
 
@@ -2409,7 +2337,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.fr
                 remarks:        just added
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -2447,7 +2374,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  testing
 
@@ -2485,7 +2411,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir2
@@ -2525,7 +2450,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2567,7 +2491,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.fr
                 ds-rdata:       52151  1  1  13ee60f7499a70e5aadaf05828e7fc59e8e70bc1
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir2
@@ -2610,7 +2533,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 ds-rdata:       17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78
                 ds-rdata:       17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir2
@@ -2654,7 +2576,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 +7b8e4efb52d0a028d7a78
                 ds-rdata:       17881 5 2 8c6265733a73e5588bfac516a4fcfbe1103a544b95f254cb67a21e474079547e
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir2
@@ -2695,7 +2616,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net 81.20.133.177
                 nserver:        ns3.nic.fr 2001:600::/128
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2740,7 +2660,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net.0.0.193.in-addr.arpa 81.20.133.177.in-addr.arpa
                 nserver:        ns3.nic.fr0.0.193.in-addr.arpa 2001:600::/32.ip6.arpa
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2781,7 +2700,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net.0.0.193.in-addr.arpa 81.20.133/24
                 nserver:        ns3.nic.fr0.0.193.in-addr.arpa 2001:600::/32
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2822,7 +2740,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net.0.0.193.in-addr.arpa 81.20.133.177
                 nserver:        ns3.nic.fr.0.0.193.in-addr.arpa 2001:600::1
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2861,7 +2778,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net.0.0.193.in-addr.arpa 81.20.133.177
                 nserver:        pri.authdns.ripe.net.0.0.193.in-addr.arpa 2001:600::1
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 password:   owner
                 password:   lir2
@@ -2899,7 +2815,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        sec3.apnic.net
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -2937,7 +2852,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns1.some.net
                 nserver:        ns2.some.net
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:    denis,override1
 
@@ -2975,7 +2889,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         RIPE-GII-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:       gii
@@ -3013,7 +2926,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.uk
                 mnt-by:         owner-MNT
                 mnt-by:         RIPE-GII-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:       gii
@@ -3051,7 +2963,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.uk
                 mnt-by:         owner-MNT
                 mnt-by:         RIPE-GII-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:       owner
@@ -3089,7 +3000,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.uk
                 mnt-by:         owner-MNT
                 mnt-by:         RIPE-GII-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:    denis,override1
 
@@ -3129,7 +3039,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 mnt-by:         RIPE-GII-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:       gii
@@ -3167,7 +3076,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 mnt-by:         RIPE-GII-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3207,7 +3115,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         owner-MNT
                 mnt-by:         RIPE-GII-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:       owner
@@ -3244,7 +3151,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.uk
                 mnt-by:         owner-MNT
                 mnt-by:         RIPE-GII-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  test ing
 
@@ -3282,7 +3188,6 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 nserver:        ns3.nic.uk
                 mnt-by:         owner-MNT
                 mnt-by:         RIPE-GII-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  test ing
 

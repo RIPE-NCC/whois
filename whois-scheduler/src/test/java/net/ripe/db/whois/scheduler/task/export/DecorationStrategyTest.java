@@ -56,7 +56,7 @@ public class DecorationStrategyTest {
         Mockito.when(dummifier.isAllowed(3, object)).thenReturn(false);
 
         final RpslObject decorated = subject.decorate(object);
-        Assert.assertThat(decorated, Matchers.is(DummifierLegacy.PLACEHOLDER_PERSON_OBJECT));
+        Assert.assertThat(decorated, Matchers.is(DummifierLegacy.getPlaceholderPersonObject()));
 
         final RpslObject decoratedSecond = subject.decorate(object);
         Assert.assertNull(decoratedSecond);

@@ -18,7 +18,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
             "ASN352": """\
@@ -30,7 +29,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
                 mnt-lower:      owner2-mnt
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
             "ROUTE-SET": """\
@@ -46,7 +44,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "ROUTE-SET-2LEVEL": """\
@@ -56,7 +53,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "ROUTE-SET-3LEVEL": """\
@@ -66,7 +62,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER3-MNT
                 mnt-lower:    LIR3-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "TOP-ROUTE-SET": """\
@@ -76,7 +71,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "TEST-TEST": """\
@@ -86,7 +80,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "ASB16":"""\
@@ -95,7 +88,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 remarks:        yes
                 org:            ORG-OTO1-TEST
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net   20121214
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
                 """,
@@ -119,7 +111,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -178,7 +169,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -220,7 +210,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
                 password: lir
                 """.stripIndent()
@@ -265,7 +254,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -301,7 +289,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -341,7 +328,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -380,7 +366,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -419,7 +404,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -460,7 +444,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -497,7 +480,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -537,7 +519,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -576,7 +557,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -613,7 +593,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -653,7 +632,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -692,7 +670,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -729,7 +706,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -770,7 +746,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -811,7 +786,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: owner
@@ -852,7 +826,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -892,7 +865,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -932,7 +904,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 route-set:    AS123:RS-CUSTOMERS
@@ -941,7 +912,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -981,7 +951,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 aut-num:        AS123
@@ -991,7 +960,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -1033,7 +1001,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1074,7 +1041,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1116,7 +1082,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1158,7 +1123,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1201,7 +1165,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1242,7 +1205,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1278,12 +1240,11 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 subject: "",
                 body: """\
                 route-set:    AS123:RS-CUSTOMERS
-                descr:        test route-set
+                descr:        test route-set updated
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20121212
                 source:  TEST
 
                 password: owner2
@@ -1301,7 +1262,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
 
-        query_object_matches("-rBT route-set AS123:RS-CUSTOMERS", "route-set", "AS123:RS-CUSTOMERS", "20121212")
+        query_object_matches("-rBT route-set AS123:RS-CUSTOMERS", "route-set", "AS123:RS-CUSTOMERS", "test route-set updated")
     }
 
     def "modify route-set object, no parent ASN, only obj pw supplied"() {
@@ -1317,12 +1278,11 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 subject: "",
                 body: """\
                 route-set:    AS123:RS-CUSTOMERS
-                descr:        test route-set
+                descr:        test route-set updated
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20121212
                 source:  TEST
 
                 password: owner2
@@ -1340,7 +1300,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
 
-        query_object_matches("-rBT route-set AS123:RS-CUSTOMERS", "route-set", "AS123:RS-CUSTOMERS", "20121212")
+        query_object_matches("-rBT route-set AS123:RS-CUSTOMERS", "route-set", "AS123:RS-CUSTOMERS", "test route-set updated")
     }
 
     def "delete route-set object with existing parent ASN, only obj pw supplied"() {
@@ -1362,7 +1322,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       testing
 
@@ -1404,7 +1363,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 delete:       testing
 
@@ -1445,7 +1403,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       testing
 
@@ -1488,7 +1445,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       testing
 
@@ -1536,13 +1492,11 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 admin-c:      TP3-TEST
                 notify:       unread@ripe.net
                 mnt-by:       LIR2-MNT
                 mnt-lower:    SUB-MNT
-                changed:      dbtest@ripe.net
 
                 password: lir2
                 password: owner3
@@ -1579,7 +1533,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
                 override:     denis,override1
                 """.stripIndent()
