@@ -18,7 +18,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "RIR-ALLOC-20-2a": """\
@@ -32,7 +31,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "RIR-ALLOC-25": """\
@@ -46,7 +44,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    lir-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "USER-RIR-ALLOC-25": """\
@@ -61,7 +58,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-MNT
                 mnt-lower:    lir-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "RIR-ALLOC-25-NO-LOW": """\
@@ -74,7 +70,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "RIR-ALLOC-25-LOW-R-D": """\
@@ -91,7 +86,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-ROUTES:   lir2-MNT
                 mnt-DOMAINS:  lir3-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-ALLOC-20": """\
@@ -105,7 +99,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-MNT
                 mnt-lower:    LiR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-ALLOC-30": """\
@@ -119,7 +112,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-MNT
                 mnt-lower:    LiR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-32-48": """\
@@ -134,7 +126,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-32-50": """\
@@ -149,7 +140,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 50
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-48-56": """\
@@ -164,7 +154,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-48-64": """\
@@ -179,7 +168,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-56-64": """\
@@ -194,7 +182,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ASS-64": """\
@@ -207,7 +194,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ASS-32": """\
@@ -220,7 +206,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ASS-ANY-32": """\
@@ -233,7 +218,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-HM-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ASSPI-64": """\
@@ -247,7 +231,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       lir-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ASSPI-32": """\
@@ -261,7 +244,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       lir-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "PN": """\
@@ -272,7 +254,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """
     ]}
@@ -299,7 +280,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -341,7 +321,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -386,7 +365,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:  25
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -431,7 +409,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -475,7 +452,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -519,7 +495,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -565,7 +540,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -607,7 +581,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -650,7 +623,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:  30
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -694,7 +666,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -738,7 +709,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -782,7 +752,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -828,7 +797,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -870,7 +838,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -913,7 +880,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:  48
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -955,7 +921,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -999,7 +964,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1043,7 +1007,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1089,7 +1052,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1131,7 +1093,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1174,7 +1135,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:  64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1216,7 +1176,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1260,7 +1219,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1304,7 +1262,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1350,7 +1307,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1392,7 +1348,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1437,7 +1392,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:  64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1481,7 +1435,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1525,7 +1478,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1569,7 +1521,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1615,7 +1566,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1657,7 +1607,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1702,7 +1651,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:  32
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1746,7 +1694,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1790,7 +1737,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1834,7 +1780,6 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm

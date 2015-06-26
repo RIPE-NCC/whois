@@ -40,17 +40,16 @@ public class IpResourceConfigurationConcurrencyTest {
 
     @Test
     public void test_concurrent_access() throws Exception {
-        ExecutorService executor = Executors.newCachedThreadPool();
+        final ExecutorService executor = Executors.newCachedThreadPool();
 
-        List<Future<Exception>> result = new ArrayList<>();
+        final List<Future<Exception>> result = new ArrayList<>();
         try {
             result.add(executor.submit(makeReader()));
             result.add(executor.submit(makeReader()));
             result.add(executor.submit(makeReader()));
             result.add(executor.submit(makeReader()));
 
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.start();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
             while (stopwatch.elapsed(TimeUnit.MILLISECONDS) < 100) {
                 subject.reload();
                 Thread.sleep(10);

@@ -6,8 +6,8 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
-import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.VersionDateTime;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.hamcrest.BaseMatcher;
@@ -218,15 +218,29 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(response, containsString("mntner:         TEST-DBM"));
     }
 
+    @Test
+    public void showVersion_timestamps() {
+        databaseHelper.addObject("" +
+                "organisation: TO1-TEST\n" +
+                "org-name: Test Organisation\n" +
+                "created: 2015-02-02T11:12:13Z\n" +
+                "last-modified: 2015-02-02T11:12:13Z\n" +
+                "source: TEST");
+
+        final String response = stripHeader(TelnetWhoisClient.queryLocalhost(QueryServer.port, "--show-version 1 TO1-TEST"));
+        assertThat(response, containsString("created:        2015-02-02T11:12:13Z"));
+        assertThat(response, containsString("last-modified:  2015-02-02T11:12:13Z"));
+    }
+
     public static class VersionMatcher extends BaseMatcher<String> {
         private final String expected;
 
-        public VersionMatcher(String expected) {
+        public VersionMatcher(final String expected) {
             this.expected = expected;
         }
 
         @Override
-        public boolean matches(Object item) {
+        public boolean matches(final Object item) {
             return item instanceof String && ((String) item).contains(expected);
         }
 
@@ -236,24 +250,17 @@ public class VersionTestIntegration extends AbstractQueryIntegrationTest {
         }
 
         @Factory
-        public static Matcher<String> containsUnfilteredVersion(RpslObject object) {
-            return new VersionMatcher(makeMatcherString(object, false));
-        }
-
-        @Factory
-        public static Matcher<String> containsFilteredVersion(RpslObject object) {
+        public static Matcher<String> containsFilteredVersion(final RpslObject object) {
             return new VersionMatcher(makeMatcherString(object, true));
         }
 
-        private static String makeMatcherString(RpslObject object, boolean filtered) {
-            StringBuilder expecting = new StringBuilder();
-
-            FilterAuthFunction authFilter = new FilterAuthFunction();
+        private static String makeMatcherString(final RpslObject object, final boolean filtered) {
+            final StringBuilder expecting = new StringBuilder();
+            final FilterAuthFunction authFilter = new FilterAuthFunction();
             RpslObject filteredObject = authFilter.apply(object);
 
             if (filtered) {
-                FilterEmailFunction emailFilter = new FilterEmailFunction();
-                filteredObject = emailFilter.apply(filteredObject);
+                filteredObject = new FilterEmailFunction().apply(filteredObject);
             }
 
             expecting.append(filteredObject != null ? filteredObject.toString() : null);

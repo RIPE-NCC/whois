@@ -21,7 +21,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
                 "NO-MB-RL": """\
@@ -33,7 +32,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 admin-c: TP1-TEST
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
                 "RL-NO-MB-PN": """\
@@ -46,7 +44,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  NMP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
                 "NO-MB-PN": """\
@@ -56,7 +53,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 address: UK
                 phone:   +44 282 420469
                 nic-hdl: NMP1-TEST
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
                 "NO-MB-PN-MNT": """\
@@ -68,8 +64,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 notify:      notify_owner@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
                 "RL2": """\
@@ -82,7 +76,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  FR1-TEST
                 nic-hdl: FR2-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """
         ]
@@ -105,7 +98,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 delete:  testing
 
@@ -157,47 +149,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rBGT role FR1-TEST", "role", "FR1-TEST")
     }
 
-    def "modify role no date"() {
-        given:
-        syncUpdate(getTransient("RL") + "password: owner")
-
-        expect:
-        queryObject("-r -T role FR1-TEST", "role", "First Role")
-
-        when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                role:    First Role
-                address: St James Street
-                address: Burnley
-                address: UK
-                e-mail:  dbtest@ripe.net
-                admin-c: TP1-TEST
-                tech-c:  TP1-TEST
-                nic-hdl: FR1-TEST
-                mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net
-                source:  TEST
-
-                password: owner
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   First Role" }
-
-        query_object_not_matches("-r -T role FR1-TEST", "role", "First Role", "20121016")
-    }
-
     def "modify role add missing mnt-by"() {
         given:
         dbfixture(getTransient("NO-MB-RL"))
@@ -218,7 +169,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net
                 source:  TEST
 
                 password: owner
@@ -259,7 +209,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -299,7 +248,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 e-mail:  dbtest@ripe.net
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -344,7 +292,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -392,7 +339,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  NO-MB-PN-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -440,7 +386,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  NO-MB-PN-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -482,7 +427,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  owner-mnt
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -534,21 +478,17 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 admin-c: TP3-TEST
                 tech-c:  TP2-TEST
                 admin-c: TP2-TEST
-                changed: dbtest@ripe.net 20121016
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 remarks: test role object
-                changed: dbtest@ripe.net 20121016
                 remarks:
                 remarks: test role object
                 notify:  dbtest-nfy@ripe.net
                 abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  owner-mnt, owner3-mnt, owner2-mnt, owner2-mnt
                 mnt-by:  owner-mnt, owner-mnt, owner-mnt, owner-mnt
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 notify:  dbtest2-nfy@ripe.net
-                changed: dbtest@ripe.net 20121017
 
                 password: owner3
                 """.stripIndent()
@@ -587,7 +527,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  FR1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  owner-mnt
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -634,7 +573,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  FR2-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  owner-mnt
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -673,7 +611,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 tech-c:  YY1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -714,7 +651,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 e-mail:  dbtest@ripe.net
                 nic-hdl: FR1-TEST
                 mnt-by:  owner-mnt
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -750,7 +686,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 e-mail:  dbtest@ripe.net
                 nic-hdl: FR1-TEST
                 mnt-by:  owner-mnt
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -814,7 +749,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 e-mail:  dbtest@ripe.net
                 nic-hdl: FR1-TEST
                 mnt-by:  owner-mnt
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -880,7 +814,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 e-mail:  dbtest@ripe.net
                 nic-hdl: FR1-TEST
                 mnt-by:  owner-mnt
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -949,7 +882,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 e-mail:  dbtest@ripe.net
                 nic-hdl: FR1-TEST
                 mnt-by:  owner-mnt
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner

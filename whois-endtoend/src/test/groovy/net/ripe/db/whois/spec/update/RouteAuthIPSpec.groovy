@@ -16,7 +16,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Full ASN range
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS100": """\
@@ -27,7 +26,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS200": """\
@@ -38,7 +36,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS300": """\
@@ -49,7 +46,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "PARENT-ROUTE": """\
@@ -57,7 +53,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:       parent route object
                 origin:      AS1000
                 mnt-by:      PARENT-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-ROUTE-LOW-ROUTES": """\
@@ -67,7 +62,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 mnt-by:  PARENT-MB-MNT
                 mnt-lower:   PARENT-ML-MNT
                 mnt-routes:  PARENT-MR-MNT
-                changed: dbtest@ripe.net 20020101
                 source:  TEST
                 """,
             "PARENT-ROUTE-ROUTES": """\
@@ -76,7 +70,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:  AS1000
                 mnt-by:  PARENT-MB-MNT
                 mnt-routes:  PARENT-MR-MNT
-                changed: dbtest@ripe.net 20020101
                 source:  TEST
                 """,
             "PARENT-ROUTE-LOW": """\
@@ -85,7 +78,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:      AS1000
                 mnt-by:      PARENT-MB-MNT
                 mnt-lower:   PARENT-ML-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-ROUTE-LOW2": """\
@@ -94,7 +86,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:      AS3000
                 mnt-by:      PARENT-MB-MNT
                 mnt-lower:   LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "EXACT-MATCH-ROUTE-AS2000": """\
@@ -102,7 +93,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:   exact match route object
                 origin:  AS2000
                 mnt-by:  CHILD-MB-MNT
-                changed: dbtest@ripe.net 20020101
                 source:  TEST
                 """,
             "EXACT-ROUTE-LOW": """\
@@ -111,7 +101,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
                 mnt-lower:   EXACT-ML-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "EXACT-ROUTE-ROUTES": """\
@@ -120,7 +109,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
                 mnt-routes:  EXACT-MR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "EXACT-ROUTE-LOW-ROUTES": """\
@@ -130,7 +118,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 mnt-by:      EXACT-MB-MNT
                 mnt-lower:   EXACT-ML-MNT
                 mnt-routes:  EXACT-MR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "EXACT-INET": """\
@@ -142,7 +129,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 status:  ASSIGNED PA
                 mnt-by:  EXACT-INETNUM-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-INET": """\
@@ -154,7 +140,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 status:  ASSIGNED PA
                 mnt-by:  PARENT-INETNUM-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "EXACT-INET2": """\
@@ -166,7 +151,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 status:  ASSIGNED PA
                 mnt-by:  EXACT-INETNUM-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-INET2": """\
@@ -178,7 +162,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 status:  ASSIGNED PA
                 mnt-by:  PARENT-INETNUM-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "EXACT-INET3": """\
@@ -190,7 +173,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 status:  ASSIGNED PA
                 mnt-by:  EXACT-INETNUM-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-INET3": """\
@@ -202,7 +184,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 status:  ASSIGNED PA
                 mnt-by:  PARENT-INETNUM-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-INET4": """\
@@ -214,7 +195,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 status:  LIR-PARTITIONED PA
                 mnt-by:  PARENT-INETNUM-MB-MNT
-                changed:     dbtest@ripe.net 20020101
                 source:      TEST
                 """,
             "PARENT-INET5": """\
@@ -226,7 +206,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 status:  ASSIGNED PA
                 mnt-by:  PARENT-INETNUM-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
     ]}
@@ -245,7 +224,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -284,7 +262,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -317,7 +294,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:  denis,override1
 
@@ -356,7 +332,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -398,7 +373,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -435,7 +409,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -477,7 +450,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -515,7 +487,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -558,7 +529,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -601,7 +571,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -639,7 +608,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -674,7 +642,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:   exact match route object
                 origin:  AS2000
                 mnt-by:  CHILD-MB-MNT
-                changed: dbtest@ripe.net 20020101
                 source:  TEST
                 delete:   exact match
 
@@ -711,7 +678,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -753,7 +719,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -794,7 +759,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -831,7 +795,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -873,7 +836,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -911,7 +873,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -954,7 +915,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -997,7 +957,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1039,7 +998,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1078,7 +1036,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1118,7 +1075,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1163,7 +1119,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1208,7 +1163,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1254,7 +1208,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1294,7 +1247,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1339,7 +1291,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1382,7 +1333,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1420,7 +1370,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1461,7 +1410,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1497,7 +1445,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1531,7 +1478,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 inetnum: 21.128.0.0 - 21.128.255.255
@@ -1542,7 +1488,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 status:  LIR-PARTITIONED PA
                 mnt-by:  PARENT-INETNUM-MB-MNT
-                changed:     dbtest@ripe.net 20020101
                 source:      TEST
                 delete: to be split
 
@@ -1554,7 +1499,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 status:  LIR-PARTITIONED PA
                 mnt-by:  PARENT-INETNUM-MB-MNT
-                changed:     dbtest@ripe.net 20020101
                 source:      TEST
 
                 inetnum: 21.128.128.0 - 21.128.255.255
@@ -1565,7 +1509,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 status:  LIR-PARTITIONED PA
                 mnt-by:  PARENT-INETNUM-MB-MNT
-                changed:     dbtest@ripe.net 20020101
                 source:      TEST
 
                 password:   hm
@@ -1608,14 +1551,12 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
                 mnt-routes:  EXACT-MR-MNT {20.13.0.0/16^+}
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 route:          20.13.0.0/16
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-exact
@@ -1653,14 +1594,12 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
                 mnt-routes:  EXACT-MR-MNT   aNy
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 route:          20.13.0.0/16
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-exact
@@ -1698,14 +1637,12 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
                 mnt-routes:  EXACT-MR-MNT {20.13.0.0/24^+}
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 route:          20.13.0.0/16
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-exact
@@ -1748,14 +1685,12 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
                 mnt-routes:  EXACT-MR-MNT {20.13.0.0/16^-, 20.13.0.0/16^+}
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 route:          20.13.0.0/16
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-exact
@@ -1793,14 +1728,12 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
                 mnt-routes:  EXACT-MR-MNT {20.13.0.0/16^-, 20.13.0.0/16^16-24, 21.13.0.0/16^+}
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 route:          20.13.0.0/16
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-exact
@@ -1839,7 +1772,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 mnt-routes:  EXACT-MR-MNT {20.13.0.0/16^+}
                 mnt-routes:  EXACT-MR-MNT  aNY
                 mnt-routes:  EXACT-MR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password:   mb-exact
@@ -1881,7 +1813,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
                 mnt-routes:  EXACT-MR-MNT {any, 20.13.0.0/16^+}
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password:   mb-exact
@@ -1919,7 +1850,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
                 mnt-routes:  EXACT-MR-MNT {20.13.2.3/16^11-12, 20.13.2.3/16^+}
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password:   mb-exact
@@ -1958,14 +1888,12 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 mnt-by:      EXACT-MB-MNT
                 mnt-routes:  EXACT-MR-MNT {20.13.0.0/16^+}
                 mnt-routes:  LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 route:          20.13.0.0/16
                 descr:          Route
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-exact

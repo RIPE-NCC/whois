@@ -21,8 +21,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$0W0joRg1\$eOOcT4JsBIh6q3mu/yTvj1 # rpsl
                 notify:      dbtest@ripe.net
                 mnt-by:      RIPE-DBM-MNT
-                changed:     dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "AS251NOSTAT": """\
@@ -40,7 +38,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS445NOSTAT": """\
@@ -56,7 +53,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS12667NOSTAT": """\
@@ -72,7 +68,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
         ]
@@ -94,7 +89,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       OWNER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "AS222 - AS333": """\
@@ -102,14 +96,12 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS222 - AS333-NOLOW": """\
                 as-block:       AS222 - AS333
                 descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS12557 - AS13223": """\
@@ -117,7 +109,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS444 - AS555": """\
@@ -125,7 +116,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 descr:          APNIC ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-RPSL-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS0 - AS4294967295": """\
@@ -133,7 +123,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 descr:          RIPE ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS-SET": """\
@@ -144,7 +133,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 members:        AS1
                 mbrs-by-ref:    LIR-MNT
                 mnt-by:         LIR-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS-SET-NO-REF": """\
@@ -154,7 +142,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 members:        AS1
                 mnt-by:         LIR-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS-SET-200": """\
@@ -167,7 +154,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "AS200": """\
@@ -184,7 +170,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS250": """\
@@ -201,7 +186,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS300": """\
@@ -218,7 +202,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS444": """\
@@ -234,7 +217,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS12666": """\
@@ -250,7 +232,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "ROUTE": """\
@@ -258,7 +239,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS200
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS12668": """\
@@ -274,7 +254,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
         ]
@@ -303,7 +282,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -348,7 +326,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -390,7 +367,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -433,7 +409,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:       denis,override1
 
@@ -472,7 +447,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -510,7 +484,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:      denis,override1
 
@@ -602,7 +575,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -665,7 +637,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -719,7 +690,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -787,7 +757,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -829,7 +798,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -870,7 +838,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -915,7 +882,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -954,7 +920,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -997,7 +962,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1040,7 +1004,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1082,7 +1045,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1128,7 +1090,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1175,7 +1136,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1222,7 +1182,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1269,7 +1228,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1315,7 +1273,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      as7775535:as-test:AS94967295
                 source:         TEST
 
@@ -1359,7 +1316,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      as777.5535:as-test:AS94967295
                 member-of:      as7775535:as-test:AS7777777234
                 member-of:      as7775535:as-test:AS0777234
@@ -1410,7 +1366,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR2-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      as7775535:as-test:AS94967295
                 source:         TEST
 
@@ -1454,7 +1409,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      as7775535:as-test:AS94967295
                 source:         TEST
 
@@ -1497,7 +1451,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      as7775535:as-test:AS94967295
                 source:         TEST
 
@@ -1543,7 +1496,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
 
@@ -1588,7 +1540,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
 
@@ -1638,7 +1589,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
                 password:   nccend
@@ -1684,7 +1634,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
 
@@ -1730,7 +1679,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
 
@@ -1776,7 +1724,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1822,7 +1769,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1889,7 +1835,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -2640,7 +2585,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-routes:   ROUTES-MNT
                 mnt-by:       RIPE-NCC-END-MNT
-                changed:      dbtest@ripe.net 20030101
                 source:       TEST
 
                 password:   nccend
@@ -2683,7 +2627,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -2726,7 +2669,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -2770,7 +2712,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -2817,7 +2758,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -2861,7 +2801,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2904,7 +2843,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2947,7 +2885,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2990,7 +2927,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3036,7 +2972,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3082,7 +3017,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3128,7 +3062,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3175,7 +3108,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3221,7 +3153,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -3265,7 +3196,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3309,7 +3239,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3355,7 +3284,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3399,7 +3327,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3445,7 +3372,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3489,7 +3415,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3535,7 +3460,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -3577,7 +3501,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -3621,7 +3544,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -3665,7 +3587,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3709,7 +3630,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3755,7 +3675,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3814,7 +3733,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3872,7 +3790,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3916,7 +3833,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3960,7 +3876,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -4008,7 +3923,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4057,7 +3971,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4104,7 +4017,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4151,7 +4063,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4198,7 +4109,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4245,7 +4155,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4291,7 +4200,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 

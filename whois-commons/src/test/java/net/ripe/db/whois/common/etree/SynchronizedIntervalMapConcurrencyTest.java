@@ -18,17 +18,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class SynchronizedIntervalMapConcurrencyTest {
-    private IntervalMap<Ipv4Resource, Ipv4Entry> subject = SynchronizedIntervalMap.synchronizedMap(new NestedIntervalMap<Ipv4Resource, Ipv4Entry>());
+    private final IntervalMap<Ipv4Resource, Ipv4Entry> subject = SynchronizedIntervalMap.synchronizedMap(new NestedIntervalMap<Ipv4Resource, Ipv4Entry>());
 
     private volatile boolean stop;
 
     @Test
     public void should_deal_with_concurrent_access() throws Exception {
-        ExecutorService executor = Executors.newCachedThreadPool();
+        final ExecutorService executor = Executors.newCachedThreadPool();
 
-        List<Future<Exception>> result = new ArrayList<>();
+        final List<Future<Exception>> result = new ArrayList<>();
         try {
-            Ipv4Entry entry = new Ipv4Entry(new Ipv4Resource(5, 6), 2);
+            final Ipv4Entry entry = new Ipv4Entry(new Ipv4Resource(5, 6), 2);
             subject.put(entry.getKey(), entry);
 
             result.add(executor.submit(makeWriter(new Ipv4Resource(1, 10))));
@@ -36,10 +36,9 @@ public class SynchronizedIntervalMapConcurrencyTest {
             result.add(executor.submit(makeWriter(new Ipv4Resource(5, 5))));
             result.add(executor.submit(makeWriter(new Ipv4Resource(7, 7))));
 
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.start();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
             while (stopwatch.elapsed(TimeUnit.MILLISECONDS) < 100) {
-                List<Ipv4Entry> match = subject.findExact(entry.getKey());
+                final List<Ipv4Entry> match = subject.findExact(entry.getKey());
                 assertThat(match, contains(entry));
             }
         } finally {
@@ -56,7 +55,7 @@ public class SynchronizedIntervalMapConcurrencyTest {
             @Override
             public Exception call() {
                 try {
-                    Ipv4Entry entry = new Ipv4Entry(resource, 1);
+                    final Ipv4Entry entry = new Ipv4Entry(resource, 1);
                     while (!stop) {
                         subject.put(entry.getKey(), entry);
                         subject.remove(entry.getKey());

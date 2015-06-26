@@ -17,7 +17,6 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
                 "OWNER-MNT": """\
@@ -26,9 +25,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:     TP1-TEST
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
                 upd-to:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """
         ]
@@ -149,7 +146,6 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                phone:   +44 282 420469
                nic-hdl: FPE1-TEST
                mnt-by:  OWNER-MNT
-               changed: dbtest@ripe.net 20121016
                source:  TEST
                """)
         then:
@@ -188,7 +184,6 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: TP2-TEST
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 password: pw1
                 password: pw2
@@ -238,9 +233,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:     TP1-TEST
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
                 upd-to:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST #comment
                 password:    owner
                 """.stripIndent())
@@ -257,9 +250,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:     TP1-TEST
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
                 upd-to:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      Test # Filtered
                 password:    owner
                 """.stripIndent())

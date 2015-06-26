@@ -44,7 +44,6 @@ public class UpdateObjectHandlerImplTest {
             "upd-to:            bad@ripe.net\n" +
             "auth:              MD5-PW $1$LFXfnt7M$FhrMgErGJsTP9QIGbk8s9.\n" +
             "mnt-by:            RIPE-NCC-BA-MNT\n" +
-            "referral-by:       RIPE-NCC-BA-MNT\n" +
             "changed:           bad@ripe.net 20071025\n" +
             "source:            TEST";
 

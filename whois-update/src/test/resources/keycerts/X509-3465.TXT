@@ -15,5 +15,4 @@ certif:          gbeh5wCvh9j19fcmmgpiLRIeijzc19bk/bgYddrAH3+OyjBsH7RmVHMO3FXbpTN
 certif:          q91Ey/fALhdTtl20RNnbRE/iFlwoI56iiA9dTTQs5LH4BGnrK6XZK0xawfpx77k=
 certif:          -----END CERTIFICATE-----
 mnt-by:          UPD-MNT
-changed:         noreply@ripe.net 20111128
 source:          TEST
