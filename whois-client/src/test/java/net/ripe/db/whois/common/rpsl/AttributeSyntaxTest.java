@@ -627,6 +627,9 @@ public class AttributeSyntaxTest {
     public void members() throws Exception {
         verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "AS-TEST_TRANSIT");
         verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "AS2602");
+        verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "            AS2602        "); // regular spaces
+        verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "\u00A0" + "\u00A0" +"AS2602" + "\u00A0"); // non breaking spaces
+
         verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "AS2602, AS42909, AS51966");
 
         verifyFailure(ObjectType.AS_SET, AttributeType.MEMBERS, "AS2602, AS42909, AS51966,");
