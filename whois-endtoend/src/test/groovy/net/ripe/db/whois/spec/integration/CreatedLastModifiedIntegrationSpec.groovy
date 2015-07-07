@@ -439,4 +439,28 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
     then:
       deleteAck.contains("Delete SUCCEEDED: [person] NP1-TEST   New Person")
   }
+
+    @Ignore("[ES] TODO Unexpected error occurred")
+    def "create object with multiple last-modified attributes"() {
+      given:
+        def update = new SyncUpdate(data: """\
+        person:        Test Person
+        address:       Singel 258
+        phone:         +3112346
+        nic-hdl:       TP3-TEST
+        mnt-by:        TST-MNT
+        created:       2012-05-03T11:23:66Z
+        last-modified: 2012-05-03T11:23:66Z
+        last-modified: 2012-05-03T11:23:66Z
+        source:        TEST
+        password: update
+        """.stripIndent())
+
+        when:
+        def response = syncUpdate update
+
+        then:
+        response =~ /Create SUCCEEDED: \[person\] TP3-TEST   Test Person/
+    }
+
 }
