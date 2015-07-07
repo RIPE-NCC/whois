@@ -152,7 +152,7 @@ public class InternalUpdatePerformerTest {
 
     @Test
     public void setSsoSessionToContext_successful_sso_translation() {
-        final UserSession userSession = new UserSession("test-user", true, "2033-01-30T16:38:27.369+11:00");
+        final UserSession userSession = new UserSession("test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
         when(ssoTokenTranslatorMock.translateSsoToken("test-token")).thenReturn(userSession);
 
         subject.setSsoSessionToContext(updateContextMock, "test-token");
