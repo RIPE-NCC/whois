@@ -26,5 +26,4 @@ certif:          t8Q=
 certif:          -----END CERTIFICATE-----
 mnt-by:          UPD-MNT
 remarks:         Gabriel Barazer
-changed:         gabriel@oxeva.fr 20121025
 source:          TEST

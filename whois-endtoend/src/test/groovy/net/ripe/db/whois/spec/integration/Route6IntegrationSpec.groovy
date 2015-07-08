@@ -15,14 +15,12 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     nic-hdl: TEST-PN
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net
                     source: TEST
                 """,
                 "TEST-MNT": """\
                     mntner: TEST-MNT
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT
-                    referral-by: TEST-MNT
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                     source: TEST
@@ -31,7 +29,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: TEST-MNT2
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT2
-                    referral-by: TEST-MNT2
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$5aMDZg3w\$zL59TnpAszf6Ft.zs148X0 # update2
                     source: TEST
@@ -40,7 +37,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: ROUTES-MNT
                     admin-c: TEST-PN
                     mnt-by: ROUTES-MNT
-                    referral-by: ROUTES-MNT
                     upd-to: dbtest@ripe.net
                     auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
                     source: TEST
@@ -49,7 +45,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     mntner: LOWER-MNT
                     admin-c: TEST-PN
                     mnt-by: LOWER-MNT
-                    referral-by: LOWER-MNT
                     upd-to: dbtest@ripe.net
                     auth: MD5-PW \$1\$bdQftquX\$S10GZRVq2SNG9SWmMHliI. # otherpassword
                     source: TEST
@@ -62,7 +57,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       bitbucket@ripe.net
                     mnt-ref:      TEST-MNT
                     mnt-by:       TEST-MNT
-                    changed:      admin@test.com 20120505
                     source:       TEST
                 """,
                 "AS123": """\
@@ -71,7 +65,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     descr:           "SATELIT SERVIS" Ltd
                     org:             ORG-NCC1-RIPE
                     mnt-by:          TEST-MNT
-                    changed:         ripe@test.net 20091015
                     source:          TEST
                 """,
                 "AS456": """\
@@ -81,7 +74,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     org:             ORG-NCC1-RIPE
                     mnt-by:          TEST-MNT
                     mnt-routes:      ROUTES-MNT
-                    changed:         ripe@test.net 20091015
                     source:          TEST
                 """,
                 "AS789": """\
@@ -90,7 +82,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     descr:           "Ack" Ltd
                     org:             ORG-NCC1-RIPE
                     mnt-by:          ROUTES-MNT
-                    changed:         ripe@test.net 20091015
                     source:          TEST
                 """,
                 "AS12726": """\
@@ -100,7 +91,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     org:             ORG-NCC1-RIPE
                     mnt-by:          TEST-MNT
                     mnt-routes:      ROUTES-MNT
-                    changed:         ripe@test.net 20091015
                     source:          TEST
                 """,
                 "MNTBY_ROUTE6": """\
@@ -108,7 +98,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     descr:           TEST-ROUTE6
                     origin:          AS12726
                     mnt-by:          TEST-MNT
-                    changed:         ripe@test.net 20091015
                     source:          TEST
                 """,
                 "MNTROUTES_ROUTE6": """\
@@ -117,7 +106,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     origin:          AS12726
                     mnt-by:          TEST-MNT
                     mnt-routes:      ROUTES-MNT
-                    changed:         ripe@test.net 20091015
                     source:          TEST
                 """,
                 "LESS_SPECIFIC_MNTROUTES_ROUTE": """\
@@ -126,7 +114,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     origin:          AS12726
                     mnt-by:          TEST-MNT
                     mnt-routes:      ROUTES-MNT
-                    changed:         ripe@test.net 20091015
                     source:          TEST
                 """,
                 "INET6NUM_MNT_ROUTES": """\
@@ -139,7 +126,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
                     mnt-routes: ROUTES-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
                 "INET6NUM_MNT_LOWER": """\
@@ -152,7 +138,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
                     mnt-lower: LOWER-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
                 "INET6NUM_MNT_BY": """\
@@ -164,7 +149,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
                 "INET6NUM_MNT_ROUTES_RANGE": """\
@@ -177,7 +161,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     status: SUB-ALLOCATED PA
                     mnt-by: ROUTES-MNT
                     mnt-routes: ROUTES-MNT {bbdd::/48}
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
                 "INET6NUM_SLASH_12": """\
@@ -190,7 +173,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     status: SUB-ALLOCATED PA
                     mnt-by: ROUTES-MNT
                     mnt-routes: ROUTES-MNT {2000::/12}
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
                 "ROUTE_SET": """\
@@ -200,7 +182,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT
                     mbrs-by-ref: LOWER-MNT
-                    changed: ripe@test.net 20120202
                     source: TEST
                 """
         ]
@@ -213,7 +194,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: TEST-ROUTE6
                 origin: AS12726
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 delete: reason
@@ -234,7 +214,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: TEST-ROUTE6
                 origin: AS12726
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -254,7 +233,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: TEST-ROUTE6
                 origin: AS99999
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -275,7 +253,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr:           ROUTE6 TEST
                 origin:          AS123
                 mnt-by:          TEST-MNT
-                changed:         ripe@test.net 20091015
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -295,7 +272,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: other route
                 origin: AS456
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: emptypassword
                 password: update
@@ -316,7 +292,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: other route
                 origin: AS456
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -339,7 +314,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: Test route
                 origin: AS123
                 mnt-by: ROUTES-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: emptypassword
                 password: update
@@ -359,7 +333,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: Test route
                 origin: AS123
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -379,7 +352,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: Test route
                 origin: AS123
                 mnt-by: ROUTES-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -405,7 +377,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: less specific
                 origin: AS123
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: emptypassword
                 password: update
@@ -425,7 +396,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: less specific
                 origin: AS123
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: otherpassword
                 password: update
@@ -445,7 +415,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: less specific
                 origin: AS123
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -464,7 +433,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: less specific
                 origin: AS123
                 mnt-by: ROUTES-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -490,7 +458,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: Test route6
                 origin: AS123
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: emptypassword
                 password: update
@@ -510,7 +477,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: Test route6
                 origin: AS123
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -529,7 +495,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: Test route6
                 origin: AS123
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: wrong
                 """.stripIndent())
@@ -559,7 +524,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: Test route6
                 origin: AS123
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 password: emptypassword
@@ -579,7 +543,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: Test route6
                 origin: AS123
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 password: otherpassword
@@ -599,7 +562,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: Test route6
                 origin: AS123
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -618,7 +580,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: Test route6
                 origin: AS123
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: wrong
                 """.stripIndent())
@@ -648,7 +609,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: other route
                 origin: AS456
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: emptypassword
                 password: update
@@ -672,7 +632,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: other route
                 origin: AS456
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: emptypassword
                 password: update
@@ -694,7 +653,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 origin: AS123
                 holes: 5353::0/32
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -715,7 +673,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 origin: AS123
                 holes: 5354::0/32
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -736,7 +693,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 origin: AS123
                 pingable: 5353::
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -757,7 +713,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 origin: AS123
                 pingable: 5354::0
                 mnt-by: TEST-MNT
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -778,7 +733,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 origin: AS123
                 mnt-by: LOWER-MNT
                 member-of: RS-BLA123
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: otherpassword
                 password: update
@@ -800,7 +754,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 origin: AS123
                 mnt-by: TEST-MNT
                 member-of: RS-BLA123
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 """.stripIndent())
@@ -824,7 +777,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     descr:           TEST-ROUTE6
                     origin:          AS12726
                     mnt-by:          TEST-MNT
-                    changed:         ripe@test.net 20091015
                     source:          TEST
                     password:       update
                 """.stripIndent()))
@@ -841,7 +793,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     descr:           TEST-ROUTE6
                     origin:          AS12726
                     mnt-by:          TEST-MNT
-                    changed:         ripe@test.net 20091015
                     source:          TEST
                     password:        update
                 """.stripIndent()))
@@ -858,7 +809,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                     origin:          AS12726
                     mnt-by:          TEST-MNT
                     member-of:       RS-BLA123
-                    changed:         ripe@test.net 20091015
                     source:          TEST
                     password:        update
                 """.stripIndent()))
@@ -877,7 +827,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         descr:           Test route
                         origin:          AS12726
                         mnt-by: ROUTES-MNT
-                        changed: ripe@test.net 20091015
                         source: TEST
                         password: update
                         password: emptypassword
@@ -895,7 +844,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         origin:         AS12726
                         mnt-by:         TEST-MNT
                         pingable:       9998::
-                        changed:        ripe@test.net 20091015
                         source:         TEST
                         password:       update
                         """.stripIndent())
@@ -912,7 +860,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         origin: AS12726
                         mnt-by: TEST-MNT
                         holes: 9998::/32
-                        changed: ripe@test.net 20091015
                         source: TEST
                         password: update
                         """.stripIndent())
@@ -928,7 +875,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         descr: Test route
                         origin: AS123
                         mnt-by: TEST-MNT
-                        changed: ripe@test.net 20091015
                         source: TEST
                         password: update
                         password: emptypassword
@@ -942,7 +888,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         descr: Test route
                         origin: AS123
                         mnt-by: LOWER-MNT
-                        changed: ripe@test.net 20091015
                         source: TEST
                         password: update
                         """.stripIndent())
@@ -958,7 +903,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             origin: AS12726
                             pingable: 5353::0
                             mnt-by: TEST-MNT
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: update
                             password: emptypassword
@@ -974,7 +918,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             org: ORG-NCC1-RIPE
                             mnt-by: TEST-MNT
                             mnt-routes: ROUTES-MNT
-                            changed: ripe@test.net 20091015
                             source: TEST
                             delete: reason
                             password: update
@@ -993,7 +936,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             origin: AS12726
                             pingable: 5353::0
                             mnt-by: TEST-MNT
-                            changed: ripe@test.net 20091015
                             source: TEST
                             delete: reason
                             password: update
@@ -1014,7 +956,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             origin: AS12726
                             pingable: 5353::0
                             mnt-by: TEST-MNT
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: update
                             password: emptypassword
@@ -1030,7 +971,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             org: ORG-NCC1-RIPE
                             mnt-by: TEST-MNT
                             mnt-routes: ROUTES-MNT
-                            changed: ripe@test.net 20091015
                             source: TEST
                             delete: reason
                             password: update
@@ -1049,7 +989,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             origin: AS12726
                             pingable: 5353::
                             mnt-by: TEST-MNT
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: update
                             """.stripIndent())
@@ -1069,7 +1008,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr:           ROUTE6 TEST
                 origin:          AS123
                 mnt-by:          TEST-MNT
-                changed:         ripe@test.net 20091015
                 source:          TEST
                 password:        update
                 """.stripIndent())
@@ -1086,7 +1024,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr:           ROUTE6 TEST
                 origin:          AS123
                 mnt-by:          TEST-MNT
-                changed:         ripe@test.net 20091015
                 source:          TEST
                 password:        update
                 password:        emptypassword
@@ -1102,7 +1039,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 descr: TEST-ROUTE6
                 origin: AS456
                 mnt-by: TEST-MNT2
-                changed: ripe@test.net 20091015
                 source: TEST
                 password: update
                 password: emptypassword
@@ -1119,7 +1055,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             descr: TEST-ROUTE6
                             origin: AS456
                             mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: update2
                             """.stripIndent()))
@@ -1142,7 +1077,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             descr: TEST-ROUTE6
                             origin: AS456
                             mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: update
                             password: update3
@@ -1164,7 +1098,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             descr: TEST-ROUTE6
                             origin: AS456
                             mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: emptypassword
                             password: update2
@@ -1189,7 +1122,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             descr: TEST-ROUTE6
                             origin: AS456
                             mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: update
                             password: update2
@@ -1207,7 +1139,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
         pendingUpdates(ObjectType.ROUTE6, "5353::/24AS456").size() == 1
     }
 
-    @Ignore("update databaseHelper too after the created/last-modified switch has been implemented")
     def "create route6 pending auth, 2nd update identical to first update"() {
         when:
         def inetnumWithAutnumAuth = syncUpdate(new SyncUpdate(data: """\
@@ -1215,7 +1146,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             descr: TEST-ROUTE6
                             origin: AS456
                             mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: emptypassword
                             password: update2
@@ -1233,7 +1163,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             descr: TEST-ROUTE6
                             origin: AS456
                             mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: emptypassword
                             password: update2
@@ -1256,7 +1185,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             descr: TEST-ROUTE6
                             origin: AS456
                             mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: update
                             password: update2
@@ -1274,7 +1202,6 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             descr: TEST-ROUTE6
                             origin: AS456
                             mnt-by: TEST-MNT2
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: emptypassword
                             password: update2
@@ -1294,14 +1221,12 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                             descr: Test route
                             origin: AS456
                             mnt-by: TEST-MNT
-                            changed: ripe@test.net 20091015
                             source: TEST
 
                             route6: 5353::/24
                             descr: Test route
                             origin: AS456
                             mnt-by: TEST-MNT
-                            changed: ripe@test.net 20091015
                             source: TEST
 
                             password: update

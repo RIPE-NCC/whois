@@ -53,7 +53,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -97,7 +97,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -144,7 +144,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -368,6 +368,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "   Specifies who submitted the update, and when the object was updated.\n" +
                 "   This attribute is filtered from the default whois output.\n" +
+                "   This attribute is deprecated and will be removed in a next release.\n"+
                 "\n" +
                 "     An e-mail address as defined in RFC 2822, followed by a date\n" +
                 "     in the format YYYYMMDD.\n" +
@@ -431,7 +432,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -718,6 +719,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "   Specifies who submitted the update, and when the object was updated.\n" +
                 "   This attribute is filtered from the default whois output.\n" +
+                "   This attribute is deprecated and will be removed in a next release.\n" +
                 "\n" +
                 "     An e-mail address as defined in RFC 2822, followed by a date\n" +
                 "     in the format YYYYMMDD.\n" +

@@ -40,7 +40,7 @@ class PasswordCredentialValidator implements CredentialValidator<PasswordCredent
                     loggerContext.logString(
                             update.getUpdate(),
                             getClass().getCanonicalName(),
-                            String.format("Validated %s against password: %s (encrypted: %s)", update.getFormattedKey(), offeredPassword, knownPassword));
+                            String.format("Validated %s against known encrypted password: %s)", update.getFormattedKey(), knownPassword));
 
                     return true;
                 }

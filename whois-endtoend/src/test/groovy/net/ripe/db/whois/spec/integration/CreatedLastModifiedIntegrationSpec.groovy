@@ -1,15 +1,8 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.TestDateTimeProvider
-import net.ripe.db.whois.common.rpsl.RpslObject
-import net.ripe.db.whois.common.rpsl.TestTimestampsMode
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import org.joda.time.DateTimeZone
 import org.joda.time.LocalDateTime
-import org.joda.time.format.ISODateTimeFormat
-
-import javax.mail.internet.MimeMessage
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
@@ -20,10 +13,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  TST-MNT
-            referral-by: TST-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "ADMIN-PN": """\
@@ -34,29 +25,19 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """];
     }
-    static TestDateTimeProvider dateTimeProvider;
-    static TestTimestampsMode testTimestampsMode;
-
-    def setupSpec() {
-        dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);            // TODO: [ES] autowire component and add convenience method to whoisFixture
-        testTimestampsMode = getApplicationContext().getBean(net.ripe.db.whois.common.rpsl.TestTimestampsMode.class);
-    }
-
 
     def "create object with created and last-modified generates new values"() {
         given:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());       // TODO: [ES] separate out / standard (common) component for date time formatting
+        def currentDateTime = getTimeUtcString()
 
         def update = new SyncUpdate(data: """\
         person:        Test Person
         address:       Singel 258
         phone:         +3112346
         nic-hdl:       TP3-TEST
-        changed:       admin@test.com 20120505
         mnt-by:        TST-MNT
         created:       2012-05-03T11:23:66Z
         last-modified: 2012-05-03T11:23:66Z
@@ -78,8 +59,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def created = query("TP3-TEST")
 
         then:
-        created =~ /created:        ${currentDate}/
-        created =~ /last-modified:  ${currentDate}/
+        created =~ /created:        ${currentDateTime}/
+        created =~ /last-modified:  ${currentDateTime}/
     }
 
     def "create object with no created or last-modified generates new values"() {
@@ -88,7 +69,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         address:       Singel 258
         phone:         +3112346
         nic-hdl:       AUTO-1
-        changed:       admin@test.com 20120505
         mnt-by:        TST-MNT
         source:        TEST
         password: update
@@ -106,8 +86,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "modify object created attribute stays the same"() {
         given:
-        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
-        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        setTime(LocalDateTime.now().minusDays(1))
+        def yesterdayDateTime = getTimeUtcString()
 
         syncUpdate(new SyncUpdate(data: """\
             person:  Other Person
@@ -117,7 +97,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
+            remarks: created
             source:  TEST
             password: update
             """.stripIndent()))
@@ -126,11 +106,10 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def created = query("OP1-TEST");
 
         then:
-        created =~/created:        ${yesterday}/
-
+        created =~/created:        ${yesterdayDateTime}/
 
         when:
-        dateTimeProvider.setTime(new LocalDateTime())
+        setTime(LocalDateTime.now())
 
         def update = new SyncUpdate(data: """\
             person:  Other Person
@@ -140,7 +119,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
+            remarks: updated
             source:  TEST
             password: update
             """.stripIndent())
@@ -154,21 +133,56 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def updated = query("OP1-TEST")
 
         then:
-        updated =~/created:        ${yesterday}/
+        updated =~/created:        ${yesterdayDateTime}/
+    }
+
+    def "modify object no operation"() {
+      given:
+        setTime(LocalDateTime.now().minusDays(1))
+        queryObjectNotFound("-r OP1-TEST", "person", "OP1-TEST")
+      when:
+        def createResponse = syncUpdate new SyncUpdate(data: """\
+            person:  Other Person
+            address: New Road
+            address: Town
+            address: UK
+            phone:   +44 282 411141
+            nic-hdl: OP1-TEST
+            mnt-by:  TST-MNT
+            source:  TEST
+            password: update
+            """.stripIndent())
+      then:
+        createResponse =~ /Create SUCCEEDED: \[person\] OP1-TEST   Other Person/
+      then:
+        queryObject("OP1-TEST", "person", "Other Person")
+      when:
+        setTime(LocalDateTime.now())
+        def updateResponse = syncUpdate new SyncUpdate(data: """\
+            person:  Other Person
+            address: New Road
+            address: Town
+            address: UK
+            phone:   +44 282 411141
+            nic-hdl: OP1-TEST
+            mnt-by:  TST-MNT
+            source:  TEST
+            password: update
+            """.stripIndent())
+        then:
+          updateResponse =~ /No operation: \[person\] OP1-TEST   Other Person/
     }
 
     def "modify object without created generates last-modified only"() {
         given:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.currentDateTimeUtc);
+        def currentDateTime = getTimeUtcString()
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
                 "admin-c: TEST-RIPE\n" +
                 "mnt-by:  LOOP-MNT\n" +
-                "referral-by: TST-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source:  TEST")
 
         when:
@@ -178,10 +192,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c: TEST-RIPE\n" +
                 "mnt-by:  LOOP-MNT\n" +
                 "remarks:  updated\n" +
-                "referral-by: TST-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source:  TEST\n" +
                 "password: update"))
 
@@ -193,22 +205,20 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         updated !=~ /created:/
-        updated =~ /last-modified:  ${currentDate}/
+        updated =~ /last-modified:  ${currentDateTime}/
     }
 
     def "modify object with last-modified updates last-modified"() {
         given:
-        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
-        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        setTime(LocalDateTime.now().minusDays(1))
+        def yesterdayDateTime = getTimeUtcString()
         databaseHelper.addObject("" +
                 "mntner:  LOOP-MNT\n" +
                 "descr:   description\n" +
                 "admin-c: TEST-RIPE\n" +
                 "mnt-by:  LOOP-MNT\n" +
-                "referral-by: TST-MNT\n" +
                 "upd-to:  dbtest@ripe.net\n" +
                 "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source:  TEST")
 
         when:
@@ -218,10 +228,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                         "admin-c: TEST-RIPE\n" +
                         "remarks: yesterday\n" +
                         "mnt-by:  LOOP-MNT\n" +
-                        "referral-by: TST-MNT\n" +
                         "upd-to:  dbtest@ripe.net\n" +
                         "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                        "changed: dbtest@ripe.net 20120707\n" +
                         "source:  TEST\n" +
                         "password: update"))
 
@@ -232,11 +240,11 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def updated = query("-rBG LOOP-MNT")
 
         then:
-        updated =~ /last-modified:  ${yesterday}/
+        updated =~ /last-modified:  ${yesterdayDateTime}/
 
         when:
-        dateTimeProvider.setTime(new LocalDateTime())
-        def today = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        setTime(LocalDateTime.now())
+        def currentDateTime = getTimeUtcString()
 
         def updateToday = syncUpdate(new SyncUpdate(data:
                         "mntner:  LOOP-MNT\n" +
@@ -244,10 +252,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                         "admin-c: TEST-RIPE\n" +
                         "remarks: today\n" +
                         "mnt-by:  LOOP-MNT\n" +
-                        "referral-by: TST-MNT\n" +
                         "upd-to:  dbtest@ripe.net\n" +
                         "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                        "changed: dbtest@ripe.net 20120707\n" +
                         "source:  TEST\n" +
                         "password: update"))
 
@@ -258,103 +264,13 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def updatedToday = query("-rBG LOOP-MNT")
 
         then:
-        updatedToday =~ /last-modified:  ${today}/
+        updatedToday =~ /last-modified:  ${currentDateTime}/
     }
-
-    def "mode off: modify object with existimg created and last-modified"() {
-        given:
-        testTimestampsMode.setTimestampsOff(false);
-        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
-        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
-        databaseHelper.addObject("" +
-                "mntner:  LOOP-MNT\n" +
-                "descr:   description\n" +
-                "admin-c: TEST-RIPE\n" +
-                "mnt-by:  LOOP-MNT\n" +
-                "referral-by: TST-MNT\n" +
-                "upd-to:  dbtest@ripe.net\n" +
-                "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
-                "created:       2012-05-03T11:23:66Z\n" +
-                "last-modified: 2012-05-03T11:23:66Z\n" +
-                "source:  TEST")
-
-        when:
-        testTimestampsMode.setTimestampsOff(true);
-
-        def updateYesterday = syncUpdate(new SyncUpdate(data:
-                "mntner:  LOOP-MNT\n" +
-                        "descr:   description\n" +
-                        "admin-c: TEST-RIPE\n" +
-                        "remarks: yesterday\n" +
-                        "mnt-by:  LOOP-MNT\n" +
-                        "referral-by: TST-MNT\n" +
-                        "upd-to:  dbtest@ripe.net\n" +
-                        "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                        "changed: dbtest@ripe.net 20120707\n" +
-                        "source:  TEST\n" +
-                        "password: update"))
-
-        then:
-        updateYesterday =~ /Modify SUCCEEDED: \[mntner\] LOOP-MNT/
-
-        when:
-        def updated = query("-rBG LOOP-MNT")
-
-        then:
-        updated !=~ /last-modified:  ${yesterday}/
-
-    }
-
-    def "mode off: modify object without existimg created and last-modified"() {
-        given:
-        testTimestampsMode.setTimestampsOff(false);
-        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
-        def yesterday = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
-        databaseHelper.addObject("" +
-                "mntner:  LOOP-MNT\n" +
-                "descr:   description\n" +
-                "admin-c: TEST-RIPE\n" +
-                "mnt-by:  LOOP-MNT\n" +
-                "referral-by: TST-MNT\n" +
-                "upd-to:  dbtest@ripe.net\n" +
-                "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
-                "source:  TEST")
-
-        when:
-        testTimestampsMode.setTimestampsOff(true);
-
-        def updateYesterday = syncUpdate(new SyncUpdate(data:
-                "mntner:  LOOP-MNT\n" +
-                        "descr:   description\n" +
-                        "admin-c: TEST-RIPE\n" +
-                        "remarks: yesterday\n" +
-                        "mnt-by:  LOOP-MNT\n" +
-                        "referral-by: TST-MNT\n" +
-                        "upd-to:  dbtest@ripe.net\n" +
-                        "auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                        "changed: dbtest@ripe.net 20120707\n" +
-                        "source:  TEST\n" +
-                        "password: update"))
-
-        then:
-        updateYesterday =~ /Modify SUCCEEDED: \[mntner\] LOOP-MNT/
-
-        when:
-        def updated = query("-rBG LOOP-MNT")
-
-        then:
-        updated !=~ /last-modified:  ${yesterday}/
-
-    }
-
 
     def "delete object with incorrect created or last-modified succeeds"() {
 
         given:
-        testTimestampsMode.setTimestampsOff(false);
-        dateTimeProvider.setTime(new LocalDateTime().minusDays(1))
+        setTime(LocalDateTime.now().minusDays(1))
 
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
@@ -362,7 +278,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
                 source:        TEST
                 password: update
@@ -372,17 +287,16 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
 
         when:
-        dateTimeProvider.setTime(new LocalDateTime())
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        setTime(LocalDateTime.now())
+        def currentDateTime = getTimeUtcString()
         def delete = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
-                created:        ${currentDate}
-                last-modified:  ${currentDate}
+                created:        ${currentDateTime}
+                last-modified:  ${currentDateTime}
                 source:        TEST
                 password: update
                 delete:   reason
@@ -393,16 +307,12 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "delete object with correct created and last-modified succeeds"() {
-        given:
-        testTimestampsMode.setTimestampsOff(false);
-
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
                 source:        TEST
                 password: update
@@ -412,16 +322,15 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
 
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
+        def currentDateTime = getTimeUtcString()
         def delete = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
-                created:        ${currentDate}
-                last-modified:  ${currentDate}
+                created:        ${currentDateTime}
+                last-modified:  ${currentDateTime}
                 source:        TEST
                 password: update
                 delete:   reason
@@ -431,105 +340,13 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         delete =~ /SUCCESS/
     }
 
-    def "mode off: delete object with created and last-modified present"() {
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
-
-        when:
-        testTimestampsMode.setTimestampsOff(false);
-        def update = syncUpdate(new SyncUpdate(data: """\
-                person:        Test Person
-                address:       Singel 258
-                phone:         +3112346
-                nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
-                mnt-by:        TST-MNT
-                created:        ${currentDate}
-                last-modified:  ${currentDate}
-                source:        TEST
-                password: update
-                """.stripIndent()))
-        then:
-        update =~ /SUCCESS/
-
-        when:
-        testTimestampsMode.setTimestampsOff(true);
-        def result = syncUpdate(new SyncUpdate(data: """\
-                person:        Test Person
-                address:       Singel 258
-                phone:         +3112346
-                nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
-                mnt-by:        TST-MNT
-                created:        ${currentDate}
-                last-modified:  ${currentDate}
-                source:        TEST
-                password: update
-                delete:   reason
-                """.stripIndent()))
-
-        then:
-        result =~ /Delete FAILED: \[person\] TP3-TEST   Test Person/
-        result =~ /created:        ${currentDate}
-\*\*\*Error:   "created" is not a known RPSL attribute
-last-modified:  ${currentDate}
-\*\*\*Error:   "last-modified" is not a known RPSL attribute/
-
-    }
-
-    def "mode off: delete object with created and last-modified not present"() {
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());
-
-        when:
-        testTimestampsMode.setTimestampsOff(false);
-        def update = syncUpdate(new SyncUpdate(data: """\
-                person:        Test Person
-                address:       Singel 258
-                phone:         +3112346
-                nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
-                mnt-by:        TST-MNT
-                source:        TEST
-                password: update
-                """.stripIndent()))
-        then:
-        update =~ /SUCCESS/
-
-        when:
-        testTimestampsMode.setTimestampsOff(true);
-        def result = syncUpdate(new SyncUpdate(data: """\
-                person:        Test Person
-                address:       Singel 258
-                phone:         +3112346
-                nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
-                mnt-by:        TST-MNT
-                created:        ${currentDate}
-                last-modified:  ${currentDate}
-                source:        TEST
-                password: update
-                delete:   reason
-                """.stripIndent()))
-
-        then:
-        result =~ /Delete FAILED: \[person\] TP3-TEST   Test Person/
-        result =~ /created:        ${currentDate}
-\*\*\*Error:   "created" is not a known RPSL attribute
-last-modified:  ${currentDate}
-\*\*\*Error:   "last-modified" is not a known RPSL attribute/
-
-    }
-
     def "delete object with no created or last-modified succeeds"() {
-        given:
-        testTimestampsMode.setTimestampsOff(false);
-
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
                 person:        Test Person
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
                 source:        TEST
                 password: update
@@ -551,7 +368,6 @@ last-modified:  ${currentDate}
                 address:       Singel 258
                 phone:         +3112346
                 nic-hdl:       TP3-TEST
-                changed:       admin@test.com 20120505
                 mnt-by:        TST-MNT
                 source:        TEST
                 password: update
@@ -562,143 +378,89 @@ last-modified:  ${currentDate}
         delete =~ /SUCCESS/
     }
 
-    def "mode off: create using syncupdates raises errors"() {
-        given:
-        testTimestampsMode.setTimestampsOff(true);
+  @Ignore
+  def "delete fails if created and last-modified attributes are separated"() {
+    given:
+      setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
+    when:
+      def createAck = syncUpdate new SyncUpdate(data: """
+                person:  New Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: NP1-TEST
+                mnt-by:  TST-MNT
+                changed: dbtest@ripe.net 20120101
+                source:  TEST
+                password: update
+             """.stripIndent())
+    then:
+      createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
+    when:
+      setTime(LocalDateTime.parse("2013-06-26T09:00:00"))
+    then:
+      def updateAck = syncUpdate new SyncUpdate(data: """
+                person:  New Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: NP1-TEST
+                mnt-by:  TST-MNT
+                changed: dbtest@ripe.net 20120101
+                created: 2013-06-25T09:00:00Z
+                last-modified: 2013-06-25T09:00:00Z     # BUG: last-modified will be moved below remarks
+                remarks: testing
+                source:  TEST
+                password: update
+             """.stripIndent())
+    then:
+      updateAck.contains("Modify SUCCEEDED: [person] NP1-TEST   New Person")
+    when:
+      setTime(LocalDateTime.parse("2013-06-27T09:00:00"))
+    then:
+      def deleteAck = syncUpdate new SyncUpdate(data: """
+                person:         New Person
+                address:        St James Street
+                address:        Burnley
+                address:        UK
+                phone:          +44 282 420469
+                nic-hdl:        NP1-TEST
+                mnt-by:         TST-MNT
+                changed:        dbtest@ripe.net 20120101
+                created:        2013-06-25T09:00:00Z
+                remarks:        testing
+                last-modified:  2013-06-26T09:00:00Z    # BUG: delete fails due to generated attribute position
+                source:         TEST
+                password: update
+                delete: reason
+             """.stripIndent())
+    then:
+      deleteAck.contains("Delete SUCCEEDED: [person] NP1-TEST   New Person")
+  }
+
+    @Ignore("[ES] TODO Unexpected error occurred")
+    def "create object with multiple last-modified attributes"() {
+      given:
+        def update = new SyncUpdate(data: """\
+        person:        Test Person
+        address:       Singel 258
+        phone:         +3112346
+        nic-hdl:       TP3-TEST
+        mnt-by:        TST-MNT
+        created:       2012-05-03T11:23:66Z
+        last-modified: 2012-05-03T11:23:66Z
+        last-modified: 2012-05-03T11:23:66Z
+        source:        TEST
+        password: update
+        """.stripIndent())
 
         when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());
-        def object = RpslObject.parse("person:    Pauleth Palthen\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31-1234567890\n" +
-                "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "nic-hdl:   PP1-TEST\n" +
-                "changed:   noreply@ripe.net 20120101\n" +
-                "created:  ${currentDate}\n" +
-                "last-modified:  ${currentDate}\n" +
-                "source:    TEST\n")
-
-        def result = syncUpdate(new SyncUpdate(data: object.toString() + "\npassword: test\n"))
+        def response = syncUpdate update
 
         then:
-        println(result)
-        result =~ /Create FAILED: \[person\] PP1-TEST   Pauleth Palthen/
-        result =~ /created:        ${currentDate}
-\*\*\*Error:   "created" is not a known RPSL attribute
-last-modified:  ${currentDate}
-\*\*\*Error:   "last-modified" is not a known RPSL attribute/
+        response =~ /Create SUCCEEDED: \[person\] TP3-TEST   Test Person/
     }
 
-    def "mode off: create using mail raises errors"() {
-        given:
-        testTimestampsMode.setTimestampsOff(true);
-
-        when:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(testDateTimeProvider.getCurrentDateTimeUtc());
-
-        def object = RpslObject.parse(
-                "person:    Pauleth Palthen\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31-1234567890\n" +
-                "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    TST-MNT\n" +
-                "created:   ${currentDate}\n" +
-                "last-modified:   ${currentDate}\n" +
-                "nic-hdl:   PP1-TEST\n" +
-                "changed:   noreply@ripe.net 20120101\n" +
-                "source:    TEST\n")
-
-                send(
-                "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
-                "From: noreply@ripe.net\n" +
-                "To: test-dbm@ripe.net\n" +
-                "Subject: NEW\n" +
-                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
-                "Content-Type: text/plain; charset=\"utf-8\"\n" +
-                "MIME-Version: 1.0\n" +
-                "Content-Transfer-Encoding: UTF-8\n" +
-                "\n" +
-                object.toString() + "\npassword: update\n");
-        final MimeMessage message = mailSender.getMessage("noreply@ripe.net");
-        final String result = message.getContent().toString();
-
-        then:
-        result =~ /created:        ${currentDate}
-\*\*\*Error:   "created" is not a known RPSL attribute
-last-modified:  ${currentDate}
-\*\*\*Error:   "last-modified" is not a known RPSL attribute/
-    }
-
-
-    def "mode off: create with invalid attributes"() {
-        given:
-        testTimestampsMode.setTimestampsOff(true);
-
-        when:
-        def object = RpslObject.parse(
-                "person:    Pauleth Palthen\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31-1234567890\n" +
-                "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    TST-MNT\n" +
-                "nic-hdl:   PP1-TEST\n" +
-                "invalid:   some text\n" +
-                "inv-again: more text\n" +
-                "changed:   noreply@ripe.net 20120101\n" +
-                "source:    TEST\n")
-
-        def result = syncUpdate(new SyncUpdate(data: object.toString() + "\npassword: update\n"))
-
-        then:
-        result =~ /invalid:        some text
-\*\*\*Error:   "invalid" is not a known RPSL attribute
-inv-again:      more text
-\*\*\*Error:   "inv-again" is not a known RPSL attribute/
-
-        when:
-        def comparison = RpslObject.parse(
-                "person:    Created LastModified\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31-1234567890\n" +
-                "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    TST-MNT\n" +
-                "nic-hdl:   CLM1-TEST\n" +
-                "invalid:   some text\n" +
-                "created:   should show up\n" +
-                "last-modified:   should also show up\n" +
-                "changed:   noreply@ripe.net 20120101\n" +
-                "source:    TEST\n")
-
-        def comparisonResult = syncUpdate(new SyncUpdate(data: comparison.toString() + "\npassword: update\n"))
-
-        then:
-        comparisonResult =~ /invalid:        some text
-\*\*\*Error:   "invalid" is not a known RPSL attribute
-created:        should show up
-\*\*\*Error:   "created" is not a known RPSL attribute
-last-modified:  should also show up
-\*\*\*Error:   "last-modified" is not a known RPSL attribute/
-
-        when:
-        def onlyCreatedLastModified = RpslObject.parse(
-                "person:    Created LastModified\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31-1234567890\n" +
-                "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    TST-MNT\n" +
-                "nic-hdl:   CLM1-TEST\n" +
-                "created:   should show up only once\n" +
-                "last-modified:   should also show up only once\n" +
-                "changed:   noreply@ripe.net 20120101\n" +
-                "source:    TEST\n")
-
-        def response = syncUpdate(new SyncUpdate(data: onlyCreatedLastModified.toString() + "\npassword: update\n"))
-
-        then:
-        response =~ /created:        should show up only once
-\*\*\*Error:   "created" is not a known RPSL attribute
-last-modified:  should also show up only once
-\*\*\*Error:   "last-modified" is not a known RPSL attribute/
-    }
 }

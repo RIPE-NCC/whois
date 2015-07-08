@@ -1,5 +1,8 @@
 package net.ripe.db.whois.update.handler;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -12,8 +15,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.common.rpsl.TimestampsMode;
-import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.autokey.AutoKeyResolver;
 import net.ripe.db.whois.update.domain.Action;
@@ -40,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 
 @Component
@@ -54,7 +56,6 @@ public class SingleUpdateHandler {
     private final IpTreeUpdater ipTreeUpdater;
     private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
-    private final TimestampsMode timestampsMode;
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
@@ -69,8 +70,7 @@ public class SingleUpdateHandler {
                                final RpslObjectDao rpslObjectDao,
                                final IpTreeUpdater ipTreeUpdater,
                                final PendingUpdateHandler pendingUpdateHandler,
-                               final SsoTranslator ssoTranslator,
-                               final TimestampsMode timestampsMode) {
+                               final SsoTranslator ssoTranslator) {
         this.autoKeyResolver = autoKeyResolver;
         this.attributeGenerators = attributeGenerators;
         this.attributeSanitizer = attributeSanitizer;
@@ -81,7 +81,6 @@ public class SingleUpdateHandler {
         this.ipTreeUpdater = ipTreeUpdater;
         this.pendingUpdateHandler = pendingUpdateHandler;
         this.ssoTranslator = ssoTranslator;
-        this.timestampsMode = timestampsMode;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
@@ -166,7 +165,6 @@ public class SingleUpdateHandler {
         }
     }
 
-    // TODO: [ES] compare with master (appears to be different logic)
     private boolean eligibleForPendingUpdateCleanup(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
         return authenticator.supportsPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) &&
                 Action.CREATE == preparedUpdate.getAction() &&
@@ -242,15 +240,6 @@ public class SingleUpdateHandler {
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
-            //TODO Remove this temporary hack as soon as timestamps goes live [AS]
-            if (timestampsMode.isTimestampsOff() && messages.hasErrors()) {
-                for (RpslAttribute attribute : updatedObject.findAttributes(AttributeType.CREATED)) {
-                    messages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
-                }
-                for (RpslAttribute attribute : updatedObject.findAttributes(AttributeType.LAST_MODIFIED)) {
-                    messages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
-                }
-            }
         }
 
         return updatedObject;
@@ -265,10 +254,36 @@ public class SingleUpdateHandler {
             return Action.CREATE;
         }
 
-        if (originalObject.equals(updatedObject) && !updateContext.hasErrors(update)) {
+        if (attributesEqual(originalObject, updatedObject) && !updateContext.hasErrors(update)) {
             return Action.NOOP;
         }
 
         return Action.MODIFY;
     }
+
+    // TODO: refactor (move code into separate class)
+
+    // compare attributes, ignore generated
+    private boolean attributesEqual(final RpslObject originalObject, final RpslObject updatedObject) {
+        return Iterables.elementsEqual(
+            Iterables.filter(originalObject.getAttributes(), NOT_GENERATED_PREDICATE_INSTANCE),
+            Iterables.filter(updatedObject.getAttributes(), NOT_GENERATED_PREDICATE_INSTANCE));
+    }
+
+    private static class NotGeneratedPredicate implements Predicate<RpslAttribute> {
+        private static final List<AttributeType> GENERATED_ATTRIBUTES =
+            Lists.newArrayList(
+                AttributeType.CREATED,
+                AttributeType.LAST_MODIFIED,
+                AttributeType.FINGERPR,
+                AttributeType.OWNER,
+                AttributeType.METHOD);
+
+        @Override
+        public boolean apply(@Nullable RpslAttribute input) {
+            return !GENERATED_ATTRIBUTES.contains(input.getType());
+        }
+    }
+
+    private static final NotGeneratedPredicate NOT_GENERATED_PREDICATE_INSTANCE = new NotGeneratedPredicate();
 }

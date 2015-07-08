@@ -25,6 +25,7 @@ public class UpdateLog {
         CREDENTIAL_NAME_MAP.put(PgpCredential.class, "PGP");
         CREDENTIAL_NAME_MAP.put(X509Credential.class, "X509");
         CREDENTIAL_NAME_MAP.put(OverrideCredential.class, "OVERRIDE");
+        CREDENTIAL_NAME_MAP.put(SsoCredential.class, "SSO");
     }
 
     private final Logger logger;
