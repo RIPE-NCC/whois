@@ -93,7 +93,7 @@ public class PendingUpdatesCleanup implements DailyScheduledTask {
             updateContext.setPreparedUpdate(new PreparedUpdate(update, rpslObject, rpslObject, Action.CREATE));
             final UpdateRequest updateRequest = new UpdateRequest(origin, Keyword.NONE, updateMessage, ImmutableList.of(update));
 
-            updateLog.logUpdateResult(updateRequest, updateContext, update, (Stopwatch.createUnstarted()).start());
+            updateLog.logUpdateResult(updateRequest, updateContext, update, Stopwatch.createStarted());
 
             final Set<CIString> recipients = Sets.newHashSet();
             for (RpslObject mntner : rpslObjectDao.getByKeys(ObjectType.MNTNER, rpslObject.getValuesForAttribute(AttributeType.MNT_BY))) {

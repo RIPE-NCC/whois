@@ -14,10 +14,8 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
             descr: description
             admin-c: TEST-RIPE
             mnt-by: UPD-MNT
-            referral-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "ADMIN-PN": """\
@@ -28,7 +26,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  UPD-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """
         ]
@@ -43,7 +40,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: TP1-TEST
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 person:  Test Person2
@@ -52,7 +48,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: TP2-TEST
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 password: update
@@ -78,7 +73,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 person:  Test Person2
@@ -87,7 +81,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 password: update
@@ -115,7 +108,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 person:  Test Person2
@@ -124,7 +116,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-2
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 person:  Test Person3
@@ -133,7 +124,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-3
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 person:  Test Person4
@@ -142,7 +132,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-4
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 password: update
@@ -170,7 +159,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-11
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 person:  Test Person2
@@ -179,7 +167,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-22
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 password: update
@@ -203,10 +190,8 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 descr: description
                 admin-c: AUTO-1
                 mnt-by: TST-MNT
-                referral-by: TST-MNT
                 upd-to: dbtest@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 person:  Test Person2
@@ -215,7 +200,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 password: update
@@ -241,7 +225,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: TP1-TEST
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 delete:  reason
 
@@ -251,7 +234,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: TP1-TEST
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 password: update
@@ -277,17 +259,14 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  TST-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 mntner: TST-MNT
                 descr: description
                 admin-c: TEST-RIPE
                 mnt-by: TST-MNT
-                referral-by: TST-MNT
                 upd-to: dbtest@ripe.net
                 auth: MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: update
@@ -314,7 +293,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 address:      Singel 258
                 e-mail:       bitbucket@ripe.net
                 tech-c:       AUTO-2
-                changed:      admin@test.com 20120505
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -325,17 +303,14 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:       +44 282 411140
                 nic-hdl:      AUTO-2
                 mnt-by:       TST-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:       TEST
 
                 mntner: TST-MNT
                 descr: description
                 admin-c: TEST-RIPE
                 mnt-by: TST-MNT
-                referral-by: TST-MNT
                 upd-to: dbtest@ripe.net
                 auth: MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: update
@@ -360,10 +335,8 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 descr: description
                 admin-c: AUTO-1
                 mnt-by: TST-MNT
-                referral-by: TST-MNT
                 upd-to: dbtest@ripe.net
                 auth: MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 person:       Test Person1
@@ -372,7 +345,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:       +44 282 411140
                 nic-hdl:      AUTO-2
                 mnt-by:       UPD-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:       TEST
 
                 organisation: AUTO-1
@@ -381,7 +353,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 address:      Singel 258
                 e-mail:       bitbucket@ripe.net
                 tech-c:       AUTO-2
-                changed:      admin@test.com 20120505
                 mnt-by:       UPD-MNT
                 mnt-ref:      UPD-MNT
                 source:       TEST
@@ -413,10 +384,8 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 descr: description
                 admin-c: TEST-RIPE
                 mnt-by: TST-MNT
-                referral-by: TST-MNT
                 upd-to: dbtest@ripe.net
                 auth: MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 person:  Test Person2
@@ -425,17 +394,14 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: TP2-TEST
                 mnt-by:  TST-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 mntner: TST-MNT
                 descr: description
                 admin-c: TEST-RIPE
                 mnt-by: TST-MNT
-                referral-by: TST-MNT
                 upd-to: dbtest@ripe.net
                 auth: MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
-                changed: dbtest@ripe.net 20120707
                 source: TEST
                 delete: only possible when reference from person is removed
 
@@ -445,7 +411,6 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: TP2-TEST
                 mnt-by:  TST-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 delete: allows removing maintainer
                 """.stripIndent())
@@ -478,20 +443,16 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 descr: description
                 admin-c: TEST-RIPE
                 mnt-by: TST-MNT
-                referral-by: TST-MNT
                 upd-to: dbtest@ripe.net
                 auth: MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 mntner: TST-MNT
                 descr: description
                 admin-c: TEST-RIPE
                 mnt-by: TST-MNT
-                referral-by: TST-MNT
                 upd-to: dbtest@ripe.net
                 auth: MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
-                changed: dbtest@ripe.net 20120707
                 source: TEST
                 """.stripIndent())
 

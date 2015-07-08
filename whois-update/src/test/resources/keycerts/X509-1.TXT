@@ -21,5 +21,4 @@ certif:       O4b+9E098Rt6MfFF+1dYNz7/NgiIpR7BlmdWzPCyhfgxJxTM9m9B7B/6noDU+aaf
 certif:       w0L5DyjKGe0dbjMKtaDdgQhxj8aBHNnQVbS9Oqhvmc65XgNi
 certif:       -----END CERTIFICATE-----
 mnt-by:       UPD-MNT
-changed:      noreply@ripe.net 20040927
 source:       TEST

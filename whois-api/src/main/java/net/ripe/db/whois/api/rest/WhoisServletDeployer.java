@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import net.ripe.db.whois.api.autocomplete.AutocompleteService;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -27,6 +28,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final WhoisMetadata whoisMetadata;
     private final GeolocationService geolocationService;
     private final AbuseContactService abuseContactService;
+    private final AutocompleteService autocompleteService;
     private final DefaultExceptionMapper defaultExceptionMapper;
     private final MaintenanceModeFilter maintenanceModeFilter;
 
@@ -36,6 +38,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final WhoisMetadata whoisMetadata,
                                 final GeolocationService geolocationService,
                                 final AbuseContactService abuseContactService,
+                                final AutocompleteService autocompleteService,
                                 final DefaultExceptionMapper defaultExceptionMapper,
                                 final MaintenanceModeFilter maintenanceModeFilter) {
         this.whoisRestService = whoisRestService;
@@ -43,6 +46,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.whoisMetadata = whoisMetadata;
         this.geolocationService = geolocationService;
         this.abuseContactService = abuseContactService;
+        this.autocompleteService = autocompleteService;
         this.defaultExceptionMapper = defaultExceptionMapper;
         this.maintenanceModeFilter = maintenanceModeFilter;
     }
@@ -60,15 +64,16 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(whoisMetadata);
         resourceConfig.register(geolocationService);
         resourceConfig.register(abuseContactService);
+        resourceConfig.register(autocompleteService);
         resourceConfig.register(defaultExceptionMapper);
         resourceConfig.register(new CacheControlFilter());
-        // resourceConfig.register(new CrossOriginFilter());        // TODO: [ES] enable when we have clear requirements
+        resourceConfig.register(new CrossOriginFilter());
 
         final JacksonJaxbJsonProvider jaxbJsonProvider = new JacksonJaxbJsonProvider();
         jaxbJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
         jaxbJsonProvider.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
-
         resourceConfig.register(jaxbJsonProvider);
+
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }
 }

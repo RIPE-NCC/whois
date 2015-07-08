@@ -576,8 +576,7 @@ public class WhoisRestService {
     }
 
     private void auditlogRequest(final HttpServletRequest request) {
-        InternalUpdatePerformer.logHttpHeaders(loggerContext, request);
-        InternalUpdatePerformer.logHttpUri(loggerContext, request);
+        loggerContext.log(new HttpRequestMessage(request));
     }
 
     private class VersionsResponseHandler extends ApiResponseHandler {

@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
-import net.ripe.db.whois.common.rpsl.transform.TimestampFilterFunction;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
@@ -25,10 +24,8 @@ public final class Notification {
 
     private final String email;
     private final Map<Type, Set<Update>> updates;
-    private final TimestampFilterFunction timestampFilter;
 
-    public Notification(final String email, final TimestampFilterFunction timestampFilter) {
-        this.timestampFilter = timestampFilter;
+    public Notification(final String email) {
         this.email = email;
         this.updates = Maps.newEnumMap(Type.class);
 
@@ -38,7 +35,7 @@ public final class Notification {
     }
 
     public void add(final Type type, final PreparedUpdate update, UpdateContext updateContext) {
-        updates.get(type).add(new Update(update, updateContext, timestampFilter));
+        updates.get(type).add(new Update(update, updateContext));
     }
 
     public String getEmail() {
@@ -53,6 +50,7 @@ public final class Notification {
         return !updates.get(type).isEmpty();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     @Immutable
     public static class Update {
         private static final Map<Action, String> RESULT_MAP = Maps.newEnumMap(Action.class);
@@ -73,12 +71,13 @@ public final class Notification {
         private final PreparedUpdate update;
         private final int versionId;
 
-        public Update(final PreparedUpdate update, final UpdateContext updateContext, final TimestampFilterFunction timestampFilter) {
-            this.referenceObject = (RpslObject) timestampFilter.apply(filterAuthFunction.apply(update.getReferenceObject()));
-            this.updatedObject = (RpslObject) timestampFilter.apply(filterAuthFunction.apply(update.getUpdatedObject()));
+        public Update(final PreparedUpdate update, final UpdateContext updateContext) {
+            this.referenceObject = filterAuthFunction.apply(update.getReferenceObject());
+            this.updatedObject = filterAuthFunction.apply(update.getUpdatedObject());
             this.action = update.getAction().name();
             this.result = RESULT_MAP.get(update.getAction());
             this.update = update;
+
             String updateReason = StringUtils.join(update.getUpdate().getDeleteReasons(), ", ");
             if (StringUtils.isNotEmpty(updateReason)) {
                 updateReason = prettyPrint(String.format("***%s: ", Messages.Type.INFO), updateReason, 12, 80);

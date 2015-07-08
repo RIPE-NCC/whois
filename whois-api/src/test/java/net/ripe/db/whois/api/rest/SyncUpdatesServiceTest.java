@@ -68,7 +68,7 @@ public class SyncUpdatesServiceTest {
         when(request.getCookies()).thenReturn(new Cookie[]{});
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
-        when(ssoTokenTranslator.translateSsoToken("valid-token")).thenReturn(new UserSession("test@ripe.net", true, "2033-01-30T16:38:27.369+11:00"));
+        when(ssoTokenTranslator.translateSsoToken("valid-token")).thenReturn(new UserSession("test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00"));
         when(ssoTokenTranslator.translateSsoToken("invalid-token")).thenThrow(new CrowdClientException("Unknown RIPE NCC Access token: invalid-token"));
     }
 
@@ -319,7 +319,6 @@ public class SyncUpdatesServiceTest {
                 "phone:    +31-61238-2827\n" +
                 "nic-hdl:  ES222-RIPE\n" +
                 "mnt-by:   TEST-DBM-MNT\n" +
-                "changed:  eshryane@ripe.net 20120829\n" +
                 "source:   test\n" +
                 "remarks:  something\n" +
                 "\n" +
@@ -361,7 +360,6 @@ public class SyncUpdatesServiceTest {
                 "phone:    +31-61238-2827\n" +
                 "nic-hdl:  ES222-RIPE\n" +
                 "mnt-by:   TEST-DBM-MNT\n" +
-                "changed:  eshryane@ripe.net 20120829\n" +
                 "source:   test\n" +
                 "remarks:  something\n" +
                 "\n" +

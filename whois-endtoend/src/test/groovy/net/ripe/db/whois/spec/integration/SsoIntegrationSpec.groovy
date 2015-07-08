@@ -1,11 +1,9 @@
 package net.ripe.db.whois.spec.integration
+
 import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
-import org.joda.time.DateTimeZone
-import org.joda.time.format.ISODateTimeFormat
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class SsoIntegrationSpec extends BaseWhoisSourceSpec {
@@ -15,7 +13,6 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
         return ["TEST-PN": """\
                     person: some one
                     nic-hdl: TEST-PN
-                    changed: ripe@test.net
                     source: TEST
                 """,
                 "TEST-MNT3": """\
@@ -24,19 +21,14 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: TEST-PN
                     mnt-by: TEST-MNT3
                     mnt-nfy: nfy@ripe.net
-                    referral-by: TEST-MNT3
                     upd-to: dbtest@ripe.net
                     auth:   MD5-PW \$1\$dNvmHMUm\$5A3Q0AlFopJ662JB2FY/w. # update3
-                    changed: dbtest@ripe.net 20120707
                     source: TEST
                 """]
     }
 
-    static TestDateTimeProvider dateTimeProvider;
-
     def setupSpec() {
-        dateTimeProvider = getApplicationContext().getBean(net.ripe.db.whois.common.TestDateTimeProvider.class);
-        dateTimeProvider.reset();
+        resetTime()
     }
 
     def "create sso mntner stores uuid in db, shows username in ack, filters auth in query"() {
@@ -44,7 +36,6 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.updateObject("" +
                 "person: some one\n" +
                 "nic-hdl: TEST-PN\n" +
-                "changed: ripe@test.net\n" +
                 "mnt-by: TEST-MNT3\n" +
                 "source: TEST")
         def response = syncUpdate(new SyncUpdate(data: """\
@@ -54,9 +45,7 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                             upd-to: test@ripe.net
                             auth: SSO person@net.net
                             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                            referral-by: TEST-MNT3
                             mnt-by: TEST-MNT3
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: update3
                             """.stripIndent()))
@@ -74,7 +63,7 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
         def mntner = databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT")
 
       then:
-        def currentDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(dateTimeProvider.getCurrentDateTimeUtc());           // TODO: [ES] separate out / standard (common) component for date time formatting
+        def currentDateTime = getTimeUtcString()
         mntner.toString().equals(String.format(
                 "mntner:         SSO-MNT\n" +
                 "descr:          sso mntner\n" +
@@ -82,12 +71,10 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                 "upd-to:         test@ripe.net\n" +
                 "auth:           SSO 906635c2-0405-429a-800b-0602bd716124\n" +
                 "auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "referral-by:    TEST-MNT3\n" +
                 "mnt-by:         TEST-MNT3\n" +
-                "changed:        ripe@test.net 20091015\n" +
                 "created:        %s\n" +
                 "last-modified:  %s\n" +
-                "source:         TEST\n", currentDate, currentDate))
+                "source:         TEST\n", currentDateTime, currentDateTime))
 
       when:
         def query = query("SSO-MNT")
@@ -105,11 +92,9 @@ admin-c:        TEST-PN
 upd-to:         test@ripe.net
 auth:           SSO # Filtered
 auth:           MD5-PW # Filtered
-referral-by:    TEST-MNT3
 mnt-by:         TEST-MNT3
-changed:        ripe@test.net 20091015
-created:        ${currentDate}
-last-modified:  ${currentDate}
+created:        ${currentDateTime}
+last-modified:  ${currentDateTime}
 source:         TEST # Filtered/
     }
 
@@ -118,7 +103,6 @@ source:         TEST # Filtered/
         databaseHelper.updateObject("" +
                 "person: some one\n" +
                 "nic-hdl: TEST-PN\n" +
-                "changed: ripe@test.net\n" +
                 "mnt-by: TEST-MNT3\n" +
                 "source: TEST")
 
@@ -129,9 +113,7 @@ source:         TEST # Filtered/
                             upd-to: test@ripe.net
                             auth: SSO person@net.net
                             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                            referral-by: TEST-MNT3
                             mnt-by: TEST-MNT3
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: update3
                             """.stripIndent()))
@@ -145,9 +127,7 @@ source:         TEST # Filtered/
                             upd-to: test@ripe.net
                             auth: SSO person@net.net
                             auth: MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                            referral-by: TEST-MNT3
                             mnt-by: TEST-MNT3
-                            changed: ripe@test.net 20091015
                             source: TEST
                             password: update3
                             """.stripIndent()))
@@ -177,9 +157,7 @@ admin-c:        TEST-PN
 upd-to:         test@ripe.net
 auth:           SSO # Filtered
 auth:           MD5-PW # Filtered
-referral-by:    TEST-MNT3
 mnt-by:         TEST-MNT3
-changed:        ripe@test.net 20091015
 created:        \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z
 last-modified:  \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z
 source:         TEST # Filtered/

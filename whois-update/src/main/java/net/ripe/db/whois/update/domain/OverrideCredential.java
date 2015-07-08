@@ -1,92 +1,87 @@
 package net.ripe.db.whois.update.domain;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
 @Immutable
 public final class OverrideCredential implements Credential {
     private static final Splitter OVERRIDE_SPLITTER = Splitter.on(',').trimResults().limit(3);
 
     private final String value;
-    private final Set<UsernamePassword> possibleCredentials;
-    private final String remarks;
+    private final Optional<OverrideValues> overrideValues;
 
-    private OverrideCredential(final String value, final Set<UsernamePassword> possibleCredentials, final String remarks) {
+    private OverrideCredential(final String value, final Optional<OverrideValues> overrideValues) {
         this.value = value;
-        this.possibleCredentials = possibleCredentials;
-        this.remarks = remarks;
+        this.overrideValues = overrideValues;
     }
 
-    public Set<UsernamePassword> getPossibleCredentials() {
-        return possibleCredentials;
-    }
-
-    public String getRemarks() {
-        return remarks;
+    public Optional<OverrideValues> getOverrideValues() {
+        return overrideValues;
     }
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (!(o instanceof OverrideCredential)) return false;
         final OverrideCredential that = (OverrideCredential) o;
-        return value.equals(that.value);
+        return Objects.equals(value, that.value);
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return Objects.hash(value);
     }
 
     @Override
     public String toString() {
-        return value;
+        if (!overrideValues.isPresent()){
+            return "OverrideCredential{NOT_VALID}";
+        }
+
+        if (StringUtils.isBlank(overrideValues.get().getRemarks())){
+            return String.format("OverrideCredential{%s,FILTERED}", overrideValues.get().getUsername());
+        }
+
+        return String.format("OverrideCredential{%s,FILTERED,%s}",
+                overrideValues.get().getUsername(), overrideValues.get().getRemarks());
     }
 
     public static OverrideCredential parse(final String value) {
         final List<String> values = Lists.newArrayList(OVERRIDE_SPLITTER.split(value));
 
-        String remarks = "";
-        final Set<UsernamePassword> possibleCredentials;
-        if (values.size() < 2) {
-            possibleCredentials = Collections.emptySet();
-        } else {
-            possibleCredentials = Sets.newLinkedHashSet();
-            final String username = values.get(0);
-            final String password = values.get(1);
-            if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
-                possibleCredentials.add(new UsernamePassword(username, password));
-            }
+        final OverrideCredential notValidCredentials = new OverrideCredential(value, Optional.<OverrideValues>absent());
 
-            if (values.size() > 2) {
-                remarks = values.get(2);
-            }
+        if (values.size() < 2) {
+            return notValidCredentials;
         }
 
-        return new OverrideCredential(value, Collections.unmodifiableSet(possibleCredentials), remarks);
+        final String username = values.get(0);
+        final String password = values.get(1);
+        final String remarks = values.size() > 2 ? values.get(2) : "";
+
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
+            return notValidCredentials;
+        }
+
+        return new OverrideCredential(value, Optional.of(new OverrideValues(username, password, remarks)));
     }
 
     @Immutable
-    public static class UsernamePassword {
+    public static class OverrideValues {
         private final String username;
         private final String password;
+        private final String remarks;
 
-        UsernamePassword(final String username, final String password) {
+        OverrideValues(final String username, final String password, final String remarks) {
             this.username = username;
             this.password = password;
+            this.remarks = remarks;
         }
 
         public String getUsername() {
@@ -97,25 +92,23 @@ public final class OverrideCredential implements Credential {
             return password;
         }
 
+        public String getRemarks() {
+            return remarks;
+        }
+
         @Override
         public boolean equals(final Object o) {
-            if (this == o) {
-                return true;
-            }
-
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            final UsernamePassword that = (UsernamePassword) o;
-            return password.equals(that.password) && username.equals(that.username);
+            if (this == o) return true;
+            if (!(o instanceof OverrideValues)) return false;
+            final OverrideValues that = (OverrideValues) o;
+            return Objects.equals(username, that.username) &&
+                    Objects.equals(password, that.password) &&
+                    Objects.equals(remarks, that.remarks);
         }
 
         @Override
         public int hashCode() {
-            int result = username.hashCode();
-            result = 31 * result + password.hashCode();
-            return result;
+            return Objects.hash(username, password, remarks);
         }
     }
 }

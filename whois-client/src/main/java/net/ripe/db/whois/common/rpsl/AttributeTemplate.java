@@ -10,16 +10,17 @@ public class AttributeTemplate {
     public static enum Requirement {
         MANDATORY("mandatory"),
         OPTIONAL("optional"),
-        GENERATED("generated");
+        GENERATED("generated"),
+        DEPRECATED("optional"); // deprecated fields seen as optional from outside perspective
 
-        private final String name;
+        private final String externalName;
 
-        private Requirement(final String name) {
-            this.name = name;
+        private Requirement(final String externalName) {
+            this.externalName = externalName;
         }
 
-        public String getName() {
-            return name;
+        public String getExternalName() {
+            return externalName;
         }
     }
 
@@ -125,7 +126,7 @@ public class AttributeTemplate {
     @Override
     public String toString() {
         final String name = attributeType.getName() + ":";
-        final String requirementString = "[" + requirement.getName() + "]";
+        final String requirementString = "[" + requirement.getExternalName() + "]";
         final String cardinalityString = "[" + cardinality.getName() + "]";
         final String keyString;
 

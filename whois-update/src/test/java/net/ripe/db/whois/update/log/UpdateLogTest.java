@@ -20,7 +20,7 @@ public class UpdateLogTest {
     @Mock UpdateRequest updateRequest;
     @Mock UpdateContext updateContext;
     @Mock Update update;
-    Stopwatch stopwatch = new Stopwatch();
+    final Stopwatch stopwatch = Stopwatch.createUnstarted();
 
     @Mock Logger logger;
     @InjectMocks UpdateLog subject;

@@ -15,7 +15,6 @@ class PingSpec extends BaseQueryUpdateSpec {
                 descr:          Full ASN range
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
    ]}
@@ -33,7 +32,6 @@ class PingSpec extends BaseQueryUpdateSpec {
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
                 pingable:       2013:600::
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -66,7 +64,6 @@ class PingSpec extends BaseQueryUpdateSpec {
                 origin:         AS2000
                 mnt-by:         CHILD-MB-MNT
                 ping-hdl:       TP1-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -104,7 +101,6 @@ class PingSpec extends BaseQueryUpdateSpec {
                 pingable:       99.13.0.30
                 ping-hdl:       TP1-test
                 ping-hdl:       TP2-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -144,7 +140,6 @@ class PingSpec extends BaseQueryUpdateSpec {
                 pingable:       99.13.0.1
                 pingable:       2013:600::
                 ping-hdl:       TP1-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -184,7 +179,6 @@ class PingSpec extends BaseQueryUpdateSpec {
                 pingable:       99.13.0.1
                 pingable:       2013:600::
                 ping-hdl:       TP1-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -221,7 +215,6 @@ class PingSpec extends BaseQueryUpdateSpec {
                 mnt-by:         CHILD-MB-MNT
                 pingable:       2014:600::
                 ping-hdl:       TP1-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -258,7 +251,6 @@ class PingSpec extends BaseQueryUpdateSpec {
                 mnt-by:         CHILD-MB-MNT
                 pingable:       100.13.0.1
                 ping-hdl:       TP1-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -297,7 +289,6 @@ class PingSpec extends BaseQueryUpdateSpec {
                 mnt-by:         CHILD-MB-MNT
                 pingable:       TP1-test
                 ping-hdl:       99.13.0.1
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -340,7 +331,6 @@ class PingSpec extends BaseQueryUpdateSpec {
                 pingable:       99.13.0.30
                 ping-hdl:       TP1-test
                 ping-hdl:       TP2-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
