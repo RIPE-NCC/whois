@@ -3383,4 +3383,42 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
       ack.success
   }
+
+  @Ignore("TODO [ES]")
+  def "invalid signature results in internal server error (another example)"() {
+    when:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
+                -----BEGIN PGP SIGNED MESSAGE-----
+                Hash: SHA1
+
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                changed: denis@ripe.net 20121016
+                source:  TEST
+
+                -----BEGIN PGP SIGNATURE-----
+                Version: GnuPG v1.2.6 (GNU/Linux)
+
+                iD8DBQFVWbBwNQCxxDkDxUMRAsc AJwIxzuKiPIkt/f2OSJ1Cc4JjPgHbACgucBI
+                3 6v0na2EwLKdZPgbAwM0hU=
+                =Z3KR
+                -----END PGP SIGNATURE-----
+                """.stripIndent())
+    then:
+      def ack = ackFor message
+
+      ack.success
+  }
 }
