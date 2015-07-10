@@ -3421,4 +3421,53 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
       ack.success
   }
+
+  @Ignore("[ES] TODO")
+  def "pgp compressed data results in internal server error"() {
+    when:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send new Message(
+              subject: "",
+              body: """\
+                -----BEGIN PGP SIGNED MESSAGE-----
+                Hash: SHA1
+
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                changed: denis@ripe.net 20121016
+                source:  TEST
+                -----BEGIN PGP SIGNATURE-----
+                Version: GnuPG v2
+
+                owGbwMvMwMF4JoN/Y3WR1DzG0wfWJjGEzmtqzsxLLckrzbVSgAFzSz1LCz1DM3M9
+                AwVdJJ6hkTkvF0hxYm4qQnWot26YZ1CIoa6zf5CrrpOPtxkvV0pqcXIRQomCQlhm
+                UUlpYo6hgq+7b4hCYl6KgnN+UapCSmpZZnJqMS9Xcn5pXklRJUKLuxMvV2JKbmae
+                bjJCMMzfz1U3yDPAlZerJDU5A1kKWa64JLGktBhJzjE42NPdz9VFIcCRlys3r0Q3
+                CckmBV+/ELAPQh19DIEuyUjMS09NQcgXZSZn6CWmJOY6lEE9oZecnwu0Jb+0KBkp
+                HBQglhel5iYWZSPZ7unnFuSo6xjeySjDwsDIwcDGygQKdQYuTgFYXIT4cjAsPrWU
+                q/bTv9ZIt7B9vucd5m6NDoo2vpSRdL/+37yNtx/sLlfriN3RtrHg4qK7O99u561/
+                95HdLd1nG6uvV9Fi2bMZt5wLvZ7vTGzZo6Pgoyl9XOhyn7+wQhG3p174uZQZOyTl
+                7VwYZh34rrhm8RzLqf+9PoTGx22/7Dr74fdCZufsi5Pq7jJtkPu4nPea5c45mbzr
+                HabaXQg5VHT1PfN5AcUZX/q2MtY2TxZhPbNh/uW+V+/Ohcjp7/2konZthX7ztnsF
+                FYcW5Zv5+vOfKxOIOaS8gEn7lrTS1nPN11xqXhRv25ySWFF/xXLaPZesPNkGi9h4
+                +4khnD7roiqWV8RIMr6M4GeMmfikXWHajwUA
+                =DFkw
+                -----END PGP SIGNATURE-----
+                """.stripIndent())
+    then:
+      def ack = ackFor message
+
+      ack.success
+  }
+
+
 }
