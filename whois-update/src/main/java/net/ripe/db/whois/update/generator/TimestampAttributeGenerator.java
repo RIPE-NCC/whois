@@ -68,7 +68,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
                 break;
 
             case DELETE:
-                // for delete we just ignore what was passed in and make sure object looks like stored version
+//                 for delete we just ignore what was passed in and make sure object looks like stored version
                 if (originalObject.containsAttribute(AttributeType.CREATED)) {
                     generatedCreatedAttribute = new RpslAttribute(AttributeType.CREATED, originalObject.getValueForAttribute(AttributeType.CREATED));
                 }

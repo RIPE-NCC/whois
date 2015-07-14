@@ -430,7 +430,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
     }
 
-    @Ignore
     def "delete fails if created and last-modified attributes are separated"() {
         given:
         setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
@@ -453,11 +452,10 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         def updateAck = syncUpdate new SyncUpdate(data: """
                     person:  New Person
                     address: St James Street
-                    phone:   +44 282 420469
                     nic-hdl: NP1-TEST
                     mnt-by:  TST-MNT
-                    last-modified: 2013-06-25T09:00:00Z     # BUG: last-modified will be moved below remarks
-                    changed: dbtest@ripe.net 20120101
+                    last-modified: 2013-06-25T09:00:00Z     # last-modified should not be re-ordered
+                    phone:   +44 282 420469
                     created: 2013-06-25T09:00:00Z
                     remarks: testing
                     source:  TEST
@@ -473,16 +471,15 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         setTime(LocalDateTime.parse("2013-06-27T09:00:00"))
         then:
         def deleteAck = syncUpdate new SyncUpdate(data: """
-                    person:         New Person
-                    address:        St James Street
-                    phone:          +44 282 420469
-                    nic-hdl:        NP1-TEST
-                    mnt-by:         TST-MNT
-                    created:        2013-06-25T09:00:00Z
-                    changed:        dbtest@ripe.net 20120101
-                    remarks:        testing
-                    last-modified:  2013-06-26T09:00:00Z
-                    source:         TEST
+                    person:  New Person
+                    address: St James Street
+                    nic-hdl: NP1-TEST
+                    mnt-by:  TST-MNT
+                    last-modified: 2013-06-25T09:00:00Z
+                    phone:   +44 282 420469
+                    created: 2013-06-25T09:00:00Z
+                    remarks: testing
+                    source:  TEST
                     password: update
                     delete: reason
                  """.stripIndent())
