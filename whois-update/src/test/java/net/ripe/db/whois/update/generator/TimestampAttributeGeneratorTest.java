@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TimestampAttributeGeneratorTest {
+    //TODO [TP]: remove defensive code checks wher we check whether timestamp attributes are in original object.
     final private static DateTimeFormatter ISO_FORMATTER = ISODateTimeFormat.dateTimeNoMillis();
 
     private static final String TIMESTAMP_STRING_PAST = "2014-01-26T11:44:59Z";
