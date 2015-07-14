@@ -18,7 +18,6 @@ import javax.annotation.Nullable;
 @Component
 public class TimestampAttributeGenerator extends AttributeGenerator {
     private final DateTimeProvider dateTimeProvider;
-    //TODO [TP]: remove defensive code checks wher we check whether timestamp attributes are in original object.
 
     @Autowired
     TimestampAttributeGenerator(final DateTimeProvider dateTimeProvider) {
@@ -54,27 +53,19 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
                 break;
 
             case MODIFY:
-                if (originalObject.containsAttribute(AttributeType.CREATED)) {
-                    generatedCreatedAttribute = new RpslAttribute(AttributeType.CREATED, originalObject.getValueForAttribute(AttributeType.CREATED));
-                }
+                generatedCreatedAttribute = new RpslAttribute(AttributeType.CREATED, originalObject.getValueForAttribute(AttributeType.CREATED));
 
                 if (updateContext.getPreparedUpdate(update).getOverrideOptions().isSkipLastModified()) {
-                    if (originalObject.containsAttribute(AttributeType.LAST_MODIFIED)) {
-                        generatedLastModifiedAttribute = new RpslAttribute(AttributeType.LAST_MODIFIED, originalObject.getValueForAttribute(AttributeType.LAST_MODIFIED));
-                    }
+                    generatedLastModifiedAttribute = new RpslAttribute(AttributeType.LAST_MODIFIED, originalObject.getValueForAttribute(AttributeType.LAST_MODIFIED));
                 } else {
                     generatedLastModifiedAttribute = new RpslAttribute(AttributeType.LAST_MODIFIED, currentDateTime);
                 }
                 break;
 
             case DELETE:
-//                 for delete we just ignore what was passed in and make sure object looks like stored version
-                if (originalObject.containsAttribute(AttributeType.CREATED)) {
-                    generatedCreatedAttribute = new RpslAttribute(AttributeType.CREATED, originalObject.getValueForAttribute(AttributeType.CREATED));
-                }
-                if (originalObject.containsAttribute(AttributeType.LAST_MODIFIED)) {
-                    generatedLastModifiedAttribute = new RpslAttribute(AttributeType.LAST_MODIFIED, originalObject.getValueForAttribute(AttributeType.LAST_MODIFIED));
-                }
+//              for delete we just ignore what was passed in and make sure object looks like stored version
+                generatedCreatedAttribute = new RpslAttribute(AttributeType.CREATED, originalObject.getValueForAttribute(AttributeType.CREATED));
+                generatedLastModifiedAttribute = new RpslAttribute(AttributeType.LAST_MODIFIED, originalObject.getValueForAttribute(AttributeType.LAST_MODIFIED));
                 break;
 
             case NOOP:
