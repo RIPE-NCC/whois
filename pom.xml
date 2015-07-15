@@ -255,12 +255,14 @@
                 <version>18.0</version>
             </dependency>
             <!-- TODO: [ES] update MySQL connector to latest -->
+            <!-- TODO: [ES] 5.1.34 may be causing "lock wait timeout exceeded" -->
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>5.1.21</version>
             </dependency>
             <!-- TODO: [ES] update c3p0 to latest -->
+            <!-- TODO: [ES] 0.9.5 may be causing "lock wait timeout exceeded" -->
             <dependency>
                 <groupId>c3p0</groupId>
                 <artifactId>c3p0</artifactId>
