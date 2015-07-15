@@ -8,6 +8,8 @@ import net.ripe.db.whois.common.profiles.DeployedProfile;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
@@ -29,6 +31,8 @@ import java.util.UUID;
 @Primary
 @Component
 class DnsGatewayImpl implements DnsGateway {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DnsGatewayImpl.class);
+
     private static final int DEFAULT_TIMEOUT = 5 * 60 * 1000;
 
     private static final Map<String, Messages.Type> ERRORLEVEL_CONVERSION = ImmutableMap.of(
@@ -68,15 +72,19 @@ class DnsGatewayImpl implements DnsGateway {
         if (dnsResult == null) {
             return new DnsCheckResponse(UpdateMessages.dnsCheckTimeout());
         } else if (dnsResult.nrErrors > 0) {
-            return new DnsCheckResponse(getMessages(dnsResult));
+            try {
+                return new DnsCheckResponse(getMessages(dnsResult));
+            } catch (IllegalStateException | DataAccessException e) {
+                LOGGER.error(String.format("Error in retrieving messages during DNS check for test_id (dnsResult.id): %s", dnsResult.id), e);
+                return new DnsCheckResponse(UpdateMessages.dnsCheckMessageParsingError());
+            }
         }
-
         return new DnsCheckResponse();
     }
 
     private List<Message> getMessages(final DnsResult dnsResult) {
         return jdbcTemplate.query("" +
-                "SELECT LEVEL,formatstring,description,arg0,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9 " +
+                "SELECT message,LEVEL,formatstring,description,arg0,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9 " +
                 "FROM (" +
                 "  SELECT * " +
                 "  FROM results " +
@@ -88,18 +96,27 @@ class DnsGatewayImpl implements DnsGateway {
                 new RowMapper<Message>() {
                     @Override
                     public Message mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-                        final StringBuilder messageBuilder = new StringBuilder(String.format(
-                                rs.getString("formatstring"),
-                                rs.getObject("arg0"),
-                                rs.getObject("arg1"),
-                                rs.getObject("arg2"),
-                                rs.getObject("arg3"),
-                                rs.getObject("arg4"),
-                                rs.getObject("arg5"),
-                                rs.getObject("arg6"),
-                                rs.getObject("arg7"),
-                                rs.getObject("arg8"),
-                                rs.getObject("arg9")));
+
+                        final StringBuilder messageBuilder = new StringBuilder("");
+
+                        final String formatstring = rs.getString("formatstring");
+
+                        if (StringUtils.isNotBlank(formatstring)) {
+                            messageBuilder.append(String.format(
+                                    formatstring,
+                                    rs.getObject("arg0"),
+                                    rs.getObject("arg1"),
+                                    rs.getObject("arg2"),
+                                    rs.getObject("arg3"),
+                                    rs.getObject("arg4"),
+                                    rs.getObject("arg5"),
+                                    rs.getObject("arg6"),
+                                    rs.getObject("arg7"),
+                                    rs.getObject("arg8"),
+                                    rs.getObject("arg9")));
+                        } else {
+                            throw new IllegalStateException(String.format("Failed to parse message tag: '%s' for test_id: %s", rs.getString("message"), dnsResult.id));
+                        }
 
                         final String description = rs.getString("description");
                         if (StringUtils.isNotEmpty(description)) {
