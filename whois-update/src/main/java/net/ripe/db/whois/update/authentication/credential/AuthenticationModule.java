@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
@@ -12,6 +13,7 @@ import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
@@ -29,6 +31,9 @@ import java.util.Map;
 @Component
 public class AuthenticationModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationModule.class);
+
+    private static final String PASSWORDS_REMOVED_REMARK = "MD5 passwords older than November 2011 were removed from this maintainer, see: https://www.ripe.net/removed2011pw";
+
     private static final AuthComparator AUTH_COMPARATOR = new AuthComparator();
 
     private final Map<Class<? extends Credential>, CredentialValidator> credentialValidatorMap;
@@ -48,6 +53,7 @@ public class AuthenticationModule {
 
     public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> maintainers) {
         final Credentials offered = update.getCredentials();
+        boolean passwordRemovedRemark = false;
 
         loggerContext.logAuthenticationStrategy(update.getUpdate(), Reflection.getCallerClass().getCanonicalName(), maintainers);
 
@@ -55,7 +61,15 @@ public class AuthenticationModule {
         for (final RpslObject maintainer : maintainers) {
             if (hasValidCredentialForCandidate(update, updateContext, offered, maintainer)) {
                 authenticatedCandidates.add(maintainer);
+            } else {
+                if (hasPasswordRemovedRemark(maintainer)) {
+                    passwordRemovedRemark = true;
+                }
             }
+        }
+
+        if (authenticatedCandidates.isEmpty() && passwordRemovedRemark) {
+            updateContext.addMessage(update, UpdateMessages.oldPasswordsRemoved());
         }
 
         return authenticatedCandidates;
@@ -100,6 +114,16 @@ public class AuthenticationModule {
         }
 
         return null;
+    }
+
+    private boolean hasPasswordRemovedRemark(final RpslObject maintainer) {
+        for (RpslAttribute remark : maintainer.findAttributes(AttributeType.REMARKS)) {
+            if (remark.getCleanValue().equals(PASSWORDS_REMOVED_REMARK)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static class AuthComparator implements Comparator<CIString> {
