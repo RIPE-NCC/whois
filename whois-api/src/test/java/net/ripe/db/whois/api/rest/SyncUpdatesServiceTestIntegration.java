@@ -292,6 +292,39 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_multiple_objects_with_single_password() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final String firstPerson =
+                "person:        First Person\n" +
+                "address:       Amsterdam\n" +
+                "phone:         +31\n" +
+                "nic-hdl:       FP1-TEST\n" +
+                "mnt-by:        mntner\n" +
+                "source:        TEST\n";
+        final String secondPerson =
+                "person:        Second Person\n" +
+                "address:       Amsterdam\n" +
+                "phone:         +31\n" +
+                "nic-hdl:       SP1-TEST\n" +
+                "mnt-by:        mntner\n" +
+                "source:        TEST\n";
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(
+                                firstPerson +
+                                "password: emptypassword\n\n\n" +
+                                secondPerson))
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .get(String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [person] FP1-TEST   First Person"));
+        assertThat(response, containsString("Create SUCCEEDED: [person] SP1-TEST   Second Person"));
+    }
+
+    @Test
     public void create_selfrefencing_maintainer_new_and_data_parameters_with_sso_token() throws Exception {
         databaseHelper.addObject(PERSON_ANY1_TEST);
 
