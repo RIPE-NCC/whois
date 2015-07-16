@@ -1294,4 +1294,220 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
+
+    def "Warn if update failed and auth lines removed"() {
+      given:
+        databaseHelper.updateObject(
+            "mntner:         OWNER-MNT\n" +
+            "descr:          used to maintain other MNTNERs\n" +
+            "admin-c:        TP1-TEST\n" +
+            "upd-to:         updto_owner@ripe.net\n" +
+            "mnt-nfy:        mntnfy_owner@ripe.net\n" +
+            "notify:         notify_owner@ripe.net\n" +
+            "remarks:        MD5 passwords older than November 2011 were removed from this maintainer, see: https://www.ripe.net/removed2011pw\n" +
+            "mnt-by:         OWNER-MNT\n" +
+            "source:         TEST")
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  Another Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: AP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                password: owner
+                """.stripIndent())
+
+      then:
+        def ack = ackFor message
+
+        ack.failed
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+
+        ack.errorMessagesFor("Create", "[person] AP1-TEST   Another Person") == [
+                "Authorisation for [person] AP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
+        ack.warningMessagesFor("Create", "[person] AP1-TEST   Another Person") == [
+                "MD5 passwords older than November 2011 were removed for one or more maintainers of this object, see: https://www.ripe.net/removed2011pw"]
+    }
+
+    def "Warn if update failed and auth lines removed and no password supplied"() {
+      given:
+        databaseHelper.updateObject(
+            "mntner:         OWNER-MNT\n" +
+            "descr:          used to maintain other MNTNERs\n" +
+            "admin-c:        TP1-TEST\n" +
+            "upd-to:         updto_owner@ripe.net\n" +
+            "mnt-nfy:        mntnfy_owner@ripe.net\n" +
+            "notify:         notify_owner@ripe.net\n" +
+            "remarks:        MD5 passwords older than November 2011 were removed from this maintainer, see: https://www.ripe.net/removed2011pw\n" +
+            "mnt-by:         OWNER-MNT\n" +
+            "source:         TEST")
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  Another Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: AP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                """.stripIndent())
+
+      then:
+        def ack = ackFor message
+
+        ack.failed
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+
+        ack.errorMessagesFor("Create", "[person] AP1-TEST   Another Person") == [
+                "Authorisation for [person] AP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
+        ack.warningMessagesFor("Create", "[person] AP1-TEST   Another Person") == [
+                "MD5 passwords older than November 2011 were removed for one or more maintainers of this object, see: https://www.ripe.net/removed2011pw"]
+    }
+
+    def "No warning if auth lines removed but update succeeds with password"() {
+      given:
+        databaseHelper.updateObject(
+                "mntner:      OWNER-MNT\n" +
+                "descr:       used to maintain other MNTNERs\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      updto_owner@ripe.net\n" +
+                "mnt-nfy:     mntnfy_owner@ripe.net\n" +
+                "notify:      notify_owner@ripe.net\n" +
+                "auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner\n" +
+                "remarks:     MD5 passwords older than November 2011 were removed from this maintainer, see: https://www.ripe.net/removed2011pw\n" +
+                "mnt-by:      OWNER-MNT\n" +
+                "source:      TEST")
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  Another Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: AP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                password: owner
+                """.stripIndent())
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "No warning if auth lines removed but update succeeds with PGP signed update"() {
+      given:
+        databaseHelper.updateObject(
+                "mntner:      PGP-MNT\n" +
+                "descr:       used for testing PGP signed messages\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      updto_lir@ripe.net\n" +
+                "auth:        PGPKEY-5763950D\n" +
+                "remarks:     MD5 passwords older than November 2011 were removed from this maintainer, see: https://www.ripe.net/removed2011pw\n" +
+                "mnt-by:      PGP-MNT\n" +
+                "source:      TEST")
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                -----BEGIN PGP SIGNED MESSAGE-----
+                Hash: SHA1
+
+                person:  Another Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: AP1-TEST
+                mnt-by:  PGP-MNT
+                source:  TEST
+                -----BEGIN PGP SIGNATURE-----
+                Version: GnuPG v1
+                Comment: GPGTools - http://gpgtools.org
+
+                iQEcBAEBAgAGBQJVpnN9AAoJELvMuy1XY5UN9k0H/2YTtJRU7QGabOmZqXDJjeT+
+                Q+GNUW8YLbkmwvB2hdLFnvCJiUJrEu81+TORbXqxQ95XtQx1gXS/U19WxTZLoZtY
+                es/GR9rdajb2lWfjwiC+M7dHw/z88H3uvX4bsdDbUG8WxVuHyVN48D+Nc0KqKx2k
+                TPUPXrIIdOzPu6N5DL7AP26stceCwTB957i4kkSsb0FVjOWb/73bJjlYibCWkt0p
+                yrRq5I+HTL3clEyMExP7C0gkpBFSjII3nwuqCYpD7ltPEEnXIElVHzrBG+OGQUPy
+                FrIQEgDdEFAkY5qf4W2JCWPHjzD8tv2Uzp7NfEZsqHiHyFXltuhQbyn3t8LRoBc=
+                =X49Y
+                -----END PGP SIGNATURE-----
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+    def "No warning if auth lines removed but multiple maintainers and auth succeeds"() {
+      given:
+        databaseHelper.updateObject(
+                "mntner:      PGP-MNT\n" +
+                "descr:       used for testing PGP signed messages\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      updto_lir@ripe.net\n" +
+                "auth:        PGPKEY-5763950D\n" +
+                "remarks:     MD5 passwords older than November 2011 were removed from this maintainer, see: https://www.ripe.net/removed2011pw\n" +
+                "mnt-by:      PGP-MNT\n" +
+                "source:      TEST")
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                person:  Another Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                nic-hdl: AP1-TEST
+                mnt-by:  PGP-MNT
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                password: owner
+                """.stripIndent())
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+    }
+
+
 }
