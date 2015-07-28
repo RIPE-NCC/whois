@@ -75,7 +75,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PHONE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PINGABLE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POEM_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POETIC_FORM_SYNTAX;
-import static net.ripe.db.whois.common.rpsl.AttributeSyntax.REFERRAL_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE6_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SET_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SYNTAX;
@@ -602,7 +601,7 @@ public enum AttributeType implements Documented {
 
     SPONSORING_ORG(new Builder("sponsoring-org", "sp")
             .doc("Points to an existing organisation object representing the sponsoring organisation responsible for the resource.")
-            .syntax(GENERATED_SYNTAX)
+            .syntax(ORGANISATION_SYNTAX)
             .references(ObjectType.ORGANISATION)),
 
     STATUS(new Builder("status", "st")
