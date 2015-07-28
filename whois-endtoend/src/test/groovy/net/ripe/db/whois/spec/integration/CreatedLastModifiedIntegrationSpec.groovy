@@ -379,61 +379,55 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "modify should retain the correct order of the timestamp attributes"() {
-        given:
+      given:
         setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
-        when:
+      when:
         def createAck = syncUpdate new SyncUpdate(data: """
                 person:  New Person
                 address: St James Street
                 phone:   +44 282 420469
                 nic-hdl: NP1-TEST
                 mnt-by:  TST-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 password: update
              """.stripIndent())
-        then:
+      then:
         createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
-        when:
+
+      when:
         setTime(LocalDateTime.parse("2013-06-26T09:00:00"))
-        then:
+      then:
         def updateAck = syncUpdate new SyncUpdate(data: """
                 person:  New Person
                 address: St James Street
                 phone:   +44 282 420469
                 nic-hdl: NP1-TEST
-                mnt-by:  TST-MNT
-                changed: dbtest@ripe.net 20120101
                 created: 2013-06-25T09:00:00Z
-                last-modified: 2013-06-25T09:00:00Z     # BUG: last-modified will be moved below remarks
+                mnt-by:  TST-MNT
+                last-modified: 2013-06-25T09:00:00Z
                 remarks: testing
                 source:  TEST
                 password: update
              """.stripIndent())
-        then:
+      then:
         updateAck.contains("Modify SUCCEEDED: [person] NP1-TEST   New Person")
-        def updated = query("-rBG NP1-TEST")
-
-        def expected = "" +
+      then:
+        query("-rBG NP1-TEST").contains(
                 "person:         New Person\n" +
                 "address:        St James Street\n" +
                 "phone:          +44 282 420469\n" +
                 "nic-hdl:        NP1-TEST\n" +
-                "mnt-by:         TST-MNT\n" +
-                "changed:        dbtest@ripe.net 20120101\n" +
                 "created:        2013-06-25T09:00:00Z\n" +
+                "mnt-by:         TST-MNT\n" +
                 "last-modified:  2013-06-26T09:00:00Z\n" +
                 "remarks:        testing\n" +
-                "source:         TEST\n"
-
-        updated.contains(expected) == true
-
+                "source:         TEST\n")
     }
 
-    def "delete fails if created and last-modified attributes are separated"() {
-        given:
+    def "delete should not fail if created and last-modified attributes are separated"() {
+      given:
         setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
-        when:
+      when:
         def createAck = syncUpdate new SyncUpdate(data: """
                     person:  New Person
                     address: St James Street
@@ -444,32 +438,41 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                     source:  TEST
                     password: update
                  """.stripIndent())
-        then:
+      then:
         createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
-        when:
+
+      when:
         setTime(LocalDateTime.parse("2013-06-26T09:00:00"))
-        then:
+      then:
         def updateAck = syncUpdate new SyncUpdate(data: """
                     person:  New Person
                     address: St James Street
                     nic-hdl: NP1-TEST
                     mnt-by:  TST-MNT
-                    last-modified: 2013-06-25T09:00:00Z     # last-modified should not be re-ordered
+                    last-modified: 2013-06-25T09:00:00Z
                     phone:   +44 282 420469
                     created: 2013-06-25T09:00:00Z
                     remarks: testing
                     source:  TEST
                     password: update
                  """.stripIndent())
-        then:
+      then:
         updateAck.contains("Modify SUCCEEDED: [person] NP1-TEST   New Person")
-        def actually_updated = query("-rBG NP1-TEST")
+      then:
+        query("-rBG NP1-TEST").contains(
+                    "person:         New Person\n" +
+                    "address:        St James Street\n" +
+                    "nic-hdl:        NP1-TEST\n" +
+                    "mnt-by:         TST-MNT\n" +
+                    "last-modified:  2013-06-26T09:00:00Z\n" +
+                    "phone:          +44 282 420469\n" +
+                    "created:        2013-06-25T09:00:00Z\n" +
+                    "remarks:        testing\n" +
+                    "source:         TEST")
 
-        println "actually_updated = $actually_updated"
-
-        when:
+      when:
         setTime(LocalDateTime.parse("2013-06-27T09:00:00"))
-        then:
+      then:
         def deleteAck = syncUpdate new SyncUpdate(data: """
                     person:  New Person
                     address: St James Street
@@ -483,7 +486,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                     password: update
                     delete: reason
                  """.stripIndent())
-        then:
+      then:
         deleteAck.contains("Delete SUCCEEDED: [person] NP1-TEST   New Person")
     }
 
@@ -502,11 +505,9 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         source:        TEST
         password: update
         """.stripIndent())
-
-        when:
+      when:
         def response = syncUpdate update
-
-        then:
+      then:
         response =~ /Create SUCCEEDED: \[person\] TP3-TEST   Test Person/
     }
 
