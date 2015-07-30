@@ -45,6 +45,8 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SponsoringOrgValidator.class);
 
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE, MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(INETNUM, INET6NUM, AUT_NUM);
     private static final Set<? extends InetStatus> ALLOWED_STATUSES =
         ImmutableSet.of(
             InetnumStatus.ASSIGNED_PI,
@@ -64,12 +66,12 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
     @Override
     public List<Action> getActions() {
-        return ImmutableList.of(CREATE, MODIFY);
+        return ACTIONS;
     }
 
     @Override
     public List<ObjectType> getTypes() {
-        return ImmutableList.of(INETNUM, INET6NUM, AUT_NUM);
+        return TYPES;
     }
 
     @Override
