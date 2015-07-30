@@ -37,13 +37,22 @@ public class NicHandleFactory extends AbstractAutoKeyFactory<NicHandle> {
 
     @Override
     public NicHandle claim(final String key) throws ClaimException {
-        try {
-            final NicHandle nicHandle = NicHandle.parse(key, getSource(), countryCodeRepository.getCountryCodes());
-            if (!nicHandleRepository.claimSpecified(nicHandle)) {
-                throw new ClaimException(UpdateMessages.nicHandleNotAvailable(nicHandle.toString()));
-            }
+        final NicHandle nicHandle = parseNicHandle(key);
+        if (!nicHandleRepository.claimSpecified(nicHandle)) {
+            throw new ClaimException(UpdateMessages.nicHandleNotAvailable(nicHandle.toString()));
+        }
 
-            return nicHandle;
+        return nicHandle;
+    }
+
+    public boolean isAvailable(final String key) throws ClaimException {
+        final NicHandle nicHandle = parseNicHandle(key);
+        return nicHandleRepository.isAvailable(nicHandle);
+    }
+
+    private NicHandle parseNicHandle(final String key) throws ClaimException {
+        try {
+            return NicHandle.parse(key, getSource(), countryCodeRepository.getCountryCodes());
         } catch (NicHandleParseException e) {
             throw new ClaimException(ValidationMessages.syntaxError(key));
         }

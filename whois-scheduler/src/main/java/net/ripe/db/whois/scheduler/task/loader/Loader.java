@@ -53,6 +53,8 @@ public class Loader {
             runPass(result, entry, 1);
             runPass(result, entry, 2);
         }
+        //TODO [TP]: the logging is a bit misleading. success number is correct, failed can be double because...
+        //TODO ...for a single object failure in two passes counts as 2 failures
         result.addText(String.format("FINISHED\n%d succeeded, %d failed\n", result.getSuccess(), result.getFail()));
         return result.toString();
     }

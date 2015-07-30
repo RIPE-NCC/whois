@@ -54,4 +54,44 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         final Database removed = diff.getRemoved();
         assertThat(removed.getAll(), hasSize(0));
     }
+
+    @Test
+    public void testSplitFileWithErrorsAdded() throws Exception {
+
+        bootstrap.setDumpFileLocation(applicationContext.getResource("TEST_LOAD_DUMP_STEP1.db").getURI().getPath());
+
+        final String bootstrapLoadResults = bootstrap.bootstrap();
+
+        assertThat(bootstrapLoadResults, containsString("FINISHED\n3 succeeded, 0 failed\n"));
+        final Database bootstrapLoad = new Database(whoisTemplate);
+
+        final String additionalLoadResults = bootstrap.loadTextDump(
+                new String[] { applicationContext.getResource("TEST_LOAD_DUMP_STEP2.db").getURI().getPath()});
+
+        assertThat(additionalLoadResults, containsString("FINISHED\n2 succeeded, 2 failed\n"));
+
+        assertThat(additionalLoadResults, containsString("Error in pass 1 in '[person] AA2-TEST   " +
+                "Incorrect Person': net.ripe.db.whois.update.autokey.ClaimException"));
+
+        assertThat(additionalLoadResults, containsString("EmptyResultDataAccessException: Incorrect result size"));
+
+        final Database additionalLoad = new Database(whoisTemplate);
+        System.out.println("additionalLoad = " + additionalLoad);
+
+        assertThat(additionalLoad.getTable("serials"), hasSize(10));
+        assertThat(additionalLoad.getTable("last"), hasSize(5));
+        assertThat(additionalLoad.getTable("history"), hasSize(5));
+        assertThat(additionalLoad.getTable("mntner"), hasSize(2));
+        assertThat(additionalLoad.getTable("nic_hdl"), hasSize(2));
+        assertThat(additionalLoad.getTable("person_role"), hasSize(3));
+
+        final DatabaseDiff diff = Database.diff(bootstrapLoad, additionalLoad);
+        System.out.println("diff = " + diff);
+
+        assertThat(diff.getRemoved().getAll(), hasSize(0));
+        assertThat(diff.getModified().getAll(), hasSize(0));
+        assertThat(diff.getAdded().getTable("last"), hasSize(2));
+        assertThat(diff.getAdded().getTable("nic_hdl"), hasSize(1));
+        assertThat(diff.getAdded().getTable("person_role"), hasSize(1));
+    }
 }
