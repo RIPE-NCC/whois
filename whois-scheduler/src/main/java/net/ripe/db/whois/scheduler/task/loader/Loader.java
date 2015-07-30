@@ -34,24 +34,24 @@ public class Loader {
         loadScripts(whoisTemplate, "whois_data.sql");
     }
 
-    public String loadSplitFiles(String... entries) {
+    public String loadSplitFiles(String... filenames) {
         Result result = new Result();
-        for (String entry : entries) {
-            File file = new File(entry);
+        for (String filename : filenames) {
+            File file = new File(filename);
             if (!file.isFile()) {
-                result.addText(String.format("Argument '%s' is not a file\n", entry));
+                result.addText(String.format("Argument '%s' is not a file\n", filename));
                 continue;
             }
 
             if (!file.exists()) {
-                result.addText(String.format("Argument '%s' does not exist\n", entry));
+                result.addText(String.format("Argument '%s' does not exist\n", filename));
                 continue;
             }
 
             // 2-pass loading: first create the skeleton objects only, and try creating the full objects in the second run
             // (when the foreign keys are already available)
-            runPass(result, entry, 1);
-            runPass(result, entry, 2);
+            runPass(result, filename, 1);
+            runPass(result, filename, 2);
         }
         //TODO [TP]: the logging is a bit misleading. success number is correct, failed can be double because...
         //TODO ...for a single object failure in two passes counts as 2 failures
@@ -59,7 +59,7 @@ public class Loader {
         return result.toString();
     }
 
-    private void runPass(final Result result, final String entry, final int pass) {
+    private void runPass(final Result result, final String filename, final int pass) {
         // sadly Executors don't offer a bounded/blocking submit() implementation
         final int numThreads = Runtime.getRuntime().availableProcessors();
         final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads*16);
@@ -67,7 +67,7 @@ public class Loader {
                 0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
         try {
-            for (final String nextObject : new RpslObjectFileReader(entry)) {
+            for (final String nextObject : new RpslObjectFileReader(filename)) {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
@@ -76,7 +76,7 @@ public class Loader {
                 });
             }
         } catch (Exception e) {
-            result.addText(String.format("Error reading '%s': %s\n", entry, e.getMessage()));
+            result.addText(String.format("Error reading '%s': %s\n", filename, e.getMessage()));
         } finally {
             executorService.shutdown();
             try {
