@@ -1468,7 +1468,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "No warning if auth lines removed but multiple maintainers and auth succeeds"() {
