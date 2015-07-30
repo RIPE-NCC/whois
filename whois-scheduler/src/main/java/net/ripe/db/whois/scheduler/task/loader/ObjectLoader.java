@@ -76,7 +76,7 @@ public class ObjectLoader {
         } catch (Exception e) {
             StringWriter stringWriter = new StringWriter();
             e.printStackTrace(new PrintWriter(stringWriter));
-            result.addFail(String.format("Error in pass %d in '%s': %s\n", pass, rpslObject.getFormattedKey(), stringWriter));
+            result.addFail(String.format("Error in pass %d in '%s': %s\n", pass, rpslObject.getFormattedKey(), stringWriter), pass);
         }
     }
 

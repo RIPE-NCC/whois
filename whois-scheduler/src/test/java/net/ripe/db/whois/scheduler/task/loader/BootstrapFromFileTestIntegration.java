@@ -39,7 +39,8 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         bootstrap.setDumpFileLocation(applicationContext.getResource("TEST.db").getURI().getPath());
         final String result = bootstrap.bootstrap();
 
-        assertThat(result, containsString("FINISHED\n220 succeeded, 0 failed\n"));
+        assertThat(result, containsString("FINISHED\n220 succeeded\n0 failed in pass 1\n0 failed in pass 2\n"));
+
         assertThat(result.toLowerCase(), not(containsString("error")));
 
         final DatabaseDiff diff = Database.diff(before, new Database(whoisTemplate));
@@ -62,13 +63,15 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
 
         final String bootstrapLoadResults = bootstrap.bootstrap();
 
-        assertThat(bootstrapLoadResults, containsString("FINISHED\n3 succeeded, 0 failed\n"));
+        assertThat(bootstrapLoadResults, containsString("FINISHED\n3 succeeded\n0 failed in pass 1\n0 failed in pass 2\n"));
+
         final Database bootstrapLoad = new Database(whoisTemplate);
 
         final String additionalLoadResults = bootstrap.loadTextDump(
                 new String[] { applicationContext.getResource("TEST_ADDITIONAL_LOAD_DUMP_WITH_ERROR.db").getURI().getPath()});
 
-        assertThat(additionalLoadResults, containsString("FINISHED\n2 succeeded, 2 failed\n"));
+        assertThat(additionalLoadResults, containsString(
+                "FINISHED\n2 succeeded\n1 failed in pass 1\n1 failed in pass 2\n"));
 
         assertThat(additionalLoadResults, containsString("Error in pass 1 in '[person] AA2-TEST   " +
                 "Incorrect Person': net.ripe.db.whois.update.autokey.ClaimException"));
@@ -76,7 +79,6 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         assertThat(additionalLoadResults, containsString("EmptyResultDataAccessException: Incorrect result size"));
 
         final Database additionalLoad = new Database(whoisTemplate);
-        System.out.println("additionalLoad = " + additionalLoad);
 
         assertThat(additionalLoad.getTable("serials"), hasSize(10));
         assertThat(additionalLoad.getTable("last"), hasSize(5));
@@ -86,7 +88,6 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         assertThat(additionalLoad.getTable("person_role"), hasSize(3));
 
         final DatabaseDiff diff = Database.diff(bootstrapLoad, additionalLoad);
-        System.out.println("diff = " + diff);
 
         assertThat(diff.getRemoved().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(0));
