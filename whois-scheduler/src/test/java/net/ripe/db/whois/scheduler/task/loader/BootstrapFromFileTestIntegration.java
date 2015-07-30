@@ -58,7 +58,7 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     @Test
     public void testSplitFileWithErrorsAdded() throws Exception {
 
-        bootstrap.setDumpFileLocation(applicationContext.getResource("TEST_LOAD_DUMP_STEP1.db").getURI().getPath());
+        bootstrap.setDumpFileLocation(applicationContext.getResource("TEST_BOOTSTRAP_LOAD_DUMP.db").getURI().getPath());
 
         final String bootstrapLoadResults = bootstrap.bootstrap();
 
@@ -66,7 +66,7 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         final Database bootstrapLoad = new Database(whoisTemplate);
 
         final String additionalLoadResults = bootstrap.loadTextDump(
-                new String[] { applicationContext.getResource("TEST_LOAD_DUMP_STEP2.db").getURI().getPath()});
+                new String[] { applicationContext.getResource("TEST_ADDITIONAL_LOAD_DUMP_WITH_ERROR.db").getURI().getPath()});
 
         assertThat(additionalLoadResults, containsString("FINISHED\n2 succeeded, 2 failed\n"));
 
