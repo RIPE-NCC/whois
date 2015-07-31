@@ -26,8 +26,8 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
 
     @Test
     public void testThatBootstrapLeavesDatabaseInWorkingState() throws Exception {
-        assertThat(whoisTemplate.queryForInt("select count(*) from x509"), is(1));
-        assertThat(whoisTemplate.queryForInt("select count(*) from update_lock"), is(1));
+        assertThat(whoisTemplate.queryForObject("select count(*) from x509", Integer.class).intValue(), is(1));
+        assertThat(whoisTemplate.queryForObject("select count(*) from update_lock", Integer.class).intValue(), is(1));
 
         bootstrap.bootstrap();
 
@@ -68,7 +68,7 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         split_file_with_errors_added(LoaderMode.FAST_AND_RISKY);
     }
 
-    public void split_file_with_errors_added(LoaderMode loaderMode) throws IOException {
+    public void split_file_with_errors_added(final LoaderMode loaderMode) throws IOException {
 
         bootstrap.setDumpFileLocation(applicationContext.getResource("TEST_BOOTSTRAP_LOAD_DUMP.db").getURI().getPath());
 

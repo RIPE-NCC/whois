@@ -33,7 +33,7 @@ public class LoaderRisky extends Loader {
 
     @Override
     protected void loadSplitFiles(Result result, String... filenames) {
-        result.addText("Running in non transactional, unsafe mode");
+        result.addText("Running in non transactional, unsafe mode\n");
 
         for (String filename : filenames) {
             File file = new File(filename);
@@ -50,13 +50,12 @@ public class LoaderRisky extends Loader {
 
             // 2-pass loading: first create the skeleton objects only, and try creating the full objects in the second run
             // (when the foreign keys are already available)
-            runPass(result, filename, 1);
-            runPass(result, filename, 2);
+            runPassRisky(result, filename, 1);
+            runPassRisky(result, filename, 2);
         }
     }
 
-    @Override
-    protected void runPass(final Result result, final String filename, final int pass) {
+    private void runPassRisky(final Result result, final String filename, final int pass) {
         // sadly Executors don't offer a bounded/blocking submit() implementation
         final int numThreads = Runtime.getRuntime().availableProcessors();
         final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads*16);
