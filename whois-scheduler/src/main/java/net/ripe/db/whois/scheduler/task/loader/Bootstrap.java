@@ -17,16 +17,18 @@ import java.util.concurrent.TimeUnit;
 public class Bootstrap implements DailyScheduledTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
 
-    private final Loader loader;
+    private final LoaderRisky loaderRisky;
+    private final LoaderSafe loaderSafe;
     private final SourceContext sourceContext;
 
     @Value("${bootstrap.dumpfile:}")
     private String[] dumpFileLocation;
 
     @Autowired
-    public Bootstrap(final Loader loader, final SourceContext sourceContext) {
+    public Bootstrap(final LoaderRisky loaderRisky, final LoaderSafe loaderSafe, final SourceContext sourceContext) {
+        this.loaderRisky = loaderRisky;
+        this.loaderSafe = loaderSafe;
         this.sourceContext = sourceContext;
-        this.loader = loader;
     }
 
     public void setDumpFileLocation(final String... testDumpFileLocation) {
@@ -39,19 +41,27 @@ public class Bootstrap implements DailyScheduledTask {
         }
         try {
             sourceContext.setCurrentSourceToWhoisMaster();
-            loader.resetDatabase();
+            loaderRisky.resetDatabase();
 
             // wait until trees pick up empty DB to avoid case where few updates done and new objects added to text dump result in
             // treeupdaters not recognising rebuild is needed
             Uninterruptibles.sleepUninterruptibly(IpTreeUpdater.TREE_UPDATE_IN_SECONDS, TimeUnit.SECONDS);
 
-            return loader.loadSplitFiles(dumpFileLocation);
+            return loaderRisky.loadSplitFiles(dumpFileLocation);
         } finally {
             sourceContext.removeCurrentSource();
         }
     }
 
-    public String loadTextDump(String[] dumpfile) {
+    public String loadTextDumpSafe(String[] dumpfile) {
+        return loadTextDump(dumpfile, loaderSafe);
+    }
+
+    public String loadTextDumpRisky(String[] dumpfile) {
+        return loadTextDump(dumpfile, loaderRisky);
+    }
+
+    private String loadTextDump(String[] dumpfile, final Loader loader) {
         try {
             sourceContext.setCurrentSourceToWhoisMaster();
             return loader.loadSplitFiles(dumpfile);
