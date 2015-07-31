@@ -23,15 +23,12 @@ abstract class Loader {
         } finally {
             result.addText(String.format("FINISHED\n%d succeeded\n%d failed in pass 1\n%d failed in pass 2\n",
                     result.getSuccess(), result.getFailPass1(), result.getFailPass2()));
-
-            return result.toString();
         }
+        return result.toString();
     }
 
-    abstract void resetDatabase() ;
+    abstract void resetDatabase();
 
     abstract void loadSplitFiles(Result result, String... filenames);
-
-    abstract void runPass(final Result result, final String filename, final int pass);
 
 }

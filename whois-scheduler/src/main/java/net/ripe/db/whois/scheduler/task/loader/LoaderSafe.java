@@ -28,7 +28,7 @@ public class LoaderSafe extends Loader {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     protected void loadSplitFiles(Result result, String... filenames) {
-        result.addText("Running in transactional, safe mode");
+        result.addText("Running in transactional, safe mode\n");
 
         for (String filename : filenames) {
             File file = new File(filename);
@@ -50,13 +50,12 @@ public class LoaderSafe extends Loader {
 
             // 2-pass loading: first create the skeleton objects only, and try creating the full objects in the second run
             // (when the foreign keys are already available)
-            runPass(result, filename, 1);
-            runPass(result, filename, 2);
+            runPassSafe(result, filename, 1);
+            runPassSafe(result, filename, 2);
         }
     }
 
-    @Override
-    protected void runPass(final Result result, final String filename, final int pass) {
+    private void runPassSafe(final Result result, final String filename, final int pass) {
         try {
             for (final String nextObject : new RpslObjectFileReader(filename)) {
                 objectLoader.processObject(nextObject, result, pass, LoaderMode.SAFE);
