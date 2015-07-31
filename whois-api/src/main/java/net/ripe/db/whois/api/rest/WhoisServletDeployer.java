@@ -31,6 +31,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final AutocompleteService autocompleteService;
     private final DefaultExceptionMapper defaultExceptionMapper;
     private final MaintenanceModeFilter maintenanceModeFilter;
+    private final ReferencesService referencesService;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -40,7 +41,8 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final AbuseContactService abuseContactService,
                                 final AutocompleteService autocompleteService,
                                 final DefaultExceptionMapper defaultExceptionMapper,
-                                final MaintenanceModeFilter maintenanceModeFilter) {
+                                final MaintenanceModeFilter maintenanceModeFilter,
+                                final ReferencesService referencesService) {
         this.whoisRestService = whoisRestService;
         this.syncUpdatesService = syncUpdatesService;
         this.whoisMetadata = whoisMetadata;
@@ -49,6 +51,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.autocompleteService = autocompleteService;
         this.defaultExceptionMapper = defaultExceptionMapper;
         this.maintenanceModeFilter = maintenanceModeFilter;
+        this.referencesService = referencesService;
     }
 
     @Override
@@ -66,6 +69,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(abuseContactService);
         resourceConfig.register(autocompleteService);
         resourceConfig.register(defaultExceptionMapper);
+        resourceConfig.register(referencesService);
         resourceConfig.register(new CacheControlFilter());
         resourceConfig.register(new CrossOriginFilter());
 
