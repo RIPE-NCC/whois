@@ -54,14 +54,32 @@ public class ObjectLoader {
         this.x509Repository = x509Repository;
     }
 
-    public void processObject(String fullObject, Result result, int pass) {
+    public void processObject(final String fullObject,
+                              final Result result,
+                              final int pass,
+                              final LoaderMode loaderMode) {
+
         RpslObject rpslObject = RpslObject.parse(fullObject);
         rpslObject = attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
+
+        if (loaderMode == LoaderMode.FAST_AND_RISKY) {
+            addObjectRisky(rpslObject, result, pass);
+        }
+
+        addObjectSafe(rpslObject, result, pass);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void addObjectSafe(RpslObject rpslObject, Result result, int pass) {
         addObject(rpslObject, result, pass);
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
-    public void addObject(RpslObject rpslObject, Result result, int pass) {
+    public void addObjectRisky(RpslObject rpslObject, Result result, int pass) {
+        addObject(rpslObject, result, pass);
+    }
+
+    private void addObject(RpslObject rpslObject, Result result, int pass) {
         try {
             if (pass == 1) {
                 checkForReservedNicHandle(rpslObject);

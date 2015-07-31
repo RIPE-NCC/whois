@@ -10,6 +10,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
+
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -57,7 +59,16 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     }
 
     @Test
-    public void testSplitFileWithErrorsAdded() throws Exception {
+    public void split_file_with_errors_added_safe() throws IOException {
+        split_file_with_errors_added(LoaderMode.SAFE);
+    }
+
+    @Test
+    public void split_file_with_errors_added_risky() throws IOException {
+        split_file_with_errors_added(LoaderMode.FAST_AND_RISKY);
+    }
+
+    public void split_file_with_errors_added(LoaderMode loaderMode) throws IOException {
 
         bootstrap.setDumpFileLocation(applicationContext.getResource("TEST_BOOTSTRAP_LOAD_DUMP.db").getURI().getPath());
 
@@ -67,8 +78,14 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
 
         final Database bootstrapLoad = new Database(whoisTemplate);
 
-        final String additionalLoadResults = bootstrap.loadTextDump(
-                new String[] { applicationContext.getResource("TEST_ADDITIONAL_LOAD_DUMP_WITH_ERROR.db").getURI().getPath()});
+        final String additionalLoadResults;
+        final String[] dumpFiles = {applicationContext.getResource("TEST_ADDITIONAL_LOAD_DUMP_WITH_ERROR.db").getURI().getPath()};
+
+        if (loaderMode == LoaderMode.FAST_AND_RISKY){
+            additionalLoadResults = bootstrap.loadTextDumpRisky(dumpFiles);
+        } else {
+            additionalLoadResults = bootstrap.loadTextDumpSafe(dumpFiles);
+        }
 
         assertThat(additionalLoadResults, containsString(
                 "FINISHED\n2 succeeded\n1 failed in pass 1\n1 failed in pass 2\n"));
@@ -95,4 +112,5 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         assertThat(diff.getAdded().getTable("nic_hdl"), hasSize(1));
         assertThat(diff.getAdded().getTable("person_role"), hasSize(1));
     }
+
 }
