@@ -5,9 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.ws.rs.BadRequestException;
@@ -65,15 +63,13 @@ public class CrowdClientTest {
 
     @Test
     public void login_not_authorized() {
-        when(builder.<CrowdSession>post(any(Entity.class), any(Class.class))).thenAnswer(new Answer<CrowdSession>() {
-            @Override
-            public CrowdSession answer(InvocationOnMock invocation) throws Throwable {
+        when(builder.<CrowdSession>post(any(Entity.class), any(Class.class))).then(
+            invocation -> {
                 when(response.getStatus()).thenReturn(401);
                 when(response.getStatusInfo()).thenReturn(Response.Status.UNAUTHORIZED);
                 when(response.readEntity(CrowdClient.CrowdError.class)).thenReturn(new CrowdClient.CrowdError("reason", "message"));
                 throw new NotAuthorizedException(response);
-            }
-        });
+            });
 
         try {
             subject.login("test@ripe.net", "password");
