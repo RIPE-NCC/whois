@@ -59,36 +59,70 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     }
 
     @Test
-    public void split_file_with_errors_added_safe() throws IOException {
-        split_file_with_errors_added(LoaderMode.SAFE);
+    public void split_file_added_safe() throws IOException {
+        bootstrapInitialObjects();
+
+        final Database bootstrapLoad = new Database(whoisTemplate);
+
+        final String[] dumpFiles = {applicationContext.getResource("TEST_ADDITIONAL_LOAD_DUMP.db").getURI().getPath()};
+
+        final String additionalLoadResults = bootstrap.loadTextDumpSafe(dumpFiles);
+
+        assertThat(additionalLoadResults, containsString("FINISHED\n3 succeeded\n0 failed in pass 1\n0 failed in pass 2\n"));
+        assertThat(additionalLoadResults, containsString("Ran in transactional, safe mode: committing DB changes"));
+
+        final Database additionalLoad = new Database(whoisTemplate);
+        assertAdditionalLoad(bootstrapLoad, additionalLoad);
+    }
+
+    @Test
+    public void split_file_added_risky() throws IOException {
+        bootstrapInitialObjects();
+
+        final Database bootstrapLoad = new Database(whoisTemplate);
+
+        final String[] dumpFiles = {applicationContext.getResource("TEST_ADDITIONAL_LOAD_DUMP.db").getURI().getPath()};
+
+        final String additionalLoadResults = bootstrap.loadTextDumpRisky(dumpFiles);
+
+        assertThat(additionalLoadResults, containsString("FINISHED\n3 succeeded\n0 failed in pass 1\n0 failed in pass 2\n"));
+
+        final Database additionalLoad = new Database(whoisTemplate);
+        assertAdditionalLoad(bootstrapLoad, additionalLoad);
+    }
+
+    private void assertAdditionalLoad(final Database bootstrapLoad, final Database additionalLoad) {
+
+        assertThat(additionalLoad.getTable("serials"), hasSize(12));
+        assertThat(additionalLoad.getTable("last"), hasSize(6));
+        assertThat(additionalLoad.getTable("mntner"), hasSize(2));
+        assertThat(additionalLoad.getTable("history"), hasSize(6));
+        assertThat(additionalLoad.getTable("nic_hdl"), hasSize(3));
+        assertThat(additionalLoad.getTable("person_role"), hasSize(4));
+
+        final DatabaseDiff diff = Database.diff(bootstrapLoad, additionalLoad);
+
+        assertThat(diff.getRemoved().getAll(), hasSize(0));
+        assertThat(diff.getModified().getAll(), hasSize(0));
+        assertThat(diff.getAdded().getTable("last"), hasSize(3));
+        assertThat(diff.getAdded().getTable("nic_hdl"), hasSize(2));
+        assertThat(diff.getAdded().getTable("person_role"), hasSize(2));
+        assertThat(diff.getAdded().getTable("mntner"), hasSize(1));
     }
 
     @Test
     public void split_file_with_errors_added_risky() throws IOException {
-        split_file_with_errors_added(LoaderMode.FAST_AND_RISKY);
-    }
-
-    public void split_file_with_errors_added(final LoaderMode loaderMode) throws IOException {
-
-        bootstrap.setDumpFileLocation(applicationContext.getResource("TEST_BOOTSTRAP_LOAD_DUMP.db").getURI().getPath());
-
-        final String bootstrapLoadResults = bootstrap.bootstrap();
-
-        assertThat(bootstrapLoadResults, containsString("FINISHED\n3 succeeded\n0 failed in pass 1\n0 failed in pass 2\n"));
+        bootstrapInitialObjects();
 
         final Database bootstrapLoad = new Database(whoisTemplate);
 
-        final String additionalLoadResults;
         final String[] dumpFiles = {applicationContext.getResource("TEST_ADDITIONAL_LOAD_DUMP_WITH_ERROR.db").getURI().getPath()};
 
-        if (loaderMode == LoaderMode.FAST_AND_RISKY){
-            additionalLoadResults = bootstrap.loadTextDumpRisky(dumpFiles);
-        } else {
-            additionalLoadResults = bootstrap.loadTextDumpSafe(dumpFiles);
-        }
+        final String additionalLoadResults = bootstrap.loadTextDumpRisky(dumpFiles);
 
-        assertThat(additionalLoadResults, containsString(
-                "FINISHED\n2 succeeded\n1 failed in pass 1\n1 failed in pass 2\n"));
+
+        assertThat(additionalLoadResults, containsString("FINISHED\n2 succeeded\n1 failed in pass 1\n1 failed in pass 2\n"));
+        assertThat(additionalLoadResults, containsString("Ran in non transactional, unsafe mode: no rollback for DB changes"));
 
         assertThat(additionalLoadResults, containsString("Error in pass 1 in '[person] AA2-TEST   " +
                 "Incorrect Person': net.ripe.db.whois.update.autokey.ClaimException"));
@@ -111,6 +145,47 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         assertThat(diff.getAdded().getTable("last"), hasSize(2));
         assertThat(diff.getAdded().getTable("nic_hdl"), hasSize(1));
         assertThat(diff.getAdded().getTable("person_role"), hasSize(1));
+    }
+
+    @Test
+    public void split_file_with_errors_added_safe() throws IOException {
+        bootstrapInitialObjects();
+
+        final Database bootstrapLoad = new Database(whoisTemplate);
+
+        final String[] dumpFiles = {applicationContext.getResource("TEST_ADDITIONAL_LOAD_DUMP_WITH_ERROR.db").getURI().getPath()};
+
+        final String additionalLoadResults = bootstrap.loadTextDumpSafe(dumpFiles);
+
+        assertThat(additionalLoadResults, containsString("FINISHED\n0 succeeded\n1 failed in pass 1\n0 failed in pass 2\n"));
+        assertThat(additionalLoadResults, containsString("Ran in transactional, safe mode: rolling back DB changes"));
+
+        assertThat(additionalLoadResults, containsString("Error in pass 1 in '[person] AA2-TEST   " +
+                "Incorrect Person': net.ripe.db.whois.update.autokey.ClaimException"));
+
+        final Database additionalLoad = new Database(whoisTemplate);
+
+        assertThat(additionalLoad.getTable("serials"), hasSize(6));
+        assertThat(additionalLoad.getTable("last"), hasSize(3));
+        assertThat(additionalLoad.getTable("history"), hasSize(3));
+        assertThat(additionalLoad.getTable("mntner"), hasSize(1));
+        assertThat(additionalLoad.getTable("nic_hdl"), hasSize(1));
+        assertThat(additionalLoad.getTable("person_role"), hasSize(2));
+
+        final DatabaseDiff diff = Database.diff(bootstrapLoad, additionalLoad);
+
+        assertThat(diff.getRemoved().getAll(), hasSize(0));
+        assertThat(diff.getModified().getAll(), hasSize(0));
+        assertThat(diff.getAdded().getAll(), hasSize(0));
+    }
+
+    public void bootstrapInitialObjects() throws IOException {
+
+        bootstrap.setDumpFileLocation(applicationContext.getResource("TEST_BOOTSTRAP_LOAD_DUMP.db").getURI().getPath());
+
+        final String bootstrapLoadResults = bootstrap.bootstrap();
+
+        assertThat(bootstrapLoadResults, containsString("FINISHED\n3 succeeded\n0 failed in pass 1\n0 failed in pass 2\n"));
     }
 
 }

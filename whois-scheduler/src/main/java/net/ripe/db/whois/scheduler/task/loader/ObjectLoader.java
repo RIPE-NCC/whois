@@ -1,8 +1,11 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -16,6 +19,7 @@ import net.ripe.db.whois.update.autokey.dao.X509Repository;
 import net.ripe.db.whois.update.domain.OrganisationId;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509KeycertId;
+import net.ripe.db.whois.update.handler.UpdateAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
@@ -70,27 +74,21 @@ public class ObjectLoader {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void addObjectSafe(RpslObject rpslObject, Result result, int pass) {
-        addObject(rpslObject, result, pass);
+    private void addObjectSafe(RpslObject rpslObject, Result result, int pass) {
+        try {
+            addObject(rpslObject, result, pass);
+        } catch (Exception e) {
+            StringWriter stringWriter = new StringWriter();
+            e.printStackTrace(new PrintWriter(stringWriter));
+            result.addFail(String.format("Error in pass %d in '%s': %s\n", pass, rpslObject.getFormattedKey(), stringWriter), pass);
+            throw new UpdateAbortedException();
+        }
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void addObjectRisky(RpslObject rpslObject, Result result, int pass) {
-        addObject(rpslObject, result, pass);
-    }
-
-    private void addObject(RpslObject rpslObject, Result result, int pass) {
         try {
-            if (pass == 1) {
-                checkForReservedNicHandle(rpslObject);
-                rpslObject = RpslObjectFilter.keepKeyAttributesOnly(new RpslObjectBuilder(rpslObject)).get();
-                rpslObjectUpdateDao.createObject(rpslObject);
-            } else {
-                final RpslObjectInfo existing = rpslObjectDao.findByKey(rpslObject.getType(), rpslObject.getKey().toString());
-                rpslObjectUpdateDao.updateObject(existing.getObjectId(), rpslObject);
-                claimIds(rpslObject);
-                result.addSuccess();
-            }
+            addObject(rpslObject, result, pass);
         } catch (Exception e) {
             StringWriter stringWriter = new StringWriter();
             e.printStackTrace(new PrintWriter(stringWriter));
@@ -98,12 +96,34 @@ public class ObjectLoader {
         }
     }
 
-    private void checkForReservedNicHandle(final RpslObject object) throws ClaimException {
-        if (object.getType() == ObjectType.PERSON || object.getType() == ObjectType.ROLE){
-            if (!nicHandleFactory.isAvailable(object.getKey().toString())){
-                throw new ClaimException(UpdateMessages.nicHandleNotAvailable(object.getKey()));
-            }
+    private void addObject(RpslObject rpslObject, Result result, int pass) throws Exception {
+        if (pass == 1) {
+            checkForReservedNicHandle(rpslObject);
+            rpslObject = RpslObjectFilter.keepKeyAttributesOnly(new RpslObjectBuilder(rpslObject)).get();
+            rpslObjectUpdateDao.createObject(rpslObject);
+        } else {
+            final RpslObjectInfo existing = rpslObjectDao.findByKey(rpslObject.getType(), rpslObject.getKey().toString());
+            rpslObjectUpdateDao.updateObject(existing.getObjectId(), rpslObject);
+            claimIds(rpslObject);
+            result.addSuccess();
         }
+    }
+
+    public void checkForReservedNicHandle(final RpslObject object) throws ClaimException {
+        if (object.getType() != ObjectType.PERSON && object.getType() != ObjectType.ROLE) {
+            return;
+        }
+
+        final CIString pkey = object.getKey();
+
+        if (pkey.equals("AUTO-1")){
+            throw new ClaimException(new Message(Messages.Type.ERROR, "AUTO-1 in nic-hdl is not available in Bootstrap/LoadDump mode"));
+        }
+
+        if (!nicHandleFactory.isAvailable(object.getKey().toString())){
+            throw new ClaimException(UpdateMessages.nicHandleNotAvailable(object.getKey()));
+        }
+
     }
 
     // NB: `synchronized` is mandatory here as normally IDs are claimed under the hood of the global update lock
