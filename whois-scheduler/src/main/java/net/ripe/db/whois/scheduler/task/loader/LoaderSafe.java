@@ -2,56 +2,106 @@ package net.ripe.db.whois.scheduler.task.loader;
 
 import net.ripe.db.whois.common.io.RpslObjectFileReader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
-public class LoaderSafe extends Loader {
-    private final static int FILE_SIZE_LIMIT_IN_MB = 10;
+public class LoaderSafe implements Loader {
+    private final static int TOTAL_SIZE_LIMIT_IN_MB = 15;
+
+    private final ObjectLoader objectLoader;
 
     @Autowired
-    public LoaderSafe(@Qualifier("sourceAwareDataSource") final DataSource dataSource, final ObjectLoader objectLoader) {
-        super(dataSource, objectLoader);
+    public LoaderSafe(final ObjectLoader objectLoader) {
+        this.objectLoader = objectLoader;
     }
 
     @Override
-    protected void resetDatabase() {
+    public void resetDatabase() {
         throw new UnsupportedOperationException("Reset database in transactional mode is not supported yet");
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
-    protected void loadSplitFiles(Result result, String... filenames) {
-        result.addText("Running in transactional, safe mode\n");
+    public String loadSplitFiles(final String... filenames) {
+        Result result = null;
+        try {
+            result = loadSplitFiles(Arrays.asList(filenames));
+            result.addText("Ran in transactional, safe mode: committing DB changes\n");
+        } catch (GetResultException e) {
+            result = e.getResult();
+            result.addText("Ran in transactional, safe mode: rolling back DB changes\n");
+        } finally {
+            result.addText(String.format("FINISHED\n%d succeeded\n%d failed in pass 1\n%d failed in pass 2\n",
+                    result.getSuccess(), result.getFailPass1(), result.getFailPass2()));
+        }
+        return result.toString();
+    }
 
-        for (String filename : filenames) {
-            File file = new File(filename);
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+    private Result loadSplitFiles(final List<String> filenames) {
+        final Result result = new Result();
+
+        try {
+            validateFiles(filenames);
+
+            for (final String filename : filenames) {
+                // 2-pass loading: first create the skeleton objects only, and try creating the full objects in the second run
+                // (when the foreign keys are already available)
+                runPassSafe(result, filename, 1);
+                runPassSafe(result, filename, 2);
+            }
+            return result;
+        } catch (Exception e) {
+            //throw an exception here, so that transaction gets rolled back.
+            throw new GetResultException(result, e);
+        }
+    }
+
+    class GetResultException extends RuntimeException{
+        private final Result result;
+        public GetResultException(final Result result, final Exception e) {
+            super(e);
+            this.result = result;
+            this.result.addText(String.format("\n%s\n", e.getMessage()));
+        }
+
+        public Result getResult() {
+            return result;
+        }
+    }
+
+    @Override
+    public void validateFiles(final List<String> filenames) {
+
+        if (filenames == null || filenames.size() == 0) {
+            throw new IllegalArgumentException("no file arguments provided");
+        }
+
+        long totalSize = 0;
+        for (final String filename : filenames) {
+            final File file = new File(filename);
 
             if (!file.isFile()) {
-                result.addText(String.format("Argument '%s' is not a file\n", filename));
-                continue;
+                throw new IllegalArgumentException(String.format("Argument '%s' is not a file\n", filename));
             }
 
             if (!file.exists()) {
-                result.addText(String.format("Argument '%s' does not exist\n", filename));
-                continue;
+                throw new IllegalArgumentException(String.format("Argument '%s' does not exist\n", filename));
             }
 
-            if (file.length() > FILE_SIZE_LIMIT_IN_MB * 1024 * 1024) {
-                result.addText(String.format("Max file size is %d MB \n", FILE_SIZE_LIMIT_IN_MB));
-                continue;
-            }
+            totalSize += file.length();
+        }
 
-            // 2-pass loading: first create the skeleton objects only, and try creating the full objects in the second run
-            // (when the foreign keys are already available)
-            runPassSafe(result, filename, 1);
-            runPassSafe(result, filename, 2);
+        if (totalSize > TOTAL_SIZE_LIMIT_IN_MB * 1024 * 1024) {
+            throw new IllegalArgumentException(
+                    String.format("Max total files' size should not be more than %d MB, \n" +
+                    "but supplied files have a total size of %.2f MB.\n", TOTAL_SIZE_LIMIT_IN_MB, (double)totalSize/1024/1024));
         }
     }
 
@@ -60,8 +110,9 @@ public class LoaderSafe extends Loader {
             for (final String nextObject : new RpslObjectFileReader(filename)) {
                 objectLoader.processObject(nextObject, result, pass, LoaderMode.SAFE);
             }
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             result.addText(String.format("Error reading '%s': %s\n", filename, e.getMessage()));
+            throw new GetResultException(result, e);
         }
     }
 }

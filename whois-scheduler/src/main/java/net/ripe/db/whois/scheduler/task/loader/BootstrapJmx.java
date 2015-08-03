@@ -29,7 +29,7 @@ public class BootstrapJmx extends JmxBase {
             "slow but safe, transactional, it DOES NOT use global update lock!)")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation"),
-            @ManagedOperationParameter(name = "filename", description = "Comma separated list of paths to the dump files")
+            @ManagedOperationParameter(name = "filenames", description = "Comma separated list of paths to the dump files")
     })
     public String loadDump(final String comment, final String filenames) {
         return invokeOperation("Load dump", comment, new Callable<String>() {
