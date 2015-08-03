@@ -48,7 +48,6 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
                 "e-mail:       org1@test.com\n" +
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20120505\n" +
                 "source:       TEST\n" +
                 ""));
         databaseHelper.addObject(RpslObject.parse("" +
@@ -60,7 +59,6 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
                 "e-mail:       org1@test.com\n" +
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20120505\n" +
                 "source:       TEST\n" +
                 ""));
         databaseHelper.addObject(RpslObject.parse("" +
@@ -75,7 +73,6 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
                 "status:        ALLOCATED PA\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "mnt-lower:     OWNER-MNT\n" +
-                "changed:       ripe@test.net 20120505\n" +
                 "source:        TEST\n"));
         databaseHelper.addObject(RpslObject.parse(
                 "mntner:        SSO-MNT\n" +
@@ -84,8 +81,6 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "referral-by:   SSO-MNT\n" +
-                "changed:       noreply@ripe.net 20120801\n" +
                 "source:        TEST"));
     }
 
@@ -107,7 +102,7 @@ public class TrustedQueryTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void inverse_lookup_sponsoring_org_from_untrusted_range_succeeds() {
+    public void inverse_lookup_sponsoring_org_from_trusted_range_succeeds() {
         ipRanges.setTrusted("127/8","::1");
         final String response = RestTest.target(getPort(), "whois/search?query-string=ORG-SPONSOR&inverse-attribute=sponsoring-org").request().get(String.class);
         assertThat(response, containsString("<attribute name=\"inetnum\" value=\"194.0.0.0 - 194.255.255.255\"/>"));

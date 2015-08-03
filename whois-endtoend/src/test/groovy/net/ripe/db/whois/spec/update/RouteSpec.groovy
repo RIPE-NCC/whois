@@ -15,7 +15,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Full ASN range
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS10000": """\
@@ -25,7 +24,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      ORIGIN-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "AS200200": """\
@@ -35,7 +33,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      OWNER-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "AS200": """\
@@ -45,7 +42,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      OWNER-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ROUTE-SET": """\
@@ -56,7 +52,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 members:     1.2.3.0/24
                 mbrs-by-ref: CHILD-MB-MNT
                 mnt-by:      OWNER-MNT
-                changed:     dbtest@ripe.net 20130101
                 source:      TEST
                 """,
             "ROUTE-SET-16": """\
@@ -67,7 +62,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 members:     1.2.3.0/24
                 mbrs-by-ref: CHILD-MB-MNT
                 mnt-by:      OWNER-MNT
-                changed:     dbtest@ripe.net 20130101
                 source:      TEST
                 """,
             "ROUTE-SET-NO-REF": """\
@@ -77,7 +71,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 members:     1.2.3.0/24
                 mnt-by:      OWNER-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ROUTE6-PARENT30": """\
@@ -85,7 +78,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         PARENT-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "ROUTE6-CHILD32": """\
@@ -93,7 +85,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """
    ]}
@@ -126,7 +117,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 inject: at AS234:rtrs-myset:AS2:rtrs-test:AS777234
                 inject: action community = {30303:20};
                 inject: upon HAVE-COMPONENTS {128.8.0.0/16, 128.9.0.0/16}
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -181,7 +171,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 inject: action community = {30303:75535};
                 inject: action community = {655350:20};
                 inject: upon HAVE-COMPONENTS {2001:600::/48, 128.9.0.0/16}
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -245,7 +234,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
                 member-of:      AS200200:rs-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -291,7 +279,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
                 member-of:      AS200:rs-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -338,7 +325,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 mnt-by:         CHILD-MB-MNT
                 member-of:      AS200200:rs-test
                 member-of:      AS200200:rs-test2
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -380,7 +366,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -423,7 +408,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS10000
                 inject:         upon HAVE-COMPONENTS {::/8}
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -469,7 +453,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
                 member-of:      AS200:rs-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 route-set:   AS200:rs-test
@@ -479,7 +462,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 members:     1.2.3.0/24
                 mbrs-by-ref: CHILD-MB-MNT
                 mnt-by:      OWNER-MNT
-                changed:     dbtest@ripe.net 20130101
                 source:      TEST
                 delete: referenced
 
@@ -528,7 +510,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 route:          99.13.0.0/16
@@ -536,7 +517,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
                 member-of:      AS200:rs-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -582,14 +562,12 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
                 member-of:      AS200:rs-test
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 route:          99.13.0.0/16
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -632,7 +610,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 mnt-by:         CHILD-MB-MNT
                 mnt-routes:     LIR-MNT {99.13.0.0/16^+, 99.13.0.0/16^-, 99.13.0.0/16^16-32, 99.13.0.0/16^24, 99.13.0.0/24}
                 mnt-routes:     LIR2-MNT      anY
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -680,7 +657,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 holes:          2001:600::/48, 2001:600::/56, 2001:600::/64
                 mnt-routes:     LIR-MNT {2001:600::/36^+, 2001:600::/36^-, 2001:600::/16^36-48, 2001:600::/16^42, 2001:600::/56}
                 mnt-routes:     LIR2-MNT      anY
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -728,7 +704,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 holes:          2001::/30
                 mnt-routes:     LIR-MNT {2001:600::/36^+, 2001:600::/36^-, 2001:600::/16^36-48, 2001:600::/16^42, 2001:600::/56}
                 mnt-routes:     LIR2-MNT      anY
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -781,7 +756,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 mnt-routes:     LIR-MNT {2001:600::/36^+, 2001:600::/36^-, 2001:600::/16^36-48, 2001:600::/16^42, 2001:600::/56}
                 mnt-routes:     LIR2-MNT      anY
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -832,7 +806,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 mnt-routes:     LIR-MNT {2001:600::/36^+, 2001:600::/36^-, 2001:600::/16^36-48, 2001:600::/16^42, 2001:600::/56}
                 mnt-routes:     LIR2-MNT      anY
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -877,7 +850,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:
 
@@ -917,7 +889,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          test route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        dbtest@ripe.net
                 aggr-bndry:     AS771234:AS-mytest:AS3:AS-test:AS775234
                 aggr-mtd:       outbound AS771234:AS-mytest:AS3:AS-test:AS775234
                 components:     ATOMIC protocol BGP4 community.contains(7295:2)
@@ -965,7 +936,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          test route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        dbtest@ripe.net
                 aggr-bndry:     AS771234:AS-mytest:AS3:AS-test:AS775234
                 aggr-mtd:       outbound AS771234:AS-mytest:AS3:AS-test:AS775234
                 components:     ATOMIC protocol BGP4 community.contains(94967295:2)
@@ -1025,7 +995,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          test route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        dbtest@ripe.net
                 aggr-bndry:     AS2.234:AS-mytest:AS3:AS-test:AS9294967295
                 aggr-mtd:       outbound AS9294967295:AS-mytest:AS3:AS-test:AS2.234
                 components:     ATOMIC protocol BGP4 community.contains(20:9294967295)
@@ -1085,7 +1054,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS200200
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child
@@ -1131,7 +1099,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      AS200200:rs-test
                 member-of:      AS200:rs-test
                 source:         TEST
@@ -1178,7 +1145,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      AS200200:rs-test2
                 member-of:      AS200:rs-test
                 source:         TEST
@@ -1224,7 +1190,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      AS300300:rs-test
                 member-of:      AS2000:rs-test
                 source:         TEST
@@ -1275,7 +1240,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS10000
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      AS200200:rs-test
                 member-of:      AS200:rs-test
                 source:         TEST
@@ -1287,7 +1251,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 members:     1.2.3.0/24
                 mbrs-by-ref: CHILD-MB-MNT
                 mnt-by:      OWNER-MNT
-                changed:     dbtest@ripe.net 20130101
                 source:      TEST
                 delete: referenced
 
@@ -1334,7 +1297,6 @@ class RouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS300300
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   mb-child

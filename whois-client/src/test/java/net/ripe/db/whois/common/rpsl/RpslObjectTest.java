@@ -26,9 +26,7 @@ public class RpslObjectTest {
             "mnt-nfy:         auto@example.net\n" +
             "auth:            MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\n" +
             "remarks:         password: secret\n" +
-            "mnt-by:      DEV-MNT\n" +
-            "referral-by:     DEV-MNT\n" +
-            "changed:         BECHA@example.net 20101010\n" +
+            "mnt-by:          DEV-MNT\n" +
             "source:          DEV\n";
 
     private RpslObject subject;
@@ -180,8 +178,6 @@ public class RpslObjectTest {
                 "auth:           MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\n" +
                 "remarks:        password: secret\n" +
                 "mnt-by:         DEV-MNT\n" +
-                "referral-by:    DEV-MNT\n" +
-                "changed:        BECHA@example.net 20101010\n" +
                 "source:         DEV\n"));
 
         assertThat(subject.findAttributes(AttributeType.MNTNER), hasSize(1));
@@ -295,9 +291,7 @@ public class RpslObjectTest {
                 "mnt-nfy:         auto@example.net\n" +
                 "auth:            MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\n" +
                 "remarks:         password: secret\n" +
-                "mnt-by:      DEV-MNT\n" +
-                "referral-by:     DEV-MNT\n" +
-                "changed:         BECHA@example.net 20101010\n" +
+                "mnt-by:          DEV-MNT\n" +
                 "source:          DEV\n");
         assertThat(subject.getKey().toString(), is("DEV-MNT"));
     }
@@ -368,9 +362,7 @@ public class RpslObjectTest {
                 "mnt-nfy:         auto@example.net\r\n" +
                 "auth:            MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\r\n" +
                 "remarks:         password: secret\r\n" +
-                "mnt-by:      DEV-MNT\r\n" +
-                "referral-by:     DEV-MNT\r\n" +
-                "changed:         BECHA@example.net 20101010\r\n" +
+                "mnt-by:          DEV-MNT\r\n" +
                 "source:          DEV\r\n");
 
         assertThat(object.toString(), not(containsString("\r")));

@@ -48,9 +48,9 @@ public class VersionQueryExecutor implements QueryExecutor {
     protected final BasicSourceContext sourceContext;
 
     @Autowired
-    public VersionQueryExecutor(final BasicSourceContext sourceContext,  @Qualifier("jdbcVersionDao") final VersionDao versionDao) {
-        this.versionDao = versionDao;
+    public VersionQueryExecutor(final BasicSourceContext sourceContext, @Qualifier("jdbcVersionDao") final VersionDao versionDao) {
         this.sourceContext = sourceContext;
+        this.versionDao = versionDao;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class VersionQueryExecutor implements QueryExecutor {
             @Override
             public ResponseObject apply(final ResponseObject input) {
                 if (input instanceof RpslObject) {
-                    ResponseObject filtered = FILTER_EMAIL_FUNCTION.apply(FILTER_AUTH_FUNCTION.apply((RpslObject) input));
+                    ResponseObject filtered = filter((RpslObject) input);
                     if (query.isObjectVersion()) {
                         filtered = new VersionWithRpslResponseObject((RpslObject) filtered, query.getObjectVersion());
                     }

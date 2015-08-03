@@ -50,4 +50,9 @@ public class PasswordCredentialValidatorTest {
     public void supports() {
         assertEquals(PasswordCredential.class, subject.getSupportedCredentials());
     }
+
+    @Test
+    public void tostring() {
+        assertThat(new PasswordCredential("secret").toString(), is("PasswordCredential"));
+    }
 }

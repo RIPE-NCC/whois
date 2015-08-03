@@ -139,8 +139,7 @@ public class SingleUpdateHandler {
 
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
-        // TODO: [AH] pending updates is scattered across the code
-        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
+        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION == updateContext.getStatus(preparedUpdate);
 
         if ((pendingAuthentication && !businessRulesOk) || (!pendingAuthentication && updateContext.hasErrors(update))) {
             throw new UpdateFailedException();
@@ -156,18 +155,24 @@ public class SingleUpdateHandler {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
-            if( authenticator.doesTypeSupportPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) ) {
-                pendingUpdateHandler.cleanup(preparedUpdate, updateContext);
+            if (eligibleForPendingUpdateCleanup(preparedUpdate, updateContext)) {
+                pendingUpdateHandler.cleanup(preparedUpdate.getUpdatedObject());
             }
         }
     }
 
+    private boolean eligibleForPendingUpdateCleanup(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
+        return authenticator.supportsPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) &&
+                Action.CREATE == preparedUpdate.getAction() &&
+                UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
+    }
+
     @CheckForNull
-    private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext ) {
-        RpslObject submittedObject = update.getSubmittedObject();
-        for( RpslAttribute attribute: submittedObject.getAttributes() ) {
-            if( ! CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue() )) {
-                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()) );
+    private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext) {
+        final RpslObject submittedObject = update.getSubmittedObject();
+        for (RpslAttribute attribute: submittedObject.getAttributes()) {
+            if (!CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue())) {
+                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()));
             }
         }
     }
@@ -245,10 +250,11 @@ public class SingleUpdateHandler {
             return Action.CREATE;
         }
 
-        if (originalObject.equals(updatedObject) && !updateContext.hasErrors(update)) {
+        if (RpslObjectFilter.ignoreGeneratedAttributesEqual(originalObject, updatedObject) && !updateContext.hasErrors(update)) {
             return Action.NOOP;
         }
 
         return Action.MODIFY;
     }
+
 }
