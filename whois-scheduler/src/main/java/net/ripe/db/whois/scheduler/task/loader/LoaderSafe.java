@@ -29,12 +29,14 @@ public class LoaderSafe implements Loader {
 
     @Override
     public String loadSplitFiles(final String... filenames) {
-        Result result = null;
+        final Result result = new Result();
         try {
-            result = loadSplitFiles(Arrays.asList(filenames));
+            loadSplitFiles(Arrays.asList(filenames), result);
             result.addText("Ran in transactional, safe mode: committing DB changes\n");
-        } catch (GetResultException e) {
-            result = e.getResult();
+        } catch (final Exception e) {
+            if (e.getMessage() != null){
+                result.addText(String.format("\n%s\n", e.getMessage()));
+            }
             result.addText("Ran in transactional, safe mode: rolling back DB changes\n");
         } finally {
             result.addText(String.format("FINISHED\n%d succeeded\n%d failed in pass 1\n%d failed in pass 2\n",
@@ -44,8 +46,7 @@ public class LoaderSafe implements Loader {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
-    private Result loadSplitFiles(final List<String> filenames) {
-        final Result result = new Result();
+    private void loadSplitFiles(final List<String> filenames, final Result result) {
 
         try {
             validateFiles(filenames);
@@ -56,23 +57,9 @@ public class LoaderSafe implements Loader {
                 runPassSafe(result, filename, 1);
                 runPassSafe(result, filename, 2);
             }
-            return result;
         } catch (Exception e) {
             //throw an exception here, so that transaction gets rolled back.
-            throw new GetResultException(result, e);
-        }
-    }
-
-    class GetResultException extends RuntimeException{
-        private final Result result;
-        public GetResultException(final Result result, final Exception e) {
-            super(e);
-            this.result = result;
-            this.result.addText(String.format("\n%s\n", e.getMessage()));
-        }
-
-        public Result getResult() {
-            return result;
+            throw new IllegalStateException(e);
         }
     }
 
@@ -112,7 +99,7 @@ public class LoaderSafe implements Loader {
             }
         } catch (IllegalArgumentException e) {
             result.addText(String.format("Error reading '%s': %s\n", filename, e.getMessage()));
-            throw new GetResultException(result, e);
+            throw e;
         }
     }
 }
