@@ -78,9 +78,7 @@ public class ObjectLoader {
         try {
             addObject(rpslObject, result, pass);
         } catch (Exception e) {
-            StringWriter stringWriter = new StringWriter();
-            e.printStackTrace(new PrintWriter(stringWriter));
-            result.addFail(String.format("Error in pass %d in '%s': %s\n", pass, rpslObject.getFormattedKey(), stringWriter), pass);
+            printExceptionToResult(e, result, pass, rpslObject.getFormattedKey());
             throw new UpdateAbortedException();
         }
     }
@@ -90,10 +88,14 @@ public class ObjectLoader {
         try {
             addObject(rpslObject, result, pass);
         } catch (Exception e) {
-            StringWriter stringWriter = new StringWriter();
-            e.printStackTrace(new PrintWriter(stringWriter));
-            result.addFail(String.format("Error in pass %d in '%s': %s\n", pass, rpslObject.getFormattedKey(), stringWriter), pass);
+            printExceptionToResult(e, result, pass, rpslObject.getFormattedKey());
         }
+    }
+
+    private void printExceptionToResult(final Exception e, final Result result, final int pass, final String formattedKey) {
+        StringWriter stringWriter = new StringWriter();
+        e.printStackTrace(new PrintWriter(stringWriter));
+        result.addFail(String.format("Error in pass %d in '%s': %s\n", pass, formattedKey, stringWriter), pass);
     }
 
     private void addObject(RpslObject rpslObject, Result result, int pass) throws Exception {
