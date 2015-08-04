@@ -29,9 +29,9 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final GeolocationService geolocationService;
     private final AbuseContactService abuseContactService;
     private final AutocompleteService autocompleteService;
+    private final ReferencesService referencesService;
     private final DefaultExceptionMapper defaultExceptionMapper;
     private final MaintenanceModeFilter maintenanceModeFilter;
-    private final ReferencesService referencesService;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -40,18 +40,18 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final GeolocationService geolocationService,
                                 final AbuseContactService abuseContactService,
                                 final AutocompleteService autocompleteService,
+                                final ReferencesService referencesService,
                                 final DefaultExceptionMapper defaultExceptionMapper,
-                                final MaintenanceModeFilter maintenanceModeFilter,
-                                final ReferencesService referencesService) {
+                                final MaintenanceModeFilter maintenanceModeFilter) {
         this.whoisRestService = whoisRestService;
         this.syncUpdatesService = syncUpdatesService;
         this.whoisMetadata = whoisMetadata;
         this.geolocationService = geolocationService;
         this.abuseContactService = abuseContactService;
         this.autocompleteService = autocompleteService;
+        this.referencesService = referencesService;
         this.defaultExceptionMapper = defaultExceptionMapper;
         this.maintenanceModeFilter = maintenanceModeFilter;
-        this.referencesService = referencesService;
     }
 
     @Override
@@ -68,8 +68,8 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(geolocationService);
         resourceConfig.register(abuseContactService);
         resourceConfig.register(autocompleteService);
-        resourceConfig.register(defaultExceptionMapper);
         resourceConfig.register(referencesService);
+        resourceConfig.register(defaultExceptionMapper);
         resourceConfig.register(new CacheControlFilter());
         resourceConfig.register(new CrossOriginFilter());
 

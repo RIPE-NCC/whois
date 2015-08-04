@@ -2,13 +2,17 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -17,6 +21,9 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Before
     public void setup() {
+        databaseHelper.addObject(
+                "role:          dummy role\n" +
+                "nic-hdl:       DR1-TEST");
         databaseHelper.addObject(
                 "person:        Test Person\n" +
                 "nic-hdl:       TP1-TEST");
@@ -40,32 +47,24 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
     }
 
-    @Test
-    public void get_person_references() {
-
-    }
-
-    @Test
-    public void get_mntner_references() {
-        RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT")
-                                    .request()
-                                    .get(String.class);
-    }
 
     // OWNER-MNT <- TP1-TEST
     @Test
     public void delete_mntner_success() {
-        RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT")
-                                    .request()
-                                    .delete();
+        RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
+            .request()
+            .delete(String.class);
+
+        assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
     }
 
     // TP1-TEST <- OWNER-MNT
     @Test
     public void delete_person_success() {
         RestTest.target(getPort(), "whois/references/TEST/person/TP1-TEST")
-                                    .request()
-                                    .delete();
+            .request()
+            .delete();
     }
 
     // OWNER-MNT <- TP1-TEST <- ANOTHER-MNT
@@ -80,10 +79,29 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        ANOTHER-MNT\n" +
                 "source:        TEST");
 
-        final Response response = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT").request().delete();
+        final Response response = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT")
+                                    .request()
+                                    .delete();
 
         assertThat(response.getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-        assertThat(response.readEntity(String.class), is("Found reference to person TP1-TEST from mntner ANOTHER-MNT"));
+        assertThat(response.readEntity(String.class), containsString("Referencing object TP1-TEST itself is referenced by ANOTHER-MNT"));
     }
+
+    // helper methods
+
+    private boolean objectExists(final ObjectType objectType, final String primaryKey) {
+        try {
+            RestTest.target(getPort(),
+                String.format("whois/TEST/%s/%s", objectType.getName(), primaryKey))
+                .request()
+                .get(WhoisResources.class);
+            return true;
+        } catch (NotFoundException e) {
+            return false;
+        }
+    }
+
+
+
 
 }
