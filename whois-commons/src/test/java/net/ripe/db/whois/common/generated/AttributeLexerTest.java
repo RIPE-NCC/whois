@@ -7,7 +7,7 @@ import java.io.StringReader;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class FilterLexerTest {
+public class AttributeLexerTest {
 
     @Test
     public void asnumber() throws Exception {
