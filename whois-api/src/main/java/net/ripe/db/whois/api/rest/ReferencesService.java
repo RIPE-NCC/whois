@@ -78,6 +78,7 @@ public class ReferencesService {
             final LoggerContext loggerContext,
             final WhoisObjectMapper whoisObjectMapper,
             @Value("${whois.dummy_role.nichdl}") final String dummyRole) {
+
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.sourceContext = sourceContext;
