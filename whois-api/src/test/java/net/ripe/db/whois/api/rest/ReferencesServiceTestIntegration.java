@@ -10,6 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
@@ -101,16 +102,15 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(false));
     }
 
-    @Ignore
     @Test
     public void delete_object_with_outgoing_references_only() {
         databaseHelper.addObject(
                 "role:        Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TR2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
 
         RestTest.target(getPort(), "whois/references/TEST/role/TR2-TEST?password=test")
                 .request()
@@ -119,6 +119,30 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(true));
         assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(false));
     }
+
+    @Test
+    public void delete_non_mntner_or_role() {
+        databaseHelper.addObject(
+                "organisation:    ORG-TO1-TEST\n" +
+                "org-type:        other\n" +
+                "org-name:        First Org\n" +
+                "address:         RIPE NCC\n" +
+                "e-mail:          dbtest@ripe.net\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "source:          TEST");
+        try{
+            RestTest.target(getPort(), "whois/references/TEST/organisation/ORG-TO1-TEST?password=test")
+                    .request()
+                    .delete(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            RestTest.assertOnlyErrorMessage(e, "Error", "Object type ORGANISATION is not supported.");
+
+            assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(true));
+            assertThat(objectExists(ObjectType.ORGANISATION, "ORG-TO1-TEST"), is(true));
+        }
+    }
+
 
     // OWNER-MNT <- TP1-TEST <- ANOTHER-MNT
     @Test

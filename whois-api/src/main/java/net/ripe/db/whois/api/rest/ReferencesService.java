@@ -131,12 +131,21 @@ public class ReferencesService {
         final RpslObject primaryObject = rpslObjectDao.getByKey(ObjectType.getByName(objectTypeParam), keyParam);
 
         final Map<RpslObjectInfo, RpslObject> references = findReferences(primaryObject);
+
         validate(primaryObject, references);
 
         final Set<RpslObject> allObjects = Sets.newHashSet(primaryObject);
         allObjects.addAll(references.values());
 
         try {
+
+            if (references.isEmpty()) {
+                // delete the primary object directly. same as existing whois API
+                performUpdate(request, primaryObject, reason, passwords, crowdTokenKey);
+
+                return createResponse(request, primaryObject, Response.Status.OK);
+            }
+
             // update the maintainer to point to a dummy person / role
 
             performUpdate(request, updateMaintainer(allObjects), null, passwords, crowdTokenKey);
