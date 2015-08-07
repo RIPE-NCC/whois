@@ -27,6 +27,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,8 +57,6 @@ public class ReferencesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferencesService.class);
 
-    private static final String DUMMY_ROLE = "DR1-TEST";        // TODO: make a property
-
     private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final SourceContext sourceContext;
@@ -66,17 +65,19 @@ public class ReferencesService {
     private final WhoisService whoisService;
     private final LoggerContext loggerContext;
     private final WhoisObjectMapper whoisObjectMapper;
+    private final String dummyRole;
 
     @Autowired
     public ReferencesService(
-        final RpslObjectDao rpslObjectDao,
-        final RpslObjectUpdateDao rpslObjectUpdateDao,
-        final SourceContext sourceContext,
-        final InternalUpdatePerformer updatePerformer,
-        final SsoTranslator ssoTranslator,
-        final WhoisService whoisService,
-        final LoggerContext loggerContext,
-        final WhoisObjectMapper whoisObjectMapper) {
+            final RpslObjectDao rpslObjectDao,
+            final RpslObjectUpdateDao rpslObjectUpdateDao,
+            final SourceContext sourceContext,
+            final InternalUpdatePerformer updatePerformer,
+            final SsoTranslator ssoTranslator,
+            final WhoisService whoisService,
+            final LoggerContext loggerContext,
+            final WhoisObjectMapper whoisObjectMapper,
+            @Value("${whois.dummy_role.nichdl}") final String dummyRole) {
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.sourceContext = sourceContext;
@@ -85,6 +86,7 @@ public class ReferencesService {
         this.whoisService = whoisService;
         this.loggerContext = loggerContext;
         this.whoisObjectMapper = whoisObjectMapper;
+        this.dummyRole = dummyRole;
     }
 
     /**
@@ -140,9 +142,9 @@ public class ReferencesService {
 
             // delete the person / role objects
 
-            for (RpslObject next : allObjects) {
-                if (!next.getType().equals(ObjectType.MNTNER)) {
-                    performUpdate(request, next, reason, passwords, crowdTokenKey);
+            for (final RpslObject rpslObject : allObjects) {
+                if (!rpslObject.getType().equals(ObjectType.MNTNER)) {
+                    performUpdate(request, rpslObject, reason, passwords, crowdTokenKey);
                 }
             }
 
@@ -225,7 +227,6 @@ public class ReferencesService {
 
     private void validate(final RpslObject primaryObject, final Map<RpslObjectInfo, RpslObject> references) {
 
-
         // make sure that primary object, and all references, are of a valid type
 
         if (primaryObject.getType().equals(ObjectType.MNTNER)) {
@@ -289,32 +290,32 @@ public class ReferencesService {
     }
 
     private RpslObject updateMaintainer(final Set<RpslObject> allObjects) {
-        for (RpslObject next : ImmutableSet.copyOf(allObjects)) {
-            if (next.getType().equals(ObjectType.MNTNER)) {
-                return replaceReferences(next, allObjects);
+        for (final RpslObject rpslObject : ImmutableSet.copyOf(allObjects)) {
+            if (rpslObject.getType().equals(ObjectType.MNTNER)) {
+                return replaceReferences(rpslObject, allObjects);
             }
         }
         throw new IllegalStateException("No maintainer found");
     }
 
-    private RpslObject replaceReferences(final RpslObject rpslObject, final Set<RpslObject> references) {
+    private RpslObject replaceReferences(final RpslObject mntner, final Set<RpslObject> references) {
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
 
-        for (RpslAttribute rpslAttribute : rpslObject.getAttributes()) {
-            for (RpslObject reference : references) {
+        for (final RpslAttribute rpslAttribute : mntner.getAttributes()) {
+            for (final RpslObject reference : references) {
                 if (rpslAttribute.getCleanValue().equals(reference.getKey()) &&
                         rpslAttribute.getType().getReferences().contains(ObjectType.PERSON) ||
                         rpslAttribute.getType().getReferences().contains(ObjectType.ROLE)) {
-                    replacements.put(rpslAttribute, new RpslAttribute(rpslAttribute.getType(), DUMMY_ROLE));
+                    replacements.put(rpslAttribute, new RpslAttribute(rpslAttribute.getType(), dummyRole));
                 }
             }
         }
 
         if (replacements.isEmpty()) {
-            return rpslObject;
+            return mntner;
         }
 
-        final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
+        final RpslObjectBuilder builder = new RpslObjectBuilder(mntner);
         for (Map.Entry<RpslAttribute, RpslAttribute> entry : replacements.entrySet()) {
             builder.replaceAttribute(entry.getKey(), entry.getValue());
         }
