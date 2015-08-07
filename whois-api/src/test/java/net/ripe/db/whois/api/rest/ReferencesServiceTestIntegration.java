@@ -56,7 +56,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_mntner_success() {
         RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
             .request()
-            .delete(String.class);
+            .delete();
 
         assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(false));
         assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
@@ -71,6 +71,53 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(false));
         assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
+    }
+
+    @Test
+    public void delete_object_multiple_references_succeeds() {
+        databaseHelper.addObject(
+                "person:        Test Person2\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        databaseHelper.addObject(
+                "role:        Test Role\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TR2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
+                .request()
+                .delete();
+
+        assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(false));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(false));
+    }
+
+    @Ignore
+    @Test
+    public void delete_object_with_outgoing_references_only() {
+        databaseHelper.addObject(
+                "role:        Test Role\n" +
+                        "address:       Singel 258\n" +
+                        "phone:         +31 6 12345678\n" +
+                        "nic-hdl:       TR2-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST");
+
+        RestTest.target(getPort(), "whois/references/TEST/role/TR2-TEST?password=test")
+                .request()
+                .delete();
+
+        assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(true));
+        assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(false));
     }
 
     // OWNER-MNT <- TP1-TEST <- ANOTHER-MNT
