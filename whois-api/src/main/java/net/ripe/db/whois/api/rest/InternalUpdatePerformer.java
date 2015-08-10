@@ -90,6 +90,7 @@ public class InternalUpdatePerformer {
         updateRequestHandler.handle(updateRequest, updateContext);
 
         final Response.ResponseBuilder responseBuilder;
+
         UpdateStatus status = updateContext.getStatus(update);
         if (status == UpdateStatus.SUCCESS) {
             responseBuilder = Response.status(Response.Status.OK);
@@ -103,13 +104,8 @@ public class InternalUpdatePerformer {
             responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         }
 
-        return responseBuilder.entity(new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                final WhoisResources result = createResponse(request, updateContext, update);
-                StreamingHelper.getStreamingMarshal(request, output).singleton(result);
-            }
-        }).build();
+        return responseBuilder.entity(new StreamingResponse(request, createResponse(request, updateContext, update)))
+            .build();
     }
 
     private WhoisResources createResponse(final HttpServletRequest request, final UpdateContext updateContext, final Update update) {
@@ -245,4 +241,23 @@ public class InternalUpdatePerformer {
         }
     }
 
+    public static class StreamingResponse implements StreamingOutput {
+
+        final WhoisResources whoisResources;
+        final HttpServletRequest request;
+
+        public StreamingResponse(final HttpServletRequest request, final WhoisResources whoisResources) {
+            this.request = request;
+            this.whoisResources = whoisResources;
+        }
+
+        @Override
+        public void write(OutputStream output) throws IOException, WebApplicationException {
+            StreamingHelper.getStreamingMarshal(request, output).singleton(whoisResources);
+        }
+
+        public WhoisResources getWhoisResources() {
+            return whoisResources;
+        }
+    }
 }
