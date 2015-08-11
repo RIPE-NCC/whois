@@ -16,9 +16,6 @@ class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
         super(attributeType, "inet6num");
     }
 
-    // MySQL 5.1 bug workaround: if 64-bit integer has its msb bit set, the comparison fails
-    // (proved to be working in mysql 5.5; we can drop the Long.toString() then
-    // TODO: [ES] fix for MariaDB
     @Override
     public int addToIndex(final JdbcTemplate jdbcTemplate, final RpslObjectInfo objectInfo, final RpslObject object, final String value) {
         final Ipv6Resource resource = Ipv6Resource.parse(objectInfo.getKey());
@@ -30,8 +27,8 @@ class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
         return jdbcTemplate.update(
                 "INSERT INTO inet6num (object_id, i6_msb, i6_lsb, prefix_length, netname) VALUES (?, ?, ?, ?, ?)",
                 objectInfo.getObjectId(),
-                Long.toString(Ipv6Resource.msb(resource.begin())),
-                Long.toString(Ipv6Resource.lsb(resource.begin())),
+                Ipv6Resource.msb(resource.begin()),
+                Ipv6Resource.lsb(resource.begin()),
                 resource.getPrefixLength(),
                 netname);
     }
@@ -43,9 +40,6 @@ class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
             return Collections.emptyList();
         }
 
-        // MySQL 5.1 bug workaround: if 64-bit integer has its msb bit set, the comparison fails
-        // (proved to be working in mysql 5.5; we can drop the Long.toString() then
-        // TODO: [ES] fix for MariaDB
         return jdbcTemplate.query(" " +
                 "SELECT l.object_id, l.object_type, l.pkey " +
                 "  FROM inet6num " +
@@ -53,8 +47,8 @@ class IndexWithInet6num extends IndexStrategyWithSingleLookupTable {
                 "  WHERE i6_msb = ? AND i6_lsb = ? AND prefix_length = ? " +
                 "  AND l.sequence_id != 0 ",
                 new RpslObjectInfoResultSetExtractor(),
-                Long.toString(Ipv6Resource.msb(resource.begin())),
-                Long.toString(Ipv6Resource.lsb(resource.begin())),
+                Ipv6Resource.msb(resource.begin()),
+                Ipv6Resource.lsb(resource.begin()),
                 resource.getPrefixLength());
     }
 

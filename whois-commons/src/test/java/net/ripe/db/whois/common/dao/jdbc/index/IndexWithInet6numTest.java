@@ -41,9 +41,8 @@ public class IndexWithInet6numTest extends IndexTestBase {
         checkRows(0);
     }
 
-    // TODO: [ES] review for MariaDB
     @Test
-    public void mysqlBotchesOn64bitSignedInteger() {
+    public void find_64bitSignedInteger_msb_index_inet6num() {
         databaseHelper.addObject("inet6num: 2001:db8:60::/48\nnetname: testnet");
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, "2001:db8:60::/48");
 
