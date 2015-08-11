@@ -254,17 +254,15 @@
                 <artifactId>guava</artifactId>
                 <version>18.0</version>
             </dependency>
-            <!-- TODO: [ES] update MySQL connector to latest -->
             <dependency>
                 <groupId>org.mariadb.jdbc</groupId>
                 <artifactId>mariadb-java-client</artifactId>
-                <version>1.1.8</version>
+                <version>1.2.0</version>
             </dependency>
-            <!-- TODO: [ES] update c3p0 to latest -->
             <dependency>
-                <groupId>c3p0</groupId>
+                <groupId>com.mchange</groupId>
                 <artifactId>c3p0</artifactId>
-                <version>0.9.1.2</version>
+                <version>0.9.5.1</version>
             </dependency>
             <!-- TODO: [ES] netty 3.10.0 creates excessive threads during integration tests -->
             <dependency>
