@@ -1396,6 +1396,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-m --list-versions 2001::/20", "^%ERROR:109: invalid combination of flags passed")
     }
 
+    // TODO: [ES] failing test
     def "query --list-versions, with persistent connection, 2 versions"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
