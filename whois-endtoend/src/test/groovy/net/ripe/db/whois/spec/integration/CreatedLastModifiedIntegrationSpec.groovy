@@ -378,65 +378,137 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         delete =~ /SUCCESS/
     }
 
-  @Ignore
-  def "delete fails if created and last-modified attributes are separated"() {
-    given:
-      setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
-    when:
-      def createAck = syncUpdate new SyncUpdate(data: """
+    def "modify should retain the correct order of the timestamp attributes"() {
+      given:
+        setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
+      when:
+        def createAck = syncUpdate new SyncUpdate(data: """
                 person:  New Person
                 address: St James Street
-                address: Burnley
-                address: UK
                 phone:   +44 282 420469
                 nic-hdl: NP1-TEST
                 mnt-by:  TST-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 password: update
              """.stripIndent())
-    then:
-      createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
-    when:
-      setTime(LocalDateTime.parse("2013-06-26T09:00:00"))
-    then:
-      def updateAck = syncUpdate new SyncUpdate(data: """
+      then:
+        createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
+
+      when:
+        setTime(LocalDateTime.parse("2013-06-26T09:00:00"))
+      then:
+        def updateAck = syncUpdate new SyncUpdate(data: """
                 person:  New Person
                 address: St James Street
-                address: Burnley
-                address: UK
                 phone:   +44 282 420469
                 nic-hdl: NP1-TEST
-                mnt-by:  TST-MNT
-                changed: dbtest@ripe.net 20120101
                 created: 2013-06-25T09:00:00Z
-                last-modified: 2013-06-25T09:00:00Z     # BUG: last-modified will be moved below remarks
+                mnt-by:  TST-MNT
+                last-modified: 2013-06-25T09:00:00Z
                 remarks: testing
                 source:  TEST
                 password: update
              """.stripIndent())
-    then:
-      updateAck.contains("Modify SUCCEEDED: [person] NP1-TEST   New Person")
-    when:
-      setTime(LocalDateTime.parse("2013-06-27T09:00:00"))
-    then:
-      def deleteAck = syncUpdate new SyncUpdate(data: """
-                person:         New Person
-                address:        St James Street
-                address:        Burnley
-                address:        UK
-                phone:          +44 282 420469
-                nic-hdl:        NP1-TEST
-                mnt-by:         TST-MNT
-                changed:        dbtest@ripe.net 20120101
-                created:        2013-06-25T09:00:00Z
-                remarks:        testing
-                last-modified:  2013-06-26T09:00:00Z    # BUG: delete fails due to generated attribute position
-                source:         TEST
-                password: update
-                delete: reason
-             """.stripIndent())
-    then:
-      deleteAck.contains("Delete SUCCEEDED: [person] NP1-TEST   New Person")
-  }
+      then:
+        updateAck.contains("Modify SUCCEEDED: [person] NP1-TEST   New Person")
+      then:
+        query("-rBG NP1-TEST").contains(
+                "person:         New Person\n" +
+                "address:        St James Street\n" +
+                "phone:          +44 282 420469\n" +
+                "nic-hdl:        NP1-TEST\n" +
+                "created:        2013-06-25T09:00:00Z\n" +
+                "mnt-by:         TST-MNT\n" +
+                "last-modified:  2013-06-26T09:00:00Z\n" +
+                "remarks:        testing\n" +
+                "source:         TEST\n")
+    }
+
+    def "delete should not fail if created and last-modified attributes are separated"() {
+      given:
+        setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
+      when:
+        def createAck = syncUpdate new SyncUpdate(data: """
+                    person:  New Person
+                    address: St James Street
+                    phone:   +44 282 420469
+                    nic-hdl: NP1-TEST
+                    mnt-by:  TST-MNT
+                    changed: dbtest@ripe.net 20120101
+                    source:  TEST
+                    password: update
+                 """.stripIndent())
+      then:
+        createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
+
+      when:
+        setTime(LocalDateTime.parse("2013-06-26T09:00:00"))
+      then:
+        def updateAck = syncUpdate new SyncUpdate(data: """
+                    person:  New Person
+                    address: St James Street
+                    nic-hdl: NP1-TEST
+                    mnt-by:  TST-MNT
+                    last-modified: 2013-06-25T09:00:00Z
+                    phone:   +44 282 420469
+                    created: 2013-06-25T09:00:00Z
+                    remarks: testing
+                    source:  TEST
+                    password: update
+                 """.stripIndent())
+      then:
+        updateAck.contains("Modify SUCCEEDED: [person] NP1-TEST   New Person")
+      then:
+        query("-rBG NP1-TEST").contains(
+                    "person:         New Person\n" +
+                    "address:        St James Street\n" +
+                    "nic-hdl:        NP1-TEST\n" +
+                    "mnt-by:         TST-MNT\n" +
+                    "last-modified:  2013-06-26T09:00:00Z\n" +
+                    "phone:          +44 282 420469\n" +
+                    "created:        2013-06-25T09:00:00Z\n" +
+                    "remarks:        testing\n" +
+                    "source:         TEST")
+
+      when:
+        setTime(LocalDateTime.parse("2013-06-27T09:00:00"))
+      then:
+        def deleteAck = syncUpdate new SyncUpdate(data: """
+                    person:  New Person
+                    address: St James Street
+                    nic-hdl: NP1-TEST
+                    mnt-by:  TST-MNT
+                    last-modified: 2013-06-25T09:00:00Z
+                    phone:   +44 282 420469
+                    created: 2013-06-25T09:00:00Z
+                    remarks: testing
+                    source:  TEST
+                    password: update
+                    delete: reason
+                 """.stripIndent())
+      then:
+        deleteAck.contains("Delete SUCCEEDED: [person] NP1-TEST   New Person")
+    }
+
+    @Ignore("[ES] TODO Unexpected error occurred")
+    def "create object with multiple last-modified attributes"() {
+      given:
+        def update = new SyncUpdate(data: """\
+        person:        Test Person
+        address:       Singel 258
+        phone:         +3112346
+        nic-hdl:       TP3-TEST
+        mnt-by:        TST-MNT
+        created:       2012-05-03T11:23:66Z
+        last-modified: 2012-05-03T11:23:66Z
+        last-modified: 2012-05-03T11:23:66Z
+        source:        TEST
+        password: update
+        """.stripIndent())
+      when:
+        def response = syncUpdate update
+      then:
+        response =~ /Create SUCCEEDED: \[person\] TP3-TEST   Test Person/
+    }
+
 }

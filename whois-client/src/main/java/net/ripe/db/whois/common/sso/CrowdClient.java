@@ -27,7 +27,7 @@ public class CrowdClient {
     private static final String CROWD_SESSION_PATH = "rest/usermanagement/1/session";
     private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
     private static final int CLIENT_READ_TIMEOUT = 10_000;
-    
+
     private String restUrl;
     private Client client;
 
@@ -123,7 +123,7 @@ public class CrowdClient {
 
             CrowdUser user = crowdSession.getUser();
 
-            return new UserSession(user.getName(), user.getActive(), crowdSession.getExpiryDate());
+            return new UserSession(user.getName(), user.getDisplayName(), user.getActive(), crowdSession.getExpiryDate());
         } catch (BadRequestException e) {
             throw new CrowdClientException("Unknown RIPE NCC Access token: " + token);
         } catch (WebApplicationException | ProcessingException e) {
@@ -209,6 +209,8 @@ public class CrowdClient {
     static class CrowdUser {
         @XmlAttribute(name = "name")
         private String name;
+        @XmlElement(name = "display-name")
+        private String displayName;
         @XmlElement(name = "active")
         private Boolean active;
 
@@ -216,8 +218,9 @@ public class CrowdClient {
             // required no-arg constructor
         }
 
-        public CrowdUser(final String name, final Boolean active) {
+        public CrowdUser(final String name, final String displayName, final Boolean active) {
             this.name = name;
+            this.displayName = displayName;
             this.active = active;
         }
 
@@ -227,6 +230,10 @@ public class CrowdClient {
 
         public String getName() {
             return name;
+        }
+
+        public String getDisplayName() {
+            return displayName;
         }
     }
 

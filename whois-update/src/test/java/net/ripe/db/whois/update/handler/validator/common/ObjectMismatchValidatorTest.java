@@ -61,13 +61,56 @@ public class ObjectMismatchValidatorTest {
     @Test
     public void modify_ignore_timestamps_identical() {
         final ObjectMessages messages = validateUpdate(subject, TIMESTAMPED_OBJECT, SAME_TIMESTAMPED_OBJECT_WITH_OTHER_TIMESTAMPS);
-        assertThat(messages.getMessages().getAllMessages(), hasSize(1));
+        assertThat(messages.getMessages().getAllMessages(), hasSize(0));
     }
 
     @Test
     public void delete_ignore_timestamps_identical() {
         final ObjectMessages messages = validateDelete(subject, TIMESTAMPED_OBJECT, SAME_TIMESTAMPED_OBJECT_WITH_OTHER_TIMESTAMPS);
+        assertThat(messages.getMessages().getAllMessages(), hasSize(0));
+    }
+
+    @Test
+    public void delete_ignore_does_not_ignore_status_attribute() {
+        final RpslObject referenced = RpslObject.parse("" +
+                "aut-num: foo\n" +
+                "status: ASSIGNED\n");
+
+        final RpslObject updated = RpslObject.parse("" +
+                "aut-num: foo\n" +
+                "status: LEGACY\n");
+
+        final ObjectMessages messages = validateDelete(subject, referenced, updated);
         assertThat(messages.getMessages().getAllMessages(), hasSize(1));
+    }
+
+    @Test
+    public void delete_ignore_does_not_ignore_sponsoring_org_attribute() {
+        final RpslObject referenced = RpslObject.parse("" +
+                "aut-num: foo\n" +
+                "sponsoring-org: ab\n");
+
+        final RpslObject updated = RpslObject.parse("" +
+                "aut-num: foo\n" +
+                "sponsoring-org: cd\n");
+
+        final ObjectMessages messages = validateDelete(subject, referenced, updated);
+        assertThat(messages.getMessages().getAllMessages(), hasSize(1));
+    }
+
+    @Test
+    public void delete_ignore_does_not_ignore_other_generated_attributes() {
+        final RpslObject referenced = RpslObject.parse("" +
+                "aut-num: foo\n" +
+                "fingerpr: a\n" +
+                "owner: b\n" +
+                "method: c\n");
+
+        final RpslObject updated = RpslObject.parse("" +
+                "aut-num: foo\n");
+
+        final ObjectMessages messages = validateDelete(subject, referenced, updated);
+        assertThat(messages.getMessages().getAllMessages(), hasSize(0));
     }
 
 }
