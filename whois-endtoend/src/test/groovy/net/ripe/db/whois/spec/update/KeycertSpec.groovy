@@ -3,7 +3,6 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class KeycertSpec extends BaseQueryUpdateSpec {
@@ -2606,7 +2605,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT key-cert X509-99", "key-cert", "X509-99")
     }
 
-    @Ignore // TODO: [ES] GitHub issue #275
     def "#275 delete keycert object doesn't match version in database"() {
       given:
         syncUpdate(getTransient("PGPKEY-F6A10C2D") + "password: lir")

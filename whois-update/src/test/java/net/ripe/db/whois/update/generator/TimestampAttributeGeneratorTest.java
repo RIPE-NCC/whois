@@ -16,6 +16,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TimestampAttributeGeneratorTest {
+    //TODO [TP]: remove defensive code checks wher we check whether timestamp attributes are in original object.
     final private static DateTimeFormatter ISO_FORMATTER = ISODateTimeFormat.dateTimeNoMillis();
 
     private static final String TIMESTAMP_STRING_PAST = "2014-01-26T11:44:59Z";
@@ -155,6 +157,7 @@ public class TimestampAttributeGeneratorTest {
         testHelper.assertNoMessages();
     }
 
+    @Ignore("TP: remove defensive code. all attributes have timestamps")
     @Test
     public void modify_original_has_no_timestamps_input_has_wrong_timestamps() {
         testDateTimeProvider.setTime(actionTime());
@@ -340,6 +343,7 @@ public class TimestampAttributeGeneratorTest {
         testHelper.assertNoMessages();
     }
 
+    @Ignore("TP: remove defensive code. all attributes have timestamps")
     @Test
     public void delete_original_no_timestamps_input_has_wrong_timestamps() {
 
@@ -364,6 +368,7 @@ public class TimestampAttributeGeneratorTest {
                 ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.LAST_MODIFIED));
     }
 
+    @Ignore("TP: remove defensive code. all attributes have timestamps")
     @Test
     public void delete_original_no_timestamps_input_has_right_timestamps() {
 
