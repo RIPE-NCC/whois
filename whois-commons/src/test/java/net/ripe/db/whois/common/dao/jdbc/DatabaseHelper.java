@@ -489,7 +489,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 user.getUsername(),
                 user.getHashedPassword(),
                 Joiner.on(',').join(user.getObjectTypes()),
-                new Date());
+                new java.sql.Date(new Date().getTime()));
     }
 
     public static void dumpSchema(final DataSource datasource) {
