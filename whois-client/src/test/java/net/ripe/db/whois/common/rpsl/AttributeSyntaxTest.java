@@ -774,9 +774,13 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, "  afi ipv6.unicast from AS15685 2001:7f8:14::6:1 at 2001:7f8:14::31:1 accept ANY");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, "afi ipv6.unicast from AS6777 accept <^[AS9002 AS31133 AS24940]>");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, "afi ipv6.unicast from AS6777 accept <^[AS1002-AS1005]>");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, "afi ipv6.unicast from AS39790 action pref=150; accept AS39790");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, "afi ipv6.unicast  \t from AS39790 action pref=150; accept AS39790");
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, "from AS1    accept    AS2 AS3");
 
         verifyFailure(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, " afi ipv6.unicast  AS3248  AS39560");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, "INVALID");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.MP_IMPORT, "afi ipv6.unicastfrom AS39790 action pref=150; accept AS39790");
     }
 
     @Test

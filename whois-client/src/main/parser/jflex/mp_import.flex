@@ -102,7 +102,9 @@ NOT   { return MpImportParser.OP_NOT; }
 ANY     { return MpImportParser.KEYW_ANY; }
 PEERAS  { return MpImportParser.KEYW_PEERAS; }
 
-FROM      { return MpImportParser.KEYW_FROM; }
+^FROM[ \t]+    { return MpImportParser.KEYW_FROM; }
+[ \t]+FROM[ \t]+  { return MpImportParser.KEYW_FROM; }
+
 ACTION    { return MpImportParser.KEYW_ACTION; }
 IGP_COST  { return MpImportParser.KEYW_IGP_COST; }
 SELF      { return MpImportParser.KEYW_SELF; }

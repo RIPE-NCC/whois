@@ -315,14 +315,13 @@ protected final Logger LOGGER = LoggerFactory.getLogger(MpImportParser.class);
 private MpImportLexer lexer;
 
 private int yylex () {
-	int yyl_return = -1;
 	try {
-		yyl_return = lexer.yylex();
+		return lexer.yylex();
 	}
 	catch (IOException e) {
 		LOGGER.error(e.getMessage(), e);
+		return -1;
 	}
-	return yyl_return;
 }
 
 public void yyerror (final String error) {
