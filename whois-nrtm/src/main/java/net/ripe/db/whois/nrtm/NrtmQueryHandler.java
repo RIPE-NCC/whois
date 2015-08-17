@@ -248,10 +248,10 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         }
     };
 
-    private static final class PendingWrites {
+    static final class PendingWrites {
 
-        static final ChannelLocal<AtomicInteger> PENDING_WRITES = new ChannelLocal<>();
-        static final int MAX_PENDING_WRITES = 16;
+        private static final ChannelLocal<AtomicInteger> PENDING_WRITES = new ChannelLocal<>();
+        private static final int MAX_PENDING_WRITES = 16;
 
         static void add(final Channel channel) {
             PENDING_WRITES.set(channel, new AtomicInteger());
