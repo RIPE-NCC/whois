@@ -103,12 +103,16 @@ public class AttributeTemplate {
         return this.requirement == Requirement.GENERATED;
     }
 
+    public boolean isDeprecated() {
+        return this.requirement == Requirement.DEPRECATED;
+    }
+
     public boolean isMultiple() {
         return this.cardinality == Cardinality.MULTIPLE;
     }
 
     public boolean isSingle() {
-        return this.cardinality == Cardinality.MULTIPLE;
+        return this.cardinality == Cardinality.SINGLE;
     }
 
     public Cardinality getCardinality() {

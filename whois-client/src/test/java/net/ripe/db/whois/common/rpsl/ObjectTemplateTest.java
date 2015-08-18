@@ -241,4 +241,13 @@ public class ObjectTemplateTest {
             }
         }
     }
+
+    @Test
+    public void name_transformations() {
+        assertThat(ObjectTemplate.getTemplate(ObjectType.MNTNER).getNameToFirstLower(), is("mntner") );
+        assertThat(ObjectTemplate.getTemplate(ObjectType.INETNUM).getNameToFirstUpper(), is("Inetnum"));
+
+        assertThat(ObjectTemplate.getTemplate(ObjectType.KEY_CERT).getNameToFirstLower(), is("keyCert") );
+        assertThat(ObjectTemplate.getTemplate(ObjectType.KEY_CERT).getNameToFirstUpper(), is("KeyCert") );
+    }
 }

@@ -738,21 +738,18 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
     private static String toCamelCase( final String in) {
         String[] parts = in.split("-");
-        String camelCaseString = "";
+        StringBuffer camelCaseString = new StringBuffer();
         for (String part : parts){
-            camelCaseString = camelCaseString + toFirstUpper(part);
+                camelCaseString.append( toFirstUpper(part));
         }
-        return camelCaseString;
+        return camelCaseString.toString();
     }
 
     private static String toFirstUpper( final String in ) {
         return in.substring(0, 1).toUpperCase() + in.substring(1);
     }
 
-    private static String toFirstLower( String in ) {
-        if( in.equalsIgnoreCase("import") || in.equalsIgnoreCase("default") || in.equalsIgnoreCase("interface") ) {
-            in = in + "_";
-        }
+    private static String toFirstLower( final String in ) {
         return in.substring(0, 1).toLowerCase() + in.substring(1);
     }
 
