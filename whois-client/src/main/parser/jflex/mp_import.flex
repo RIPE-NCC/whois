@@ -73,12 +73,13 @@ AFIVALUE_V6    = IPV6|IPV6\.UNICAST|IPV6\.MULTICAST
 AFIVALUE_ANY   = ANY\.UNICAST|ANY\.MULTICAST
 DNAME          = [a-zA-Z]([0-9a-zA-Z-]*[0-9a-zA-Z])?
 ASNO           = AS([0-9]|[1-9][0-9]{1,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]|429496729[0-5])
+WHITESPACE     = [ \t\n]+
 
 %%
 
 /* keywords */
 
-[ \t\n]+    { ; }
+{WHITESPACE}    { ; }
 
 OR    { return MpImportParser.OP_OR; }
 AND   { return MpImportParser.OP_AND; }
@@ -102,8 +103,8 @@ NOT   { return MpImportParser.OP_NOT; }
 ANY     { return MpImportParser.KEYW_ANY; }
 PEERAS  { return MpImportParser.KEYW_PEERAS; }
 
-^FROM[ \t]+    { return MpImportParser.KEYW_FROM; }
-[ \t]+FROM[ \t]+  { return MpImportParser.KEYW_FROM; }
+^FROM{WHITESPACE}               { return MpImportParser.KEYW_FROM; }
+{WHITESPACE}FROM{WHITESPACE}    { return MpImportParser.KEYW_FROM; }
 
 ACTION    { return MpImportParser.KEYW_ACTION; }
 IGP_COST  { return MpImportParser.KEYW_IGP_COST; }
@@ -126,7 +127,7 @@ EXCEPT      { return MpImportParser.KEYW_EXCEPT; }
 
 {PROTOCOL_NAME} { return MpImportParser.TKN_PROTOCOL; }
 
-{AFI}       { return MpImportParser.KEYW_AFI; }
+{AFI}{WHITESPACE}       { return MpImportParser.KEYW_AFI; }
 
 {AFIVALUE_V4}  { return MpImportParser.KEYW_AFI_VALUE_V4; }
 {AFIVALUE_V6}  { return MpImportParser.KEYW_AFI_VALUE_V6; }
