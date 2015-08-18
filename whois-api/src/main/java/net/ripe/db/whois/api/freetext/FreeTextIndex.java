@@ -123,7 +123,7 @@ public class FreeTextIndex extends RebuildableIndex {
     @PostConstruct
     public void init() {
         if (StringUtils.isBlank(indexDir)) return;
-        super.init(new IndexWriterConfig(Version.LUCENE_4_10_3, INDEX_ANALYZER)
+        super.init(new IndexWriterConfig(Version.LUCENE_4_10_4, INDEX_ANALYZER)
                         .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
                 new IndexTemplate.WriteCallback() {
                     @Override
