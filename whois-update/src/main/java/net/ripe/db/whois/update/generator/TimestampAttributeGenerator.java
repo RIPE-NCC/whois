@@ -18,6 +18,7 @@ import javax.annotation.Nullable;
 @Component
 public class TimestampAttributeGenerator extends AttributeGenerator {
     private final DateTimeProvider dateTimeProvider;
+    //TODO [TP]: remove defensive code checks wher we check whether timestamp attributes are in original object.
 
     @Autowired
     TimestampAttributeGenerator(final DateTimeProvider dateTimeProvider) {
@@ -67,7 +68,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
                 break;
 
             case DELETE:
-                // for delete we just ignore what was passed in and make sure object looks like stored version
+//                 for delete we just ignore what was passed in and make sure object looks like stored version
                 if (originalObject.containsAttribute(AttributeType.CREATED)) {
                     generatedCreatedAttribute = new RpslAttribute(AttributeType.CREATED, originalObject.getValueForAttribute(AttributeType.CREATED));
                 }
@@ -87,9 +88,13 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
     }
 
     private void warnAndAdd(final Update update, final UpdateContext updateContext, final RpslObjectBuilder builder, final RpslObject updatedObject, final AttributeType attributeType, @Nullable final RpslAttribute generatedAttribute, final boolean addWarningsFlag) {
-        builder.removeAttributeType(attributeType);
+
         if (generatedAttribute != null) {
-            builder.addAttributeSorted(generatedAttribute);
+            if (updatedObject.containsAttribute(attributeType)){
+                builder.replaceAttribute(updatedObject.findAttribute(attributeType), generatedAttribute);
+            } else {
+                builder.addAttributeSorted(generatedAttribute);
+            }
         }
 
         if (addWarningsFlag) {

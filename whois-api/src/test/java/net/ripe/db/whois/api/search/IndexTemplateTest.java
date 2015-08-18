@@ -44,7 +44,7 @@ public class IndexTemplateTest {
     public void setUp() throws Exception {
         analyzer = new WhitespaceAnalyzer();
 
-        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_3, analyzer);
+        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_4, analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         subject = new IndexTemplate(folder.getRoot().getAbsolutePath(), config);
     }

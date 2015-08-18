@@ -119,6 +119,9 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "mD5-pW $1$abc012./$./01234567890123456789");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "pgpkey-01234567");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO test2@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO test2-+._sso@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P'O@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P-L@ripe.net");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");

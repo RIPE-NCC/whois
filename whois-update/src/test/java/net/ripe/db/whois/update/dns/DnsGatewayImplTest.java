@@ -98,6 +98,19 @@ public class DnsGatewayImplTest extends AbstractUpdateDaoTest {
         assertThat(messages.get(1).getType(), is(Messages.Type.WARNING));
     }
 
+    @Test
+    public void messageTagMissingEntryInMessagesTable() throws InterruptedException {
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        executorService.scheduleAtFixedRate(new DnsCheckStub(1, 1, ImmutableList.of(new TestMessage("CRITICAL", null, null, "critical", null))), 100, 100, TimeUnit.MILLISECONDS);
+
+        final DnsCheckResponse dnsCheckResponse = subject.performDnsChecks(Collections.singleton(dnsCheckRequest)).get(dnsCheckRequest);
+        executorService.shutdown();
+
+        final List<Message> messages = dnsCheckResponse.getMessages();
+        assertThat(messages, hasSize(1));
+        assertThat(messages, contains(UpdateMessages.dnsCheckMessageParsingError()));
+    }
+
     private class DnsCheckStub implements Runnable {
         AtomicInteger resultsCounter = new AtomicInteger(1);
         final int count_error;
@@ -118,7 +131,10 @@ public class DnsGatewayImplTest extends AbstractUpdateDaoTest {
                 for (TestMessage testMessage : messages) {
                     final String s = "test" + resultsCounter.getAndIncrement();
                     dnscheckTemplate.update("INSERT INTO results (test_id, message, LEVEL, arg0, arg1) VALUES (1, ?, ?, ?, ?)", s, testMessage.getLevel(), testMessage.getArg0(), testMessage.getArg1());
-                    dnscheckTemplate.update("INSERT INTO messages (tag, formatstring, description) VALUES (?, ?, ?)", s, testMessage.getFormatString(), testMessage.getDescription());
+
+                    if (testMessage.getFormatString() != null && testMessage.getDescription() !=null){
+                        dnscheckTemplate.update("INSERT INTO messages (tag, formatstring, description) VALUES (?, ?, ?)", s, testMessage.getFormatString(), testMessage.getDescription());
+                    }
                 }
                 dnscheckTemplate.update("" +
                         "INSERT INTO tests (id, END, count_critical, count_error, source_id, source_data) " +
