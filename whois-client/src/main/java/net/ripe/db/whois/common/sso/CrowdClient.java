@@ -25,6 +25,9 @@ import java.util.NoSuchElementException;
 @Component
 public class CrowdClient {
     private static final String CROWD_SESSION_PATH = "rest/usermanagement/1/session";
+    private static final String CROWD_USER_ATTRIBUTE_PATH = "rest/usermanagement/1/user/attribute";
+    private static final String CROWD_UUID_SEARCH_PATH = "rest/sso/1/uuid-search";
+
     private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
     private static final int CLIENT_READ_TIMEOUT = 10_000;
 
@@ -84,7 +87,7 @@ public class CrowdClient {
     public String getUuid(final String username) throws CrowdClientException {
         try {
             return client.target(restUrl)
-                    .path("rest/usermanagement/1/user/attribute")
+                    .path(CROWD_USER_ATTRIBUTE_PATH)
                     .queryParam("username", username)
                     .request()
                     .get(CrowdResponse.class)
@@ -101,7 +104,7 @@ public class CrowdClient {
     public String getUsername(final String uuid) throws CrowdClientException {
         try {
             return client.target(restUrl)
-                    .path("rest/sso/1/uuid-search")
+                    .path(CROWD_UUID_SEARCH_PATH)
                     .queryParam("uuid", uuid)
                     .request()
                     .get(CrowdUser.class)
@@ -118,11 +121,11 @@ public class CrowdClient {
             final CrowdSession crowdSession = client.target(restUrl)
                     .path(CROWD_SESSION_PATH)
                     .path(token)
+                    .queryParam("validate-password", "false")
+                    .queryParam("expand", "user")
                     .request()
-                    .get(CrowdSession.class);
-
-            CrowdUser user = crowdSession.getUser();
-
+                    .post(Entity.xml("<?xml version=\"1.0\" encoding=\"UTF-8\"?><validation-factors/>"), CrowdSession.class);
+            final CrowdUser user = crowdSession.getUser();
             return new UserSession(user.getName(), user.getDisplayName(), user.getActive(), crowdSession.getExpiryDate());
         } catch (BadRequestException e) {
             throw new CrowdClientException("Unknown RIPE NCC Access token: " + token);

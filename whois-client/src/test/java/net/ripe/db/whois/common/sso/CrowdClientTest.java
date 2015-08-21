@@ -84,7 +84,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_user_session_success() throws Exception {
-        when(builder.get(CrowdSession.class)).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", "Test User", true), null, "2033-01-30T16:38:27.369+11:00"));
+        when(builder.post(any(Entity.class), any(Class.class))).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", "Test User", true), null, "2033-01-30T16:38:27.369+11:00"));
 
         final UserSession session = subject.getUserSession("token");
 
@@ -95,7 +95,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_user_session_bad_request() {
-        when(builder.get(CrowdSession.class)).thenThrow(new BadRequestException("Not valid sso"));
+        when(builder.post(any(Entity.class), any(Class.class))).thenThrow(new BadRequestException("Not valid sso"));
 
         try {
             subject.getUserSession("token");
