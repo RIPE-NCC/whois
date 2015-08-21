@@ -111,7 +111,7 @@ public class IndexTemplate implements Closeable {
         taxonomyWriter = new DirectoryTaxonomyWriter(taxonomy);
         addFacetCategories(taxonomyWriter);
 
-        config = new IndexWriterConfig(Version.LUCENE_4_10_3, config.getAnalyzer());
+        config = new IndexWriterConfig(Version.LUCENE_4_10_4, config.getAnalyzer());
         indexWriter = new IndexWriter(index, config);
 
         taxonomyWriter.commit();
