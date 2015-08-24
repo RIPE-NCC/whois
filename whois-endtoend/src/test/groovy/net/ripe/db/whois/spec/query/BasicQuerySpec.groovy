@@ -814,22 +814,48 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
 
     // filtering
 
-    @Ignore
-    def "query for route object, all objects filtered by default"() {
+//    @Ignore
+    def "query for object, objects not filtered should not have # Filtered flag "() {
       given:
         databaseHelper.addObject(
-                "route:          10.1.2.0/20\n" +
-                "descr:          Company Name\n" +
-                "origin:         AS10000\n" +
-                "mnt-by:         RIPE-NCC-HM-MNT\n" +
-                "changed:        noreply@ripe.net 20100101\n" +
+                "person:         New Test Person\n" +
+                "address:        St James Street\n" +
+                "address:        Burnley\n" +
+                "address:        UK\n" +
+                "phone:          +44 282 420469\n" +
+                "nic-hdl:        TP22-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST")
 
+
       expect:
-        def qry = query("10.1.2.0/20")
+        def qry = query("New Test Person")
+
+      !(qry =~ /source:\s+TEST # Filtered/)
+      (qry =~ /(?ms)source:\s+TEST\n/)
+    }
+
+    def "query for object, objects filtered should have # Filtered flag "() {
+        given:
+
+        databaseHelper.addObject(
+                "person:         New Test Person\n" +
+                        "address:        St James Street\n" +
+                        "address:        Burnley\n" +
+                        "address:        UK\n" +
+                        "phone:          +44 282 420469\n" +
+                        "nic-hdl:        TP22-TEST\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "changed:        noreply@ripe.net 20100101\n" +
+                        "source:         TEST")
+
+
+        expect:
+        def qry = query("New Test Person")
 
         qry =~ /source:\s+TEST # Filtered/
         !(qry =~ /(?ms)source:\s+TEST\n/)
+
     }
 
 }
