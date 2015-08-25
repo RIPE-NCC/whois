@@ -1,12 +1,18 @@
 package net.ripe.db.whois.nrtm;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.DummifierLegacy;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelException;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.MessageEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,14 +25,19 @@ import org.springframework.scheduling.TaskScheduler;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -74,7 +85,7 @@ public class NrtmQueryHandlerTest {
         });
 
         subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, VERSION, SOURCE, UPDATE_INTERVAL);
-        NrtmQueryHandler.PENDING_WRITES.set(channelMock, new AtomicInteger());
+        NrtmQueryHandler.PendingWrites.add(channelMock);
     }
 
     @Test
@@ -179,7 +190,7 @@ public class NrtmQueryHandlerTest {
 
     @Test
     public void gFlagRequestOutOfDateSerial() {
-        when(serialDaoMock.getAgeOfExactOrNextExistingSerial(1)).thenReturn(Integer.valueOf(NrtmQueryHandler.HISTORY_AGE_LIMIT + 1));
+        when(serialDaoMock.getAgeOfExactOrNextExistingSerial(1)).thenReturn(NrtmQueryHandler.HISTORY_AGE_LIMIT + 1);
         when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-2");
 
         try {
@@ -210,14 +221,36 @@ public class NrtmQueryHandlerTest {
 
     @Test
     public void throttleChannelKeepaliveQuery() {
-        NrtmQueryHandler.PENDING_WRITES.set(channelMock, new AtomicInteger(NrtmQueryHandler.MAX_PENDING_WRITES + 1));
-
+        setPending(channelMock);
         when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-LAST -k");
 
-        subject.messageReceived(contextMock, messageEventMock);
+        messageReceived();
+        unsetPending(channelMock);
 
         verify(channelMock, times(1)).write("%START Version: 3 RIPE 1-2\n\n");
         verify(channelMock, atMost(1)).write(any(String.class));
         verify(mySchedulerMock, times(1)).scheduleAtFixedRate(any(Runnable.class), anyLong());
     }
+
+    private void setPending(final Channel channelMock) {
+        NrtmQueryHandler.PendingWrites.add(channelMock);
+        while (!NrtmQueryHandler.PendingWrites.isPending(channelMock)) {
+            NrtmQueryHandler.PendingWrites.increment(channelMock);
+        }
+    }
+
+    private void unsetPending(final Channel channelMock) {
+        Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+        NrtmQueryHandler.PendingWrites.decrement(channelMock);
+    }
+
+    private void messageReceived() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                subject.messageReceived(contextMock, messageEventMock);
+            }
+        }).start();
+    }
+
 }

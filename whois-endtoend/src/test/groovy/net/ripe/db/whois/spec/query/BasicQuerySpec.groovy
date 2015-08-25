@@ -1,6 +1,7 @@
 package net.ripe.db.whois.spec.query
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class BasicQuerySpec extends BaseQueryUpdateSpec {
@@ -810,4 +811,25 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
 
 
     // --list-versions, --diff-versions and show-version see VersionHistorySpec
+
+    // filtering
+
+    @Ignore
+    def "query for route object, all objects filtered by default"() {
+      given:
+        databaseHelper.addObject(
+                "route:          10.1.2.0/20\n" +
+                "descr:          Company Name\n" +
+                "origin:         AS10000\n" +
+                "mnt-by:         RIPE-NCC-HM-MNT\n" +
+                "changed:        noreply@ripe.net 20100101\n" +
+                "source:         TEST")
+
+      expect:
+        def qry = query("10.1.2.0/20")
+
+        qry =~ /source:\s+TEST # Filtered/
+        !(qry =~ /(?ms)source:\s+TEST\n/)
+    }
+
 }

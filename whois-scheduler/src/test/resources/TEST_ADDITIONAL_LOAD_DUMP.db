@@ -1,0 +1,31 @@
+mntner:         TEST-NEW-MNT
+descr:          Mntner for TEST-DBM-MNT
+admin-c:        NP1-TEST
+tech-c:         NR1-TEST
+upd-to:         bitbucket@ripe.net
+mnt-nfy:        bitbucket@ripe.net
+auth:           MD5-PW $1$XXXXXXXX$XXXXXXXXXXXXXXXXXXXXX/
+mnt-by:         TEST-NEW-MNT
+source:         TEST
+
+person:         New Person
+mnt-by:         TEST-NEW-MNT
+address:        Somewhere in nowhere
+phone:          +12 34 5678900
+fax-no:         +12 34 5678900
+e-mail:         bitbucket@ripe.net
+nic-hdl:        NP1-TEST
+source:         TEST
+
+role:           NEW ROLE
+nic-hdl:        NR1-TEST
+address:        Somewhere in nowhere
+phone:          +12 34 567 8900
+fax-no:         +12 34 567 8900
+e-mail:         bitbucket@ripe.net
+abuse-mailbox:  bitbucket@ripe.net
+admin-c:        NP1-TEST
+tech-c:         NP1-TEST
+mnt-by:         TEST-NEW-MNT
+source:         TEST
+

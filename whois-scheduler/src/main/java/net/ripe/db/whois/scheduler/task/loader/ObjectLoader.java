@@ -1,18 +1,25 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.update.autokey.ClaimException;
 import net.ripe.db.whois.update.autokey.NicHandleFactory;
 import net.ripe.db.whois.update.autokey.dao.OrganisationIdRepository;
 import net.ripe.db.whois.update.autokey.dao.X509Repository;
 import net.ripe.db.whois.update.domain.OrganisationId;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509KeycertId;
+import net.ripe.db.whois.update.handler.UpdateAbortedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
@@ -32,7 +39,6 @@ public class ObjectLoader {
     private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final AttributeSanitizer attributeSanitizer;
-
     final NicHandleFactory nicHandleFactory;
     final OrganisationIdRepository organisationIdRepository;
     final X509Repository x509Repository;
@@ -52,29 +58,74 @@ public class ObjectLoader {
         this.x509Repository = x509Repository;
     }
 
-    public void processObject(String fullObject, Result result, int pass) {
+    public void processObject(final String fullObject,
+                              final Result result,
+                              final int pass,
+                              final LoaderMode loaderMode) {
+
         RpslObject rpslObject = RpslObject.parse(fullObject);
         rpslObject = attributeSanitizer.sanitize(rpslObject, new ObjectMessages());
-        addObject(rpslObject, result, pass);
+
+        if (loaderMode == LoaderMode.FAST_AND_RISKY) {
+            addObjectRisky(rpslObject, result, pass);
+        }
+
+        addObjectSafe(rpslObject, result, pass);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    private void addObjectSafe(RpslObject rpslObject, Result result, int pass) {
+        try {
+            addObject(rpslObject, result, pass);
+        } catch (Exception e) {
+            printExceptionToResult(e, result, pass, rpslObject.getFormattedKey());
+            throw new UpdateAbortedException();
+        }
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
-    public void addObject(RpslObject rpslObject, Result result, int pass) {
+    public void addObjectRisky(RpslObject rpslObject, Result result, int pass) {
         try {
-            if (pass == 1) {
-                rpslObject = RpslObjectFilter.keepKeyAttributesOnly(new RpslObjectBuilder(rpslObject)).get();
-                rpslObjectUpdateDao.createObject(rpslObject);
-            } else {
-                final RpslObjectInfo existing = rpslObjectDao.findByKey(rpslObject.getType(), rpslObject.getKey().toString());
-                rpslObjectUpdateDao.updateObject(existing.getObjectId(), rpslObject);
-                claimIds(rpslObject);
-                result.addSuccess();
-            }
+            addObject(rpslObject, result, pass);
         } catch (Exception e) {
-            StringWriter stringWriter = new StringWriter();
-            e.printStackTrace(new PrintWriter(stringWriter));
-            result.addFail(String.format("Error in pass %d in '%s': %s\n", pass, rpslObject.getFormattedKey(), stringWriter));
+            printExceptionToResult(e, result, pass, rpslObject.getFormattedKey());
         }
+    }
+
+    private void printExceptionToResult(final Exception e, final Result result, final int pass, final String formattedKey) {
+        StringWriter stringWriter = new StringWriter();
+        e.printStackTrace(new PrintWriter(stringWriter));
+        result.addFail(String.format("Error in pass %d in '%s': %s\n", pass, formattedKey, stringWriter), pass);
+    }
+
+    private void addObject(RpslObject rpslObject, Result result, int pass) throws Exception {
+        if (pass == 1) {
+            checkForReservedNicHandle(rpslObject);
+            rpslObject = RpslObjectFilter.keepKeyAttributesOnly(new RpslObjectBuilder(rpslObject)).get();
+            rpslObjectUpdateDao.createObject(rpslObject);
+        } else {
+            final RpslObjectInfo existing = rpslObjectDao.findByKey(rpslObject.getType(), rpslObject.getKey().toString());
+            rpslObjectUpdateDao.updateObject(existing.getObjectId(), rpslObject);
+            claimIds(rpslObject);
+            result.addSuccess();
+        }
+    }
+
+    public void checkForReservedNicHandle(final RpslObject object) throws ClaimException {
+        if (object.getType() != ObjectType.PERSON && object.getType() != ObjectType.ROLE) {
+            return;
+        }
+
+        final CIString pkey = object.getKey();
+
+        if (pkey.equals("AUTO-1")){
+            throw new ClaimException(new Message(Messages.Type.ERROR, "AUTO-1 in nic-hdl is not available in Bootstrap/LoadDump mode"));
+        }
+
+        if (!nicHandleFactory.isAvailable(object.getKey().toString())){
+            throw new ClaimException(UpdateMessages.nicHandleNotAvailable(object.getKey()));
+        }
+
     }
 
     // NB: `synchronized` is mandatory here as normally IDs are claimed under the hood of the global update lock
