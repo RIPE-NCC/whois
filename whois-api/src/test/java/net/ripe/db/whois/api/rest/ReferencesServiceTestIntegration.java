@@ -118,13 +118,9 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "    \"objectType\" : \"person\",\n" +
                 "    \"incoming\" : [ {\n" +
                 "      \"primaryKey\" : \"OWNER-MNT\",\n" +
-                "      \"objectType\" : \"mntner\",\n" +
-                "      \"incoming\" : [ ],\n" +
-                "      \"outgoing\" : [ ]\n" +
-                "    } ],\n" +
-                "    \"outgoing\" : [ ]\n" +
-                "  } ],\n" +
-                "  \"outgoing\" : [ ]\n" +
+                "      \"objectType\" : \"mntner\"\n" +
+                "    } ]\n" +
+                "  } ]\n" +
                 "}"));
     }
 
