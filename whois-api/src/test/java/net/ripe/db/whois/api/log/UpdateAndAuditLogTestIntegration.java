@@ -236,7 +236,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (RestClientException e) {
             assertThat(e.getCause(), is(instanceOf(NotFoundException.class)));
-            assertThat(e.getErrorMessages(), contains(new ErrorMessage(new Message(Messages.Type.ERROR, "HTTP 404 Not Found"))));
+            assertThat(e.getErrorMessages(), contains(new ErrorMessage(new Message(Messages.Type.ERROR, "Not Found"))));
         }
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_10.20.30.40_981288000000/000.audit.xml.gz"));

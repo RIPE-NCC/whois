@@ -420,7 +420,7 @@ public class RestClientTarget {
             if (whoisResources == null) {
                 return createExceptionFromMessage(e);
             }
-            return new RestClientException(whoisResources.getErrorMessages());
+            return new RestClientException(e, whoisResources.getErrorMessages());
         } catch (ProcessingException | IllegalStateException e1) {
             return createExceptionFromMessage(e);
         }
