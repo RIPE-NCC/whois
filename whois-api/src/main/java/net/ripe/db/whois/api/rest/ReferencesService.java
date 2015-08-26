@@ -432,10 +432,12 @@ public class ReferencesService {
         private String objectType;
         @XmlElementWrapper(name="incoming")
         @XmlElementRef
-         private List<Reference> incoming;
+        @JsonInclude(NON_EMPTY)
+        private List<Reference> incoming;
         @XmlElementWrapper(name="outgoing")
         @XmlElementRef
-         private List<Reference> outgoing;
+        @JsonInclude(NON_EMPTY)
+        private List<Reference> outgoing;
 
         private Reference() {
             // required no-arg constructor
