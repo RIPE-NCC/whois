@@ -2,8 +2,11 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -14,8 +17,11 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -50,6 +56,107 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
     }
+
+    // GET
+
+    @Test
+    public void lookup_mntner_references_success() {
+        final ReferencesService.Reference response = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT")
+            .request()
+            .get(ReferencesService.Reference.class);
+
+        assertThat(response.getPrimaryKey(), is("OWNER-MNT"));
+        assertThat(response.getObjectType(), is("mntner"));
+        final List<ReferencesService.Reference> incomingReferences = response.getIncoming();
+        assertThat(incomingReferences, hasSize(1));
+        assertThat(incomingReferences.get(0).getPrimaryKey(), is("TP1-TEST"));
+        assertThat(incomingReferences.get(0).getObjectType(), is("person"));
+    }
+
+    @Test
+    public void lookup_mntner_references_success_xml() {
+        final String response = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT.xml")
+            .request()
+            .get(String.class);
+
+        assertThat(response, is(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+            "<references>" +
+            "<primaryKey>OWNER-MNT</primaryKey>" +
+            "<objectType>mntner</objectType>" +
+            "<incoming>" +
+            "<references>" +
+            "<primaryKey>TP1-TEST</primaryKey>" +
+            "<objectType>person</objectType>" +
+            "<incoming>" +
+            "<references>" +
+            "<primaryKey>OWNER-MNT</primaryKey>" +
+            "<objectType>mntner</objectType>" +
+            "<incoming/>" +
+            "<outgoing/>" +
+            "</references>" +
+            "</incoming>" +
+            "<outgoing/>" +
+            "</references>" +
+            "</incoming>" +
+            "<outgoing/>" +
+            "</references>"));
+    }
+
+    @Test
+    public void lookup_mntner_references_success_json() {
+        final String response = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT.json")
+            .request()
+            .get(String.class);
+
+        assertThat(response, is(
+                "{\n" +
+                "  \"primaryKey\" : \"OWNER-MNT\",\n" +
+                "  \"objectType\" : \"mntner\",\n" +
+                "  \"incoming\" : [ {\n" +
+                "    \"primaryKey\" : \"TP1-TEST\",\n" +
+                "    \"objectType\" : \"person\",\n" +
+                "    \"incoming\" : [ {\n" +
+                "      \"primaryKey\" : \"OWNER-MNT\",\n" +
+                "      \"objectType\" : \"mntner\",\n" +
+                "      \"incoming\" : [ ],\n" +
+                "      \"outgoing\" : [ ]\n" +
+                "    } ],\n" +
+                "    \"outgoing\" : [ ]\n" +
+                "  } ],\n" +
+                "  \"outgoing\" : [ ]\n" +
+                "}"));
+    }
+
+    @Test
+    public void lookup_mntner_references_invalid_object_type() {
+        try {
+            RestTest.target(getPort(), "whois/references/TEST/invalid/OWNER-MNT")
+                .request()
+                .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(response.getErrorMessages(), contains(new ErrorMessage(new Message(Messages.Type.ERROR, "Invalid object type: invalid"))));
+        }
+    }
+
+    @Test
+    public void lookup_mntner_references_invalid_primary_key() {
+        try {
+            RestTest.target(getPort(), "whois/references/TEST/mntner/invalid")
+                .request()
+                .get(String.class);
+            fail();
+        } catch (NotFoundException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(response.getErrorMessages(), contains(new ErrorMessage(new Message(Messages.Type.ERROR, "Not Found"))));
+        }
+    }
+
+
+
+    // DELETE
 
 
     // OWNER-MNT <- TP1-TEST

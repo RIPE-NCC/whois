@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -28,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,11 +48,19 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 @Component
 @Path("/references")
@@ -99,12 +110,29 @@ public class ReferencesService {
      */
     @GET
     @Path("/{source}/{objectType}/{key:.*}")
-    public Response lookup(
+    public Reference lookup(
             @PathParam("source") final String sourceParam,
             @PathParam("objectType") final String objectTypeParam,
             @PathParam("key") final String keyParam) {
 
-        return ok("ok");
+        final Reference result = new Reference(keyParam, objectTypeParam);
+        populateIncomingReferences(result);
+
+        for (Reference reference : result.getIncoming()) {
+            populateIncomingReferences(reference);
+        }
+
+        return result;
+    }
+
+    private void populateIncomingReferences(final Reference reference) {
+        final RpslObject primaryObject = lookupObjectByKey(reference.getPrimaryKey(), reference.getObjectType());
+
+        for (Map.Entry<RpslObjectInfo, RpslObject> entry : findReferences(primaryObject).entrySet()) {
+            final RpslObject referenceObject = entry.getValue();
+            final Reference referenceToReference = new Reference(referenceObject.getKey().toString(), referenceObject.getType().getName());
+            reference.getIncoming().add(referenceToReference);
+        }
     }
 
     /**
@@ -128,7 +156,7 @@ public class ReferencesService {
 
         checkForMainSource(request, sourceParam);
 
-        final RpslObject primaryObject = rpslObjectDao.getByKey(ObjectType.getByName(objectTypeParam), keyParam);
+        final RpslObject primaryObject = lookupObjectByKey(keyParam, objectTypeParam);
 
         final Map<RpslObjectInfo, RpslObject> references = findReferences(primaryObject);
 
@@ -179,6 +207,7 @@ public class ReferencesService {
             }
 
         } catch (Exception e) {
+            LOGGER.error("Unexpected", e);
             return createResponse(request, primaryObject, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -232,8 +261,6 @@ public class ReferencesService {
             updatePerformer.closeContext();
         }
     }
-
-    // helper methods
 
     private void validate(final RpslObject primaryObject, final Map<RpslObjectInfo, RpslObject> references) {
 
@@ -337,15 +364,37 @@ public class ReferencesService {
                 rpslObject.getType().equals(reference.getObjectType());
     }
 
+    // DAO calls
+
+    private RpslObject lookupObjectByKey(final String primaryKey, final String objectType) {
+        try {
+            return rpslObjectDao.getByKey(ObjectType.getByName(objectType), primaryKey);
+        } catch (EmptyResultDataAccessException e) {
+            throw e;
+        } catch (DataAccessException e) {
+            LOGGER.error("Unexpected", e);
+            throw new EmptyResultDataAccessException(1);
+        }
+    }
+
     private Map<RpslObjectInfo, RpslObject> findReferences(final RpslObject rpslObject) {
         final Map<RpslObjectInfo, RpslObject> references = Maps.newHashMap();
 
-        for (RpslObjectInfo rpslObjectInfo : rpslObjectUpdateDao.getReferences(rpslObject)) {
-            references.put(rpslObjectInfo, rpslObjectDao.getById(rpslObjectInfo.getObjectId()));
+        try {
+            for (RpslObjectInfo rpslObjectInfo : rpslObjectUpdateDao.getReferences(rpslObject)) {
+                references.put(rpslObjectInfo, rpslObjectDao.getById(rpslObjectInfo.getObjectId()));
+            }
+        } catch (EmptyResultDataAccessException e) {
+            throw e;
+        } catch (DataAccessException e) {
+            LOGGER.error("Unexpected", e);
+            throw new EmptyResultDataAccessException(1);
         }
 
         return references;
     }
+
+    // helper methods
 
     private void auditlogRequest(final HttpServletRequest request) {
         loggerContext.log(new HttpRequestMessage(request));
@@ -370,4 +419,50 @@ public class ReferencesService {
     private Response ok(final Object message) {
         return Response.ok(message).build();
     }
+
+    // model classes
+
+    @XmlRootElement(name = "references")
+    @JsonInclude(NON_EMPTY)
+    @XmlAccessorType(XmlAccessType.FIELD)
+    static class Reference {
+        @XmlElement
+        private String primaryKey;
+        @XmlElement
+        private String objectType;
+        @XmlElementWrapper(name="incoming")
+        @XmlElementRef
+         private List<Reference> incoming;
+        @XmlElementWrapper(name="outgoing")
+        @XmlElementRef
+         private List<Reference> outgoing;
+
+        private Reference() {
+            // required no-arg constructor
+        }
+
+        public Reference(final String primaryKey, final String objectType) {
+            this.primaryKey = primaryKey;
+            this.objectType = objectType;
+            this.incoming = Lists.newArrayList();
+            this.outgoing = Lists.newArrayList();
+        }
+
+        public String getPrimaryKey() {
+            return primaryKey;
+        }
+
+        public String getObjectType() {
+            return objectType;
+        }
+
+        public List<Reference> getIncoming() {
+            return incoming;
+        }
+
+        public List<Reference> getOutgoing() {
+            return outgoing;
+        }
+    }
+
 }
