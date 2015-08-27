@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,17 +36,21 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -134,6 +139,41 @@ public class ReferencesService {
             reference.getIncoming().add(referenceToReference);
         }
     }
+
+    @POST
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Path("/")
+    public Response create(
+                final WhoisResources resource,
+                @Context final HttpServletRequest request,
+                @CookieParam("crowd.token_key") final String crowdTokenKey) {
+
+        if (Strings.isNullOrEmpty(crowdTokenKey)) {
+            return badRequest("RIPE NCC Access cookie is mandatory");
+        }
+
+        if (resource == null) {
+            return badRequest("WhoisResources is mandatory");
+        }
+
+        try {
+            // TODO: create person object w/ startup maintainer
+
+            // TODO: create maintainer
+
+            // TODO: update person, replace startup maintainer
+
+            return createResponse(request, resource, Response.Status.OK);     // TODO: return updated WhoisResources
+
+        } catch (Exception e) {
+            LOGGER.error("Unexpected", e);
+            return internalServerError("unexpected error");
+        }
+    }
+
+
+
 
     /**
      * Delete an object, and also any incoming referencing objects (which must be a closed group).
@@ -313,12 +353,14 @@ public class ReferencesService {
     }
 
     private Response createResponse(final HttpServletRequest request, final RpslObject primaryObject, final Response.Status status) {
-        final Response.ResponseBuilder responseBuilder = Response.status(status);
-
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setWhoisObjects(Lists.newArrayList(whoisObjectMapper.map(primaryObject, FormattedServerAttributeMapper.class)));
+        return createResponse(request, whoisResources, status);
+    }
 
-        return responseBuilder.entity(new StreamingOutput() {
+    private Response createResponse(final HttpServletRequest request, final WhoisResources whoisResources, final Response.Status status) {
+        final Response.ResponseBuilder responseBuilder = Response.status(status);
+       return responseBuilder.entity(new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 StreamingHelper.getStreamingMarshal(request, output).singleton(whoisResources);
@@ -414,6 +456,10 @@ public class ReferencesService {
 
     private Response badRequest(final String message) {
         return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
+    }
+
+    private Response internalServerError(final String message) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
     }
 
     private Response ok(final Object message) {
