@@ -4,18 +4,24 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -28,6 +34,9 @@ import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
+
+    @Autowired
+    private WhoisObjectMapper whoisObjectMapper;
 
     @Before
     public void setup() {
@@ -57,7 +66,37 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
     }
 
-    // GET
+    // CREATE
+
+    @Test
+    public void create_person_mntner_pair_success() {
+        final WhoisResources whoisResources =
+            createWhoisResources(
+                RpslObject.parse(
+                    "person:    Some Person\n" +
+                    "address:   Amsterdam\n" +
+                    "phone:     +3161234\n" +
+                    "nic-hdl:   AUTO-1\n" +
+                    "mnt-by:    NEW-MNT\n" +            // TODO: fix reference on server side (create object)
+                    "source:    TEST"),
+                RpslObject.parse(
+                    "mntner:    NEW-MNT\n" +
+                    "descr:     Maintainer\n" +
+                    "admin-c:   AUTO-1\n" +             // TODO: fix reference (or try AUTO-1)
+                    "upd-to:    person@net.net\n" +       // TODO: sso credential
+                    "auth:      SSO person@net.net\n" +       // TODO: sso credential
+                    "mnt-by:    NEW-MNT\n" +
+                    "source:    TEST"));
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/references")
+            .request()
+            .cookie("crowd.token_key", "valid-token")
+            .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        // TODO: validate response
+    }
+
+    // READ
 
     @Test
     public void lookup_mntner_references_success() {
@@ -67,6 +106,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getPrimaryKey(), is("OWNER-MNT"));
         assertThat(response.getObjectType(), is("mntner"));
+
+        // TODO: owner-mnt is not listed as a self-reference
         final List<ReferencesService.Reference> incomingReferences = response.getIncoming();
         assertThat(incomingReferences, hasSize(1));
         assertThat(incomingReferences.get(0).getPrimaryKey(), is("TP1-TEST"));
@@ -149,8 +190,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
             assertThat(response.getErrorMessages(), contains(new ErrorMessage(new Message(Messages.Type.ERROR, "Not Found"))));
         }
     }
-
-
 
     // DELETE
 
@@ -246,18 +285,17 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-
     // OWNER-MNT <- TP1-TEST <- ANOTHER-MNT
     @Test
     public void delete_mntner_fails_person_referenced_from_another_mntner() {
         databaseHelper.addObject(
                 "mntner:        ANOTHER-MNT\n" +
-                        "descr:         Another Maintainer\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "upd-to:        noreply@ripe.net\n" +
-                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                        "mnt-by:        ANOTHER-MNT\n" +
-                        "source:        TEST");
+                "descr:         Another Maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        noreply@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        ANOTHER-MNT\n" +
+                "source:        TEST");
 
         final Response response = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT")
                                     .request()
@@ -313,7 +351,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-
-
+    private WhoisResources createWhoisResources(final RpslObject ... rpslObjects) {
+        return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
+    }
 
 }
