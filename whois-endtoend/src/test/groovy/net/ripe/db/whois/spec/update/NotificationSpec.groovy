@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -19,8 +18,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 upd-to:      updto_test@ripe.net
                 auth:        MD5-PW \$1\$Bsso7xK2\$u1I7XvRIJyMQlF2rYWbYx.  #modify
                 mnt-by:      MOD-MNT
-                referral-by: MOD-MNT
-                changed:     dbtest@ripe.net 20010601
                 source:      TEST
                 """,
             "MOD2-MNT": """\
@@ -31,8 +28,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 notify:      notify_test@ripe.net
                 auth:        MD5-PW \$1\$Bsso7xK2\$u1I7XvRIJyMQlF2rYWbYx.  #modify
                 mnt-by:      MOD-MNT
-                referral-by: MOD-MNT
-                changed:     dbtest@ripe.net 20120901
                 source:      TEST
                 """,
             "MOD3-MNT": """\
@@ -43,8 +38,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 notify:      new_notify_test@ripe.net
                 auth:        MD5-PW \$1\$Bsso7xK2\$u1I7XvRIJyMQlF2rYWbYx.  #modify
                 mnt-by:      MOD-MNT
-                referral-by: MOD-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "DEL2-MNT": """\
@@ -54,8 +47,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 upd-to:      updto_test@ripe.net
                 auth:        MD5-PW \$1\$T6B4LEdb\$5IeIbPNcRJ35P1tNoXFas/  #delete
                 mnt-by:      OWNER-MNT
-                referral-by: DEL2-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "TST2-MNT": """\
@@ -65,8 +56,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER2-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "TST3-MNT": """\
@@ -76,8 +65,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$p4syt8vq\$AOwjgBvR4MA3o4ccMSMvh0  #test3
                 mnt-by:      OWNER2-MNT
-                referral-by: TST-MNT3
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "TST5-MNT": """\
@@ -90,8 +77,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
                 mnt-by:      OWNER4-MNT
-                referral-by: TST-MNT5
-                changed:     dbtest@ripe.net 20130601
                 source:      TEST
                 """,
             "TST6-MNT": """\
@@ -104,9 +89,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER3-MNT
                 mnt-by:      OWNER4-MNT
-                referral-by: TST-MNT6
-                changed:     dbtest@ripe.net 20120101
-                changed:     dbtest@ripe.net 20120901
                 source:      TEST
                 """,
             "CREATE-MNT": """\
@@ -118,8 +100,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 notify:      notify_create@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: CREATE-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PN": """\
@@ -130,7 +110,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "PN-ORG": """\
@@ -142,7 +121,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 org:     ORG-OTO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "INETNUM": """\
@@ -155,7 +133,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       TST-MNT3
                 mnt-irt:      irt-test-notify
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
             """,
             "IRT_TEST_NOTIFY": """\
@@ -171,7 +148,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       TST-MNT3
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "IRT_TEST_NOTIFY2": """\
@@ -187,7 +163,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       TST-MNT3
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ASSPI": """\
@@ -201,7 +176,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
         ]
@@ -583,9 +557,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
     }
 
     def "modify object 2xmnt-by one has 2xmnt-nfy updto obj has 2xnotify"() {
-      given:
-        def mnt = object(getTransient("TST5-MNT"))
-
       expect:
         query_object_matches("-rBGT mntner TST-MNT5", "mntner", "TST-MNT5", "notify:\\s*notify_tst5@ripe.net")
         query_object_matches("-rBGT mntner TST-MNT5", "mntner", "TST-MNT5", "notify:\\s*notify2_tst5@ripe.net")
@@ -593,8 +564,20 @@ class NotificationSpec extends BaseQueryUpdateSpec {
       when:
         def message = send new Message(
                 subject: "modify mntner",
-                body: mnt + "password: owner4"
-        )
+                body: """\
+                mntner:      TST-MNT5
+                descr:       MNTNER for test
+                admin-c:     TP2-TEST # was TP1-TEST
+                upd-to:      updto_tst5@ripe.net
+                notify:      notify_tst5@ripe.net
+                notify:      notify2_tst5@ripe.net
+                auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
+                mnt-by:      OWNER-MNT
+                mnt-by:      OWNER4-MNT
+                source:      TEST
+
+                password:     owner4
+            """.stripIndent())
 
       then:
         def ack = ackFor message
@@ -610,27 +593,27 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         def notif = notificationFor "mntnfy_owner4@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
         notif.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
-        notif.changed("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120101", "changed:\\s*dbtest@ripe.net 20130601")
+        notif.changed("mntner", "TST-MNT5", "admin-c:\\s+TP1-TEST", "admin-c:\\s+TP2-TEST")
 
         def notif2 = notificationFor "mntnfy2_owner4@ripe.net"
         notif2.subject =~ "Notification of RIPE Database changes"
         notif2.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
-        notif2.changed("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120101", "changed:\\s*dbtest@ripe.net 20130601")
+        notif2.changed("mntner", "TST-MNT5", "admin-c:\\s+TP1-TEST", "admin-c:\\s+TP2-TEST")
 
         def notif3 = notificationFor "notify_tst5@ripe.net"
         notif3.subject =~ "Notification of RIPE Database changes"
         notif3.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
-        notif3.changed("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120101", "changed:\\s*dbtest@ripe.net 20130601")
+        notif3.changed("mntner", "TST-MNT5", "admin-c:\\s+TP1-TEST", "admin-c:\\s+TP2-TEST")
 
         def notif4 = notificationFor "notify2_tst5@ripe.net"
         notif4.subject =~ "Notification of RIPE Database changes"
         notif4.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
-        notif4.changed("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120101", "changed:\\s*dbtest@ripe.net 20130601")
+        notif4.changed("mntner", "TST-MNT5", "admin-c:\\s+TP1-TEST", "admin-c:\\s+TP2-TEST")
 
         def notif5 = notificationFor "mntnfy_owner@ripe.net"
         notif5.subject =~ "Notification of RIPE Database changes"
         notif5.modified.any { it.type == "mntner" && it.key == "TST-MNT5" }
-        notif5.changed("mntner", "TST-MNT5", "changed:\\s*dbtest@ripe.net 20120101", "changed:\\s*dbtest@ripe.net 20130601")
+        notif5.changed("mntner", "TST-MNT5", "admin-c:\\s+TP1-TEST", "admin-c:\\s+TP2-TEST")
         notif5.contents =~ "The old object can be seen in the history using the query options --list-versions and --show-version 2 TST-MNT5"
 
         noMoreMessages()
@@ -640,9 +623,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
     }
 
     def "fail modify object 2xmnt-by has mnt-nfy 2xupdto obj has 2xnotify"() {
-      given:
-        def mnt = object(getTransient("TST6-MNT"))
-
       expect:
         query_object_matches("-rBGT mntner TST-MNT6", "mntner", "TST-MNT6", "mnt-by:\\s*owner3")
         query_object_matches("-rBGT mntner TST-MNT6", "mntner", "TST-MNT6", "mnt-by:\\s*owner4")
@@ -650,8 +630,20 @@ class NotificationSpec extends BaseQueryUpdateSpec {
       when:
         def message = send new Message(
                 subject: "modify mntner",
-                body: mnt + "password: null"
-        )
+                body: """\
+                mntner:      TST-MNT6
+                descr:       MNTNER for test
+                admin-c:     TP2-TEST  # was TP1-TEST
+                upd-to:      updto_tst6@ripe.net
+                notify:      notify_tst6@ripe.net
+                notify:      notify2_tst6@ripe.net
+                auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
+                mnt-by:      OWNER3-MNT
+                mnt-by:      OWNER4-MNT
+                source:      TEST
+
+                password:     null
+            """.stripIndent())
 
       then:
         def ack = ackFor message
@@ -669,22 +661,22 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         def notif = notificationFor "updto_owner3@ripe.net"
         notif.subject =~ "RIPE Database updates, auth error notification"
         notif.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
-        !notif.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+        !notif.added("mntner", "TST-MNT6", "admin-c:\\s+TP1-TEST")
 
         def notif2 = notificationFor "updto2_owner3@ripe.net"
         notif2.subject =~ "RIPE Database updates, auth error notification"
         notif2.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
-        !notif2.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+        !notif2.added("mntner", "TST-MNT6", "admin-c:\\s+TP1-TEST")
 
         def notif3 = notificationFor "updto_owner4@ripe.net"
         notif3.subject =~ "RIPE Database updates, auth error notification"
         notif3.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
-        !notif3.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+        !notif3.added("mntner", "TST-MNT6", "admin-c:\\s+TP1-TEST")
 
         def notif4 = notificationFor "updto2_owner4@ripe.net"
         notif4.subject =~ "RIPE Database updates, auth error notification"
         notif4.failedModified.any { it.type == "mntner" && it.key == "TST-MNT6" }
-        !notif4.added("mntner", "TST-MNT6", "changed:\\s*dbtest@ripe.net 20120901")
+        !notif4.added("mntner", "TST-MNT6", "admin-c:\\s+TP1-TEST")
 
         noMoreMessages()
 
@@ -708,7 +700,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 org:     ORG-OTO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -759,7 +750,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 org:     ORG-OTO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -809,7 +799,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -859,7 +848,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 org:     ORG-OTO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net
+                remarks: updated
                 source:  TEST
 
                 password: owner
@@ -905,7 +894,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 org:     ORG-OTO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 delete: get rid
 
@@ -957,7 +945,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     status:       ASSIGNED PA
                     mnt-by:       TST-MNT3
                     mnt-irt:      irt-test-notify
-                    changed:      dbtest@ripe.net 20020101
                     source:       TEST
                     delete: get rid
 
@@ -1008,7 +995,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     status:       ASSIGNED PA
                     mnt-by:       TST-MNT3
                     mnt-irt:      irt-test-notify2
-                    changed:      dbtest@ripe.net 20020101
                     source:       TEST
 
 
@@ -1061,7 +1047,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     tech-c:       TP1-TEST
                     status:       ASSIGNED PA
                     mnt-by:       TST-MNT3
-                    changed:      dbtest@ripe.net 20020101
                     source:       TEST
 
                     password: test3
@@ -1109,7 +1094,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     status:       ASSIGNED PA
                     mnt-by:       TST-MNT3
                     mnt-irt:      irt-test-notify
-                    changed:      dbtest@ripe.net 20020101
                     source:       TEST
 
                     password: test3
@@ -1150,7 +1134,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     status:       ASSIGNED PA
                     mnt-by:       TST-MNT3
                     mnt-irt:      irt-test-notify
-                    changed:      dbtest@ripe.net 20020101
                     source:       TEST
 
                     password: test3
@@ -1198,7 +1181,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       lir-MNT
-                changed:      dbtest@ripe.net 20020101
                 remarks:      just added
                 source:       TEST
 
@@ -1257,7 +1239,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       lir-MNT
-                changed:      dbtest@ripe.net 20020101
                 remarks      just added
                 source:       TEST
 
@@ -1299,7 +1280,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       lir-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 password: hm
 
@@ -1356,7 +1336,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:   testing notifications
                 password: hm
@@ -1413,7 +1392,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       lir-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 password: hm
 
@@ -1468,7 +1446,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       lir-MNT
-                changed:      dbtest@ripe.net 20020101
                 remarks:      just added
                 source:       TEST
 
@@ -1527,7 +1504,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 delete:   testing notifications
                 password: hm
@@ -1584,7 +1560,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       lir-MNT
-                changed:      dbtest@ripe.net 20020101
                 remarks:      just added
                 source:       TEST
 
@@ -1645,8 +1620,6 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 notify:      notify_create@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: CREATE-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 password: null
 

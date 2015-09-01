@@ -76,7 +76,8 @@ class NicHandleRepositoryJdbc implements NicHandleRepository {
         return new NicHandle(space, availableIndex, suffix);
     }
 
-    private boolean isAvailable(final NicHandle nicHandle) {
+    @Override
+    public boolean isAvailable(final NicHandle nicHandle) {
         return jdbcTemplate.queryForList("" +
                 "select range_id " +
                 "  from nic_hdl " +

@@ -15,7 +15,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     upd-to: noreply@ripe.net
                     auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
-                    changed: dbtest@ripe.net 20120707
                     source: TEST
                     """,
                 "UPD-MNT": """\
@@ -25,7 +24,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: UPD-MNT
                     upd-to: noreply@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                    changed: dbtest@ripe.net 20120707
                     source: TEST
                 """,
 
@@ -36,7 +34,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: A-MNT
                     upd-to: noreply@ripe.net
                     auth:    MD5-PW \$1\$fq/gSvz/\$bcLSK.MKFwznLJFsmOGIh1 # password
-                    changed: dbtest@ripe.net 20120707
                     source: TEST
                 """,
                 "AP1-PN": """\
@@ -47,7 +44,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     phone:   +44 282 411141
                     nic-hdl: AP1-TEST
                     mnt-by:  TEST-MNT
-                    changed: dbtest@ripe.net 20120101
                     source:  TEST
                 """,
                 "AUT-NUM": """\
@@ -66,7 +62,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-lower:      UPD-MNT
                     mnt-routes:     UPD-MNT
                     mnt-by:         UPD-MNT
-                    changed:        noreply@ripe.net 20120101
                     source:         TEST
                 """,
                 "ORG-NCC1-RIPE": """\
@@ -77,7 +72,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:        bitbucket@ripe.net
                     mnt-ref:      UPD-MNT
                     mnt-by:       UPD-MNT
-                    changed:      noreply@ripe.net 20120505
                     source:       TEST
                 """,
                 "AS-BLOCK1": """\
@@ -99,7 +93,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:      AP1-TEST
                     status:      ALLOCATED PA
                     mnt-by:      UPD-MNT
-                    changed:     dbtest@ripe.net 20120101
                     source:      TEST
                 """,
                 "RouteSlash8": """\
@@ -107,7 +100,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:       dummy route
                     origin:      AS101
                     mnt-by:      UPD-MNT
-                    changed:     agoston@ripe.net 20120101
                     source:      TEST
                 """
         ]
@@ -122,7 +114,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:     AP1-TEST
                     admin-c:    AP1-TEST
                     mnt-by:     UPD-MNT
-                    changed:    test@ripe.net 20120202
                     source:     TEST
                     password:   update
                 """
@@ -140,7 +131,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:     AP1-TEST
                     admin-c:    AP1-TEST
                     mnt-by:     UPD-MNT
-                    changed:    test@ripe.net 20120202
                     source:     TEST
                     password:   update
                     delete: YES
@@ -160,7 +150,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     mbrs-by-ref:    A-MNT
                     source:         TEST
                     password:       emptypassword
@@ -180,7 +169,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:          AP1-TEST
             mnt-by:          A-MNT
             member-of:       rtrs-ripetest
-            changed:         test@ripe.net 20120622
             source:          TEST
             password:        password
         """
@@ -196,7 +184,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     mbrs-by-ref:    A-MNT
                     source:         TEST
                     password:       emptypassword
@@ -217,7 +204,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """
@@ -236,7 +222,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     password:       update
@@ -257,7 +242,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """
@@ -276,7 +260,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """
@@ -292,7 +275,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         UPD-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     password:       update
@@ -309,7 +291,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     password:       update
@@ -330,7 +311,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
                     mnt-lower:      A-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """
@@ -346,7 +326,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
                     mnt-lower:      A-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """
@@ -370,7 +349,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
                     mnt-lower:      A-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """
@@ -388,7 +366,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
                     mnt-lower:      A-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     password:       password
@@ -409,7 +386,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
                     mnt-lower:      A-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """
@@ -426,7 +402,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
                     mnt-lower:      A-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     password:       update
@@ -449,7 +424,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """
@@ -466,7 +440,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
-                    changed:        bob@test.net 20120101
+                    remarks:        updated
                     source:         TEST
                     password:       emptypassword
                     """
@@ -485,7 +459,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """
@@ -501,7 +474,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         UPD-MNT
-                    changed:        ripe@test.net 20120101
+                    remarks:        updated
                     source:         TEST
                     password:       update
                     password:       emptypassword
@@ -518,7 +491,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     delete:         YES
@@ -535,7 +507,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:         AP1-TEST
                     admin-c:        AP1-TEST
                     mnt-by:         UPD-MNT
-                    changed:        bob@test.net 20120101
                     source:         TEST
                     password:       update
                     """
@@ -555,7 +526,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
                     mbrs-by-ref:    UPD-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """
@@ -573,7 +543,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                         admin-c:        AP1-TEST
                         tech-c:         AP1-TEST
                         mnt-by:         UPD-MNT
-                        changed:        noreply@ripe.net 20120101
                         source:         TEST
                         password:       update
                         """
@@ -590,7 +559,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
                     mbrs-by-ref:    UPD-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     delete:         YES
@@ -609,7 +577,7 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:        AP1-TEST
                     mnt-by:         TEST-MNT
                     mbrs-by-ref:    UPD-MNT
-                    changed:        bob@test.net 20120101
+                    remarks:        updated
                     source:         TEST
                     password:       emptypassword
                     """
@@ -628,7 +596,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:        AP1-TEST
                     members:        10.0.0.0/8
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """
@@ -643,7 +610,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     descr:       dummy route
                     origin:      AS101
                     mnt-by:      UPD-MNT
-                    changed:     agoston@ripe.net 20120101
                     source:      TEST
                     delete:      no reason, really
                     password:    update
@@ -661,7 +627,6 @@ class SetsIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:        AP1-TEST
                     members:        10.0.0.0/8, 10.0.0.1/8
                     mnt-by:         TEST-MNT
-                    changed:        ripe@test.net 20120101
                     source:         TEST
                     password:       emptypassword
                     """

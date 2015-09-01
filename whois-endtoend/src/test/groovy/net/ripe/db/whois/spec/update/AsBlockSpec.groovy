@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -25,7 +24,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        routing policy is published in the RIPE Database
                 org:            ORG-OTO1-TEST
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net   20121214
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
                 """,
@@ -38,8 +36,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 admin-c:     TP2-TEST
                 auth:        MD5-PW \$1\$vuJ5SxxZ\$B4rxOF9eXgwvJPm.zDZxF1 # startup
                 mnt-by:      RIPE-DBM-STARTUP-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """
         ]
@@ -64,7 +60,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        routing policy is published in the RIPE Database
                 org:            ORG-OTO1-TEST
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -103,7 +98,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        routing policy is published in the RIPE Database
                 org:            ORG-OTO1-TEST
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -145,7 +139,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
                 override:       denis,override1
@@ -188,7 +181,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -231,7 +223,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -272,7 +263,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -313,7 +303,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -351,7 +340,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         TST-MNT2
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -391,7 +379,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -430,7 +417,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      LIR-MNT
                 source:         TEST
 
@@ -474,7 +460,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        within this block in the RIPE Database where a
                 remarks:        routing policy is published in the RIPE Database
                 mnt-by:         RIPE-DBM-STARTUP-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-DBM-STARTUP-MNT
                 source:         TEST
 
@@ -507,7 +492,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        to ARIN members and end-users in the ARIN region.
                 org:            ORG-LIR1-TEST
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -536,9 +520,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T as-block AS222 - AS333", "as-block", "AS222 - AS333")
 
         when:
-        def message = send new Message(
-                subject: "",
-                body: """\
+        def ack = syncUpdateWithResponse("""
                 as-block:       AS222 - AS333
                 descr:          ARIN ASN block
                 remarks:        These AS numbers are further assigned by ARIN
@@ -553,7 +535,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 org:            ORG-OTO1-TEST
                 mnt-by:         RIPE-DBM-MNT
                 mnt-by:         RIPE-DBM-STARTUP-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -562,18 +543,13 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-        def ack = ackFor message
-
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
 
-        ack.errors.any { it.operation == "Modify" && it.key == "[as-block] AS222 - AS333" }
-        ack.errorMessagesFor("Modify", "[as-block] AS222 - AS333") ==
-                ["Attribute \"mnt-by\" appears more than once"]
-        query_object_not_matches("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333", "mnt-by:\\s*RIPE-DBM-STARTUP-MNT")
-
+        ack.successes.any { it.operation == "Modify" && it.key == "[as-block] AS222 - AS333" }
+        query_object_matches("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333", "mnt-by:\\s*RIPE-DBM-STARTUP-MNT")
     }
 
     def "modify as-block, add admin-c and add tech-c"() {
@@ -601,7 +577,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-DBM-MNT
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -649,7 +624,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 remarks:        routing policy is published in the RIPE Database
                 org:            ORG-OTO1-TEST
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net   20121214
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
                 delete:         reason
@@ -678,7 +652,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -707,7 +680,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
 
                 password: dbm
@@ -736,7 +708,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -746,7 +717,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -782,7 +752,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -792,7 +761,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -828,7 +796,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -838,7 +805,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -872,7 +838,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -882,7 +847,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -915,7 +879,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -944,7 +907,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -973,7 +935,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
@@ -1002,7 +963,6 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 descr:          ASN block
                 remarks:        some comment
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 

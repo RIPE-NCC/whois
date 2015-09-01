@@ -881,7 +881,6 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         put(AttributeType.MNT_NFY, "mnt_nfy");
         put(AttributeType.NOTIFY, "notify");
         put(AttributeType.ORG, "org");
-        put(AttributeType.REFERRAL_BY, "referral_by");
         put(AttributeType.TECH_C, "tech_c");
         put(AttributeType.UPD_TO, "upd_to");
     }};
@@ -903,7 +902,6 @@ public class JdbcRpslObjectUpdateDaoTest extends AbstractDaoTest {
         put(AttributeType.MNT_NFY, "mnt_nfy");
         put(AttributeType.NOTIFY, "notify");
         put(AttributeType.ORG, "org_id");
-        put(AttributeType.REFERRAL_BY, "mnt_id");
         put(AttributeType.TECH_C, "pe_ro_id");
         put(AttributeType.UPD_TO, "upd_to");
     }};

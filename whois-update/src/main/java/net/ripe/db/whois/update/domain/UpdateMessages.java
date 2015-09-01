@@ -360,6 +360,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Timeout performing DNS check");
     }
 
+    public static Message dnsCheckMessageParsingError() {
+        return new Message(Type.ERROR, "Error parsing response while performing DNS check");
+    }
+
     // NOTE: this errormessage is being used by webupdates.
     public static Message authorisationRequiredForEnumDomain() {
         return new Message(Type.ERROR, "Creating enum domain requires administrative authorisation");
@@ -568,15 +572,15 @@ public final class UpdateMessages {
     }
 
     public static Message sponsoringOrgChanged() {
-        return new Message(Type.ERROR, "The sponsoring-org can only be changed by the RIPE NCC");
+        return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC");
     }
 
     public static Message sponsoringOrgAdded() {
-        return new Message(Type.ERROR, "The sponsoring-org can only be added by the RIPE NCC");
+        return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be added by the RIPE NCC");
     }
 
     public static Message sponsoringOrgRemoved() {
-        return new Message(Type.ERROR, "The sponsoring-org can only be removed by the RIPE NCC");
+        return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be removed by the RIPE NCC");
     }
 
     public static Message sponsoringOrgNotLIR() {
@@ -593,5 +597,9 @@ public final class UpdateMessages {
 
     public static Message valueChangedDueToLatin1Conversion(String attributeName) {
         return new Message(Type.WARNING, "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", attributeName);
+    }
+
+    public static Message oldPasswordsRemoved() {
+        return new Message(Type.WARNING, "MD5 passwords older than November 2011 were removed for one or more maintainers of this object, see: https://www.ripe.net/removed2011pw");
     }
 }

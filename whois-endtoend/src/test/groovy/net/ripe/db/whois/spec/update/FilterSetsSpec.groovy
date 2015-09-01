@@ -18,7 +18,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
             "FLTR": """\
@@ -30,7 +29,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "FLTR-2LEVEL": """\
@@ -42,7 +40,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "FLTR-3LEVEL": """\
@@ -54,7 +51,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "PRNG": """\
@@ -66,7 +62,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "PRNG-2LEVEL": """\
@@ -78,7 +73,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "PRNG-3LEVEL": """\
@@ -90,7 +84,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "ASB16":"""\
@@ -99,7 +92,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 remarks:        yes
                 org:            ORG-OTO1-TEST
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net   20121214
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
                 """,
@@ -121,7 +113,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -158,7 +149,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -197,7 +187,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -234,7 +223,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -274,7 +262,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 filter-set:   fltr-customers2
@@ -285,7 +272,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -334,7 +320,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -377,7 +362,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -424,7 +408,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -470,7 +453,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -514,7 +496,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -559,7 +540,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
 
                 filter-set:   AS123:fltr-customers
@@ -570,7 +550,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       test ing
 
@@ -582,7 +561,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20121224   # xmas update
+                remarks:      updated
                 source:  TEST
 
                 password: lir
@@ -604,7 +583,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
 
         queryObject("-rBT filter-set AS123:fltr-customers:AS352", "filter-set", "AS123:fltr-customers:AS352")
         queryObjectNotFound("-rBT filter-set AS123:fltr-customers", "filter-set", "AS123:fltr-customers")
-        query_object_matches("-rBT filter-set AS123:fltr-customers:AS352", "filter-set", "AS123:fltr-customers:AS352", "20121224   # xmas update")
+        query_object_matches("-rBT filter-set AS123:fltr-customers:AS352", "filter-set", "AS123:fltr-customers:AS352", "updated")
     }
 
     def "create 3 level filter-set object with mp-filter, 2 level set exists with filter, delete 2 level set, modify 3 level, re-create 2 level"() {
@@ -631,8 +610,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
-                source:  TEST
+                source:       TEST
 
                 filter-set:   AS123:fltr-customers
                 descr:        This filter contains customers
@@ -642,8 +620,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
-                source:  TEST
+                source:       TEST
                 delete:       test ing
 
                 filter-set:   AS123:fltr-customers:AS352
@@ -654,8 +631,8 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20121224   # xmas update
-                source:  TEST
+                remarks:      updated
+                source:       TEST
 
                 filter-set:   AS123:fltr-customers
                 descr:        This filter contains customers
@@ -665,8 +642,8 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20121224
-                source:  TEST
+                remarks:      updated
+                source:       TEST
 
                 password: lir
                 password: owner
@@ -688,8 +665,8 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
 
         queryObject("-rBT filter-set AS123:fltr-customers:AS352", "filter-set", "AS123:fltr-customers:AS352")
         queryObject("-rBT filter-set AS123:fltr-customers", "filter-set", "AS123:fltr-customers")
-        query_object_matches("-rBT filter-set AS123:fltr-customers:AS352", "filter-set", "AS123:fltr-customers:AS352", "20121224   # xmas update")
-        query_object_matches("-rBT filter-set AS123:fltr-customers", "filter-set", "AS123:fltr-customers", "20121224")
+        query_object_matches("-rBT filter-set AS123:fltr-customers:AS352", "filter-set", "AS123:fltr-customers:AS352", "updated")
+        query_object_matches("-rBT filter-set AS123:fltr-customers", "filter-set", "AS123:fltr-customers", "updated")
     }
 
     def "create filter-set object with only ASN"() {
@@ -714,7 +691,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -761,7 +737,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -807,7 +782,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -853,7 +827,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -906,7 +879,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -946,7 +918,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -982,7 +953,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1023,7 +993,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1059,7 +1028,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1107,7 +1075,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1160,7 +1127,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1279,7 +1245,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1398,7 +1363,6 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir

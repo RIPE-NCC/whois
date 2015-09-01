@@ -154,4 +154,34 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
                 "e-mail:         ***@ripe.net\n" +
                 "source:         TEST"));
     }
+
+    @Test
+    public void nrtm_keeps_timestamp_attributes() throws Exception {
+        databaseHelper.addObject("" +
+                "role:          Denis Walker\n" +
+                "nic-hdl:       DW-RIPE\n" +
+                "abuse-mailbox: abuse@ripe.net\n" +
+                "e-mail:        test@ripe.net\n" +
+                "changed:       noreply@ripe.net 20120101\n" +
+                "created:       2001-02-04T17:00:00Z\n" +
+                "last-modified: 2001-02-04T17:00:00Z\n" +
+                "source:        TEST");
+
+        final String legacyResponse = TelnetWhoisClient.queryLocalhost(NrtmServer.getLegacyPort(), "-g TEST:3:1-LAST");
+
+        assertThat(legacyResponse, containsString("remarks:        * THIS OBJECT IS MODIFIED"));
+
+        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
+
+        assertThat(response, not(containsString("remarks:        * THIS OBJECT IS MODIFIED")));
+        assertThat(response, containsString("" +
+                "role:           Denis Walker\n" +
+                "nic-hdl:        DW-RIPE\n" +
+                "abuse-mailbox:  abuse@ripe.net\n" +
+                "e-mail:         ***@ripe.net\n" +
+                "changed:        ***@ripe.net 20120101\n" +
+                "created:        2001-02-04T17:00:00Z\n" +
+                "last-modified:  2001-02-04T17:00:00Z\n" +
+                "source:         TEST"));
+    }
 }

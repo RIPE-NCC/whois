@@ -176,7 +176,6 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "descr:           T.E.S.T. Ltd\n" +
                 "nserver:         ns.foo.ua\n" +
                 "nserver:         ns2.foo.ua\n" +
-                "changed:         bar@foo.ua 20120911\n" +
                 "notify:          bar@foo.ua\n" +
                 "source:          RIPE\n" +
                 "mnt-by:          AARD-MNT"));
@@ -361,9 +360,9 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
     public void search_with_forward_slash() {
         databaseHelper.addObject(RpslObject.parse(
                 "inet6num: 2a00:1f78::fffe/48\n" +
-                        "netname: RIPE-NCC\n" +
-                        "descr: some description\n" +
-                        "source: TEST"));
+                "netname: RIPE-NCC\n" +
+                "descr: some description\n" +
+                "source: TEST"));
         freeTextIndex.rebuild();
 
         assertThat(query("q=2a00%5C%3A1f78%5C%3A%5C%3Afffe%2F48"), containsString("numFound=\"1\""));
@@ -411,9 +410,9 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
     @Test
     public void search_inetnum_multiple_matches() throws Exception {
         databaseHelper.addObject(
-               "inetnum:        193.0.0.0 - 193.0.0.255\n" +
-               "netname:        RIPE-NCC\n" +
-               "source:         RIPE");
+                "inetnum:        193.0.0.0 - 193.0.0.255\n" +
+                "netname:        RIPE-NCC\n" +
+                "source:         RIPE");
         databaseHelper.addObject(
                 "inetnum:        193.1.0.0 - 193.1.0.255\n" +
                 "netname:        RIPE-NCC\n" +
@@ -486,7 +485,6 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "e-mail:       org1@test.com\n" +
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20120505\n" +
                 "source:       RIPE\n"));
         freeTextIndex.rebuild();
 
@@ -507,7 +505,6 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "e-mail:       org1@test.com\n" +
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20120505\n" +
                 "source:       RIPE\n"));
         freeTextIndex.rebuild();
 
@@ -528,7 +525,6 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "e-mail:       org1@test.com\n" +
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20120505\n" +
                 "source:       RIPE\n"));
         freeTextIndex.rebuild();
 
@@ -549,7 +545,6 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "e-mail:       org1@test.com\n" +
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20120505\n" +
                 "source:       RIPE\n"));
         freeTextIndex.rebuild();
 
@@ -570,7 +565,6 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 "e-mail:       org1@test.com\n" +
                 "mnt-ref:      OWNER-MNT\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20120505\n" +
                 "source:       RIPE\n"));
         freeTextIndex.rebuild();
 
@@ -578,7 +572,7 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
     }
 
     // helper methods
-    
+
     private String query(final String queryString) {
         return RestTest.target(getPort(), String.format("search?%s",queryString))
                 .request()

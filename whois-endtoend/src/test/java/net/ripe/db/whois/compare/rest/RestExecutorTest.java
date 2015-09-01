@@ -53,9 +53,6 @@ public class RestExecutorTest {
                 "        <attribute name=\"mnt-by\" value=\"RIPE-DBM-STARTUP-MNT\" referenced-type=\"mntner\">\n" +
                 "          <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/ripe/mntner/RIPE-DBM-STARTUP-MNT\"></link>\n" +
                 "        </attribute>\n" +
-                "        <attribute name=\"referral-by\" value=\"RIPE-DBM-STARTUP-MNT\" referenced-type=\"mntner\">\n" +
-                "          <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/ripe/mntner/RIPE-DBM-STARTUP-MNT\"></link>\n" +
-                "        </attribute>\n" +
                 "        <attribute name=\"source\" value=\"RIPE\" comment=\"Filtered\"></attribute>\n" +
                 "      </attributes>\n" +
                 "    </object>\n" +

@@ -24,7 +24,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       OWNER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "IRT-INV-SIG": """\
@@ -38,7 +37,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       OWNER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "INETNUM1": """\
@@ -50,7 +48,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
             """,
             "INETNUM2": """\
@@ -63,7 +60,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 mnt-irt:      irt-test
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
             """
     ]}
@@ -88,7 +84,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 mnt-irt:      irt-test
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: end
@@ -132,7 +127,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 mnt-irt:      irt-test
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password:     end
@@ -173,7 +167,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 mnt-irt:      irt-test
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: end
@@ -215,7 +208,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 mnt-irt:      irt-test
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: end
@@ -253,7 +245,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 mnt-irt:      irt-test
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: end
@@ -293,7 +284,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
                 mnt-irt:      irt-test
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: end
@@ -334,7 +324,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                     status:       ASSIGNED PA
                     mnt-by:       END-USER-MNT
                     mnt-irt:      irt-test
-                    changed:      dbtest@ripe.net 20020101
                     source:       TEST
                     delete:       test deletion
 
@@ -377,7 +366,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: end
@@ -417,7 +405,6 @@ class IrtSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-irt:      irt-test
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:     denis,override1
 

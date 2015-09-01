@@ -10,6 +10,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClientException;
@@ -43,13 +44,13 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Component
 public class InternalUpdatePerformer {
+
     private final UpdateRequestHandler updateRequestHandler;
     private final DateTimeProvider dateTimeProvider;
     private final WhoisObjectMapper whoisObjectMapper;
@@ -89,6 +90,7 @@ public class InternalUpdatePerformer {
         updateRequestHandler.handle(updateRequest, updateContext);
 
         final Response.ResponseBuilder responseBuilder;
+
         UpdateStatus status = updateContext.getStatus(update);
         if (status == UpdateStatus.SUCCESS) {
             responseBuilder = Response.status(Response.Status.OK);
@@ -102,13 +104,8 @@ public class InternalUpdatePerformer {
             responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         }
 
-        return responseBuilder.entity(new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                final WhoisResources result = createResponse(request, updateContext, update);
-                StreamingHelper.getStreamingMarshal(request, output).singleton(result);
-            }
-        }).build();
+        return responseBuilder.entity(new StreamingResponse(request, createResponse(request, updateContext, update)))
+            .build();
     }
 
     private WhoisResources createResponse(final HttpServletRequest request, final UpdateContext updateContext, final Update update) {
@@ -231,27 +228,6 @@ public class InternalUpdatePerformer {
         loggerContext.log(new Message(Messages.Type.WARNING, message));
     }
 
-    // TODO: [AH] format logging of this properly (e.g. add proper global message support for headers and request url
-    // TODO: [ES] remove static, use internal logging context which has been initialised properly
-    public static void logHttpHeaders(final LoggerContext loggerContext, final HttpServletRequest request) {
-        final Enumeration<String> names = request.getHeaderNames();
-        while (names.hasMoreElements()) {
-            final String name = names.nextElement();
-            final Enumeration<String> values = request.getHeaders(name);
-            while (values.hasMoreElements()) {
-                loggerContext.log(new Message(Messages.Type.INFO, String.format("Header: %s=%s", name, values.nextElement())));
-            }
-        }
-    }
-
-    public static void logHttpUri(final LoggerContext loggerContext, final HttpServletRequest request) {
-        if (StringUtils.isEmpty(request.getQueryString())) {
-            loggerContext.log(new Message(Messages.Type.INFO, request.getRequestURI()));
-        } else {
-            loggerContext.log(new Message(Messages.Type.INFO, String.format("%s?%s", request.getRequestURI(), request.getQueryString())));
-        }
-    }
-
     class UpdateLogCallback implements LogCallback {
         private final Update update;
 
@@ -261,8 +237,27 @@ public class InternalUpdatePerformer {
 
         @Override
         public void log(final OutputStream outputStream) throws IOException {
-            outputStream.write(update.toString().getBytes());
+            outputStream.write(PasswordFilter.filterPasswordsInContents(update.toString()).getBytes());
         }
     }
 
+    public static class StreamingResponse implements StreamingOutput {
+
+        final WhoisResources whoisResources;
+        final HttpServletRequest request;
+
+        public StreamingResponse(final HttpServletRequest request, final WhoisResources whoisResources) {
+            this.request = request;
+            this.whoisResources = whoisResources;
+        }
+
+        @Override
+        public void write(OutputStream output) throws IOException, WebApplicationException {
+            StreamingHelper.getStreamingMarshal(request, output).singleton(whoisResources);
+        }
+
+        public WhoisResources getWhoisResources() {
+            return whoisResources;
+        }
+    }
 }
