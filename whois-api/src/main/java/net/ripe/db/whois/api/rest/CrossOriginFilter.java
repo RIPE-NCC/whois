@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+// TODO: [ES] update CrossOriginFilter to allow ANY origin for RDAP specifically
 // Ref. http://www.w3.org/TR/cors/
 public class CrossOriginFilter implements ContainerResponseFilter {
 

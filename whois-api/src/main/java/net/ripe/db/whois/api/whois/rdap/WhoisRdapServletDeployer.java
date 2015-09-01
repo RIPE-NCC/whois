@@ -27,6 +27,8 @@ public class WhoisRdapServletDeployer implements ServletDeployer {
         rdapJsonProvider.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, true);
         rdapJsonProvider.configure(SerializationFeature.INDENT_OUTPUT, true);
 
+        // TODO: [ES] update CrossOriginFilter to allow ANY origin for RDAP specifically, and register here
+
         final ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.register(whoisRDAPService);
         resourceConfig.register(rdapExceptionMapper);
