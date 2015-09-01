@@ -2,7 +2,9 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -25,10 +27,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -77,23 +77,53 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                     "address:   Amsterdam\n" +
                     "phone:     +3161234\n" +
                     "nic-hdl:   AUTO-1\n" +
-                    "mnt-by:    NEW-MNT\n" +            // TODO: fix reference on server side (create object)
+                    "mnt-by:    NEW-UHUUU9998-MNT\n" +            // TODO: fix reference on server side (create object)
                     "source:    TEST"),
                 RpslObject.parse(
-                    "mntner:    NEW-MNT\n" +
+                    "mntner:    NEW-UHUUU9998-MNT\n" +
                     "descr:     Maintainer\n" +
                     "admin-c:   AUTO-1\n" +             // TODO: fix reference (or try AUTO-1)
                     "upd-to:    person@net.net\n" +       // TODO: sso credential
                     "auth:      SSO person@net.net\n" +       // TODO: sso credential
-                    "mnt-by:    NEW-MNT\n" +
+                    "mnt-by:    NEW-UHUUU9998-MNT\n" +
                     "source:    TEST"));
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/references")
+        final WhoisResources response = RestTest.target(getPort(), "whois/references/TEST")
             .request()
             .cookie("crowd.token_key", "valid-token")
             .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
-        // TODO: validate response
+        List<WhoisObject> whoisObjects = response.getWhoisObjects();
+        assertThat(whoisObjects, hasSize(2));
+
+        final WhoisObject personObject = getWhoisObject("person", whoisObjects);
+        assertThat("NEW-UHUUU9998-MNT", equalToIgnoringCase(getAttr("mnt-by", personObject)));
+        String nicHdl = getAttr("nic-hdl", personObject);
+        assertNotEquals("AUTO-1", nicHdl.toUpperCase());
+
+        final WhoisObject mntnerObject = getWhoisObject("mntner", whoisObjects);
+        assertThat(nicHdl, equalToIgnoringCase(getAttr("admin-c", mntnerObject)));
+
+    }
+
+    private String getAttr(String attrName, WhoisObject personObject) {
+        for(Attribute attr: personObject.getAttributes()){
+            if(attrName.equalsIgnoreCase(attr.getName())){
+                 return attr.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    private WhoisObject getWhoisObject(String type, List<WhoisObject> whoisObjects) {
+        for(WhoisObject object: whoisObjects) {
+            if (type.equalsIgnoreCase(object.getType())) {
+                return object;
+            }
+        }
+
+        return null;
     }
 
     // READ
