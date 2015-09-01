@@ -28,9 +28,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @Category(IntegrationTest.class)
 public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
@@ -71,43 +69,71 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void create_person_mntner_pair_success() {
         final WhoisResources whoisResources =
-            createWhoisResources(
-                RpslObject.parse(
-                    "person:    Some Person\n" +
-                    "address:   Amsterdam\n" +
-                    "phone:     +3161234\n" +
-                    "nic-hdl:   AUTO-1\n" +
-                    "mnt-by:    NEW-UHUUU9998-MNT\n" +            // TODO: fix reference on server side (create object)
-                    "source:    TEST"),
-                RpslObject.parse(
-                    "mntner:    NEW-UHUUU9998-MNT\n" +
-                    "descr:     Maintainer\n" +
-                    "admin-c:   AUTO-1\n" +             // TODO: fix reference (or try AUTO-1)
-                    "upd-to:    person@net.net\n" +       // TODO: sso credential
-                    "auth:      SSO person@net.net\n" +       // TODO: sso credential
-                    "mnt-by:    NEW-UHUUU9998-MNT\n" +
-                    "source:    TEST"));
+                createWhoisResources(
+                    RpslObject.parse(
+                        "person:    Some Person\n" +
+                        "address:   Amsterdam\n" +
+                        "phone:     +3161234\n" +
+                        "nic-hdl:   AUTO-1\n" +
+                        "mnt-by:    NEW-UHUUU9999-MNT\n" +
+                        "source:    TEST"),
+                    RpslObject.parse(
+                        "mntner:    NEW-UHUUU9999-MNT\n" +
+                        "descr:     Maintainer\n" +
+                        "admin-c:   AUTO-1\n" +
+                        "upd-to:    person@net.net\n" +
+                        "auth:      SSO person@net.net\n" +
+                        "mnt-by:    NEW-UHUUU9999-MNT\n" +
+                        "source:    TEST"));
 
         final WhoisResources response = RestTest.target(getPort(), "whois/references/TEST")
-            .request()
-            .cookie("crowd.token_key", "valid-token")
-            .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
-        assertThat(response.getErrorMessages(), hasSize(2));
+        assertThat(response.getErrorMessages(), hasSize(1));
 
         List<WhoisObject> whoisObjects = response.getWhoisObjects();
         assertThat(whoisObjects, hasSize(2));
 
         final WhoisObject personObject = getWhoisObject("person", whoisObjects);
-        assertThat("NEW-UHUUU9998-MNT", equalToIgnoringCase(getAttr("mnt-by", personObject)));
+        assertThat("NEW-UHUUU9999-MNT", equalToIgnoringCase(getAttr("mnt-by", personObject)));
         String nicHdl = getAttr("nic-hdl", personObject);
         assertNotEquals("AUTO-1", nicHdl.toUpperCase());
 
         final WhoisObject mntnerObject = getWhoisObject("mntner", whoisObjects);
         assertThat(nicHdl, equalToIgnoringCase(getAttr("admin-c", mntnerObject)));
 
+    }
 
+    @Test
+    public void create_person_mntner_pair_fail() {
+        final WhoisResources whoisResources =
+            createWhoisResources(
+                RpslObject.parse(
+                    "person:    Some Person\n" +
+                    "address:   Amsterdam\n" +
+                    "phone:     +3161234\n" +
+                    "nic-hdl:   AUTO-1\n" +
+                    "mnt-by:    OWNER-MNT\n" +
+                    "source:    TEST"),
+                RpslObject.parse(
+                    "mntner:    NEW-UHUUU9999-MNT\n" +
+                    "descr:     Maintainer\n" +
+                    "admin-c:   AUTO-1\n" +
+                    "upd-to:    person@net.net\n" +
+                    "auth:      SSO person@net.net\n" +
+                    "mnt-by:    NEW-UHUUU9999-MNT\n" +
+                    "source:    TEST"));
 
+        final Response response = RestTest.target(getPort(), "whois/references/TEST")
+            .request()
+            .cookie("crowd.token_key", "valid-token")
+            .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE));
+
+        assertThat(response.getStatus(), equalTo(401));
+
+        assertThat(objectExists(ObjectType.MNTNER, "NEW-UHUUU9999-MNT"), is(false));
     }
 
     private String getAttr(String attrName, WhoisObject personObject) {
@@ -370,6 +396,12 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
+
+
+//    @Test
+//    public void sleep() throws Exception {
+//        Thread.sleep(100_000_000);
+//    }
 
     // helper methods
 

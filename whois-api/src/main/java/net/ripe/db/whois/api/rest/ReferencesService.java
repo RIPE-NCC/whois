@@ -2,7 +2,10 @@ package net.ripe.db.whois.api.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -12,13 +15,9 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.update.domain.Keyword;
-import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.update.domain.Update;
-import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.eclipse.jetty.http.HttpStatus;
@@ -31,33 +30,17 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
@@ -153,6 +136,9 @@ public class ReferencesService {
             return badRequest("WhoisResources is mandatory");
         }
 
+        WhoisResources mntenerResponse = null;
+        WhoisResources personResponse = null;
+
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
@@ -160,47 +146,75 @@ public class ReferencesService {
             auditlogRequest(request);
             checkForMainSource(request, sourceParam);
 
-            //Create mntner with dummy admin-c
-            final RpslObject mntnerObject = getSubmittedObjectByType(ObjectType.MNTNER, resource);
-            validateSubmittedCreateObject(request, mntnerObject, ObjectType.MNTNER.getName());
-            final RpslAttribute dummyAdminC = new RpslAttribute(AttributeType.ADMIN_C, dummyRole);
-            WhoisResources mntenerResponse = replacingAdminCAndSaveMntner(request, passwords, origin, updateContext, mntnerObject, dummyAdminC);
-
-            //Create person
-            final RpslObject personObject = getSubmittedObjectByType(ObjectType.PERSON, resource);
-            validateSubmittedCreateObject(request, personObject, ObjectType.PERSON.getName());
-            WhoisResources personResponse = persistWhoisResources(request, passwords, origin, updateContext, personObject);
-
-            //Update mntner with real admin-c
-            RpslObject personResponseRpsl = whoisObjectMapper.map(personResponse.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
-            RpslAttribute personNicHdl = personResponseRpsl.findAttribute(AttributeType.NIC_HDL);
-            RpslAttribute validAdminC = new RpslAttribute(AttributeType.ADMIN_C, personNicHdl.getValue());
-
-            RpslObject updatedMnterRpsl = whoisObjectMapper.map(mntenerResponse.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
-            WhoisResources updatedMntenerResponse = replacingAdminCAndSaveMntner(request, passwords, origin, updateContext, updatedMnterRpsl, validAdminC);
+            mntenerResponse = createMntnerWithDummyAdminC(resource, request, passwords, origin, updateContext);
+            personResponse = createPerson(resource, request, passwords, origin, updateContext);
+            final WhoisResources updatedMntenerResponse = updateMntnerWithRealAdminC(request, passwords, origin, updateContext, mntenerResponse, personResponse);
 
             //Create response with both objects
-            List<WhoisObject> whoisObjects = Lists.newArrayList(personResponse.getWhoisObjects().get(0), updatedMntenerResponse.getWhoisObjects().get(0));
-            WhoisResources whoisResources = new WhoisResources();
+            final List<WhoisObject> whoisObjects = Lists.newArrayList(personResponse.getWhoisObjects().get(0), updatedMntenerResponse.getWhoisObjects().get(0));
+            final WhoisResources whoisResources = new WhoisResources();
             whoisResources.setWhoisObjects(whoisObjects);
 
-            List<ErrorMessage> errorMessages = Lists.newArrayList();
+            final List<ErrorMessage> errorMessages = Lists.newArrayList();
             errorMessages.addAll(personResponse.getErrorMessages());
             errorMessages.addAll(updatedMntenerResponse.getErrorMessages());
             whoisResources.setErrorMessages(errorMessages);
 
+            updatePerformer.closeContext();
             return createResponse(request, whoisResources, Response.Status.OK);
 
+        } catch (ReferenceUpdateFailedException e ) {
+            deleteIfCreated(request, mntenerResponse, passwords, crowdTokenKey);
+            deleteIfCreated(request, personResponse, passwords, crowdTokenKey);
+            return Response.status(e.status).build();
         } catch (Exception e) {
+            deleteIfCreated(request, mntenerResponse, passwords, crowdTokenKey);
+            deleteIfCreated(request, personResponse, passwords, crowdTokenKey);
             LOGGER.error("Unexpected", e);
             updatePerformer.logWarning(String.format("Caught %s: %s", e.getClass().toString(), e.getMessage()));
             return internalServerError("unexpected error");
-        } finally {
-            updatePerformer.closeContext();
         }
     }
 
-    private WhoisResources replacingAdminCAndSaveMntner(HttpServletRequest request, List<String> passwords, Origin origin, UpdateContext updateContext, RpslObject mntnerObject, RpslAttribute adminC) {
+    private void deleteIfCreated(HttpServletRequest request, WhoisResources response, List<String> passwords, String crowdTokenKey) {
+        if(response == null)
+            return;
+
+        updatePerformer.closeContext();
+
+        String primaryKey = response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue();
+        String objectType = response.getWhoisObjects().get(0).getType();
+
+        RpslObject rpslObject = lookupObjectByKey(primaryKey, objectType);
+
+        performUpdate(request, rpslObject, "Mntner/person pair was not able to be created.", passwords, crowdTokenKey);
+    }
+
+    private WhoisResources updateMntnerWithRealAdminC(HttpServletRequest request, List<String> passwords, Origin origin, UpdateContext updateContext, WhoisResources mntenerResponse, WhoisResources personResponse) {
+        final RpslObject personResponseRpsl = whoisObjectMapper.map(personResponse.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
+        final RpslAttribute personNicHdl = personResponseRpsl.findAttribute(AttributeType.NIC_HDL);
+
+        final RpslObject updatedMnterRpsl = whoisObjectMapper.map(mntenerResponse.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
+        final RpslAttribute validAdminC = new RpslAttribute(AttributeType.ADMIN_C, personNicHdl.getValue());
+        return replaceAdminCAndSaveMntner(request, passwords, origin, updateContext, updatedMnterRpsl, validAdminC, Keyword.NONE);
+    }
+
+    private WhoisResources createPerson(WhoisResources resource, HttpServletRequest request, List<String> passwords, Origin origin, UpdateContext updateContext) {
+        //Create person
+        final RpslObject personObject = getSubmittedObjectByType(ObjectType.PERSON, resource);
+        validateSubmittedCreateObject(request, personObject, ObjectType.PERSON.getName());
+        return persistWhoisResources(request, passwords, origin, updateContext, personObject, Keyword.NEW);
+    }
+
+    private WhoisResources createMntnerWithDummyAdminC(WhoisResources resource, HttpServletRequest request, List<String> passwords, Origin origin, UpdateContext updateContext) {
+        //Create mntner with dummy admin-c
+        final RpslObject mntnerObject = getSubmittedObjectByType(ObjectType.MNTNER, resource);
+        validateSubmittedCreateObject(request, mntnerObject, ObjectType.MNTNER.getName());
+        final RpslAttribute dummyAdminC = new RpslAttribute(AttributeType.ADMIN_C, dummyRole);
+        return replaceAdminCAndSaveMntner(request, passwords, origin, updateContext, mntnerObject, dummyAdminC, Keyword.NEW);
+    }
+
+    private WhoisResources replaceAdminCAndSaveMntner(HttpServletRequest request, List<String> passwords, Origin origin, UpdateContext updateContext, RpslObject mntnerObject, RpslAttribute adminC, Keyword keKeyword) {
 
         final RpslObjectBuilder mntnerObjectBuilder = new RpslObjectBuilder(mntnerObject);
 
@@ -208,18 +222,34 @@ public class ReferencesService {
         mntnerObjectBuilder.replaceAttribute(originalAdminC, adminC);
 
         final RpslObject mntenerRpslObject = mntnerObjectBuilder.get();
-        return persistWhoisResources(request, passwords, origin, updateContext, mntenerRpslObject);
+        return persistWhoisResources(request, passwords, origin, updateContext, mntenerRpslObject, keKeyword);
     }
 
-    private WhoisResources persistWhoisResources(HttpServletRequest request, List<String> passwords, Origin origin, UpdateContext updateContext, RpslObject rpslObject) {
+    private WhoisResources persistWhoisResources(HttpServletRequest request, List<String> passwords, Origin origin, UpdateContext updateContext, RpslObject rpslObject, Keyword keyword) {
 
-        return updatePerformer.performWhoisResourcesUpdate(
+        final Update update = updatePerformer.createUpdate(updateContext, rpslObject, passwords, null, null);
+
+        final WhoisResources whoisResources = updatePerformer.performWhoisResourcesUpdate(
                 updateContext,
                 origin,
-                updatePerformer.createUpdate(updateContext, rpslObject, passwords, null, null),
+                update,
                 updatePerformer.createContent(rpslObject, passwords, null, null),
-                Keyword.NEW,
+                keyword,
                 request);
+
+        final UpdateStatus status = updateContext.getStatus(update);
+        if (status == UpdateStatus.SUCCESS) {
+            return whoisResources;
+        } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
+            throw new ReferenceUpdateFailedException(Response.Status.UNAUTHORIZED);
+        } else if (status == UpdateStatus.EXCEPTION) {
+            throw new ReferenceUpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR);
+        } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
+            throw new ReferenceUpdateFailedException(Response.Status.CONFLICT);
+        } else {
+            throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST);
+        }
+
     }
 
     private RpslObject getSubmittedObjectByType(ObjectType objectType, WhoisResources whoisResources) {
@@ -581,4 +611,17 @@ public class ReferencesService {
         }
     }
 
+    private class ReferenceUpdateFailedException extends RuntimeException {
+
+        private Response.Status status;
+
+        public ReferenceUpdateFailedException(Response.Status status) {
+            this.status = status;
+        }
+
+        public Response.Status getStatus() {
+            return status;
+        }
+
+    }
 }
