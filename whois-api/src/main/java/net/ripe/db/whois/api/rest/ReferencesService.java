@@ -163,15 +163,13 @@ public class ReferencesService {
             //Create mntner with dummy admin-c
             final RpslObject mntnerObject = getSubmittedObjectByType(ObjectType.MNTNER, resource);
             validateSubmittedCreateObject(request, mntnerObject, ObjectType.MNTNER.getName());
-            final RpslAttribute dummyAdminC = new RpslAttribute(AttributeType.ADMIN_C, CIString.ciString(dummyRole));
+            final RpslAttribute dummyAdminC = new RpslAttribute(AttributeType.ADMIN_C, dummyRole);
             WhoisResources mntenerResponse = replacingAdminCAndSaveMntner(request, passwords, origin, updateContext, mntnerObject, dummyAdminC);
-
 
             //Create person
             final RpslObject personObject = getSubmittedObjectByType(ObjectType.PERSON, resource);
             validateSubmittedCreateObject(request, personObject, ObjectType.PERSON.getName());
             WhoisResources personResponse = persistWhoisResources(request, passwords, origin, updateContext, personObject);
-
 
             //Update mntner with real admin-c
             RpslObject personResponseRpsl = whoisObjectMapper.map(personResponse.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
@@ -181,11 +179,15 @@ public class ReferencesService {
             RpslObject updatedMnterRpsl = whoisObjectMapper.map(mntenerResponse.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
             WhoisResources updatedMntenerResponse = replacingAdminCAndSaveMntner(request, passwords, origin, updateContext, updatedMnterRpsl, validAdminC);
 
-
             //Create response with both objects
             List<WhoisObject> whoisObjects = Lists.newArrayList(personResponse.getWhoisObjects().get(0), updatedMntenerResponse.getWhoisObjects().get(0));
             WhoisResources whoisResources = new WhoisResources();
             whoisResources.setWhoisObjects(whoisObjects);
+
+            List<ErrorMessage> errorMessages = Lists.newArrayList();
+            errorMessages.addAll(personResponse.getErrorMessages());
+            errorMessages.addAll(updatedMntenerResponse.getErrorMessages());
+            whoisResources.setErrorMessages(errorMessages);
 
             return createResponse(request, whoisResources, Response.Status.OK);
 

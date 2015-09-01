@@ -93,6 +93,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
             .cookie("crowd.token_key", "valid-token")
             .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
+        assertThat(response.getErrorMessages(), hasSize(2));
+
         List<WhoisObject> whoisObjects = response.getWhoisObjects();
         assertThat(whoisObjects, hasSize(2));
 
@@ -103,6 +105,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         final WhoisObject mntnerObject = getWhoisObject("mntner", whoisObjects);
         assertThat(nicHdl, equalToIgnoringCase(getAttr("admin-c", mntnerObject)));
+
+
 
     }
 
