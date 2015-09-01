@@ -84,7 +84,7 @@ public class InternalUpdatePerformer {
     public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
                                   final String content, final Keyword keyword, final HttpServletRequest request) {
 
-        final WhoisResources whoisResources = performUpdate2(updateContext, origin, update, content, keyword, request);
+        final WhoisResources whoisResources = performWhoisResourcesUpdate(updateContext, origin, update, content, keyword, request);
 
         final Response.ResponseBuilder responseBuilder;
 
@@ -106,8 +106,8 @@ public class InternalUpdatePerformer {
     }
 
 
-    public WhoisResources performUpdate2(final UpdateContext updateContext, final Origin origin, final Update update,
-                                  final String content, final Keyword keyword, final HttpServletRequest request) {
+    public WhoisResources performWhoisResourcesUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
+                                                      final String content, final Keyword keyword, final HttpServletRequest request) {
 
         loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
 

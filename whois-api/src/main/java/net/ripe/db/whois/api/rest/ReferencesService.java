@@ -15,14 +15,12 @@ import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.query.planner.RpslAttributes;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
-import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +60,6 @@ import java.io.OutputStream;
 import java.util.*;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
 
 @Component
 @Path("/references")
@@ -79,9 +76,6 @@ public class ReferencesService {
     private final LoggerContext loggerContext;
     private final WhoisObjectMapper whoisObjectMapper;
     private final String dummyRole;
-
-    private static final String STARTUP_MAINTAINER = "RIPE-DBM-STARTUP-MNT";
-    private static final String STARTUP_MAINTAINER_PASSWORD = "4550c98d2638";
 
     @Autowired
     public ReferencesService(
@@ -160,96 +154,38 @@ public class ReferencesService {
         }
 
         try {
-
-            final RpslObject mntnerObject = getSubmittedObjectByType(ObjectType.MNTNER, resource);
-            validateSubmittedCreateObject(request, mntnerObject, ObjectType.MNTNER.getName());
-
-            final RpslObject personObject = getSubmittedObjectByType(ObjectType.PERSON, resource);
-            validateSubmittedCreateObject(request, personObject, ObjectType.PERSON.getName());
-
-
-
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
 
             auditlogRequest(request);
-
             checkForMainSource(request, sourceParam);
 
-
-
-            final RpslAttribute originalAdminC = mntnerObject.findAttribute(AttributeType.ADMIN_C);
+            //Create mntner with dummy admin-c
+            final RpslObject mntnerObject = getSubmittedObjectByType(ObjectType.MNTNER, resource);
+            validateSubmittedCreateObject(request, mntnerObject, ObjectType.MNTNER.getName());
             final RpslAttribute dummyAdminC = new RpslAttribute(AttributeType.ADMIN_C, CIString.ciString(dummyRole));
-
-            final RpslObjectBuilder mntnerObjectBuilder = new RpslObjectBuilder(mntnerObject);
-            mntnerObjectBuilder.replaceAttribute(originalAdminC, dummyAdminC);
+            WhoisResources mntenerResponse = replacingAdminCAndSaveMntner(request, passwords, origin, updateContext, mntnerObject, dummyAdminC);
 
 
-            RpslObject mntenerRpslObjectToCreate = mntnerObjectBuilder.get();
-            WhoisResources mntenerResponse = updatePerformer.performUpdate2(
-                    updateContext,
-                    origin,
-                    updatePerformer.createUpdate(updateContext, mntenerRpslObjectToCreate, passwords, null, null),
-                    updatePerformer.createContent(mntenerRpslObjectToCreate, passwords, null, null),
-                    Keyword.NEW,
-                    request);
+            //Create person
+            final RpslObject personObject = getSubmittedObjectByType(ObjectType.PERSON, resource);
+            validateSubmittedCreateObject(request, personObject, ObjectType.PERSON.getName());
+            WhoisResources personResponse = persistWhoisResources(request, passwords, origin, updateContext, personObject);
 
 
-            WhoisResources personResponse = updatePerformer.performUpdate2(
-                    updateContext,
-                    origin,
-                    updatePerformer.createUpdate(updateContext, personObject, passwords, null, null),
-                    updatePerformer.createContent(personObject, passwords, null, null),
-                    Keyword.NEW,
-                    request);
-
-
+            //Update mntner with real admin-c
             RpslObject personResponseRpsl = whoisObjectMapper.map(personResponse.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
             RpslAttribute personNicHdl = personResponseRpsl.findAttribute(AttributeType.NIC_HDL);
-
+            RpslAttribute validAdminC = new RpslAttribute(AttributeType.ADMIN_C, personNicHdl.getValue());
 
             RpslObject updatedMnterRpsl = whoisObjectMapper.map(mntenerResponse.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
-
-            final RpslObjectBuilder updatedMnterRpslBuilder = new RpslObjectBuilder(updatedMnterRpsl);
-            updatedMnterRpslBuilder.replaceAttribute(dummyAdminC, new RpslAttribute(AttributeType.ADMIN_C, CIString.ciString(personNicHdl.getValue())));
-
-            RpslObject updatedMntenerRpslObjectToCreate = updatedMnterRpslBuilder.get();
-            WhoisResources updatedMntenerResponse = updatePerformer.performUpdate2(
-                    updateContext,
-                    origin,
-                    updatePerformer.createUpdate(updateContext, updatedMntenerRpslObjectToCreate, passwords, null, null),
-                    updatePerformer.createContent(updatedMntenerRpslObjectToCreate, passwords, null, null),
-                    Keyword.NEW,
-                    request);
+            WhoisResources updatedMntenerResponse = replacingAdminCAndSaveMntner(request, passwords, origin, updateContext, updatedMnterRpsl, validAdminC);
 
 
-//
-//            RpslObject rpslObjectToCreate = mntnerObjectBuilder.get();
-//            Response mntenerResponse = updatePerformer.performUpdate(
-//                    updateContext,
-//                    origin,
-//                    updatePerformer.createUpdate(updateContext, rpslObjectToCreate, passwords, null, null),
-//                    updatePerformer.createContent(rpslObjectToCreate, passwords, null, null),
-//                    Keyword.NEW,
-//                    request);
-
-
-
-
-//            final RpslObject mntnerObject = getSubmittedObjectByType(ObjectType.MNTNER, resource);
-
-
-
-            // TODO: create maintainer
-
-            // TODO: update person, replace startup maintainer
-
-
+            //Create response with both objects
             List<WhoisObject> whoisObjects = Lists.newArrayList(personResponse.getWhoisObjects().get(0), updatedMntenerResponse.getWhoisObjects().get(0));
-
             WhoisResources whoisResources = new WhoisResources();
             whoisResources.setWhoisObjects(whoisObjects);
-
 
             return createResponse(request, whoisResources, Response.Status.OK);
 
@@ -260,6 +196,28 @@ public class ReferencesService {
         } finally {
             updatePerformer.closeContext();
         }
+    }
+
+    private WhoisResources replacingAdminCAndSaveMntner(HttpServletRequest request, List<String> passwords, Origin origin, UpdateContext updateContext, RpslObject mntnerObject, RpslAttribute adminC) {
+
+        final RpslObjectBuilder mntnerObjectBuilder = new RpslObjectBuilder(mntnerObject);
+
+        final RpslAttribute originalAdminC = mntnerObject.findAttribute(AttributeType.ADMIN_C);
+        mntnerObjectBuilder.replaceAttribute(originalAdminC, adminC);
+
+        final RpslObject mntenerRpslObject = mntnerObjectBuilder.get();
+        return persistWhoisResources(request, passwords, origin, updateContext, mntenerRpslObject);
+    }
+
+    private WhoisResources persistWhoisResources(HttpServletRequest request, List<String> passwords, Origin origin, UpdateContext updateContext, RpslObject rpslObject) {
+
+        return updatePerformer.performWhoisResourcesUpdate(
+                updateContext,
+                origin,
+                updatePerformer.createUpdate(updateContext, rpslObject, passwords, null, null),
+                updatePerformer.createContent(rpslObject, passwords, null, null),
+                Keyword.NEW,
+                request);
     }
 
     private RpslObject getSubmittedObjectByType(ObjectType objectType, WhoisResources whoisResources) {
