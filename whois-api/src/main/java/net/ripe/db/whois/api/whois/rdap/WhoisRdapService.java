@@ -405,7 +405,7 @@ public class WhoisRdapService {
             final List<RpslObject> objects = freeTextIndex.search(new IndexTemplate.SearchCallback<List<RpslObject>>() {
                 @Override
                 public List<RpslObject> search(IndexReader indexReader, TaxonomyReader taxonomyReader, IndexSearcher indexSearcher) throws IOException {
-                    final Stopwatch stopWatch = new Stopwatch().start();
+                    final Stopwatch stopWatch = Stopwatch.createStarted();
                     final List<RpslObject> results = Lists.newArrayList();
                     final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
                     try {
