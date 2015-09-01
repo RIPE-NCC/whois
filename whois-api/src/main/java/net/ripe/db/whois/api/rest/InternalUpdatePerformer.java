@@ -84,10 +84,7 @@ public class InternalUpdatePerformer {
     public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
                                   final String content, final Keyword keyword, final HttpServletRequest request) {
 
-        loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
-
-        final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
-        updateRequestHandler.handle(updateRequest, updateContext);
+        final WhoisResources whoisResources = performUpdate2(updateContext, origin, update, content, keyword, request);
 
         final Response.ResponseBuilder responseBuilder;
 
@@ -104,8 +101,21 @@ public class InternalUpdatePerformer {
             responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         }
 
-        return responseBuilder.entity(new StreamingResponse(request, createResponse(request, updateContext, update)))
+        return responseBuilder.entity(new StreamingResponse(request, whoisResources))
             .build();
+    }
+
+
+    public WhoisResources performUpdate2(final UpdateContext updateContext, final Origin origin, final Update update,
+                                  final String content, final Keyword keyword, final HttpServletRequest request) {
+
+        loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
+
+        final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
+        updateRequestHandler.handle(updateRequest, updateContext);
+
+
+        return createResponse(request, updateContext, update);
     }
 
     private WhoisResources createResponse(final HttpServletRequest request, final UpdateContext updateContext, final Update update) {
