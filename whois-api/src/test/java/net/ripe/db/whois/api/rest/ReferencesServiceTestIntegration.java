@@ -27,8 +27,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
@@ -91,19 +98,20 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 .cookie("crowd.token_key", "valid-token")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
+        // TODO: is this deliberate?
         assertThat(response.getErrorMessages(), hasSize(1));
+        assertThat(response.getErrorMessages().get(0).toString(), is("Referenced role object DR1-TEST from mntner: NEW-UHUUU9999-MNT is missing mandatory attribute \"mnt-by:\""));
 
-        List<WhoisObject> whoisObjects = response.getWhoisObjects();
-        assertThat(whoisObjects, hasSize(2));
+        assertThat(response.getWhoisObjects(), hasSize(2));
 
-        final WhoisObject personObject = getWhoisObject("person", whoisObjects);
-        assertThat("NEW-UHUUU9999-MNT", equalToIgnoringCase(getAttr("mnt-by", personObject)));
-        String nicHdl = getAttr("nic-hdl", personObject);
-        assertNotEquals("AUTO-1", nicHdl.toUpperCase());
+        final WhoisObject personObject = getWhoisObject(response, "person");
+        final String nicHdl = getAttribute(personObject, "nic-hdl");
+        assertThat(nicHdl, not(equalToIgnoringCase("AUTO-1")));
+        final String mntBy = getAttribute(personObject, "mnt-by");
+        assertThat(mntBy, equalToIgnoringCase("NEW-UHUUU9999-MNT"));
 
-        final WhoisObject mntnerObject = getWhoisObject("mntner", whoisObjects);
-        assertThat(nicHdl, equalToIgnoringCase(getAttr("admin-c", mntnerObject)));
-
+        final WhoisObject mntnerObject = getWhoisObject(response, "mntner");
+        assertThat(nicHdl, equalToIgnoringCase(getAttribute(mntnerObject, "admin-c")));
     }
 
     @Test
@@ -134,26 +142,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getStatus(), equalTo(401));
 
         assertThat(objectExists(ObjectType.MNTNER, "NEW-UHUUU9999-MNT"), is(false));
-    }
-
-    private String getAttr(String attrName, WhoisObject personObject) {
-        for(Attribute attr: personObject.getAttributes()){
-            if(attrName.equalsIgnoreCase(attr.getName())){
-                 return attr.getValue();
-            }
-        }
-
-        return null;
-    }
-
-    private WhoisObject getWhoisObject(String type, List<WhoisObject> whoisObjects) {
-        for(WhoisObject object: whoisObjects) {
-            if (type.equalsIgnoreCase(object.getType())) {
-                return object;
-            }
-        }
-
-        return null;
     }
 
     // READ
@@ -383,25 +371,18 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getStatus(), is(Response.Status.UNAUTHORIZED.getStatusCode()));
     }
 
-    @Ignore
+    @Ignore("TODO: [ES] include error messages in response")
     @Test
     public void delete_response_contains_error_message() {
-
         try {
             RestTest.target(getPort(), "whois/references/TEST/person/TP1-TEST")
-                    .request()
+                    .request(MediaType.APPLICATION_XML)
                     .delete(String.class);
             fail();
         } catch (NotAuthorizedException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
         }
     }
-
-
-//    @Test
-//    public void sleep() throws Exception {
-//        Thread.sleep(100_000_000);
-//    }
 
     // helper methods
 
@@ -419,6 +400,26 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     private WhoisResources createWhoisResources(final RpslObject ... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
+    }
+
+    private String getAttribute(final WhoisObject whoisObject, final String attributeName) {
+        for(Attribute attribute : whoisObject.getAttributes()) {
+            if(attribute.getName().equalsIgnoreCase(attributeName)){
+                 return attribute.getValue();
+            }
+        }
+
+        throw new IllegalArgumentException("Couldn't find " + attributeName);
+    }
+
+    private WhoisObject getWhoisObject(final WhoisResources whoisResources, final String objectType) {
+        for(WhoisObject object : whoisResources.getWhoisObjects()) {
+            if (objectType.equalsIgnoreCase(object.getType())) {
+                return object;
+            }
+        }
+
+        throw new IllegalArgumentException("Couldn't find " + objectType);
     }
 
 }
