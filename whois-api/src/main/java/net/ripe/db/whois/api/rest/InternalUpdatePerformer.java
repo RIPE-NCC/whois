@@ -224,7 +224,7 @@ public class InternalUpdatePerformer {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
             } catch (CrowdClientException e) {
-                loggerContext.log(new Message(Messages.Type.ERROR, e.getMessage()));
+                logError(e);
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }
@@ -236,6 +236,10 @@ public class InternalUpdatePerformer {
 
     public void logWarning(final String message) {
         loggerContext.log(new Message(Messages.Type.WARNING, message));
+    }
+
+    public void logError(final Throwable t) {
+        loggerContext.log(new Message(Messages.Type.ERROR, t.getMessage()), t);
     }
 
     class UpdateLogCallback implements LogCallback {
