@@ -85,9 +85,9 @@ public class RpslObjectFileReader implements Iterable<String> {
             }
         }
 
-//        @Override
-//        public void remove() {
-//            throw new UnsupportedOperationException();
-//        }
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 }
