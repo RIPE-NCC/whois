@@ -572,15 +572,15 @@ public final class UpdateMessages {
     }
 
     public static Message sponsoringOrgChanged() {
-        return new Message(Type.ERROR, "The sponsoring-org can only be changed by the RIPE NCC");
+        return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC");
     }
 
     public static Message sponsoringOrgAdded() {
-        return new Message(Type.ERROR, "The sponsoring-org can only be added by the RIPE NCC");
+        return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be added by the RIPE NCC");
     }
 
     public static Message sponsoringOrgRemoved() {
-        return new Message(Type.ERROR, "The sponsoring-org can only be removed by the RIPE NCC");
+        return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be removed by the RIPE NCC");
     }
 
     public static Message sponsoringOrgNotLIR() {
