@@ -189,7 +189,7 @@ public class ReferencesService {
         } catch (ReferenceUpdateFailedException e) {
             deleteIfCreated(request, mntnerResponse, passwords, crowdTokenKey);
             deleteIfCreated(request, personResponse, passwords, crowdTokenKey);
-            return Response.status(e.status).build();
+            return createResponse(request, e.whoisResources, e.status);
         } catch (Exception e) {
             deleteIfCreated(request, mntnerResponse, passwords, crowdTokenKey);
             deleteIfCreated(request, personResponse, passwords, crowdTokenKey);
@@ -289,13 +289,13 @@ public class ReferencesService {
             if (status == UpdateStatus.SUCCESS) {
                 return whoisResources;
             } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
-                throw new ReferenceUpdateFailedException(Response.Status.UNAUTHORIZED);
+                throw new ReferenceUpdateFailedException(Response.Status.UNAUTHORIZED, whoisResources);
             } else if (status == UpdateStatus.EXCEPTION) {
-                throw new ReferenceUpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR);
+                throw new ReferenceUpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR, whoisResources);
             } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
-                throw new ReferenceUpdateFailedException(Response.Status.CONFLICT);
+                throw new ReferenceUpdateFailedException(Response.Status.CONFLICT, whoisResources);
             } else {
-                throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST);
+                throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
             }
         } catch (ReferenceUpdateFailedException e) {
             throw e;
@@ -673,14 +673,14 @@ public class ReferencesService {
 
     private class ReferenceUpdateFailedException extends RuntimeException {
 
-        private Response.Status status;
 
-        public ReferenceUpdateFailedException(Response.Status status) {
+        private final WhoisResources whoisResources;
+        private final Response.Status status;
+
+
+        public ReferenceUpdateFailedException(Response.Status status, WhoisResources whoisResources) {
             this.status = status;
-        }
-
-        public Response.Status getStatus() {
-            return status;
+            this.whoisResources = whoisResources;
         }
 
     }
