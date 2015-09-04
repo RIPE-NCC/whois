@@ -357,7 +357,12 @@ public class IpTreeCacheManager {
         cacheEntry.nestedIntervalMaps = nestedIntervalMaps;
     }
 
-    private int getLastSerial(final JdbcTemplate jdbcTemplate) {
-        return jdbcTemplate.queryForObject("SELECT MAX(serial_id) FROM serials", Integer.class);
+    private long getLastSerial(final JdbcTemplate jdbcTemplate) {
+        return jdbcTemplate.queryForObject("SELECT MAX(serial_id) FROM serials", new RowMapper<Long>() {
+            @Override
+            public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getLong(1);
+            }
+        });
     }
 }
