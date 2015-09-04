@@ -28,6 +28,11 @@ public class RestClientException extends RuntimeException {
                 new ErrorMessage(new Message(Messages.Type.ERROR, cause != null ? cause.getMessage() : "no cause")));
     }
 
+    public RestClientException(@Nullable final Throwable cause, final List<ErrorMessage> errorMessages) {
+        super(cause);
+        this.errorMessages = errorMessages;
+    }
+
     @Override
     public String toString() {
         return StringUtils.join(errorMessages, '\n');

@@ -1,0 +1,37 @@
+mntner:         TEST-ROOT-MNT
+descr:          Mntner for TEST-DBM-MNT
+admin-c:        AA1-TEST
+tech-c:         AA2-TEST
+upd-to:         bitbucket@ripe.net
+mnt-nfy:        bitbucket@ripe.net
+auth:           MD5-PW $1$XXXXXXXX$XXXXXXXXXXXXXXXXXXXXX/ 
+notify:         bitbucket@ripe.net
+mnt-by:         TEST-ROOT-MNT
+remarks:        This is an automatically created object.
+changed:        bitbucket@ripe.net 20051031
+source:         TEST
+
+person:         Test Person
+mnt-by:         TEST-ROOT-MNT
+address:        Somewhere in nowhere
+phone:          +12 34 5678900
+fax-no:         +12 34 5678900
+e-mail:         bitbucket@ripe.net
+nic-hdl:        AA1-TEST
+remarks:        This is an automatically created object.
+changed:        bitbucket@ripe.net 20051031
+source:         TEST
+
+role:           TEST ROLE
+nic-hdl:        AA2-TEST
+address:        Somewhere in nowhere
+phone:          +12 34 567 8900
+fax-no:         +12 34 567 8900
+e-mail:         bitbucket@ripe.net
+abuse-mailbox:  bitbucket@ripe.net
+admin-c:        AA1-TEST
+tech-c:         AA2-TEST
+mnt-by:         TEST-ROOT-MNT
+remarks:        This is an automatically created object.
+changed:        bitbucket@ripe.net 20051031
+source:         TEST

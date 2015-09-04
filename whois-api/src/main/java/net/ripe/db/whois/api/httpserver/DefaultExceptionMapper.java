@@ -67,11 +67,11 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         if (exception instanceof EmptyResultDataAccessException) {
-            return Response.status(HttpServletResponse.SC_NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(createErrorEntity(Response.Status.NOT_FOUND.toString())).build();
         }
 
         if (exception instanceof QueryException) {
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
         }
 
         LOGGER.error("Unexpected", exception);
