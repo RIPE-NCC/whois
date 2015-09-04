@@ -358,6 +358,6 @@ public class IpTreeCacheManager {
     }
 
     private int getLastSerial(final JdbcTemplate jdbcTemplate) {
-        return jdbcTemplate.queryForInt("SELECT MAX(serial_id) FROM serials");
+        return jdbcTemplate.queryForObject("SELECT MAX(serial_id) FROM serials", Integer.class);
     }
 }
