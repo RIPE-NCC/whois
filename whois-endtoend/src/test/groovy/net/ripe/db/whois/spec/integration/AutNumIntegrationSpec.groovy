@@ -1108,7 +1108,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
 
         then:
-        create =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
+        create =~ /Error:   The "sponsoring-org" attribute can only be added by the RIPE NCC/
     }
 
     def "create autnum with sponsoring-org succeeds"() {
@@ -1166,7 +1166,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
 
         then:
-        update =~ /Error:   The sponsoring-org can only be added by the RIPE NCC/
+        update =~ /Error:   The "sponsoring-org" attribute can only be added by the RIPE NCC/
     }
 
     def "modify autnum add sponsoring-org succeeds"() {
@@ -1277,8 +1277,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent()))
 
         then:
-        update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
-        update =~ /Warning: The attribute 'sponsoring-org' can only be removed by RIPE NCC/
+        update =~ /Modify FAILED: \[aut-num\] AS400/
+        update =~ /Error:   The "sponsoring-org" attribute can only be removed by the RIPE NCC/
         queryObject("-rBG AS400", "sponsoring-org", "ORG-NCC1-RIPE")
     }
 

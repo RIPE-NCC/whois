@@ -39,6 +39,9 @@ public class AutocompleteSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutocompleteSearch.class);
 
+    // TODO: [ES] search results are NOT sorted
+    private static final Sort SORT_BY_LOOKUP_KEY = new Sort(new SortField(FreeTextIndex.LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
+
     private static final int MAX_SEARCH_RESULTS = 10;
 
     private final FreeTextIndex freeTextIndex;
@@ -56,8 +59,7 @@ public class AutocompleteSearch {
                 final List<String> results = Lists.newArrayList();
 
                 final Query query = constructQuery(getObjectTypeLookupKeys(fieldName), queryString);
-                final TopFieldDocs topDocs = indexSearcher.search(query,
-                        MAX_SEARCH_RESULTS, new Sort(new SortField(FreeTextIndex.LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING)));
+                final TopFieldDocs topDocs = indexSearcher.search(query, MAX_SEARCH_RESULTS, SORT_BY_LOOKUP_KEY);
 
                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                     final Document doc = indexSearcher.doc(scoreDoc.doc);
@@ -77,8 +79,7 @@ public class AutocompleteSearch {
                 final List<Map<String, Object>> results = Lists.newArrayList();
 
                 final Query query = constructQuery(getObjectTypeLookupKeys(fieldName), queryString);
-                final TopFieldDocs topDocs = indexSearcher.search(query,
-                        MAX_SEARCH_RESULTS, new Sort(new SortField(FreeTextIndex.LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING)));
+                final TopFieldDocs topDocs = indexSearcher.search(query, MAX_SEARCH_RESULTS, SORT_BY_LOOKUP_KEY);
 
                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
                     final Document doc = indexSearcher.doc(scoreDoc.doc);

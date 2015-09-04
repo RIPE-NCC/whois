@@ -1043,7 +1043,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         "ASSIGNED"          | ""
     }
 
-    def "remove sponsoring-org without override without RS maintainer is NOOP"() {
+    def "remove sponsoring-org without override without RS maintainer"() {
         given:
         syncUpdate(getTransient("AS222SPON") + "password: nccend\npassword: hm\npassword: owner3")
 
@@ -1054,14 +1054,14 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
 
-        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
-        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS222") ==
-                ["The attribute 'sponsoring-org' can only be removed by RIPE NCC"]
+        ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
+        ack.errorMessagesFor("Modify", "[aut-num] AS222") ==
+                ["The \"sponsoring-org\" attribute can only be removed by the RIPE NCC"]
     }
 
     def "modify inetnum with status ASSIGNED PI and ANYCAST, inet6num with status ASSIGNED PI, aut-num, with type LIR sponsoring org, change to another type LIR sponsoring org, with RS pw"() {
@@ -1248,16 +1248,16 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(4, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The sponsoring-org can only be changed by the RIPE NCC"]
+                ["The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The sponsoring-org can only be changed by the RIPE NCC"]
+                ["The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
-                ["The sponsoring-org can only be changed by the RIPE NCC"]
+                ["The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
         ack.errorMessagesFor("Modify", "[aut-num] AS222") ==
-                ["The sponsoring-org can only be changed by the RIPE NCC"]
+                ["The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
@@ -1721,16 +1721,16 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(4, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
-                ["The sponsoring-org can only be added by the RIPE NCC"]
+                ["The \"sponsoring-org\" attribute can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.101.0 - 192.168.101.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
-                ["The sponsoring-org can only be added by the RIPE NCC"]
+                ["The \"sponsoring-org\" attribute can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:100::/64" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:100::/64") ==
-                ["The sponsoring-org can only be added by the RIPE NCC"]
+                ["The \"sponsoring-org\" attribute can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS333" }
         ack.errorMessagesFor("Modify", "[aut-num] AS333") ==
-                ["The sponsoring-org can only be added by the RIPE NCC"]
+                ["The \"sponsoring-org\" attribute can only be added by the RIPE NCC"]
 
         query_object_not_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:")
         query_object_not_matches("-r -BG -T inetnum 192.168.101.0 - 192.168.101.255", "inetnum", "192.168.101.0 - 192.168.101.255", "sponsoring-org:")
@@ -1816,22 +1816,22 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         def ack = new AckResponse("", message)
 
         ack.summary.nrFound == 4
-        ack.summary.assertSuccess(4, 0, 4, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(4, 0, 4, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
-        ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The attribute 'sponsoring-org' can only be removed by RIPE NCC"]
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
-        ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["The attribute 'sponsoring-org' can only be removed by RIPE NCC"]
-        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
-        ack.warningSuccessMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
-                ["The attribute 'sponsoring-org' can only be removed by RIPE NCC"]
-        ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
-        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS222") ==
-                ["The attribute 'sponsoring-org' can only be removed by RIPE NCC"]
+        ack.countErrorWarnInfo(4, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["The \"sponsoring-org\" attribute can only be removed by the RIPE NCC"]
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["The \"sponsoring-org\" attribute can only be removed by the RIPE NCC"]
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
+                ["The \"sponsoring-org\" attribute can only be removed by the RIPE NCC"]
+        ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
+        ack.errorMessagesFor("Modify", "[aut-num] AS222") ==
+                ["The \"sponsoring-org\" attribute can only be removed by the RIPE NCC"]
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
@@ -2205,19 +2205,19 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
                 ["Referenced organisation must have org-type: LIR",
-                 "The sponsoring-org can only be added by the RIPE NCC"]
+                 "The \"sponsoring-org\" attribute can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.101.0 - 192.168.101.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
                 ["Referenced organisation must have org-type: LIR",
-                 "The sponsoring-org can only be added by the RIPE NCC"]
+                 "The \"sponsoring-org\" attribute can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:100::/64" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:100::/64") ==
                 ["Referenced organisation must have org-type: LIR",
-                 "The sponsoring-org can only be added by the RIPE NCC"]
+                 "The \"sponsoring-org\" attribute can only be added by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS333" }
         ack.errorMessagesFor("Modify", "[aut-num] AS333") ==
                 ["Referenced organisation must have org-type: LIR",
-                 "The sponsoring-org can only be added by the RIPE NCC"]
+                 "The \"sponsoring-org\" attribute can only be added by the RIPE NCC"]
 
         query_object_not_matches("-r -BG -T inetnum 192.168.100.0 - 192.168.100.255", "inetnum", "192.168.100.0 - 192.168.100.255", "sponsoring-org:")
         query_object_not_matches("-r -BG -T inetnum 192.168.101.0 - 192.168.101.255", "inetnum", "192.168.101.0 - 192.168.101.255", "sponsoring-org:")
@@ -2515,19 +2515,19 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Referenced organisation must have org-type: LIR",
-                 "The sponsoring-org can only be changed by the RIPE NCC"]
+                 "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Referenced organisation must have org-type: LIR",
-                 "The sponsoring-org can only be changed by the RIPE NCC"]
+                 "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/64") ==
                 ["Referenced organisation must have org-type: LIR",
-                 "The sponsoring-org can only be changed by the RIPE NCC"]
+                 "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
         ack.errorMessagesFor("Modify", "[aut-num] AS222") ==
                 ["Referenced organisation must have org-type: LIR",
-                 "The sponsoring-org can only be changed by the RIPE NCC"]
+                 "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
 
         query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
         query_object_matches("-r -BG -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
@@ -2974,6 +2974,87 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
+    }
+
+    def "create inetnum with status ASSIGNED PI, with type LIR, multiple sponsoring orgs, with RS pw"() {
+        expect:
+        queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                org:          ORG-OFA10-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                sponsoring-org: ORG-LIRA-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                source:       TEST
+
+                password: nccend
+                password: hm
+                password: owner3
+                """.stripIndent()
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Attribute \"sponsoring-org\" appears more than once"]
+    }
+
+    def "modify inetnum with status ASSIGNED PI, with type LIR, multiple sponsoring orgs, with RS pw"() {
+      given:
+        syncUpdate(getTransient("ASSPISPON") + "override: denis,override1")
+
+      expect:
+        query_object_matches("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "sponsoring-org:\\s*ORG-LIRA-TEST")
+
+      when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        / 24 assigned
+                country:      NL
+                org:          ORG-OFA10-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                sponsoring-org: ORG-LIRA-TEST
+                sponsoring-org: ORG-LIRA-TEST
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                source:       TEST
+
+                password: nccend
+                """.stripIndent()
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["Attribute \"sponsoring-org\" appears more than once"]
     }
 
 }

@@ -84,10 +84,7 @@ public class InternalUpdatePerformer {
     public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
                                   final String content, final Keyword keyword, final HttpServletRequest request) {
 
-        loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
-
-        final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
-        updateRequestHandler.handle(updateRequest, updateContext);
+        final WhoisResources whoisResources = performWhoisResourcesUpdate(updateContext, origin, update, content, keyword, request);
 
         final Response.ResponseBuilder responseBuilder;
 
@@ -104,8 +101,21 @@ public class InternalUpdatePerformer {
             responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         }
 
-        return responseBuilder.entity(new StreamingResponse(request, createResponse(request, updateContext, update)))
+        return responseBuilder.entity(new StreamingResponse(request, whoisResources))
             .build();
+    }
+
+
+    public WhoisResources performWhoisResourcesUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
+                                                      final String content, final Keyword keyword, final HttpServletRequest request) {
+
+        loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
+
+        final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
+        updateRequestHandler.handle(updateRequest, updateContext);
+
+
+        return createResponse(request, updateContext, update);
     }
 
     private WhoisResources createResponse(final HttpServletRequest request, final UpdateContext updateContext, final Update update) {
@@ -214,7 +224,7 @@ public class InternalUpdatePerformer {
             try {
                 updateContext.setUserSession(ssoTokenTranslator.translateSsoToken(ssoToken));
             } catch (CrowdClientException e) {
-                loggerContext.log(new Message(Messages.Type.ERROR, e.getMessage()));
+                logError(e);
                 updateContext.addGlobalMessage(RestMessages.ssoAuthIgnored());
             }
         }
@@ -226,6 +236,10 @@ public class InternalUpdatePerformer {
 
     public void logWarning(final String message) {
         loggerContext.log(new Message(Messages.Type.WARNING, message));
+    }
+
+    public void logError(final Throwable t) {
+        loggerContext.log(new Message(Messages.Type.ERROR, t.getMessage()), t);
     }
 
     class UpdateLogCallback implements LogCallback {

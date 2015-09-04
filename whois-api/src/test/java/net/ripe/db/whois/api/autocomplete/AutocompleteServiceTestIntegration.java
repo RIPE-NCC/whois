@@ -12,9 +12,15 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -49,32 +55,32 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void single_maintainer_found() {
-        assertThat(query("AA1-MNT", "mntner"), is("[ \"AA1-MNT\" ]"));
+        assertThat(query("AA1-MNT", "mntner"), contains("AA1-MNT"));
     }
 
     @Test
     public void match_start_of_word_dash_is_tokenised() {
-        assertThat(query("AA1", "mntner"), is("[ \"AA1-MNT\" ]"));
+        assertThat(query("AA1", "mntner"), contains("AA1-MNT"));
     }
 
     @Test
     public void match_start_of_word_first_syllable_only() {
-        assertThat(query("some", "mntner"), is("[ \"something-mnt\" ]"));
+        assertThat(query("some", "mntner"), contains("something-mnt"));
     }
 
     @Test
     public void match_start_of_word_first_syllable_only_case_insensitive() {
-        assertThat(query("SoMe", "mntner"), is("[ \"something-mnt\" ]"));
+        assertThat(query("SoMe", "mntner"), contains("something-mnt"));
     }
 
     @Test
     public void match_multiple_maintainers() {
-        assertThat(query("random", "mntner"), is("[ \"random1-mnt\", \"random2-mnt\" ]"));
+        assertThat(query("random", "mntner"), containsInAnyOrder("random1-mnt", "random2-mnt"));
     }
 
     @Test
     public void no_maintainers_found() {
-        assertThat(query("invalid", "mntner"), is("[ ]"));
+        assertThat(query("invalid", "mntner"), is(empty()));
     }
 
     @Test
@@ -122,7 +128,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("mntner: MiXEd-MNT");
         rebuildIndex();
 
-        assertThat(query("mIxeD", "mntner"), is("[ \"MiXEd-MNT\" ]"));
+        assertThat(query("mIxeD", "mntner"), contains("MiXEd-MNT"));
     }
 
 
@@ -141,8 +147,8 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("mntner: ABC10-MNT");
         rebuildIndex();
 
-        // assertThat(query("ABC", "mntner"), is("[ \"ABC3-MNT\", \"ABC4-MNT\", \"ABC5-MNT\", \"ABC6-MNT\", \"ABC7-MNT\", \"ABC8-MNT\", \"ABC9-MNT\", \"ABC10-MNT\", \"ABC11-MNT\", \"ABC0-MNT\" ]"));  // TODO
-        // assertThat(query("ABC", "mntner"), not(containsString("ABC10-MNT")));    // TODO
+        // TODO: [ES] search results are NOT sorted
+        assertThat(query("ABC", "mntner"), hasSize(10));
     }
 
     @Test
@@ -153,7 +159,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        assertThat(query("ad1", "admin-c"), is("[ \"AD1-TEST\" ]"));
+        assertThat(query("ad1", "admin-c"), contains("AD1-TEST"));
     }
 
     @Test
@@ -167,9 +173,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        final String result = query("ww", "admin-c");
-        assertThat(result, containsString("\"ww1-test\""));
-        assertThat(result, containsString("\"ww2-test\""));
+        assertThat(query("ww", "admin-c"), containsInAnyOrder("ww1-test", "ww2-test"));
     }
 
     @Test
@@ -180,10 +184,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        final String result = query("bla", "mntner");
-        assertThat(result, containsString("\"bla1-mnt\""));
-        assertThat(result, containsString("\"bla2-mnt\""));
-        assertThat(result, containsString("\"bLA3-mnt\""));
+        assertThat(query("bla", "mntner"), containsInAnyOrder("bla1-mnt", "bla2-mnt", "bLA3-mnt"));
     }
 
 
@@ -322,18 +323,15 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
             attrParams.append("&attribute=").append(attributeName);
         }
 
-        return RestTest.target(getPort(),
-                String.format("whois/autocomplete?extended&query=%s&field=%s%s", query, field, attrParams.toString()))
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
+        return RestTest.target(getPort(), String.format("whois/autocomplete?extended&query=%s&field=%s%s", query, field, attrParams.toString())).request(MediaType.APPLICATION_JSON_TYPE).get(String.class);
     }
 
-    private String query(final String query, final String field) {
+    private List<String> query(final String query, final String field) {
+        return RestTest
+            .target(getPort(), String.format("whois/autocomplete?query=%s&field=%s", query, field))
+            .request(MediaType.APPLICATION_JSON_TYPE)
+            .get(new GenericType<List<String>>(){});
 
-        return RestTest.target(getPort(),
-                String.format("whois/autocomplete?query=%s&field=%s", query, field))
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
     }
 
     private void rebuildIndex() {
