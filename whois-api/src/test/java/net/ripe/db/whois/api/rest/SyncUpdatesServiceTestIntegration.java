@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
@@ -119,25 +118,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void redirect_not_allowed() throws Exception {
-        ipRanges.setTrusted();
-        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
-
-        try {
-            RestTest.target(getPort(), "whois/syncupdates/test?" +
-                    "REDIRECT=yes&DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
-                    .request()
-                    .get(String.class);
-            fail();
-        } catch (ForbiddenException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, not(containsString("Create SUCCEEDED: [mntner] mntner")));
-            assertThat(response, containsString("Not allowed to disable notifications: 127.0.0.1"));
-        }
-    }
-
-    @Test
-    public void redirect_allowed() throws Exception {
+    public void redirect_ignored() throws Exception {
         ipRanges.setTrusted("0/0", "::0/0");
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
@@ -147,7 +128,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
-        assertThat(response, not(containsString("Not allowed to disable notifications: 127.0.0.1\n")));
+
+        assertNotNull(getMessage("noreply@ripe.net"));
         assertFalse(anyMoreMessages());
     }
 

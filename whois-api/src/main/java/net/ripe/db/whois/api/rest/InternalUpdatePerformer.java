@@ -111,7 +111,7 @@ public class InternalUpdatePerformer {
 
         loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
 
-        final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
+        final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update));
         updateRequestHandler.handle(updateRequest, updateContext);
 
 
