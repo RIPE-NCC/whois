@@ -106,9 +106,7 @@ public class UpdateRequestHandler {
         // while creating the response we didn't send any notifications
         final UpdateResponse updateResponse = createUpdateResponse(updateRequest, updateContext);
 
-        if (updateRequest.isNotificationsEnabled()) {
-            updateNotifier.sendNotifications(updateRequest, updateContext);
-        }
+        updateNotifier.sendNotifications(updateRequest, updateContext);
 
         return updateResponse;
     }

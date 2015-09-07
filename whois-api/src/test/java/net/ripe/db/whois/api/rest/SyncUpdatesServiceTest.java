@@ -296,7 +296,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_redirect_not_allowed() throws Exception {
+    public void handle_redirect_is_ignored() throws Exception {
         final String data = "person";
         final String help = null;
         final String nnew = null;
@@ -308,8 +308,8 @@ public class SyncUpdatesServiceTest {
 
         final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
-        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_FORBIDDEN));
-        assertThat(response.getEntity().toString(), is("Not allowed to disable notifications: 127.0.0.1"));
+        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
+        assertThat(response.getEntity().toString(), is("OK"));
     }
 
     @Test
