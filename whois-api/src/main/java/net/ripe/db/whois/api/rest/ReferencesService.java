@@ -276,12 +276,7 @@ public class ReferencesService {
 
             final Update update = updatePerformer.createUpdate(updateContext, rpslObject, passwords, null, null);
 
-            final WhoisResources whoisResources = updatePerformer.performWhoisResourcesUpdate(
-                    updateContext,
-                    origin,
-                    update,
-                    keyword,
-                    request);
+            final WhoisResources whoisResources = updatePerformer.performUpdate(updateContext, origin, update, keyword, request);
 
             final UpdateStatus status = updateContext.getStatus(update);
 
@@ -427,12 +422,16 @@ public class ReferencesService {
 
             final Update update = updatePerformer.createUpdate(updateContext, updatedRpslObject, passwords, deleteReason, null);
 
-            final Response response = updatePerformer.performUpdate(
-                    updateContext,
-                    origin,
-                    update,
-                    Keyword.NONE,
-                    request);
+            final Response response = updatePerformer.createResponse(
+                        updateContext,
+                        updatePerformer.performUpdate(
+                                updateContext,
+                                origin,
+                                update,
+                                Keyword.NONE,
+                                request),
+                        update,
+                        request);
 
             if (response.getStatus() != Response.Status.OK.getStatusCode()) {
 
