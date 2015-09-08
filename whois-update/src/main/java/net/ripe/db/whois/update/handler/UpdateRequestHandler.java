@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
+import java.util.Collection;
 
 @Component
 public class UpdateRequestHandler {
@@ -76,7 +76,7 @@ public class UpdateRequestHandler {
             return new UpdateResponse(UpdateStatus.SUCCESS, responseFactory.createHelpResponse(updateContext, updateRequest.getOrigin()));
         }
 
-        final List<Update> updates = updateRequest.getUpdates();
+        final Collection<Update> updates = updateRequest.getUpdates();
         if (updateContext.isDryRun() && updates.size() > 1) {
             for (final Update update : updates) {
                 updateContext.failedUpdate(update, UpdateMessages.dryRunOnlySupportedOnSingleUpdate());
@@ -87,29 +87,32 @@ public class UpdateRequestHandler {
 
         try {
             sourceContext.setCurrentSourceToWhoisMaster();
-            return handleUpdates(updateRequest, updateContext);
+
+            ////////////////////////////////////////////////////////////////////////////////////////
+
+            dnsChecker.checkAll(updateRequest, updateContext);
+
+            for (final Update update : updateRequest.getUpdates()) {
+                ssoTranslator.populateCacheAuthToUuid(updateContext, update);
+            }
+
+            processUpdateQueue(updateRequest, updateContext);
+
+            // Create update response before sending notifications, so in case of an exception
+            // while creating the response we didn't send any notifications
+            final UpdateResponse updateResponse = createUpdateResponse(updateRequest, updateContext);
+
+            updateNotifier.sendNotifications(updateRequest, updateContext);
+
+            return updateResponse;
+
+            ///////////////////////////////////////////////////////////////////////////////////////////
+
         } finally {
             sourceContext.removeCurrentSource();
         }
     }
 
-    private UpdateResponse handleUpdates(final UpdateRequest updateRequest, final UpdateContext updateContext) {
-        dnsChecker.checkAll(updateRequest, updateContext);
-
-        for (final Update update : updateRequest.getUpdates()) {
-            ssoTranslator.populateCacheAuthToUuid(updateContext, update);
-        }
-
-        processUpdateQueue(updateRequest, updateContext);
-
-        // Create update response before sending notifications, so in case of an exception
-        // while creating the response we didn't send any notifications
-        final UpdateResponse updateResponse = createUpdateResponse(updateRequest, updateContext);
-
-        updateNotifier.sendNotifications(updateRequest, updateContext);
-
-        return updateResponse;
-    }
 
     private UpdateResponse createUpdateResponse(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         final Ack ack = updateContext.createAck();
@@ -125,13 +128,13 @@ public class UpdateRequestHandler {
     }
 
     private void processUpdateQueue(final UpdateRequest updateRequest, final UpdateContext updateContext) {
-        List<Update> updates = updateRequest.getUpdates();
+        Collection<Update> updates = updateRequest.getUpdates();
 
         if (updates.size() == 1) {
             attemptUpdates(updateRequest, updateContext, updates);
         } else {
             while (!updates.isEmpty()) {
-                final List<Update> reattemptQueue = attemptUpdates(updateRequest, updateContext, updates);
+                final Collection<Update> reattemptQueue = attemptUpdates(updateRequest, updateContext, updates);
 
                 if (reattemptQueue.size() == updates.size()) {
                     break;
@@ -146,8 +149,8 @@ public class UpdateRequestHandler {
         }
     }
 
-    private List<Update> attemptUpdates(final UpdateRequest updateRequest, final UpdateContext updateContext, final List<Update> updates) {
-        final List<Update> reattemptQueue = Lists.newArrayList();
+    private Collection<Update> attemptUpdates(final UpdateRequest updateRequest, final UpdateContext updateContext, final Collection<Update> updates) {
+        final Collection<Update> reattemptQueue = Lists.newArrayList();
         for (final Update update : updates) {
             final Stopwatch stopwatch = Stopwatch.createStarted();
 
