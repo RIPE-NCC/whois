@@ -197,7 +197,6 @@ public class SyncUpdatesService {
             final UpdateRequest updateRequest = new UpdateRequest(
                     new SyncUpdate(dateTimeProvider, request.getRemoteAddress()),
                     getKeyword(request),
-                    content,
                     updatesParser.parse(updateContext, Lists.newArrayList(new ContentWithCredentials(content, charset))));
 
             final UpdateResponse updateResponse = updateRequestHandler.handle(updateRequest, updateContext);
