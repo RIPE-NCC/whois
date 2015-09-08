@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -49,6 +50,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -156,7 +158,7 @@ public class ReferencesService {
                 @QueryParam("password") final List<String> passwords,
                 @CookieParam("crowd.token_key") final String crowdTokenKey) {
 
-        if (Strings.isNullOrEmpty(crowdTokenKey)) {
+        if (Strings.isNullOrEmpty(crowdTokenKey)) {                     // TODO: only validate that ANY credential has been supplied (token and/or password(s))
             return badRequest("RIPE NCC Access cookie is mandatory");
         }
 
@@ -301,12 +303,70 @@ public class ReferencesService {
         }
     }
 
+    private WhoisResources performUpdates(
+            final HttpServletRequest request,
+            final List<RpslObject> rpslObjects,
+            final List<String> passwords,
+            final String crowdTokenKey,
+            final boolean allOrNothing) {
+        try {
+            final Origin origin = updatePerformer.createOrigin(request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+            if (allOrNothing) {
+                updateContext.allOrNothing();
+            }
+
+            auditlogRequest(request);
+
+            final List<Update> updates = Lists.newArrayList();
+            for (RpslObject rpslObject : rpslObjects) {
+                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, passwords, null, null));
+            }
+
+            final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);    // TODO: determine Keyword.NEW or NONE from request
+
+            // final UpdateStatus status = updateContext.getStatus(update);
+            final UpdateStatus status = UpdateStatus.SUCCESS;       // TODO: determine aggregate status
+
+            if (status == UpdateStatus.SUCCESS) {
+                return whoisResources;
+            } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
+                throw new ReferenceUpdateFailedException(Response.Status.UNAUTHORIZED, whoisResources);
+            } else if (status == UpdateStatus.EXCEPTION) {
+                throw new ReferenceUpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR, whoisResources);
+//            } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {      // TODO: check if any NEW failed
+//                throw new ReferenceUpdateFailedException(Response.Status.CONFLICT, whoisResources);
+            } else {
+                throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
+            }
+        } catch (ReferenceUpdateFailedException e) {
+            throw e;
+        } catch (Exception e) {
+            updatePerformer.logError(e);
+            throw e;
+        } finally {
+            updatePerformer.closeContext();
+        }
+    }
+
     private WhoisObject convertToWhoisObject(final RpslObject rpslObject) {
         return whoisObjectMapper.map(rpslObject, FormattedServerAttributeMapper.class);
     }
 
     private RpslObject convertToRpslObject(final WhoisResources whoisResources) {
+        if (whoisResources.getWhoisObjects() == null || whoisResources.getWhoisObjects().size() != 1) {
+            throw new IllegalArgumentException("Unexpected whoisResources");
+        }
+
         return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
+    }
+
+    private List<RpslObject> convertToRpslObjects(final WhoisResources whoisResources) {
+        return Lists.transform(whoisResources.getWhoisObjects(), new Function<WhoisObject, RpslObject>() {
+            @Override public RpslObject apply(final WhoisObject whoisObject) {
+                return whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
+            }
+        });
     }
 
     private RpslObject convertToRpslObjectbyType(final WhoisResources whoisResources, final ObjectType objectType) {
@@ -326,6 +386,53 @@ public class ReferencesService {
                     .build());
         }
     }
+
+    @PUT
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    public Response update(
+            final WhoisResources resource,
+            @Context final HttpServletRequest request,
+            @QueryParam("password") final List<String> passwords,
+            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+
+        if (resource == null) {
+            return badRequest("WhoisResources is mandatory");
+        }
+
+        if ((passwords == null || passwords.isEmpty()) && (Strings.isNullOrEmpty(crowdTokenKey))) {
+            return badRequest("credential is mandatory");
+        }
+
+        // TODO: put a limit on the type and size of objects submitted
+
+        try {
+            final WhoisResources updatedResources = performUpdates(request, convertToRpslObjects(resource), passwords, crowdTokenKey, true);
+
+            // TODO: determine actual response
+
+            return createResponse(request, updatedResources, Response.Status.OK);
+
+        } catch (WebApplicationException e) {
+            final Response response = e.getResponse();
+
+            switch (response.getStatus()) {
+                case HttpStatus.UNAUTHORIZED_401:
+                    throw new NotAuthorizedException(createResponse(request, resource, Response.Status.UNAUTHORIZED));
+
+                case HttpStatus.INTERNAL_SERVER_ERROR_500:
+                    throw new InternalServerErrorException(createResponse(request, resource, Response.Status.INTERNAL_SERVER_ERROR));
+
+                default:
+                    throw new BadRequestException(createResponse(request, resource, Response.Status.BAD_REQUEST));
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Unexpected", e);
+            return createResponse(request, resource, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
     /**
@@ -669,16 +776,12 @@ public class ReferencesService {
     }
 
     private class ReferenceUpdateFailedException extends RuntimeException {
-
-
         private final WhoisResources whoisResources;
         private final Response.Status status;
-
 
         public ReferenceUpdateFailedException(Response.Status status, WhoisResources whoisResources) {
             this.status = status;
             this.whoisResources = whoisResources;
         }
-
     }
 }

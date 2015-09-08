@@ -33,6 +33,7 @@ public class UpdateRequestHandler {
     private final SourceContext sourceContext;
     private final ResponseFactory responseFactory;
     private final SingleUpdateHandler singleUpdateHandler;
+    private final MultipleUpdateHandler multipleUpdateHandler;
     private final LoggerContext loggerContext;
     private final DnsChecker dnsChecker;
     private final SsoTranslator ssoTranslator;
@@ -43,6 +44,7 @@ public class UpdateRequestHandler {
     public UpdateRequestHandler(final SourceContext sourceContext,
                                 final ResponseFactory responseFactory,
                                 final SingleUpdateHandler singleUpdateHandler,
+                                final MultipleUpdateHandler multipleUpdateHandler,
                                 final LoggerContext loggerContext,
                                 final DnsChecker dnsChecker,
                                 final SsoTranslator ssoTranslator,
@@ -51,6 +53,7 @@ public class UpdateRequestHandler {
         this.sourceContext = sourceContext;
         this.responseFactory = responseFactory;
         this.singleUpdateHandler = singleUpdateHandler;
+        this.multipleUpdateHandler = multipleUpdateHandler;
         this.loggerContext = loggerContext;
         this.dnsChecker = dnsChecker;
         this.ssoTranslator = ssoTranslator;
@@ -96,7 +99,11 @@ public class UpdateRequestHandler {
                 ssoTranslator.populateCacheAuthToUuid(updateContext, update);
             }
 
-            processUpdateQueue(updateRequest, updateContext);
+            if (updateContext.isAllOrNothing()) {
+                processUpdateQueueAllOrNothing(updateRequest, updateContext);
+            } else {
+                processUpdateQueueOneByOne(updateRequest, updateContext);
+            }
 
             // Create update response before sending notifications, so in case of an exception
             // while creating the response we didn't send any notifications
@@ -113,7 +120,6 @@ public class UpdateRequestHandler {
         }
     }
 
-
     private UpdateResponse createUpdateResponse(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         final Ack ack = updateContext.createAck();
         final String ackResponse = responseFactory.createAckResponse(updateContext, updateRequest.getOrigin(), ack);
@@ -127,14 +133,16 @@ public class UpdateRequestHandler {
         return new UpdateResponse(ack.getUpdateStatus(), ackResponse);
     }
 
-    private void processUpdateQueue(final UpdateRequest updateRequest, final UpdateContext updateContext) {
+    // ONE BY ONE UPDATES
+
+    private void processUpdateQueueOneByOne(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         Collection<Update> updates = updateRequest.getUpdates();
 
         if (updates.size() == 1) {
-            attemptUpdates(updateRequest, updateContext, updates);
+            attemptUpdatesOneByOne(updateRequest, updateContext, updates);
         } else {
             while (!updates.isEmpty()) {
-                final Collection<Update> reattemptQueue = attemptUpdates(updateRequest, updateContext, updates);
+                final Collection<Update> reattemptQueue = attemptUpdatesOneByOne(updateRequest, updateContext, updates);
 
                 if (reattemptQueue.size() == updates.size()) {
                     break;
@@ -149,7 +157,7 @@ public class UpdateRequestHandler {
         }
     }
 
-    private Collection<Update> attemptUpdates(final UpdateRequest updateRequest, final UpdateContext updateContext, final Collection<Update> updates) {
+    private Collection<Update> attemptUpdatesOneByOne(final UpdateRequest updateRequest, final UpdateContext updateContext, final Collection<Update> updates) {
         final Collection<Update> reattemptQueue = Lists.newArrayList();
         for (final Update update : updates) {
             final Stopwatch stopwatch = Stopwatch.createStarted();
@@ -174,4 +182,11 @@ public class UpdateRequestHandler {
         }
         return reattemptQueue;
     }
+
+    // ALL AT ONCE UPDATES
+
+    private void processUpdateQueueAllOrNothing(final UpdateRequest updateRequest, final UpdateContext updateContext) {
+        multipleUpdateHandler.handle(updateRequest, updateContext);
+    }
+
 }

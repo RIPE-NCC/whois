@@ -38,6 +38,7 @@ public class UpdateContext {
 
     private int nrSinceRestart;
     private boolean dryRun;
+    private boolean allOrNothing;
     private UserSession userSession;
 
     public UpdateContext(final LoggerContext loggerContext) {
@@ -56,6 +57,17 @@ public class UpdateContext {
 
     public int getNrSinceRestart() {
         return nrSinceRestart;
+    }
+
+    // "all or nothing" = batch = single transaction for all updates
+
+    public boolean isAllOrNothing() {
+        return allOrNothing;
+    }
+
+    public void allOrNothing() {
+        loggerContext.logAllOrNothing();
+        allOrNothing = true;
     }
 
     public void addDnsCheckResponse(final DnsCheckRequest request, final DnsCheckResponse response) {
