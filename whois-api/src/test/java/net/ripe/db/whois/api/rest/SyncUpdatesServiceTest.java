@@ -339,7 +339,6 @@ public class SyncUpdatesServiceTest {
                     public boolean matches(final Object argument) {
                         final UpdateRequest updateRequest = (UpdateRequest) argument;
                         assertThat(updateRequest.getKeyword(), is(Keyword.NONE));
-                        assertThat(updateRequest.getUpdateMessage(), is(data));
                         return true;
                     }
                 }),
@@ -380,7 +379,6 @@ public class SyncUpdatesServiceTest {
                     public boolean matches(final Object argument) {
                         final UpdateRequest updateRequest = (UpdateRequest) argument;
                         assertThat(updateRequest.getKeyword(), is(Keyword.NONE));
-                        assertThat(updateRequest.getUpdateMessage(), is(data));
                         return true;
                     }
                 }),

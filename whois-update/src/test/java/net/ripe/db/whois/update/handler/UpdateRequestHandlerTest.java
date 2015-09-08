@@ -132,7 +132,7 @@ public class UpdateRequestHandlerTest {
     @Test
     public void help() {
         when(responseFactory.createHelpResponse(updateContext, origin)).thenReturn("help");
-        final UpdateRequest updateRequest = new UpdateRequest(origin, Keyword.HELP, "", Collections.<Update>emptyList());
+        final UpdateRequest updateRequest = new UpdateRequest(origin, Keyword.HELP, Collections.<Update>emptyList());
 
         final UpdateResponse response = subject.handle(updateRequest, updateContext);
         assertThat(response.getStatus(), is(UpdateStatus.SUCCESS));
