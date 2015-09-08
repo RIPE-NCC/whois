@@ -82,13 +82,13 @@ public class InternalUpdatePerformer {
     }
 
     public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
-                                  final String content, final Keyword keyword, final HttpServletRequest request) {
+                                  final Keyword keyword, final HttpServletRequest request) {
 
-        final WhoisResources whoisResources = performWhoisResourcesUpdate(updateContext, origin, update, content, keyword, request);
+        final WhoisResources whoisResources = performWhoisResourcesUpdate(updateContext, origin, update, keyword, request);
+
+        final UpdateStatus status = updateContext.getStatus(update);
 
         final Response.ResponseBuilder responseBuilder;
-
-        UpdateStatus status = updateContext.getStatus(update);
         if (status == UpdateStatus.SUCCESS) {
             responseBuilder = Response.status(Response.Status.OK);
         } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
@@ -101,19 +101,17 @@ public class InternalUpdatePerformer {
             responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         }
 
-        return responseBuilder.entity(new StreamingResponse(request, whoisResources))
-            .build();
+        return responseBuilder.entity(new StreamingResponse(request, whoisResources)).build();
     }
 
 
     public WhoisResources performWhoisResourcesUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
-                                                      final String content, final Keyword keyword, final HttpServletRequest request) {
+                                                      final Keyword keyword, final HttpServletRequest request) {
 
         loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
 
         final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, Collections.singletonList(update));
         updateRequestHandler.handle(updateRequest, updateContext);
-
 
         return createResponse(request, updateContext, update);
     }
@@ -182,37 +180,6 @@ public class InternalUpdatePerformer {
 
     public Origin createOrigin(final HttpServletRequest request) {
         return new WhoisRestApi(dateTimeProvider, request.getRemoteAddr());
-    }
-
-    public String createContent(final RpslObject rpslObject, final List<String> passwords, final String deleteReason, String override) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(rpslObject.toString());
-
-        if (builder.charAt(builder.length() - 1) != '\n') {
-            builder.append('\n');
-        }
-
-        if (deleteReason != null) {
-            builder.append("delete: ");
-            builder.append(deleteReason);
-            builder.append("\n\n");
-        }
-
-        if (passwords != null) {
-            for (final String password : passwords) {
-                builder.append("password: ");
-                builder.append(password);
-                builder.append('\n');
-            }
-        }
-
-        if (override != null) {
-            builder.append("override: ");
-            builder.append(override);
-            builder.append("\n\n");
-        }
-
-        return builder.toString();
     }
 
     private String getRequestId(final String remoteAddress) {

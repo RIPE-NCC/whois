@@ -216,7 +216,6 @@ public class WhoisRestService {
                     updateContext,
                     origin,
                     updatePerformer.createUpdate(updateContext, originalObject, passwords, reason, override),
-                    updatePerformer.createContent(originalObject, passwords, reason, override),
                     Keyword.NONE,
                     request);
 
@@ -259,7 +258,6 @@ public class WhoisRestService {
                     updateContext,
                     origin,
                     updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override),
-                    updatePerformer.createContent(submittedObject, passwords, null, override),
                     Keyword.NONE,
                     request);
         } catch (Exception e) {
@@ -300,7 +298,6 @@ public class WhoisRestService {
                     updateContext,
                     origin,
                     updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override),
-                    updatePerformer.createContent(submittedObject, passwords, null, override),
                     Keyword.NEW,
                     request);
         } catch (Exception e) {

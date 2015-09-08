@@ -280,7 +280,6 @@ public class ReferencesService {
                     updateContext,
                     origin,
                     update,
-                    updatePerformer.createContent(rpslObject, passwords, null, null),
                     keyword,
                     request);
 
@@ -432,7 +431,6 @@ public class ReferencesService {
                     updateContext,
                     origin,
                     update,
-                    updatePerformer.createContent(updatedRpslObject, passwords, deleteReason, null),
                     Keyword.NONE,
                     request);
 
