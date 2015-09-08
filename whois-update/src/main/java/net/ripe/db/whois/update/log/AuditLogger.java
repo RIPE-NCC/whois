@@ -109,6 +109,10 @@ class AuditLogger {
         dbupdate.appendChild(doc.createElement("dryRun"));
     }
 
+    public void logAllOrNothing() {
+        dbupdate.appendChild(doc.createElement("allOrNothing"));
+    }
+
     public void logUpdate(final Update update) {
         Element updateElement = createOrGetUpdateElement(update);
 

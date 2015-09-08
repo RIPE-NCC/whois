@@ -239,6 +239,43 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    // UPDATE
+
+    @Test
+    public void update_create_multiple_objects_successfully() {
+        final RpslObject firstPerson = RpslObject.parse(
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        final RpslObject secondPerson = RpslObject.parse(
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP3-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        final RpslObject thirdPerson = RpslObject.parse(
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP4-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/references")
+                .queryParam("password", "test")
+                .request()
+                .put(Entity.entity(createWhoisResources(firstPerson, secondPerson, thirdPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        assertThat(response.getErrorMessages(), hasSize(0));
+        assertThat(response.getWhoisObjects(), hasSize(3));
+    }
+
+
+
     // DELETE
 
 
@@ -320,7 +357,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "e-mail:          dbtest@ripe.net\n" +
                 "mnt-by:          OWNER-MNT\n" +
                 "source:          TEST");
-        try{
+        try {
             RestTest.target(getPort(), "whois/references/TEST/organisation/ORG-TO1-TEST?password=test")
                     .request()
                     .delete(String.class);
