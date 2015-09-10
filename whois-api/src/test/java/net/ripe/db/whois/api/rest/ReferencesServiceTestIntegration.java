@@ -268,12 +268,53 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisResources response = RestTest.target(getPort(), "whois/references")
                 .queryParam("password", "test")
                 .request()
-                .put(Entity.entity(createWhoisResources(firstPerson, secondPerson, thirdPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+                .put(Entity.entity(mapRpslObjects(firstPerson, secondPerson, thirdPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(response.getErrorMessages(), hasSize(0));
         assertThat(response.getWhoisObjects(), hasSize(3));
+
+        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(true));
+        assertThat(objectExists(ObjectType.PERSON, "TP3-TEST"), is(true));
+        assertThat(objectExists(ObjectType.PERSON, "TP4-TEST"), is(true));
     }
 
+    @Test
+    public void update_create_multiple_objects_one_fails() {
+        final RpslObject firstPerson = RpslObject.parse(
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        final RpslObject secondPerson = RpslObject.parse(
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         INVALID\n" +    // invalid syntax
+                "nic-hdl:       TP3-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        final RpslObject thirdPerson = RpslObject.parse(
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP4-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/references")
+                .queryParam("password", "test")
+                .request()
+                .put(Entity.entity(mapRpslObjects(firstPerson, secondPerson, thirdPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 1);
+        RestTest.assertErrorMessage(response, 0, "Error", "Syntax error in %s", "INVALID");
+        assertThat(response.getWhoisObjects(), hasSize(3));
+
+        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "TP3-TEST"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "TP4-TEST"), is(false));
+    }
 
 
     // DELETE
@@ -312,7 +353,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
 
         databaseHelper.addObject(
-                "role:        Test Role\n" +
+                "role:          Test Role\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TR2-TEST\n" +
@@ -332,7 +373,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void delete_object_with_outgoing_references_only() {
         databaseHelper.addObject(
-                "role:        Test Role\n" +
+                "role:          Test Role\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TR2-TEST\n" +
@@ -423,20 +464,29 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     // helper methods
 
+    private List<RpslObject> lookup(final ObjectType objectType, final String primaryKey) {
+        final WhoisResources response = RestTest.target(getPort(),
+                                            String.format("whois/TEST/%s/%s", objectType.getName(), primaryKey))
+                                            .request()
+                                            .get(WhoisResources.class);
+        return mapWhoisObjects(response.getWhoisObjects());
+    }
+
     private boolean objectExists(final ObjectType objectType, final String primaryKey) {
         try {
-            RestTest.target(getPort(),
-                String.format("whois/TEST/%s/%s", objectType.getName(), primaryKey))
-                .request()
-                .get(WhoisResources.class);
+            lookup(objectType, primaryKey);
             return true;
         } catch (NotFoundException e) {
             return false;
         }
     }
 
-    private WhoisResources createWhoisResources(final RpslObject ... rpslObjects) {
+    private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
+    }
+
+    private List<RpslObject> mapWhoisObjects(final List<WhoisObject> whoisResources) {
+        return whoisObjectMapper.mapWhoisObjects(whoisResources, FormattedClientAttributeMapper.class);
     }
 
     private String getAttribute(final WhoisObject whoisObject, final String attributeName) {
@@ -458,5 +508,4 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         throw new IllegalArgumentException("Couldn't find " + objectType);
     }
-
 }
