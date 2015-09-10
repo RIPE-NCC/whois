@@ -43,7 +43,7 @@ public class MultipleUpdateHandler {
         this.updateLog = updateLog;
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void handle(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         Collection<Update> updates = updateRequest.getUpdates();
 

@@ -79,7 +79,7 @@ public class SingleUpdateHandler {
         this.ssoTranslator = ssoTranslator;
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void handle(final Origin origin, final Keyword keyword, final Update update, final UpdateContext updateContext) {
         updateLockDao.setUpdateLock();
         ipTreeUpdater.updateCurrent();
