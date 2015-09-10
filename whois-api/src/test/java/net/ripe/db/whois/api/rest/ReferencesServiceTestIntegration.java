@@ -76,7 +76,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void create_person_mntner_pair_success() {
         final WhoisResources whoisResources =
-                createWhoisResources(
+                mapRpslObjects(
                     RpslObject.parse(
                         "person:    Some Person\n" +
                         "address:   Amsterdam\n" +
@@ -117,7 +117,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void create_person_mntner_pair_fail() {
         final WhoisResources whoisResources =
-            createWhoisResources(
+            mapRpslObjects(
                 RpslObject.parse(
                     "person:    Some Person\n" +
                     "address:   Amsterdam\n" +
