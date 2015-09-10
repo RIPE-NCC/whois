@@ -390,8 +390,10 @@ public class ReferencesService {
     @PUT
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Path("/{source}")
     public Response update(
             final WhoisResources resource,
+            @PathParam("source") final String sourceParam,
             @Context final HttpServletRequest request,
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
@@ -400,9 +402,7 @@ public class ReferencesService {
             return badRequest("WhoisResources is mandatory");
         }
 
-        if ((passwords == null || passwords.isEmpty()) && (Strings.isNullOrEmpty(crowdTokenKey))) {
-            return badRequest("credential is mandatory");
-        }
+        checkForMainSource(request, sourceParam);
 
         // TODO: put a limit on the type and size of objects submitted
 
