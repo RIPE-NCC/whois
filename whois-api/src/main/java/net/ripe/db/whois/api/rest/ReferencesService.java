@@ -323,22 +323,26 @@ public class ReferencesService {
                 updates.add(updatePerformer.createUpdate(updateContext, rpslObject, passwords, null, null));
             }
 
-            final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);    // TODO: determine Keyword.NEW or NONE from request
+            final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
 
-            // final UpdateStatus status = updateContext.getStatus(update);
-            final UpdateStatus status = UpdateStatus.SUCCESS;       // TODO: determine aggregate status
+            for (Update update : updates) {
+                final UpdateStatus status = updateContext.getStatus(update);
 
-            if (status == UpdateStatus.SUCCESS) {
-                return whoisResources;
-            } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
-                throw new ReferenceUpdateFailedException(Response.Status.UNAUTHORIZED, whoisResources);
-            } else if (status == UpdateStatus.EXCEPTION) {
-                throw new ReferenceUpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR, whoisResources);
-//            } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {      // TODO: check if any NEW failed
-//                throw new ReferenceUpdateFailedException(Response.Status.CONFLICT, whoisResources);
-            } else {
-                throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
+                if (status == UpdateStatus.SUCCESS) {
+                    // continue
+                } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
+                    throw new ReferenceUpdateFailedException(Response.Status.UNAUTHORIZED, whoisResources);
+                } else if (status == UpdateStatus.EXCEPTION) {
+                    throw new ReferenceUpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR, whoisResources);
+                } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
+                    throw new ReferenceUpdateFailedException(Response.Status.CONFLICT, whoisResources);
+                } else {
+                    throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
+                }
             }
+
+            return whoisResources;
+
         } catch (ReferenceUpdateFailedException e) {
             throw e;
         } catch (Exception e) {
@@ -408,9 +412,6 @@ public class ReferencesService {
 
         try {
             final WhoisResources updatedResources = performUpdates(request, convertToRpslObjects(resource), passwords, crowdTokenKey, true);
-
-            // TODO: determine actual response
-
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -427,7 +428,10 @@ public class ReferencesService {
                     throw new BadRequestException(createResponse(request, resource, Response.Status.BAD_REQUEST));
             }
 
-        } catch (Exception e) {
+        } catch (ReferenceUpdateFailedException e) {
+            return createResponse(request, e.whoisResources, e.status);
+        }
+        catch (Exception e) {
             LOGGER.error("Unexpected", e);
             return createResponse(request, resource, Response.Status.INTERNAL_SERVER_ERROR);
         }

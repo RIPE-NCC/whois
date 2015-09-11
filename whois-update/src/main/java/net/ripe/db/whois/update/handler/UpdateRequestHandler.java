@@ -186,7 +186,11 @@ public class UpdateRequestHandler {
     // ALL AT ONCE UPDATES
 
     private void processUpdateQueueAllOrNothing(final UpdateRequest updateRequest, final UpdateContext updateContext) {
-        multipleUpdateHandler.handle(updateRequest, updateContext);
+        try {
+            multipleUpdateHandler.handle(updateRequest, updateContext);
+        } catch (RuntimeException e) {
+            // already handled
+        }
     }
 
 }
