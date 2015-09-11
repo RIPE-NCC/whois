@@ -265,7 +265,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/references")
+        final WhoisResources response = RestTest.target(getPort(), "whois/references/test")
                 .queryParam("password", "test")
                 .request()
                 .put(Entity.entity(mapRpslObjects(firstPerson, secondPerson, thirdPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
@@ -302,7 +302,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/references")
+        final WhoisResources response = RestTest.target(getPort(), "whois/references/test")
                 .queryParam("password", "test")
                 .request()
                 .put(Entity.entity(mapRpslObjects(firstPerson, secondPerson, thirdPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
