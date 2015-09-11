@@ -11,6 +11,8 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
@@ -47,13 +49,16 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void setup() {
         databaseHelper.addObject(
                 "role:          dummy role\n" +
-                "nic-hdl:       DR1-TEST");
+                "nic-hdl:       DR1-TEST\n" +
+                "source:        TEST");
         databaseHelper.addObject(
                 "person:        Test Person\n" +
-                "nic-hdl:       TP1-TEST");
+                "nic-hdl:       TP1-TEST\n" +
+                "source:        TEST");
         databaseHelper.addObject(
                 "role:          Test Role\n" +
-                "nic-hdl:       TR1-TEST");
+                "nic-hdl:       TR1-TEST\n" +
+                "source:        TEST");
         databaseHelper.addObject(
                 "mntner:        OWNER-MNT\n" +
                 "descr:         Owner Maintainer\n" +
@@ -302,19 +307,93 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/references/test")
+        try {
+            RestTest.target(getPort(), "whois/references/test")
                 .queryParam("password", "test")
                 .request()
                 .put(Entity.entity(mapRpslObjects(firstPerson, secondPerson, thirdPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
 
-        RestTest.assertErrorCount(response, 1);
-        RestTest.assertErrorMessage(response, 0, "Error", "Syntax error in %s", "INVALID");
-        assertThat(response.getWhoisObjects(), hasSize(3));
+            RestTest.assertErrorCount(response, 1);
+            RestTest.assertErrorMessage(response, 0, "Error", "Syntax error in %s", "INVALID");
+            // assertThat(response.getWhoisObjects(), hasSize(3));                                  // TODO: put ALL objects into response
 
-        assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(false));
-        assertThat(objectExists(ObjectType.PERSON, "TP3-TEST"), is(false));
-        assertThat(objectExists(ObjectType.PERSON, "TP4-TEST"), is(false));
+            assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(false));
+            assertThat(objectExists(ObjectType.PERSON, "TP3-TEST"), is(false));
+            assertThat(objectExists(ObjectType.PERSON, "TP4-TEST"), is(false));
+        }
     }
+
+    @Test
+    public void update_modify_multiple_objects_success() {
+        final RpslObject updatedPerson = RpslObject.parse(
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "remarks:       updated person\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        final RpslObject updatedRole = RpslObject.parse(
+                "role:          Test Role\n" +
+                "address:       Singel 258\n" +
+                "e-mail:        noreply@ripe.net\n" +
+                "remarks:       updated role\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/references/test")
+                .queryParam("password", "test")
+                .request()
+                .put(Entity.entity(mapRpslObjects(updatedPerson, updatedRole), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        RestTest.assertErrorCount(response, 0);
+        assertThat(response.getWhoisObjects(), hasSize(2));
+        assertThat(mapWhoisObjects(response.getWhoisObjects()).get(0).getValueForAttribute(AttributeType.REMARKS), is(CIString.ciString("updated person")));
+        assertThat(mapWhoisObjects(response.getWhoisObjects()).get(1).getValueForAttribute(AttributeType.REMARKS), is(CIString.ciString("updated role")));
+    }
+
+    @Test
+    public void update_modify_multiple_objects_one_fails() {
+        final RpslObject updatedPerson = RpslObject.parse(
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "remarks:       updated person\n" +         // added
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        final RpslObject updatedRole = RpslObject.parse(    // missing mandatory e-mail attribute
+                "role:          Test Role\n" +
+                "address:       Singel 258\n" +
+                "remarks:       updated role\n" +           // added
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TR1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        try {
+            RestTest.target(getPort(), "whois/references/test")
+                .queryParam("password", "test")
+                .request()
+                .put(Entity.entity(mapRpslObjects(updatedPerson, updatedRole), MediaType.APPLICATION_JSON_TYPE), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(response.getWhoisObjects(), hasSize(2));
+            assertThat(response.getErrorMessages(), hasSize(1));
+            RestTest.assertErrorMessage(response, 0, "Error", "Mandatory attribute \"%s\" is missing", "e-mail");
+
+            assertThat(lookup(ObjectType.PERSON, "TP1-TEST").containsAttribute(AttributeType.REMARKS), is(false));
+            assertThat(lookup(ObjectType.ROLE, "TR1-TEST").containsAttribute(AttributeType.REMARKS), is(false));
+        }
+    }
+
+    // TODO: test notifications on success and failure
 
 
     // DELETE
@@ -464,12 +543,12 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     // helper methods
 
-    private List<RpslObject> lookup(final ObjectType objectType, final String primaryKey) {
+    private RpslObject lookup(final ObjectType objectType, final String primaryKey) {
         final WhoisResources response = RestTest.target(getPort(),
                                             String.format("whois/TEST/%s/%s", objectType.getName(), primaryKey))
                                             .request()
                                             .get(WhoisResources.class);
-        return mapWhoisObjects(response.getWhoisObjects());
+        return mapWhoisObjects(response.getWhoisObjects()).get(0);
     }
 
     private boolean objectExists(final ObjectType objectType, final String primaryKey) {
