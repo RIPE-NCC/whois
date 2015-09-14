@@ -91,29 +91,34 @@ public class UpdateRequestHandler {
         try {
             sourceContext.setCurrentSourceToWhoisMaster();
 
-            ////////////////////////////////////////////////////////////////////////////////////////
-
             dnsChecker.checkAll(updateRequest, updateContext);
 
             for (final Update update : updateRequest.getUpdates()) {
                 ssoTranslator.populateCacheAuthToUuid(updateContext, update);
             }
 
-            if (updateContext.isAllOrNothing()) {
-                processUpdateQueueAllOrNothing(updateRequest, updateContext);
+            final UpdateResponse updateResponse;
+
+            if (updateContext.isBatchUpdate()) {
+                processUpdateQueueBatchUpdate(updateRequest, updateContext);
+
+                updateResponse = createUpdateResponse(updateRequest, updateContext);
+
+                if (updateResponse.getStatus().equals(UpdateStatus.SUCCESS)) {
+                    // only send notifications on complete success
+                    updateNotifier.sendNotifications(updateRequest, updateContext);
+                }
             } else {
                 processUpdateQueueOneByOne(updateRequest, updateContext);
+
+                // Create update response before sending notifications, so in case of an exception
+                // while creating the response we didn't send any notifications
+                updateResponse = createUpdateResponse(updateRequest, updateContext);
+
+                updateNotifier.sendNotifications(updateRequest, updateContext);
             }
 
-            // Create update response before sending notifications, so in case of an exception
-            // while creating the response we didn't send any notifications
-            final UpdateResponse updateResponse = createUpdateResponse(updateRequest, updateContext);
-
-            updateNotifier.sendNotifications(updateRequest, updateContext);
-
             return updateResponse;
-
-            ///////////////////////////////////////////////////////////////////////////////////////////
 
         } finally {
             sourceContext.removeCurrentSource();
@@ -185,7 +190,7 @@ public class UpdateRequestHandler {
 
     // ALL AT ONCE UPDATES
 
-    private void processUpdateQueueAllOrNothing(final UpdateRequest updateRequest, final UpdateContext updateContext) {
+    private void processUpdateQueueBatchUpdate(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         try {
             multipleUpdateHandler.handle(updateRequest, updateContext);
         } catch (RuntimeException e) {
