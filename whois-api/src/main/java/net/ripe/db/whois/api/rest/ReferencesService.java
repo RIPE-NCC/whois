@@ -310,12 +310,12 @@ public class ReferencesService {
             final List<String> passwords,
             final String crowdTokenKey,
             final String override,
-            final boolean allOrNothing) {
+            final boolean batchUpdate) {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
-            if (allOrNothing) {
-                updateContext.allOrNothing();
+            if (batchUpdate) {
+                updateContext.batchUpdate();
             }
 
             auditlogRequest(request);
@@ -405,6 +405,13 @@ public class ReferencesService {
         }
     }
 
+    /**
+     * Update one or more objects together (in the same transaction). If any update fails, then all changes are cancelled (rolled back).
+     *
+     * If any update fails, the response will contain all (attempted) changes up to, and including, that update.
+     * Any error message will refer to the last attempted update.
+     *
+     */
     @PUT
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -451,8 +458,6 @@ public class ReferencesService {
             return createResponse(request, resource, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
     /**
      * Delete an object, and also any incoming referencing objects (which must be a closed group).

@@ -198,7 +198,7 @@ public class LoggerContext {
         getContext().auditLogger.logDryRun();
     }
 
-    public void logAllOrNothing() {
+    public void logBatchUpdate() {
         getContext().auditLogger.logAllOrNothing();
     }
 

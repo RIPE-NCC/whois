@@ -113,7 +113,6 @@ public class InternalUpdatePerformer {
         return responseBuilder.entity(new StreamingResponse(request, whoisResources)).build();
     }
 
-    //////////////////////////
 
     private WhoisResources performUpdates(final HttpServletRequest request, final UpdateContext updateContext, final Collection<Update> updates) {
         final WhoisResources whoisResources = new WhoisResources();
