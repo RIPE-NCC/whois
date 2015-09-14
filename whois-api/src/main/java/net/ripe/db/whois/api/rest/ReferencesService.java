@@ -378,7 +378,7 @@ public class ReferencesService {
 
     // TODO: [ES] using a map will discard certain operations (e.g. modify and delete the same object)
     private Map<RpslObject, Action> convertToRpslObjectsActionMap(final WhoisResources whoisResources) {
-        final Map<RpslObject, Action> map = Maps.newHashMap();
+        final Map<RpslObject, Action> map = Maps.newLinkedHashMap();
 
         for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
             map.put(whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class), whoisObject.getAction() != null ? whoisObject.getAction() : Action.MODIFY);
