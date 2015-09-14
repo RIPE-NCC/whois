@@ -20,6 +20,7 @@ import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -42,6 +43,7 @@ import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -50,6 +52,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
+    @Autowired
+    private MailSenderStub mailSenderStub;
 
     @Before
     public void setup() {
@@ -69,7 +73,9 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "mntner:        OWNER-MNT\n" +
                 "descr:         Owner Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +
-                "upd-to:        noreply@ripe.net\n" +
+                "upd-to:        upd-to@ripe.net\n" +
+                "mnt-nfy:       mnt-nfy@ripe.net\n" +
+                "notify:        notify@ripe.net\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
@@ -288,6 +294,72 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(objectExists(ObjectType.PERSON, "TP3-TEST"), is(true));
         assertThat(objectExists(ObjectType.PERSON, "TP4-TEST"), is(true));
     }
+
+    @Test
+    public void update_multiple_objects_notifications_success() throws Exception {
+        final RpslObject updatedMntner = RpslObject.parse(
+                "mntner:        OWNER-MNT\n" +
+                "descr:         Owner Maintainer Updated Successfully\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        upd-to@ripe.net\n" +
+                "mnt-nfy:       mnt-nfy@ripe.net\n" +
+                "notify:        notify@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        final RpslObject updatedPerson = RpslObject.parse(
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        RestTest.target(getPort(), "whois/references/test")
+            .queryParam("password", "test")
+            .request()
+            .put(Entity.entity(mapRpslObjects(updatedMntner, updatedPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        final String notify = mailSenderStub.getMessage("notify@ripe.net").getContent().toString();
+        assertThat(notify, containsString("mntner:         OWNER-MNT"));
+        final String mntnfy = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
+        assertThat(mntnfy, containsString("mntner:         OWNER-MNT"));
+
+        assertFalse(mailSenderStub.anyMoreMessages());
+    }
+
+    @Test
+    public void update_multiple_objects_notifications_failure() throws Exception {
+        final RpslObject updatedMntner = RpslObject.parse(
+                "mntner:        OWNER-MNT\n" +
+                "descr:         Owner Maintainer Updated Successfully\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        upd-to@ripe.net\n" +
+                "mnt-nfy:       mnt-nfy@ripe.net\n" +
+                "notify:        notify@ripe.net\n" +
+                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+        final RpslObject updatedPerson = RpslObject.parse(
+                "person:        Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         INVALID\n" +
+                "nic-hdl:       TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+        try {
+            RestTest.target(getPort(), "whois/references/test")
+                .queryParam("password", "test")
+                .request()
+                .put(Entity.entity(mapRpslObjects(updatedMntner, updatedPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            // don't send ANY mails on failure
+            assertFalse(mailSenderStub.anyMoreMessages());
+        }
+    }
+
 
     @Test
     public void update_create_multiple_objects_one_fails() {
