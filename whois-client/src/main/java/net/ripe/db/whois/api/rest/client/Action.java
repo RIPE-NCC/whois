@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rest.domain;
+package net.ripe.db.whois.api.rest.client;
 
 public enum Action {
     CREATE,
