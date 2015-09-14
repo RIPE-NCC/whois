@@ -14,6 +14,7 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -397,7 +398,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_with_actions_success() {
+    public void update_with_actions_with_password_success() {
         final Map<RpslObject, Action> map = Maps.newHashMap();
         map.put(RpslObject.parse(
                 "person:        New Person\n" +
@@ -420,6 +421,30 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(objectExists(ObjectType.ROLE, "TR1-TEST"), is(false));
     }
 
+    @Test
+    public void update_with_actions_with_override_success() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON, ObjectType.ROLE));
+        final Map<RpslObject, Action> map = Maps.newHashMap();
+        map.put(RpslObject.parse(
+                "person:        New Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       NP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST"), Action.CREATE);
+        map.put(RpslObject.parse(
+                "role:          Test Role\n" +
+                "nic-hdl:       TR1-TEST\n" +
+                "source:        TEST"), Action.DELETE);
+
+        RestTest.target(getPort(), "whois/references/test")
+            .queryParam("override", "agoston,zoh,reason")
+            .request()
+            .put(Entity.entity(mapRpslObjects(map), MediaType.APPLICATION_JSON_TYPE), String.class);
+
+        assertThat(objectExists(ObjectType.PERSON, "NP1-TEST"), is(true));
+        assertThat(objectExists(ObjectType.ROLE, "TR1-TEST"), is(false));
+    }
 
     // TODO: test delete failed because version in database is different
 
