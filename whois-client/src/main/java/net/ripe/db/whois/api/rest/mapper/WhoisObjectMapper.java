@@ -64,13 +64,12 @@ public class WhoisObjectMapper {
         return whoisResources;
     }
 
-    public WhoisResources mapRpslObjects(Class<? extends AttributeMapper> mapFunction, LinkedHashMap<RpslObject, Action> requests) {
+    public WhoisResources mapRpslObjects(final Class<? extends AttributeMapper> mapFunction, final Map<RpslObject, Action> requests) {
         final WhoisResources whoisResources = new WhoisResources();
         final List<WhoisObject> whoisObjects = Lists.newArrayList();
         for (Map.Entry<RpslObject, Action> request : requests.entrySet()) {
-            WhoisObject whoisObject = map(request.getKey(), mapFunction);
+            final WhoisObject whoisObject = map(request.getKey(), mapFunction);
             whoisObject.setAction(request.getValue());
-
             whoisObjects.add(whoisObject);
         }
         whoisResources.setWhoisObjects(whoisObjects);

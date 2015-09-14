@@ -165,7 +165,7 @@ public class RestClientTarget {
         }
     }
 
-    public void update(final LinkedHashMap<RpslObject, Action> requests) {
+    public List<RpslObject> update(final Map<RpslObject, Action> requests) {
         try {
             WebTarget webTarget = client.target(baseUrl)
                     .path("references")
@@ -184,6 +184,8 @@ public class RestClientTarget {
             if (notifierCallback != null) {
                 notifierCallback.notify(whoisResources.getErrorMessages());
             }
+
+            return mapper.mapWhoisObjects(whoisResources.getWhoisObjects(), attributeMapper);
 
         } catch (ClientErrorException e) {
             throw createException(e);
