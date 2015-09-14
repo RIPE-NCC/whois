@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.rest;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.client.Action;
@@ -34,7 +32,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -473,23 +470,24 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_with_actions_with_password_success() {
-        final List<ActionRequest> requests = Lists.newArrayList();
-        requests.add(new ActionRequest(RpslObject.parse(
+        final ActionRequest firstUpdate = new ActionRequest(
+            RpslObject.parse(
                 "person:        New Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       NP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST"), Action.CREATE));
-        requests.add(new ActionRequest(RpslObject.parse(
+                "source:        TEST"), Action.CREATE);
+        final ActionRequest secondUpdate = new ActionRequest(
+            RpslObject.parse(
                 "role:          Test Role\n" +
                 "nic-hdl:       TR1-TEST\n" +
-                "source:        TEST"), Action.DELETE));
+                "source:        TEST"), Action.DELETE);
 
         RestTest.target(getPort(), "whois/references/test")
             .queryParam("password", "test")
             .request()
-            .put(Entity.entity(mapRpslObjects(requests.toArray(new ActionRequest[0])), MediaType.APPLICATION_JSON_TYPE), String.class);
+            .put(Entity.entity(mapRpslObjects(firstUpdate, secondUpdate), MediaType.APPLICATION_JSON_TYPE), String.class);
 
         assertThat(objectExists(ObjectType.PERSON, "NP1-TEST"), is(true));
         assertThat(objectExists(ObjectType.ROLE, "TR1-TEST"), is(false));
@@ -497,15 +495,16 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_with_actions_with_password_fails() {
-        final Map<RpslObject, Action> map = Maps.newHashMap();
-        map.put(RpslObject.parse(
+        final ActionRequest firstUpdate = new ActionRequest(
+            RpslObject.parse(
                 "person:        New Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       NP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST"), Action.CREATE);
-        map.put(RpslObject.parse(
+        final ActionRequest secondUpdate = new ActionRequest(
+            RpslObject.parse(
                 "role:          Test Role\n" +
                 "nic-hdl:       TR1-TEST\n" +
                 "remarks:       not the same as the database\n" +
@@ -515,11 +514,11 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.target(getPort(), "whois/references/test")
                 .queryParam("password", "test")
                 .request()
-                .put(Entity.entity(mapRpslObjects(map), MediaType.APPLICATION_JSON_TYPE), String.class);
+                .put(Entity.entity(mapRpslObjects(firstUpdate, secondUpdate), MediaType.APPLICATION_JSON_TYPE), String.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
-            assertThat(response.getWhoisObjects(), hasSize(1));
+            assertThat(response.getWhoisObjects(), hasSize(2));
             assertThat(response.getErrorMessages(), hasSize(1));
             RestTest.assertErrorMessage(response, 0, "Error", "Object %s doesn't match version in database", "[role] TR1-TEST   Test Role");
 
@@ -531,23 +530,24 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void update_with_actions_with_override_success() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON, ObjectType.ROLE));
-        final List<ActionRequest> requests = Lists.newArrayList();
-        requests.add(new ActionRequest(RpslObject.parse(
+        final ActionRequest firstUpdate = new ActionRequest(
+            RpslObject.parse(
                 "person:        New Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       NP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST"), Action.CREATE));
-        requests.add(new ActionRequest(RpslObject.parse(
+                "source:        TEST"), Action.CREATE);
+        final ActionRequest secondUpdate = new ActionRequest(
+            RpslObject.parse(
                 "role:          Test Role\n" +
                 "nic-hdl:       TR1-TEST\n" +
-                "source:        TEST"), Action.DELETE));
+                "source:        TEST"), Action.DELETE);
 
         RestTest.target(getPort(), "whois/references/test")
             .queryParam("override", "agoston,zoh,reason")
             .request()
-            .put(Entity.entity(mapRpslObjects(requests.toArray(new ActionRequest[0])), MediaType.APPLICATION_JSON_TYPE), String.class);
+            .put(Entity.entity(mapRpslObjects(firstUpdate, secondUpdate), MediaType.APPLICATION_JSON_TYPE), String.class);
 
         assertThat(objectExists(ObjectType.PERSON, "NP1-TEST"), is(true));
         assertThat(objectExists(ObjectType.ROLE, "TR1-TEST"), is(false));
