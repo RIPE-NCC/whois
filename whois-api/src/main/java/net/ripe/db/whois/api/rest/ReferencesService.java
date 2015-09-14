@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -305,7 +306,7 @@ public class ReferencesService {
 
     private WhoisResources performUpdates(
             final HttpServletRequest request,
-            final List<RpslObject> rpslObjects,
+            final Map<RpslObject, Action> rpslObjectsActionMap,
             final List<String> passwords,
             final String crowdTokenKey,
             final boolean allOrNothing) {
@@ -319,8 +320,9 @@ public class ReferencesService {
             auditlogRequest(request);
 
             final List<Update> updates = Lists.newArrayList();
-            for (RpslObject rpslObject : rpslObjects) {
-                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, passwords, null, null));
+            for (Map.Entry<RpslObject, Action> entry : rpslObjectsActionMap.entrySet()) {
+                final String deleteReason = Action.DELETE.equals(entry.getValue()) ? "--" : null;
+                updates.add(updatePerformer.createUpdate(updateContext, entry.getKey(), passwords, deleteReason, null));
             }
 
             final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
@@ -373,6 +375,17 @@ public class ReferencesService {
         });
     }
 
+    // TODO: [ES] using a map will discard certain operations (e.g. modify and delete the same object)
+    private Map<RpslObject, Action> convertToRpslObjectsActionMap(final WhoisResources whoisResources) {
+        final Map<RpslObject, Action> map = Maps.newHashMap();
+
+        for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
+            map.put(whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class), whoisObject.getAction() != null ? whoisObject.getAction() : Action.MODIFY);
+        }
+
+        return map;
+    }
+
     private RpslObject convertToRpslObjectbyType(final WhoisResources whoisResources, final ObjectType objectType) {
         for(WhoisObject whoisObject: whoisResources.getWhoisObjects()) {
             if (objectType == ObjectType.getByName(whoisObject.getType())) {
@@ -411,7 +424,7 @@ public class ReferencesService {
         // TODO: put a limit on the type and size of objects submitted
 
         try {
-            final WhoisResources updatedResources = performUpdates(request, convertToRpslObjects(resource), passwords, crowdTokenKey, true);
+            final WhoisResources updatedResources = performUpdates(request, convertToRpslObjectsActionMap(resource), passwords, crowdTokenKey, true);
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
