@@ -1,8 +1,7 @@
 package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.rest.client.Action;
-import net.ripe.db.whois.api.rest.client.ActionRequest;
+import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.*;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
