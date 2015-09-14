@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rest.client.Action;
+import net.ripe.db.whois.api.rest.client.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.*;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -64,12 +66,12 @@ public class WhoisObjectMapper {
         return whoisResources;
     }
 
-    public WhoisResources mapRpslObjects(final Class<? extends AttributeMapper> mapFunction, final Map<RpslObject, Action> requests) {
+    public WhoisResources mapRpslObjects(final Class<? extends AttributeMapper> mapFunction, final ActionRequest ... requests) {
         final WhoisResources whoisResources = new WhoisResources();
         final List<WhoisObject> whoisObjects = Lists.newArrayList();
-        for (Map.Entry<RpslObject, Action> request : requests.entrySet()) {
-            final WhoisObject whoisObject = map(request.getKey(), mapFunction);
-            whoisObject.setAction(request.getValue());
+        for (ActionRequest request : requests) {
+            final WhoisObject whoisObject = map(request.getRpslObject(), mapFunction);
+            whoisObject.setAction(request.getAction());
             whoisObjects.add(whoisObject);
         }
         whoisResources.setWhoisObjects(whoisObjects);

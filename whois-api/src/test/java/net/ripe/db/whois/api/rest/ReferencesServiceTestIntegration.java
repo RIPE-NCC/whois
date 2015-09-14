@@ -1,9 +1,11 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.domain.Action;
+import net.ripe.db.whois.api.rest.client.Action;
+import net.ripe.db.whois.api.rest.client.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
@@ -399,23 +401,23 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_with_actions_with_password_success() {
-        final Map<RpslObject, Action> map = Maps.newHashMap();
-        map.put(RpslObject.parse(
+        final List<ActionRequest> requests = Lists.newArrayList();
+        requests.add(new ActionRequest(RpslObject.parse(
                 "person:        New Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       NP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST"), Action.CREATE);
-        map.put(RpslObject.parse(
+                "source:        TEST"), Action.CREATE));
+        requests.add(new ActionRequest(RpslObject.parse(
                 "role:          Test Role\n" +
                 "nic-hdl:       TR1-TEST\n" +
-                "source:        TEST"), Action.DELETE);
+                "source:        TEST"), Action.DELETE));
 
         RestTest.target(getPort(), "whois/references/test")
             .queryParam("password", "test")
             .request()
-            .put(Entity.entity(mapRpslObjects(map), MediaType.APPLICATION_JSON_TYPE), String.class);
+            .put(Entity.entity(mapRpslObjects(requests.toArray(new ActionRequest[0])), MediaType.APPLICATION_JSON_TYPE), String.class);
 
         assertThat(objectExists(ObjectType.PERSON, "NP1-TEST"), is(true));
         assertThat(objectExists(ObjectType.ROLE, "TR1-TEST"), is(false));
@@ -424,23 +426,23 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void update_with_actions_with_override_success() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON, ObjectType.ROLE));
-        final Map<RpslObject, Action> map = Maps.newHashMap();
-        map.put(RpslObject.parse(
+        final List<ActionRequest> requests = Lists.newArrayList();
+        requests.add(new ActionRequest(RpslObject.parse(
                 "person:        New Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       NP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST"), Action.CREATE);
-        map.put(RpslObject.parse(
+                "source:        TEST"), Action.CREATE));
+        requests.add(new ActionRequest(RpslObject.parse(
                 "role:          Test Role\n" +
                 "nic-hdl:       TR1-TEST\n" +
-                "source:        TEST"), Action.DELETE);
+                "source:        TEST"), Action.DELETE));
 
         RestTest.target(getPort(), "whois/references/test")
             .queryParam("override", "agoston,zoh,reason")
             .request()
-            .put(Entity.entity(mapRpslObjects(map), MediaType.APPLICATION_JSON_TYPE), String.class);
+            .put(Entity.entity(mapRpslObjects(requests.toArray(new ActionRequest[0])), MediaType.APPLICATION_JSON_TYPE), String.class);
 
         assertThat(objectExists(ObjectType.PERSON, "NP1-TEST"), is(true));
         assertThat(objectExists(ObjectType.ROLE, "TR1-TEST"), is(false));
@@ -622,8 +624,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         return whoisObjectMapper.mapWhoisObjects(whoisResources, FormattedClientAttributeMapper.class);
     }
 
-    private WhoisResources mapRpslObjects(final Map<RpslObject, Action> rpslObjects) {
-        return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
+    private WhoisResources mapRpslObjects(final ActionRequest ... requests) {
+        return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, requests);
     }
 
     private String getAttribute(final WhoisObject whoisObject, final String attributeName) {

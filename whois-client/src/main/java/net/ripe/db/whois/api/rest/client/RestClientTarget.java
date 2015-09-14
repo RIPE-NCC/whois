@@ -165,7 +165,7 @@ public class RestClientTarget {
         }
     }
 
-    public List<RpslObject> update(final Map<RpslObject, Action> requests) {
+    public List<RpslObject> update(final ActionRequest ... requests) {
         try {
             WebTarget webTarget = client.target(baseUrl)
                     .path("references")
