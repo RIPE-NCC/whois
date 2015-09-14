@@ -5,5 +5,4 @@ public enum Action {
     MODIFY,
     DELETE,
     NOOP
-
 }

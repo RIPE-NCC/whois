@@ -1,7 +1,9 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
@@ -28,6 +30,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -393,8 +396,34 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    // TODO: test notifications on success and failure
+    @Test
+    public void update_with_actions_success() {
+        final Map<RpslObject, Action> map = Maps.newHashMap();
+        map.put(RpslObject.parse(
+                "person:        New Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       NP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST"), Action.CREATE);
+        map.put(RpslObject.parse(
+                "role:          Test Role\n" +
+                "nic-hdl:       TR1-TEST\n" +
+                "source:        TEST"), Action.DELETE);
 
+        RestTest.target(getPort(), "whois/references/test")
+            .queryParam("password", "test")
+            .request()
+            .put(Entity.entity(mapRpslObjects(map), MediaType.APPLICATION_JSON_TYPE), String.class);
+
+        assertThat(objectExists(ObjectType.PERSON, "NP1-TEST"), is(true));
+        assertThat(objectExists(ObjectType.ROLE, "TR1-TEST"), is(false));
+    }
+
+
+    // TODO: test delete failed because version in database is different
+
+    // TODO: test notifications on success and failure
 
     // DELETE
 
@@ -566,6 +595,10 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     private List<RpslObject> mapWhoisObjects(final List<WhoisObject> whoisResources) {
         return whoisObjectMapper.mapWhoisObjects(whoisResources, FormattedClientAttributeMapper.class);
+    }
+
+    private WhoisResources mapRpslObjects(final Map<RpslObject, Action> rpslObjects) {
+        return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
 
     private String getAttribute(final WhoisObject whoisObject, final String attributeName) {
