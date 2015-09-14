@@ -424,6 +424,39 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void update_with_actions_with_password_fails() {
+        final Map<RpslObject, Action> map = Maps.newHashMap();
+        map.put(RpslObject.parse(
+                "person:        New Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       NP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST"), Action.CREATE);
+        map.put(RpslObject.parse(
+                "role:          Test Role\n" +
+                "nic-hdl:       TR1-TEST\n" +
+                "remarks:       not the same as the database\n" +
+                "source:        TEST"), Action.DELETE);
+
+        try {
+            RestTest.target(getPort(), "whois/references/test")
+                .queryParam("password", "test")
+                .request()
+                .put(Entity.entity(mapRpslObjects(map), MediaType.APPLICATION_JSON_TYPE), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(response.getWhoisObjects(), hasSize(1));
+            assertThat(response.getErrorMessages(), hasSize(1));
+            RestTest.assertErrorMessage(response, 0, "Error", "Object %s doesn't match version in database", "[role] TR1-TEST   Test Role");
+
+            assertThat(objectExists(ObjectType.PERSON, "NP1-TEST"), is(false));
+            assertThat(objectExists(ObjectType.ROLE, "TR1-TEST"), is(true));
+        }
+    }
+
+    @Test
     public void update_with_actions_with_override_success() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON, ObjectType.ROLE));
         final List<ActionRequest> requests = Lists.newArrayList();
@@ -447,8 +480,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(objectExists(ObjectType.PERSON, "NP1-TEST"), is(true));
         assertThat(objectExists(ObjectType.ROLE, "TR1-TEST"), is(false));
     }
-
-    // TODO: test delete failed because version in database is different
 
     // TODO: test notifications on success and failure
 
