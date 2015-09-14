@@ -309,6 +309,7 @@ public class ReferencesService {
             final Map<RpslObject, Action> rpslObjectsActionMap,
             final List<String> passwords,
             final String crowdTokenKey,
+            final String override,
             final boolean allOrNothing) {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
@@ -322,7 +323,7 @@ public class ReferencesService {
             final List<Update> updates = Lists.newArrayList();
             for (Map.Entry<RpslObject, Action> entry : rpslObjectsActionMap.entrySet()) {
                 final String deleteReason = Action.DELETE.equals(entry.getValue()) ? "--" : null;
-                updates.add(updatePerformer.createUpdate(updateContext, entry.getKey(), passwords, deleteReason, null));
+                updates.add(updatePerformer.createUpdate(updateContext, entry.getKey(), passwords, deleteReason, override));
             }
 
             final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
@@ -413,7 +414,8 @@ public class ReferencesService {
             @PathParam("source") final String sourceParam,
             @Context final HttpServletRequest request,
             @QueryParam("password") final List<String> passwords,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam("crowd.token_key") final String crowdTokenKey,
+            @QueryParam("override") final String override) {
 
         if (resource == null) {
             return badRequest("WhoisResources is mandatory");
@@ -424,7 +426,7 @@ public class ReferencesService {
         // TODO: put a limit on the type and size of objects submitted
 
         try {
-            final WhoisResources updatedResources = performUpdates(request, convertToRpslObjectsActionMap(resource), passwords, crowdTokenKey, true);
+            final WhoisResources updatedResources = performUpdates(request, convertToRpslObjectsActionMap(resource), passwords, crowdTokenKey, override, true);
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
