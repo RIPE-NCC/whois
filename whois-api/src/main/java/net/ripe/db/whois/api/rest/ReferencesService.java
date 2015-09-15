@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Function;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -158,10 +157,6 @@ public class ReferencesService {
                 @Context final HttpServletRequest request,
                 @QueryParam("password") final List<String> passwords,
                 @CookieParam("crowd.token_key") final String crowdTokenKey) {
-
-        if (Strings.isNullOrEmpty(crowdTokenKey)) {                     // TODO: only validate that ANY credential has been supplied (token and/or password(s))
-            return badRequest("RIPE NCC Access cookie is mandatory");
-        }
 
         if (resource == null) {
             return badRequest("WhoisResources is mandatory");
@@ -376,8 +371,8 @@ public class ReferencesService {
         });
     }
 
-    // TODO: [ES] using a map will discard certain operations (e.g. modify and delete the same object)
     private Map<RpslObject, Action> convertToRpslObjectsActionMap(final WhoisResources whoisResources) {
+        // TODO: [ES] using a map will discard certain operations (e.g. modify and delete the same object)
         final Map<RpslObject, Action> map = Maps.newLinkedHashMap();
 
         for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
