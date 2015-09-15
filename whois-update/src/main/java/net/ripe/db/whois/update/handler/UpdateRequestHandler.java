@@ -138,8 +138,6 @@ public class UpdateRequestHandler {
         return new UpdateResponse(ack.getUpdateStatus(), ackResponse);
     }
 
-    // ONE BY ONE UPDATES
-
     private void processUpdateQueueOneByOne(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         Collection<Update> updates = updateRequest.getUpdates();
 
@@ -187,8 +185,6 @@ public class UpdateRequestHandler {
         }
         return reattemptQueue;
     }
-
-    // ALL AT ONCE UPDATES
 
     private void processUpdateQueueBatchUpdate(final UpdateRequest updateRequest, final UpdateContext updateContext) {
         try {
