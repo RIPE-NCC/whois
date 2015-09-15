@@ -80,6 +80,8 @@ public class ReferencesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferencesService.class);
 
+    private static final int MAXIMUM_BATCH_SIZE = 5;
+
     private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final SourceContext sourceContext;
@@ -425,7 +427,10 @@ public class ReferencesService {
 
         checkForMainSource(request, sourceParam);
 
-        // TODO: put a limit on the type and size of objects submitted
+        if (resource.getWhoisObjects() != null && resource.getWhoisObjects().size() > MAXIMUM_BATCH_SIZE) {
+            // TODO: enforce time limit rather than maximum number of objects
+            return badRequest(String.format("maximum number of objects is %d", MAXIMUM_BATCH_SIZE));
+        }
 
         try {
             final WhoisResources updatedResources = performUpdates(request, convertToRpslObjectsActionMap(resource), passwords, crowdTokenKey, override, true);
