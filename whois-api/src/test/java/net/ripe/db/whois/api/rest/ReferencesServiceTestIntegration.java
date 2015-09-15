@@ -112,8 +112,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 .cookie("crowd.token_key", "valid-token")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
-        // TODO: is this deliberate?
-        assertThat(response.getErrorMessages(), hasSize(1));
+        assertThat(response.getErrorMessages(), hasSize(1));    // failed after one update
         assertThat(response.getErrorMessages().get(0).toString(), is("Referenced role object DR1-TEST from mntner: NEW-UHUUU9999-MNT is missing mandatory attribute \"mnt-by:\""));
 
         assertThat(response.getWhoisObjects(), hasSize(2));
@@ -628,8 +627,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void delete_non_mntner_or_role() {
-        databaseHelper.addObject(
-                "organisation:    ORG-TO1-TEST\n" +
+        databaseHelper.addObject("organisation:    ORG-TO1-TEST\n" +
                 "org-type:        other\n" +
                 "org-name:        First Org\n" +
                 "address:         RIPE NCC\n" +
@@ -652,8 +650,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     // OWNER-MNT <- TP1-TEST <- ANOTHER-MNT
     @Test
     public void delete_mntner_fails_person_referenced_from_another_mntner() {
-        databaseHelper.addObject(
-                "mntner:        ANOTHER-MNT\n" +
+        databaseHelper.addObject("mntner:        ANOTHER-MNT\n" +
                 "descr:         Another Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
@@ -680,11 +677,20 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void delete_person_fails_because_of_authorisation() {
-        final Response response = RestTest.target(getPort(), "whois/references/TEST/person/TP1-TEST")
-                .request()
-                .delete();
-
-        assertThat(response.getStatus(), is(Response.Status.UNAUTHORIZED.getStatusCode()));
+        try {
+            RestTest.target(getPort(), "whois/references/TEST/person/TP1-TEST")
+                    .request()
+                    .delete(WhoisResources.class);
+            fail();
+        } catch (NotAuthorizedException e) {
+            final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorMessage(response, 0, "Error",
+                "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s",
+                "mntner",
+                "OWNER-MNT",
+                "mnt-by",
+                "OWNER-MNT, OWNER-MNT");
+        }
     }
 
     @Ignore("TODO: [ES] include error messages in response")
