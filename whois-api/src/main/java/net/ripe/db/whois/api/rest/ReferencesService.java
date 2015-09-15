@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -9,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
+import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -41,7 +41,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -169,139 +168,57 @@ public class ReferencesService {
 
         checkForMainSource(request, sourceParam);
 
-        WhoisResources mntnerResponse = null;
-        WhoisResources personResponse = null;
-
         try {
-            mntnerResponse = createMntnerWithDummyAdminC(resource, request, passwords, crowdTokenKey);
-            personResponse = createPerson(resource, request, passwords, crowdTokenKey);
-            final WhoisResources updatedMntenerResponse = updateMntnerWithRealAdminC(request, passwords, crowdTokenKey, mntnerResponse, personResponse);
+            final List<ActionRequest> actionRequests = Lists.newArrayList();
 
-            //Create response with both objects
-            final List<WhoisObject> whoisObjects = Lists.newArrayList(personResponse.getWhoisObjects().get(0), updatedMntenerResponse.getWhoisObjects().get(0));
-            final WhoisResources whoisResources = new WhoisResources();
-            whoisResources.setWhoisObjects(whoisObjects);
+            final RpslObject mntner = createMntnerWithDummyAdminC(resource);
+            actionRequests.add(new ActionRequest(mntner, Action.CREATE));
 
-            final List<ErrorMessage> errorMessages = Lists.newArrayList();
-            errorMessages.addAll(personResponse.getErrorMessages());
-            errorMessages.addAll(updatedMntenerResponse.getErrorMessages());
-            whoisResources.setErrorMessages(errorMessages);
+            final RpslObject person = createPerson(resource);
+            actionRequests.add(new ActionRequest(person, Action.CREATE));
 
-            return createResponse(request, whoisResources, Response.Status.OK);
+            final RpslObject updatedMntner = replaceAdminC(mntner, "AUTO-1");
+            actionRequests.add(new ActionRequest(updatedMntner, Action.MODIFY));
 
-        } catch (ReferenceUpdateFailedException e) {
-            deleteIfCreated(request, mntnerResponse, passwords, crowdTokenKey);
-            deleteIfCreated(request, personResponse, passwords, crowdTokenKey);
-            return createResponse(request, e.whoisResources, e.status);
-        } catch (Exception e) {
-            deleteIfCreated(request, mntnerResponse, passwords, crowdTokenKey);
-            deleteIfCreated(request, personResponse, passwords, crowdTokenKey);
-            LOGGER.error("Unexpected", e);
-            return internalServerError("unexpected error");
-        }
-    }
+            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null);
+            return createResponse(request, filterWhoisObjects(whoisResources), Response.Status.OK);
 
-    private void deleteIfCreated(final HttpServletRequest request, @Nullable final WhoisResources response, final List<String> passwords, final String crowdTokenKey) {
-        if (response == null) {
-            return;
-        }
+        } catch (WebApplicationException e) {
+            final Response response = e.getResponse();
 
-        final String primaryKey = response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue();
-        final String objectType = response.getWhoisObjects().get(0).getType();
+            switch (response.getStatus()) {
+                case HttpStatus.UNAUTHORIZED_401:
+                    throw new NotAuthorizedException(createResponse(request, resource, Response.Status.UNAUTHORIZED));
 
-        final RpslObject rpslObject = lookupObjectByKey(primaryKey, objectType);
+                case HttpStatus.INTERNAL_SERVER_ERROR_500:
+                    throw new InternalServerErrorException(createResponse(request, resource, Response.Status.INTERNAL_SERVER_ERROR));
 
-        performUpdate(request, rpslObject, "Mntner/person pair was not able to be created.", passwords, crowdTokenKey);
-    }
-
-    private WhoisResources createPerson(
-            final WhoisResources resource,
-            final HttpServletRequest request,
-            final List<String> passwords,
-            final String crowdTokenKey) {
-
-        final RpslObject personObject = convertToRpslObjectbyType(resource, ObjectType.PERSON);
-        validateSubmittedCreateObject(request, personObject, ObjectType.PERSON.getName());
-        return performUpdate(request, personObject, passwords, crowdTokenKey, Keyword.NEW);
-    }
-
-    private WhoisResources createMntnerWithDummyAdminC(
-            final WhoisResources resource,
-            final HttpServletRequest request,
-            final List<String> passwords,
-            final String crowdTokenKey) {
-
-        final RpslObject mntnerObject = convertToRpslObjectbyType(resource, ObjectType.MNTNER);
-        validateSubmittedCreateObject(request, mntnerObject, ObjectType.MNTNER.getName());
-        final RpslAttribute dummyAdminC = new RpslAttribute(AttributeType.ADMIN_C, dummyRole);
-        return replaceAdminCAndUpdateMntner(request, passwords, crowdTokenKey, mntnerObject, dummyAdminC, Keyword.NEW);
-    }
-
-    private WhoisResources updateMntnerWithRealAdminC(
-            final HttpServletRequest request,
-            final List<String> passwords,
-            final String crowdTokenKey,
-            final WhoisResources mntenerResponse,
-            final WhoisResources personResponse) {
-
-        final RpslObject personResponseRpsl = convertToRpslObject(personResponse);
-        final RpslAttribute personNicHdl = personResponseRpsl.findAttribute(AttributeType.NIC_HDL);
-
-        final RpslObject updatedMnterRpsl = convertToRpslObject(mntenerResponse);
-        final RpslAttribute validAdminC = new RpslAttribute(AttributeType.ADMIN_C, personNicHdl.getValue());
-
-        return replaceAdminCAndUpdateMntner(request, passwords, crowdTokenKey, updatedMnterRpsl, validAdminC, Keyword.NONE);
-    }
-
-    private WhoisResources replaceAdminCAndUpdateMntner(
-            final HttpServletRequest request,
-            final List<String> passwords,
-            final String crowdTokenKey,
-            final RpslObject mntnerObject,
-            final RpslAttribute adminC,
-            final Keyword keKeyword) {
-        final RpslObjectBuilder builder = new RpslObjectBuilder(mntnerObject);
-        builder.replaceAttribute(mntnerObject.findAttribute(AttributeType.ADMIN_C), adminC);
-        return performUpdate(request, builder.get(), passwords, crowdTokenKey, keKeyword);
-    }
-
-    private WhoisResources performUpdate(
-            final HttpServletRequest request,
-            final RpslObject rpslObject,
-            final List<String> passwords,
-            final String crowdTokenKey,
-            final Keyword keyword) {
-        try {
-            final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
-
-            auditlogRequest(request);
-
-            final Update update = updatePerformer.createUpdate(updateContext, rpslObject, passwords, null, null);
-
-            final WhoisResources whoisResources = updatePerformer.performUpdate(updateContext, origin, update, keyword, request);
-
-            final UpdateStatus status = updateContext.getStatus(update);
-
-            if (status == UpdateStatus.SUCCESS) {
-                return whoisResources;
-            } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
-                throw new ReferenceUpdateFailedException(Response.Status.UNAUTHORIZED, whoisResources);
-            } else if (status == UpdateStatus.EXCEPTION) {
-                throw new ReferenceUpdateFailedException(Response.Status.INTERNAL_SERVER_ERROR, whoisResources);
-            } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
-                throw new ReferenceUpdateFailedException(Response.Status.CONFLICT, whoisResources);
-            } else {
-                throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
+                default:
+                    throw new BadRequestException(createResponse(request, resource, Response.Status.BAD_REQUEST));
             }
+
         } catch (ReferenceUpdateFailedException e) {
-            throw e;
-        } catch (Exception e) {
-            updatePerformer.logError(e);
-            throw e;
-        } finally {
-            updatePerformer.closeContext();
+            return createResponse(request, e.whoisResources, e.status);
         }
+        catch (Exception e) {
+            LOGGER.error("Unexpected", e);
+            return createResponse(request, resource, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private RpslObject createPerson(final WhoisResources resource) {
+        return convertToRpslObject(resource, ObjectType.PERSON);
+    }
+
+    private RpslObject createMntnerWithDummyAdminC(final WhoisResources resource) {
+        final RpslObject mntnerObject = convertToRpslObject(resource, ObjectType.MNTNER);
+        return replaceAdminC(mntnerObject, dummyRole);
+    }
+
+    private RpslObject replaceAdminC(final RpslObject mntnerObject, final String adminC) {
+        final RpslObjectBuilder builder = new RpslObjectBuilder(mntnerObject);
+        builder.replaceAttribute(mntnerObject.findAttribute(AttributeType.ADMIN_C), new RpslAttribute(AttributeType.ADMIN_C, adminC));
+        return builder.get();
     }
 
     /**
@@ -312,15 +229,11 @@ public class ReferencesService {
             final List<ActionRequest> actionRequests,
             final List<String> passwords,
             final String crowdTokenKey,
-            final String override,
-            final boolean batchUpdate) {
+            final String override) {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
-            if (batchUpdate) {
-                updateContext.batchUpdate();
-            }
-
+            updateContext.batchUpdate();
             auditlogRequest(request);
 
             final List<Update> updates = Lists.newArrayList();
@@ -363,20 +276,14 @@ public class ReferencesService {
         return whoisObjectMapper.map(rpslObject, FormattedServerAttributeMapper.class);
     }
 
-    private RpslObject convertToRpslObject(final WhoisResources whoisResources) {
-        if (whoisResources.getWhoisObjects() == null || whoisResources.getWhoisObjects().size() != 1) {
-            throw new IllegalArgumentException("Unexpected whoisResources");
-        }
-
-        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), FormattedServerAttributeMapper.class);
-    }
-
-    private List<RpslObject> convertToRpslObjects(final WhoisResources whoisResources) {
-        return Lists.transform(whoisResources.getWhoisObjects(), new Function<WhoisObject, RpslObject>() {
-            @Override public RpslObject apply(final WhoisObject whoisObject) {
+    private RpslObject convertToRpslObject(final WhoisResources whoisResources, final ObjectType objectType) {
+        for(WhoisObject whoisObject: whoisResources.getWhoisObjects()) {
+            if (objectType == ObjectType.getByName(whoisObject.getType())) {
                 return whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
             }
-        });
+        }
+
+        throw new IllegalArgumentException("Unable to find " + objectType + " in WhoisResources");
     }
 
     private List<ActionRequest> convertToActionRequests(final WhoisResources whoisResources) {
@@ -391,22 +298,16 @@ public class ReferencesService {
         return actionRequests;
     }
 
-    private RpslObject convertToRpslObjectbyType(final WhoisResources whoisResources, final ObjectType objectType) {
-        for(WhoisObject whoisObject: whoisResources.getWhoisObjects()) {
-            if (objectType == ObjectType.getByName(whoisObject.getType())) {
-                return whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
-            }
+    // return only the last version of each object
+    private WhoisResources filterWhoisObjects(final WhoisResources whoisResources) {
+        final Map<List<Attribute>, WhoisObject> result = Maps.newHashMap();
+
+        for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
+            result.put(whoisObject.getPrimaryKey(), whoisObject);
         }
 
-        throw new IllegalArgumentException("Unable to find " + objectType + " in WhoisResources");
-    }
-
-    private void validateSubmittedCreateObject(final HttpServletRequest request, final RpslObject object, final String objectType) {
-        if (!object.getType().getName().equalsIgnoreCase(objectType)) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType)))
-                    .build());
-        }
+        whoisResources.setWhoisObjects(Lists.newArrayList(result.values()));
+        return whoisResources;
     }
 
     /**
@@ -440,7 +341,7 @@ public class ReferencesService {
         }
 
         try {
-            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(resource), passwords, crowdTokenKey, override, true);
+            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(resource), passwords, crowdTokenKey, override);
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -521,19 +422,15 @@ public class ReferencesService {
             actionRequests.add(new ActionRequest(replaceReferencesInMntner(allObjects), Action.DELETE));
 
             // batch update
-            performUpdates(request, actionRequests, passwords, crowdTokenKey, null, true);
+            performUpdates(request, actionRequests, passwords, crowdTokenKey, null);
             return createResponse(request, primaryObject, Response.Status.OK);
 
         } catch (WebApplicationException e) {
-            final Response response = e.getResponse();
-
-            switch (response.getStatus()) {
+            switch (e.getResponse().getStatus()) {
                 case HttpStatus.UNAUTHORIZED_401:
                     throw new NotAuthorizedException(createResponse(request, primaryObject, Response.Status.UNAUTHORIZED));
-
                 case HttpStatus.INTERNAL_SERVER_ERROR_500:
                     throw new InternalServerErrorException(createResponse(request, primaryObject, Response.Status.INTERNAL_SERVER_ERROR));
-
                 default:
                     throw new BadRequestException(createResponse(request, primaryObject, Response.Status.BAD_REQUEST));
             }
