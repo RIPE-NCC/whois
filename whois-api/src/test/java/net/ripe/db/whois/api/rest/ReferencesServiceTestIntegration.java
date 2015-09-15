@@ -36,10 +36,8 @@ import java.util.List;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -90,16 +88,12 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void create_person_mntner_pair_success() {
         final WhoisResources whoisResources =
-                mapRpslObjects(
-                    RpslObject.parse(
-                        "person:    Some Person\n" +
+                mapRpslObjects(RpslObject.parse("person:    Some Person\n" +
                         "address:   Amsterdam\n" +
                         "phone:     +3161234\n" +
                         "nic-hdl:   AUTO-1\n" +
                         "mnt-by:    NEW-UHUUU9999-MNT\n" +
-                        "source:    TEST"),
-                    RpslObject.parse(
-                        "mntner:    NEW-UHUUU9999-MNT\n" +
+                        "source:    TEST"), RpslObject.parse("mntner:    NEW-UHUUU9999-MNT\n" +
                         "descr:     Maintainer\n" +
                         "admin-c:   AUTO-1\n" +
                         "upd-to:    person@net.net\n" +
@@ -112,19 +106,14 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 .cookie("crowd.token_key", "valid-token")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
-        assertThat(response.getErrorMessages(), hasSize(1));    // failed after one update
-        assertThat(response.getErrorMessages().get(0).toString(), is("Referenced role object DR1-TEST from mntner: NEW-UHUUU9999-MNT is missing mandatory attribute \"mnt-by:\""));
-
         assertThat(response.getWhoisObjects(), hasSize(2));
 
-        final WhoisObject personObject = getWhoisObject(response, "person");
-        final String nicHdl = getAttribute(personObject, "nic-hdl");
-        assertThat(nicHdl, not(equalToIgnoringCase("AUTO-1")));
-        final String mntBy = getAttribute(personObject, "mnt-by");
-        assertThat(mntBy, equalToIgnoringCase("NEW-UHUUU9999-MNT"));
+        final WhoisObject person = getWhoisObject(response, "person");
+        assertThat(getAttribute(person, "nic-hdl"), is("SP1-TEST"));
+        assertThat(getAttribute(person, "mnt-by"), is("NEW-UHUUU9999-MNT"));
 
-        final WhoisObject mntnerObject = getWhoisObject(response, "mntner");
-        assertThat(nicHdl, equalToIgnoringCase(getAttribute(mntnerObject, "admin-c")));
+        final WhoisObject mntner = getWhoisObject(response, "mntner");
+        assertThat(getAttribute(mntner, "admin-c"), is("SP1-TEST"));
     }
 
     @Test
@@ -749,7 +738,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     private WhoisObject getWhoisObject(final WhoisResources whoisResources, final String objectType) {
         for(WhoisObject object : whoisResources.getWhoisObjects()) {
-            if (objectType.equalsIgnoreCase(object.getType())) {
+            if (objectType.equals(object.getType())) {
                 return object;
             }
         }
