@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.rest.domain.Action;
+import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -303,7 +304,7 @@ public class ReferencesService {
 
     private WhoisResources performUpdates(
             final HttpServletRequest request,
-            final Map<RpslObject, Action> rpslObjectsActionMap,
+            final List<ActionRequest> actionRequests,
             final List<String> passwords,
             final String crowdTokenKey,
             final String override,
@@ -318,9 +319,9 @@ public class ReferencesService {
             auditlogRequest(request);
 
             final List<Update> updates = Lists.newArrayList();
-            for (Map.Entry<RpslObject, Action> entry : rpslObjectsActionMap.entrySet()) {
-                final String deleteReason = Action.DELETE.equals(entry.getValue()) ? "--" : null;
-                updates.add(updatePerformer.createUpdate(updateContext, entry.getKey(), passwords, deleteReason, override));
+            for (ActionRequest actionRequest : actionRequests) {
+                final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ? "--" : null;
+                updates.add(updatePerformer.createUpdate(updateContext, actionRequest.getRpslObject(), passwords, deleteReason, override));
             }
 
             final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
@@ -373,15 +374,16 @@ public class ReferencesService {
         });
     }
 
-    private Map<RpslObject, Action> convertToRpslObjectsActionMap(final WhoisResources whoisResources) {
-        // TODO: [ES] using a map will discard certain operations (e.g. modify and delete the same object)
-        final Map<RpslObject, Action> map = Maps.newLinkedHashMap();
+    private List<ActionRequest> convertToActionRequests(final WhoisResources whoisResources) {
+        final List<ActionRequest> actionRequests = Lists.newArrayList();
 
         for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
-            map.put(whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class), whoisObject.getAction() != null ? whoisObject.getAction() : Action.MODIFY);
+            final RpslObject rpslObject = whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
+            final Action action = whoisObject.getAction() != null ? whoisObject.getAction() : Action.MODIFY;
+            actionRequests.add(new ActionRequest(rpslObject, action));
         }
 
-        return map;
+        return actionRequests;
     }
 
     private RpslObject convertToRpslObjectbyType(final WhoisResources whoisResources, final ObjectType objectType) {
@@ -433,7 +435,7 @@ public class ReferencesService {
         }
 
         try {
-            final WhoisResources updatedResources = performUpdates(request, convertToRpslObjectsActionMap(resource), passwords, crowdTokenKey, override, true);
+            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(resource), passwords, crowdTokenKey, override, true);
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
