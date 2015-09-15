@@ -199,7 +199,7 @@ public class LoggerContext {
     }
 
     public void logBatchUpdate() {
-        getContext().auditLogger.logAllOrNothing();
+        getContext().auditLogger.logBatchUpdate();
     }
 
     public void logAction(final UpdateContainer updateContainer, final Action action) {
