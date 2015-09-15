@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -69,6 +70,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -302,6 +304,9 @@ public class ReferencesService {
         }
     }
 
+    /**
+     * Update multiple objects in the database. Rollback if any update fails.
+     */
     private WhoisResources performUpdates(
             final HttpServletRequest request,
             final List<ActionRequest> actionRequests,
@@ -470,6 +475,8 @@ public class ReferencesService {
      *
      */
     @DELETE
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
     public Response delete(
             @Context final HttpServletRequest request,
@@ -483,39 +490,38 @@ public class ReferencesService {
         checkForMainSource(request, sourceParam);
 
         final RpslObject primaryObject = lookupObjectByKey(keyParam, objectTypeParam);
-
         final Map<RpslObjectInfo, RpslObject> references = findReferences(primaryObject);
-
-        validate(primaryObject, references);
-
-        final Set<RpslObject> allObjects = Sets.newHashSet(primaryObject);
-        allObjects.addAll(references.values());
+        validateReferences(primaryObject, references);
 
         try {
 
             if (references.isEmpty()) {
-                // delete the primary object directly. same as existing whois API
+                // delete the primary object directly
                 performUpdate(request, primaryObject, reason, passwords, crowdTokenKey);
-
                 return createResponse(request, primaryObject, Response.Status.OK);
             }
 
+            final List<ActionRequest> actionRequests = Lists.newArrayList();
+            final Set<RpslObject> allObjects = Sets.newHashSet(Iterables.concat(references.values(), Lists.newArrayList(primaryObject)));
+
             // update the maintainer to point to a dummy person / role
 
-            performUpdate(request, updateMaintainer(allObjects), null, passwords, crowdTokenKey);
+            actionRequests.add(new ActionRequest(replaceReferencesInMntner(allObjects), Action.MODIFY));
 
             // delete the person / role objects
 
             for (final RpslObject rpslObject : allObjects) {
                 if (!rpslObject.getType().equals(ObjectType.MNTNER)) {
-                    performUpdate(request, rpslObject, reason, passwords, crowdTokenKey);
+                    actionRequests.add(new ActionRequest(rpslObject, Action.DELETE));
                 }
             }
 
             // delete the maintainer
 
-            performUpdate(request, updateMaintainer(allObjects), reason, passwords, crowdTokenKey);
+            actionRequests.add(new ActionRequest(replaceReferencesInMntner(allObjects), Action.DELETE));
 
+            // batch update
+            performUpdates(request, actionRequests, passwords, crowdTokenKey, null, true);
             return createResponse(request, primaryObject, Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -531,13 +537,17 @@ public class ReferencesService {
                 default:
                     throw new BadRequestException(createResponse(request, primaryObject, Response.Status.BAD_REQUEST));
             }
-
+        } catch (ReferenceUpdateFailedException e) {
+            return createResponse(request, e.whoisResources, e.status);
         } catch (Exception e) {
             LOGGER.error("Unexpected", e);
             return createResponse(request, primaryObject, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
+    /**
+     * Update a single object in the database
+     */
     private Response performUpdate(
                 final HttpServletRequest request,
                 final RpslObject rpslObject,
@@ -590,7 +600,7 @@ public class ReferencesService {
         }
     }
 
-    private void validate(final RpslObject primaryObject, final Map<RpslObjectInfo, RpslObject> references) {
+    private void validateReferences(final RpslObject primaryObject, final Map<RpslObjectInfo, RpslObject> references) {
 
         // make sure that primary object, and all references, are of a valid type
 
@@ -656,7 +666,7 @@ public class ReferencesService {
         }).build();
     }
 
-    private RpslObject updateMaintainer(final Set<RpslObject> allObjects) {
+    private RpslObject replaceReferencesInMntner(final Collection<RpslObject> allObjects) {
         for (final RpslObject rpslObject : ImmutableSet.copyOf(allObjects)) {
             if (rpslObject.getType().equals(ObjectType.MNTNER)) {
                 return replaceReferences(rpslObject, allObjects);
@@ -665,7 +675,7 @@ public class ReferencesService {
         throw new IllegalStateException("No maintainer found");
     }
 
-    private RpslObject replaceReferences(final RpslObject mntner, final Set<RpslObject> references) {
+    private RpslObject replaceReferences(final RpslObject mntner, final Collection<RpslObject> references) {
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
 
         for (final RpslAttribute rpslAttribute : mntner.getAttributes()) {
