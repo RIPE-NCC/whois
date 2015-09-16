@@ -19,11 +19,7 @@ import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.User;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.update.mail.MailSenderStub;
@@ -44,22 +40,16 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -518,6 +508,61 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         assertThat(updateLog.getMessage(1), stringMatchesRegexp(".*UPD CREATE person\\s+ONTP1-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
         assertThat(updateLog.getMessage(0), containsString("<E0,W0,I1> AUTH OVERRIDE - WhoisRestApi(127.0.0.1)"));
         assertThat(updateLog.getMessage(1), containsString("<E0,W0,I1> AUTH OVERRIDE - WhoisRestApi(127.0.0.1)"));
+        assertThat(updateLog.getMessage(0), not(containsString(OVERRIDE_PASSWORD)));
+        assertThat(updateLog.getMessage(1), not(containsString(OVERRIDE_PASSWORD)));
+    }
+
+    @Test
+    public void multiple_updates_fails_get_logged() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("personadmin", OVERRIDE_PASSWORD, ObjectType.values()));
+
+        ActionRequest newPerson = new ActionRequest(RpslObject.parse(
+                "person:        New Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       NTP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST"), Action.CREATE);
+
+        ActionRequest newMnt = new ActionRequest(RpslObject.parse(
+                "person:        Other New Test Person\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       ONTP1-TEST\n" +
+                "source:        TEST"), Action.CREATE);
+
+        WhoisResources whoisResources = whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, newPerson, newMnt);
+
+        Response override = RestTest.target(getPort(), "whois/references/TEST")
+                .queryParam("override", SyncUpdateUtils.encode("personadmin," + OVERRIDE_PASSWORD + ",some_app"))
+                .request()
+                .put(Entity.entity(whoisResources, MediaType.APPLICATION_XML));
+
+        System.out.println(override.getStatus());
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_981288000000/000.audit.xml.gz"));
+        assertThat(audit, containsString("<query"));
+        assertThat(audit, containsString("<sql"));
+        assertThat(audit, containsString("<message><![CDATA[PUT /whois/references/TEST?override=personadmin,FILTERED,some_app"));
+        assertThat(audit, containsString("<paragraph><![CDATA[person:         New Test Person"));
+        assertThat(audit, containsString("<paragraph><![CDATA[person:         Other New Test Person"));
+        assertThat(audit, not(containsString(OVERRIDE_PASSWORD)));
+
+        final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_981288000000/001.msg-in.txt.gz"));
+        assertThat(msgIn, containsString("person:         New Test Person"));
+        assertThat(msgIn, containsString("person:         Other New Test Person"));
+        assertThat(msgIn, not(containsString(OVERRIDE_PASSWORD)));
+
+        final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_981288000000/002.ack.txt.gz"));
+        assertThat(ack, containsString("Create SUCCEEDED: [person] NTP1-TEST   New Test Person"));
+        assertThat(ack, containsString("Create FAILED: [person] ONTP1-TEST   Other New Test Person"));
+        assertThat(ack, containsString("1 update(s) failed so all changes were cancelled."));
+        assertThat(ack, not(containsString(OVERRIDE_PASSWORD)));
+
+        assertThat(updateLog.getMessages(), hasSize(2));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+NTP1-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(1), stringMatchesRegexp(".*UPD CREATE person\\s+ONTP1-TEST\\s+\\(1\\) FAILED\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I1> AUTH OVERRIDE - WhoisRestApi(127.0.0.1)"));
+        assertThat(updateLog.getMessage(1), containsString("<E1,W0,I0> AUTH OVERRIDE - WhoisRestApi(127.0.0.1)"));
         assertThat(updateLog.getMessage(0), not(containsString(OVERRIDE_PASSWORD)));
         assertThat(updateLog.getMessage(1), not(containsString(OVERRIDE_PASSWORD)));
     }

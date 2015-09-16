@@ -3,6 +3,13 @@ $origin.responseHeader
 >>>>>
 SUMMARY OF UPDATE:
 
+#set ($failedUpdates = $ack.failedUpdates)
+#if( $failedUpdates.size() > 0)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$ack.nrProcessedErrrors update(s) failed so all changes were cancelled.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#end
+
 Number of objects found:                   $ack.nrFound
 Number of objects processed successfully:  $ack.nrProcessedsuccessfully
   Create:         $ack.nrCreate
@@ -21,7 +28,6 @@ DETAILED EXPLANATION:
 
 #parse("/templates/include/globalMessages.vm")
 
-#set ($failedUpdates = $ack.failedUpdates)
 #if( $failedUpdates.size() > 0)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The following object(s) were found to have ERRORS:
