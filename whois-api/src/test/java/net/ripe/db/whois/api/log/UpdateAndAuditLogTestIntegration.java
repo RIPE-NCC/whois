@@ -555,7 +555,6 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         final String ack = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.rest_127.0.0.1_981288000000/002.ack.txt.gz"));
         assertThat(ack, containsString("Create SUCCEEDED: [person] NTP1-TEST   New Test Person"));
         assertThat(ack, containsString("Create FAILED: [person] ONTP1-TEST   Other New Test Person"));
-        assertThat(ack, containsString("1 update(s) failed so all changes were cancelled."));
         assertThat(ack, not(containsString(OVERRIDE_PASSWORD)));
 
         assertThat(updateLog.getMessages(), hasSize(2));
