@@ -58,6 +58,8 @@ public class AuthoritativeResourceData {
         refreshAuthoritativeResourceCache();
     }
 
+    // TODO: make incremental changes
+    // TODO: adjust refresh delay
     @Scheduled(fixedDelay = REFRESH_DELAY)
     synchronized public void refreshAuthoritativeResourceCache() {
         final LocalDate date = dateTimeProvider.getCurrentDate();
