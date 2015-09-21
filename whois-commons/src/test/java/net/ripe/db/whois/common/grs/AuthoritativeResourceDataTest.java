@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,6 +47,26 @@ public class AuthoritativeResourceDataTest {
 
         verify(resourceDataDao).load(eq("test"));
         assertThat(subject.getAuthoritativeResource(ciString("TEST")), isA(AuthoritativeResource.class));
+    }
+
+    @Test
+    public void refresh_on_change() {
+        when(resourceDataDao.getState("TEST")).thenReturn(new ResourceDataDao.State("TEST", 1, 1)).thenReturn(new ResourceDataDao.State("TEST", 2, 2));
+
+        subject.everyMinuteRefreshAuthoritativeResourceCache();
+        subject.everyMinuteRefreshAuthoritativeResourceCache();
+
+        verify(resourceDataDao, times(2)).load(eq("TEST"));
+    }
+
+    @Test
+    public void no_refresh_if_unchanged() {
+        when(resourceDataDao.getState("TEST")).thenReturn(new ResourceDataDao.State("TEST", 1, 1)).thenReturn(new ResourceDataDao.State("TEST", 1, 1));
+
+        subject.everyMinuteRefreshAuthoritativeResourceCache();
+        subject.everyMinuteRefreshAuthoritativeResourceCache();
+
+        verify(resourceDataDao, times(1)).load("TEST");
     }
 
     @Test(expected = IllegalSourceException.class)

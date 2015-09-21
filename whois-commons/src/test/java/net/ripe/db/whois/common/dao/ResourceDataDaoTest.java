@@ -64,15 +64,10 @@ public class ResourceDataDaoTest extends AbstractDaoTest {
         assertThat(loadedData.getResources(), hasSize(0));
     }
 
-    /*
-     * Compares this object with the specified object for order.  Returns a
-     * negative integer, zero, or a positive integer as this object is less
-     * than, equal to, or greater than the specified object.
-     */
     @Test
-    public void compare_last_update() {
-        assertThat(new ResourceDataDao.LastUpdate("test", 1, 1).compareTo(new ResourceDataDao.LastUpdate("test", 0, 0)), is(1));
-        assertThat(new ResourceDataDao.LastUpdate("test", 1, 1).compareTo(new ResourceDataDao.LastUpdate("test", 1, 1)), is(0));
-        assertThat(new ResourceDataDao.LastUpdate("test", 1, 1).compareTo(new ResourceDataDao.LastUpdate("test", 2, 2)), is(-1));
+    public void compare_state() {
+        assertThat(new ResourceDataDao.State("test", 1, 1).compareTo(new ResourceDataDao.State("test", 0, 0)), is(1));
+        assertThat(new ResourceDataDao.State("test", 1, 1).compareTo(new ResourceDataDao.State("test", 1, 1)), is(0));
+        assertThat(new ResourceDataDao.State("test", 1, 1).compareTo(new ResourceDataDao.State("test", 2, 2)), is(-1));
     }
 }
