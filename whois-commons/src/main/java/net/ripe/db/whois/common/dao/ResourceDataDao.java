@@ -78,6 +78,40 @@ public class ResourceDataDao {
         });
     }
 
+    public void remove(final String source, final AuthoritativeResource authoritativeResource) {
+        final List<String> resources = authoritativeResource.getResources();
+
+        jdbcTemplate.batchUpdate("DELETE FROM authoritative_resource WHERE source = ? AND resource IN (?)", new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(final PreparedStatement ps, final int i) throws SQLException {
+                ps.setString(1, source);
+                ps.setString(2, resources.get(i));
+            }
+
+            @Override
+            public int getBatchSize() {
+                return resources.size();
+            }
+        });
+    }
+
+    public void append(final String source, final AuthoritativeResource authoritativeResource) {
+        final List<String> resources = authoritativeResource.getResources();
+
+        jdbcTemplate.batchUpdate("INSERT INTO authoritative_resource (source, resource) VALUES (?, ?)", new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(final PreparedStatement ps, final int i) throws SQLException {
+                ps.setString(1, source);
+                ps.setString(2, resources.get(i));
+            }
+
+            @Override
+            public int getBatchSize() {
+                return resources.size();
+            }
+        });
+    }
+
     public LastUpdate getLastUpdate(final String source) {
         return jdbcTemplate.queryForObject("SELECT max(id), count(*) FROM authoritative_resource WHERE source = ?",
             new RowMapper<LastUpdate>() {
