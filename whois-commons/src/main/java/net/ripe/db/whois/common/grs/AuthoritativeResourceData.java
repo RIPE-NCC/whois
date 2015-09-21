@@ -49,7 +49,7 @@ public class AuthoritativeResourceData {
         this.resourceDataDao = resourceDataDao;
         this.dailySchedulerDao = dailySchedulerDao;
         this.dateTimeProvider = dateTimeProvider;
-        this.source = source;
+        this.source = source.toLowerCase();
         this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), new Function<String, String>() {
             @Override
             public String apply(final String input) {
