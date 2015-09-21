@@ -35,7 +35,7 @@ public class AuthoritativeResourceData {
     private final DailySchedulerDao dailySchedulerDao;
     private final DateTimeProvider dateTimeProvider;
     private long lastRefresh = Integer.MIN_VALUE;
-    private ResourceDataDao.LastUpdate lastUpdate = null;
+    private ResourceDataDao.State state = null;
 
     private final Set<String> sourceNames;
     private final String source;
@@ -73,6 +73,7 @@ public class AuthoritativeResourceData {
             for (final String sourceName : sourceNames) {
                 try {
                     LOGGER.debug("Refresh: {}", sourceName);
+                    state = resourceDataDao.getState(source);
                     authoritativeResourceCache.put(sourceName, resourceDataDao.load(sourceName));
                 } catch (RuntimeException e) {
                     LOGGER.error("Refreshing: {}", sourceName, e);
@@ -83,10 +84,10 @@ public class AuthoritativeResourceData {
 
     @Scheduled(fixedDelay = REFRESH_DELAY_EVERY_MINUTE)
     synchronized public void everyMinuteRefreshAuthoritativeResourceCache() {
-        final ResourceDataDao.LastUpdate latestUpdate = resourceDataDao.getLastUpdate(source);
+        final ResourceDataDao.State latestState = resourceDataDao.getState(source);
 
-        if ((lastUpdate == null) || latestUpdate.compareTo(lastUpdate) != 0) {
-            this.lastUpdate = latestUpdate;
+        if ((state == null) || latestState.compareTo(state) != 0) {
+            this.state = latestState;
             try {
                 LOGGER.debug("Refresh: {}", source);
                 authoritativeResourceCache.put(source, resourceDataDao.load(source));

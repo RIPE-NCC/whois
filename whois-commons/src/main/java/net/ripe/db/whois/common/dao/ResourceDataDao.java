@@ -112,38 +112,38 @@ public class ResourceDataDao {
         });
     }
 
-    public LastUpdate getLastUpdate(final String source) {
+    public State getState(final String source) {
         return jdbcTemplate.queryForObject("SELECT max(id), count(*) FROM authoritative_resource WHERE source = ?",
-            new RowMapper<LastUpdate>() {
+            new RowMapper<State>() {
                 @Override
-                public LastUpdate mapRow(ResultSet rs, int rowNum) throws SQLException {
-                    return new LastUpdate(source, rs.getInt(1), rs.getInt(2));
+                public State mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    return new State(source, rs.getInt(1), rs.getInt(2));
                 }
             },
             source);
     }
 
-    public static class LastUpdate implements Comparable<LastUpdate> {
+    public static class State implements Comparable<State> {
         private final String source;
         private final int id;
         private final int count;
 
-        LastUpdate(final String source, final int id, final int count) {
+        public State(final String source, final int id, final int count) {
             this.source = source;
             this.id = id;
             this.count = count;
         }
 
         @Override
-        public int compareTo(final LastUpdate o) {
-            if (!o.source.equals(source)) {
+        public int compareTo(final State other) {
+            if (!other.source.equals(source)) {
                 throw new IllegalArgumentException("Sources are not the same");
             }
 
-            if ((o.id > id) || (o.count > count)) {
+            if ((other.id > id) || (other.count > count)) {
                 return -1;
             } else {
-                if ((o.id != id) || (o.count != count)) {
+                if ((other.id != id) || (other.count != count)) {
                     return 1;
                 } else {
                     return 0;
