@@ -55,7 +55,6 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
         this.valueResolver = valueResolver;
     }
 
-    // TODO: check that RIPE source file isn't too old
     @Override
     public void run() {
         for (final String sourceName : sourceNames) {

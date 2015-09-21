@@ -34,7 +34,7 @@ public class AuthoritativeResourceDataTest {
 
     @Before
     public void setUp() {
-        subject = new AuthoritativeResourceData("TEST", resourceDataDao, dailySchedulerDao, dateTimeProvider);
+        subject = new AuthoritativeResourceData("TEST", "TEST", resourceDataDao, dailySchedulerDao, dateTimeProvider);
     }
 
     @Test

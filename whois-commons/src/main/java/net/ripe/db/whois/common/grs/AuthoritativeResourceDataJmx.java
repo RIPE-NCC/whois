@@ -40,7 +40,7 @@ public class AuthoritativeResourceDataJmx extends JmxBase {
         return invokeOperation("Refresh authoritative resource cache", comment, new Callable<String>() {
             @Override
             public String call() {
-                authoritativeResourceData.refreshAuthoritativeResourceCache();
+                authoritativeResourceData.dailyRefreshAuthoritativeResourceCache();
                 return "Refreshed caches";
             }
         });
