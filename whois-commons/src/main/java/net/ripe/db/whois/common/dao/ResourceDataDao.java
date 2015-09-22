@@ -81,7 +81,7 @@ public class ResourceDataDao {
     public void remove(final String source, final AuthoritativeResource authoritativeResource) {
         final List<String> resources = authoritativeResource.getResources();
 
-        jdbcTemplate.batchUpdate("DELETE FROM authoritative_resource WHERE source = ? AND resource IN (?)", new BatchPreparedStatementSetter() {
+        jdbcTemplate.batchUpdate("DELETE FROM authoritative_resource WHERE source = ? AND resource = ?", new BatchPreparedStatementSetter() {
             @Override
             public void setValues(final PreparedStatement ps, final int i) throws SQLException {
                 ps.setString(1, source);
