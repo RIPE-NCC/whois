@@ -88,12 +88,16 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void create_person_mntner_pair_success() {
         final WhoisResources whoisResources =
-                mapRpslObjects(RpslObject.parse("person:    Some Person\n" +
+                mapRpslObjects(
+                    RpslObject.parse(
+                        "person:    Some Person\n" +
                         "address:   Amsterdam\n" +
                         "phone:     +3161234\n" +
                         "nic-hdl:   AUTO-1\n" +
                         "mnt-by:    NEW-UHUUU9999-MNT\n" +
-                        "source:    TEST"), RpslObject.parse("mntner:    NEW-UHUUU9999-MNT\n" +
+                        "source:    TEST"),
+                    RpslObject.parse(
+                        "mntner:    NEW-UHUUU9999-MNT\n" +
                         "descr:     Maintainer\n" +
                         "admin-c:   AUTO-1\n" +
                         "upd-to:    person@net.net\n" +
