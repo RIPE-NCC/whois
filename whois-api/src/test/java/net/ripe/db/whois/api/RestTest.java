@@ -75,6 +75,26 @@ public class RestTest {
         }
     }
 
+    public static void assertInfoCount(final WhoisResources whoisResources, final int expectedCount) {
+        int errorCount = 0;
+        for (ErrorMessage em : whoisResources.getErrorMessages()) {
+            if ("Info".equalsIgnoreCase(em.getSeverity())) {
+                errorCount++;
+            }
+        }
+        assertThat(errorCount, is(expectedCount));
+    }
+
+    public static void assertWarningCount(final WhoisResources whoisResources, final int expectedCount) {
+        int errorCount = 0;
+        for (ErrorMessage em : whoisResources.getErrorMessages()) {
+            if ("Warning".equalsIgnoreCase(em.getSeverity())) {
+                errorCount++;
+            }
+        }
+        assertThat(errorCount, is(expectedCount));
+    }
+
     public static void assertErrorCount(final WhoisResources whoisResources, final int expectedCount) {
         int errorCount = 0;
         for (ErrorMessage em : whoisResources.getErrorMessages()) {
