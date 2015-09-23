@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -74,7 +75,13 @@ public class RestTest {
         }
     }
 
-    public static void assertErrorCount(final WhoisResources whoisResources, final int count) {
-        assertThat(whoisResources.getErrorMessages(), hasSize(count));
+    public static void assertErrorCount(final WhoisResources whoisResources, final int expectedCount) {
+        int errorCount = 0;
+        for (ErrorMessage em : whoisResources.getErrorMessages()) {
+            if ("Error".equalsIgnoreCase(em.getSeverity())) {
+                errorCount++;
+            }
+        }
+        assertThat(errorCount, is(expectedCount));
     }
 }
