@@ -1903,8 +1903,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (NotAuthorizedException e) {
             final WhoisResources whoisResources = RestTest.mapClientException(e);
-            RestTest.assertErrorCount(whoisResources, 2);
+            RestTest.assertErrorCount(whoisResources, 1);
             RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "mntner", "SSO-ONLY-MNT", "mnt-by", "SSO-ONLY-MNT");
+            RestTest.assertInfoCount(whoisResources, 1);
             RestTest.assertErrorMessage(whoisResources, 1, "Info", "RIPE NCC Access token ignored");
         }
     }
@@ -2051,7 +2052,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
                                     WhoisResources.class);
 
-            RestTest.assertErrorCount(response, 1);
+            RestTest.assertWarningCount(response, 1);
             RestTest.assertErrorMessage(response, 0, "Warning", "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", "address");
 
             final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
@@ -2384,7 +2385,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .cookie("crowd.token_key", "invalid-token")
                 .delete(WhoisResources.class);
 
-        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertInfoCount(whoisResources, 1);
         RestTest.assertErrorMessage(whoisResources, 0, "Info", "RIPE NCC Access token ignored");
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
@@ -2628,7 +2629,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertWarningCount(whoisResources, 1);
         RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Submitted object identical to database object");
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -2655,8 +2656,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        RestTest.assertErrorCount(whoisResources, 2);
+        RestTest.assertWarningCount(whoisResources, 1);
         RestTest.assertErrorMessage(whoisResources, 0, "Warning", "Submitted object identical to database object");
+        RestTest.assertInfoCount(whoisResources, 1);
         RestTest.assertErrorMessage(whoisResources, 1, "Info", "Authorisation override used");
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -2954,8 +2956,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (NotAuthorizedException e) {
             final WhoisResources whoisResources = RestTest.mapClientException(e);
-            RestTest.assertErrorCount(whoisResources, 2);
+            RestTest.assertErrorCount(whoisResources, 1);
             RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
+            RestTest.assertInfoCount(whoisResources, 1);
             RestTest.assertErrorMessage(whoisResources, 1, "Info", "RIPE NCC Access token ignored");
         }
     }
@@ -2999,7 +3002,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML)
                 .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertInfoCount(whoisResources, 1);
         RestTest.assertErrorMessage(whoisResources, 0, "Info", "Authorisation override used");
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
