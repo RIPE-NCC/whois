@@ -15,16 +15,19 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
+import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -43,10 +46,12 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
 public class IpTreeCacheManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(IpTreeCacheManager.class);
 
+    private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
 
     @Autowired
-    public IpTreeCacheManager(final SourceContext sourceContext) {
+    public IpTreeCacheManager(@Qualifier("sourceAwareDataSource") final DataSource dataSource, final SourceContext sourceContext) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.sourceContext = sourceContext;
     }
 
@@ -197,7 +202,11 @@ public class IpTreeCacheManager {
         // don't wait here if other thread is already busy updating the tree
         if (cacheEntry.updateLock.tryAcquire()) {
             try {
-                update(sourceConfiguration.getJdbcTemplate(), cacheEntry);
+                if (sourceConfiguration.getSource().getType().equals(Source.Type.MASTER)) {
+                    update(this.jdbcTemplate, cacheEntry);
+                } else {
+                    update(sourceConfiguration.getJdbcTemplate(), cacheEntry);      // TODO: doesn't see changes in transaction
+                }
             } catch (DataAccessException e) {
                 LOGGER.warn("Unable to update {} due to {}", sourceConfiguration, e.getMessage());
             } finally {
