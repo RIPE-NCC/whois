@@ -15,7 +15,6 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
-import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
@@ -192,17 +191,15 @@ public class IpTreeCacheManager {
         cache.put(source, cacheEntry);
     }
 
-    public void updateCurrentTransaction(final SourceConfiguration sourceConfiguration) {
-        // this.template is associated with the current transaction
-        updateInternal(sourceConfiguration, this.jdbcTemplate);
+    public void update(final SourceConfiguration sourceConfiguration) {
+        update(sourceConfiguration, sourceConfiguration.getJdbcTemplate());
     }
 
-    public void updateBatch(final SourceConfiguration sourceConfiguration) {
-        // takes the (not transactional) template associated with the source
-        updateInternal(sourceConfiguration,sourceConfiguration.getJdbcTemplate());
+    public void updateTransactional(final SourceConfiguration sourceConfiguration) {
+        update(sourceConfiguration, this.jdbcTemplate);
     }
 
-    private void updateInternal(final SourceConfiguration sourceConfiguration, final JdbcTemplate templateAsParameter) {
+    private void update(final SourceConfiguration sourceConfiguration, final JdbcTemplate jdbcTemplate) {
         final CIString source = sourceConfiguration.getSource().getName();
         final CacheEntry cacheEntry = cache.get(source);
         if (cacheEntry == null) {
@@ -212,7 +209,7 @@ public class IpTreeCacheManager {
         // don't wait here if other thread is already busy updating the tree
         if (cacheEntry.updateLock.tryAcquire()) {
             try {
-                update(templateAsParameter, cacheEntry);
+                update(jdbcTemplate, cacheEntry);
             } catch (DataAccessException e) {
                 LOGGER.warn("Unable to update {} due to {}", sourceConfiguration, e.getMessage());
             } finally {
