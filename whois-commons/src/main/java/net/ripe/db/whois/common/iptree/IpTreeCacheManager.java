@@ -192,7 +192,17 @@ public class IpTreeCacheManager {
         cache.put(source, cacheEntry);
     }
 
+    public void updateCurrent(final SourceConfiguration sourceConfiguration) {
+        // takes the template associated with the transaction
+        updateInternal(sourceConfiguration, this.jdbcTemplate);
+    }
+
     public void update(final SourceConfiguration sourceConfiguration) {
+        // takes the template associated with the datasource (=not associated with transaction)
+        updateInternal(sourceConfiguration,sourceConfiguration.getJdbcTemplate());
+    }
+
+    private void updateInternal(final SourceConfiguration sourceConfiguration, final JdbcTemplate templateAsParameter) {
         final CIString source = sourceConfiguration.getSource().getName();
         final CacheEntry cacheEntry = cache.get(source);
         if (cacheEntry == null) {
@@ -202,11 +212,7 @@ public class IpTreeCacheManager {
         // don't wait here if other thread is already busy updating the tree
         if (cacheEntry.updateLock.tryAcquire()) {
             try {
-                if (sourceConfiguration.getSource().getType().equals(Source.Type.MASTER)) {
-                    update(this.jdbcTemplate, cacheEntry);
-                } else {
-                    update(sourceConfiguration.getJdbcTemplate(), cacheEntry);      // TODO: doesn't see changes in transaction
-                }
+                update(templateAsParameter, cacheEntry);
             } catch (DataAccessException e) {
                 LOGGER.warn("Unable to update {} due to {}", sourceConfiguration, e.getMessage());
             } finally {

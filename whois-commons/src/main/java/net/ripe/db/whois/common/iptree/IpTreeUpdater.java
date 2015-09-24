@@ -131,13 +131,13 @@ public class IpTreeUpdater {
         invokeAll(sourceConfigurationsForUpdate, new OperationCallback() {
             @Override
             public void execute(final SourceConfiguration sourceConfiguration) {
-                ipTreeCacheManager.update(sourceConfiguration);
+            ipTreeCacheManager.update(sourceConfiguration);
             }
         });
     }
 
     public void updateCurrent() {
-        ipTreeCacheManager.update(sourceContext.getCurrentSourceConfiguration());
+        ipTreeCacheManager.updateCurrent(sourceContext.getCurrentSourceConfiguration());
     }
 
     private void invokeAll(final Set<SourceConfiguration> sourceConfigurations, final OperationCallback operationCallback) {
