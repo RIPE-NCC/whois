@@ -192,13 +192,13 @@ public class IpTreeCacheManager {
         cache.put(source, cacheEntry);
     }
 
-    public void updateCurrent(final SourceConfiguration sourceConfiguration) {
-        // takes the template associated with the transaction
+    public void updateCurrentTransaction(final SourceConfiguration sourceConfiguration) {
+        // this.template is associated with the current transaction
         updateInternal(sourceConfiguration, this.jdbcTemplate);
     }
 
-    public void update(final SourceConfiguration sourceConfiguration) {
-        // takes the template associated with the datasource (=not associated with transaction)
+    public void updateBatch(final SourceConfiguration sourceConfiguration) {
+        // takes the (not transactional) template associated with the source
         updateInternal(sourceConfiguration,sourceConfiguration.getJdbcTemplate());
     }
 
