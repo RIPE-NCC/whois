@@ -5,11 +5,17 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.OverrideCredential;
+import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -25,8 +31,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -43,84 +52,90 @@ public class InternalUpdatePerformerTest {
     @Mock private UpdateContext updateContextMock;
     @InjectMocks private InternalUpdatePerformer subject;
 
-
-
     @Test
-    public void createContent_no_passwords() {
-        final RpslObject object = RpslObject.parse("" +
+    public void create_update_with_override_no_passwords() {
+        final RpslObject object = RpslObject.parse(
                 "aut-num: AS123\n" +
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        final String content = subject.createContent(object, Collections.EMPTY_LIST, "no reason", "override");
+        final Update update = subject.createUpdate(updateContextMock, object, Collections.EMPTY_LIST, "no reason", "override");
 
-        assertThat(content, is("" +
+        assertThat(update.getCredentials().all(), contains((Credential) OverrideCredential.parse("override")));
+        assertThat(update.getDeleteReasons(), contains("no reason"));
+        assertThat(update.getOperation(), is(Operation.DELETE));
+        assertThat(update.getParagraph().getContent(), is(
                 "aut-num:        AS123\n" +
                 "mnt-by:         TEST-MNT\n" +
-                "source:         TEST\n" +
-                "delete: no reason\n" +
-                "\n" +
-                "override: override\n\n"));
+                "source:         TEST\n"));
+        assertThat(update.getSubmittedObject(), is(object));
+        assertThat(update.getType(), is(ObjectType.AUT_NUM));
     }
 
     @Test
-    public void createContent_no_deleteReason() {
-        final RpslObject object = RpslObject.parse("" +
+    public void create_update_with_override_and_password_no_delete_reason() {
+        final RpslObject object = RpslObject.parse(
                 "mntner: TEST-MNT\n" +
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        final String content = subject.createContent(object, Collections.singletonList("password"), null, "override");
+        final Update update = subject.createUpdate(updateContextMock, object, Collections.singletonList("password"), null, "override");
 
-        assertThat(content, is("" +
+        assertThat(update.getCredentials().all(), containsInAnyOrder((Credential) OverrideCredential.parse("override"), (Credential) new PasswordCredential("password")));
+        assertNull(update.getDeleteReasons());
+        assertThat(update.getOperation(), is(Operation.UNSPECIFIED));
+        assertThat(update.getParagraph().getContent(), is(
                 "mntner:         TEST-MNT\n" +
                 "mnt-by:         TEST-MNT\n" +
-                "source:         TEST\n" +
-                "password: password\n" +
-                "override: override\n\n"));
+                "source:         TEST\n"));
+        assertThat(update.getSubmittedObject(), is(object));
+        assertThat(update.getType(), is(ObjectType.MNTNER));
     }
 
     @Test
-    public void createContent_no_override() {
-        final RpslObject object = RpslObject.parse("" +
+    public void create_update_no_override() {
+        final RpslObject object = RpslObject.parse(
                 "role: Test Role\n" +
                 "nic-hdl: TP-TEST\n" +
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        final String content = subject.createContent(object, Collections.singletonList("password"), "no reason", null);
+        final Update update = subject.createUpdate(updateContextMock, object, Collections.singletonList("password"), "no reason", null);
 
-        assertThat(content, is("" +
+        assertThat(update.getCredentials().all(), contains((Credential) new PasswordCredential("password")));
+        assertThat(update.getDeleteReasons(), contains("no reason"));
+        assertThat(update.getParagraph().getContent(), is(
                 "role:           Test Role\n" +
                 "nic-hdl:        TP-TEST\n" +
                 "mnt-by:         TEST-MNT\n" +
-                "source:         TEST\n" +
-                "delete: no reason\n" +
-                "\n" +
-                "password: password\n"));
+                "source:         TEST\n"));
+        assertThat(update.getSubmittedObject(), is(object));
+        assertThat(update.getType(), is(ObjectType.ROLE));
     }
 
     @Test
-    public void createContent_passwordsOnly() {
-        final RpslObject object = RpslObject.parse("" +
+    public void create_update_passwords_only() {
+        final RpslObject object = RpslObject.parse(
                 "person: Test Person\n" +
                 "nic-hdl: TP1-TEST\n" +
                 "mnt-by: TEST-MNT\n" +
                 "source: TEST");
 
-        final String content = subject.createContent(object, Lists.newArrayList("password1", "password2"), null, null);
+        final Update update = subject.createUpdate(updateContextMock, object, Lists.newArrayList("password1", "password2"), null, null);
 
-        assertThat(content, is("" +
+        assertThat(update.getCredentials().all(), containsInAnyOrder((Credential) new PasswordCredential("password1"), (Credential) new PasswordCredential("password2")));
+        assertNull(update.getDeleteReasons());
+        assertThat(update.getParagraph().getContent(), is(
                 "person:         Test Person\n" +
                 "nic-hdl:        TP1-TEST\n" +
                 "mnt-by:         TEST-MNT\n" +
-                "source:         TEST\n" +
-                "password: password1\n" +
-                "password: password2\n"));
+                "source:         TEST\n"));
+        assertThat(update.getSubmittedObject(), is(object));
+        assertThat(update.getType(), is(ObjectType.PERSON));
     }
 
     @Test
-    public void createOrigin() {
+    public void create_origin() {
         when(requestMock.getRemoteAddr()).thenReturn("127.0.0.1");
         when(dateTimeProviderMock.getCurrentDateTime()).thenReturn(new LocalDateTime(5556667777888l, DateTimeZone.UTC));
 

@@ -1,24 +1,16 @@
 package net.ripe.db.whois.update.domain;
 
-import java.util.List;
+import java.util.Collection;
 
 public class UpdateRequest {
     private final Origin origin;
     private final Keyword keyword;
-    private final String updateMessage;
-    private final List<Update> updates;
-    private final boolean notificationsEnabled;
+    private final Collection<Update> updates;
 
-    public UpdateRequest(final Origin origin, final Keyword keyword, final String updateMessage, final List<Update> updates) {
-        this(origin, keyword, updateMessage, updates, true);
-    }
-
-    public UpdateRequest(final Origin origin, final Keyword keyword, final String updateMessage, final List<Update> updates, final boolean notificationsEnabled) {
+    public UpdateRequest(final Origin origin, final Keyword keyword, final Collection<Update> updates) {
         this.origin = origin;
         this.keyword = keyword;
-        this.updateMessage = updateMessage;
         this.updates = updates;
-        this.notificationsEnabled = notificationsEnabled;
     }
 
     public Origin getOrigin() {
@@ -29,15 +21,7 @@ public class UpdateRequest {
         return keyword;
     }
 
-    public String getUpdateMessage() {
-        return updateMessage;
-    }
-
-    public List<Update> getUpdates() {
+    public Collection<Update> getUpdates() {
         return updates;
-    }
-
-    public boolean isNotificationsEnabled() {
-        return notificationsEnabled;
     }
 }

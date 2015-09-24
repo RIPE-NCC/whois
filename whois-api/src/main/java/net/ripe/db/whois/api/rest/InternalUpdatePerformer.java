@@ -43,6 +43,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -81,14 +82,22 @@ public class InternalUpdatePerformer {
         loggerContext.remove();
     }
 
-    public Response performUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
-                                  final String content, final Keyword keyword, final HttpServletRequest request) {
+    public WhoisResources performUpdate(final UpdateContext updateContext, final Origin origin, final Update update, final Keyword keyword, final HttpServletRequest request) {
+        return performUpdates(updateContext, origin, Collections.singletonList(update), keyword, request);
+    }
 
-        final WhoisResources whoisResources = performWhoisResourcesUpdate(updateContext, origin, update, content, keyword, request);
+    public WhoisResources performUpdates(final UpdateContext updateContext, final Origin origin, final Collection<Update> updates, final Keyword keyword, final HttpServletRequest request) {
+        loggerContext.log("msg-in.txt", new UpdateLogCallback(updates));
+
+        updateRequestHandler.handle(new UpdateRequest(origin, keyword, updates), updateContext);
+
+        return performUpdates(request, updateContext, updates);
+    }
+
+    public Response createResponse(final UpdateContext updateContext, final WhoisResources whoisResources, final Update update, final HttpServletRequest request) {
+        final UpdateStatus status = updateContext.getStatus(update);
 
         final Response.ResponseBuilder responseBuilder;
-
-        UpdateStatus status = updateContext.getStatus(update);
         if (status == UpdateStatus.SUCCESS) {
             responseBuilder = Response.status(Response.Status.OK);
         } else if (status == UpdateStatus.FAILED_AUTHENTICATION) {
@@ -101,41 +110,32 @@ public class InternalUpdatePerformer {
             responseBuilder = Response.status(Response.Status.BAD_REQUEST);
         }
 
-        return responseBuilder.entity(new StreamingResponse(request, whoisResources))
-            .build();
+        return responseBuilder.entity(new StreamingResponse(request, whoisResources)).build();
     }
 
 
-    public WhoisResources performWhoisResourcesUpdate(final UpdateContext updateContext, final Origin origin, final Update update,
-                                                      final String content, final Keyword keyword, final HttpServletRequest request) {
-
-        loggerContext.log("msg-in.txt", new UpdateLogCallback(update));
-
-        final UpdateRequest updateRequest = new UpdateRequest(origin, keyword, content, Collections.singletonList(update), true);
-        updateRequestHandler.handle(updateRequest, updateContext);
-
-
-        return createResponse(request, updateContext, update);
-    }
-
-    private WhoisResources createResponse(final HttpServletRequest request, final UpdateContext updateContext, final Update update) {
+    private WhoisResources performUpdates(final HttpServletRequest request, final UpdateContext updateContext, final Collection<Update> updates) {
         final WhoisResources whoisResources = new WhoisResources();
+        whoisResources.setWhoisObjects(Lists.<WhoisObject>newArrayList());
+
         // global messages
         final List<ErrorMessage> errorMessages = Lists.newArrayList();
         for (Message message : updateContext.getGlobalMessages().getAllMessages()) {
             errorMessages.add(new ErrorMessage(message));
         }
 
-        // object messages
-        for (Message message : updateContext.getMessages(update).getMessages().getAllMessages()) {
-            errorMessages.add(new ErrorMessage(message));
-        }
+        for (Update update : updates) {
+            // object messages
+            for (Message message : updateContext.getMessages(update).getMessages().getAllMessages()) {
+                errorMessages.add(new ErrorMessage(message));
+            }
 
-        // attribute messages
-        for (Map.Entry<RpslAttribute, Messages> entry : updateContext.getMessages(update).getAttributeMessages().entrySet()) {
-            RpslAttribute rpslAttribute = entry.getKey();
-            for (Message message : entry.getValue().getAllMessages()) {
-                errorMessages.add(new ErrorMessage(message, rpslAttribute));
+            // attribute messages
+            for (Map.Entry<RpslAttribute, Messages> entry : updateContext.getMessages(update).getAttributeMessages().entrySet()) {
+                RpslAttribute rpslAttribute = entry.getKey();
+                for (Message message : entry.getValue().getAllMessages()) {
+                    errorMessages.add(new ErrorMessage(message, rpslAttribute));
+                }
             }
         }
 
@@ -143,17 +143,18 @@ public class InternalUpdatePerformer {
             whoisResources.setErrorMessages(errorMessages);
         }
 
-        final PreparedUpdate preparedUpdate = updateContext.getPreparedUpdate(update);
-        if (preparedUpdate != null) {
-            final WhoisObject whoisObject = whoisObjectMapper.map(preparedUpdate.getUpdatedObject(), RestServiceHelper.getServerAttributeMapper(request.getQueryString()));
-            whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
+        for (Update update : updates) {
+            final PreparedUpdate preparedUpdate = updateContext.getPreparedUpdate(update);
+            if (preparedUpdate != null) {
+                final WhoisObject whoisObject = whoisObjectMapper.map(preparedUpdate.getUpdatedObject(), RestServiceHelper.getServerAttributeMapper(request.getQueryString()));
+                whoisResources.getWhoisObjects().add(whoisObject);
+            }
         }
 
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;
     }
-
 
     public Update createUpdate(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final String deleteReason, final String override) {
         return new Update(
@@ -163,7 +164,7 @@ public class InternalUpdatePerformer {
                 rpslObject);
     }
 
-    private Paragraph createParagraph(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final String override) {
+    private static Paragraph createParagraph(final UpdateContext updateContext, final RpslObject rpslObject, final List<String> passwords, final String override) {
         final Set<Credential> credentials = Sets.newHashSet();
         for (String password : passwords) {
             credentials.add(new PasswordCredential(password));
@@ -182,37 +183,6 @@ public class InternalUpdatePerformer {
 
     public Origin createOrigin(final HttpServletRequest request) {
         return new WhoisRestApi(dateTimeProvider, request.getRemoteAddr());
-    }
-
-    public String createContent(final RpslObject rpslObject, final List<String> passwords, final String deleteReason, String override) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(rpslObject.toString());
-
-        if (builder.charAt(builder.length() - 1) != '\n') {
-            builder.append('\n');
-        }
-
-        if (deleteReason != null) {
-            builder.append("delete: ");
-            builder.append(deleteReason);
-            builder.append("\n\n");
-        }
-
-        if (passwords != null) {
-            for (final String password : passwords) {
-                builder.append("password: ");
-                builder.append(password);
-                builder.append('\n');
-            }
-        }
-
-        if (override != null) {
-            builder.append("override: ");
-            builder.append(override);
-            builder.append("\n\n");
-        }
-
-        return builder.toString();
     }
 
     private String getRequestId(final String remoteAddress) {
@@ -243,15 +213,17 @@ public class InternalUpdatePerformer {
     }
 
     class UpdateLogCallback implements LogCallback {
-        private final Update update;
+        private final Collection<Update> updates;
 
-        public UpdateLogCallback(final Update update) {
-            this.update = update;
+        public UpdateLogCallback(final Collection<Update> updates) {
+            this.updates = updates;
         }
 
         @Override
         public void log(final OutputStream outputStream) throws IOException {
-            outputStream.write(PasswordFilter.filterPasswordsInContents(update.toString()).getBytes());
+            for (Update update : updates) {
+                outputStream.write(PasswordFilter.filterPasswordsInContents(update.toString()).getBytes());
+            }
         }
     }
 

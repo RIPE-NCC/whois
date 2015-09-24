@@ -1,5 +1,19 @@
 ## next
 
+## 1.81
+[api] Added Autocomplete API
+[api] Added References API to allow creation and deletion of related objects
+[all] The sponsoring-org attribute is now optional and not generated
+[all] The mnt-by attribute is now multiple not single in as-block
+[update] Fixed email validation in auth sso attribute
+[all] Corrected mp-peering attribute syntax text
+[update] Fixed #275, delete does not fail with object mismatch if the difference is in generated attributes
+[update] Fixed bug where created and last-modified attributes are re-ordered on modify.
+[update] Fixed loading objects using bootstrap
+
+## 1.80.1
+[update] Add warning if update fails, and password(s) were removed from mntner due to insecure hashes
+
 ## 1.80
 [update] remove passwords from audit log
 [all] removed referral-by attribute
