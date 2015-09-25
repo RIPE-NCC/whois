@@ -60,11 +60,11 @@ public class AuthoritativeResourceData {
 
     @PostConstruct
     void init() {
-        dailyRefreshAuthoritativeResourceCache();
+        refreshAuthoritativeResourceCache();
     }
 
     @Scheduled(fixedDelay = REFRESH_DELAY_EVERY_HOUR)
-    synchronized public void dailyRefreshAuthoritativeResourceCache() {
+    synchronized public void refreshAuthoritativeResourceCache() {
         final LocalDate date = dateTimeProvider.getCurrentDate();
         final long lastImportTime = dailySchedulerDao.getDailyTaskFinishTime(date, AuthoritativeResourceImportTask.class);
         if (lastImportTime > lastRefresh) {
@@ -83,7 +83,7 @@ public class AuthoritativeResourceData {
     }
 
     @Scheduled(fixedDelay = REFRESH_DELAY_EVERY_MINUTE)
-    synchronized public void everyMinuteRefreshAuthoritativeResourceCache() {
+    synchronized public void refreshAuthoritativeResourceCacheOnChange() {
         final ResourceDataDao.State latestState = resourceDataDao.getState(source);
 
         if ((state == null) || latestState.compareTo(state) != 0) {

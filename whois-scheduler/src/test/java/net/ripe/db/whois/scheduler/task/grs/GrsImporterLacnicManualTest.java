@@ -65,7 +65,7 @@ public class GrsImporterLacnicManualTest extends AbstractSchedulerIntegrationTes
         dailySchedulerDao.acquireDailyTask(dateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class, "localhost");
         authoritativeResourceImportTask.run();
         dailySchedulerDao.markTaskDone(System.currentTimeMillis(), dateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class);
-        authoritativeResourceData.dailyRefreshAuthoritativeResourceCache();
+        authoritativeResourceData.refreshAuthoritativeResourceCache();
         grsImporter.setGrsImportEnabled(true);
         queryServer.start();
     }
