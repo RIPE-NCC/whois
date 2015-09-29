@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -7,6 +9,7 @@ import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -22,11 +25,11 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
@@ -34,10 +37,13 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -579,9 +585,12 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     // OWNER-MNT <- TP1-TEST
     @Test
     public void delete_mntner_success() {
-        RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
-            .request()
-            .delete();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
+                .request()
+                .delete(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(getPKeysFromWhoisResources(whoisResources), containsInAnyOrder("OWNER-MNT", "TP1-TEST"));
 
         assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(false));
         assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
@@ -590,9 +599,12 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     // TP1-TEST <- OWNER-MNT
     @Test
     public void delete_person_success() {
-        RestTest.target(getPort(), "whois/references/TEST/person/TP1-TEST?password=test")
-            .request()
-            .delete();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/person/TP1-TEST?password=test")
+                .request()
+                .delete(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        assertThat(getPKeysFromWhoisResources(whoisResources), containsInAnyOrder("OWNER-MNT", "TP1-TEST"));
 
         assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(false));
         assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
@@ -610,15 +622,17 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         databaseHelper.addObject(
                 "role:          Test Role\n" +
-                "address:       Singel 258\n" +
-                "phone:         +31 6 12345678\n" +
-                "nic-hdl:       TR2-TEST\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
+                        "address:       Singel 258\n" +
+                        "phone:         +31 6 12345678\n" +
+                        "nic-hdl:       TR2-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST");
 
-        RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
-                .request()
-                .delete();
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .delete(WhoisResources.class);
+
+        assertThat(getPKeysFromWhoisResources(whoisResources), containsInAnyOrder("OWNER-MNT", "TP1-TEST", "TP2-TEST", "TR2-TEST"));
 
         assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(false));
         assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
@@ -630,18 +644,47 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_object_with_outgoing_references_only() {
         databaseHelper.addObject(
                 "role:          Test Role\n" +
-                "address:       Singel 258\n" +
-                "phone:         +31 6 12345678\n" +
-                "nic-hdl:       TR2-TEST\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
+                        "address:       Singel 258\n" +
+                        "phone:         +31 6 12345678\n" +
+                        "nic-hdl:       TR2-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST");
 
-        RestTest.target(getPort(), "whois/references/TEST/role/TR2-TEST?password=test")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/role/TR2-TEST?password=test")
                 .request()
-                .delete();
+                .delete(WhoisResources.class);
+
+        assertThat(getPKeysFromWhoisResources(whoisResources), contains("TR2-TEST"));
 
         assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(true));
         assertThat(objectExists(ObjectType.ROLE, "TR2-TEST"), is(false));
+    }
+
+    @Test
+    public void delete_object_response_contains_original_objects() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
+                .request()
+                .delete(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+
+        final WhoisObject mntner = getWhoisObject(whoisResources, "mntner");
+        final WhoisObject person = getWhoisObject(whoisResources, "person");
+
+        assertThat(mntner.getAttributes(), hasItems(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("admin-c", "TP1-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner",
+                        new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"))));
+
+        assertThat(person.getAttributes(), hasItems(
+                new Attribute("person", "Test Person"),
+                new Attribute("nic-hdl", "TP1-TEST"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner",
+                        new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"))));
+
+        assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
     }
 
     @Test
@@ -682,7 +725,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                                     .delete();
 
         assertThat(response.getStatus(), is(Response.Status.BAD_REQUEST.getStatusCode()));
-        assertThat(response.readEntity(String.class), containsString("Referencing object TP1-TEST itself is referenced by ANOTHER-MNT"));
+        final String entity = response.readEntity(String.class);
+        assertThat(entity, containsString("Referencing object TP1-TEST itself is referenced by ANOTHER-MNT"));
     }
 
     @Test
@@ -775,5 +819,15 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         }
 
         throw new IllegalArgumentException("Couldn't find " + objectType);
+    }
+
+    private Set<String> getPKeysFromWhoisResources(final WhoisResources whoisResources){
+        return FluentIterable.from(whoisResources.getWhoisObjects()).transform(new Function<WhoisObject, String>() {
+            @Nullable
+            @Override
+            public String apply(final WhoisObject input) {
+                return input.getPrimaryKey().get(0).getValue();
+            }
+        }).toSet();
     }
 }
