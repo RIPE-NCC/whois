@@ -1,7 +1,9 @@
 package net.ripe.db.whois.api.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -42,6 +44,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -421,7 +424,7 @@ public class ReferencesService {
 
             // batch update
             performUpdates(request, actionRequests, passwords, crowdTokenKey, null);
-            return createResponse(request, primaryObject, Response.Status.OK);
+            return createResponse(request, allObjects, Response.Status.OK);
 
         } catch (WebApplicationException e) {
             switch (e.getResponse().getStatus()) {
@@ -461,15 +464,15 @@ public class ReferencesService {
             final Update update = updatePerformer.createUpdate(updateContext, updatedRpslObject, passwords, deleteReason, null);
 
             final Response response = updatePerformer.createResponse(
-                        updateContext,
-                        updatePerformer.performUpdate(
-                                updateContext,
-                                origin,
-                                update,
-                                Keyword.NONE,
-                                request),
-                        update,
-                        request);
+                    updateContext,
+                    updatePerformer.performUpdate(
+                            updateContext,
+                            origin,
+                            update,
+                            Keyword.NONE,
+                            request),
+                    update,
+                    request);
 
             if (response.getStatus() != Response.Status.OK.getStatusCode()) {
 
@@ -548,6 +551,19 @@ public class ReferencesService {
     private Response createResponse(final HttpServletRequest request, final RpslObject primaryObject, final Response.Status status) {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setWhoisObjects(Lists.newArrayList(convertToWhoisObject(primaryObject)));
+        return createResponse(request, whoisResources, status);
+    }
+
+    private Response createResponse(final HttpServletRequest request, final Collection<RpslObject> objects, final Response.Status status) {
+        final WhoisResources whoisResources = new WhoisResources();
+
+        whoisResources.setWhoisObjects(FluentIterable.from(objects).transform(new Function<RpslObject, WhoisObject>() {
+            @Nullable
+            @Override
+            public WhoisObject apply(final RpslObject input) {
+                return convertToWhoisObject(input);
+            }
+        }).toList());
         return createResponse(request, whoisResources, status);
     }
 
