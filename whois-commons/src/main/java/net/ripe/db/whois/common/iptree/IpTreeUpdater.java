@@ -136,8 +136,8 @@ public class IpTreeUpdater {
         });
     }
 
-    public void updateCurrent() {
-        ipTreeCacheManager.update(sourceContext.getCurrentSourceConfiguration());
+    public void updateTransactional() {
+        ipTreeCacheManager.updateTransactional(sourceContext.getCurrentSourceConfiguration());
     }
 
     private void invokeAll(final Set<SourceConfiguration> sourceConfigurations, final OperationCallback operationCallback) {

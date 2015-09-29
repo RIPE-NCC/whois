@@ -15,6 +15,7 @@ import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,5 +76,45 @@ public class ResourceDataDao {
                 return resources.size();
             }
         });
+    }
+
+    public State getState(final String source) {
+        return jdbcTemplate.queryForObject("SELECT max(id), count(*) FROM authoritative_resource WHERE source = ?",
+            new RowMapper<State>() {
+                @Override
+                public State mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    return new State(source, rs.getInt(1), rs.getInt(2));
+                }
+            },
+            source);
+    }
+
+    public static class State implements Comparable<State> {
+        private final String source;
+        private final int id;
+        private final int count;
+
+        public State(final String source, final int id, final int count) {
+            this.source = source;
+            this.id = id;
+            this.count = count;
+        }
+
+        @Override
+        public int compareTo(final State other) {
+            if (!other.source.equals(source)) {
+                throw new IllegalArgumentException("Sources are not the same");
+            }
+
+            if ((other.id > id) || (other.count > count)) {
+                return -1;
+            } else {
+                if ((other.id != id) || (other.count != count)) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        }
     }
 }
