@@ -82,7 +82,7 @@ public class SingleUpdateHandler {
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void handle(final Origin origin, final Keyword keyword, final Update update, final UpdateContext updateContext) {
         updateLockDao.setUpdateLock();
-        ipTreeUpdater.updateCurrent();
+        ipTreeUpdater.updateTransactional();
 
         if (updateContext.isDryRun()) {
             updateContext.addMessage(update, UpdateMessages.dryRunNotice());

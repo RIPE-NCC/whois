@@ -30,7 +30,7 @@ public class ScheduledTasksTestIntegration extends AbstractSchedulerIntegrationT
 
     @Test
     public void testIpResourceConfiguration() throws Exception {
-        Awaitility.await().atMost(1000, TimeUnit.MILLISECONDS).until(new Callable<Boolean>() {
+        Awaitility.await().atMost(1, TimeUnit.SECONDS).until(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 try {

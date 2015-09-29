@@ -373,7 +373,8 @@ public class RestClientTarget {
             } else {
                 try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
                     final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
-                    throw new RestClientException(whoisResources.getErrorMessages());
+                    throw new RestClientException(((HttpURLConnection) urlConnection).getResponseCode(),
+                            whoisResources.getErrorMessages());
                 } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
                     LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
                     LOGGER.error("Caught exception while unmarshalling error", e);
@@ -440,7 +441,7 @@ public class RestClientTarget {
             if (whoisResources == null) {
                 return createExceptionFromMessage(e);
             }
-            return new RestClientException(e, whoisResources.getErrorMessages());
+            return new RestClientException( e.getResponse().getStatus(), whoisResources.getErrorMessages());
         } catch (ProcessingException | IllegalStateException e1) {
             return createExceptionFromMessage(e);
         }
@@ -450,12 +451,12 @@ public class RestClientTarget {
         try {
             final String entity = e.getResponse().readEntity(String.class);
             if (Strings.isNullOrEmpty(entity)) {
-                return new RestClientException(e);
+                return new RestClientException(e.getResponse().getStatus(), e);
             }
-            return new RestClientException(entity);
+            return new RestClientException(e.getResponse().getStatus(), entity);
         } catch (ProcessingException | IllegalStateException e1) {
             // stream has already been closed
-            return new RestClientException(e1.getCause());
+            return new RestClientException(e.getResponse().getStatus(), e1.getCause());
         }
     }
 }

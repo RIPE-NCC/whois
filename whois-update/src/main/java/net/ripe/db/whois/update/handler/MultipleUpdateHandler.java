@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler;
 
 import com.google.common.base.Stopwatch;
+import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -27,14 +28,17 @@ public class MultipleUpdateHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipleUpdateHandler.class);
 
     private final SingleUpdateHandler singleUpdateHandler;
+    private final IpTreeUpdater ipTreeUpdater;
     private final LoggerContext loggerContext;
     private final UpdateLog updateLog;
 
     @Autowired
     public MultipleUpdateHandler(final SingleUpdateHandler singleUpdateHandler,
+                                 final IpTreeUpdater ipTreeUpdater,
                                  final LoggerContext loggerContext,
                                  final UpdateLog updateLog) {
         this.singleUpdateHandler = singleUpdateHandler;
+        this.ipTreeUpdater = ipTreeUpdater;
         this.loggerContext = loggerContext;
         this.updateLog = updateLog;
     }
@@ -51,10 +55,12 @@ public class MultipleUpdateHandler {
                 loggerContext.logUpdateCompleted(update);
                 throw e;
             } catch (UpdateFailedException e) {
+                ipTreeUpdater.update();
                 updateContext.failedUpdate(update);
                 loggerContext.logUpdateCompleted(update);
                 throw e;
             } catch (RuntimeException e) {
+                ipTreeUpdater.update();
                 updateContext.failedUpdate(update, UpdateMessages.unexpectedError());
                 loggerContext.logUpdateFailed(update, e);
                 LOGGER.error("Updating {}", update.getSubmittedObject().getFormattedKey(), e);

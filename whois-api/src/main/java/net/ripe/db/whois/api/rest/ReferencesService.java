@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -81,8 +82,6 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 public class ReferencesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferencesService.class);
-
-    private static final int MAXIMUM_BATCH_SIZE = 5;
 
     private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
@@ -333,12 +332,11 @@ public class ReferencesService {
             return badRequest("WhoisResources is mandatory");
         }
 
-        checkForMainSource(request, sourceParam);
-
-        if (resource.getWhoisObjects() != null && resource.getWhoisObjects().size() > MAXIMUM_BATCH_SIZE) {
-            // TODO: enforce time limit rather than maximum number of objects
-            return badRequest(String.format("maximum number of objects is %d", MAXIMUM_BATCH_SIZE));
+        if (Strings.isNullOrEmpty(override)) {
+            return badRequest("override is mandatory");
         }
+
+        checkForMainSource(request, sourceParam);
 
         try {
             final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(resource), passwords, crowdTokenKey, override);

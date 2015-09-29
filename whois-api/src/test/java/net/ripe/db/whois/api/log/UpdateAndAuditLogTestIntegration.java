@@ -229,7 +229,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
                     .delete(nonexistantPerson);
             fail();
         } catch (RestClientException e) {
-            assertThat(e.getCause(), is(instanceOf(NotFoundException.class)));
+            assertThat(e.getStatus(), is(404));
             assertThat(e.getErrorMessages(), contains(new ErrorMessage(new Message(Messages.Type.ERROR, "Not Found"))));
         }
 

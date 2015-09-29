@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Action;
@@ -10,6 +11,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -52,6 +54,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Before
     public void setup() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("personadmin", "secret", ObjectType.values()));
+
         databaseHelper.addObject(
                 "role:          dummy role\n" +
                 "nic-hdl:       DR1-TEST\n" +
@@ -66,21 +70,21 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         databaseHelper.addObject(
                 "mntner:        OWNER-MNT\n" +
-                "descr:         Owner Maintainer\n" +
-                "admin-c:       TP1-TEST\n" +
-                "upd-to:        upd-to@ripe.net\n" +
-                "mnt-nfy:       mnt-nfy@ripe.net\n" +
-                "notify:        notify@ripe.net\n" +
-                "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
+                        "descr:         Owner Maintainer\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        upd-to@ripe.net\n" +
+                        "mnt-nfy:       mnt-nfy@ripe.net\n" +
+                        "notify:        notify@ripe.net\n" +
+                        "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST");
         databaseHelper.updateObject(
                 "person:        Test Person\n" +
-                "address:       Singel 258\n" +
-                "phone:         +31 6 12345678\n" +
-                "nic-hdl:       TP1-TEST\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
+                        "address:       Singel 258\n" +
+                        "phone:         +31 6 12345678\n" +
+                        "nic-hdl:       TP1-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST");
     }
 
     // CREATE
@@ -88,12 +92,16 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void create_person_mntner_pair_success() {
         final WhoisResources whoisResources =
-                mapRpslObjects(RpslObject.parse("person:    Some Person\n" +
+                mapRpslObjects(
+                    RpslObject.parse(
+                        "person:    Some Person\n" +
                         "address:   Amsterdam\n" +
                         "phone:     +3161234\n" +
                         "nic-hdl:   AUTO-1\n" +
                         "mnt-by:    NEW-UHUUU9999-MNT\n" +
-                        "source:    TEST"), RpslObject.parse("mntner:    NEW-UHUUU9999-MNT\n" +
+                        "source:    TEST"),
+                    RpslObject.parse(
+                        "mntner:    NEW-UHUUU9999-MNT\n" +
                         "descr:     Maintainer\n" +
                         "admin-c:   AUTO-1\n" +
                         "upd-to:    person@net.net\n" +
@@ -120,21 +128,21 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void create_person_mntner_pair_fail() {
         final WhoisResources whoisResources =
             mapRpslObjects(
-                RpslObject.parse(
-                    "person:    Some Person\n" +
-                    "address:   Amsterdam\n" +
-                    "phone:     +3161234\n" +
-                    "nic-hdl:   AUTO-1\n" +
-                    "mnt-by:    OWNER-MNT\n" +
-                    "source:    TEST"),
-                RpslObject.parse(
-                    "mntner:    NEW-UHUUU9999-MNT\n" +
-                    "descr:     Maintainer\n" +
-                    "admin-c:   AUTO-1\n" +
-                    "upd-to:    person@net.net\n" +
-                    "auth:      SSO person@net.net\n" +
-                    "mnt-by:    NEW-UHUUU9999-MNT\n" +
-                    "source:    TEST"));
+                    RpslObject.parse(
+                            "person:    Some Person\n" +
+                                    "address:   Amsterdam\n" +
+                                    "phone:     +3161234\n" +
+                                    "nic-hdl:   AUTO-1\n" +
+                                    "mnt-by:    OWNER-MNT\n" +
+                                    "source:    TEST"),
+                    RpslObject.parse(
+                            "mntner:    NEW-UHUUU9999-MNT\n" +
+                                    "descr:     Maintainer\n" +
+                                    "admin-c:   AUTO-1\n" +
+                                    "upd-to:    person@net.net\n" +
+                                    "auth:      SSO person@net.net\n" +
+                                    "mnt-by:    NEW-UHUUU9999-MNT\n" +
+                                    "source:    TEST"));
 
         final Response response = RestTest.target(getPort(), "whois/references/TEST")
             .request()
@@ -268,11 +276,11 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
 
         final WhoisResources response = RestTest.target(getPort(), "whois/references/test")
-                .queryParam("password", "test")
+                .queryParam("override", SyncUpdateUtils.encode("personadmin,secret,reason"))
                 .request()
                 .put(Entity.entity(mapRpslObjects(firstPerson, secondPerson, thirdPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
-        assertThat(response.getErrorMessages(), hasSize(0));
+        assertThat(getErrorMessagesWithSeverity(response.getErrorMessages(), "Error"), hasSize(0));
         assertThat(response.getWhoisObjects(), hasSize(3));
 
         assertThat(objectExists(ObjectType.PERSON, "TP2-TEST"), is(true));
@@ -294,14 +302,14 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         final RpslObject updatedPerson = RpslObject.parse(
                 "person:        Test Person\n" +
-                "address:       Singel 258\n" +
-                "phone:         +31 6 12345678\n" +
-                "nic-hdl:       TP1-TEST\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
+                        "address:       Singel 258\n" +
+                        "phone:         +31 6 12345678\n" +
+                        "nic-hdl:       TP1-TEST\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "source:        TEST");
 
         RestTest.target(getPort(), "whois/references/test")
-            .queryParam("password", "test")
+            .queryParam("override", SyncUpdateUtils.encode("personadmin,secret,reason"))
             .request()
             .put(Entity.entity(mapRpslObjects(updatedMntner, updatedPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
@@ -372,7 +380,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         try {
             RestTest.target(getPort(), "whois/references/test")
-                .queryParam("password", "test")
+                .queryParam("override", SyncUpdateUtils.encode("personadmin,secret,reason"))
                 .request()
                 .put(Entity.entity(mapRpslObjects(firstPerson, secondPerson, thirdPerson), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
@@ -410,9 +418,15 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
 
         final WhoisResources response = RestTest.target(getPort(), "whois/references/test")
-                .queryParam("password", "test")
+                .queryParam("override", SyncUpdateUtils.encode("personadmin,secret,reason"))
                 .request()
                 .put(Entity.entity(mapRpslObjects(updatedPerson, updatedRole), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        System.err.println("errors:" + response.getErrorMessages());
+        for( ErrorMessage em: response.getErrorMessages()) {
+            System.err.println("severity:" + em.getSeverity());
+            System.err.println("text:" + em.getText());
+        }
 
         RestTest.assertErrorCount(response, 0);
         assertThat(response.getWhoisObjects(), hasSize(2));
@@ -441,19 +455,33 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         try {
             RestTest.target(getPort(), "whois/references/test")
-                .queryParam("password", "test")
+                .queryParam("override", SyncUpdateUtils.encode("personadmin,secret,reason"))
                 .request()
                 .put(Entity.entity(mapRpslObjects(updatedPerson, updatedRole), MediaType.APPLICATION_JSON_TYPE), String.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
             assertThat(response.getWhoisObjects(), hasSize(2));
-            assertThat(response.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(response, 0, "Error", "Mandatory attribute \"%s\" is missing", "e-mail");
+            List<ErrorMessage> msgs = getErrorMessagesWithSeverity(response.getErrorMessages(), "Error");
+            assertThat(msgs, hasSize(1));
+            //RestTest.assertErrorMessage(response, 0, "Error", "Mandatory attribute \"%s\" is missing", "e-mail");
+            assertThat(msgs.get(0).getText(), is("Mandatory attribute \"%s\" is missing"));
+            assertThat(msgs.get(0).getArgs().get(0).getValue(), is("e-mail"));
 
             assertThat(lookup(ObjectType.PERSON, "TP1-TEST").containsAttribute(AttributeType.REMARKS), is(false));
             assertThat(lookup(ObjectType.ROLE, "TR1-TEST").containsAttribute(AttributeType.REMARKS), is(false));
         }
+    }
+
+    private List<ErrorMessage> getErrorMessagesWithSeverity( final List<ErrorMessage> errorMessages, final String severity ) {
+        List<ErrorMessage> found = Lists.newArrayList();
+
+        for( ErrorMessage em: errorMessages ) {
+            if( severity.equalsIgnoreCase(em.getSeverity())) {
+                found.add(em);
+            }
+        }
+        return found;
     }
 
     @Test
@@ -473,7 +501,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST"), Action.DELETE);
 
         RestTest.target(getPort(), "whois/references/test")
-            .queryParam("password", "test")
+            .queryParam("override", SyncUpdateUtils.encode("personadmin,secret,reason"))
             .request()
             .put(Entity.entity(mapRpslObjects(firstUpdate, secondUpdate), MediaType.APPLICATION_JSON_TYPE), String.class);
 
@@ -500,15 +528,17 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         try {
             RestTest.target(getPort(), "whois/references/test")
-                .queryParam("password", "test")
-                .request()
-                .put(Entity.entity(mapRpslObjects(firstUpdate, secondUpdate), MediaType.APPLICATION_JSON_TYPE), String.class);
+                .queryParam("override", SyncUpdateUtils.encode("personadmin,secret,reason"))
+                    .request()
+                    .put(Entity.entity(mapRpslObjects(firstUpdate, secondUpdate), MediaType.APPLICATION_JSON_TYPE), String.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
             assertThat(response.getWhoisObjects(), hasSize(2));
-            assertThat(response.getErrorMessages(), hasSize(1));
-            RestTest.assertErrorMessage(response, 0, "Error", "Object %s doesn't match version in database", "[role] TR1-TEST   Test Role");
+            List<ErrorMessage> msgs = getErrorMessagesWithSeverity(response.getErrorMessages(), "Error");
+            assertThat(msgs, hasSize(1));
+            assertThat(msgs.get(0).getText(), is("Object %s doesn't match version in database"));
+            assertThat(msgs.get(0).getArgs().get(0).getValue(), is("[role] TR1-TEST   Test Role"));
 
             assertThat(objectExists(ObjectType.PERSON, "NP1-TEST"), is(false));
             assertThat(objectExists(ObjectType.ROLE, "TR1-TEST"), is(true));
@@ -682,7 +712,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Ignore("TODO: [ES] include error messages in response")
+    //@Ignore("TODO: [ES] include error messages in response")
     @Test
     public void delete_response_contains_error_message() {
         try {
@@ -691,7 +721,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                     .delete(String.class);
             fail();
         } catch (NotAuthorizedException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "TP1-TEST", "mnt-by", "OWNER-MNT");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s",
+                    "mntner", "OWNER-MNT", "mnt-by", "OWNER-MNT, OWNER-MNT");
         }
     }
 
