@@ -1,5 +1,8 @@
 ## next
 
+## 1.82
+[update] necessary changes to accommodate inter-RIR transfer requests.
+
 ## 1.81
 [api] Added Autocomplete API
 [api] Added References API to allow creation and deletion of related objects
