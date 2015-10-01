@@ -25,6 +25,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -608,6 +609,64 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(objectExists(ObjectType.MNTNER, "OWNER-MNT"), is(false));
         assertThat(objectExists(ObjectType.PERSON, "TP1-TEST"), is(false));
+    }
+
+    @Ignore
+    @Test
+    public void delete_mntner_person_pair_using_sso_succeeds() {
+        databaseHelper.updateObject(
+                "role:        dummy role\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       DR1-TEST\n" +
+                "e-mail:         test@ripe.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
+
+
+        final WhoisResources whoisResources =
+                mapRpslObjects(
+                        RpslObject.parse(
+                                "person:    Some Person\n" +
+                                        "address:   Amsterdam\n" +
+                                        "phone:     +3161234\n" +
+                                        "nic-hdl:   AUTO-1\n" +
+                                        "mnt-by:    NEW-UHUUU9999-MNT\n" +
+                                        "source:    TEST"),
+                        RpslObject.parse(
+                                "mntner:    NEW-UHUUU9999-MNT\n" +
+                                        "descr:     Maintainer\n" +
+                                        "admin-c:   AUTO-1\n" +
+                                        "upd-to:    person@net.net\n" +
+                                        "auth:      SSO person@net.net\n" +
+                                        "mnt-by:    NEW-UHUUU9999-MNT\n" +
+                                        "source:    TEST"));
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/references/TEST")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(2));
+
+        final WhoisObject person = getWhoisObject(response, "person");
+        assertThat(getAttribute(person, "nic-hdl"), is("SP1-TEST"));
+        assertThat(getAttribute(person, "mnt-by"), is("NEW-UHUUU9999-MNT"));
+
+        final WhoisObject mntner = getWhoisObject(response, "mntner");
+        assertThat(getAttribute(mntner, "admin-c"), is("SP1-TEST"));
+
+        final RpslObject newmntner = databaseHelper.lookupObject(ObjectType.MNTNER, "NEW-UHUUU9999-MNT");
+        System.out.println("newmntner = " + newmntner);
+        final WhoisResources whoisResources2 = RestTest.target(getPort(), "whois/references/TEST/mntner/NEW-UHUUU9999-MNT")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .delete(WhoisResources.class);
+
+        assertThat(whoisResources2.getWhoisObjects(), hasSize(2));
+        assertThat(getPKeysFromWhoisResources(whoisResources2), containsInAnyOrder("NEW-UHUUU9999-MNT"));
+
+        assertThat(objectExists(ObjectType.MNTNER, "NEW-UHUUU9999-MNT"), is(false));
     }
 
     @Test
