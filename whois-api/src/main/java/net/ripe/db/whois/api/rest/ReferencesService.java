@@ -74,6 +74,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -182,7 +183,7 @@ public class ReferencesService {
             final RpslObject updatedMntner = replaceAdminC(mntner, "AUTO-1");
             actionRequests.add(new ActionRequest(updatedMntner, Action.MODIFY));
 
-            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null);
+            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.ACCOUNT);
             return createResponse(request, filterWhoisObjects(whoisResources), Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -231,7 +232,8 @@ public class ReferencesService {
             final List<ActionRequest> actionRequests,
             final List<String> passwords,
             final String crowdTokenKey,
-            final String override) {
+            final String override,
+            final SsoAuthForm ssoAuthForm) {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
@@ -241,7 +243,15 @@ public class ReferencesService {
             final List<Update> updates = Lists.newArrayList();
             for (ActionRequest actionRequest : actionRequests) {
                 final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ? "--" : null;
-                updates.add(updatePerformer.createUpdate(updateContext, actionRequest.getRpslObject(), passwords, deleteReason, override));
+
+                final RpslObject originalObject;
+                if (ssoAuthForm == SsoAuthForm.UUID){
+                    ssoTranslator.populateCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
+                    originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
+                } else {
+                    originalObject = actionRequest.getRpslObject();
+                }
+                updates.add(updatePerformer.createUpdate(updateContext, originalObject, passwords, deleteReason, override));
             }
 
             final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
@@ -312,6 +322,7 @@ public class ReferencesService {
         return whoisResources;
     }
 
+    //TODO [TP]: This method has to go to its own class and path.
     /**
      * Update one or more objects together (in the same transaction). If any update fails, then all changes are cancelled (rolled back).
      *
@@ -327,8 +338,6 @@ public class ReferencesService {
             final WhoisResources resource,
             @PathParam("source") final String sourceParam,
             @Context final HttpServletRequest request,
-            @QueryParam("password") final List<String> passwords,
-            @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
         if (resource == null) {
@@ -342,7 +351,7 @@ public class ReferencesService {
         checkForMainSource(request, sourceParam);
 
         try {
-            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(resource), passwords, crowdTokenKey, override);
+            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(resource), Collections.<String>emptyList(), "", override, SsoAuthForm.ACCOUNT);
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -423,7 +432,7 @@ public class ReferencesService {
             actionRequests.add(new ActionRequest(replaceReferencesInMntner(allObjects), Action.DELETE));
 
             // batch update
-            performUpdates(request, actionRequests, passwords, crowdTokenKey, null);
+            performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.UUID);
             return createResponse(request, allObjects, Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -676,6 +685,8 @@ public class ReferencesService {
     }
 
     // model classes
+
+    enum SsoAuthForm {ACCOUNT, UUID}
 
     @XmlRootElement(name = "references")
     @JsonInclude(NON_EMPTY)
