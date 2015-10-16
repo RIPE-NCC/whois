@@ -167,7 +167,6 @@ public class SingleUpdateHandler {
                 UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
     }
 
-    @CheckForNull
     private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext) {
         final RpslObject submittedObject = update.getSubmittedObject();
         for (RpslAttribute attribute: submittedObject.getAttributes()) {
