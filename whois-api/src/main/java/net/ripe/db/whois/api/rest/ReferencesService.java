@@ -234,6 +234,7 @@ public class ReferencesService {
             final String crowdTokenKey,
             final String override,
             final SsoAuthForm ssoAuthForm) {
+
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
@@ -417,7 +418,9 @@ public class ReferencesService {
 
             // update the maintainer to point to a dummy person / role
 
-            actionRequests.add(new ActionRequest(replaceReferencesInMntner(allObjects), Action.MODIFY));
+            final RpslObjectWithReplacements tmpMntnerWithReplacements = replaceReferencesInMntner(allObjects);
+
+            actionRequests.add(new ActionRequest(tmpMntnerWithReplacements.rpslObject, Action.MODIFY));
 
             // delete the person / role objects
 
@@ -428,12 +431,14 @@ public class ReferencesService {
             }
 
             // delete the maintainer
-
-            actionRequests.add(new ActionRequest(replaceReferencesInMntner(allObjects), Action.DELETE));
+            actionRequests.add(new ActionRequest(tmpMntnerWithReplacements.rpslObject, Action.DELETE));
 
             // batch update
-            performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.UUID);
-            return createResponse(request, allObjects, Response.Status.OK);
+            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.UUID);
+
+            removeDuplicatesAndRestoreReplacedReferences(whoisResources, tmpMntnerWithReplacements);
+
+            return createResponse(request, whoisResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
             switch (e.getResponse().getStatus()) {
@@ -450,6 +455,28 @@ public class ReferencesService {
             LOGGER.error("Unexpected", e);
             return createResponse(request, primaryObject, Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void removeDuplicatesAndRestoreReplacedReferences(final WhoisResources whoisResources, final RpslObjectWithReplacements tmpMntnerWithReplacements) {
+        final Map<List<Attribute>, WhoisObject> result = Maps.newHashMap();
+
+        for (final WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
+            if (whoisObject.getType().equalsIgnoreCase(AttributeType.MNTNER.getName())){
+                final RpslObject mntnerWithDummyRole = whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
+
+                final RpslObjectBuilder builder = new RpslObjectBuilder(mntnerWithDummyRole);
+
+                for (final Map.Entry<RpslAttribute, RpslAttribute> entry : tmpMntnerWithReplacements.replacements.entrySet()) {
+                    builder.removeAttribute(entry.getValue())
+                            .addAttributeSorted(entry.getKey());
+                }
+                result.put(whoisObject.getPrimaryKey(), whoisObjectMapper.map(builder.get(), FormattedServerAttributeMapper.class));
+            } else {
+                result.put(whoisObject.getPrimaryKey(), whoisObject);
+            }
+        }
+
+        whoisResources.setWhoisObjects(Lists.newArrayList(result.values()));
     }
 
     /**
@@ -586,7 +613,7 @@ public class ReferencesService {
         }).build();
     }
 
-    private RpslObject replaceReferencesInMntner(final Collection<RpslObject> allObjects) {
+    private RpslObjectWithReplacements replaceReferencesInMntner(final Collection<RpslObject> allObjects) {
         for (final RpslObject rpslObject : ImmutableSet.copyOf(allObjects)) {
             if (rpslObject.getType().equals(ObjectType.MNTNER)) {
                 return replaceReferences(rpslObject, allObjects);
@@ -595,7 +622,7 @@ public class ReferencesService {
         throw new IllegalStateException("No maintainer found");
     }
 
-    private RpslObject replaceReferences(final RpslObject mntner, final Collection<RpslObject> references) {
+    private RpslObjectWithReplacements replaceReferences(final RpslObject mntner, final Collection<RpslObject> references) {
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
 
         for (final RpslAttribute rpslAttribute : mntner.getAttributes()) {
@@ -609,14 +636,14 @@ public class ReferencesService {
         }
 
         if (replacements.isEmpty()) {
-            return mntner;
+            return new RpslObjectWithReplacements(mntner, replacements);
         }
 
         final RpslObjectBuilder builder = new RpslObjectBuilder(mntner);
         for (Map.Entry<RpslAttribute, RpslAttribute> entry : replacements.entrySet()) {
             builder.replaceAttribute(entry.getKey(), entry.getValue());
         }
-        return builder.get();
+        return new RpslObjectWithReplacements(builder.get(), replacements);
     }
 
     private boolean referenceMatches(final RpslObjectInfo reference, final RpslObject rpslObject) {
@@ -685,6 +712,16 @@ public class ReferencesService {
     }
 
     // model classes
+
+    static class RpslObjectWithReplacements {
+        private final RpslObject rpslObject;
+        private final Map<RpslAttribute, RpslAttribute> replacements;
+
+        RpslObjectWithReplacements(final RpslObject rpslObject, final Map<RpslAttribute, RpslAttribute> replacements) {
+            this.rpslObject = rpslObject;
+            this.replacements = replacements;
+        }
+    }
 
     enum SsoAuthForm {ACCOUNT, UUID}
 
