@@ -432,16 +432,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         ));
     }
 
-    // TODO: add lookup test for route6
     @Test
     public void lookup_route() throws Exception {
-        final RpslObject route = RpslObject.parse("" +
+        databaseHelper.addObject(
                 "route:           193.254.30.0/24\n" +
                 "descr:           Test route\n" +
                 "origin:          AS12726\n" +
                 "mnt-by:          OWNER-MNT\n" +
                 "source:          TEST\n");
-        databaseHelper.addObject(route);
         ipTreeUpdater.rebuild();
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/route/193.254.30.0/24AS12726").request().get(WhoisResources.class);
@@ -459,6 +457,37 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("route", "193.254.30.0/24"),
+                new Attribute("descr", "Test route"),
+                new Attribute("origin", "AS12726", null, "aut-num", new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS12726")),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    @Test
+    public void lookup_route6() throws Exception {
+        databaseHelper.addObject(
+                "route6:          2001::/32\n" +
+                "descr:           Test route\n" +
+                "origin:          AS12726\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/route6/2001::/32AS12726").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route6/2001::/32AS12726"));
+
+        final List<Attribute> primaryKey = whoisObject.getPrimaryKey();
+        assertThat(primaryKey, hasSize(2));
+        assertThat(primaryKey, contains(new Attribute("route6", "2001::/32"), new Attribute("origin", "AS12726")));
+
+        assertThat(whoisObject.getAttributes(), contains(
+                new Attribute("route6", "2001::/32"),
                 new Attribute("descr", "Test route"),
                 new Attribute("origin", "AS12726", null, "aut-num", new Link("locator", "http://rest-test.db.ripe.net/test/aut-num/AS12726")),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/OWNER-MNT")),
