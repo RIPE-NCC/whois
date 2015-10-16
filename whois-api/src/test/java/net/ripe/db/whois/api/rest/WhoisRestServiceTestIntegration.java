@@ -865,14 +865,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_maintainer_invalid_crowd_uuid() throws Exception {
         databaseHelper.addObject(
                 "mntner:         MNT-TEST\n" +
-                        "descr:          Test maintainer\n" +
-                        "admin-c:        TP1-TEST\n" +
-                        "upd-to:         noreply@ripe.net\n" +
-                        "auth:           MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
-                        "auth:           SSO e58f4ee0-5d26-450f-a933-349ce1440fbc\n" +
-                        "mnt-by:         MNT-TEST\n" +
-                        "source:         TEST"
-        );
+                "descr:          Test maintainer\n" +
+                "admin-c:        TP1-TEST\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "auth:           MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
+                "auth:           SSO e58f4ee0-5d26-450f-a933-349ce1440fbc\n" +
+                "mnt-by:         MNT-TEST\n" +
+                "source:         TEST");
 
         try {
             RestTest.target(getPort(), "whois/TEST/mntner/MNT-TEST?password=123&unfiltered")
@@ -888,15 +887,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_mntner_encoded_password() {
-        databaseHelper.addObject(RpslObject.parse(
+        databaseHelper.addObject(
                 "mntner:         TEST-MNT\n" +
-                        "descr:          Test Organisation\n" +
-                        "admin-c:        TP1-TEST\n" +
-                        "upd-to:         noreply@ripe.net\n" +
-                        "auth:           MD5-PW $1$GVXqt/5m$TaeN0iPr84mNoz8j3IDs//  # auth?auth \n" +
-                        "mnt-by:         TEST-MNT\n" +
-                        "source:         TEST"
-        ));
+                "descr:          Test Organisation\n" +
+                "admin-c:        TP1-TEST\n" +
+                "upd-to:         noreply@ripe.net\n" +
+                "auth:           MD5-PW $1$GVXqt/5m$TaeN0iPr84mNoz8j3IDs//  # auth?auth \n" +
+                "mnt-by:         TEST-MNT\n" +
+                "source:         TEST");
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/TEST-MNT?password=auth%3Fauth")
                 .request(MediaType.APPLICATION_XML_TYPE)
@@ -1301,7 +1299,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_non_streaming_puts_xlink_into_root_element_and_nowhere_else() throws Exception {
-        final RpslObject autnum = RpslObject.parse("" +
+        databaseHelper.addObject(
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
                 "descr:          description\n" +
@@ -1309,7 +1307,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "tech-c:         TP1-TEST\n" +
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
-        databaseHelper.addObject(autnum);
 
         final String whoisResources = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
                 .request(MediaType.APPLICATION_XML)
@@ -1364,6 +1361,65 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    // TODO: [ES] response object should be latin1
+    @Test
+    public void create_succeeds_non_latin1_chars_not_substituted_in_response() throws Exception {
+        final String response = RestTest.target(getPort(), "whois/test/person?password=test")
+            .request()
+            .post(Entity.entity(
+                "<whois-resources>\n" +
+                "    <objects>\n" +
+                "        <object type=\"person\">\n" +
+                "            <source id=\"TEST\"/>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"person\" value=\"New Person\"/>\n" +
+                "                <attribute name=\"remarks\" value=\"ελληνικά\"/>\n" +      // attribute value is not latin-1
+                "                <attribute name=\"address\" value=\"Amsterdam\"/>\n" +
+                "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
+                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "            </attributes>\n" +
+                "        </object>\n" +
+                "    </objects>\n" +
+                "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+
+        assertThat(response, containsString(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://localhost:54643/test/person\"/>\n" +
+                "    <objects>\n" +
+                "        <object type=\"person\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/NP1-TEST\"/>\n" +
+                "            <source id=\"test\"/>\n" +
+                "            <primary-key>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"NP1-TEST\"/>\n" +
+                "            </primary-key>\n" +
+                "            <attributes>\n" +
+                "                <attribute name=\"person\" value=\"New Person\"/>\n" +
+                "                <attribute name=\"remarks\" value=\"ελληνικά\"/>\n" +      // TODO: text not substituted
+                "                <attribute name=\"address\" value=\"Amsterdam\"/>\n" +
+                "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "                    <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "                </attribute>\n" +
+                "                <attribute name=\"nic-hdl\" value=\"NP1-TEST\"/>\n" +
+                "                <attribute name=\"created\" value=\"2001-02-04T17:00:00Z\"/>\n" +
+                "                <attribute name=\"last-modified\" value=\"2001-02-04T17:00:00Z\"/>\n" +
+                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
+                "            </attributes>\n" +
+                "        </object>\n" +
+                "    </objects>\n" +
+                "    <errormessages>\n" +
+                "        <errormessage severity=\"Warning\" text=\"Attribute &quot;%s&quot; value changed due to conversion into the ISO-8859-1 (Latin-1) character set\">\n" +
+                "            <args value=\"remarks\"/>\n" +
+                "        </errormessage>\n" +
+                "    </errormessages>\n" +
+                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "</whois-resources>"
+        ));
     }
 
     @Test
@@ -1490,15 +1546,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void create_inetnum_multiple_errors() {
         final RpslObject rpslObject = RpslObject.parse(
                 "inetnum:   10.0.0.0 - 10.255.255.255\n" +
-                        "netname:   TEST-NET\n" +
-                        "descr:     description\n" +
-                        "country:       NONE\n" +
-                        "admin-c:       INVALID-1\n" +
-                        "tech-c:        INVALID-2\n" +
-                        "status:    ASSIGNED PI\n" +
-                        "mnt-by:    OWNER-MNT\n" +
-                        "source:    TEST\n"
-        );
+                "netname:   TEST-NET\n" +
+                "descr:     description\n" +
+                "country:       NONE\n" +
+                "admin-c:       INVALID-1\n" +
+                "tech-c:        INVALID-2\n" +
+                "status:    ASSIGNED PI\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
 
         try {
             RestTest.target(getPort(), "whois/test/inetnum?password=test")
