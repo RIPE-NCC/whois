@@ -22,6 +22,9 @@ import javax.mail.internet.MimeMessage;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -76,6 +79,12 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("From-Host: 127.0.0.1"));
         assertThat(response, containsString("Date/Time: "));
         assertThat(response, not(containsString("$")));
+    }
+
+    @Ignore("TODO: [ES] post without content type returns internal server error")
+    @Test
+    public void post_without_content_type() throws Exception {
+        assertThat(post(), not(containsString("Internal Server Error")));
     }
 
     @Test
@@ -687,5 +696,19 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     private boolean anyMoreMessages() {
         return mailSender.anyMoreMessages();
+    }
+
+    private String post() throws IOException {
+        final URL url = new URL(String.format("http://localhost:%d/whois/syncupdates/test", getPort()));
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setInstanceFollowRedirects(false);
+        connection.setRequestMethod("POST");
+
+        connection.connect();
+        final String response = connection.getResponseMessage();
+        connection.disconnect();
+
+        return response;
     }
 }
