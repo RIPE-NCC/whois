@@ -143,6 +143,7 @@ public class InternalUpdatePerformer {
         for (Update update : updates) {
             final PreparedUpdate preparedUpdate = updateContext.getPreparedUpdate(update);
 
+            //Be careful here, we do not want unsuccessful DELETE operations to return the mntner objects from the DB!!!
             if (preparedUpdate == null
                     || (preparedUpdate.getAction() == Action.DELETE
                             && updateContext.getStatus(update) != UpdateStatus.SUCCESS)) {
