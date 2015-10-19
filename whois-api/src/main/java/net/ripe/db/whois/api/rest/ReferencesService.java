@@ -245,14 +245,14 @@ public class ReferencesService {
             for (ActionRequest actionRequest : actionRequests) {
                 final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ? "--" : null;
 
-                final RpslObject originalObject;
+                final RpslObject rpslObject;
                 if (ssoAuthForm == SsoAuthForm.UUID){
                     ssoTranslator.populateCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
-                    originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
+                    rpslObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
                 } else {
-                    originalObject = actionRequest.getRpslObject();
+                    rpslObject = actionRequest.getRpslObject();
                 }
-                updates.add(updatePerformer.createUpdate(updateContext, originalObject, passwords, deleteReason, override));
+                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, passwords, deleteReason, override));
             }
 
             final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
@@ -440,21 +440,17 @@ public class ReferencesService {
 
             return createResponse(request, whoisResources, Response.Status.OK);
 
-        } catch (WebApplicationException e) {
-            switch (e.getResponse().getStatus()) {
-                case HttpStatus.UNAUTHORIZED_401:
-                    throw new NotAuthorizedException(createResponse(request, primaryObject, Response.Status.UNAUTHORIZED));
-                case HttpStatus.INTERNAL_SERVER_ERROR_500:
-                    throw new InternalServerErrorException(createResponse(request, primaryObject, Response.Status.INTERNAL_SERVER_ERROR));
-                default:
-                    throw new BadRequestException(createResponse(request, primaryObject, Response.Status.BAD_REQUEST));
-            }
         } catch (ReferenceUpdateFailedException e) {
-            return createResponse(request, e.whoisResources, e.status);
+            return createResponse(request, removeWhoisObjects(e.whoisResources), e.status);
         } catch (Exception e) {
             LOGGER.error("Unexpected", e);
-            return createResponse(request, primaryObject, Response.Status.INTERNAL_SERVER_ERROR);
+            throw e;
         }
+    }
+
+    private WhoisResources removeWhoisObjects(final WhoisResources whoisResources){
+        whoisResources.setWhoisObjects(null);
+        return whoisResources;
     }
 
     private void removeDuplicatesAndRestoreReplacedReferences(final WhoisResources whoisResources, final RpslObjectWithReplacements tmpMntnerWithReplacements) {
