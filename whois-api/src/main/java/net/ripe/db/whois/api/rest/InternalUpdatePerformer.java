@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -116,7 +117,6 @@ public class InternalUpdatePerformer {
 
     private WhoisResources performUpdates(final HttpServletRequest request, final UpdateContext updateContext, final Collection<Update> updates) {
         final WhoisResources whoisResources = new WhoisResources();
-        whoisResources.setWhoisObjects(Lists.<WhoisObject>newArrayList());
 
         // global messages
         final List<ErrorMessage> errorMessages = Lists.newArrayList();
@@ -139,16 +139,26 @@ public class InternalUpdatePerformer {
             }
         }
 
-        if (!errorMessages.isEmpty()) {
-            whoisResources.setErrorMessages(errorMessages);
-        }
-
+        final List<WhoisObject> whoisObjects = Lists.newArrayList();
         for (Update update : updates) {
             final PreparedUpdate preparedUpdate = updateContext.getPreparedUpdate(update);
-            if (preparedUpdate != null) {
-                final WhoisObject whoisObject = whoisObjectMapper.map(preparedUpdate.getUpdatedObject(), RestServiceHelper.getServerAttributeMapper(request.getQueryString()));
-                whoisResources.getWhoisObjects().add(whoisObject);
+
+            if (preparedUpdate == null
+                    || (preparedUpdate.getAction() == Action.DELETE
+                            && updateContext.getStatus(update) != UpdateStatus.SUCCESS)) {
+                continue;
             }
+
+            whoisObjects.add(whoisObjectMapper.map(preparedUpdate.getUpdatedObject(), RestServiceHelper.getServerAttributeMapper(request.getQueryString())));
+
+        }
+
+        if (!whoisObjects.isEmpty()) {
+            whoisResources.setWhoisObjects(whoisObjects);
+        }
+
+        if (!errorMessages.isEmpty()) {
+            whoisResources.setErrorMessages(errorMessages);
         }
 
         whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
