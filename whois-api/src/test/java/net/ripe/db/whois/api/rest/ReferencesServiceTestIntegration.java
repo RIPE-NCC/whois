@@ -354,7 +354,11 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        SSO-MNT\n" +
                 "source:        TEST");
 
-        databaseHelper.addObject(ssomnt);
+        //databaseHelper.addObject does not translate account to UUID, so we do it via classic REST @POST
+        RestTest.target(getPort(), "whois/test/mntner")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(mapRpslObjects(ssomnt), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         final WhoisResources input = mapRpslObjects(
                 new ActionRequest(new RpslObjectBuilder(ssomnt).
@@ -385,14 +389,17 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        SSO-MNT\n" +
                 "source:        TEST");
 
-        databaseHelper.addObject(ssomnt);
-
-        final WhoisResources input = mapRpslObjects(new ActionRequest(ssomnt, Action.DELETE));
+        //databaseHelper.addObject does not translate account to UUID, so we do it via classic REST @POST
+        RestTest.target(getPort(), "whois/test/mntner")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .post(Entity.entity(mapRpslObjects(ssomnt), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/references/test")
                 .queryParam("override", SyncUpdateUtils.encode("personadmin,secret,reason"))
                 .request()
-                .put(Entity.entity(input, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+                .put(Entity.entity(mapRpslObjects(new ActionRequest(ssomnt, Action.DELETE)),
+                        MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(getErrorMessagesWithSeverity(response.getErrorMessages(), "Error"), hasSize(0));
         assertThat(response.getWhoisObjects(), hasSize(1));
@@ -415,11 +422,11 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
         final RpslObject updatedPerson = RpslObject.parse(
                 "person:        Test Person\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TP1-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
 
         RestTest.target(getPort(), "whois/references/test")
             .queryParam("override", SyncUpdateUtils.encode("personadmin,secret,reason"))
@@ -534,12 +541,6 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 .queryParam("override", SyncUpdateUtils.encode("personadmin,secret,reason"))
                 .request()
                 .put(Entity.entity(mapRpslObjects(updatedPerson, updatedRole), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
-
-        System.err.println("errors:" + response.getErrorMessages());
-        for( ErrorMessage em: response.getErrorMessages()) {
-            System.err.println("severity:" + em.getSeverity());
-            System.err.println("text:" + em.getText());
-        }
 
         RestTest.assertErrorCount(response, 0);
         assertThat(response.getWhoisObjects(), hasSize(2));
@@ -718,61 +719,40 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delete_mntner_person_pair_using_sso_succeeds() {
-        databaseHelper.updateObject(
-                "role:        dummy role\n" +
-                "address:       Singel 258\n" +
-                "phone:         +31 6 12345678\n" +
-                "nic-hdl:       DR1-TEST\n" +
-                "e-mail:         test@ripe.net\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
+    public void delete_pair_using_sso_succeeds() {
+        create_person_mntner_pair_success_using_sso();
 
-
-        final WhoisResources whoisResources =
-                mapRpslObjects(
-                        RpslObject.parse(
-                                "person:    Some Person\n" +
-                                "address:   Amsterdam\n" +
-                                "phone:     +3161234\n" +
-                                "nic-hdl:   AUTO-1\n" +
-                                "mnt-by:    SSO-MNT\n" +
-                                "source:    TEST"),
-                        RpslObject.parse(
-                                "mntner:    SSO-MNT\n" +
-                                "descr:     Maintainer\n" +
-                                "admin-c:   AUTO-1\n" +
-                                "upd-to:    person@net.net\n" +
-                                "auth:      SSO person@net.net\n" +
-                                "mnt-by:    SSO-MNT\n" +
-                                "source:    TEST"));
-
-        final WhoisResources response = RestTest.target(getPort(), "whois/references/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
-                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
-
-        assertThat(response.getWhoisObjects(), hasSize(2));
-
-        final WhoisObject person = getWhoisObject(response, "person");
-        assertThat(getAttribute(person, "nic-hdl"), is("SP1-TEST"));
-        assertThat(getAttribute(person, "mnt-by"), is("SSO-MNT"));
-
-        final WhoisObject mntner = getWhoisObject(response, "mntner");
-        assertThat(getAttribute(mntner, "admin-c"), is("SP1-TEST"));
-
-        final RpslObject newmntner = databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT");
-        System.out.println("newmntner = " + newmntner);
-        final WhoisResources whoisResources2 = RestTest.target(getPort(), "whois/references/TEST/mntner/SSO-MNT")
+        RestTest.target(getPort(), "whois/references/TEST/mntner/SSO-MNT")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
                 .delete(WhoisResources.class);
 
-        assertThat(whoisResources2.getWhoisObjects(), hasSize(2));
-        assertThat(getPKeysFromWhoisResources(whoisResources2), containsInAnyOrder("SSO-MNT", "SP1-TEST"));
+        assertThat(objectExists(ObjectType.MNTNER, "SSO-MNT"), is(false));
+        assertThat(objectExists(ObjectType.PERSON, "SP1-TEST"), is(false));
+    }
+
+    @Test
+    public void delete_pair_using_sso_returns_original_state_of_objects_in_response() {
+        create_person_mntner_pair_success_using_sso();
+
+        final WhoisResources responseDeletePair = RestTest.target(getPort(), "whois/references/TEST/mntner/SSO-MNT")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .delete(WhoisResources.class);
 
         assertThat(objectExists(ObjectType.MNTNER, "SSO-MNT"), is(false));
         assertThat(objectExists(ObjectType.PERSON, "SP1-TEST"), is(false));
+
+        assertThat(responseDeletePair.getWhoisObjects(), hasSize(2));
+
+        final WhoisObject person = getWhoisObject(responseDeletePair, "person");
+        assertThat(getAttribute(person, "nic-hdl"), is("SP1-TEST"));
+        assertThat(getAttribute(person, "mnt-by"), is("SSO-MNT"));
+
+        final WhoisObject mntner = getWhoisObject(responseDeletePair, "mntner");
+        assertThat(getAttribute(mntner, "mntner"), is("SSO-MNT"));
+        assertThat(getAttribute(mntner, "admin-c"), is("SP1-TEST"));
+        assertThat(getAttribute(mntner, "auth"), is("SSO person@net.net"));
     }
 
     @Test
@@ -787,11 +767,11 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
         databaseHelper.addObject(
                 "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TR2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/mntner/OWNER-MNT?password=test")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -809,11 +789,11 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_object_with_outgoing_references_only() {
         databaseHelper.addObject(
                 "role:          Test Role\n" +
-                        "address:       Singel 258\n" +
-                        "phone:         +31 6 12345678\n" +
-                        "nic-hdl:       TR2-TEST\n" +
-                        "mnt-by:        OWNER-MNT\n" +
-                        "source:        TEST");
+                "address:       Singel 258\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       TR2-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "source:        TEST");
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/references/TEST/role/TR2-TEST?password=test")
                 .request()
@@ -854,7 +834,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void delete_non_mntner_or_role() {
-        databaseHelper.addObject("organisation:    ORG-TO1-TEST\n" +
+        databaseHelper.addObject(
+                "organisation:    ORG-TO1-TEST\n" +
                 "org-type:        other\n" +
                 "org-name:        First Org\n" +
                 "address:         RIPE NCC\n" +
@@ -877,7 +858,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     // OWNER-MNT <- TP1-TEST <- ANOTHER-MNT
     @Test
     public void delete_mntner_fails_person_referenced_from_another_mntner() {
-        databaseHelper.addObject("mntner:        ANOTHER-MNT\n" +
+        databaseHelper.addObject(
+                "mntner:        ANOTHER-MNT\n" +
                 "descr:         Another Maintainer\n" +
                 "admin-c:       TP1-TEST\n" +
                 "upd-to:        noreply@ripe.net\n" +
@@ -901,6 +883,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 .delete();
 
         assertThat(response.getStatus(), is(Response.Status.UNAUTHORIZED.getStatusCode()));
+//        final WhoisResources whoisResources = response.readEntity(WhoisResources.class);
+//        assertThat(whoisResources.getWhoisObjects(), is(empty()));
     }
 
     @Test
