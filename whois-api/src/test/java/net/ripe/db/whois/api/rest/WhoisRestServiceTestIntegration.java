@@ -47,6 +47,7 @@ import org.glassfish.jersey.uri.UriComponent;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.LoggerFactory;
@@ -1363,7 +1364,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
-    // TODO: [ES] response object should be latin1
+    @Ignore("TODO: [ES] response object should be latin1")
     @Test
     public void create_succeeds_non_latin1_chars_not_substituted_in_response() throws Exception {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
@@ -1386,40 +1387,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </objects>\n" +
                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
-        assertThat(response, containsString(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
-                "    <link xlink:type=\"locator\" xlink:href=\"http://localhost:54643/test/person\"/>\n" +
-                "    <objects>\n" +
-                "        <object type=\"person\">\n" +
-                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/NP1-TEST\"/>\n" +
-                "            <source id=\"test\"/>\n" +
-                "            <primary-key>\n" +
-                "                <attribute name=\"nic-hdl\" value=\"NP1-TEST\"/>\n" +
-                "            </primary-key>\n" +
-                "            <attributes>\n" +
-                "                <attribute name=\"person\" value=\"New Person\"/>\n" +
-                "                <attribute name=\"remarks\" value=\"ελληνικά\"/>\n" +      // TODO: text not substituted
-                "                <attribute name=\"address\" value=\"Amsterdam\"/>\n" +
-                "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
-                "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
-                "                    <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
-                "                </attribute>\n" +
-                "                <attribute name=\"nic-hdl\" value=\"NP1-TEST\"/>\n" +
-                "                <attribute name=\"created\" value=\"2001-02-04T17:00:00Z\"/>\n" +
-                "                <attribute name=\"last-modified\" value=\"2001-02-04T17:00:00Z\"/>\n" +
-                "                <attribute name=\"source\" value=\"TEST\"/>\n" +
-                "            </attributes>\n" +
-                "        </object>\n" +
-                "    </objects>\n" +
-                "    <errormessages>\n" +
-                "        <errormessage severity=\"Warning\" text=\"Attribute &quot;%s&quot; value changed due to conversion into the ISO-8859-1 (Latin-1) character set\">\n" +
-                "            <args value=\"remarks\"/>\n" +
-                "        </errormessage>\n" +
-                "    </errormessages>\n" +
-                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
-                "</whois-resources>"
-        ));
+        assertThat(response, not(containsString("<attribute name=\"remarks\" value=\"ελληνικά\"/>")));      // TODO: text not substituted
+        assertThat(response, containsString("<attribute name=\"remarks\" value=\"????????\"/>"));
+        assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Attribute &quot;%s&quot; value changed due to conversion into the ISO-8859-1 (Latin-1) character set\">"));
     }
 
     @Test
