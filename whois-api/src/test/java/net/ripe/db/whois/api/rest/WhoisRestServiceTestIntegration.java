@@ -2500,6 +2500,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void delete_no_auth_does_not_contain_tobedeleted_object() {
+        try {
+            RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT.json")
+                    .request()
+                    .delete(String.class);
+            fail();
+        } catch (NotAuthorizedException e) {
+            final WhoisResources whoisResources = RestTest.mapClientException(e);
+            assertThat(whoisResources.getWhoisObjects(), is(empty()));
+        }
+    }
+
+    @Test
     public void delete_person_succeeds_with_notification() throws Exception {
         databaseHelper.addObject(
                 "mntner:        TEST-MNT\n" +
@@ -3014,6 +3027,26 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertErrorMessage(whoisResources, 0, "Error", "Authorisation for [%s] %s failed\nusing \"%s:\"\nnot authenticated by: %s", "person", "PP1-TEST", "mnt-by", "OWNER-MNT");
             RestTest.assertInfoCount(whoisResources, 1);
             RestTest.assertErrorMessage(whoisResources, 1, "Info", "RIPE NCC Access token ignored");
+        }
+    }
+
+    @Test
+    public void update_mntner_with_invalid_auth_returns_supplied_object_and_not_sensitive_info() {
+        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT)
+                .removeAttributeType(AttributeType.AUTH)
+                .addAttributeSorted(new RpslAttribute(AttributeType.AUTH, "SSO random@ripe.net")).get();
+
+        try {
+            RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (NotAuthorizedException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, containsString("SSO random@ripe.net"));
+            assertThat(response, not(containsString("SSO person@net.net")));
+            assertThat(response, not(containsString("MD5-PW")));
+            assertThat(response, not(containsString("MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/")));
         }
     }
 
