@@ -205,8 +205,14 @@ public class FreeTextIndex extends RebuildableIndex {
 
     @Scheduled(fixedDelay = INDEX_UPDATE_INTERVAL_IN_SECONDS * 1000)
     public void scheduledUpdate() {
-        if (StringUtils.isBlank(indexDir)) return;
-        update();
+        if (StringUtils.isBlank(indexDir)) {
+            return;
+        }
+        try {
+            update();
+        } catch (DataAccessException e) {
+            LOGGER.warn("Unable to update freetext index due to {}: {}", e.getClass(), e.getMessage());
+        }
     }
 
     protected void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
