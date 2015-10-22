@@ -82,7 +82,7 @@ public class SingleUpdateHandler {
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void handle(final Origin origin, final Keyword keyword, final Update update, final UpdateContext updateContext) {
         updateLockDao.setUpdateLock();
-        ipTreeUpdater.updateCurrent();
+        ipTreeUpdater.updateTransactional();
 
         if (updateContext.isDryRun()) {
             updateContext.addMessage(update, UpdateMessages.dryRunNotice());
@@ -167,7 +167,6 @@ public class SingleUpdateHandler {
                 UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
     }
 
-    @CheckForNull
     private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext) {
         final RpslObject submittedObject = update.getSubmittedObject();
         for (RpslAttribute attribute: submittedObject.getAttributes()) {
