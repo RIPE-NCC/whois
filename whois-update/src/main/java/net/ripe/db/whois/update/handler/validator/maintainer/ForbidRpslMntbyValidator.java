@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.maintainer;
 
 import com.google.common.collect.Lists;
 
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -42,13 +43,13 @@ public class ForbidRpslMntbyValidator implements BusinessRuleValidator {
         }
 
         for (RpslAttribute mntBy : rpslObject.findAttributes(AttributeType.MNT_BY)) {
-            if (mntBy.getCleanValue().equals("RIPE-NCC-RPSL-MNT")) {
-                return true;
+
+            for(CIString mntByStr : mntBy.getCleanValues()) {
+                if (mntByStr.equals("RIPE-NCC-RPSL-MNT")) {
+                    return true;
+                }
             }
         }
         return false;
     }
-
-
-
 }

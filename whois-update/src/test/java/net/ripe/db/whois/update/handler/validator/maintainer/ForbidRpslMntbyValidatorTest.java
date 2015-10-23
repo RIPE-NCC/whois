@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler.validator.maintainer;
 
-import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -14,9 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-
-import static net.ripe.db.whois.update.handler.validator.ValidatorTestHelper.validateUpdate;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -37,18 +35,23 @@ public class ForbidRpslMntbyValidatorTest {
     }
 
     @Test
-    public void validate_creation() {
-        when(preparedUpdate.hasOriginalObject()).thenReturn(false);
-
-        final RpslObject updatedObject = RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST\nmnt-by: RIPE-NCC-RPSL-MNT\nsource: TEST");
-
+    public void test_forbid_rpsl() {
+        final RpslObject updatedObject = RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST\nmnt-by: RIPE-NCC-RPSL-MNT, OWNER-MNT\nsource: TEST");
         when(preparedUpdate.getUpdatedObject()).thenReturn(updatedObject);
-
 
         subject.validate(preparedUpdate, updateContext);
 
+        verify(updateContext).addMessage(preparedUpdate, UpdateMessages.rpslMntbyForbidden());
+    }
 
-        verify(updateContext).addMessage(preparedUpdate, updatedObject.getAttributes().get(0), UpdateMessages.rpslMntbyForbidden());
+    @Test
+    public void test_multiple_mnts_in_mntby() {
+        final RpslObject updatedObject = RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST\nmnt-by: OWNER-MNT, TEST-MNT\nsource: TEST");
+        when(preparedUpdate.getUpdatedObject()).thenReturn(updatedObject);
+
+        subject.validate(preparedUpdate, updateContext);
+
+        verifyZeroInteractions(updateContext);
     }
 
 }
