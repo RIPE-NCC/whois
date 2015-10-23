@@ -602,4 +602,8 @@ public final class UpdateMessages {
     public static Message oldPasswordsRemoved() {
         return new Message(Type.WARNING, "MD5 passwords older than November 2011 were removed for one or more maintainers of this object, see: https://www.ripe.net/removed2011pw");
     }
+
+    public static Message rpslMntbyForbidden() {
+        return new Message(Type.ERROR, "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
+    }
 }
