@@ -120,6 +120,16 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "mnt-by:      OWNER-MNT\n" +
             "source:      TEST");
 
+    private static final RpslObject RPSL_MNT = RpslObject.parse("" +
+            "mntner:      RIPE-NCC-RPSL-MNT\n" +
+            "descr:       Owner Maintainer\n" +
+            "admin-c:     TP1-TEST\n" +
+            "upd-to:      noreply@ripe.net\n" +
+            "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+            "auth:        SSO person@net.net\n" +
+            "mnt-by:      OWNER-MNT\n" +
+            "source:      TEST");
+
     private static final RpslObject PASSWORD_ONLY_MNT = RpslObject.parse("" +
             "mntner:      PASSWORD-ONLY-MNT\n" +
             "descr:       Maintainer\n" +
@@ -192,7 +202,88 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
     }
 
-    // lookup
+    @Test
+    public void create_object_mntby_rpsl_test() throws Exception {
+        final RpslObject RPSL_MNT_PERSON = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    RIPE-NCC-RPSL-MNT\n" +
+                "nic-hdl:   PP2-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+        databaseHelper.addObject(RPSL_MNT);
+        try {
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, RPSL_MNT_PERSON), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        }
+        catch(BadRequestException ex) {
+            final WhoisResources whoisResources = ex.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(whoisResources, 1);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
+            assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+        }
+
+    }
+
+
+    @Test // check to see if we can change an attributed on an object that has RIPE-NCC-RPSL-MNT as mnt-by. should fail and tell them to fix
+    public void existing_mntby_ncc_rpsl_test() throws Exception {
+        final RpslObject RPSL_MNT_PERSON = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    RIPE-NCC-RPSL-MNT\n" +
+                "nic-hdl:   PP2-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+        databaseHelper.addObject(RPSL_MNT);
+        databaseHelper.addObject(RPSL_MNT_PERSON);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(RPSL_MNT_PERSON).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
+        final WhoisResources updatedPerson = whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject);
+        try {
+            RestTest.target(getPort(), "whois/test/person/PP2-TEST?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity(updatedPerson, MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        }
+        catch(BadRequestException ex) {
+            final WhoisResources whoisResources = ex.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(whoisResources, 1);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
+            assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+
+        }
+    }
+
+    @Test
+    public void modify_mntby_ncc_rpsl_test() throws Exception {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+        databaseHelper.addObject(RPSL_MNT);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).replaceAttribute(
+                new RpslAttribute(AttributeType.MNT_BY, "OWNER-MNT"),
+                new RpslAttribute(AttributeType.MNT_BY, "RIPE-NCC-RPSL-MNT")).get();
+        final WhoisResources updatedPerson = whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedObject);
+        try {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity(updatedPerson, MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        }
+       catch(BadRequestException ex) {
+           final WhoisResources whoisResources = ex.getResponse().readEntity(WhoisResources.class);
+           RestTest.assertErrorCount(whoisResources, 1);
+           RestTest.assertErrorMessage(whoisResources, 0, "Error", "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
+           assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+
+       }
+    }
 
     @Test
     public void lookup_downloader_test() throws Exception {
