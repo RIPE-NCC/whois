@@ -74,12 +74,11 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
 
     @Before
     public void setup() {
-        proxy.running(true);
-
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
+        proxy.running(false);
     }
 
     @After
@@ -89,8 +88,6 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void rest_update_fails_when_master_is_down() throws Exception {
-        proxy.running(false);
-
         final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
                 .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS), new RpslAttribute(AttributeType.ADDRESS, "Amsterdam")).sort().get();
 
@@ -109,8 +106,6 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void rest_lookup_succeeds_when_master_is_down() throws Exception {
-        proxy.running(false);
-
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(1));
@@ -119,8 +114,6 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void rest_search_succeeds_when_master_is_down() throws Exception {
-        proxy.running(false);
-
         final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST").request().get(WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(1));
