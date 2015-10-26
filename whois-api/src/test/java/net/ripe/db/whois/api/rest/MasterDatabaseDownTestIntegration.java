@@ -78,12 +78,12 @@ public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
         databaseHelper.addObject(OWNER_MNT);
         databaseHelper.updateObject(TEST_PERSON);
-        proxy.running(false);
+        proxy.setRunning(false);
     }
 
     @After
     public void after() {
-        proxy.running(true);
+        proxy.setRunning(true);
     }
 
     @Test

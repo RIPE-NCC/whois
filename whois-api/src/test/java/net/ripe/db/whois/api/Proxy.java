@@ -54,7 +54,7 @@ public class Proxy extends Thread {
         return serverSocket.getLocalPort();
     }
 
-    public void running(boolean running) {
+    public void setRunning(boolean running) {
         RUNNING.set(running);
     }
 
