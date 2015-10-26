@@ -36,7 +36,7 @@ public class ForbidRpslMntbyValidatorTest {
 
     @Test
     public void test_forbid_rpsl() {
-        final RpslObject updatedObject = RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST\nmnt-by: RIPE-NCC-RPSL-MNT, OWNER-MNT\nsource: TEST");
+        final RpslObject updatedObject = RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST\nmnt-by: OWNER-MNT, RIPE-NCC-RPSL-MNT\nsource: TEST");
         when(preparedUpdate.getUpdatedObject()).thenReturn(updatedObject);
 
         subject.validate(preparedUpdate, updateContext);
