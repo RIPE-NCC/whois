@@ -698,6 +698,34 @@ public enum AttributeType implements Documented {
         return this.name;
     }
 
+    private static String toCamelCase( final String in) {
+        String[] parts = in.split("-");
+        String camelCaseString = "";
+        for (String part : parts){
+            camelCaseString = camelCaseString + toFirstUpper(part);
+        }
+        return camelCaseString;
+    }
+
+    private static String toFirstUpper( final String in ) {
+        return in.substring(0, 1).toUpperCase() + in.substring(1);
+    }
+
+    private static String toFirstLower( String in ) {
+        if( in.equalsIgnoreCase("import") || in.equalsIgnoreCase("default") || in.equalsIgnoreCase("interface") ) {
+            in = in + "_";
+        }
+        return in.substring(0, 1).toLowerCase() + in.substring(1);
+    }
+
+    public String getNameToFirstUpper(  ) {
+        return isReference() ? toFirstUpper(toCamelCase(this.name))+"Ref" : toFirstUpper(toCamelCase(this.name));
+    }
+
+    public String getNameToFirstLower( ) {
+        return isReference() ? toFirstLower(toCamelCase(this.name))+"Ref" : toFirstLower(toCamelCase(this.name));
+    }
+
     public String getFlag() {
         return flag;
     }
@@ -708,6 +736,10 @@ public enum AttributeType implements Documented {
 
     public AttributeSyntax getSyntax() {
         return syntax;
+    }
+
+    public boolean isReference() {
+        return (references != null && references.size() > 0 ? true : false );
     }
 
     public boolean isValidValue(final ObjectType objectType, final CIString value) {
