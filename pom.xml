@@ -42,6 +42,17 @@
         <developerConnection>scm:git:ssh://git@github.com/RIPE-NCC/whois.git</developerConnection>
     </scm>
 
+    <distributionManagement>
+        <repository>
+            <id>ripe-releases</id>
+            <url>http://nexus.ripe.net/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>ripe-snapshots</id>
+            <url>http://nexus.ripe.net/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <modules>
         <module>whois-client</module>
         <module>whois-commons</module>
