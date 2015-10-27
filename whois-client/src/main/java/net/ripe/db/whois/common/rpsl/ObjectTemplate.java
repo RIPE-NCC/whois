@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 
 import javax.annotation.Nonnull;
@@ -733,28 +734,26 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     }
 
     private String stripDashes( String in) {
-        return in.replaceAll("-", "");
+        return StringUtils.replace(in, "-", "");
     }
 
     private static String toCamelCase( final String in) {
-        String[] parts = in.split("-");
-        StringBuffer camelCaseString = new StringBuffer();
+        final StringBuilder camelCaseString = new StringBuilder("");
+        final String[] parts = StringUtils.split(in, "-");
+
         for (String part : parts){
-                camelCaseString.append( toFirstUpper(part));
+            final String capitalized = StringUtils.capitalize(part);
+            camelCaseString.append(capitalized);
         }
         return camelCaseString.toString();
     }
 
-    private static String toFirstUpper( final String in ) {
-        return in.substring(0, 1).toUpperCase() + in.substring(1);
-    }
-
     private static String toFirstLower( final String in ) {
-        return in.substring(0, 1).toLowerCase() + in.substring(1);
+        return StringUtils.uncapitalize(in);
     }
 
     public String getNameToFirstUpper(  ) {
-        return toFirstUpper(toCamelCase(this.objectType.getName()));
+        return toCamelCase(this.objectType.getName());
     }
 
     public String getNameToFirstLower( ) {
