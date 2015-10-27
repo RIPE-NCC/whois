@@ -1,6 +1,6 @@
 package net.ripe.db.whois.scheduler.task.export;
 
-import net.ripe.db.whois.common.rpsl.DummifierLegacy;
+import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.hamcrest.Matchers;
@@ -19,7 +19,8 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DecorationStrategyTest {
     RpslObject object;
-    @Mock DummifierLegacy dummifier;
+    @Mock
+    DummifierNrtm dummifier;
     @Mock DummifierCurrent dummifierCurrent;
 
     @Before
@@ -56,7 +57,7 @@ public class DecorationStrategyTest {
         Mockito.when(dummifier.isAllowed(3, object)).thenReturn(false);
 
         final RpslObject decorated = subject.decorate(object);
-        Assert.assertThat(decorated, Matchers.is(DummifierLegacy.getPlaceholderPersonObject()));
+        Assert.assertThat(decorated, Matchers.is(DummifierNrtm.getPlaceholderPersonObject()));
 
         final RpslObject decoratedSecond = subject.decorate(object);
         Assert.assertNull(decoratedSecond);
