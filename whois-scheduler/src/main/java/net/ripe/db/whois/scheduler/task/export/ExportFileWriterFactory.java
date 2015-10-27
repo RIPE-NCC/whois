@@ -3,7 +3,7 @@ package net.ripe.db.whois.scheduler.task.export;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
-import net.ripe.db.whois.common.rpsl.DummifierLegacy;
+import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ class ExportFileWriterFactory {
     private static final String SPLITFILE_FOLDERNAME = "split";
     private static final String CURRENTSERIAL_FILENAME = "RIPE.CURRENTSERIAL";
 
-    private final DummifierLegacy dummifierLegacy;
+    private final DummifierNrtm dummifierNrtm;
     private final DummifierCurrent dummifierCurrent;
 
     private final String legacyExternalExportDir;
@@ -26,11 +26,11 @@ class ExportFileWriterFactory {
     private final String internalExportDir;
 
     @Autowired
-    ExportFileWriterFactory(final DummifierLegacy dummifierLegacy, final DummifierCurrent dummifierCurrent,
+    ExportFileWriterFactory(final DummifierNrtm dummifierNrtm, final DummifierCurrent dummifierCurrent,
                             @Value("${dir.rpsl.export.internal}") final String internalExportDir,
                             @Value("${dir.rpsl.export.external}") final String externalExportDir,
                             @Value("${dir.rpsl.export.external.legacy}") final String legacyExternalExportDir) {
-        this.dummifierLegacy = dummifierLegacy;
+        this.dummifierNrtm = dummifierNrtm;
         this.dummifierCurrent = dummifierCurrent;
         this.internalExportDir = internalExportDir;
         this.externalExportDir = externalExportDir;
@@ -54,8 +54,8 @@ class ExportFileWriterFactory {
         }
 
         return Lists.newArrayList(
-                new ExportFileWriter(fullDir, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy)),
-                new ExportFileWriter(splitDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy)),
+                new ExportFileWriter(fullDir, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyLegacy(dummifierNrtm)),
+                new ExportFileWriter(splitDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyLegacy(dummifierNrtm)),
                 new ExportFileWriter(fullDirNew, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent)),
                 new ExportFileWriter(splitDirNew, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent)),
                 new ExportFileWriter(internalDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.None())
