@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class DummifierLegacy implements Dummifier {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DummifierLegacy.class);
+public class DummifierNrtm implements Dummifier {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummifierNrtm.class);
 
     static final Set<ObjectType> SKIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.PERSON, ObjectType.ROLE);
     static final Set<ObjectType> STRIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.MNTNER, ObjectType.ORGANISATION);
