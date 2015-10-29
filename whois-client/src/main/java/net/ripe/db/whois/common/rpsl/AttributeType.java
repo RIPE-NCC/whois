@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
 import java.util.Arrays;
@@ -699,27 +700,28 @@ public enum AttributeType implements Documented {
     }
 
     private static String toCamelCase( final String in) {
-        String[] parts = in.split("-");
-        String camelCaseString = "";
-        for (String part : parts){
-            camelCaseString = camelCaseString + toFirstUpper(part);
-        }
-        return camelCaseString;
-    }
+        final StringBuilder camelCaseString = new StringBuilder("");
 
-    private static String toFirstUpper( final String in ) {
-        return in.substring(0, 1).toUpperCase() + in.substring(1);
+        final String[] parts = StringUtils.split(in, "-");
+        for (final String part : parts){
+            final String capitalized = StringUtils.capitalize(part);
+            camelCaseString.append(capitalized);
+        }
+
+        return camelCaseString.toString();
     }
 
     private static String toFirstLower( String in ) {
         if( in.equalsIgnoreCase("import") || in.equalsIgnoreCase("default") || in.equalsIgnoreCase("interface") ) {
             in = in + "_";
         }
-        return in.substring(0, 1).toLowerCase() + in.substring(1);
+        return StringUtils.uncapitalize(in);
     }
 
     public String getNameToFirstUpper(  ) {
-        return isReference() ? toFirstUpper(toCamelCase(this.name))+"Ref" : toFirstUpper(toCamelCase(this.name));
+        final String extension = isReference() ? "Ref" : "";
+
+        return toCamelCase(this.name) + extension;
     }
 
     public String getNameToFirstLower( ) {
@@ -739,7 +741,7 @@ public enum AttributeType implements Documented {
     }
 
     public boolean isReference() {
-        return (references != null && references.size() > 0 ? true : false );
+        return !references.isEmpty();
     }
 
     public boolean isValidValue(final ObjectType objectType, final CIString value) {
