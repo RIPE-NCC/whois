@@ -44,6 +44,7 @@ import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
@@ -212,12 +213,17 @@ public class WhoisRestService {
             ssoTranslator.populateCacheAuthToUsername(updateContext, originalObject);
             originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);
 
-            return updatePerformer.performUpdate(
+            final Update update = updatePerformer.createUpdate(updateContext, originalObject, passwords, reason, override);
+
+            return updatePerformer.createResponse(
                     updateContext,
-                    origin,
-                    updatePerformer.createUpdate(updateContext, originalObject, passwords, reason, override),
-                    updatePerformer.createContent(originalObject, passwords, reason, override),
-                    Keyword.NONE,
+                    updatePerformer.performUpdate(
+                            updateContext,
+                            origin,
+                            update,
+                            Keyword.NONE,
+                            request),
+                    update,
                     request);
 
         } catch (Exception e) {
@@ -255,12 +261,17 @@ public class WhoisRestService {
             checkForMainSource(request, source);
             setDryRun(updateContext, dryRun);
 
-            return updatePerformer.performUpdate(
+            final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
+
+            return updatePerformer.createResponse(
                     updateContext,
-                    origin,
-                    updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override),
-                    updatePerformer.createContent(submittedObject, passwords, null, override),
-                    Keyword.NONE,
+                    updatePerformer.performUpdate(
+                            updateContext,
+                            origin,
+                            update,
+                            Keyword.NONE,
+                            request),
+                    update,
                     request);
         } catch (Exception e) {
             updatePerformer.logWarning(String.format("Caught %s for %s: %s", e.getClass().toString(), key, e.getMessage()));
@@ -296,13 +307,19 @@ public class WhoisRestService {
             final RpslObject submittedObject = getSubmittedObject(request, resource);
             validateSubmittedCreateObject(request, submittedObject, objectType);
 
-            return updatePerformer.performUpdate(
-                    updateContext,
-                    origin,
-                    updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override),
-                    updatePerformer.createContent(submittedObject, passwords, null, override),
-                    Keyword.NEW,
-                    request);
+            final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
+
+            return updatePerformer.createResponse(
+                updateContext,
+                updatePerformer.performUpdate(
+                        updateContext,
+                        origin,
+                        update,
+                        Keyword.NEW,
+                        request),
+                update,
+                request);
+
         } catch (Exception e) {
             updatePerformer.logWarning(String.format("Caught %s: %s", e.getClass().toString(), e.getMessage()));
             throw e;
@@ -576,8 +593,7 @@ public class WhoisRestService {
     }
 
     private void auditlogRequest(final HttpServletRequest request) {
-        InternalUpdatePerformer.logHttpHeaders(loggerContext, request);
-        InternalUpdatePerformer.logHttpUri(loggerContext, request);
+        loggerContext.log(new HttpRequestMessage(request));
     }
 
     private class VersionsResponseHandler extends ApiResponseHandler {

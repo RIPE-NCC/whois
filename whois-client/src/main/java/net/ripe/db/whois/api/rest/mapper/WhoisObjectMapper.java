@@ -1,11 +1,8 @@
 package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.api.rest.domain.Link;
-import net.ripe.db.whois.api.rest.domain.Source;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.domain.ActionRequest;
+import net.ripe.db.whois.api.rest.domain.*;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -14,11 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class WhoisObjectMapper {
@@ -67,6 +60,18 @@ public class WhoisObjectMapper {
         final List<WhoisObject> whoisObjects = Lists.newArrayList();
         for (RpslObject rpslObject : rpslObjects) {
             whoisObjects.add(map(rpslObject, mapFunction));
+        }
+        whoisResources.setWhoisObjects(whoisObjects);
+        return whoisResources;
+    }
+
+    public WhoisResources mapRpslObjects(final Class<? extends AttributeMapper> mapFunction, final ActionRequest ... requests) {
+        final WhoisResources whoisResources = new WhoisResources();
+        final List<WhoisObject> whoisObjects = Lists.newArrayList();
+        for (ActionRequest request : requests) {
+            final WhoisObject whoisObject = map(request.getRpslObject(), mapFunction);
+            whoisObject.setAction(request.getAction());
+            whoisObjects.add(whoisObject);
         }
         whoisResources.setWhoisObjects(whoisObjects);
         return whoisResources;

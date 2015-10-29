@@ -8,9 +8,9 @@ import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
-import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
@@ -168,8 +168,7 @@ public class SyncUpdatesService {
         loggerContext.init(getRequestId(request.getRemoteAddress()));
 
         try {
-            InternalUpdatePerformer.logHttpHeaders(loggerContext, httpServletRequest);
-            InternalUpdatePerformer.logHttpUri(loggerContext, httpServletRequest);
+            loggerContext.log(new HttpRequestMessage(httpServletRequest));
 
             if (!sourceMatchesContext(request.getSource())) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Invalid source specified: " + request.getSource()).build();
@@ -177,15 +176,6 @@ public class SyncUpdatesService {
 
             if (request.isParam(Command.DIFF)) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("the DIFF method is not actually supported by the Syncupdates interface").build();
-            }
-
-            boolean notificationsEnabled = true;
-            if (request.isParam(Command.REDIRECT)) {
-                if (!ipRanges.isTrusted(IpInterval.parse(request.getRemoteAddress()))) {
-                    return Response.status(Response.Status.FORBIDDEN).entity("Not allowed to disable notifications: " + request.getRemoteAddress()).build();
-                }
-
-                notificationsEnabled = false;
             }
 
             if (!request.hasParam(Command.DATA) && request.isParam(Command.NEW)) {
@@ -207,9 +197,7 @@ public class SyncUpdatesService {
             final UpdateRequest updateRequest = new UpdateRequest(
                     new SyncUpdate(dateTimeProvider, request.getRemoteAddress()),
                     getKeyword(request),
-                    content,
-                    updatesParser.parse(updateContext, Lists.newArrayList(new ContentWithCredentials(content, charset))),
-                    notificationsEnabled);
+                    updatesParser.parse(updateContext, Lists.newArrayList(new ContentWithCredentials(content, charset))));
 
             final UpdateResponse updateResponse = updateRequestHandler.handle(updateRequest, updateContext);
             loggerContext.log("msg-out.txt", new SyncUpdateLogCallback(updateResponse.getResponse()));
@@ -338,7 +326,7 @@ public class SyncUpdatesService {
 
         @Override
         public void log(final OutputStream outputStream) throws IOException {
-            outputStream.write(message.getBytes());
+            outputStream.write(PasswordFilter.filterPasswordsInContents(new String(message.getBytes(), "UTF-8")).getBytes());
         }
     }
 

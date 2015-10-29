@@ -1,14 +1,18 @@
 package net.ripe.db.whois.common;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
+import org.joda.time.DateTimeZone;
 import org.joda.time.ReadablePartial;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 public final class FormatHelper {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd");
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_TIME_UTC_FORMAT = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC);
 
     private static final String SPACES = StringUtils.repeat(" ", 100);
 
@@ -33,6 +37,22 @@ public final class FormatHelper {
         }
 
         return DATE_FORMAT.print(readablePartial);
+    }
+
+    public static String dateTimeToUtcString(final ReadablePartial readablePartial) {
+        if (readablePartial == null) {
+            return null;
+        }
+
+        return DATE_TIME_UTC_FORMAT.print(readablePartial);
+    }
+
+    public static String dateTimeToUtcString(final DateTime dateTime) {
+        if (dateTime == null) {
+            return null;
+        }
+
+        return DATE_TIME_UTC_FORMAT.print(dateTime);
     }
 
     public static String prettyPrint(final String prefix, final String value, final int indentation, final int maxLineLength) {

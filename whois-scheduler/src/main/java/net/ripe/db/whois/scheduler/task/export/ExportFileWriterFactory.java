@@ -27,9 +27,9 @@ class ExportFileWriterFactory {
 
     @Autowired
     ExportFileWriterFactory(final DummifierLegacy dummifierLegacy, final DummifierCurrent dummifierCurrent,
-                            @Value("${dir.rpsl.export.internal}") String internalExportDir,
-                            @Value("${dir.rpsl.export.external}") String externalExportDir,
-                            @Value("${dir.rpsl.export.external.legacy}") String legacyExternalExportDir) {
+                            @Value("${dir.rpsl.export.internal}") final String internalExportDir,
+                            @Value("${dir.rpsl.export.external}") final String externalExportDir,
+                            @Value("${dir.rpsl.export.external.legacy}") final String legacyExternalExportDir) {
         this.dummifierLegacy = dummifierLegacy;
         this.dummifierCurrent = dummifierCurrent;
         this.internalExportDir = internalExportDir;

@@ -78,10 +78,10 @@ public class SingleUpdateHandler {
         this.ssoTranslator = ssoTranslator;
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void handle(final Origin origin, final Keyword keyword, final Update update, final UpdateContext updateContext) {
         updateLockDao.setUpdateLock();
-        ipTreeUpdater.updateCurrent();
+        ipTreeUpdater.updateTransactional();
 
         if (updateContext.isDryRun()) {
             updateContext.addMessage(update, UpdateMessages.dryRunNotice());
@@ -134,8 +134,7 @@ public class SingleUpdateHandler {
 
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
-        // TODO: [AH] pending updates is scattered across the code
-        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
+        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION == updateContext.getStatus(preparedUpdate);
 
         if ((pendingAuthentication && !businessRulesOk) || (!pendingAuthentication && updateContext.hasErrors(update))) {
             throw new UpdateFailedException();
@@ -151,10 +150,16 @@ public class SingleUpdateHandler {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
-            if( authenticator.doesTypeSupportPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) ) {
-                pendingUpdateHandler.cleanup(preparedUpdate, updateContext);
+            if (eligibleForPendingUpdateCleanup(preparedUpdate, updateContext)) {
+                pendingUpdateHandler.cleanup(preparedUpdate.getUpdatedObject());
             }
         }
+    }
+
+    private boolean eligibleForPendingUpdateCleanup(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
+        return authenticator.supportsPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) &&
+                Action.CREATE == preparedUpdate.getAction() &&
+                UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
     }
 
     @CheckForNull
@@ -230,7 +235,7 @@ public class SingleUpdateHandler {
             return Action.CREATE;
         }
 
-        if (originalObject.equals(updatedObject) && !updateContext.hasErrors(update)) {
+        if (RpslObjectFilter.ignoreGeneratedAttributesEqual(originalObject, updatedObject) && !updateContext.hasErrors(update)) {
             return Action.NOOP;
         }
 

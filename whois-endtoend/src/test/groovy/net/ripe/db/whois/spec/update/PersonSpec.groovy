@@ -18,7 +18,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "PN2": """\
@@ -29,7 +28,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP2-TEST
                 mnt-by:  TST
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "PN-OPT": """\
@@ -46,7 +44,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 notify:  dbtest-nfy@ripe.net
                 abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
              "NO-MB-PN": """\
@@ -56,7 +53,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 address: UK
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "RL": """\
@@ -69,7 +65,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """
    ]}
@@ -89,7 +84,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 delete:  testing
 
@@ -159,7 +153,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 delete:  testing
 
@@ -318,7 +311,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -341,46 +333,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         queryObject("-r -T person FP1-TEST", "person", "First Person")
     }
 
-    def "modify person no date"() {
-      given:
-        dbfixture(getTransient("PN"))
-
-      expect:
-        queryObject("-r -T person FP1-TEST", "person", "First Person")
-
-      when:
-        def message = send new Message(
-                subject: "modify person FP1-TEST",
-                body: """\
-                person:  First Person
-                address: St James Street
-                address: Burnley
-                address: UK
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net
-                source:  TEST
-                password: owner
-
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 2, 0)
-        ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
-
-        query_object_not_matches("-GBr -T person FP1-TEST", "person", "First Person", "20121016")
-        query_object_matches("-GBr -T person FP1-TEST", "person", "First Person", "201")
-    }
-
     def "modify person add missing mnt-by"() {
       given:
         dbfixture(getTransient("NO-MB-PN"))
@@ -399,7 +351,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -438,7 +389,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """.stripIndent()
         )
@@ -479,7 +429,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 address: UK
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -520,7 +469,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -559,7 +507,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FR1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -595,7 +542,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 address: UK
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -633,7 +579,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: F
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -671,7 +616,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: Fuddd
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -709,7 +653,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1234567
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -747,7 +690,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP012345
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -785,7 +727,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: 1234
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -823,7 +764,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP11-NL
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -859,7 +799,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP11-apNIc
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -895,7 +834,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP11-ripE
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -931,7 +869,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-fred
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -969,7 +906,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -1007,7 +943,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -1050,7 +985,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -1088,7 +1022,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  non-exist-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -1134,10 +1067,9 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 address: St James Street
                 address: Burnley
                 address: UK
-                phone:   +44 282 420469
+                phone:   invalid
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20129916
                 source:  TEST
 
                 password: owner
@@ -1155,7 +1087,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
-                ["Syntax error in denis@ripe.net 20129916"]
+                ["Syntax error in invalid"]
 
         queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
     }
@@ -1181,7 +1113,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 notify:  dbtest-nfy@ripe.net
                 abuse-mailbox: dbtest-abuse@ripe.net
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -1239,9 +1170,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 mnt-by:  OWNER-MNT
                 mnt-by:  OWNER3-MNT, OWNER2-MNT
                 mnt-by:  OWNER-MNT, OWNER-MNT
-                changed: dbtest@ripe.net 20121016
-                changed: dbtest@ripe.net 20121017
-                changed: dbtest@ripe.net 20121017
                 source:  TEST
                 notify:  dbtest2-nfy@ripe.net
 
@@ -1301,7 +1229,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: F1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -1340,7 +1267,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -1378,7 +1304,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -1416,7 +1341,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -1451,7 +1375,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -1487,7 +1410,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: AA1-TEST
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -1523,10 +1445,10 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 address: St James Street
                 address: Burnley
                 address: UK
+                remarks: updated
                 phone:   +44 282 420469
                 nic-hdl: FP2-TEST
                 mnt-by:  TST
-                changed: denis@ripe.net
                 source:  TEST
 
                 password: test
@@ -1566,7 +1488,6 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net
                 source:  TEST
                 password: owner
 

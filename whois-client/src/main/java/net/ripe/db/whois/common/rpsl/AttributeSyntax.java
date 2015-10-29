@@ -80,7 +80,7 @@ public interface AttributeSyntax extends Documented {
             "inbound | outbound [<as-expression>]\n");
 
     AttributeSyntax AUTH_SCHEME_SYNTAX = new AttributeSyntaxRegexp(
-            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO [-@.\\w]{1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
+            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO [-@.'+_\\w]{1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
             "<auth-scheme> <scheme-info>       Description\n" +
             "\n" +
             "MD5-PW        encrypted           We strongly advise phrases longer\n" +
@@ -326,7 +326,7 @@ public interface AttributeSyntax extends Documented {
     }}));
 
     AttributeSyntax MP_PEERING_SYNTAX = new AttributeSyntaxParser(new MpPeeringParser(), "" +
-            "afi <afi> <peering>\n");
+            "<as-expression> [<mp-router-expression-1>] [at <mp-router-expression-2>] | <peering-set-name>\n");
 
     AttributeSyntax NETNAME_SYNTAX = new AttributeSyntaxRegexp(80, Pattern.compile("(?i)^[A-Z]([A-Z0-9_-]*[A-Z0-9])?$"), "" +
             "Made up of letters, digits, the character underscore \"_\",\n" +

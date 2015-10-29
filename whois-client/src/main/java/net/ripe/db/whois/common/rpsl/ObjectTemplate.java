@@ -28,6 +28,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.PRIMARY_KEY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.TEMPLATE_ORDER;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.USER_ORDER;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.DEPRECATED;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.GENERATED;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.MANDATORY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.OPTIONAL;
@@ -49,6 +50,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.CERTIF;
 import static net.ripe.db.whois.common.rpsl.AttributeType.CHANGED;
 import static net.ripe.db.whois.common.rpsl.AttributeType.COMPONENTS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
+import static net.ripe.db.whois.common.rpsl.AttributeType.CREATED;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DEFAULT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DESCR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DOMAIN;
@@ -77,6 +79,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.IRT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IRT_NFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.KEY_CERT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
+import static net.ripe.db.whois.common.rpsl.AttributeType.LAST_MODIFIED;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LOCAL_AS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MBRS_BY_REF;
 import static net.ripe.db.whois.common.rpsl.AttributeType.MEMBERS;
@@ -116,7 +119,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.PINGABLE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PING_HDL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.POEM;
 import static net.ripe.db.whois.common.rpsl.AttributeType.POETIC_FORM;
-import static net.ripe.db.whois.common.rpsl.AttributeType.REFERRAL_BY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.REF_NFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.REMARKS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
@@ -145,9 +147,11 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(MNT_BY, MANDATORY, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.AS_SET, 9,
@@ -162,7 +166,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.AUT_NUM, 8,
@@ -180,7 +186,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE, USER_ORDER),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
+                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, GENERATED, SINGLE),
@@ -188,7 +194,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_ROUTES, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.DOMAIN, 30,
@@ -203,7 +211,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.FILTER_SET, 21,
@@ -218,7 +228,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.INET_RTR, 15,
@@ -237,7 +249,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.INET6NUM, 6,
@@ -248,7 +262,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
+                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, MANDATORY, SINGLE),
@@ -260,7 +274,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MNT_ROUTES, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_DOMAINS, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_IRT, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.INETNUM, 5,
@@ -271,7 +287,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
+                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, MANDATORY, SINGLE),
@@ -282,7 +298,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MNT_DOMAINS, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_ROUTES, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_IRT, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.IRT, 41,
@@ -302,7 +320,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(IRT_NFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.KEY_CERT, 45,
@@ -317,7 +337,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(ADMIN_C, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.MNTNER, 40,
@@ -333,8 +355,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_MAILBOX, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(REFERRAL_BY, MANDATORY, SINGLE),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.ORGANISATION, 48,
@@ -358,7 +381,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_MAILBOX, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.PEERING_SET, 22,
@@ -373,7 +398,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.PERSON, 50,
@@ -388,7 +415,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_MAILBOX, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.POEM, 37,
@@ -400,7 +429,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.POETIC_FORM, 36,
@@ -410,7 +441,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.ROLE, 49,
@@ -427,7 +460,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_MAILBOX, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.ROUTE_SET, 12,
@@ -443,7 +478,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.ROUTE, 10,
@@ -465,7 +502,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_ROUTES, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.ROUTE6, 11,
@@ -487,7 +526,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_ROUTES, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE)),
 
                 new ObjectTemplate(ObjectType.RTR_SET, 23,
@@ -503,7 +544,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(CHANGED, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(CHANGED, DEPRECATED, MULTIPLE),
+                        new AttributeTemplate(CREATED, GENERATED, SINGLE),
+                        new AttributeTemplate(LAST_MODIFIED, GENERATED, SINGLE),
                         new AttributeTemplate(SOURCE, MANDATORY, SINGLE))
         );
 
@@ -561,6 +604,8 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
     private final Set<AttributeType> inverseLookupAttributes;
     private final Set<AttributeType> mandatoryAttributes;
     private final Set<AttributeType> multipleAttributes;
+    private final Set<AttributeType> generatedAttributes;
+
     private final Comparator<RpslAttribute> comparator;
 
     private ObjectTemplate(final ObjectType objectType, final int orderPosition, final AttributeTemplate... attributeTemplates) {
@@ -586,6 +631,8 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         inverseLookupAttributes = getAttributes(attributeTemplates, INVERSE_KEY);
         mandatoryAttributes = getAttributes(attributeTemplates, MANDATORY);
         multipleAttributes = getAttributes(attributeTemplates, MULTIPLE);
+        generatedAttributes = getAttributes(attributeTemplates, GENERATED);
+
         keyLookupAttribute = Iterables.getOnlyElement(Sets.intersection(keyAttributes, lookupAttributes));
 
         comparator = new AttributeTypeComparator(attributeTemplates);
@@ -669,6 +716,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         return inverseLookupAttributes;
     }
 
+    public Set<AttributeType> getGeneratedAttributes() {
+        return generatedAttributes;
+    }
+
     public Set<AttributeType> getMultipleAttributes() {
         return multipleAttributes;
     }
@@ -679,6 +730,35 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
     public boolean isSet() {
         return ObjectType.getSets().contains(objectType);
+    }
+
+    private String stripDashes( String in) {
+        return in.replaceAll("-", "");
+    }
+
+    private static String toCamelCase( final String in) {
+        String[] parts = in.split("-");
+        StringBuffer camelCaseString = new StringBuffer();
+        for (String part : parts){
+                camelCaseString.append( toFirstUpper(part));
+        }
+        return camelCaseString.toString();
+    }
+
+    private static String toFirstUpper( final String in ) {
+        return in.substring(0, 1).toUpperCase() + in.substring(1);
+    }
+
+    private static String toFirstLower( final String in ) {
+        return in.substring(0, 1).toLowerCase() + in.substring(1);
+    }
+
+    public String getNameToFirstUpper(  ) {
+        return toFirstUpper(toCamelCase(this.objectType.getName()));
+    }
+
+    public String getNameToFirstLower( ) {
+        return toFirstLower(toCamelCase(this.objectType.getName()));
     }
 
     @Override
@@ -736,6 +816,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
             final AttributeType attributeType = attributeTemplate.getAttributeType();
             final int attributeTypeCount = attributeCount.get(attributeType);
+
+            if( attributeTemplate.getRequirement() == DEPRECATED && attributeTypeCount > 0) {
+                objectMessages.addMessage(ValidationMessages.deprecatedAttributeFound(attributeType));
+            }
 
             if (attributeTemplate.getRequirement() == MANDATORY && attributeTypeCount == 0) {
                 objectMessages.addMessage(ValidationMessages.missingMandatoryAttribute(attributeType));

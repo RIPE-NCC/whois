@@ -20,7 +20,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
                 "RL-ORG"         : """\
@@ -34,7 +33,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
                 "ORG"            : """\
@@ -48,7 +46,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 """,
                 "ORG-NAME"       : """\
@@ -63,7 +60,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 """,
                 "ALLOC-PA"       : """\
@@ -77,7 +73,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASSIGN-PA"      : """\
@@ -91,7 +86,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "LEGACY"         : """\
@@ -105,7 +99,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "LEGACY-NO-ORG"  : """\
@@ -118,7 +111,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "LEGACY-OTHER"   : """\
@@ -132,7 +124,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASSIGN-PI"      : """\
@@ -147,7 +138,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASSIGN-PI-OTHER": """\
@@ -162,7 +152,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "ASSIGN-PA-OTHER": """\
@@ -176,7 +165,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "AS500"          : """\
@@ -188,7 +176,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 tech-c:      TP1-TEST
                 mnt-by:      LIR-MNT
                 mnt-by:      RIPE-NCC-END-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
         ]
@@ -213,7 +200,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 delete:  testing
 
@@ -254,7 +240,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -297,7 +282,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -335,7 +319,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -373,7 +356,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -411,7 +393,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 """.stripIndent()
@@ -445,7 +426,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -492,7 +472,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          ripe-NCC-hM-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: hm
@@ -527,7 +506,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          ripe-NCC-hM-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: hm
@@ -562,7 +540,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          ripe-NCC-hM-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: hm
@@ -597,7 +574,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          ripe-NCC-hM-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: hm
@@ -632,7 +608,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          ripe-NCC-hM-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: hm
@@ -666,7 +641,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -701,7 +675,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -739,7 +712,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner3
@@ -777,7 +749,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -842,7 +813,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -880,7 +850,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -921,7 +890,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -985,7 +953,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1020,7 +987,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1068,7 +1034,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 geoloc:          0 0
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         dbtest@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1105,7 +1070,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 geoloc:          78.28 1.5755
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         dbtest@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1142,7 +1106,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 geoloc:          -90 -180
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         dbtest@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1179,7 +1142,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 geoloc:          90 180
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnT
-                changed:         dbtest@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1216,7 +1178,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner2
@@ -1253,7 +1214,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner2
@@ -1292,7 +1252,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner2
@@ -1309,7 +1268,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(0, 0, 0)
 
-        query_object_matches("-r -GBT organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST", "eN")
+        query_object_matches("-r -GBT organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST", "-8.632 99.5")
     }
 
     def "modify organisation with invalid geoloc"() {
@@ -1329,7 +1288,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner2
@@ -1386,8 +1344,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 fax-no:                                     +44282411141
                 mnt-by:          owner2-mnT
                 remarks:extra comment
-                changed:         denis@ripe.net 20121016
-                changed:denis-dbtest@ripe.net
                 source:          TEST
                 language:          NL
                 org:          ORG-OTO1-TEST
@@ -1435,7 +1391,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 delete:  testing
 
@@ -1464,7 +1419,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1510,7 +1464,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 delete:  testing
 
@@ -1553,7 +1506,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 organisation:    ORG-FO1-TEST
@@ -1567,7 +1519,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 delete:  testing
 
@@ -1613,7 +1564,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1654,7 +1604,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:             auto-1
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1696,7 +1645,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:             auto-1
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 organisation:    auto-2
@@ -1710,7 +1658,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:             auto-2
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1755,7 +1702,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:             auto-2
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 organisation:    auto-2
@@ -1769,7 +1715,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:             auto-1
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1817,7 +1762,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:             auto-1AbC
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 organisation:    auto-1deF
@@ -1831,7 +1775,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:             auto-1deF
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1876,7 +1819,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:             auto-1
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 organisation:    auto-2deF
@@ -1890,7 +1832,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 org:             auto-2
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1930,7 +1871,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner2
@@ -1968,7 +1908,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          ripe-ncc-hm-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
                 override:        denis,override1
                 """.stripIndent()
@@ -2007,7 +1946,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       ripe-ncc-hm-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
 
                 password: owner2
@@ -2049,7 +1987,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 e-mail:          dbtest@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -2089,7 +2026,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       ripe-ncc-hm-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
                 override:   denis,override1
 
@@ -2129,7 +2065,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       ripe-ncc-hm-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
 
                 password:     hm
@@ -2168,7 +2103,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
 
                 password:     lir
@@ -2208,7 +2142,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
 
                 password: lir
@@ -2251,7 +2184,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
 
                 password: lir
@@ -2292,7 +2224,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
 
                 password: lir
@@ -2333,7 +2264,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
 
                 password: lir
@@ -2375,7 +2305,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password:     lir
@@ -2419,7 +2348,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:   denis,override1
 
@@ -2458,7 +2386,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password:     hm
@@ -2500,7 +2427,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password:     lir
@@ -2537,7 +2463,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password:     lir
@@ -2577,7 +2502,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password:     lir
@@ -2618,7 +2542,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password:     lir
@@ -2660,7 +2583,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
 
                 password:     owner
@@ -2702,7 +2624,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password:     lir
@@ -2746,7 +2667,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:   denis,override1
 
@@ -2787,7 +2707,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password:     nccend

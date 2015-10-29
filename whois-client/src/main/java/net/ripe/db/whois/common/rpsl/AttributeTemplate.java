@@ -10,16 +10,17 @@ public class AttributeTemplate {
     public static enum Requirement {
         MANDATORY("mandatory"),
         OPTIONAL("optional"),
-        GENERATED("generated");
+        GENERATED("generated"),
+        DEPRECATED("optional"); // deprecated fields seen as optional from outside perspective
 
-        private final String name;
+        private final String externalName;
 
-        private Requirement(final String name) {
-            this.name = name;
+        private Requirement(final String externalName) {
+            this.externalName = externalName;
         }
 
-        public String getName() {
-            return name;
+        public String getExternalName() {
+            return externalName;
         }
     }
 
@@ -90,6 +91,30 @@ public class AttributeTemplate {
         return requirement;
     }
 
+    public boolean isMandatory() {
+        return this.requirement == Requirement.MANDATORY;
+    }
+
+    public boolean isOptional() {
+        return this.requirement == Requirement.OPTIONAL;
+    }
+
+    public boolean isGenerated() {
+        return this.requirement == Requirement.GENERATED;
+    }
+
+    public boolean isDeprecated() {
+        return this.requirement == Requirement.DEPRECATED;
+    }
+
+    public boolean isMultiple() {
+        return this.cardinality == Cardinality.MULTIPLE;
+    }
+
+    public boolean isSingle() {
+        return this.cardinality == Cardinality.SINGLE;
+    }
+
     public Cardinality getCardinality() {
         return cardinality;
     }
@@ -105,7 +130,7 @@ public class AttributeTemplate {
     @Override
     public String toString() {
         final String name = attributeType.getName() + ":";
-        final String requirementString = "[" + requirement.getName() + "]";
+        final String requirementString = "[" + requirement.getExternalName() + "]";
         final String cardinalityString = "[" + cardinality.getName() + "]";
         final String keyString;
 

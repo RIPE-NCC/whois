@@ -129,21 +129,6 @@ CREATE TABLE `auth` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `auth_override`
---
-
-DROP TABLE IF EXISTS `auth_override`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `auth_override` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `date` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`date`,`object_id`),
-  KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `author`
 --
 
@@ -437,7 +422,7 @@ CREATE TABLE `last` (
   PRIMARY KEY (`object_id`,`sequence_id`),
   KEY `last_pkey` (`pkey`),
   KEY `object_type_index` (`object_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=12650254 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -637,7 +622,7 @@ CREATE TABLE `nic_hdl` (
   KEY `range_start` (`range_start`),
   KEY `range_end` (`range_end`),
   KEY `space` (`space`,`source`)
-) ENGINE=InnoDB AUTO_INCREMENT=1924502 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -729,10 +714,9 @@ CREATE TABLE `organisation_id` (
   `range_end` int(10) unsigned NOT NULL DEFAULT '0',
   `space` char(4) NOT NULL DEFAULT '',
   `source` char(10) NOT NULL DEFAULT '',
-  PRIMARY KEY (`range_id`,`range_end`),
-  KEY `range_end` (`range_end`),
-  KEY `space` (`space`,`source`)
-) ENGINE=InnoDB AUTO_INCREMENT=19153 DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`range_id`),
+  UNIQUE KEY `space` (`space`,`source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -831,23 +815,6 @@ CREATE TABLE `ref_nfy` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `referral_by`
---
-
-DROP TABLE IF EXISTS `referral_by`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `referral_by` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `mnt_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`mnt_id`,`object_id`),
-  KEY `object_id` (`object_id`),
-  KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `route`
 --
 
@@ -929,7 +896,7 @@ CREATE TABLE `serials` (
   `operation` tinyint(4) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`serial_id`),
   KEY `object` (`object_id`,`sequence_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25050923 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1059,14 +1026,5 @@ CREATE TABLE `zone_c` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-02-19 17:03:10
-
-
-DROP TABLE IF EXISTS `tags`;
-CREATE TABLE `tags` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `tag_id` varchar(50) NOT NULL DEFAULT '',
-  `data` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`object_id`, `tag_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- Dump completed on 2013-09-27 12:13:22
 

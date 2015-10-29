@@ -12,8 +12,8 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import java.io.Reader;
 import java.util.List;
 
-class FreeTextAnalyzer extends Analyzer {
-    static enum Operation {QUERY, INDEX}
+public class FreeTextAnalyzer extends Analyzer {
+    public static enum Operation {QUERY, INDEX}
 
     private static final List<String> STOP_WORDS = Lists.newArrayList(
             "a", "an", "and", "are", "as", "at",

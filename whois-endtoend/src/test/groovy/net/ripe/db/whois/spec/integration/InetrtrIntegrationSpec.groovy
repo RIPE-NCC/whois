@@ -16,7 +16,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     upd-to: noreply@ripe.net
                     auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
-                    changed: dbtest@ripe.net 20120707
                     source: TEST
                     """,
                 "REF-MNT": """\
@@ -26,7 +25,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: REF-MNT
                     upd-to: noreply@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                    changed: dbtest@ripe.net 20120707
                     source: TEST
                 """,
                 "AP1-PN": """\
@@ -37,7 +35,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                     phone:   +44 282 411141
                     nic-hdl: AP1-TEST
                     mnt-by:  TEST-MNT
-                    changed: dbtest@ripe.net 20120101
                     source:  TEST
                     """,
                 "AUTNUM101": """\
@@ -55,7 +52,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-lower:      TEST-MNT
                     mnt-routes:     TEST-MNT
                     mnt-by:         TEST-MNT
-                    changed:        noreply@ripe.net 20120101
                     source:         TEST
                     """,
                 "AS-SET1": """\
@@ -68,7 +64,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                     notify:       noreply@ripe.net
                     mnt-by:       TEST-MNT
                     mbrs-by-ref:  TEST-MNT
-                    changed:      noreply@ripe.net 20120101
                     source:       TEST
                     """,
                 "RTR_SET": """\
@@ -78,7 +73,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c:         AP1-TEST
                     mnt-by:          TEST-MNT
                     mbrs-by-ref:     REF-MNT
-                    changed:         ripe@ripe.net 20121127
                     source: TEST
                 """,
                 "RTR_SET_NO_MBRSBYREF": """\
@@ -87,7 +81,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c:          AP1-TEST
                     admin-c:         AP1-TEST
                     mnt-by:          TEST-MNT
-                    changed:         ripe@ripe.net 20121127
                     source: TEST
                 """,
                 "ORG1": """\
@@ -99,7 +92,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       TEST-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                     """
         ]
@@ -123,7 +115,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:          AP1-TEST
             notify:          noreply-test-irt@ripe.net
             mnt-by:          REF-MNT
-            changed:         test@ripe.net 20120622
             source:          TEST
             password:        emptypassword
             password:        update
@@ -145,7 +136,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          TEST-MNT
             mnt-by:          REF-MNT
             member-of:       rtrs-ripetest
-            changed:         test@ripe.net 20120622
             source:          TEST
             password:        emptypassword
         """
@@ -168,7 +158,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          TEST-MNT
             mnt-by:          REF-MNT
             member-of:       rtrs-no-mbrsbyref
-            changed:         test@ripe.net 20120622
             source:          TEST
             password:        emptypassword
         """
@@ -192,7 +181,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:         AP1-TEST
             tech-c:          AP1-TEST
             mnt-by:          TEST-MNT
-            changed:         test@ripe.net 20120622
             source:          TEST
             password:        emptypassword
         """.stripIndent()))
@@ -210,7 +198,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:         AP1-TEST
             tech-c:          AP1-TEST
             mnt-by:          REF-MNT
-            changed:         test@ripe.net 20120622
             source:          TEST
             password:        emptypassword
         """.stripIndent()))
@@ -229,7 +216,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:         AP1-TEST
             tech-c:          AP1-TEST
             mnt-by:          TEST-MNT
-            changed:         test@ripe.net 20120622
             source:          TEST
             password:        emptypassword
         """.stripIndent()))
@@ -248,7 +234,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          TEST-MNT
             mnt-by:          REF-MNT
             member-of:       rtrs-ripetest
-            changed:         test@ripe.net 20120622
             source:          TEST
             password:        emptypassword
         """.stripIndent()))
@@ -267,7 +252,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:         AP1-TEST
             tech-c:          AP1-TEST
             mnt-by:          TEST-MNT
-            changed:         test@ripe.net 20120622
             source:          TEST
             password:        emptypassword
         """.stripIndent()))
@@ -286,7 +270,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          TEST-MNT
             mnt-by:          REF-MNT
             member-of:       rtrs-no-mbrsbyref
-            changed:         test@ripe.net 20120622
             source:          TEST
             password:        emptypassword
         """.stripIndent()))
@@ -308,7 +291,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: AP1-TEST
                 tech-c: AP1-TEST
                 mnt-by: TEST-MNT
-                changed: noreply@ripe.net 20120101
                 source: TEST
             """.stripIndent()
         def insertResponse = syncUpdate(new SyncUpdate(data: inetrtr + "password: emptypassword"))
@@ -333,7 +315,6 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:         AP1-TEST
             tech-c:          AP1-TEST
             mnt-by:          REF-MNT
-            changed:         test@ripe.net 20120622
             source:          TEST
             password:        emptypassword
             password:        update

@@ -17,7 +17,6 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
                 "OWNER-MNT": """\
@@ -26,9 +25,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:     TP1-TEST
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
                 upd-to:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """
         ]
@@ -52,7 +49,6 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST\n" +
                 "password: owner\n"
         "\n"
@@ -90,10 +86,9 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST\n" +
-                "password: owner\n"
-        "\n" +
+                "password: owner\n" +
+                "\n" +
                 "--b3_9f813eab50ec99dee5c1dfc5b10d4b3f\n" +
                 "Content-Type: text/html; charset=\"UTF-8\"\n" +
                 "Content-Transfer-Encoding: quoted-printable\n" +
@@ -151,10 +146,9 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST\n" +
-                "password: owner\n"
-        "\n" +
+                "password: owner\n" +
+                "\n" +
                 "--_000_B209CC1FB920EE4AB75F588373E9DB873EBD46C44DEMV61UKRDdoma_\n" +
                 "Content-Disposition: attachment; filename=\"winmail.dat\"\n" +
                 "Content-Transfer-Encoding: base64\n" +
@@ -283,10 +277,8 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST\n" +
-                "password: owner\n"
-        "\n"
+                "password: owner\n\n"
       then:
         def ack = ackFor message
 
@@ -317,10 +309,8 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST\n" +
-                "password: owner\n"
-        "\n"
+                "password: owner\n\n"
       then:
         def ack = ackFor message
 
@@ -386,10 +376,9 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST\n" +
-                "password: owner\n"
-        "\n" +
+                "password: owner\n" +
+                "\n" +
                 "\n" +
                 "--Apple-Mail=_923629C7-88C8-4CDE-B30B-C639C8E76279--"
       then:
@@ -442,7 +431,6 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by: RIPE-GII-MNT=0D\n" +
                 "mnt-routes: RIPE-GII-MNT=0D\n" +
                 "notify: gii-people@ripe.net=0D\n" +
-                "changed: gii-people@ripe.net 20121107=0D\n" +
                 "source: RIPE=0D\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
                 "Version: GnuPG/MacGPG2 v2.0.18 (Darwin)\n" +
@@ -560,7 +548,6 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     OTHER
             address:      Singel 258
             e-mail:       bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       OWNER-MNT
             mnt-ref:      OWNER-MNT
             source:       TEST
@@ -609,10 +596,8 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST\n" +
-                "password: owner\n"
-        "\n"
+                "password: owner\n\n"
       then:
         def ack = ackFor message
 
@@ -621,6 +606,33 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         def query = queryObject("-r FP1-TEST", "person", "First Person")
         query =~ /address:        Тверская улица,москва/
+    }
+
+    def "extended ASCII characters, part of ISO8859-1, are supported"() {
+        when:
+        def message = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: NEW\n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: ISO-8859-1\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address:  ÅçÅç\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "password: owner\n\n"
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+
+        queryMatches("-r FP1-TEST", "ÅçÅç")
     }
 
     def "blank lines are replaced by plus continuation character"() {
@@ -645,8 +657,6 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                   "nic-hdl: FP1-TEST\n" +
                   "\t\t\t\n" +
                   "mnt-by:  OWNER-MNT\n" +
-                  "\t\t\t\n" +
-                  "changed: noreply@ripe.net 20010201\n" +
                   "\t\t\t\n" +
                   "source:  TEST\n" +
                   "\t\t\t\n" +

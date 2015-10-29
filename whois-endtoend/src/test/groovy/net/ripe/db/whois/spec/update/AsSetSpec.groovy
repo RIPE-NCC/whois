@@ -19,7 +19,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
             "ASN352": """\
@@ -31,7 +30,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
                 mnt-lower:      owner2-mnt
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 """,
             "AS-SET": """\
@@ -44,7 +42,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "AS-SET-2LEVEL": """\
@@ -54,7 +51,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "AS-SET-3LEVEL": """\
@@ -64,7 +60,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER3-MNT
                 mnt-lower:    LIR3-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "TOP-AS-SET": """\
@@ -74,7 +69,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "TEST-TEST": """\
@@ -84,7 +78,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "ASB16":"""\
@@ -93,7 +86,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 remarks:        yes
                 org:            ORG-OTO1-TEST
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net   20121214
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
                 """,
@@ -116,7 +108,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -154,7 +145,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 as-set:       AS-TEST2
@@ -165,7 +155,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -211,7 +200,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -252,7 +240,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -294,7 +281,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -336,7 +322,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -375,7 +360,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -415,7 +399,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -454,7 +437,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -493,7 +475,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -534,7 +515,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -571,7 +551,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -611,7 +590,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -650,7 +628,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -687,7 +664,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -727,7 +703,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -766,7 +741,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -803,7 +777,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -844,7 +817,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -885,7 +857,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: owner
@@ -926,7 +897,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -966,7 +936,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1006,7 +975,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 as-set:       AS123:AS-TEST
@@ -1015,7 +983,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1055,7 +1022,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 aut-num:        AS123
@@ -1065,7 +1031,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
 
                 password: lir
@@ -1107,7 +1072,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1148,7 +1112,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1190,7 +1153,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1232,7 +1194,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1275,7 +1236,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1316,7 +1276,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
 
                 password: lir
@@ -1352,12 +1311,11 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 subject: "",
                 body: """\
                 as-set:       AS123:AS-TEST
-                descr:        test as-set
+                descr:        test as-set updated
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20121212
                 source:  TEST
 
                 password: owner2
@@ -1375,7 +1333,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS123:AS-TEST"}
 
-        query_object_matches("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST", "20121212")
+        query_object_matches("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST", "test as-set updated")
     }
 
     def "modify as-set object, no parent ASN, only obj pw supplied"() {
@@ -1391,12 +1349,11 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 subject: "",
                 body: """\
                 as-set:       AS123:AS-TEST
-                descr:        test as-set
+                descr:        test as-set updated
                 tech-c:       TP1-TEST
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20121212
                 source:  TEST
 
                 password: owner2
@@ -1414,7 +1371,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS123:AS-TEST"}
 
-        query_object_matches("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST", "20121212")
+        query_object_matches("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST", "test as-set updated")
     }
 
     def "delete as-set object with existing parent ASN, only obj pw supplied"() {
@@ -1436,7 +1393,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       testing
 
@@ -1478,7 +1434,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         owner-MNT
-                changed:        dbtest@ripe.net 20120101
                 source:         TEST
                 delete:       testing
 
@@ -1519,7 +1474,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       testing
 
@@ -1562,7 +1516,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       OWNER2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 delete:       testing
 
@@ -1608,13 +1561,11 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 admin-c:      TP3-TEST
                 notify:       unread@ripe.net
                 mnt-by:       LIR2-MNT
                 mnt-lower:    SUB-MNT
-                changed:      dbtest@ripe.net
 
                 password: lir2
                 password: owner3
@@ -1651,7 +1602,6 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net
                 source:  TEST
                 override:     denis,override1
                 """.stripIndent()

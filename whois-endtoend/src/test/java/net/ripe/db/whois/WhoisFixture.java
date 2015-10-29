@@ -1,9 +1,12 @@
 package net.ripe.db.whois;
 
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
+import net.ripe.db.whois.api.rest.client.NotifierCallback;
 import net.ripe.db.whois.api.rest.client.RestClient;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
@@ -255,6 +258,43 @@ public class WhoisFixture {
         return restClient.request()
                 .addParams("password", passwords)
                 .lookup(objectType, pkey);
+    }
+
+
+    public RpslObject restPost(RpslObject rpslObject, final List<ErrorMessage> errors, String... passwords) {
+        return restClient.request()
+                .addParams("password", passwords)
+                .setNotifier(new NotifierCallback() {
+                    @Override
+                    public void notify(List<ErrorMessage> messages) {
+                        errors.addAll(messages);
+                    }
+                })
+                .create(rpslObject);
+    }
+
+    public RpslObject restPut(RpslObject rpslObject,  final List<ErrorMessage> errors, String... passwords) {
+        return restClient.request()
+                .addParams("password", passwords)
+                .setNotifier(new NotifierCallback() {
+                    @Override
+                    public void notify(List<ErrorMessage> messages) {
+                        errors.addAll(messages);
+                    }
+                })
+                .update(rpslObject);
+    }
+
+    public RpslObject restDelete(RpslObject rpslObject,  final List<ErrorMessage> errors, String... passwords) {
+        return restClient.request()
+                .addParams("password", passwords)
+                .setNotifier(new NotifierCallback() {
+                    @Override
+                    public void notify(List<ErrorMessage> messages) {
+                        errors.addAll(messages);
+                    }
+                })
+                .delete(rpslObject);
     }
 
     public List<String> queryPersistent(final List<String> queries) throws Exception {

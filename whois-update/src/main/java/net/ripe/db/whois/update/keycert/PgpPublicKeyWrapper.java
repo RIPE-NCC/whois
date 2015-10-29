@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.update.handler.CharacterSetConversion;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.SignatureSubpacketTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -149,11 +150,11 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
 
     @Override
     public List<String> getOwners() {
-        return Lists.newArrayList(Iterators.<Object, String>transform(masterKey.getUserIDs(),
-                new Function<Object, String>() {
+        return Lists.newArrayList(Iterators.<String, String>transform(masterKey.getUserIDs(),
+                new Function<String, String>() {
                     @Override
-                    public String apply(final Object input) {
-                        return input.toString();
+                    public String apply(final String input) {
+                        return CharacterSetConversion.convertToLatin1(input);
                     }
                 }));
     }

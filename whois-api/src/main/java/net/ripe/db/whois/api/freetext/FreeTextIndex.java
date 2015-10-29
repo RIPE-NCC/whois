@@ -58,19 +58,21 @@ public class FreeTextIndex extends RebuildableIndex {
 
     private static final int INDEX_UPDATE_INTERVAL_IN_SECONDS = 60;
 
-    static final String OBJECT_TYPE_FIELD_NAME = "object-type";
-    static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
-    static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
+    public static final String OBJECT_TYPE_FIELD_NAME = "object-type";
+    public static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
+    public static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
 
-    static final Analyzer QUERY_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY);
-    static final Analyzer INDEX_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.INDEX);
+    public static final Analyzer QUERY_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY);
+    public static final Analyzer INDEX_ANALYZER = new FreeTextAnalyzer(FreeTextAnalyzer.Operation.INDEX);
 
     static final String[] FIELD_NAMES;
 
-    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH, AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
+    private static final Set<AttributeType> SKIPPED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.CERTIF, AttributeType.CHANGED, AttributeType.SOURCE), AttributeType.class);
+    private static final Set<AttributeType> FILTERED_ATTRIBUTES = Sets.newEnumSet(Sets.newHashSet(AttributeType.AUTH), AttributeType.class);
 
     private static final FieldType INDEXED_AND_TOKENIZED;
     private static final FieldType INDEXED_NOT_TOKENIZED;
+    private static final FieldType NOT_INDEXED_NOT_TOKENIZED;
 
     static {
         final List<String> names = newArrayListWithExpectedSize(AttributeType.values().length);
@@ -93,6 +95,12 @@ public class FreeTextIndex extends RebuildableIndex {
         INDEXED_NOT_TOKENIZED.setStored(true);
         INDEXED_NOT_TOKENIZED.setTokenized(false);
         INDEXED_NOT_TOKENIZED.freeze();
+
+        NOT_INDEXED_NOT_TOKENIZED = new FieldType();
+        NOT_INDEXED_NOT_TOKENIZED.setIndexed(false);
+        NOT_INDEXED_NOT_TOKENIZED.setStored(true);
+        NOT_INDEXED_NOT_TOKENIZED.setTokenized(false);
+        NOT_INDEXED_NOT_TOKENIZED.freeze();
     }
 
     private final JdbcTemplate jdbcTemplate;
@@ -115,7 +123,7 @@ public class FreeTextIndex extends RebuildableIndex {
     @PostConstruct
     public void init() {
         if (StringUtils.isBlank(indexDir)) return;
-        super.init(new IndexWriterConfig(Version.LUCENE_4_10_3, INDEX_ANALYZER)
+        super.init(new IndexWriterConfig(Version.LUCENE_4_10_4, INDEX_ANALYZER)
                         .setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND),
                 new IndexTemplate.WriteCallback() {
                     @Override
@@ -197,8 +205,14 @@ public class FreeTextIndex extends RebuildableIndex {
 
     @Scheduled(fixedDelay = INDEX_UPDATE_INTERVAL_IN_SECONDS * 1000)
     public void scheduledUpdate() {
-        if (StringUtils.isBlank(indexDir)) return;
-        update();
+        if (StringUtils.isBlank(indexDir)) {
+            return;
+        }
+        try {
+            update();
+        } catch (DataAccessException e) {
+            LOGGER.warn("Unable to update freetext index due to {}: {}", e.getClass(), e.getMessage());
+        }
     }
 
     protected void update(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
@@ -252,7 +266,9 @@ public class FreeTextIndex extends RebuildableIndex {
         document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_AND_TOKENIZED));
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-            if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
+            if (FILTERED_ATTRIBUTES.contains(attribute.getType())){
+              document.add(new Field(attribute.getKey(), sanitise(filterAttribute(attribute.getValue().trim())), NOT_INDEXED_NOT_TOKENIZED));
+            } else if (!SKIPPED_ATTRIBUTES.contains(attribute.getType())) {
                 document.add(new Field(attribute.getKey(), sanitise(attribute.getValue().trim()), INDEXED_AND_TOKENIZED));
             }
         }
@@ -268,6 +284,18 @@ public class FreeTextIndex extends RebuildableIndex {
 
     private void deleteEntry(final IndexWriter indexWriter, final RpslObject rpslObject) throws IOException {
         indexWriter.deleteDocuments(new Term(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId())));
+    }
+
+    private String filterAttribute(final String value) {
+        if (value.toLowerCase().startsWith("md5-pw")) {
+            return "MD5-PW";
+        }
+
+        if (value.toLowerCase().startsWith("sso")) {
+            return "SSO";
+        }
+
+        return value;
     }
 
     final class DatabaseObjectProcessor implements Runnable {

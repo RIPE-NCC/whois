@@ -241,7 +241,7 @@ public class MessageDequeue implements ApplicationService {
     private void handleUpdates(final MailMessage mailMessage, final UpdateContext updateContext) {
         final List<Update> updates = updatesParser.parse(updateContext, mailMessage.getContentWithCredentials());
 
-        final UpdateRequest updateRequest = new UpdateRequest(mailMessage, mailMessage.getKeyword(), mailMessage.getUpdateMessage(), updates);
+        final UpdateRequest updateRequest = new UpdateRequest(mailMessage, mailMessage.getKeyword(), updates);
         final UpdateResponse response = messageHandler.handle(updateRequest, updateContext);
         mailGateway.sendEmail(mailMessage.getReplyToEmail(), response.getStatus() + ": " + mailMessage.getSubject(), response.getResponse());
     }
