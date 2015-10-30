@@ -1,5 +1,12 @@
 ## next
 
+## 1.83
+[all] better error message for syntax error in organisation attribute
+[update] fixed bug where SyncUpdates POST without content type header results in an Internal Server Error
+[api] removed unnecessary logging during free text search indexing
+[api] fixed bug in delete with references to return the deleted objects.
+[api] fixed bug in REST delete for unsuccessful response.
+
 ## 1.82
 [update] necessary changes to accommodate inter-RIR transfer requests.
 
