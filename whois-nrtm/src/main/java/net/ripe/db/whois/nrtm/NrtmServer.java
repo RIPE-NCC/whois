@@ -52,7 +52,7 @@ public class NrtmServer implements ApplicationService {
             return;
         }
 
-        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, nrtmPort, "DUMMIFIER");
+        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, nrtmPort, "NRTM DUMMIFIER");
 
 
         port = ((InetSocketAddress) serverChannel.getLocalAddress()).getPort();
