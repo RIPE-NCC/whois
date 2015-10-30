@@ -30,7 +30,11 @@ public class DummifierNrtm implements Dummifier {
             AttributeType.ZONE_C
     );
 
-    static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(AttributeType.ABUSE_C, AttributeType.CHANGED, AttributeType.LAST_MODIFIED, AttributeType.CREATED);
+    static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(
+            AttributeType.ABUSE_C,
+            AttributeType.CHANGED,
+            AttributeType.LAST_MODIFIED,
+            AttributeType.CREATED);
 
     static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
     static {
