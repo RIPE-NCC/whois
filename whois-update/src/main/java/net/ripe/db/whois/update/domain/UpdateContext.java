@@ -38,6 +38,7 @@ public class UpdateContext {
 
     private int nrSinceRestart;
     private boolean dryRun;
+    private boolean batchUpdate;
     private UserSession userSession;
 
     public UpdateContext(final LoggerContext loggerContext) {
@@ -56,6 +57,15 @@ public class UpdateContext {
 
     public int getNrSinceRestart() {
         return nrSinceRestart;
+    }
+
+    public boolean isBatchUpdate() {
+        return batchUpdate;
+    }
+
+    public void batchUpdate() {
+        loggerContext.logBatchUpdate();
+        batchUpdate = true;
     }
 
     public void addDnsCheckResponse(final DnsCheckRequest request, final DnsCheckResponse response) {

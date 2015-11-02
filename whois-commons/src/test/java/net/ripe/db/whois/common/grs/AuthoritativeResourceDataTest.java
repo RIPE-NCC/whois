@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +35,7 @@ public class AuthoritativeResourceDataTest {
 
     @Before
     public void setUp() {
-        subject = new AuthoritativeResourceData("TEST", resourceDataDao, dailySchedulerDao, dateTimeProvider);
+        subject = new AuthoritativeResourceData("test", "test", resourceDataDao, dailySchedulerDao, dateTimeProvider);
     }
 
     @Test
@@ -45,7 +46,27 @@ public class AuthoritativeResourceDataTest {
         subject.init();
 
         verify(resourceDataDao).load(eq("test"));
-        assertThat(subject.getAuthoritativeResource(ciString("TEST")), isA(AuthoritativeResource.class));
+        assertThat(subject.getAuthoritativeResource(ciString("test")), isA(AuthoritativeResource.class));
+    }
+
+    @Test
+    public void refresh_on_change() {
+        when(resourceDataDao.getState("test")).thenReturn(new ResourceDataDao.State("test", 1, 1)).thenReturn(new ResourceDataDao.State("test", 2, 2));
+
+        subject.refreshAuthoritativeResourceCacheOnChange();
+        subject.refreshAuthoritativeResourceCacheOnChange();
+
+        verify(resourceDataDao, times(2)).load(eq("test"));
+    }
+
+    @Test
+    public void no_refresh_if_unchanged() {
+        when(resourceDataDao.getState("test")).thenReturn(new ResourceDataDao.State("test", 1, 1)).thenReturn(new ResourceDataDao.State("test", 1, 1));
+
+        subject.refreshAuthoritativeResourceCacheOnChange();
+        subject.refreshAuthoritativeResourceCacheOnChange();
+
+        verify(resourceDataDao, times(1)).load("test");
     }
 
     @Test(expected = IllegalSourceException.class)

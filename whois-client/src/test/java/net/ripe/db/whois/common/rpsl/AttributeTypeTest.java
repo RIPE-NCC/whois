@@ -31,4 +31,22 @@ public class AttributeTypeTest {
     public void getByNameOrNull_supports_shortkeys() {
         assertThat(AttributeType.getByNameOrNull("*as"), is(AttributeType.AS_SET));
     }
+
+    @Test
+    public void name_transformations() {
+        assertThat(AttributeType.MNTNER.getNameToFirstLower(), is("mntner"));
+        assertThat(AttributeType.MNTNER.getNameToFirstUpper(), is("Mntner"));
+
+        assertThat(AttributeType.MNT_BY.getNameToFirstLower(), is("mntByRef"));
+        assertThat(AttributeType.MNT_BY.getNameToFirstUpper(), is("MntByRef") );
+
+        assertThat(AttributeType.DEFAULT.getNameToFirstLower(), is("default_") );
+        assertThat(AttributeType.DEFAULT.getNameToFirstUpper(), is("Default") );
+
+        assertThat(AttributeType.INTERFACE.getNameToFirstLower(), is("interface_") );
+        assertThat(AttributeType.INTERFACE.getNameToFirstUpper(), is("Interface") );
+
+        assertThat(AttributeType.IMPORT.getNameToFirstLower(), is("import_") );
+        assertThat(AttributeType.IMPORT.getNameToFirstUpper(), is("Import") );
+    }
 }
