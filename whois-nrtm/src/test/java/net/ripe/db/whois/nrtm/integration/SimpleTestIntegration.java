@@ -62,11 +62,11 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void queryKeepAliveNoPreExistingObjectsOneNewObject() throws Exception {
-        databaseHelper.addObject(RpslObject.parse("mntner:test"));
+        databaseHelper.addObject(RpslObject.parse("mntner:test\nsource:TEST"));
         AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST:3:1-1 -k", (updateInterval + 1));
 
         client.start();
-        databaseHelper.addObject(RpslObject.parse("mntner:keepalive"));
+        databaseHelper.addObject(RpslObject.parse("mntner:keepalive\nsource:TEST"));
         String response = client.end();
 
         assertThat(response, containsString("mntner:         keepalive"));
@@ -74,11 +74,11 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void queryKeepAliveOnePreExistingObjectsOneNewObject() throws Exception {
-        databaseHelper.addObject(RpslObject.parse("mntner:testmntner\nmnt-by:testmntner"));
+        databaseHelper.addObject(RpslObject.parse("mntner:testmntner\nmnt-by:testmntner\nsource:TEST"));
         AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST:3:1-LAST -k", (updateInterval + 1));
 
         client.start();
-        super.databaseHelper.addObject(RpslObject.parse("mntner:keepalive"));
+        super.databaseHelper.addObject(RpslObject.parse("mntner:keepalive\nsource:TEST"));
         String response = client.end();
 
         assertThat(response, containsString("mntner:         testmntner"));
@@ -87,25 +87,25 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void mirrorQueryOneSerialEntry() throws Exception {
-        databaseHelper.addObject("aut-num:AS4294967207");
+        databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST");
 
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-1");
 
-        assertThat(response, containsString("AS4294967207"));
+        assertThat(response, containsString("aut-num:        AS4294967207"));
     }
 
     @Test
     public void mirrorQueryMultipleSerialEntry() throws Exception {
-        databaseHelper.addObject("aut-num:AS4294967207");
+        databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST");
         databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE");
-        databaseHelper.addObject("mntner:DEV-MNT");
+        databaseHelper.addObject("mntner:DEV-MNT\nsource:TEST");
 
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-3");
 
         assertThat(response, containsString("ADD 1"));
         assertThat(response, containsString("AS4294967207"));
-        assertThat(response, containsString("ADD 2"));
-        assertThat(response, containsString("DW-RIPE"));
+        assertThat(response, not(containsString("ADD 2")));
+        assertThat(response, not(containsString("DW-RIPE")));
         assertThat(response, containsString("ADD 3"));
         assertThat(response, containsString("DEV-MNT"));
     }
@@ -121,38 +121,41 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void mirrorQueryWithLastKeyword() throws Exception {
-        databaseHelper.addObject("aut-num:AS4294967207");
+        databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST");
         databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE");
-        databaseHelper.addObject("mntner:DEV-MNT");
+        databaseHelper.addObject("mntner:DEV-MNT\nsource:TEST");
 
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
 
+        assertThat(response, containsString("ADD 1"));
+        assertThat(response, containsString("AS4294967207"));
+        assertThat(response, not(containsString("ADD 2")));
+        assertThat(response, not(containsString("DW-RIPE")));
         assertThat(response, containsString("ADD 3"));
         assertThat(response, containsString("DEV-MNT"));
     }
 
     @Test
-    public void mirrorQueryLegacyStillAvailable() throws Exception {
+    public void mirror_query_abuse_contact() throws Exception {
         databaseHelper.addObject("" +
                 "role:          Denis Walker\n" +
                 "nic-hdl:       DW-RIPE\n" +
                 "abuse-mailbox: abuse@ripe.net\n" +
+                "address:       Test address\n" +
                 "e-mail:        test@ripe.net\n" +
                 "source:        TEST");
 
-        final String legacyResponse = TelnetWhoisClient.queryLocalhost(NrtmServer.getLegacyPort(), "-g TEST:3:1-LAST");
-
-        assertThat(legacyResponse, containsString("remarks:        * THIS OBJECT IS MODIFIED"));
-
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
 
-        assertThat(response, not(containsString("remarks:        * THIS OBJECT IS MODIFIED")));
+
         assertThat(response, containsString("" +
                 "role:           Denis Walker\n" +
                 "nic-hdl:        DW-RIPE\n" +
                 "abuse-mailbox:  abuse@ripe.net\n" +
-                "e-mail:         ***@ripe.net\n" +
+                "address:        Dummy address for DW-RIPE\n" +
+                "e-mail:         unread@ripe.net\n" +
                 "source:         TEST"));
+        assertThat(response, containsString("remarks:        * THIS OBJECT IS MODIFIED"));
     }
 
     @Test
@@ -167,21 +170,17 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
                 "last-modified: 2001-02-04T17:00:00Z\n" +
                 "source:        TEST");
 
-        final String legacyResponse = TelnetWhoisClient.queryLocalhost(NrtmServer.getLegacyPort(), "-g TEST:3:1-LAST");
-
-        assertThat(legacyResponse, containsString("remarks:        * THIS OBJECT IS MODIFIED"));
-
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
 
-        assertThat(response, not(containsString("remarks:        * THIS OBJECT IS MODIFIED")));
         assertThat(response, containsString("" +
                 "role:           Denis Walker\n" +
                 "nic-hdl:        DW-RIPE\n" +
                 "abuse-mailbox:  abuse@ripe.net\n" +
-                "e-mail:         ***@ripe.net\n" +
-                "changed:        ***@ripe.net 20120101\n" +
+                "e-mail:         unread@ripe.net\n" +
+                "changed:        unread@ripe.net 20000101\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST"));
+        assertThat(response, containsString("remarks:        * THIS OBJECT IS MODIFIED"));
     }
 }
