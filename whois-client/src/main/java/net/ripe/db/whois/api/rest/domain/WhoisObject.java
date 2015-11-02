@@ -45,6 +45,9 @@ public class WhoisObject {
     @XmlAttribute(required = true)
     private String type;
 
+    @XmlAttribute
+    private Action action;
+
     @XmlAttribute(name = "version")
     private Integer version;
 
@@ -88,6 +91,14 @@ public class WhoisObject {
         this.type = value;
     }
 
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
     public Integer getVersion() {
         return version;
     }
@@ -111,4 +122,5 @@ public class WhoisObject {
         }
         return builder.toString();
     }
+
 }

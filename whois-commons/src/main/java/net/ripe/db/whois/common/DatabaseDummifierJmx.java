@@ -97,6 +97,7 @@ public class DatabaseDummifierJmx extends JmxBase {
 
                 addWork("last", jdbcTemplate, executorService);
                 addWork("history", jdbcTemplate, executorService);
+                cleanUpAuthIndex(jdbcTemplate, executorService);
 
                 executorService.shutdown();
                 try {
@@ -128,6 +129,28 @@ public class DatabaseDummifierJmx extends JmxBase {
                             jobsAdded.incrementAndGet();
                         }
                         return null;
+                    }
+                });
+                return null;
+            }
+        });
+        LOGGER.info("Jobs size:{}", jobsAdded);
+    }
+
+    private void cleanUpAuthIndex(final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
+        LOGGER.info("Removing index entries for SSO lines");
+        transactionTemplate.execute(new TransactionCallback<Object>() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                executorService.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            jdbcTemplate.update("DELETE FROM auth WHERE auth LIKE 'SSO %' AND object_type=9");
+                            jobsAdded.incrementAndGet();
+                        } catch (RuntimeException e) {
+                            LOGGER.error("Failed to delete SSO auth lines from auth index table", e);
+                        }
                     }
                 });
                 return null;

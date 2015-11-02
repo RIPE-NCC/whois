@@ -34,7 +34,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -66,34 +65,12 @@ public class UpdateRequestHandlerTest {
 
         when(updateRequest.getOrigin()).thenReturn(origin);
         when(updateRequest.getKeyword()).thenReturn(Keyword.NONE);
-        when(updateRequest.isNotificationsEnabled()).thenReturn(false);
         when(updateContext.createAck()).thenReturn(ack);
     }
 
     @Test
-    public void handle_no_notifications() {
+    public void mntner() {
         when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList(update));
-
-        when(ack.getUpdateStatus()).thenReturn(UpdateStatus.SUCCESS);
-        when(responseFactory.createAckResponse(updateContext, origin, ack)).thenReturn("ACK");
-
-        final RpslObject maintainer = RpslObject.parse("mntner: DEV-ROOT-MNT");
-        when(update.getSubmittedObject()).thenReturn(maintainer);
-        when(updateContext.getStatus(any(PreparedUpdate.class))).thenReturn(UpdateStatus.SUCCESS);
-
-        subject.handle(updateRequest, updateContext);
-
-        verify(sourceContext).setCurrentSourceToWhoisMaster();
-        verify(sourceContext).removeCurrentSource();
-        verify(dnsChecker).checkAll(updateRequest, updateContext);
-        verify(singleUpdateHandler).handle(origin, Keyword.NONE, update, updateContext);
-        verifyZeroInteractions(updateNotifier);
-    }
-
-    @Test
-    public void handle_with_notifications() {
-        when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList(update));
-        when(updateRequest.isNotificationsEnabled()).thenReturn(true);
 
         when(ack.getUpdateStatus()).thenReturn(UpdateStatus.SUCCESS);
         when(responseFactory.createAckResponse(updateContext, origin, ack)).thenReturn("ACK");
@@ -112,7 +89,7 @@ public class UpdateRequestHandlerTest {
     }
 
     @Test
-    public void handle_domain() {
+    public void domain() {
         when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList(update));
 
         when(ack.getUpdateStatus()).thenReturn(UpdateStatus.SUCCESS);
@@ -132,7 +109,7 @@ public class UpdateRequestHandlerTest {
     }
 
     @Test
-    public void handle_domain_delete() {
+    public void domain_delete() {
         when(updateRequest.getUpdates()).thenReturn(Lists.newArrayList(update));
 
         when(ack.getUpdateStatus()).thenReturn(UpdateStatus.SUCCESS);
@@ -153,9 +130,9 @@ public class UpdateRequestHandlerTest {
     }
 
     @Test
-    public void handle() {
+    public void help() {
         when(responseFactory.createHelpResponse(updateContext, origin)).thenReturn("help");
-        final UpdateRequest updateRequest = new UpdateRequest(origin, Keyword.HELP, "", Collections.<Update>emptyList());
+        final UpdateRequest updateRequest = new UpdateRequest(origin, Keyword.HELP, Collections.<Update>emptyList());
 
         final UpdateResponse response = subject.handle(updateRequest, updateContext);
         assertThat(response.getStatus(), is(UpdateStatus.SUCCESS));

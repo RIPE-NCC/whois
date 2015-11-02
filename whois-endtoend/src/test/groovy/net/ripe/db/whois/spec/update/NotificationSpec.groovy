@@ -1124,7 +1124,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             queryObjectNotFound("-r -T inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255")
 
         when:
-            def ack = syncUpdateWithResponseNoRedirect("""
+            def ack = syncUpdateWithResponseWithNotifications("""
                     inetnum:      192.168.201.0 - 192.168.201.255
                     netname:      RIPE-NET
                     descr:        /24 assigned
@@ -1269,7 +1269,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
         when:
-            def ack = syncUpdateWithResponseNoRedirect("""
+            def ack = syncUpdateWithResponseWithNotifications("""
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -1325,7 +1325,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
         when:
-            def ack = syncUpdateWithResponseNoRedirect("""
+            def ack = syncUpdateWithResponseWithNotifications("""
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -1381,7 +1381,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
         when:
-            def ack = syncUpdateWithResponseNoRedirect("""
+            def ack = syncUpdateWithResponseWithNotifications("""
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned
@@ -1493,7 +1493,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
         when:
-            def ack = syncUpdateWithResponseNoRedirect("""
+            def ack = syncUpdateWithResponseWithNotifications("""
                 inetnum:      192.168.200.0 - 192.168.200.255
                 netname:      RIPE-NET1
                 descr:        /24 assigned

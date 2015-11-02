@@ -20,9 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -79,6 +81,12 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, not(containsString("$")));
     }
 
+    @Ignore("TODO: [ES] post without content type returns internal server error")
+    @Test
+    public void post_without_content_type() throws Exception {
+        assertThat(post(), not(containsString("Internal Server Error")));
+    }
+
     @Test
     public void post_multipart_form_help_parameter_only() {
         final FormDataMultiPart multipart = new FormDataMultiPart().field("HELP", "help");
@@ -119,25 +127,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void redirect_not_allowed() throws Exception {
-        ipRanges.setTrusted();
-        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
-
-        try {
-            RestTest.target(getPort(), "whois/syncupdates/test?" +
-                    "REDIRECT=yes&DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
-                    .request()
-                    .get(String.class);
-            fail();
-        } catch (ForbiddenException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, not(containsString("Create SUCCEEDED: [mntner] mntner")));
-            assertThat(response, containsString("Not allowed to disable notifications: 127.0.0.1"));
-        }
-    }
-
-    @Test
-    public void redirect_allowed() throws Exception {
+    public void redirect_ignored() throws Exception {
         ipRanges.setTrusted("0/0", "::0/0");
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
@@ -147,7 +137,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
-        assertThat(response, not(containsString("Not allowed to disable notifications: 127.0.0.1\n")));
+
+        assertNotNull(getMessage("noreply@ripe.net"));
         assertFalse(anyMoreMessages());
     }
 
@@ -705,5 +696,19 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     private boolean anyMoreMessages() {
         return mailSender.anyMoreMessages();
+    }
+
+    private String post() throws IOException {
+        final URL url = new URL(String.format("http://localhost:%d/whois/syncupdates/test", getPort()));
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setInstanceFollowRedirects(false);
+        connection.setRequestMethod("POST");
+
+        connection.connect();
+        final String response = connection.getResponseMessage();
+        connection.disconnect();
+
+        return response;
     }
 }
