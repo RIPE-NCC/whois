@@ -68,18 +68,17 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
     }
 
     @Test
-    public void add_person_from_nrtm() throws Exception {
-        final RpslObject person = RpslObject.parse("" +
-                "person: One Person\n" +
-                "nic-hdl: OP1-TEST\n" +
+    public void add_mntner_from_nrtm() throws Exception {
+        final RpslObject mntner = RpslObject.parse("" +
+                "mntner: TEST-MNT\n" +
                 "mnt-by: OWNER-MNT\n" +
                 "source: TEST");
 
-        databaseHelper.addObject(person);
+        databaseHelper.addObject(mntner);
 
-        objectExists(ObjectType.PERSON, "OP1-TEST", "1-GRS", true);
-        objectExists(ObjectType.PERSON, "OP1-TEST", "2-GRS", true);
-        objectExists(ObjectType.PERSON, "OP1-TEST", "3-GRS", true);
+        objectExists(ObjectType.MNTNER, "TEST-MNT", "1-GRS", true);
+        objectExists(ObjectType.MNTNER, "TEST-MNT", "2-GRS", true);
+        objectExists(ObjectType.MNTNER, "TEST-MNT", "3-GRS", true);
     }
 
     private void objectExists(final ObjectType type, final String key, final String source, final boolean exists) {
