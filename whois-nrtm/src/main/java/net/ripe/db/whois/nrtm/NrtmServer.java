@@ -25,27 +25,23 @@ public class NrtmServer implements ApplicationService {
 
     @Value("${nrtm.enabled}") private boolean nrtmEnabled;
     @Value("${port.nrtm}") private int nrtmPort;
-    @Value("${port.nrtm.legacy}") private int nrtmPortLegacy;
     @Value("${loadbalancer.nrtm.timeout:5000}") private int markNodeFailedTimeout;
 
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmServerPipelineFactory nrtmServerPipelineFactory;
-    private final LegacyNrtmServerPipelineFactory legacyNrtmServerPipelineFactory;
     private final MaintenanceMode maintenanceMode;
-    private Channel serverChannelLegacy;
     private Channel serverChannel;
 
     private static int port;
-    private static int legacyPort;
+
 
     @Autowired
     public NrtmServer(final NrtmChannelsRegistry nrtmChannelsRegistry,
-                      final NrtmServerPipelineFactory whoisServerPipelineFactory,
-                      final LegacyNrtmServerPipelineFactory legacyNrtmServerPipelineFactory,
+
+                      final NrtmServerPipelineFactory nrtmServerPipelineFactory,
                       final MaintenanceMode maintenanceMode) {
         this.nrtmChannelsRegistry = nrtmChannelsRegistry;
-        this.nrtmServerPipelineFactory = whoisServerPipelineFactory;
-        this.legacyNrtmServerPipelineFactory = legacyNrtmServerPipelineFactory;
+        this.nrtmServerPipelineFactory = nrtmServerPipelineFactory;
         this.maintenanceMode = maintenanceMode;
     }
 
@@ -56,11 +52,11 @@ public class NrtmServer implements ApplicationService {
             return;
         }
 
-        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, nrtmPort, "NEW DUMMIFER");
-        serverChannelLegacy = bootstrapChannel(legacyNrtmServerPipelineFactory, nrtmPortLegacy, "OLD DUMMIFER");
+        serverChannel = bootstrapChannel(nrtmServerPipelineFactory, nrtmPort, "NRTM DUMMIFIER");
+
 
         port = ((InetSocketAddress) serverChannel.getLocalAddress()).getPort();
-        legacyPort = ((InetSocketAddress) serverChannelLegacy.getLocalAddress()).getPort();
+
     }
 
     private Channel bootstrapChannel(final ChannelPipelineFactory serverPipelineFactory, final int port, final String instanceName) {
@@ -83,11 +79,6 @@ public class NrtmServer implements ApplicationService {
             if (force) {
                 LOGGER.info("Shutting down");
 
-                if (serverChannelLegacy != null) {
-                    serverChannelLegacy.close();
-                    serverChannelLegacy = null;
-                }
-
                 if (serverChannel != null) {
                     serverChannel.close();
                     serverChannel = null;
@@ -104,7 +95,4 @@ public class NrtmServer implements ApplicationService {
         return port;
     }
 
-    public static int getLegacyPort() {
-        return legacyPort;
-    }
 }

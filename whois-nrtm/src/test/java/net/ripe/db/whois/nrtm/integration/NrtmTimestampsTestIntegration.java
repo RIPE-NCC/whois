@@ -34,22 +34,12 @@ public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n");
 
-        final String legacyResponse = TelnetWhoisClient.queryLocalhost(NrtmServer.getLegacyPort(), "-g TEST:3:1-LAST");
-
-        assertThat(legacyResponse, containsString("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "changed:        unread@ripe.net 20000101\n" +
-                "created:        2001-02-04T17:00:00Z\n" +
-                "last-modified:  2001-02-04T17:00:00Z\n" +
-                "source:         TEST\n"));
-
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
 
         assertThat(response, containsString("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
-                "changed:        ***@ripe.net 20000101\n" +
+                "changed:        unread@ripe.net 20000101\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n"));
@@ -66,24 +56,13 @@ public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n");
 
-        final String legacyResponse = TelnetWhoisClient.queryLocalhost(NrtmServer.getLegacyPort(), "-g TEST:3:1-LAST");
-
-        assertThat(legacyResponse, containsString("" +
-                "organisation:   ORG1-TEST\n" +
-                "org-name:       Wasp Corp\n" +
-                "org-type:       OTHER\n" +
-                "changed:        unread@ripe.net 20000101\n" +
-                "created:        2001-02-04T17:00:00Z\n" +
-                "last-modified:  2001-02-04T17:00:00Z\n" +
-                "source:         TEST\n"));
-
         final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
 
         assertThat(response, containsString("" +
                 "organisation:   ORG1-TEST\n" +
                 "org-name:       Wasp Corp\n" +
                 "org-type:       OTHER\n" +
-                "changed:        ***@ripe.net 20000101\n" +
+                "changed:        unread@ripe.net 20000101\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n"));
