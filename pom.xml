@@ -856,6 +856,7 @@
                 <test.groups>None</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>None</test.files.integration>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
             </properties>
         </profile>
         <profile>
