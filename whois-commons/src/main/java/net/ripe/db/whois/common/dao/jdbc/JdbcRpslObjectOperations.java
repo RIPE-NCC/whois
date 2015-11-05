@@ -330,15 +330,22 @@ public class JdbcRpslObjectOperations {
             sanityCheck(jdbcTemplate);
 
             final List<String> tables = jdbcTemplate.queryForList("SHOW TABLES", String.class);
-
             for (final String table : tables) {
-                if (UNTRUNCATABLE_TABLES.contains(table)) {
-                    continue;
-                }
-
-                jdbcTemplate.execute("TRUNCATE TABLE " + table);
+                truncateTable(jdbcTemplate, table);
             }
         }
+    }
+
+    public static void truncateTable(final JdbcTemplate jdbcTemplate, final String table) {
+        if (jdbcTemplate == null) {
+            return;
+        }
+
+        if (UNTRUNCATABLE_TABLES.contains(table)) {
+            return;
+        }
+
+        jdbcTemplate.execute("TRUNCATE TABLE " + table);
     }
 
     public static void loadScripts(final JdbcTemplate jdbcTemplate, final String... initSql) {
