@@ -63,7 +63,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
-import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTable;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.keepKeyAttributesOnly;
 
@@ -298,8 +297,6 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     public void setupInternalsDatabase() {
-        truncateTable(internalsTemplate, "object_reference");
-        truncateTable(internalsTemplate, "object_version");
         loadScripts(internalsTemplate, "internals_data.sql");
     }
 
