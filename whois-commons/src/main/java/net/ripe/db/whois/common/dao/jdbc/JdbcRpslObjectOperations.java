@@ -345,7 +345,7 @@ public class JdbcRpslObjectOperations {
             return;
         }
 
-        jdbcTemplate.execute("TRUNCATE TABLE " + table);
+        jdbcTemplate.execute("DELETE FROM " + table);
     }
 
     public static void loadScripts(final JdbcTemplate jdbcTemplate, final String... initSql) {
