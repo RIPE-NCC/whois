@@ -33,7 +33,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.CheckForNull;
 import java.sql.ResultSet;
@@ -337,17 +336,29 @@ public class JdbcRpslObjectOperations {
         }
     }
 
-    @Transactional
+    // Cannot TRUNCATE MariaDB tables w/ foreign key constraint, use DELETE instead
+    public static void deleteFromTable(final JdbcTemplate jdbcTemplate, final String table) {
+        if (jdbcTemplate == null) {
+            return;
+        }
+
+        if (UNTRUNCATABLE_TABLES.contains(table)) {
+            return;
+        }
+
+        jdbcTemplate.execute("DELETE FROM " + table);
+    }
+
     public static void truncateTable(final JdbcTemplate jdbcTemplate, final String table) {
         if (jdbcTemplate == null) {
             return;
         }
 
-        jdbcTemplate.batchUpdate(
-            new String[]{
-                "SET foreign_key_checks = 0",
-                "TRUNCATE TABLE " + table,
-                "SET foreign_key_checks = 1"});
+        if (UNTRUNCATABLE_TABLES.contains(table)) {
+            return;
+        }
+
+        jdbcTemplate.execute("TRUNCATE TABLE " + table);
     }
 
     public static void loadScripts(final JdbcTemplate jdbcTemplate, final String... initSql) {
