@@ -297,6 +297,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     public void setupInternalsDatabase() {
+        truncateTables(internalsTemplate);
         loadScripts(internalsTemplate, "internals_data.sql");
     }
 
