@@ -336,19 +336,6 @@ public class JdbcRpslObjectOperations {
         }
     }
 
-    // Cannot TRUNCATE MariaDB tables w/ foreign key constraint, use DELETE instead
-    public static void deleteFromTable(final JdbcTemplate jdbcTemplate, final String table) {
-        if (jdbcTemplate == null) {
-            return;
-        }
-
-        if (UNTRUNCATABLE_TABLES.contains(table)) {
-            return;
-        }
-
-        jdbcTemplate.execute("DELETE FROM " + table);
-    }
-
     public static void truncateTable(final JdbcTemplate jdbcTemplate, final String table) {
         if (jdbcTemplate == null) {
             return;
@@ -358,6 +345,9 @@ public class JdbcRpslObjectOperations {
             return;
         }
 
+        // Cannot TRUNCATE MariaDB tables w/ foreign key constraint, so
+        // use DELETE before actually truncating
+        jdbcTemplate.execute("DELETE FROM " + table);
         jdbcTemplate.execute("TRUNCATE TABLE " + table);
     }
 
