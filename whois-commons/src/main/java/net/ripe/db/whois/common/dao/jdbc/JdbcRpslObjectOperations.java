@@ -348,7 +348,8 @@ public class JdbcRpslObjectOperations {
         // Cannot TRUNCATE MariaDB tables w/ foreign key constraint, so
         // use DELETE before actually truncating
         jdbcTemplate.execute("DELETE FROM " + table);
-        jdbcTemplate.execute("TRUNCATE TABLE " + table);
+        // and reset, to prevent that tests that depend on generated ids break
+        jdbcTemplate.execute("ALTER TABLE " + table + " AUTO_INCREMENT = 1");
     }
 
     public static void loadScripts(final JdbcTemplate jdbcTemplate, final String... initSql) {
