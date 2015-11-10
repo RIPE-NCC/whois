@@ -33,7 +33,6 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmConcurrencyTestIntegration.class);
 
     private static final int NUM_THREADS = 20;
-    private static final int WAIT_FOR_CLIENT_THREADS = 10;
     private static final int MIN_RANGE = 21486000;
     private static final int MID_RANGE = 21486049;  // 21486050 is a person in nrtm_sample.sql
     private static final int MAX_RANGE = 21486100;
@@ -79,14 +78,14 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
         NrtmTestThread thread = new NrtmTestThread(query, MIN_RANGE + 1);
         thread.start();
-        countDownLatch.await(5, TimeUnit.SECONDS);
+        countDownLatch.await(10L, TimeUnit.SECONDS);
         assertThat(thread.delCount, is(1));
 
         // expand serial range to include huge aut-num object
         countDownLatch = new CountDownLatch(1);
         thread.setLastSerial(MIN_RANGE + 4);
         setSerial(MIN_RANGE + 1, MIN_RANGE + 4);
-        countDownLatch.await(5, TimeUnit.SECONDS);
+        countDownLatch.await(10L, TimeUnit.SECONDS);
 
         assertThat(thread.addCount, is(1));
         assertThat(thread.delCount, is(3));
@@ -110,7 +109,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
             thread.start();
         }
 
-        countDownLatch.await(WAIT_FOR_CLIENT_THREADS, TimeUnit.SECONDS);
+        countDownLatch.await(10L, TimeUnit.SECONDS);
 
         for (NrtmTestThread thread : threads) {
             if (thread.error != null) {
@@ -125,7 +124,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
         // update MAX serial
         setSerial(MIN_RANGE, MAX_RANGE);
 
-        countDownLatch.await(WAIT_FOR_CLIENT_THREADS, TimeUnit.SECONDS);
+        countDownLatch.await(10L, TimeUnit.SECONDS);
 
         // check results
         int addResult = threads.get(0).addCount;
