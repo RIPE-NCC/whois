@@ -86,7 +86,7 @@ public class ChangedPhased3Scenario {
 
             // NRTM
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( NRTM,    EVENT                 ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
-            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( TELNET,  SEARCH                ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
+            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( TELNET,  EVENT                 ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
     // new mode
 
@@ -143,7 +143,7 @@ public class ChangedPhased3Scenario {
 
             // NRTM
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( NRTM,    EVENT                 ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
-            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( TELNET,  SEARCH                ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED)
+            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( TELNET,  EVENT                 ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED)
 
 
 // @formatter:on
