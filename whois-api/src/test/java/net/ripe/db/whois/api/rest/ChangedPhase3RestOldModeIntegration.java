@@ -1,9 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
-import javassist.NotFoundException;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -100,6 +98,14 @@ public class ChangedPhase3RestOldModeIntegration extends AbstractIntegrationTest
 
         verifyResponse(output, MUST_NOT_CONTAIN_CHANGED);
         verifyMail(MUST_NOT_CONTAIN_CHANGED);
+    }
+
+    @Test
+    public void todo_use_scenario_table_to_drive_tests() {
+        for( ChangedPhased3Scenario scenario: ChangedPhased3Scenario.getScenarios() ) {
+            // TODO: Needs implementation
+            scenario.run();
+        }
     }
 
 

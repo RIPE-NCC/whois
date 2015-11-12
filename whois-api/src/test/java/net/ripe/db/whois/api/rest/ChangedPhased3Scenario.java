@@ -28,7 +28,7 @@ import static net.ripe.db.whois.api.rest.ChangedPhased3Scenario.Result.FAILED;
 import static net.ripe.db.whois.api.rest.ChangedPhased3Scenario.Result.SUCCESS;
 
 public class ChangedPhased3Scenario {
-    private final List<ChangedPhased3Scenario> scenarios = Lists.newArrayList(
+    private static final List<ChangedPhased3Scenario> scenarios = Lists.newArrayList(
 // @formatter:off
 
     // old mode
@@ -37,10 +37,10 @@ public class ChangedPhased3Scenario {
             given( OLD_MODE, OBJ_NO_EXISTS           ).when( REST,    CREATE, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
             given( OLD_MODE, OBJ_NO_EXISTS           ).when( REST,    CREATE, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
-            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( REST,    MODIFY, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
-            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( REST,    MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( REST,    MODIFY, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( REST,    MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
+            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( REST,    MODIFY, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
+            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( REST,    MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( REST,    DELETE                ).then( SUCCESS, OBJ_NO_EXISTS),
             given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( REST,    DELETE                ).then( SUCCESS, OBJ_NO_EXISTS),
@@ -60,29 +60,29 @@ public class ChangedPhased3Scenario {
             given( OLD_MODE, OBJ_NO_EXISTS           ).when( SYNCUPD, CREATE, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
             given( OLD_MODE, OBJ_NO_EXISTS           ).when( SYNCUPD, CREATE, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
-            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, MODIFY, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
-            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( SYNCUPD, MODIFY, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( SYNCUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
+            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, MODIFY, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
+            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
-            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, DELETE, WITH_CHANGED  ).then( FAILED),
-            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, DELETE, NO_CHANGED    ).then( SUCCESS, OBJ_NO_EXISTS),
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( SYNCUPD, DELETE, WITH_CHANGED  ).then( SUCCESS, OBJ_NO_EXISTS),
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( SYNCUPD, DELETE, NO_CHANGED    ).then( FAILED),
+            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, DELETE, WITH_CHANGED  ).then( FAILED),
+            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, DELETE, NO_CHANGED    ).then( SUCCESS, OBJ_NO_EXISTS),
 
             // MAIL UPD
             given( OLD_MODE, OBJ_NO_EXISTS           ).when( MAILUPD, CREATE, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
             given( OLD_MODE, OBJ_NO_EXISTS           ).when( MAILUPD, CREATE, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
-            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, MODIFY, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
-            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( MAILUPD, MODIFY, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( MAILUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
+            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, MODIFY, WITH_CHANGED  ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
+            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
-            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, DELETE, WITH_CHANGED  ).then( FAILED),
-            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, DELETE, NO_CHANGED    ).then( SUCCESS, OBJ_NO_EXISTS),
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( MAILUPD, DELETE, WITH_CHANGED  ).then( SUCCESS, OBJ_NO_EXISTS),
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( MAILUPD, DELETE, NO_CHANGED    ).then( FAILED),
+            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, DELETE, WITH_CHANGED  ).then( FAILED),
+            given( OLD_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, DELETE, NO_CHANGED    ).then( SUCCESS, OBJ_NO_EXISTS),
 
             // NRTM
             given( OLD_MODE, OBJ_EXISTS_WITH_CHANGED ).when( NRTM,    EVENT                 ).then( SUCCESS, OBJ_EXISTS_WITH_CHANGED),
@@ -94,10 +94,10 @@ public class ChangedPhased3Scenario {
             given( NEW_MODE, OBJ_NO_EXISTS           ).when( REST,    CREATE, WITH_CHANGED  ).then( FAILED),
             given( NEW_MODE, OBJ_NO_EXISTS           ).when( REST,    CREATE, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
-            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( REST,    MODIFY, WITH_CHANGED  ).then( FAILED),
-            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( REST,    MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( REST,    MODIFY, WITH_CHANGED  ).then( FAILED),
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( REST,    MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
+            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( REST,    MODIFY, WITH_CHANGED  ).then( FAILED),
+            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( REST,    MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( REST,    DELETE                ).then( SUCCESS, OBJ_NO_EXISTS),
             given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( REST,    DELETE                ).then( SUCCESS, OBJ_NO_EXISTS),
@@ -117,29 +117,29 @@ public class ChangedPhased3Scenario {
             given( NEW_MODE, OBJ_NO_EXISTS           ).when( SYNCUPD, CREATE, WITH_CHANGED  ).then( FAILED),
             given( NEW_MODE, OBJ_NO_EXISTS           ).when( SYNCUPD, CREATE, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
-            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, MODIFY, WITH_CHANGED  ).then( FAILED),
-            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( SYNCUPD, MODIFY, WITH_CHANGED  ).then( FAILED),
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( SYNCUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
+            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, MODIFY, WITH_CHANGED  ).then( FAILED),
+            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
-            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, DELETE, WITH_CHANGED  ).then( FAILED),
-            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, DELETE, NO_CHANGED    ).then( SUCCESS, OBJ_NO_EXISTS),
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( SYNCUPD, DELETE, WITH_CHANGED  ).then( FAILED),
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( SYNCUPD, DELETE, NO_CHANGED    ).then( SUCCESS, OBJ_NO_EXISTS),
+            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, DELETE, WITH_CHANGED  ).then( FAILED),
+            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( SYNCUPD, DELETE, NO_CHANGED    ).then( SUCCESS, OBJ_NO_EXISTS),
 
             // MAIL UPD
             given( NEW_MODE, OBJ_NO_EXISTS           ).when( MAILUPD, CREATE, WITH_CHANGED  ).then( FAILED),
             given( NEW_MODE, OBJ_NO_EXISTS           ).when( MAILUPD, CREATE, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
-            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, MODIFY, WITH_CHANGED  ).then( FAILED),
-            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( MAILUPD, MODIFY, WITH_CHANGED  ).then( FAILED),
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( MAILUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
+            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, MODIFY, WITH_CHANGED  ).then( FAILED),
+            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, MODIFY, NO_CHANGED    ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
 
-            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, DELETE, WITH_CHANGED  ).then( FAILED),
-            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, DELETE, NO_CHANGED    ).then( SUCCESS, OBJ_NO_EXISTS),
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( MAILUPD, DELETE, WITH_CHANGED  ).then( FAILED),
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( MAILUPD, DELETE, NO_CHANGED    ).then( SUCCESS, OBJ_NO_EXISTS),
+            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, DELETE, WITH_CHANGED  ).then( FAILED),
+            given( NEW_MODE, OBJ_EXISTS_NO_CHANGED   ).when( MAILUPD, DELETE, NO_CHANGED    ).then( SUCCESS, OBJ_NO_EXISTS),
 
             // NRTM
             given( NEW_MODE, OBJ_EXISTS_WITH_CHANGED ).when( NRTM,    EVENT                 ).then( SUCCESS, OBJ_EXISTS_NO_CHANGED),
@@ -150,7 +150,7 @@ public class ChangedPhased3Scenario {
 
     );
 
-    public List<ChangedPhased3Scenario> getScenarios() {
+    public static List<ChangedPhased3Scenario> getScenarios() {
         return scenarios;
     }
 
@@ -188,8 +188,6 @@ public class ChangedPhased3Scenario {
     private final PreCond postCond;
 
     public ChangedPhased3Scenario(Mode mode, PreCond preCond, Protocol protocol, Method method, Req req, Result result, PreCond postCond) {
-        this.description = String.format("Mode:%s, Pre:%s, Protocol:%sMethod:%s, Req:%s, Post:%s",
-                mode, preCond, protocol, method, req, result, postCond);
         this.mode = mode;
         this.preCond = preCond;
         this.protocol = protocol;
@@ -197,6 +195,8 @@ public class ChangedPhased3Scenario {
         this.req = req;
         this.result = result;
         this.postCond = postCond;
+        this.description = String.format("Mode:%s, Pre:%s, Protocol:%s, Method:%s, Req:%s, Result:%s, Post:%s",
+                getMode(), getPreCond(), getProtocol(), getMethod(), getReq(), getResult(), getPostCond());
     }
 
     public String getDescription() {
@@ -223,6 +223,10 @@ public class ChangedPhased3Scenario {
         return req;
     }
 
+    public Result getResult() {
+        return result;
+    }
+
     public PreCond getPostCond() {
         return postCond;
     }
@@ -232,7 +236,7 @@ public class ChangedPhased3Scenario {
     }
 
     public void run() {
-
+        // TODO: needs implementation
     }
 
     static class Builder {
@@ -267,7 +271,7 @@ public class ChangedPhased3Scenario {
             return new ChangedPhased3Scenario(
                     mode, preCond, protocol,
                     method, req,
-                    result, null);
+                    result, preCond);
         }
 
         public ChangedPhased3Scenario then(final Result result, final PreCond postCond) {
