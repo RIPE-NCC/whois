@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ChangedAttrFeatureToggle {
 
-    final private Boolean isAvailable;
+    private final Boolean isAvailable;
 
     @Autowired
-    public ChangedAttrFeatureToggle(@Value("${feature.toggle.changed.attr.available}") Boolean isAvailable) {
+    public ChangedAttrFeatureToggle(@Value("${feature.toggle.changed.attr.available}") final Boolean isAvailable) {
         this.isAvailable = isAvailable;
     }
 
