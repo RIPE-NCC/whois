@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.toggles;
+package net.ripe.db.whois.common.rpsl.attrs.toggles;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +10,7 @@ public class ChangedAttrFeatureToggle {
     final private Boolean isAvailable;
 
     @Autowired
-    public ChangedAttrFeatureToggle(@Value("${feature.toggle.changed.attr.available}") final Boolean isAvailable) {
+    public ChangedAttrFeatureToggle(@Value("${feature.toggle.changed.attr.available}") Boolean isAvailable) {
         this.isAvailable = isAvailable;
     }
 
