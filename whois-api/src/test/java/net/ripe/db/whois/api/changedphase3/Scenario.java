@@ -106,7 +106,14 @@ public class Scenario {
     }
 
     public void run() {
-        // TODO: needs implementation
+        switch(protocol) {
+            case REST___:
+                RestRunner.run();
+            case MAILUPD:
+                MailupdatesRunner.run();
+            case SYNCUPD:
+                SyncupdatesRunner.run();
+        }
     }
 
     static class Builder {
@@ -151,5 +158,35 @@ public class Scenario {
                     result, postCond);
         }
 
+    }
+
+    static class TelnetRunner {
+        public static void run() {
+
+        }
+    }
+
+    static class RestRunner {
+        public static void run() {
+
+        }
+    }
+
+    static class SyncupdatesRunner {
+        public static void run() {
+
+        }
+    }
+
+    static class MailupdatesRunner {
+        public static void run() {
+
+        }
+    }
+
+    static class NrtmRunner {
+        public void run() {
+
+        }
     }
 }
