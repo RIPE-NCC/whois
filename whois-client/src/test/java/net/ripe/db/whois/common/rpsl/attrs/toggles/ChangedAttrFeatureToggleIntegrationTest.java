@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.toggles;
+package net.ripe.db.whois.common.rpsl.attrs.toggles;
 
 import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.BeforeClass;
