@@ -2,32 +2,48 @@ package net.ripe.db.whois.api.changedphase3;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import static net.ripe.db.whois.api.changedphase3.Scenario.Req.NOT_APPLIC;
+import static net.ripe.db.whois.api.changedphase3.Scenario.Req.NOT_APPLIC__;
 
 public class Scenario {
 
     public enum Mode {
-        OLD_MODE, NEW_MODE
+        OLD_MODE,
+        NEW_MODE
     }
 
     public enum ObjectStatus {
-        OBJ_EXISTS_NO_CHANGED, OBJ_EXISTS_WITH_CHANGED, OBJ_NO_EXISTS
+        OBJ_EXISTS_NO_CHANGED__,
+        OBJ_EXISTS_WITH_CHANGED,
+        OBJ_DOES_NOT_EXIST_____
     }
 
     public enum Protocol {
-        REST, TELNET, SYNCUPD, MAILUPD, NRTM
+        REST___,
+        TELNET_,
+        SYNCUPD,
+        MAILUPD,
+        NRTM___
     }
 
     public enum Method {
-        CREATE, MODIFY, DELETE, SEARCH, GET, META, EVENT
+        CREATE,
+        MODIFY,
+        DELETE,
+        SEARCH,
+        GET___,
+        META__,
+        EVENT_
     }
 
     public enum Req {
-        WITH_CHANGED, NO_CHANGED, NOT_APPLIC
+        WITH_CHANGED,
+        NO_CHANGED__,
+        NOT_APPLIC__
     }
 
     public enum Result {
-        SUCCESS, FAILED
+        SUCCESS,
+        FAILED
     }
 
     private final Mode mode;
@@ -110,7 +126,7 @@ public class Scenario {
         public Builder when(final Protocol protocol, final Method method) {
             this.protocol = protocol;
             this.method = method;
-            this.req = NOT_APPLIC;
+            this.req = NOT_APPLIC__;
             return this;
         }
 
