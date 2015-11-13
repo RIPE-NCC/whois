@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rest;
+package net.ripe.db.whois.api.changedphase3;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -21,7 +21,6 @@ import javax.mail.MessagingException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.containsString;
@@ -33,14 +32,13 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public class ChangedPhase3RestOldModeIntegration extends AbstractIntegrationTest {
+public abstract class AbstractChangedPhase3Test extends AbstractIntegrationTest {
 
+    @Autowired protected WhoisObjectMapper whoisObjectMapper;
+    @Autowired protected MailSenderStub mailSenderStub;
+    @Autowired protected MaintenanceMode maintenanceMode;
 
-    @Autowired private WhoisObjectMapper whoisObjectMapper;
-    @Autowired private MailSenderStub mailSenderStub;
-    @Autowired private MaintenanceMode maintenanceMode;
-
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
+    protected static final RpslObject TEST_PERSON = RpslObject.parse("" +
             "person:    Test Person\n" +
             "address:   Singel 258\n" +
             "phone:     +31 6 12345678\n" +
@@ -48,7 +46,7 @@ public class ChangedPhase3RestOldModeIntegration extends AbstractIntegrationTest
             "mnt-by:    TEST-MNT\n" +
             "source:    TEST\n");
 
-    private static final RpslObject TEST_MNTNER = RpslObject.parse("" +
+    protected static final RpslObject TEST_MNTNER = RpslObject.parse("" +
             "mntner:        TEST-MNT\n" +
             "descr:         Test maintainer\n" +
             "admin-c:       TP1-TEST\n" +
@@ -58,7 +56,7 @@ public class ChangedPhase3RestOldModeIntegration extends AbstractIntegrationTest
             "mnt-by:        TEST-MNT\n" +
             "source:        TEST");
 
-    private static final RpslObject TEST_OBJECT = RpslObject.parse("" +
+    protected static final RpslObject TEST_OBJECT = RpslObject.parse("" +
             "person:  Pauleth Palthen\n" +
             "address: Singel 258\n" +
             "phone:   +31-1234567890\n" +
@@ -68,9 +66,9 @@ public class ChangedPhase3RestOldModeIntegration extends AbstractIntegrationTest
             "remarks: remark\n" +
             "source:  TEST\n");
 
-    private static String CHANGED_VALUE = "test@ripe.net 20121016";
-    private static boolean MUST_CONTAIN_CHANGED = true;
-    private static boolean MUST_NOT_CONTAIN_CHANGED = false;
+    protected static String CHANGED_VALUE = "test@ripe.net 20121016";
+    protected static boolean MUST_CONTAIN_CHANGED = true;
+    protected static boolean MUST_NOT_CONTAIN_CHANGED = false;
 
     @Before
     public void setup() {
@@ -100,26 +98,17 @@ public class ChangedPhase3RestOldModeIntegration extends AbstractIntegrationTest
         verifyMail(MUST_NOT_CONTAIN_CHANGED);
     }
 
-    @Test
-    public void todo_use_scenario_table_to_drive_tests() {
-        for( ChangedPhased3Scenario scenario: ChangedPhased3Scenario.getScenarios() ) {
-            // TODO: Needs implementation
-            scenario.run();
-        }
-    }
-
-
-    private RpslObject PERSON_WITHOUT_CHANGED() {
+    protected RpslObject PERSON_WITHOUT_CHANGED() {
         return TEST_OBJECT;
     }
 
-    private RpslObject PERSON_WITH_CHANGED() {
+    protected RpslObject PERSON_WITH_CHANGED() {
         return new RpslObjectBuilder(TEST_OBJECT)
                 .addAttributeSorted(new RpslAttribute(AttributeType.CHANGED, CHANGED_VALUE))
                 .get();
     }
 
-    private void verifyObjectNotExists() {
+    protected void verifyObjectNotExists() {
         try {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                     .request()
@@ -129,21 +118,21 @@ public class ChangedPhase3RestOldModeIntegration extends AbstractIntegrationTest
         }
     }
 
-    private void verifyObjectExists() {
+    protected void verifyObjectExists() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .request()
                 .get(WhoisResources.class);
-        assertThat(whoisResources.getWhoisObjects(),hasSize(1));
-        assertThat(whoisResources.getErrorMessages(),hasSize(0));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages(), hasSize(0));
     }
 
-    private RpslObject restCreateObject(final RpslObject obj) {
+    protected RpslObject restCreateObject(final RpslObject obj) {
         try {
             final WhoisResources resp = RestTest.target(getPort(), "whois/test/person?password=123")
                     .request()
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, obj), MediaType.APPLICATION_XML), WhoisResources.class);
             return whoisObjectMapper.map(resp.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
-        } catch( ClientErrorException exc) {
+        } catch (ClientErrorException exc) {
 //            WhoisResources whoisResources = exc.getResponse().readEntity(WhoisResources.class);
 //            for( ErrorMessage em: whoisResources.getErrorMessages() ) {
 //                System.err.println("restCreateObject:" + em.toString() );
@@ -152,18 +141,18 @@ public class ChangedPhase3RestOldModeIntegration extends AbstractIntegrationTest
         }
     }
 
-    private void verifyResponse(final RpslObject obj, final boolean mustContainChanged) {
-        if( mustContainChanged ) {
+    protected void verifyResponse(final RpslObject obj, final boolean mustContainChanged) {
+        if (mustContainChanged) {
             assertThat(obj.findAttribute(AttributeType.CHANGED).getValue(), is(CHANGED_VALUE));
         } else {
             assertThat(obj.containsAttribute(AttributeType.CHANGED), is(false));
         }
     }
 
-    private void verifyMail(final boolean mustContainChanged) throws MessagingException, IOException {
+    protected void verifyMail(final boolean mustContainChanged) throws MessagingException, IOException {
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
 
-        if( mustContainChanged ) {
+        if (mustContainChanged) {
             assertThat(message, containsString(CHANGED_VALUE));
         } else {
             assertThat(message, not(containsString(CHANGED_VALUE)));
