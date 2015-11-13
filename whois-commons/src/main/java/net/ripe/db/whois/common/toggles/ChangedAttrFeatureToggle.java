@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common;
+package net.ripe.db.whois.common.toggles;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
