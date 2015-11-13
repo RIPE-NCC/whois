@@ -13,7 +13,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
-public abstract class ConventionalTest extends AbstractChangedPhase3Test {
+public class ConventionalTest extends AbstractChangedPhase3Test {
 
     @Test
     public void rest_create_with_changed_old_mode() throws Exception {
