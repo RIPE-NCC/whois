@@ -97,7 +97,7 @@ public class OldModeTest extends AbstractChangedPhase3Test {
     @Test
     public void old_mode_nrtm_test() {
         given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run();
-        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(TELNET_, EVENT_, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run();
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run();
     }
 
 }
