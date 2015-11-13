@@ -1,19 +1,17 @@
-package net.ripe.db.whois.common;
+package net.ripe.db.whois.common.toggles;
 
-import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import static org.junit.Assert.assertEquals;
 
 @Category(IntegrationTest.class)
-@ActiveProfiles(WhoisProfile.TEST)
-@ContextConfiguration(locations = {"classpath:applicationContext-commons-test.xml"})
+@ContextConfiguration(locations = {"classpath:applicationContext-toggles-test.xml"})
 public class ChangedAttrFeatureToggleIntegrationTest extends AbstractJUnit4SpringContextTests {
 
     private static final Boolean TOGGLE_VALUE = Boolean.TRUE;
