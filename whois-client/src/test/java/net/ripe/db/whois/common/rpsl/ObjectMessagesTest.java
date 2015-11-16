@@ -2,13 +2,14 @@ package net.ripe.db.whois.common.rpsl;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-public class ObjectMessagesTest {
+public class ObjectMessagesTest extends ObjectTemplateDependentTest {
     private ObjectMessages subject;
     private Message error;
     private Message warning;

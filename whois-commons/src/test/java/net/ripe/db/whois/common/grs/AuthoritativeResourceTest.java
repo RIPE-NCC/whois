@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.grs;
 
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Rule;
@@ -23,7 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AuthoritativeResourceTest {
+public class AuthoritativeResourceTest extends ObjectTemplateDependentTest {
     Logger logger = LoggerFactory.getLogger(AuthoritativeResourceTest.class);
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 

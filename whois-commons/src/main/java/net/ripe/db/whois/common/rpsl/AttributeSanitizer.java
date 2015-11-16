@@ -52,7 +52,7 @@ public class AttributeSanitizer {
         SANITIZER_MAP.put(AttributeType.STATUS, new UppercaseSanitizer());
 
         // add the default sanitizer for keys and primary attributes
-        for (ObjectTemplate objectTemplate : ObjectTemplate.getTemplates()) {
+        for (ObjectTemplate objectTemplate : ObjectTemplateProvider.getTemplates()) {
             keyAttributes.addAll(objectTemplate.getKeyAttributes());
             keyAttributes.add(objectTemplate.getAttributeTemplates().get(0).getAttributeType());
         }
@@ -78,7 +78,7 @@ public class AttributeSanitizer {
         final List<RpslAttribute> keyRelatedAttributes = Lists.newArrayList();
         keyRelatedAttributes.add(originalObject.getTypeAttribute());
 
-        final Set<AttributeType> keyAttributeTypesForObject = ObjectTemplate.getTemplate(originalObject.getType()).getKeyAttributes();
+        final Set<AttributeType> keyAttributeTypesForObject = ObjectTemplateProvider.getTemplate(originalObject.getType()).getKeyAttributes();
 
         for (final RpslAttribute attr : originalObject.getAttributes()) {
             if (keyAttributeTypesForObject.contains(attr.getType())) {

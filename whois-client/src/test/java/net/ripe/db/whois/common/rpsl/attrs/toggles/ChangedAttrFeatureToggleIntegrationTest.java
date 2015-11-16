@@ -4,7 +4,6 @@ import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
@@ -16,9 +15,6 @@ public class ChangedAttrFeatureToggleIntegrationTest extends AbstractJUnit4Sprin
 
     private static final Boolean TOGGLE_VALUE = Boolean.TRUE;
 
-    @Autowired
-    private ChangedAttrFeatureToggle toggle;
-
     @BeforeClass
     public synchronized static void beforeClass() {
         System.setProperty("feature.toggle.changed.attr.available", TOGGLE_VALUE.toString());
@@ -26,6 +22,8 @@ public class ChangedAttrFeatureToggleIntegrationTest extends AbstractJUnit4Sprin
 
     @Test
     public void changedIsAvailable() {
-        assertEquals(TOGGLE_VALUE, toggle.isChangedAttrAvailable());
+        assertEquals(TOGGLE_VALUE, ChangedAttrFeatureToggle.isChangedAttrAvailable());
     }
+
+
 }
