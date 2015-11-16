@@ -13,6 +13,6 @@
     <import resource="applicationContext-api.xml"/>
     <context:component-scan base-package="net.ripe.db.whois.scheduler"/>
 
-    <task:scheduler id="whoisScheduler" pool-size="10"/>
-    <task:annotation-driven scheduler="whoisScheduler"/>
+    <task:scheduler id="taskExecutor" pool-size="10"/>
+    <task:annotation-driven scheduler="taskExecutor"/>
 </beans>

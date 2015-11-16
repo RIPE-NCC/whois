@@ -20,9 +20,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DummifierLegacyTest {
+public class DummifierNrtmTest {
 
-    @InjectMocks DummifierLegacy subject;
+    @InjectMocks
+    DummifierNrtm subject;
 
     @Test(expected = IllegalArgumentException.class)
     public void null_type() {
@@ -31,25 +32,25 @@ public class DummifierLegacyTest {
 
     @Test
     public void skip_objects_version_1_2() {
-        for (ObjectType objectType : DummifierLegacy.SKIPPED_OBJECT_TYPES) {
+        for (ObjectType objectType : DummifierNrtm.SKIPPED_OBJECT_TYPES) {
             RpslObject object = createObject(objectType, "YAY", new RpslAttribute(AttributeType.REMARKS, "Remark!"), new RpslAttribute(AttributeType.SOURCE, "TEST"));
 
             assertTrue(subject.isAllowed(1, object));
             assertTrue(subject.isAllowed(2, object));
 
             if (objectType.equals(ObjectType.ROLE)) {
-                assertEquals(subject.dummify(1, object), DummifierLegacy.getPlaceholderRoleObject());
-                assertEquals(subject.dummify(2, object), DummifierLegacy.getPlaceholderRoleObject());
+                assertEquals(subject.dummify(1, object), DummifierNrtm.getPlaceholderRoleObject());
+                assertEquals(subject.dummify(2, object), DummifierNrtm.getPlaceholderRoleObject());
             } else {
-                assertEquals(subject.dummify(1, object), DummifierLegacy.getPlaceholderPersonObject());
-                assertEquals(subject.dummify(2, object), DummifierLegacy.getPlaceholderPersonObject());
+                assertEquals(subject.dummify(1, object), DummifierNrtm.getPlaceholderPersonObject());
+                assertEquals(subject.dummify(2, object), DummifierNrtm.getPlaceholderPersonObject());
             }
         }
     }
 
     @Test
     public void skip_objects_version_3() {
-        for (ObjectType objectType : DummifierLegacy.SKIPPED_OBJECT_TYPES) {
+        for (ObjectType objectType : DummifierNrtm.SKIPPED_OBJECT_TYPES) {
             final RpslObject object = createObject(objectType, "YAY", new RpslAttribute(AttributeType.REMARKS, "Remark!"));
 
             assertThat(subject.isAllowed(3, object), is(false));
@@ -66,7 +67,7 @@ public class DummifierLegacyTest {
     @Test
     public void allow_objects_version_3() {
         for (ObjectType objectType : ObjectType.values()) {
-            if (DummifierLegacy.SKIPPED_OBJECT_TYPES.contains(objectType)) {
+            if (DummifierNrtm.SKIPPED_OBJECT_TYPES.contains(objectType)) {
                 continue;
             }
 
@@ -81,21 +82,21 @@ public class DummifierLegacyTest {
         final ArrayList<RpslAttribute> attributes = Lists.newArrayList(createObject(ObjectType.INETNUM, "10.0.0.0").getAttributes());
 
         final String tempValue = "VALUE";
-        for (AttributeType personRoleReference : DummifierLegacy.PERSON_ROLE_REFERENCES) {
+        for (AttributeType personRoleReference : DummifierNrtm.PERSON_ROLE_REFERENCES) {
             final RpslAttribute attribute = new RpslAttribute(personRoleReference.getName(), tempValue);
 
             attributes.add(attribute);
             attributes.add(attribute);
         }
 
-        assertThat(attributes, hasSize(3 + 2 * DummifierLegacy.PERSON_ROLE_REFERENCES.size()));
+        assertThat(attributes, hasSize(3 + 2 * DummifierNrtm.PERSON_ROLE_REFERENCES.size()));
 
         attributes.add(new RpslAttribute(AttributeType.SOURCE, "TEST"));
 
         final RpslObject rpslObject = new RpslObject(0, attributes);
         final RpslObject dummifiedObject = subject.dummify(3, rpslObject);
 
-        for (AttributeType personRoleReference : DummifierLegacy.PERSON_ROLE_REFERENCES) {
+        for (AttributeType personRoleReference : DummifierNrtm.PERSON_ROLE_REFERENCES) {
             final List<RpslAttribute> rpslAttributes = dummifiedObject.findAttributes(personRoleReference);
             assertThat(personRoleReference.toString(), rpslAttributes, hasSize(1));
             assertThat(rpslAttributes.get(0).getValue(), is(not(tempValue)));

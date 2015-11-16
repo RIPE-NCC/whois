@@ -121,7 +121,7 @@ public class IndexWithIfAddrTest extends IndexTestBase {
     }
 
     private void checkRows(int expectedCount) {
-        assertThat(whoisTemplate.queryForInt("SELECT COUNT(*) FROM ifaddr"), is(expectedCount));
+        assertThat(whoisTemplate.queryForObject("SELECT COUNT(*) FROM ifaddr", Integer.class), is(expectedCount));
     }
 
     private String getIfAddrAttributeAsString(final RpslObject rpslObject) {

@@ -18,7 +18,7 @@ public class X509RepositoryJdbcTest extends AbstractUpdateDaoTest {
     public void claimSpecified() {
         boolean availableAndClaimed = subject.claimSpecified(new X509KeycertId("ON", 10, "RIPE"));
         assertThat(availableAndClaimed, is(true));
-        final int currentX509Id = whoisTemplate.queryForInt("SELECT keycert_id FROM x509");
+        final int currentX509Id = whoisTemplate.queryForObject("SELECT keycert_id FROM x509", Integer.class);
         assertThat(currentX509Id, is(10));
     }
 
