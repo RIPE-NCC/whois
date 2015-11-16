@@ -176,7 +176,9 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public LocalDateTime getLastUpdated(int objectId) {
-        return new LocalDateTime(jdbcTemplate.queryForLong("SELECT timestamp FROM last WHERE object_id = ?", objectId) * 1000L);
+        return new LocalDateTime(
+            jdbcTemplate.queryForObject("SELECT timestamp FROM last WHERE object_id = ?", new Object[]{objectId}, Long.class)
+                * 1000L);
     }
 
     @Override
