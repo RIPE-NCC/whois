@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReferencedObjectsExistValidatorTest {
+public class ReferencedObjectsExistValidatorTest extends ObjectTemplateDependentTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 

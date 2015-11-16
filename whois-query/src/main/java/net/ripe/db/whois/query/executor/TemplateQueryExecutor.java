@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.executor;
 
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
@@ -37,10 +38,10 @@ public class TemplateQueryExecutor implements QueryExecutor {
     }
 
     private String getTemplate(final ObjectType objectType) {
-        return ObjectTemplate.getTemplate(objectType).toString();
+        return ObjectTemplateProvider.getTemplate(objectType).toString();
     }
 
     private String getVerbose(final ObjectType objectType) {
-        return ObjectTemplate.getTemplate(objectType).toVerboseString();
+        return ObjectTemplateProvider.getTemplate(objectType).toVerboseString();
     }
 }

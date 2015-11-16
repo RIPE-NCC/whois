@@ -2,14 +2,17 @@ package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class AttributeMatcherTest {
+public class AttributeMatcherTest extends ObjectTemplateDependentTest {
 
     @Test
     public void searchKeyTypesName() {
@@ -73,7 +76,7 @@ public class AttributeMatcherTest {
     @Test
     public void checkAllSupported() {
         for (final ObjectType objectType : ObjectType.values()) {
-            final ObjectTemplate template = ObjectTemplate.getTemplate(objectType);
+            final ObjectTemplate template = ObjectTemplateProvider.getTemplate(objectType);
             for (final AttributeType lookupAttribute : template.getLookupAttributes()) {
                 Validate.isTrue(AttributeMatcher.attributeMatchers.containsKey(lookupAttribute), "No matcher for lookup attribute: " + lookupAttribute + " defined for " + objectType);
             }

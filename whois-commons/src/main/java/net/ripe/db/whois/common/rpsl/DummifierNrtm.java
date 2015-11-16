@@ -71,7 +71,7 @@ public class DummifierNrtm implements Dummifier {
         if (!STRIPPED_OBJECT_TYPES.contains(objectType)) {
             return;
         }
-        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
+        final ObjectTemplate objectTemplate = ObjectTemplateProvider.getTemplate(objectType);
         final Set<AttributeType> mandatoryAttributes = objectTemplate.getMandatoryAttributes();
 
         for (Iterator<RpslAttribute> iterator = attributes.iterator(); iterator.hasNext(); ) {

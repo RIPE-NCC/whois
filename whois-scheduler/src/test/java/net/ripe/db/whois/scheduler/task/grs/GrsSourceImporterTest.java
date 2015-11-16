@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GrsSourceImporterTest {
+public class GrsSourceImporterTest extends ObjectTemplateDependentTest {
 
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
