@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.joda.time.IllegalFieldValueException;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -23,8 +24,12 @@ public class Changed {
     }
 
     public Changed(final String email, final LocalDate date) {
-        this.email = email;
-        this.date = date;
+        if(ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
+            this.email = email;
+            this.date = date;
+        } else {
+            throw new AttributeParseException("Changed attribute is not in use.", email + " " + date);
+        }
     }
 
     public String getEmail() {

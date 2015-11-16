@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.rpsl.attrs.Changed;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -22,16 +23,20 @@ public class ChangedAttributeValidator implements BusinessRuleValidator {
 
     @Override
     public List<Action> getActions() {
+        checkIfChangedIsActive();
         return Lists.newArrayList(Action.CREATE, Action.MODIFY);
     }
 
     @Override
     public List<ObjectType> getTypes() {
+        checkIfChangedIsActive();
         return Lists.newArrayList(ObjectType.values());
     }
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+        checkIfChangedIsActive();
+
         int missing = 0;
         List<LocalDate> localDateOrder = Lists.newArrayList();
         for (RpslAttribute attribute : update.getSubmittedObject().findAttributes(AttributeType.CHANGED)) {
@@ -62,5 +67,11 @@ public class ChangedAttributeValidator implements BusinessRuleValidator {
     private boolean dateIsMoreThanOneDayInTheFuture(final LocalDate toCheck) {
         final LocalDate today = new LocalDate();
         return toCheck.isAfter(today.plusDays(1));
+    }
+
+    private void checkIfChangedIsActive() {
+        if(!ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
+            throw new IllegalStateException("Operation not allowed (changed attribute is disabled)");
+        }
     }
 }

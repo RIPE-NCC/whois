@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
@@ -789,6 +790,12 @@ public enum AttributeType implements Documented {
             nameOrNull = nameOrNull.substring(1);
         }
 
-        return TYPE_NAMES.get(ciString(nameOrNull));
+        final AttributeType attributeType = TYPE_NAMES.get(ciString(nameOrNull));
+        if(AttributeType.CHANGED == attributeType &&
+           !ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
+            return null;
+        }
+
+        return attributeType;
     }
 }
