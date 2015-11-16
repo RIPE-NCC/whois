@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.executor;
 
 import com.google.common.base.Splitter;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.QueryFlag;
 import org.junit.Before;
@@ -9,7 +10,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-public class HelpQueryExecutorTest {
+public class HelpQueryExecutorTest extends ObjectTemplateDependentTest {
     private HelpQueryExecutor subject;
 
     @Before

@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.jdbc.DataSourceFactory;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.support.FileHelper;
@@ -20,7 +21,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ArinGrsSourceTest {
+public class ArinGrsSourceTest extends ObjectTemplateDependentTest {
     @Mock SourceContext sourceContext;
     @Mock DataSourceFactory dataSourceFactory;
     @Mock DateTimeProvider dateTimeProvider;

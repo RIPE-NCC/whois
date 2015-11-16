@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.pipeline;
 
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
@@ -16,7 +17,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionStateHandlerTest {
+public class ConnectionStateHandlerTest extends ObjectTemplateDependentTest {
 
     @Mock private MessageEvent messageMock;
     @Mock private Channel channelMock;

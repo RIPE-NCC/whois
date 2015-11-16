@@ -4,8 +4,10 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
@@ -16,7 +18,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class RpslObjectTest {
+public class RpslObjectTest extends ObjectTemplateDependentTest {
     private final String maintainer = "" +
             "mntner:          DEV-MNT\n" +
             "descr:           DEV maintainer\n" +

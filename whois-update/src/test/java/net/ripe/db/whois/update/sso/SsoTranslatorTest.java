@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.sso;
 
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.update.domain.Update;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SsoTranslatorTest {
+public class SsoTranslatorTest extends ObjectTemplateDependentTest {
 
     @Mock UpdateContext updateContext;
     @Mock Update update;

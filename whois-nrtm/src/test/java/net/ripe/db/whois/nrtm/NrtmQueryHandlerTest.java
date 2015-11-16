@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelException;
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class NrtmQueryHandlerTest {
+public class NrtmQueryHandlerTest extends ObjectTemplateDependentTest {
 
     @Mock private SerialDao serialDaoMock;
     @Mock private DummifierNrtm dummifierMock;

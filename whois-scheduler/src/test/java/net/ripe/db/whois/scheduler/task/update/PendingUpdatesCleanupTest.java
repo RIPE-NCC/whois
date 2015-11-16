@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.PendingUpdate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PendingUpdatesCleanupTest {
+public class PendingUpdatesCleanupTest extends ObjectTemplateDependentTest {
     @Mock private PendingUpdateDao pendingUpdateDao;
     @Mock private RpslObjectDao rpslObjectDao;
     @Mock private DateTimeProvider dateTimeProvider;
