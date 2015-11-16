@@ -30,7 +30,7 @@ public class JdbcNrtmClientDaoTest extends AbstractDaoTest {
         assertThat(info.getObjectId(), is(not(0)));
         assertThat(info.getObjectType(), is(ObjectType.MNTNER));
 
-        assertThat(databaseHelper.getWhoisTemplate().queryForInt("SELECT serial_id FROM serials WHERE object_id = ?", info.getObjectId()),
+        assertThat(databaseHelper.getWhoisTemplate().queryForObject("SELECT serial_id FROM serials WHERE object_id = ?", Integer.class, info.getObjectId()),
                 is(423534));
         final Map<String, Object> stringObjectMap = databaseHelper.getWhoisTemplate().queryForMap("SELECT object_id, mntner FROM mntner ORDER BY object_id DESC LIMIT 1");
         assertThat((String) stringObjectMap.get("mntner"), is("TEST-MNT"));
@@ -49,7 +49,7 @@ public class JdbcNrtmClientDaoTest extends AbstractDaoTest {
         assertThat(newSequenceUpdateInfo.getKey(), is(rpslObject.getKey().toString()));
         assertThat(newSequenceUpdateInfo.getObjectId(), is(rpslObject.getObjectId()));
         assertThat(newSequenceUpdateInfo.getObjectType(), is(rpslObject.getType()));
-        assertThat(databaseHelper.getWhoisTemplate().queryForInt("SELECT serial_id FROM serials WHERE object_id = ? ORDER BY serial_id DESC LIMIT 1", newSequenceUpdateInfo.getObjectId()),
+        assertThat(databaseHelper.getWhoisTemplate().queryForObject("SELECT serial_id FROM serials WHERE object_id = ? ORDER BY serial_id DESC LIMIT 1", Integer.class, newSequenceUpdateInfo.getObjectId()),
                 is(6234523));
     }
 
@@ -72,7 +72,7 @@ public class JdbcNrtmClientDaoTest extends AbstractDaoTest {
         final RpslObject object = databaseHelper.updateObject(databaseHelper.addObject(RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST")));
         subject.deleteObject(new RpslObjectUpdateInfo(object.getObjectId(), 2, object.getType(), object.getKey().toString()), 2563245);
 
-        assertThat(databaseHelper.getWhoisTemplate().queryForInt("SELECT serial_id FROM serials WHERE object_id = ? ORDER BY serial_id DESC limit 1", object.getObjectId()),
+        assertThat(databaseHelper.getWhoisTemplate().queryForObject("SELECT serial_id FROM serials WHERE object_id = ? ORDER BY serial_id DESC limit 1", Integer.class, object.getObjectId()),
                 is(2563245));
         //TODO more assertions
     }

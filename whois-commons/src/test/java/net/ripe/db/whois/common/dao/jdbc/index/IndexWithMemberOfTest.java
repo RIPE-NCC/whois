@@ -146,6 +146,6 @@ public class IndexWithMemberOfTest extends IndexTestBase {
     }
 
     private int getNrMemberOf() {
-        return whoisTemplate.queryForInt("select count(*) from member_of");
+        return whoisTemplate.queryForObject("select count(*) from member_of", Integer.class);
     }
 }

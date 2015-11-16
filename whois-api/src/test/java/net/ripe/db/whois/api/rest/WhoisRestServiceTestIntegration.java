@@ -37,6 +37,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
+import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.client.ClientProperties;
@@ -3797,9 +3798,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
         final List<Flag> flags = whoisResources.getParameters().getFlags().getFlags();
-        assertThat(flags, hasSize(2));
-        assertThat(flags.get(0).getValue(), is("no-referenced"));
-        assertThat(flags.get(1).getValue(), is("no-filtering"));
+        assertThat(flags, containsInAnyOrder(new Flag(QueryFlag.NO_REFERENCED), new Flag(QueryFlag.NO_FILTERING)));
     }
 
     @Test
@@ -4138,9 +4137,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(str, containsString("" +
                 "\"type-filters\" : {\n" +
                 "    \"type-filter\" : [ {\n" +
-                "      \"id\" : \"aut-num\"\n" +
-                "    }, {\n" +
                 "      \"id\" : \"as-block\"\n" +
+                "    }, {\n" +
+                "      \"id\" : \"aut-num\"\n" +
                 "    } ]\n" +
                 "  },"));
 

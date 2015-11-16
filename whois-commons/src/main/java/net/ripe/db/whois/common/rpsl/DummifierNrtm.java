@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class DummifierLegacy implements Dummifier {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DummifierLegacy.class);
+public class DummifierNrtm implements Dummifier {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummifierNrtm.class);
 
     static final Set<ObjectType> SKIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.PERSON, ObjectType.ROLE);
     static final Set<ObjectType> STRIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.MNTNER, ObjectType.ORGANISATION);
@@ -30,7 +30,11 @@ public class DummifierLegacy implements Dummifier {
             AttributeType.ZONE_C
     );
 
-    static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(AttributeType.ABUSE_C, AttributeType.CHANGED, AttributeType.LAST_MODIFIED, AttributeType.CREATED);
+    static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(
+            AttributeType.ABUSE_C,
+            AttributeType.CHANGED,
+            AttributeType.LAST_MODIFIED,
+            AttributeType.CREATED);
 
     static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
     static {
