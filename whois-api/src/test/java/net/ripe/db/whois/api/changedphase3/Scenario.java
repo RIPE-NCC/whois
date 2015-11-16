@@ -1,51 +1,9 @@
 package net.ripe.db.whois.api.changedphase3;
 
 import static com.google.common.base.Preconditions.checkArgument;
-
 import static net.ripe.db.whois.api.changedphase3.Scenario.Req.NOT_APPLIC__;
 
 public class Scenario {
-
-    public enum Mode {
-        OLD_MODE,
-        NEW_MODE
-    }
-
-    public enum ObjectStatus {
-        OBJ_EXISTS_NO_CHANGED__,
-        OBJ_EXISTS_WITH_CHANGED,
-        OBJ_DOES_NOT_EXIST_____
-    }
-
-    public enum Protocol {
-        REST___,
-        TELNET_,
-        SYNCUPD,
-        MAILUPD,
-        NRTM___
-    }
-
-    public enum Method {
-        CREATE,
-        MODIFY,
-        DELETE,
-        SEARCH,
-        GET___,
-        META__,
-        EVENT_
-    }
-
-    public enum Req {
-        WITH_CHANGED,
-        NO_CHANGED__,
-        NOT_APPLIC__
-    }
-
-    public enum Result {
-        SUCCESS,
-        FAILED
-    }
-
     private final Mode mode;
     private final ObjectStatus preCond;
     private final Protocol protocol;
@@ -100,20 +58,87 @@ public class Scenario {
         return postCond;
     }
 
+    public void run(final Context context) {
+        //System.err.println("*** Start running test " + this);
+        ScenarioRunner runner = RunnerProvider.getRunnerForProtocol(protocol, context);
+        runner.before(this);
+        switch (method) {
+            case CREATE:
+                runner.create(this);
+                break;
+
+            case MODIFY:
+                runner.modify(this);
+                break;
+
+            case DELETE:
+                runner.delete(this);
+                break;
+
+            case SEARCH:
+                runner.search(this);
+                break;
+
+            case GET___:
+                runner.get(this);
+                break;
+
+            case META__:
+                runner.meta(this);
+                break;
+
+            case EVENT_:
+                runner.event(this);
+                break;
+        }
+        runner.after(this);
+        //System.err.println("*** Done running test " + this);
+
+    }
+
     public String toString() {
-        return String.format("Mode:%s, Pre:%s, Protocol:%s, Method:%s, Req:%s, Result:%s, Post:%s",
+        return String.format("GIVEN( %s, %s ) WHEN( %s  %s, %s ) THEN( %s, %s )",
                 getMode(), getPreCond(), getProtocol(), getMethod(), getReq(), getResult(), getPostCond());
     }
 
-    public void run() {
-        switch(protocol) {
-            case REST___:
-                RestRunner.run();
-            case MAILUPD:
-                MailupdatesRunner.run();
-            case SYNCUPD:
-                SyncupdatesRunner.run();
-        }
+    public enum Mode {
+        OLD_MODE,
+        NEW_MODE
+    }
+
+    public enum ObjectStatus {
+        OBJ_EXISTS_NO_CHANGED__,
+        OBJ_EXISTS_WITH_CHANGED,
+        OBJ_DOES_NOT_EXIST_____
+    }
+
+    public enum Protocol {
+        REST___,
+        TELNET_,
+        SYNCUPD,
+        MAILUPD,
+        NRTM___
+    }
+
+    public enum Method {
+        CREATE,
+        MODIFY,
+        DELETE,
+        SEARCH,
+        GET___,
+        META__,
+        EVENT_
+    }
+
+    public enum Req {
+        WITH_CHANGED,
+        NO_CHANGED__,
+        NOT_APPLIC__
+    }
+
+    public enum Result {
+        SUCCESS,
+        FAILED
     }
 
     static class Builder {
@@ -158,35 +183,5 @@ public class Scenario {
                     result, postCond);
         }
 
-    }
-
-    static class TelnetRunner {
-        public static void run() {
-
-        }
-    }
-
-    static class RestRunner {
-        public static void run() {
-
-        }
-    }
-
-    static class SyncupdatesRunner {
-        public static void run() {
-
-        }
-    }
-
-    static class MailupdatesRunner {
-        public static void run() {
-
-        }
-    }
-
-    static class NrtmRunner {
-        public void run() {
-
-        }
     }
 }
