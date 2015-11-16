@@ -19,7 +19,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                    phone:   +44 282 420469
                    nic-hdl: Fp11-RIpe
                    mnt-by:  owner-mnt
-                   changed: denis@ripe.net 20121016
                    source:  TEST
                 """,
                 "ALLOC-PA-LOW-DOM-R": """\
@@ -35,7 +34,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 mnt-domains:  LIR2-MNT
                 mnt-routes:   LIR3-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
         ]
@@ -56,7 +54,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: Fp11-RIpe
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 dry-run:
@@ -97,7 +94,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: Fp11-RIpe
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password:   owner
@@ -136,7 +132,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: Fp11-RIpe
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password:   owner
@@ -174,7 +169,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: Fp11-RIpe
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 dry-run:
 
@@ -214,7 +208,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: Fp11-RIpe
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password:   owner
@@ -252,7 +245,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: Fp11-RIpe
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 dry-run:  qwerty
@@ -291,7 +283,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: Fp11-RIpe
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 dry-run:
@@ -332,7 +323,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 phone:   44 282 420469
                 nic-hdl: Fp11-RIpe
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 dry-run:
@@ -374,7 +364,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 remarks: just added
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 dry-run:
@@ -413,7 +402,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 dry-run:
@@ -453,7 +441,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 remarks: just added
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 dry-run:
@@ -496,7 +483,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: Fp11-RIpe
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 delete:  dry-run, should not delete
 
@@ -539,7 +525,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 remarks: just added
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
 
                 person:  First Person
@@ -549,7 +534,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: Fp11-RIpe
                 mnt-by:  owner-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 dry-run:
@@ -590,7 +574,6 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 dry-run:

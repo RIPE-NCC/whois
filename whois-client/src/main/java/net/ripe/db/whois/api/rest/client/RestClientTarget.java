@@ -5,11 +5,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.rest.domain.AbuseContact;
-import net.ripe.db.whois.api.rest.domain.AbuseResources;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisVersion;
+import net.ripe.db.whois.api.rest.domain.*;
 import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -35,10 +31,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RestClientTarget {
 
@@ -166,6 +159,33 @@ public class RestClientTarget {
             }
 
             return mapper.map(whoisResources.getWhoisObjects().get(0), attributeMapper);
+
+        } catch (ClientErrorException e) {
+            throw createException(e);
+        }
+    }
+
+    public List<RpslObject> update(final ActionRequest ... requests) {
+        try {
+            WebTarget webTarget = client.target(baseUrl)
+                    .path("references")
+                    .path(source);
+
+            webTarget = setParams(webTarget);
+
+            final Invocation.Builder request = webTarget.request();
+
+            setCookies(request);
+            setHeaders(request);
+
+            final WhoisResources entity = mapper.mapRpslObjects(attributeMapper, requests);
+            final WhoisResources whoisResources = request.put(Entity.entity(entity, MediaType.APPLICATION_XML), WhoisResources.class);
+
+            if (notifierCallback != null) {
+                notifierCallback.notify(whoisResources.getErrorMessages());
+            }
+
+            return mapper.mapWhoisObjects(whoisResources.getWhoisObjects(), attributeMapper);
 
         } catch (ClientErrorException e) {
             throw createException(e);
@@ -353,7 +373,8 @@ public class RestClientTarget {
             } else {
                 try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
                     final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
-                    throw new RestClientException(whoisResources.getErrorMessages());
+                    throw new RestClientException(((HttpURLConnection) urlConnection).getResponseCode(),
+                            whoisResources.getErrorMessages());
                 } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
                     LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
                     LOGGER.error("Caught exception while unmarshalling error", e);
@@ -420,7 +441,7 @@ public class RestClientTarget {
             if (whoisResources == null) {
                 return createExceptionFromMessage(e);
             }
-            return new RestClientException(whoisResources.getErrorMessages());
+            return new RestClientException( e.getResponse().getStatus(), whoisResources.getErrorMessages());
         } catch (ProcessingException | IllegalStateException e1) {
             return createExceptionFromMessage(e);
         }
@@ -430,12 +451,12 @@ public class RestClientTarget {
         try {
             final String entity = e.getResponse().readEntity(String.class);
             if (Strings.isNullOrEmpty(entity)) {
-                return new RestClientException(e);
+                return new RestClientException(e.getResponse().getStatus(), e);
             }
-            return new RestClientException(entity);
+            return new RestClientException(e.getResponse().getStatus(), entity);
         } catch (ProcessingException | IllegalStateException e1) {
             // stream has already been closed
-            return new RestClientException(e1.getCause());
+            return new RestClientException(e.getResponse().getStatus(), e1.getCause());
         }
     }
 }

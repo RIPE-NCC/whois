@@ -26,9 +26,10 @@ public class SsoTokenTranslatorTest {
     public void translateSsoToken() {
         final String ssotoken = "ssotoken";
         final String username = "username";
+        final String displayName = "Test User";
         final String uuid = "uuid";
 
-        when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, true, "2033-01-30T16:38:27.369+11:00"));
+        when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, displayName, true, "2033-01-30T16:38:27.369+11:00"));
         when(crowdClient.getUuid(username)).thenReturn(uuid);
 
         final UserSession userSession = subject.translateSsoToken(ssotoken);
@@ -51,8 +52,9 @@ public class SsoTokenTranslatorTest {
     public void translateSsoToken_invalid_username() {
         final String ssotoken = "ssotoken";
         final String username = "username";
+        final String displayName = "Test User";
 
-        when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, true, "2033-01-30T16:38:27.369+11:00"));
+        when(crowdClient.getUserSession(ssotoken)).thenReturn(new UserSession(username, displayName, true, "2033-01-30T16:38:27.369+11:00"));
         when(crowdClient.getUuid(username)).thenThrow(new CrowdClientException("Unknown RIPE NCC Access user: " + username));
 
         subject.translateSsoToken(ssotoken);

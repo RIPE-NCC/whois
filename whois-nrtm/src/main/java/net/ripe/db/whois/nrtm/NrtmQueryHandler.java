@@ -1,16 +1,12 @@
 package net.ripe.db.whois.nrtm;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 import joptsimple.OptionException;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.Dummifier;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelException;
@@ -35,7 +31,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
     static final int SECONDS_PER_DAY = 60 * 60 * 24;
     static final int HISTORY_AGE_LIMIT = 14 * SECONDS_PER_DAY;
-    static final int MAX_PENDING_WRITES = 16;
 
     private final SerialDao serialDao;
     private final Dummifier dummifier;
@@ -45,10 +40,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private final String applicationVersion;
     private final String source;
     private final long updateInterval;
-    private final boolean timestampsOff;
-
-
-    static final ChannelLocal<AtomicInteger> PENDING_WRITES = new ChannelLocal<>();
 
     private volatile ScheduledFuture<?> scheduledFuture;
 
@@ -56,7 +47,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             "% The RIPE Database is subject to Terms and Conditions.\n" +
             "% See http://www.ripe.net/db/support/db-terms-conditions.pdf";
 
-    public NrtmQueryHandler(final SerialDao serialDao, final Dummifier dummifier, final TaskScheduler clientSynchronisationScheduler, final NrtmLog nrtmLog, final String applicationVersion, final String source, final long updateInterval, final boolean timestampsOff) {
+    public NrtmQueryHandler(final SerialDao serialDao, final Dummifier dummifier, final TaskScheduler clientSynchronisationScheduler, final NrtmLog nrtmLog, final String applicationVersion, final String source, final long updateInterval) {
         this.serialDao = serialDao;
         this.dummifier = dummifier;
         this.clientSynchronisationScheduler = clientSynchronisationScheduler;
@@ -64,9 +55,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         this.applicationVersion = applicationVersion;
         this.source = source;
         this.updateInterval = updateInterval;
-
-        //TODO TP : remove timestampsOff field when timestamps always on
-        this.timestampsOff = timestampsOff;
     }
 
     @Override
@@ -183,16 +171,14 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
         while (serial <= end) {
 
-            if (PENDING_WRITES.get(channel).get() > MAX_PENDING_WRITES) {
-                break;
+            if (PendingWrites.isPending(channel)) {
+                Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+                continue;
             }
 
             final SerialEntry serialEntry = serialDao.getByIdForNrtm(serial);
             if (serialEntry != null) {
-                //TODO TP : remove timestampsOff field when timestamps always on
-                final RpslObject rpslObject = stripTimestampAttributes(serialEntry.getRpslObject(), timestampsOff);
-
-                if (dummifier.isAllowed(version, rpslObject)) {
+                if (dummifier.isAllowed(version, serialEntry.getRpslObject())) {
                     final String operation = serialEntry.getOperation().toString();
                     final String message;
                     if (version == NrtmServer.NRTM_VERSION) {
@@ -202,7 +188,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
                     }
 
                     writeMessage(channel, message);
-                    writeMessage(channel, dummifier.dummify(version, rpslObject).toString().trim());
+                    writeMessage(channel, dummifier.dummify(version, serialEntry.getRpslObject()).toString().trim());
                 }
             }
 
@@ -210,14 +196,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         }
 
         return serial;
-    }
-
-    private RpslObject stripTimestampAttributes(final RpslObject rpslObject, final boolean timestampsOff) {
-        if (timestampsOff) {
-            return new RpslObjectBuilder(rpslObject).
-                    removeAttributeTypes(Lists.newArrayList(AttributeType.CREATED, AttributeType.LAST_MODIFIED)).get();
-        }
-        return rpslObject;
     }
 
     private boolean isRequestedSerialInRange(final Query query, final SerialRange range) {
@@ -235,7 +213,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        PENDING_WRITES.set(ctx.getChannel(), new AtomicInteger());
+        PendingWrites.add(ctx.getChannel());
 
         writeMessage(ctx.getChannel(), TERMS_AND_CONDITIONS);
 
@@ -248,7 +226,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             scheduledFuture.cancel(true);
         }
 
-        PENDING_WRITES.remove(ctx.getChannel());
+        PendingWrites.remove(ctx.getChannel());
 
         super.channelDisconnected(ctx, e);
     }
@@ -258,10 +236,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             throw new ChannelException();
         }
 
-        final AtomicInteger pending = PENDING_WRITES.get(channel);
-        if (pending != null) {
-            pending.incrementAndGet();
-        }
+        PendingWrites.increment(channel);
 
         channel.write(message + "\n\n").addListener(LISTENER);
     }
@@ -269,10 +244,44 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private static final ChannelFutureListener LISTENER = new ChannelFutureListener() {
         @Override
         public void operationComplete(ChannelFuture future) throws Exception {
-            final AtomicInteger pending = PENDING_WRITES.get(future.getChannel());
+            PendingWrites.decrement(future.getChannel());
+        }
+    };
+
+    static final class PendingWrites {
+
+        private static final ChannelLocal<AtomicInteger> PENDING_WRITES = new ChannelLocal<>();
+        private static final int MAX_PENDING_WRITES = 16;
+
+        static void add(final Channel channel) {
+            PENDING_WRITES.set(channel, new AtomicInteger());
+        }
+
+        static void remove(final Channel channel) {
+            PENDING_WRITES.remove(channel);
+        }
+
+        static void increment(final Channel channel) {
+            final AtomicInteger pending = PENDING_WRITES.get(channel);
+            if (pending != null) {
+                pending.incrementAndGet();
+            }
+        }
+
+        static void decrement(final Channel channel) {
+            final AtomicInteger pending = PENDING_WRITES.get(channel);
             if (pending != null) {
                 pending.decrementAndGet();
             }
         }
-    };
+
+        static boolean isPending(final Channel channel) {
+            final AtomicInteger pending = PENDING_WRITES.get(channel);
+            if (pending == null) {
+                throw new ChannelException("channel removed");
+            }
+
+            return (pending.get() > MAX_PENDING_WRITES);
+        }
+    }
 }

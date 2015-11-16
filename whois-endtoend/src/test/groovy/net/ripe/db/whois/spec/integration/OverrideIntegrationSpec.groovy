@@ -17,7 +17,6 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  TST-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "TST-MNT2": """\
@@ -27,7 +26,6 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  TST-MNT2
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \\\$1\\\$fU9ZMQN9\\\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "PWR-MNT": """\
@@ -37,7 +35,6 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  RIPE-NCC-HM-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "ADMIN-PN": """\
@@ -48,7 +45,6 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """,
                 "ORG1": """\
@@ -60,7 +56,6 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
             e-mail:       org1@test.com
             mnt-ref:      TST-MNT
             mnt-by:       TST-MNT
-            changed:      dbtest@ripe.net 20120505
             source:       TEST
             """,
                 "ORG2": """\
@@ -74,7 +69,6 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-ref:      TST-MNT2
             mnt-by:       TST-MNT
             mnt-by:       TST-MNT2
-            changed:      dbtest@ripe.net 20120505
             source:       TEST
             """
         ]
@@ -242,7 +236,6 @@ class OverrideIntegrationSpec extends BaseWhoisSourceSpec {
             override: SOME WRONG PASSWORD
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             password: update
             """.stripIndent())

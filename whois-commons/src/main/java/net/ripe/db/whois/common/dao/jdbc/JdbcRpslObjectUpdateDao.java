@@ -171,7 +171,7 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
 
     @Override
     public RpslObjectUpdateInfo undeleteObject(final int objectId) {
-        final RpslObject rpslObject = jdbcTemplate.queryForObject("" +
+        final RpslObject rpslObject = jdbcTemplate.queryForObject(
                 "select h.object_id, h.object " +
                 "from last l " +
                 "left join history h on l.object_id = h.object_id " +
@@ -181,7 +181,10 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
                 new RpslObjectRowMapper(),
                 objectId, objectId);
 
-        final int sequenceId = jdbcTemplate.queryForInt("select max(sequence_id) from serials where object_id = ?", objectId);
+        final int sequenceId = jdbcTemplate.queryForObject(
+                "select max(sequence_id) from serials where object_id = ?",
+                Integer.class,
+                objectId);
 
         final ObjectType objectType = rpslObject.getType();
         final String pkey = rpslObject.getKey().toString();

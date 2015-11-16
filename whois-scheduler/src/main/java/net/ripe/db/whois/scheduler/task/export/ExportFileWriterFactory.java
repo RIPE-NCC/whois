@@ -3,7 +3,7 @@ package net.ripe.db.whois.scheduler.task.export;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
-import net.ripe.db.whois.common.rpsl.DummifierLegacy;
+import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,28 +18,23 @@ class ExportFileWriterFactory {
     private static final String SPLITFILE_FOLDERNAME = "split";
     private static final String CURRENTSERIAL_FILENAME = "RIPE.CURRENTSERIAL";
 
-    private final DummifierLegacy dummifierLegacy;
+    private final DummifierNrtm dummifierNrtm;
     private final DummifierCurrent dummifierCurrent;
 
     private final String legacyExternalExportDir;
     private final String externalExportDir;
     private final String internalExportDir;
 
-    // TODO: remove once timestamps are always on (MG)
-    private final boolean timestampsOff;
-
     @Autowired
-    ExportFileWriterFactory(final DummifierLegacy dummifierLegacy, final DummifierCurrent dummifierCurrent,
+    ExportFileWriterFactory(final DummifierNrtm dummifierNrtm, final DummifierCurrent dummifierCurrent,
                             @Value("${dir.rpsl.export.internal}") final String internalExportDir,
                             @Value("${dir.rpsl.export.external}") final String externalExportDir,
-                            @Value("${dir.rpsl.export.external.legacy}") final String legacyExternalExportDir,
-                            @Value("${rpsl.timestamps.off}") final boolean timestampsOff) {
-        this.dummifierLegacy = dummifierLegacy;
+                            @Value("${dir.rpsl.export.external.legacy}") final String legacyExternalExportDir) {
+        this.dummifierNrtm = dummifierNrtm;
         this.dummifierCurrent = dummifierCurrent;
         this.internalExportDir = internalExportDir;
         this.externalExportDir = externalExportDir;
         this.legacyExternalExportDir = legacyExternalExportDir;
-        this.timestampsOff = timestampsOff;
     }
 
     public List<ExportFileWriter> createExportFileWriters(final File baseDir, final int lastSerial) {
@@ -59,11 +54,11 @@ class ExportFileWriterFactory {
         }
 
         return Lists.newArrayList(
-                new ExportFileWriter(fullDir, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy),timestampsOff),
-                new ExportFileWriter(splitDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyLegacy(dummifierLegacy),timestampsOff),
-                new ExportFileWriter(fullDirNew, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent),timestampsOff),
-                new ExportFileWriter(splitDirNew, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent),timestampsOff),
-                new ExportFileWriter(internalDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.None(),timestampsOff)
+                new ExportFileWriter(fullDir, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyLegacy(dummifierNrtm)),
+                new ExportFileWriter(splitDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyLegacy(dummifierNrtm)),
+                new ExportFileWriter(fullDirNew, new FilenameStrategy.SingleFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent)),
+                new ExportFileWriter(splitDirNew, new FilenameStrategy.SplitFile(), new DecorationStrategy.DummifyCurrent(dummifierCurrent)),
+                new ExportFileWriter(internalDir, new FilenameStrategy.SplitFile(), new DecorationStrategy.None())
         );
     }
 

@@ -14,7 +14,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  TST-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "TST-MNT2": """\
@@ -24,7 +23,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  TST-MNT2
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \\\$1\\\$fU9ZMQN9\\\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "PWR-MNT": """\
@@ -34,7 +32,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:  RIPE-NCC-HM-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "ADMIN-PN": """\
@@ -45,7 +42,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """,
                 "ORG1": """\
@@ -57,7 +53,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             e-mail:       org1@test.com
             mnt-ref:      TST-MNT
             mnt-by:       TST-MNT
-            changed:      dbtest@ripe.net 20120505
             source:       TEST
             """,
                 "ORG2": """\
@@ -71,7 +66,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-ref:      TST-MNT2
             mnt-by:       TST-MNT
             mnt-by:       TST-MNT2
-            changed:      dbtest@ripe.net 20120505
             source:       TEST
             """,
                 "ABUSE-ROLE": """\
@@ -85,7 +79,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl: AB-NIC
             abuse-mailbox: abuse@test.net
             mnt-by:  TST-MNT2
-            changed: dbtest@ripe.net 20121016
             source:  TEST
             """,
                 "NOT-ABUSE-ROLE": """\
@@ -98,7 +91,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:  TEST-RIPE
             nic-hdl: NAB-NIC
             mnt-by:  TST-MNT2
-            changed: dbtest@ripe.net 20121016
             source:  TEST
             """
         ]
@@ -112,7 +104,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     OTHER
             address:      Singel 258
             e-mail:       bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -134,7 +125,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     OTHER
             address:      Singel 258
             e-mail:       bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -158,7 +148,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     OTHER
             address:      Singel 258
             e-mail:       bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -176,7 +165,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     OTHER
             address:      Singel 258
             e-mail:       bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -213,7 +201,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-ref:      TST-MNT
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       TST-MNT2
-                changed:      dbtest@ripe.net 20120505
                 source:       TEST
                 password:     update
                 dry-run:""".stripIndent())
@@ -230,7 +217,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     LIR
             address:      Singel 258
             e-mail:       bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -256,7 +242,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     OTHER
             address:      Singel 258
             e-mail:       bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -276,7 +261,6 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     OTHER
             address:      Singel 258
             e-mail:       bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST

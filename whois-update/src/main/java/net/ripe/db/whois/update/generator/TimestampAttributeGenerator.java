@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.TimestampsMode;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
@@ -19,22 +18,15 @@ import javax.annotation.Nullable;
 @Component
 public class TimestampAttributeGenerator extends AttributeGenerator {
     private final DateTimeProvider dateTimeProvider;
-    private final TimestampsMode timestampsMode;
+    //TODO [TP]: remove defensive code checks wher we check whether timestamp attributes are in original object.
 
     @Autowired
-    TimestampAttributeGenerator(final DateTimeProvider dateTimeProvider, final TimestampsMode timestampsMode) {
+    TimestampAttributeGenerator(final DateTimeProvider dateTimeProvider) {
         this.dateTimeProvider = dateTimeProvider;
-        this.timestampsMode = timestampsMode;
     }
 
     @Override
     public RpslObject generateAttributes(final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext) {
-
-        //TODO TP : remove when timestamps always on
-        if (timestampsMode.isTimestampsOff()) {
-            return updatedObject;
-        }
-
         final Action action = updateContext.getAction(update);
         if (action == Action.CREATE || action == Action.MODIFY || action == Action.DELETE) {
             final RpslObjectBuilder builder = new RpslObjectBuilder(updatedObject);
@@ -76,7 +68,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
                 break;
 
             case DELETE:
-                // for delete we just ignore what was passed in and make sure object looks like stored version
+//                 for delete we just ignore what was passed in and make sure object looks like stored version
                 if (originalObject.containsAttribute(AttributeType.CREATED)) {
                     generatedCreatedAttribute = new RpslAttribute(AttributeType.CREATED, originalObject.getValueForAttribute(AttributeType.CREATED));
                 }
@@ -96,9 +88,13 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
     }
 
     private void warnAndAdd(final Update update, final UpdateContext updateContext, final RpslObjectBuilder builder, final RpslObject updatedObject, final AttributeType attributeType, @Nullable final RpslAttribute generatedAttribute, final boolean addWarningsFlag) {
-        builder.removeAttributeType(attributeType);
+
         if (generatedAttribute != null) {
-            builder.addAttributeSorted(generatedAttribute);
+            if (updatedObject.containsAttribute(attributeType)){
+                builder.replaceAttribute(updatedObject.findAttribute(attributeType), generatedAttribute);
+            } else {
+                builder.addAttributeSorted(generatedAttribute);
+            }
         }
 
         if (addWarningsFlag) {

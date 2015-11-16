@@ -45,7 +45,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "upd-to:        noreply@ripe.net\n" +
             "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "mnt-by:        OWNER-MNT\n" +
-            "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
     private static final RpslObject TEST_PERSON = RpslObject.parse("" +
@@ -54,7 +53,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "phone:         +31 6 12345678\n" +
             "nic-hdl:       TP1-TEST\n" +
             "mnt-by:        OWNER-MNT\n" +
-            "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST\n");
 
     private static final RpslObject SECOND_MNT = RpslObject.parse("" +
@@ -64,7 +62,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "upd-to:        noreply@ripe.net\n" +
             "auth:          MD5-PW $1$1ZnhrEYU$h8QUAsDPLZYOYVjm3uGQr1 #secondmnt\n" +
             "mnt-by:        OWNER-MNT\n" +
-            "changed:       dbtest@ripe.net 20120101\n" +
             "source:        TEST");
 
     @Autowired
@@ -175,7 +172,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "auth:          SSO random@ripe.net\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST"));
 
         final RpslObject object = restClient.request()
@@ -196,7 +192,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST"));
 
         final RpslObject object = restClient.request()
@@ -216,7 +211,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-XX-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST");
 
         final RpslObject returnedObject = restClient.request()
@@ -252,7 +246,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "auth:          MD5-PW $1$L9a6Y39t$wuu.ykzgp596KK56tpJm31 #thirdmnt\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "mnt-by:        SECOND-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST");
 
         databaseHelper.addObject(SECOND_MNT);
@@ -274,7 +267,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
                 "mnt-by:        AA1-MNT\n" +
-                "changed:       noreply@ripe.net\n" +
                 "source:        TEST");
 
         final RpslObject object = restClient.request()
@@ -301,7 +293,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "e-mail:        some@email.net\n" +
                 "mnt-ref:       OWNER-MNT\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20121016\n" +
                 "source:        TEST");
 
         final RpslObject ABUSE_CONTACT_INETNUM = RpslObject.parse("" +
@@ -314,7 +305,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "tech-c:        TP1-TEST\n" +
                 "status:        SUB-ALLOCATED PA\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       org@ripe.net 20120505\n" +
                 "source:        TEST");
 
 
@@ -348,7 +338,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       WP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
         databaseHelper.addObject(
                 "person:        Someone Else\n" +
@@ -356,7 +345,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       WW\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
 
         final RpslObject response = restClient.request().lookup(ObjectType.PERSON, "WW");
@@ -375,7 +363,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "tech-c:        TP1-TEST\n" +
                 "status:        SUB-ALLOCATED PA\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       org@ripe.net 20120505\n" +
                 "source:        TEST");
         databaseHelper.addObject(
                 "aut-num:       AS3333\n" +
@@ -384,7 +371,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       noreply@ripe.net 20120101\n" +
                 "source:        TEST");
         databaseHelper.addObject(
                 "aut-num:       AS3334\n" +
@@ -393,21 +379,18 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       noreply@ripe.net 20120101\n" +
                 "source:        TEST");
         databaseHelper.addObject(
                 "route:         193.0.0.0/21\n" +
                 "descr:         RIPE-NCC\n" +
                 "origin:        AS3333\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       noreply@ripe.net 20120101\n" +
                 "source:        TEST");
         databaseHelper.addObject(
                 "route:         193.0.0.0/21\n" +
                 "descr:         RIPE-NCC\n" +
                 "origin:        AS3334\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       noreply@ripe.net 20120101\n" +
                 "source:        TEST");
         resetIpTrees();
 
@@ -433,7 +416,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP2-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
         databaseHelper.addObject(person);
 
@@ -459,7 +441,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             "tech-c:          TP1-TEST\n"+
             "status:          SUB-ALLOCATED PA\n"+
             "mnt-by:          OWNER-MNT\n"+
-            "changed:         ripe@test.net 20120505\n"+
             "source:          TEST\n" );
 
     @Test
@@ -475,7 +456,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:         OWNER-MNT\n"+
                 "nserver:        ns1.sefiber.dk\n"+
                 "nserver:        ns2.sefiber.dk\n"+
-                "changed:        noreply@ripe.net\n"+
                 "source:         TEST\n");
 
         restClient.request().addParam("password", "test").create(domain);
@@ -506,7 +486,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:         OWNER-MNT\n"+
                 "nserver:        ns1.sefiber.dk\n"+
                 "nserver:        ns2.sefiber.dk\n"+
-                "changed:        noreply@ripe.net\n"+
                 "source:         TEST\n" );
         databaseHelper.addObject(domain);
 
@@ -519,7 +498,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:         OWNER-MNT\n"+
                 "nserver:        ns1.sefiber.dk\n"+
                 "nserver:        ns2.sefiber.dk\n"+
-                "changed:        noreply@ripe.net\n"+
                 "source:         TEST\n");
 
         final RpslObject updatedResult = restClient.request()
@@ -552,7 +530,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:         OWNER-MNT\n"+
                 "nserver:        ns1.sefiber.dk\n"+
                 "nserver:        ns2.sefiber.dk\n"+
-                "changed:        noreply@ripe.net\n"+
                 "source:         TEST\n" ));
 
         final RpslObject toBeUpdatedDomain = RpslObject.parse("" +
@@ -564,7 +541,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:         OWNER-MNT\n"+
                 "nserver:        ns1.sefiber.dk\n"+
                 "nserver:        ns2.sefiber.dk\n"+
-                "changed:        noreply@ripe.net\n"+
                 "source:         TEST\n");
 
         final RpslObject updatedResult = restClient.request()
@@ -594,7 +570,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP2-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
         databaseHelper.addObject(person);
 
@@ -619,14 +594,13 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP2-TEST\n" +
                 "mnt-by:        OWNER-MNT # comment\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
 
         final RpslObject created = restClient.request()
                 .addParam("password", "test")
                 .create(person);
 
-        final RpslObject forComparison = new RpslObjectBuilder(person).remove(6).get();
+        final RpslObject forComparison = new RpslObjectBuilder(person).remove(5).get();
         assertThat(created.toString(), containsString(forComparison.toString()));
     }
 

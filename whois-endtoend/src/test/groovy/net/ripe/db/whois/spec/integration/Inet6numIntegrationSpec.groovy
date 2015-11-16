@@ -13,7 +13,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     nic-hdl: TEST-PN
                     mnt-by: TEST-MNT
-                    changed: ripe@test.net
                     source: TEST
                 """,
                 "TEST-MNT": """\
@@ -31,7 +30,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  RIPE-NCC-HM-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
-                    changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
                 "OTHER-MNT": """\
@@ -49,7 +47,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
                     auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                    changed: dbtest@ripe.net 20120707
                     source:  TEST
                 """,
                 "IRT": """\
@@ -60,7 +57,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     auth: MD5-PW \$1\$/7f2XnzQ\$p5ddbI7SXq4z4yNrObFS/0 # emptypassword
                     mnt-by: TEST-MNT
-                    changed: test@ripe.net 20120505
                     source: TEST
                 """,
                 "INET6ROOT": """\
@@ -72,7 +68,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: ALLOCATED-BY-RIR
                     mnt-by: RIPE-NCC-HM-MNT
-                    changed: ripe@test.net 20120505
                     source: TEST
                 """,
                 "ORG1": """\
@@ -84,7 +79,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "ORGLIR": """\
@@ -96,7 +90,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     e-mail:       org1@test.com
                     mnt-ref:      TEST-MNT
                     mnt-by:       RIPE-NCC-HM-MNT
-                    changed:      dbtest@ripe.net 20120505
                     source:       TEST
                 """,
                 "INET6WOEND": """\
@@ -108,7 +101,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                    tech-c: TEST-PN
                    status: ASSIGNED ANYCAST
                    mnt-by: TEST-MNT
-                   changed: ripe@test.net 20120505
                    source: TEST
                 """,
                 "INVALIDPKEY": """\
@@ -121,7 +113,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                    tech-c: TEST-PN
                    status: ASSIGNED ANYCAST
                    mnt-by: TEST-MNT
-                   changed: ripe@test.net 20120505
                    source: TEST
                 """
         ]
@@ -138,7 +129,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TEST-PN
                 status: ASSIGNED
                 mnt-by: TEST-MNT
-                changed: org@ripe.net 20120505
                 source: TEST
                 password: emptypassword
                 password: update
@@ -169,7 +159,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TEST-PN
                 status: SUB-ALLOCATED PA
                 mnt-by: TEST-MNT
-                changed: org@ripe.net 20120505
                 source: TEST
             """
 
@@ -194,7 +183,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: ASSIGNED
                     mnt-by: TEST-MNT
-                    changed: org@ripe.net 20120505
                     source: TEST
                     password: update
                     password: emptypassword
@@ -214,7 +202,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     tech-c: TEST-PN
                     status: SUB-ALLOCATED PA
                     mnt-by: TEST-MNT
-                    changed: org@ripe.net 20120505
                     source: TEST
                     password: update
                 """.stripIndent()))
@@ -235,7 +222,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        tech-c: TEST-PN
                                        status: ASSIGNED
                                        mnt-by: TEST-MNT
-                                       changed: ripe@test.net 20120505
                                        source: TEST
                                        password: update
                                        password: emptypassword
@@ -253,7 +239,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         tech-c: TEST-PN
                                         status: ASSIGNED
                                         mnt-by: TEST-MNT
-                                        changed: ripe@test.net 20120505
                                         source: TEST
                                         password: update
                                     """.stripIndent()))
@@ -273,7 +258,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        tech-c: TEST-PN
                                        status: ASSIGNED
                                        mnt-by: TEST-MNT
-                                       changed: ripe@test.net 20120505
                                        source: TEST
                                        password: update
                                        password: emptypassword
@@ -290,7 +274,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: ASSIGNED ANYCAST
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
@@ -312,7 +295,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        tech-c: TEST-PN
                                        status: ALLOCATED-BY-RIR
                                        mnt-by: RIPE-NCC-HM-MNT
-                                       changed: ripe@test.net 20120505
                                        source: TEST
                                        password: update
                                        password: emptypassword
@@ -329,7 +311,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: ALLOCATED-BY-RIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
@@ -350,7 +331,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        tech-c: TEST-PN
                                        status: ASSIGNED
                                        mnt-by: TEST-MNT
-                                       changed: ripe@test.net 20120505
                                        source: TEST
                                        password: update
                                        password: emptypassword
@@ -367,7 +347,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: ASSIGNED
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
@@ -387,7 +366,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        tech-c: TEST-PN
                                        status: ASSIGNED
                                        mnt-by: TEST-MNT
-                                       changed: ripe@test.net 20120505
                                        source: TEST
                                        password: update
                                        password: emptypassword
@@ -405,7 +383,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: ASSIGNED
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
@@ -428,7 +405,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        status: AGGREGATED-BY-LIR
                                        assignment-size: 68
                                        mnt-by: TEST-MNT
-                                       changed: ripe@test.net 20120505
                                        source: TEST
                                        password: update
                                        password: emptypassword
@@ -446,7 +422,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         status: AGGREGATED-BY-LIR
                                         assignment-size: 76
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
@@ -466,7 +441,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         tech-c: TEST-PN
                                         status: ASSIGNED ANYCAST
-                                        changed: ripe@test.net 20120505
                                         org: ORG-TOL2-TEST
                                         mnt-by: TEST-MNT
                                         mnt-lower: TEST-MNT
@@ -489,7 +463,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        tech-c: TEST-PN
                                        status: ASSIGNED
                                        mnt-by: TEST-MNT
-                                       changed: ripe@test.net 20120505
                                        source: TEST
                                        password: update
                                        password: emptypassword
@@ -506,7 +479,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: ASSIGNED
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         mnt-routes: TEST-MNT {2002::/64,2001::/24}
                                         source: TEST
@@ -530,7 +502,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: ALLOCATED-BY-RIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
@@ -551,7 +522,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         org: ORG-TOL1-TEST
                                         status: ALLOCATED-BY-RIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
@@ -572,7 +542,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: ASSIGNED
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
@@ -593,7 +562,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         assignment-size: 64
                                         source: TEST
@@ -612,7 +580,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-RIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
@@ -631,7 +598,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         assignment-size: 68
@@ -653,7 +619,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         assignment-size: 64
                                         source: TEST
@@ -672,7 +637,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         assignment-size: 68
                                         source: TEST
@@ -693,7 +657,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         assignment-size: 72
@@ -715,7 +678,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-lower: RIPE-NCC-HM-MNT
                                         mnt-by: TEST-MNT
                                         assignment-size: 64
@@ -735,7 +697,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: ASSIGNED
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: OTHER-MNT
                                         source: TEST
                                         password: emptypassword
@@ -756,7 +717,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-lower: RIPE-NCC-HM-MNT
                                         mnt-by: TEST-MNT
                                         assignment-size: 64
@@ -776,7 +736,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: ASSIGNED
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: OTHER-MNT
                                         source: TEST
                                         password: emptypassword
@@ -797,7 +756,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-lower: RIPE-NCC-HM-MNT
                                         mnt-by: TEST-MNT
                                         source: TEST
@@ -818,7 +776,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-lower: RIPE-NCC-HM-MNT
                                         mnt-by: TEST-MNT
                                         assignment-size: 64
@@ -839,7 +796,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         status: ASSIGNED
                                         assignment-size: 32
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: OTHER-MNT
                                         source: TEST
                                         password: emptypassword
@@ -863,7 +819,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-lower: RIPE-NCC-HM-MNT
                                         mnt-by: RIPE-NCC-HM-MNT
                                         assignment-size: 64
@@ -882,7 +837,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         admin-c: TEST-PN
                                         status: ASSIGNED
                                         tech-c: TEST-PN
-                                        changed: ripe@test.net 20120505
                                         mnt-by: OTHER-MNT
                                         source: TEST
                                         password: otherpassword
@@ -908,7 +862,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        mnt-by: RIPE-NCC-HM-MNT
                                        mnt-irt: irt-IRT1
                                        org: ORG-TOL1-TEST
-                                       changed: ripe@test.net 20120505
                                        source: TEST
                                        password: update
                                        password: emptypassword
@@ -930,7 +883,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        mnt-by: TEST-MNT
                                        mnt-irt: irt-IRT1
                                        org: ORG-TOL1-TEST
-                                       changed: ripe@test.net 20120505
                                        source: TEST
                                        password: update
                                     """.stripIndent()))
@@ -954,7 +906,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        mnt-by: TEST-MNT
                                        mnt-irt: irt-IRT1
                                        org: ORG-TOL1-TEST
-                                       changed: ripe@test.net 20120505
                                        source: TEST
                                        password: wrong_password
                                        override: denis,override1
@@ -974,7 +925,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        tech-c: TEST-PN
                                        status: ASSIGNED
                                        mnt-by: TEST-MNT
-                                       changed: ripe@test.net 20120505
                                        source: TEST
                                        password: update
                                        password: emptypassword
@@ -997,7 +947,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        status: ASSIGNED ANYCAST
                                        mnt-by: TEST-MNT
                                        org: ORG-TOL2-TEST
-                                       changed: ripe@test.net 20120506
                                        source: TEST
                                        password: update
                                        password: emptypassword

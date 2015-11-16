@@ -103,7 +103,6 @@ public final class IndexStrategies {
                 new Unindexed(AttributeType.PINGABLE),
                 new IndexWithValue(AttributeType.POEM, "poem", "poem"),
                 new IndexWithValue(AttributeType.POETIC_FORM, "poetic_form", "poetic_form"),
-                new IndexWithReference(AttributeType.REFERRAL_BY, "referral_by", "mnt_id"),
                 new IndexWithValue(AttributeType.REF_NFY, "ref_nfy", "ref_nfy"),
                 new Unindexed(AttributeType.REMARKS),
                 new IndexWithNameAndType(AttributeType.ROLE, ObjectType.ROLE, "names"),

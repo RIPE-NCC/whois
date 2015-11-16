@@ -34,7 +34,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST");
         databaseHelper.updateObject(
                 "person:        Test Person\n" +
@@ -42,7 +41,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
         databaseHelper.updateObject(
                 "role:          Test Role\n" +
@@ -52,7 +50,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "admin-c:       TR1-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       dbtest@ripe.net 20120101\n" +
                 "source:        TEST\n");
         databaseHelper.addObject(
                 "inet6num:     ::/0\n" +
@@ -63,7 +60,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "tech-c:       TP1-TEST\n" +
                 "status:       ALLOCATED-BY-RIR\n" +
                 "mnt-by:       OWNER-MNT\n" +
-                "changed:      ripe@test.net 20120505\n" +
                 "remarks:      This network in not allocated.\n" +
                 "source:       TEST");
         databaseHelper.addObject(
@@ -78,7 +74,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:       OWNER-MNT\n" +
                 "mnt-lower:    OWNER-MNT\n" +
                 "mnt-routes:   OWNER-MNT\n" +
-                "changed:      dbtest@ripe.net 20020101\n" +
                 "source:       TEST");
         ipTreeUpdater.rebuild();
     }
@@ -103,7 +98,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "tech-c:        TP1-TEST\n" +
                 "status:        SUB-ALLOCATED PA\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       org@ripe.net 20120505\n" +
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
@@ -141,7 +135,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "tech-c:        TP1-TEST\n" +
                 "status:        SUB-ALLOCATED PA\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       org@ripe.net 20120505\n" +
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
@@ -188,7 +181,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "tech-c:        TP1-TEST\n" +
                 "status:        SUB-ALLOCATED PA\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       org@ripe.net 20120505\n" +
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
@@ -226,7 +218,11 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                     .get(String.class);
         } catch (NotFoundException e) {
             final String responseEntity = e.getResponse().readEntity(String.class);
-            assertThat(responseEntity, is("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\"><message>No abuse contact found for 193.0.1.2</message></abuse-resources>"));
+            assertThat(responseEntity, is("" +
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                    "<abuse-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">" +
+                    "<message>No abuse contact found for 193.0.1.2</message>" +
+                    "</abuse-resources>"));
         }
     }
 
@@ -250,7 +246,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "tech-c:        TP1-TEST\n" +
                 "status:        SUB-ALLOCATED PA\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       org@ripe.net 20120505\n" +
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
@@ -298,7 +293,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "tech-c:        TP1-TEST\n" +
                 "status:        SUB-ALLOCATED PA\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       org@ripe.net 20120505\n" +
                 "source:        TEST");
         ipTreeUpdater.rebuild();
 
@@ -348,7 +342,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       org@ripe.net 20120505\n" +
                 "source:        TEST");
 
         final AbuseResources result = RestTest.target(getPort(), "whois/abuse-contact/AS333")
@@ -373,7 +366,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       org@ripe.net 20120505\n" +
                 "source:        test");
 
         final AbuseResources abuseResources = RestTest.target(getPort(), "whois/abuse-contact/AS333")
@@ -414,7 +406,6 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "changed:       org@ripe.net 20120505\n" +
                 "source:        test");
 
         final String result = RestTest.target(getPort(), "whois/abuse-contact/AS333.json")

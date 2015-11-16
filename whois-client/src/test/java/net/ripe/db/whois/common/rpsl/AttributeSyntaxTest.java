@@ -119,6 +119,9 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "mD5-pW $1$abc012./$./01234567890123456789");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "pgpkey-01234567");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO test2@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO test2-+._sso@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P'O@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P-L@ripe.net");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
@@ -627,6 +630,9 @@ public class AttributeSyntaxTest {
     public void members() throws Exception {
         verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "AS-TEST_TRANSIT");
         verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "AS2602");
+        verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "            AS2602        "); // regular spaces
+        verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "\u00A0" + "\u00A0" +"AS2602" + "\u00A0"); // non breaking spaces
+
         verifySuccess(ObjectType.AS_SET, AttributeType.MEMBERS, "AS2602, AS42909, AS51966");
 
         verifyFailure(ObjectType.AS_SET, AttributeType.MEMBERS, "AS2602, AS42909, AS51966,");
@@ -799,8 +805,11 @@ public class AttributeSyntaxTest {
 
     @Test
     public void mpPeering() throws Exception {
-        verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS3043 2001:504:17:115::169 at 2001:504:17:115::227");
+        verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS8262");
         verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS702:PRNG-AT-CONTINENTAL");
+        verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS3043 2001:504:17:115::169");
+        verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS3043 2001:504:17:115::169 at 2001:504:17:115::227");
+        verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS8262 146.188.51.222");
         verifySuccess(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS8262 146.188.51.222 At 146.188.51.221");
 
         verifyFailure(ObjectType.PEERING_SET, AttributeType.MP_PEERING, "AS8262 At 199.999");

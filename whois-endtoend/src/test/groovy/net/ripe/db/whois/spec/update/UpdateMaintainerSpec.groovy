@@ -16,7 +16,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: OWNER-MNT
             upd-to: updto_cre@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
             "SELF-MNT": """\
@@ -26,7 +25,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: SELF-MNT
             upd-to: updto_cre@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
             "UPD-MNT": """\
@@ -36,7 +34,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: OWNER-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
             "UPD2-MNT": """\
@@ -47,7 +44,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: OWNER-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
             "UPD3-MNT": """\
@@ -58,7 +54,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: OWNER-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120901
             source: TEST
             """,
             "UPD4-MNT": """\
@@ -69,7 +64,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             mnt-by: OWNER-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120901
             source: TEST
             """,
             "UPD5-MNT": """\
@@ -78,10 +72,26 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
             admin-c: TP1-TEST
             remarks: added comment
             mnt-by: OWNER-MNT
-            referral-by: OWNER-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120901
+            source: TEST
+            """,
+            "UPD6-MNT": """\
+            mntner: UPD-MNT
+            descr: description
+            admin-c: TP1-TEST
+            mnt-by: UPD-MNT
+            upd-to: dbtest@ripe.net
+            auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+            source: TEST
+            """ ,
+            "UPD7-MNT": """\
+            mntner: UPD-MNT
+            descr: description with extra info
+            admin-c: TP1-TEST
+            mnt-by: UPD-MNT
+            upd-to: dbtest@ripe.net
+            auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             source: TEST
             """
     ]}
@@ -128,7 +138,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 mnt-by: SELF-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: update
@@ -151,7 +160,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT", "MD5-PW # Filtered")
     }
 
-    // TODO: remove once referral-by is fully obsolete (MG)
     def "create maintainer with referral-by"() {
         expect:
         queryNothing("-rGBT mntner SELF-MNT")
@@ -167,7 +175,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 referral-by: SELF-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: update
@@ -177,62 +184,9 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         then:
         def ack = ackFor message
 
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.successes.any {it.operation == "Create" && it.key == "[mntner] SELF-MNT"}
-        ack.countErrorWarnInfo(0, 3, 0)
-
-        ack.successes.find { it.operation == "Create" &&
-                it.key == "[mntner] SELF-MNT"}.warnings == ["Deprecated attribute \"referral-by\". This attribute will be removed in the future."]
-
-        queryObject("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT")
-        query_object_not_matches("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT", "\\\$1\\\$fU9ZMQN9\\\$QQtm3kRqZXWAuLpeOiLN7.")
-        query_object_matches("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT", "MD5-PW # Filtered")
+        ack.failed
+        ack.contents =~ /\*\*\*Error:   "referral-by" is not a known RPSL attribute/
     }
-
-    def "create maintainer without referral-by succeeds"() {
-        expect:
-        queryNothing("-rGBT mntner SELF-MNT")
-
-        when:
-        def message = send new Message(
-                subject: "NEW",
-                body: """\
-                mntner: SELF-MNT
-                descr: description
-                admin-c: TP1-TEST
-                mnt-by: SELF-MNT
-                upd-to: updto_cre@ripe.net
-                auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
-                source: TEST
-
-                password: update
-                """.stripIndent()
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.successes.any {it.operation == "Create" && it.key == "[mntner] SELF-MNT"}
-        ack.countErrorWarnInfo(0, 0, 0)
-
-        ack.successes.find { it.operation == "Create" &&
-                it.key == "[mntner] SELF-MNT"}.warnings != ["Deprecated attribute \"referral-by\". This attribute will be removed in the future."]
-
-        queryObject("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT")
-        query_object_not_matches("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT", "\\\$1\\\$fU9ZMQN9\\\$QQtm3kRqZXWAuLpeOiLN7.")
-        query_object_matches("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT", "MD5-PW # Filtered")
-    }
-
 
     def "create maintainer object, no password value"() {
       given:
@@ -329,7 +283,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 mnt-by: OWNER-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: owner
@@ -364,7 +317,6 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
                 mnt-by: OWNER-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: update
@@ -461,42 +413,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         notif.added("mntner", "UPD-MNT", "remarks:        added comment")
     }
 
-    // TODO: remove once referral-by is fully obsolete (MG)
-    def "modify maintainer with referral-by"() {
-        given:
-        dbfixture(getTransient("UPD-MNT"))
-        def toUpdate = object(getTransient("UPD5-MNT"))
-
-        expect:
-        query_object_not_matches("-r -T mntner UPD-MNT", "mntner", "UPD-MNT", "remarks:\\s*added comment")
-        queryObject("-r -T mntner UPD-MNT", "mntner", "UPD-MNT")
-
-        when:
-        def message = send new Message(
-                subject: "update UPD-MNT",
-                body: toUpdate + "password: owner"
-        )
-
-        then:
-        def ack = ackFor message
-
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 3, 0)
-
-        ack.successes.find { it.operation == "Modify" &&
-                it.key == "[mntner] UPD-MNT"}.warnings == ["Deprecated attribute \"referral-by\". This attribute will be removed in the future."]
-
-        query_object_matches("-r -T mntner UPD-MNT", "mntner", "UPD-MNT", "remarks:\\s*added comment")
-
-        def notif = notificationFor "mntnfy_owner@ripe.net"
-        notif.added("mntner", "UPD-MNT", "remarks:        added comment")
-    }
-
-
-def "update maintainer new keyword"() {
+    def "update maintainer new keyword"() {
       given:
         dbfixture(getTransient("UPD-MNT"))
         def toUpdate = object(getTransient("UPD-MNT"))
@@ -624,8 +541,6 @@ def "update maintainer new keyword"() {
                 upd-to: updto_cre@ripe.net
                 upd-to: updto_cre2@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
-                changed: dbtest@ripe.net
                 source: TEST
                 auth:PGPKEY-D83C3FBD
 
@@ -669,7 +584,6 @@ def "update maintainer new keyword"() {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 auth:        PGPKEY-D83C3FBD
-                changed:     dbtest@ripe.net 20121109
                 source:      TEST
 
                 password: owner
@@ -703,7 +617,6 @@ def "update maintainer new keyword"() {
                 mnt-by: NEW-MNT
                 upd-to: updto_cre@ripe.net
                 auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-                changed: dbtest@ripe.net 20120707
                 source: TEST
 
                 password: update

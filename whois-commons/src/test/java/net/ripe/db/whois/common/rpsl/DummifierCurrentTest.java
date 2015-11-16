@@ -44,7 +44,6 @@ public class DummifierCurrentTest {
                 "nic-hdl: FB99999-RIPE\n" +
                 "mnt-by: AARDVARK-MNT\n" +
                 "notify: guy@ripe.net\n" +
-                "changed: guy@ripe.net 20040225\n" +
                 "source: RIPE");
 
         final RpslObject dummified = subject.dummify(4, person);
@@ -61,7 +60,6 @@ public class DummifierCurrentTest {
                 new RpslAttribute("nic-hdl", "FB99999-RIPE"),
                 new RpslAttribute("mnt-by", "AARDVARK-MNT"),
                 new RpslAttribute("notify", "***@ripe.net"),
-                new RpslAttribute("changed", "***@ripe.net 20040225"),
                 new RpslAttribute("source", "RIPE")));
     }
 
@@ -82,7 +80,7 @@ public class DummifierCurrentTest {
                 "source: RIPE\n" +
                 "mnt-by: RIPE-NCC-MNT\n" +
                 "mnt-lower: RIPE-NCC-MNT\n" +
-                "changed: bit-bucket@ripe.net 20110217");
+                "source: TEST");
 
         final RpslObject dummified = subject.dummify(4, inetnum);
 
@@ -101,7 +99,7 @@ public class DummifierCurrentTest {
                 new RpslAttribute("source", "RIPE"),
                 new RpslAttribute("mnt-by", "RIPE-NCC-MNT"),
                 new RpslAttribute("mnt-lower", "RIPE-NCC-MNT"),
-                new RpslAttribute("changed", "***@ripe.net 20110217")
+                new RpslAttribute("source", "TEST")
         ));
     }
 
@@ -126,7 +124,6 @@ public class DummifierCurrentTest {
                 "mnt-ref: RIPE-NCC-HM-MNT\n" +
                 "notify: hm-dbm-msgs@ripe.net\n" +
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
-                "changed: bitbucket@ripe.net 20121217\n" +
                 "source: RIPE");
 
         final RpslObject dummified = subject.dummify(4, organisation);
@@ -143,7 +140,6 @@ public class DummifierCurrentTest {
                 new RpslAttribute("mnt-ref", "RIPE-NCC-RIS-MNT"),
                 new RpslAttribute("mnt-ref", "RIPE-NCC-HM-MNT"),
                 new RpslAttribute("mnt-by", "RIPE-NCC-HM-MNT"),
-                new RpslAttribute("changed", "***@ripe.net 20121217"),
                 new RpslAttribute("phone", "+31 20 ... ...."),
                 new RpslAttribute("fax-no", "+31 20 ... ...."),
                 new RpslAttribute("admin-c", "AP110-RIPE"),
@@ -169,7 +165,6 @@ public class DummifierCurrentTest {
                 "auth: SSO 1234-5678-9abc-dead-beef\n" +
                 "notify: guy@ripe.net\n" +
                 "mnt-by: AARDVARK-MNT\n" +
-                "changed: guy@ripe.net 20120510\n" +
                 "source: RIPE # Filtered");
 
         final RpslObject dummified = subject.dummify(4, mntner);
@@ -186,7 +181,6 @@ public class DummifierCurrentTest {
                 new RpslAttribute("auth", "SSO # Filtered"),
                 new RpslAttribute("notify", "***@ripe.net"),
                 new RpslAttribute("mnt-by", "AARDVARK-MNT"),
-                new RpslAttribute("changed", "***@ripe.net 20120510"),
                 new RpslAttribute("source", "RIPE")
         ));
     }
@@ -205,7 +199,6 @@ public class DummifierCurrentTest {
                 "nic-hdl: RNTC-RIPE\n" +
                 "mnt-by: RIPE-DBM-MNT\n" +
                 "notify: ripe-dbm@ripe.net\n" +
-                "changed: ripe-dbm@ripe.net 20040225\n" +
                 "source: RIPE");
 
         final RpslObject dummified = subject.dummify(4, role);
@@ -222,7 +215,6 @@ public class DummifierCurrentTest {
                 new RpslAttribute("nic-hdl", "RNTC-RIPE"),
                 new RpslAttribute("mnt-by", "RIPE-DBM-MNT"),
                 new RpslAttribute("notify", "***@ripe.net"),
-                new RpslAttribute("changed", "***@ripe.net 20040225"),
                 new RpslAttribute("source", "RIPE")
         ));
     }
@@ -242,7 +234,6 @@ public class DummifierCurrentTest {
                 "nic-hdl: RNTC-RIPE\n" +
                 "mnt-by: RIPE-DBM-MNT\n" +
                 "notify: ripe-dbm@ripe.net\n" +
-                "changed: ripe-dbm@ripe.net 20040225\n" +
                 "source: RIPE");
 
         final RpslObject dummified = subject.dummify(4, role);
@@ -260,7 +251,6 @@ public class DummifierCurrentTest {
                 new RpslAttribute("nic-hdl", "RNTC-RIPE"),
                 new RpslAttribute("mnt-by", "RIPE-DBM-MNT"),
                 new RpslAttribute("notify", "***@ripe.net"),
-                new RpslAttribute("changed", "***@ripe.net 20040225"),
                 new RpslAttribute("source", "RIPE")
         ));
     }

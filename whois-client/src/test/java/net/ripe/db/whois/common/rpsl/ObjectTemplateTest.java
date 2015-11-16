@@ -23,8 +23,6 @@ public class ObjectTemplateTest {
             "auth:            MD5-PW $1$q8Su3Hq/$rJt5M3TNLeRE4UoCh5bSH/\n" +
             "remarks:         password: secret\n" +
             "mnt-by:          DEV-MNT\n" +
-            "referral-by:     DEV-MNT\n" +
-            "changed:         BECHA@example.net 20101010\n" +
             "created:         2014-04-15T13:15:30Z\n" +
             "last-modified:   2014-04-15T13:15:30Z\n" +
             "source:          DEV";
@@ -57,7 +55,7 @@ public class ObjectTemplateTest {
     public void getMultipleAttributes(){
         final ObjectTemplate template = ObjectTemplate.getTemplate(ObjectType.AS_BLOCK);
         Set<AttributeType> multipleAttributes = template.getMultipleAttributes();
-        assertThat(multipleAttributes.size(), is(6));
+        assertThat(multipleAttributes.size(), is(7));
     }
 
   @Test
@@ -115,23 +113,6 @@ public class ObjectTemplateTest {
     }
 
     @Test
-    public void validate_deprecated_attribute() {
-        final RpslObject rpslObject = RpslObject.parse(MAINTAINER_OBJECT_STRING);
-
-        final ObjectMessages objectMessages = subject.validate(rpslObject);
-
-        assertThat(objectMessages.hasErrors(), is(false));
-        assertThat(objectMessages.getMessages().getErrors(), hasSize(0));
-
-        assertThat(objectMessages.hasMessages(), is(true));
-        assertThat(objectMessages.getMessages().getWarnings(), hasSize(1));
-        Message warningMessage = objectMessages.getMessages().getWarnings().iterator().next();
-
-        assertThat(warningMessage, is(ValidationMessages.deprecatedAttributeFound(AttributeType.REFERRAL_BY)));
-    }
-
-
-    @Test
     public void isSet() {
         for (ObjectType objectType : ObjectType.values()) {
             assertThat(objectType.getName().toLowerCase().contains("set"), is(ObjectTemplate.getTemplate(objectType).isSet()));
@@ -155,7 +136,7 @@ public class ObjectTemplateTest {
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [generated]  [single]     [ ]\n" +
+                "sponsoring-org: [optional]   [single]     [ ]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
@@ -166,7 +147,7 @@ public class ObjectTemplateTest {
                 "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n"));
@@ -188,7 +169,7 @@ public class ObjectTemplateTest {
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [generated]  [single]     [ ]\n" +
+                "sponsoring-org: [optional]   [single]     [ ]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
@@ -199,7 +180,7 @@ public class ObjectTemplateTest {
                 "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "changed:        [mandatory]  [multiple]   [ ]\n" +
+                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -259,5 +240,14 @@ public class ObjectTemplateTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void name_transformations() {
+        assertThat(ObjectTemplate.getTemplate(ObjectType.MNTNER).getNameToFirstLower(), is("mntner") );
+        assertThat(ObjectTemplate.getTemplate(ObjectType.INETNUM).getNameToFirstUpper(), is("Inetnum"));
+
+        assertThat(ObjectTemplate.getTemplate(ObjectType.KEY_CERT).getNameToFirstLower(), is("keyCert") );
+        assertThat(ObjectTemplate.getTemplate(ObjectType.KEY_CERT).getNameToFirstUpper(), is("KeyCert") );
     }
 }

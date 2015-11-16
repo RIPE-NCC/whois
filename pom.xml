@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.80-SNAPSHOT</version>
+    <version>1.84-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -23,13 +23,14 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring.version>3.2.13.RELEASE</spring.version>
-        <aspectj.version>1.7.4</aspectj.version>
-        <java.version>1.7</java.version>
+        <!-- [ES] recommended Spring 4 w/Java 8 -->
+        <spring.version>4.2.1.RELEASE</spring.version>
+        <aspectj.version>1.8.6</aspectj.version>
+        <java.version>1.8</java.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.11</jersey.version>
-        <lucene.version>4.10.3</lucene.version>
-        <jetty.version>8.1.16.v20140903</jetty.version>
+        <lucene.version>4.10.4</lucene.version>
+        <jetty.version>8.1.17.v20150415</jetty.version>
         <whois.main>OVERRIDE</whois.main>
         <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
         <sonar.jdbc.driver>com.mysql.jdbc.Driver</sonar.jdbc.driver>
@@ -254,15 +255,19 @@
                 <artifactId>guava</artifactId>
                 <version>18.0</version>
             </dependency>
+            <!-- TODO: [ES] update MySQL connector to latest -->
+            <!-- TODO: [ES] 5.1.34 may be causing "lock wait timeout exceeded" -->
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.34</version>
+                <version>5.1.21</version>
             </dependency>
+            <!-- TODO: [ES] update c3p0 to latest -->
+            <!-- TODO: [ES] 0.9.5 may be causing "lock wait timeout exceeded" -->
             <dependency>
-                <groupId>com.mchange</groupId>
+                <groupId>c3p0</groupId>
                 <artifactId>c3p0</artifactId>
-                <version>0.9.5</version>
+                <version>0.9.1.2</version>
             </dependency>
             <!-- TODO: [ES] netty 3.10.0 creates excessive threads during integration tests -->
             <dependency>
@@ -291,17 +296,17 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpg-jdk15on</artifactId>
-                <version>1.51</version>
+                <version>1.52</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcmail-jdk15on</artifactId>
-                <version>1.51</version>
+                <version>1.52</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.51</version>
+                <version>1.52</version>
             </dependency>
 
             <!-- apache commons -->
@@ -851,6 +856,7 @@
                 <test.groups>None</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>None</test.files.integration>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
             </properties>
         </profile>
         <profile>

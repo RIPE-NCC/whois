@@ -237,7 +237,15 @@ ${notification.contents}
     }
 
     String syncUpdate(String content) {
-        syncUpdate(new SyncUpdate(data: content, redirect: true))
+        syncUpdate(content, false)
+    }
+
+    String syncUpdate(String content, boolean notifications) {
+        def response = syncUpdate(new SyncUpdate(data: content))
+        if (!notifications) {
+            clearAllMails()
+        }
+        return response
     }
 
     String syncUpdate(SyncUpdate syncUpdate) {
@@ -276,8 +284,8 @@ ${response}
         new SyncUpdateResponse(syncUpdate(content));
     }
 
-    SyncUpdateResponse syncUpdateWithResponseNoRedirect(String content) {
-        syncUpdateWithResponse(new SyncUpdate(data: content, redirect: false));
+    SyncUpdateResponse syncUpdateWithResponseWithNotifications(String content) {
+        new SyncUpdateResponse(syncUpdate(content, true));
     }
 
     def noMoreMessages() {

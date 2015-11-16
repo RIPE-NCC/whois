@@ -1,5 +1,44 @@
 ## next
 
+## 1.83
+[all] better error message for syntax error in organisation attribute
+[update] fixed bug where SyncUpdates POST without content type header results in an Internal Server Error
+[api] removed unnecessary logging during free text search indexing
+[api] fixed bug in delete with references to return the deleted objects.
+[api] fixed bug in REST delete for unsuccessful response.
+
+## 1.82
+[update] necessary changes to accommodate inter-RIR transfer requests.
+
+## 1.81
+[api] Added Autocomplete API
+[api] Added References API to allow creation and deletion of related objects
+[all] The sponsoring-org attribute is now optional and not generated
+[all] The mnt-by attribute is now multiple not single in as-block
+[update] Fixed email validation in auth sso attribute
+[all] Corrected mp-peering attribute syntax text
+[update] Fixed #275, delete does not fail with object mismatch if the difference is in generated attributes
+[update] Fixed bug where created and last-modified attributes are re-ordered on modify.
+[update] Fixed loading objects using bootstrap
+
+## 1.80.1
+[update] Add warning if update fails, and password(s) were removed from mntner due to insecure hashes
+
+## 1.80
+[update] remove passwords from audit log
+[all] removed referral-by attribute
+[all] changed attribute is optional (phase 2)
+
+## 1.79.2
+[update] Fixed issue with updates with no changes marked as MODIFY instead of NOOP
+
+
+## 1.79.1
+[all] allow sponsoring-org on inetnums of status legacy
+[all] bugfix allow delete object in old mode with database in new mode
+[all] dependency updates
+
+
 ## 1.79
 [all] dependency updates
 [all] added attributes created and last-modified

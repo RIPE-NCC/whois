@@ -5,9 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.ws.rs.BadRequestException;
@@ -18,14 +16,13 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-
 import java.util.NoSuchElementException;
 
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdResponse;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdSession;
 import static net.ripe.db.whois.common.sso.CrowdClient.CrowdUser;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -57,22 +54,23 @@ public class CrowdClientTest {
     @Test
     public void login_success() {
         final String token = "xyz";
-        when(builder.post(any(Entity.class), any(Class.class))).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", true), token, "2033-01-30T16:38:27.369+11:00"));
+        when(builder.<CrowdSession>post(any(Entity.class), any(Class.class))).then(
+            invocation ->
+                new CrowdSession(new CrowdUser("test@ripe.net", "Test User", true), token, "2033-01-30T16:38:27.369+11:00")
+            );
 
         assertThat(subject.login("test@ripe.net", "password"), is(token));
     }
 
     @Test
     public void login_not_authorized() {
-        when(builder.post(any(Entity.class), any(Class.class))).thenAnswer(new Answer<CrowdSession>() {
-            @Override
-            public CrowdSession answer(InvocationOnMock invocation) throws Throwable {
+        when(builder.<CrowdSession>post(any(Entity.class), any(Class.class))).then(
+            invocation -> {
                 when(response.getStatus()).thenReturn(401);
                 when(response.getStatusInfo()).thenReturn(Response.Status.UNAUTHORIZED);
                 when(response.readEntity(CrowdClient.CrowdError.class)).thenReturn(new CrowdClient.CrowdError("reason", "message"));
                 throw new NotAuthorizedException(response);
-            }
-        });
+            });
 
         try {
             subject.login("test@ripe.net", "password");
@@ -84,17 +82,21 @@ public class CrowdClientTest {
 
     @Test
     public void get_user_session_success() throws Exception {
-        when(builder.get(CrowdSession.class)).thenReturn(new CrowdSession(new CrowdUser("test@ripe.net", true), null, "2033-01-30T16:38:27.369+11:00"));
+        when(builder.<CrowdSession>post(any(Entity.class), any(Class.class))).then(
+            invocation ->
+                new CrowdSession(new CrowdUser("test@ripe.net", "Test User", true), null, "2033-01-30T16:38:27.369+11:00")
+            );
 
         final UserSession session = subject.getUserSession("token");
 
         assertThat(session.getUsername(), is("test@ripe.net"));
+        assertThat(session.getDisplayName(), is("Test User"));
         assertThat(session.isActive(), is(true));
     }
 
     @Test
     public void get_user_session_bad_request() {
-        when(builder.get(CrowdSession.class)).thenThrow(new BadRequestException("Not valid sso"));
+        when(builder.<CrowdSession>post(any(Entity.class), any(Class.class))).then(invocation -> {throw new BadRequestException("Not valid sso");});
 
         try {
             subject.getUserSession("token");
@@ -106,14 +108,14 @@ public class CrowdClientTest {
 
     @Test
     public void get_username_success() {
-        when(builder.get(CrowdUser.class)).thenReturn(new CrowdUser("test@ripe.net", true));
+        when(builder.get(CrowdUser.class)).then(invocation -> new CrowdUser("test@ripe.net", "Test User", true));
 
         assertThat(subject.getUsername("uuid"), is("test@ripe.net"));
     }
 
     @Test
     public void get_username_not_found() {
-        when(builder.get(CrowdUser.class)).thenThrow(new NotFoundException("message"));
+        when(builder.get(CrowdUser.class)).then(invocation -> {throw new NotFoundException("message");});
 
         try {
             subject.getUsername("madeup-uuid");
@@ -125,7 +127,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_uuid_success() {
-        when(builder.get(CrowdResponse.class)).thenReturn(
+        when(builder.get(CrowdResponse.class)).then(invocation ->
                 new CrowdResponse(Lists.newArrayList(
                         new CrowdClient.CrowdAttribute(Lists.newArrayList(
                                 new CrowdClient.CrowdValue("1-2-3-4")), "uuid"))));
@@ -135,7 +137,7 @@ public class CrowdClientTest {
 
     @Test
     public void get_uuid_not_found() {
-        when(builder.get(CrowdResponse.class)).thenThrow(new NotFoundException("message"));
+        when(builder.get(CrowdResponse.class)).then(invocation -> {throw new NotFoundException("message");});
 
         try {
             subject.getUuid("test@ripe.net");
@@ -148,7 +150,7 @@ public class CrowdClientTest {
     @Test
     public void get_uuid_no_attribute() {
         final CrowdResponse crowdResponse = mock(CrowdResponse.class);
-        when(crowdResponse.getUUID()).thenThrow(NoSuchElementException.class);
+        when(crowdResponse.getUUID()).then(invocation -> {throw new NoSuchElementException();});
         when(builder.get(CrowdResponse.class)).thenReturn(crowdResponse);
 
         try {

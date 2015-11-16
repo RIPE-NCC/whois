@@ -25,7 +25,8 @@ public class BootstrapJmx extends JmxBase {
         this.bootstrap = bootstrap;
     }
 
-    @ManagedOperation(description = "Load text dump into main database (non-destructive, only adds new objects) (DOES NOT use global update lock!)")
+    @ManagedOperation(description = "Load text dump into main database (only adds new objects), \n" +
+            "slow but safe, transactional, it DOES NOT use global update lock!)")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation"),
             @ManagedOperationParameter(name = "filenames", description = "Comma separated list of paths to the dump files")
@@ -34,7 +35,22 @@ public class BootstrapJmx extends JmxBase {
         return invokeOperation("Load dump", comment, new Callable<String>() {
             @Override
             public String call() {
-                return bootstrap.loadTextDump(filenames.split(","));
+                return bootstrap.loadTextDumpSafe(filenames.split(","));
+            }
+        });
+    }
+
+    @ManagedOperation(description = "Load text dump into main database (only adds new objects), \n" +
+            "fast but risky, non transactional (support for big dumps), it DOES NOT use global update lock!)")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation"),
+            @ManagedOperationParameter(name = "filenames", description = "Comma separated list of paths to the dump files")
+    })
+    public String loadDumpRisky(final String comment, final String filenames) {
+        return invokeOperation("Load dump", comment, new Callable<String>() {
+            @Override
+            public String call() {
+                return bootstrap.loadTextDumpRisky(filenames.split(","));
             }
         });
     }
@@ -51,4 +67,5 @@ public class BootstrapJmx extends JmxBase {
             }
         });
     }
+
 }

@@ -20,7 +20,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "ADMIN-PN": """\
@@ -31,7 +30,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  UPD-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """
         ];
@@ -62,7 +60,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             certif:       -----END PGP PUBLIC KEY BLOCK-----
             mnt-by:       UPD-MNT
             notify:       eshryane@ripe.net
-            changed:      eshryane@ripe.net 20120213
             source:       TEST
             password: update
             """.stripIndent())
@@ -111,7 +108,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             certif:         =FPEl
             certif:         -----END PGP PUBLIC KEY BLOCK-----
             mny-by:         UPD-MNT
-            changed:        noreply@ripe.net 20120213
             source:         TEST
             password:       update
             """.stripIndent())
@@ -134,7 +130,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             certif:          -----END CERTIFICATE-----
             mnt-by:          UPD-MNT
             remarks:         remark
-            changed:         noreply@ripe.net 20121001
             source:          TEST
             password: update
             """.stripIndent())
@@ -156,7 +151,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             fingerpr:        82:7C:C5:40:D1:DB:AE:6A:FA:F8:40:3E:3C:9C:27:7C
             mnt-by:          UPD-MNT
             remarks:         remark
-            changed:         noreply@ripe.net 20121001
             source:          TEST
             password: update
             """.stripIndent())
@@ -179,7 +173,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             certif:
             mnt-by:          UPD-MNT
             remarks:         remark
-            changed:         noreply@ripe.net 20121001
             source:          TEST
             password: update
             """.stripIndent())
@@ -255,7 +248,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
                             =t1N2
                             -----END PGP PUBLIC KEY BLOCK-----
             mnt-by:         UPD-MNT
-            changed:        noreply@ripe.net
             source:         TEST
             password: update
             """.stripIndent())
@@ -318,7 +310,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             certif:         -----END PGP PUBLIC KEY BLOCK-----
             mnt-by:         UPD-MNT
             notify:         noreply@ripe.net
-            changed:        noreply@ripe.net 20120213
             source:         TEST
             password:       update
         """.stripIndent())
@@ -363,7 +354,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             certif:         -----END PGP PUBLIC KEY BLOCK-----
             mnt-by:         UPD-MNT
             notify:         noreply@ripe.net
-            changed:        noreply@ripe.net 20120213
             source:         TEST
             password:       update
         """.stripIndent())
@@ -388,10 +378,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         updateResponse =~ /No operation: \[key-cert\] PGPKEY-28F6CD6C/
-        updateResponse =~ /\*\*\*Warning: Supplied attribute 'owner' has been replaced with a generated value/
-        updateResponse =~ /\*\*\*Warning: Supplied attribute 'method' has been replaced with a generated value/
-        updateResponse =~ /\*\*\*Warning: Supplied attribute 'fingerpr' has been replaced with a generated
-            value/
     }
 
     def "update PGP keycert certificate changed has subkeys"() {
@@ -535,7 +521,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
                 "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
                 "notify:         noreply@ripe.net\n" +
                 "mnt-by:         UPD-MNT\n" +
-                "changed:        noreply@ripe.net 20120213\n" +
                 "source:         TEST\n" +
                 "password:       update\n" +
                 "deLete:         some reason";
@@ -585,7 +570,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120213
                 source:         TEST
                 password:       update
             """.stripIndent()))
@@ -630,7 +614,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
                 "certif:  -----END PGP PUBLIC KEY BLOCK-----\n" +
                 "notify:  noreply@ripe.net\n" +
                 "mnt-by:  UPD-MNT\n" +
-                "changed: noreply@ripe.net 20120213\n" +
                 "source:  TEST\n" +
                 "' WHERE pkey = 'PGPKEY-28F6CD6C'")
       then:
@@ -671,7 +654,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         UPD-MNT
-                changed:        noreply@ripe.net 20120213
                 source:         TEST
                 password: update
                 delete: reason
@@ -716,7 +698,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             certif:       -----END PGP PUBLIC KEY BLOCK-----
             mnt-by:       UPD-MNT
             notify:       noreply@ripe.net
-            changed:      noreply@ripe.net 20120213
             source:       TEST
 
             password:     update
@@ -744,7 +725,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:      TEST-RIPE
             tech-c:       TEST-RIPE
             mnt-by:       UPD-MNT
-            changed:      dbtest@ripe.net 20020101
             source:       TEST
 
             key-cert:        AUTO-1
@@ -772,7 +752,6 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
             certif:          -----END CERTIFICATE-----
             mnt-by:          UPD-MNT
             remarks:         Gabriel Barazer
-            changed:         gabriel@oxeva.fr 20121025
             source:          TEST
 
             password:     update

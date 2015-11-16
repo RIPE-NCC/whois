@@ -7,8 +7,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
@@ -17,73 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class DummifierLegacy implements Dummifier {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DummifierLegacy.class);
-
-
-    //TODO [TP] remove this dirty hack to set the static variable when timestamps are always on
-    public static boolean TIMESTAMPS_OFF = false;
-
-    @Autowired
-    public void setTimestampsOff(@Value("${rpsl.timestamps.off}") boolean timestampsOff) {
-        TIMESTAMPS_OFF = timestampsOff;
-    }
-    public static RpslObject getPlaceholderPersonObject() {
-        return RpslObject.parse("" +
-                        "person:         Placeholder Person Object\n" +
-                        "address:        RIPE Network Coordination Centre\n" +
-                        "address:        P.O. Box 10096\n" +
-                        "address:        1001 EB Amsterdam\n" +
-                        "address:        The Netherlands\n" +
-                        "phone:          +31 20 535 4444\n" +
-                        "nic-hdl:        DUMY-RIPE\n" +
-                        "mnt-by:         RIPE-DBM-MNT\n" +
-                        "remarks:        **********************************************************\n" +
-                        "remarks:        * This is a placeholder object to protect personal data.\n" +
-                        "remarks:        * To view the original object, please query the RIPE\n" +
-                        "remarks:        * Database at:\n" +
-                        "remarks:        * http://www.ripe.net/whois\n" +
-                        "remarks:        **********************************************************\n" +
-                        "changed:        ripe-dbm@ripe.net 20090724\n" +
-                        getFakeTimestampsIfNeeded() +
-                        "source:         RIPE"
-        );
-    }
-
-    public static RpslObject getPlaceholderRoleObject() {
-        return RpslObject.parse("" +
-                        "role:           Placeholder Role Object\n" +
-                        "address:        RIPE Network Coordination Centre\n" +
-                        "address:        P.O. Box 10096\n" +
-                        "address:        1001 EB Amsterdam\n" +
-                        "address:        The Netherlands\n" +
-                        "phone:          +31 20 535 4444\n" +
-                        "e-mail:         ripe-dbm@ripe.net\n" +
-                        "admin-c:        DUMY-RIPE\n" +
-                        "tech-c:         DUMY-RIPE\n" +
-                        "nic-hdl:        ROLE-RIPE\n" +
-                        "mnt-by:         RIPE-DBM-MNT\n" +
-                        "remarks:        **********************************************************\n" +
-                        "remarks:        * This is a placeholder object to protect personal data.\n" +
-                        "remarks:        * To view the original object, please query the RIPE\n" +
-                        "remarks:        * Database at:\n" +
-                        "remarks:        * http://www.ripe.net/whois\n" +
-                        "remarks:        **********************************************************\n" +
-                        "changed:        ripe-dbm@ripe.net 20090724\n" +
-                        getFakeTimestampsIfNeeded() +
-                        "source:         RIPE"
-        );
-    }
-
-    private static String getFakeTimestampsIfNeeded(){
-        //TODO remove when TIMESTAMPS are always on
-        if (TIMESTAMPS_OFF){
-            return  "";
-        }
-        return "created:        2009-07-24T17:00:00Z\n" +
-                "last-modified:  2009-07-24T17:00:00Z\n";
-    }
-
+public class DummifierNrtm implements Dummifier {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummifierNrtm.class);
 
     static final Set<ObjectType> SKIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.PERSON, ObjectType.ROLE);
     static final Set<ObjectType> STRIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.MNTNER, ObjectType.ORGANISATION);
@@ -97,9 +30,13 @@ public class DummifierLegacy implements Dummifier {
             AttributeType.ZONE_C
     );
 
-    static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
-    static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(AttributeType.ABUSE_C, AttributeType.LAST_MODIFIED, AttributeType.CREATED);
+    static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(
+            AttributeType.ABUSE_C,
+            AttributeType.CHANGED,
+            AttributeType.LAST_MODIFIED,
+            AttributeType.CREATED);
 
+    static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
     static {
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.ADDRESS, "Dummy address for %s");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.AUTH, "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security");
@@ -287,4 +224,52 @@ public class DummifierLegacy implements Dummifier {
         }
     }
 
+    public static RpslObject getPlaceholderPersonObject() {
+        return RpslObject.parse("" +
+                        "person:         Placeholder Person Object\n" +
+                        "address:        RIPE Network Coordination Centre\n" +
+                        "address:        P.O. Box 10096\n" +
+                        "address:        1001 EB Amsterdam\n" +
+                        "address:        The Netherlands\n" +
+                        "phone:          +31 20 535 4444\n" +
+                        "nic-hdl:        DUMY-RIPE\n" +
+                        "mnt-by:         RIPE-DBM-MNT\n" +
+                        "remarks:        **********************************************************\n" +
+                        "remarks:        * This is a placeholder object to protect personal data.\n" +
+                        "remarks:        * To view the original object, please query the RIPE\n" +
+                        "remarks:        * Database at:\n" +
+                        "remarks:        * http://www.ripe.net/whois\n" +
+                        "remarks:        **********************************************************\n" +
+                        "changed:        ripe-dbm@ripe.net 20090724\n" +
+                        "created:        2009-07-24T17:00:00Z\n" +
+                        "last-modified:  2009-07-24T17:00:00Z\n" +
+                        "source:         RIPE"
+        );
+    }
+
+    public static RpslObject getPlaceholderRoleObject() {
+        return RpslObject.parse("" +
+                        "role:           Placeholder Role Object\n" +
+                        "address:        RIPE Network Coordination Centre\n" +
+                        "address:        P.O. Box 10096\n" +
+                        "address:        1001 EB Amsterdam\n" +
+                        "address:        The Netherlands\n" +
+                        "phone:          +31 20 535 4444\n" +
+                        "e-mail:         ripe-dbm@ripe.net\n" +
+                        "admin-c:        DUMY-RIPE\n" +
+                        "tech-c:         DUMY-RIPE\n" +
+                        "nic-hdl:        ROLE-RIPE\n" +
+                        "mnt-by:         RIPE-DBM-MNT\n" +
+                        "remarks:        **********************************************************\n" +
+                        "remarks:        * This is a placeholder object to protect personal data.\n" +
+                        "remarks:        * To view the original object, please query the RIPE\n" +
+                        "remarks:        * Database at:\n" +
+                        "remarks:        * http://www.ripe.net/whois\n" +
+                        "remarks:        **********************************************************\n" +
+                        "changed:        ripe-dbm@ripe.net 20090724\n" +
+                        "created:        2009-07-24T17:00:00Z\n" +
+                        "last-modified:  2009-07-24T17:00:00Z\n" +
+                        "source:         RIPE"
+        );
+    }
 }

@@ -27,7 +27,6 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
             "e-mail:    noreply@ripe.net\n" +
             "mnt-by:    OWNER-MNT\n" +
             "nic-hdl:   PP1-TEST\n" +
-            "changed:   noreply@ripe.net 20120101\n" +
             "remarks:   remark\n" +
             "source:    TEST\n");
 
@@ -40,7 +39,6 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
             "auth:        SSO person@net.net\n" +
             "auth:        PGPKEY-A8D16B70\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 
     private static final RpslObject KEYCERT = RpslObject.parse(
@@ -69,7 +67,6 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
             "certif:         =DgsR\n" +
             "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
             "mnt-by:         OWNER-MNT\n" +
-            "changed:        dbtest@ripe.net 20120101\n" +
             "source:         TEST");
 
     @Autowired IpRanges ipRanges;
@@ -155,6 +152,11 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
                 "source:    TEST");
 
         assertThat(query("-i tech-c TEST-HM3"), containsString("Another Maintainer"));
+    }
+
+    @Test
+    public void inverse_referral_by_is_invalid() {
+        assertThat(query("-i referral-by TEST"), containsString("\"referral-by\" is not a known attribute."));
     }
 
     private String query(final String query) {

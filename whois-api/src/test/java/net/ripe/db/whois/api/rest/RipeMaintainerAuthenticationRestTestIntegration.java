@@ -34,23 +34,21 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractInt
         databaseHelper.addObjects(Lists.newArrayList(
                 RpslObject.parse(
                         "mntner:  RIPE-NCC-HM-MNT\n" +
-                                "descr:   description\n" +
-                                "admin-c: TEST-RIPE\n" +
-                                "mnt-by:  RIPE-NCC-HM-MNT\n" +
-                                "upd-to:  dbtest@ripe.net\n" +
-                                "auth:    MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0 # emptypassword" +
-                                "changed: dbtest@ripe.net 20120707\n" +
-                                "source:  TEST"),
+                        "descr:   description\n" +
+                        "admin-c: TEST-RIPE\n" +
+                        "mnt-by:  RIPE-NCC-HM-MNT\n" +
+                        "upd-to:  dbtest@ripe.net\n" +
+                        "auth:    MD5-PW $1$/7f2XnzQ$p5ddbI7SXq4z4yNrObFS/0 # emptypassword" +
+                        "source:  TEST"),
                 RpslObject.parse(
                         "person:  Admin Person\n" +
-                                "address: Admin Road\n" +
-                                "address: Town\n" +
-                                "address: UK\n" +
-                                "phone:   +44 282 411141\n" +
-                                "nic-hdl: TEST-RIPE\n" +
-                                "mnt-by:  TST-MNT\n" +
-                                "changed: dbtest@ripe.net 20120101\n" +
-                                "source:  TEST"),
+                        "address: Admin Road\n" +
+                        "address: Town\n" +
+                        "address: UK\n" +
+                        "phone:   +44 282 411141\n" +
+                        "nic-hdl: TEST-RIPE\n" +
+                        "mnt-by:  TST-MNT\n" +
+                        "source:  TEST"),
                 RpslObject.parse("" +
                         "mntner:  TST-MNT\n" +
                         "descr:   description\n" +
@@ -58,7 +56,6 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractInt
                         "mnt-by:  TST-MNT\n" +
                         "upd-to:  dbtest@ripe.net\n" +
                         "auth:    MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                        "changed: dbtest@ripe.net 20120707\n" +
                         "source:  TEST")));
     }
 
@@ -77,7 +74,6 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractInt
                 "        <attribute name=\"e-mail\" value=\"ppalse@ripe.net\"/>\n" +
                 "        <attribute name=\"mnt-by\" value=\"RIPE-NCC-HM-MNT\"/>\n" +
                 "        <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
-                "        <attribute name=\"changed\" value=\"ppalse@ripe.net 20101228\"/>\n" +
                 "        <attribute name=\"source\" value=\"TEST\"/>\n" +
                 "      </attributes>\n" +
                 "    </object>\n" +
@@ -110,7 +106,6 @@ public class RipeMaintainerAuthenticationRestTestIntegration extends AbstractInt
                         "        <attribute name=\"e-mail\" value=\"ppalse@ripe.net\"/>\n" +
                         "        <attribute name=\"mnt-by\" value=\"RIPE-NCC-HM-MNT\"/>\n" +
                         "        <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
-                        "        <attribute name=\"changed\" value=\"ppalse@ripe.net 20101228\"/>\n" +
                         "        <attribute name=\"source\" value=\"TEST\"/>\n" +
                         "      </attributes>\n" +
                         "    </object>\n" +

@@ -2,7 +2,7 @@ package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
-import net.ripe.db.whois.common.rpsl.DummifierLegacy;
+import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,18 +24,17 @@ import static org.junit.Assert.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class ExportFileWriterFactoryTest {
     private static final int LAST_SERIAL = 1234;
-    // TODO change when timestamps have become the norm (MG)
-    private boolean timestampsOff = true;
 
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
-    @Mock DummifierLegacy dummifierLegacy;
+    @Mock
+    DummifierNrtm dummifierNrtm;
     @Mock DummifierCurrent dummifierCurrent;
     ExportFileWriterFactory subject;
 
     @Before
     public void setup() {
-        subject = new ExportFileWriterFactory(dummifierLegacy, dummifierCurrent, "internal", "dbase_new", "dbase",timestampsOff);
+        subject = new ExportFileWriterFactory(dummifierNrtm, dummifierCurrent, "internal", "dbase_new", "dbase");
     }
 
     @Test(expected = IllegalStateException.class)

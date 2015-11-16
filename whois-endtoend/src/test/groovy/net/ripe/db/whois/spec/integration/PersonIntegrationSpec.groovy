@@ -16,7 +16,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "UPD-MNT2": """\
@@ -26,7 +25,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by: UPD-MNT2
             upd-to: dbtest@ripe.net
             auth:   MD5-PW \$1\$5aMDZg3w\$zL59TnpAszf6Ft.zs148X0 # update2
-            changed: dbtest@ripe.net 20120707
             source: TEST
             """,
                 "ADMIN-PN": """\
@@ -37,7 +35,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  UPD-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """,
                 "TEST-PN2": """\
@@ -48,7 +45,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TP2-TEST
             mnt-by:  UPD-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """,
                 "ROLE": """\
@@ -64,7 +60,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl: RL-TEST
             mnt-by:  UPD-MNT
             notify:  admin@test.com
-            changed: admin@test.com 20120505
             abuse-mailbox: admin@test.com
             source:  TEST
             """,
@@ -81,7 +76,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl: RL2-RIPE
             mnt-by:  UPD-MNT
             notify:  admin@test.com
-            changed: admin@test.com 20120505
             abuse-mailbox: admin@test.com
             source:  TEST
             """,
@@ -93,7 +87,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             e-mail:        bitbucket@ripe.net
             mnt-ref:      UPD-MNT
             mnt-by:       UPD-MNT
-            changed:      admin@test.com 20120505
             source:       TEST
             """,
                 "ORG-NCC2-RIPE": """\
@@ -104,7 +97,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             e-mail:        bitbucket@ripe.net
             mnt-ref:      UPD-MNT2
             mnt-by:       UPD-MNT2
-            changed:      admin@test.com 20120505
             source:       TEST
             """,
                 "ORG-NCC3-RIPE": """\
@@ -116,7 +108,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-ref:      UPD-MNT
             mnt-ref:      UPD-MNT2
             mnt-by:       UPD-MNT
-            changed:      admin@test.com 20120505
             source:       TEST
             """
         ]
@@ -132,7 +123,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                         phone:   +44 282 420469
                         nic-hdl: TP1-TEST
                         mnt-by:  UPD-MNT
-                        changed: dbtest@ripe.net 20120101
                         source:  TEST
                         delete: some reason
                         password: update
@@ -229,7 +219,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: TP3-TEST
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 password: update
                 """.stripIndent())
@@ -251,7 +240,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:      +49 282 411141
                 fax-no:     +49 282 411140
                 nic-hdl:    TP3-TEST
-                changed:    dbtest@ripe.net 20120101
                 mnt-by:     UPD-MNT
                 source:     TEST
                 password: update
@@ -276,7 +264,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:      +49 282 411141
                 nic-hdl:    TEST-RIPE
                 mnt-by:     UPD-MNT
-                changed:    dbtest@ripe.net 20120101
                 source:     TEST
                 password: update
                 """.stripIndent())
@@ -299,7 +286,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:      +49 282 411141
                 fax-no:     +49 282 411140
                 nic-hdl:    AUTO-1
-                changed:    dbtest@ripe.net 20120101
                 source:     TEST
                 password: update
                 """.stripIndent())
@@ -322,7 +308,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:      +49 282 411141
                 fax-no:     +49 282 411140
                 nic-hdl:    AUTO-1
-                changed:    dbtest@ripe.net 20120101
                 source:     TEST
                 password: update
                 """.stripIndent())
@@ -346,7 +331,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 password: update
                 """.stripIndent())
@@ -368,7 +352,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 password: update
                 """.stripIndent())
@@ -383,7 +366,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 password: update
                 """.stripIndent())
@@ -400,7 +382,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 411141
                 fax-no:  +44 282 411140
                 mnt-by:  UPD-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 password: update
                 """.stripIndent())
@@ -426,7 +407,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 fax-no:  +44 282 411140
                 mnt-by:  UPD-MNT
                 nic-hdl:
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 password: update
                 """.stripIndent())
@@ -456,7 +436,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 nic-hdl: AuTo-5
                 mnt-by:  UPD-MNT
                 notify:  admin@test.com
-                changed: admin@test.com 20120505
                 abuse-mailbox: admin@test.com
                 source:  TEST
                 password: update
@@ -484,7 +463,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
                 notify:  admin@test.com
-                changed: admin@test.com 20120505
                 abuse-mailbox: admin@test.com
                 source:  TEST
                 password: update
@@ -510,7 +488,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             fax-no:  +44 282 411140
             nic-hdl: INVALID_HANDLE
             mnt-by:  UPD-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             password: update
             """.stripIndent())
@@ -532,7 +509,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               fax-no:  +44 282 411140
               nic-hdl: TP2-TEST
               mnt-by:  UPD-MNT
-              changed: dbtest@ripe.net 20120101
               source:  TEST
               password: update
               """.stripIndent())
@@ -554,7 +530,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               fax-no:  +44 282 411140
               nic-hdl: TP2-TEST
               mnt-by:  UPD-MNT
-              changed: dbtest@ripe.net 20120101
               source:  TEST
               """.stripIndent())
 
@@ -580,7 +555,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               nic-hdl: TP3-TEST
               mnt-by:  UPD-MNT
               org:     ORG-NCC3-RIPE
-              changed: dbtest@ripe.net 20120101
               source:  TEST
               password: update
               """.stripIndent())
@@ -605,7 +579,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               nic-hdl: TP3-TEST
               mnt-by:  UPD-MNT
               org:     ORG-NCC2-RIPE
-              changed: dbtest@ripe.net 20120101
               source:  TEST
               password: invalid
               """.stripIndent())
@@ -651,7 +624,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               nic-hdl: TP3-TEST
               mnt-by:  UPD-MNT
               org:     ORG-NCC1-RIPE
-              changed: dbtest@ripe.net 20120101
               source:  TEST
               password: update
               """.stripIndent())
@@ -685,7 +657,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               nic-hdl: TP3-TEST
               mnt-by:  UPD-MNT
               org:     ORG-NCC2-RIPE
-              changed: dbtest@ripe.net 20120101
               source:  TEST
               password: update
               """.stripIndent())
@@ -727,7 +698,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               nic-hdl: TP3-TEST
               mnt-by:  UPD-MNT
               org:     ORG-NON-EXISTANT
-              changed: dbtest@ripe.net 20120101
               source:  TEST
               password: update
               """.stripIndent())
@@ -751,7 +721,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               nic-hdl: TP3-TEST
               mnt-by:  UPD-MNT
               org:     INVALID
-              changed: dbtest@ripe.net 20120101
               source:  TEST
               password: update
               """.stripIndent())
@@ -764,7 +733,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /\\*\\*\\*Error:   Syntax error in INVALID/
     }
 
-    def "change person attribute of existing person fails"() {
+    def "change person attribute of existing person succeeds"() {
       given:
         def data = fixtures["TEST-PN2"].stripIndent() + "password:update"
         data = (data =~ /person:  Test Person2/).replaceFirst("person: Modify Person")
@@ -799,7 +768,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             fax-no:  +44 282 41114
             nic-hdl: AB-TEST
-            changed: dbtest@ripe.net 20120101
             abuse-mailbox: abuse@ripe.net
             mnt-by: UPD-MNT
             source:  TEST
@@ -819,7 +787,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             abuse-c:      AB-TEST
             mnt-ref:      UPD-MNT2
             mnt-by:       UPD-MNT2
-            changed:      admin@test.com 20120505
             source:       TEST
             password: update2
             """.stripIndent()))
@@ -837,7 +804,6 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             address: Hebrew Road
             phone:   +44 282 411141
             fax-no:  +44 282 41114
-            changed: dbtest@ripe.net 20120101
             mnt-by: UPD-MNT
             source:  TEST
             password: update

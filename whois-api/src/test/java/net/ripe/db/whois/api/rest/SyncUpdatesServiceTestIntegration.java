@@ -20,9 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -43,7 +45,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
             "notify:        noreply@ripe.net\n" +
             "auth:          MD5-PW $1$TTjmcwVq$zvT9UcvASZDQJeK8u9sNU.    # emptypassword\n" +
             "mnt-by:        mntner\n" +
-            "changed:       noreply@ripe.net 20120801\n" +
             "source:        TEST";
 
     private static final String PERSON_ANY1_TEST = "" +
@@ -78,6 +79,12 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("From-Host: 127.0.0.1"));
         assertThat(response, containsString("Date/Time: "));
         assertThat(response, not(containsString("$")));
+    }
+
+    @Ignore("TODO: [ES] post without content type returns internal server error")
+    @Test
+    public void post_without_content_type() throws Exception {
+        assertThat(post(), not(containsString("Internal Server Error")));
     }
 
     @Test
@@ -120,25 +127,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void redirect_not_allowed() throws Exception {
-        ipRanges.setTrusted();
-        rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
-
-        try {
-            RestTest.target(getPort(), "whois/syncupdates/test?" +
-                    "REDIRECT=yes&DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
-                    .request()
-                    .get(String.class);
-            fail();
-        } catch (ForbiddenException e) {
-            final String response = e.getResponse().readEntity(String.class);
-            assertThat(response, not(containsString("Create SUCCEEDED: [mntner] mntner")));
-            assertThat(response, containsString("Not allowed to disable notifications: 127.0.0.1"));
-        }
-    }
-
-    @Test
-    public void redirect_allowed() throws Exception {
+    public void redirect_ignored() throws Exception {
         ipRanges.setTrusted("0/0", "::0/0");
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
@@ -148,7 +137,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] mntner"));
-        assertThat(response, not(containsString("Not allowed to disable notifications: 127.0.0.1\n")));
+
+        assertNotNull(getMessage("noreply@ripe.net"));
         assertFalse(anyMoreMessages());
     }
 
@@ -217,7 +207,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST");
 
         final String person = "" +
@@ -226,7 +215,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "phone:     +31-6-123456\n" +
                 "nic-hdl:   TP2-TEST\n" +
                 "mnt-by:    SSO-MNT\n" +
-                "changed:   noreply@ripe.net 20130102\n" +
                 "source:    TEST";
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person))
@@ -247,7 +235,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST");
 
         final String person = "" +
@@ -256,7 +243,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "phone:     +31-6-123456\n" +
                 "nic-hdl:   TP2-TEST\n" +
                 "mnt-by:    SSO-MNT\n" +
-                "changed:   noreply@ripe.net 20130102\n" +
                 "source:    TEST";
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person))
@@ -283,7 +269,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        mntner\n" +
-                "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST";
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
@@ -298,6 +283,39 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_multiple_objects_with_single_password() throws Exception {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final String firstPerson =
+                "person:        First Person\n" +
+                "address:       Amsterdam\n" +
+                "phone:         +31\n" +
+                "nic-hdl:       FP1-TEST\n" +
+                "mnt-by:        mntner\n" +
+                "source:        TEST\n";
+        final String secondPerson =
+                "person:        Second Person\n" +
+                "address:       Amsterdam\n" +
+                "phone:         +31\n" +
+                "nic-hdl:       SP1-TEST\n" +
+                "mnt-by:        mntner\n" +
+                "source:        TEST\n";
+
+        String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
+                "DATA=" + SyncUpdateUtils.encode(
+                                firstPerson +
+                                "password: emptypassword\n\n\n" +
+                                secondPerson))
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .get(String.class);
+
+        assertThat(response, containsString("Create SUCCEEDED: [person] FP1-TEST   First Person"));
+        assertThat(response, containsString("Create SUCCEEDED: [person] SP1-TEST   Second Person"));
+    }
+
+    @Test
     public void create_selfrefencing_maintainer_new_and_data_parameters_with_sso_token() throws Exception {
         databaseHelper.addObject(PERSON_ANY1_TEST);
 
@@ -308,7 +326,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST";
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
@@ -332,7 +349,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
                 "mnt-by:        TESTING-MNT\n" +
-                "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST";
 
         String response = RestTest.target(getPort(), "whois/syncupdates/test?" +
@@ -356,7 +372,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "upd-to:        noreply@ripe.net\n" +
                                 "auth:          MD5-PW $1$7jwEckGy$EjyaikWbwDB2I4nzM0Fgr1 # pass %95{word}?\n" +
                                 "mnt-by:        TESTING-MNT\n" +
-                                "changed:       noreply@ripe.net 20130102\n" +
                                 "source:        TEST\n" +
                                 "password: pass %95{word}?\n"),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
@@ -374,7 +389,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "upd-to:        noreply@ripe.net\n" +
                 "auth:          SSO person@net.net\n" +
                 "mnt-by:        SSO-MNT\n" +
-                "changed:       noreply@ripe.net 20130102\n" +
                 "source:        TEST";
         databaseHelper.addObject(mntner);
 
@@ -461,7 +475,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, containsString(
                 "***Error:   Enforced new keyword specified, but the object already exists in the\n" +
-                        "            database"));
+                "            database"));
     }
 
     @Test
@@ -502,7 +516,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "phone:      +49 282 411141\n" +
                                 "fax-no:     +49 282 411140\n" +
                                 "nic-hdl:    TP1-TEST\n" +
-                                "changed:    dbtest@ripe.net 20120101\n" +
                                 "mnt-by:     mntner\n" +
                                 "source:     INVALID\n" +
                                 "password: emptypassword"),
@@ -525,7 +538,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "phone:      +49 282 411141\n" +
                                 "fax-no:     +49 282 411140\n" +
                                 "nic-hdl:    TP1-TEST\n" +
-                                "changed:    dbtest@ripe.net 20120101\n" +
                                 "mnt-by:     mntner\n" +
                                 "source:     INVALID\n" +
                                 "password:   emptypassword", "ISO-8859-1"),
@@ -550,7 +562,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "phone:     +31-6-123456\n" +
                     "nic-hdl:   TP2-TEST\n" +
                     "mnt-by:    mntner\n" +
-                    "changed:   noreply@ripe.net 20130102\n" +
                     "source:    TEST\n" +
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
@@ -574,7 +585,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "phone:          +31 6 12345678\n" +
                         "nic-hdl:        TP2-TEST\n" +
                         "mnt-by:         mntner\n" +
-                        "changed:        dbtest@ripe.net 20120101\n" +
                         "source:         TEST\n" +
                         "password: emptypassword")
                 .field("NEW", "yes");
@@ -595,13 +605,12 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         final FormDataMultiPart multipart = new FormDataMultiPart()
                 .field("DATA",
                         "person:         Test Person\n" +
-                                "address:        ÅçÅç\n" +
-                                "phone:          +31 6 12345678\n" +
-                                "nic-hdl:        TP2-TEST\n" +
-                                "mnt-by:         mntner\n" +
-                                "changed:        dbtest@ripe.net 20120101\n" +
-                                "source:         TEST\n" +
-                                "password: emptypassword")
+                        "address:        ÅçÅç\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "source:         TEST\n" +
+                        "password: emptypassword")
                 .field("NEW", "yes");
         RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
@@ -618,13 +627,12 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         final FormDataMultiPart multipart = new FormDataMultiPart()
                 .field("DATA",
                         "person:         Test Person\n" +
-                                "address:        ÅçÅç\n" +
-                                "phone:          +31 6 12345678\n" +
-                                "nic-hdl:        TP2-TEST\n" +
-                                "mnt-by:         mntner\n" +
-                                "changed:        dbtest@ripe.net 20120101\n" +
-                                "source:         TEST\n" +
-                                "password: emptypassword")
+                        "address:        ÅçÅç\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "source:         TEST\n" +
+                        "password: emptypassword")
                 .field("NEW", "yes");
 
         RestTest.target(getPort(), "whois/syncupdates/test")
@@ -642,13 +650,12 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         final FormDataMultiPart multipart = new FormDataMultiPart()
                 .field("DATA",
                         "person:         Test Person\n" +
-                                "address:        Home\n" +
-                                "phone:          +31 6 12345678\n" +
-                                "nic-hdl:        TP2-TEST\n" +
-                                "mnt-by:         mntner\n" +
-                                "changed:        dbtest@ripe.net 20120101\n" +
-                                "source:         TEST #Filtered\n" +
-                                "password: emptypassword")
+                        "address:        Home\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "source:         TEST #Filtered\n" +
+                        "password: emptypassword")
                 .field("NEW", "yes");
         final String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
@@ -665,15 +672,14 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         final FormDataMultiPart multipart = new FormDataMultiPart()
                 .field("DATA",
                         "person:         Test Person\n" +
-                                "address:        Home\n" +
-                                "phone:          +31 6 12345678\n" +
-                                "nic-hdl:        TP1-TEST\n" +
-                                "mnt-by:         mntner\n" +
-                                "remarks:         test remark\n" +
-                                "remarks:         another test remark\n" +
-                                "changed:        dbtest@ripe.net 20120101\n" +
-                                "source:         TEST #Filtered\n" +
-                                "password: emptypassword");
+                        "address:        Home\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP1-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "remarks:         test remark\n" +
+                        "remarks:         another test remark\n" +
+                        "source:         TEST #Filtered\n" +
+                        "password: emptypassword");
         final String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
@@ -690,5 +696,19 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     private boolean anyMoreMessages() {
         return mailSender.anyMoreMessages();
+    }
+
+    private String post() throws IOException {
+        final URL url = new URL(String.format("http://localhost:%d/whois/syncupdates/test", getPort()));
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setInstanceFollowRedirects(false);
+        connection.setRequestMethod("POST");
+
+        connection.connect();
+        final String response = connection.getResponseMessage();
+        connection.disconnect();
+
+        return response;
     }
 }

@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.charset.Charset;
@@ -39,6 +40,38 @@ public class PgpSignedMessageTest {
             "xkowwiwod81lxNhyJa6JNkfHjNDEMRQbElt1OShJEi1aY0lBV5rqK4Mrh7fWBwk=\n" +
             "=786j\n" +
             "-----END PGP SIGNATURE-----";
+
+        @Ignore("TODO: [ES] headers in signature block should not be required")
+        @Test
+        public void headers_in_signature_are_mandatory() {
+        final PgpSignedMessage signedMessage = PgpSignedMessage.parse(
+                "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA1\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "changed: denis@ripe.net 20121016\n" +
+                "source:  TEST\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+//                "Version: GnuPG v1.4.12 (Darwin)\n" +             // TODO: if no headers found, parsing fails,
+//                "Comment: GPGTools - http://gpgtools.org\n" +     // TODO: as ArmoredInputStream hasHeaders = true by default
+//                "\n" +
+                "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+\n" +
+                "fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx\n" +
+                "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
+                "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux\n" +
+                "4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
+                "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
+                "=it26\n" +
+                "-----END PGP SIGNATURE-----\n");
+
+            assertThat(signedMessage.getKeyId(), is("5763950D"));
+        }
 
     @Test
     public void isEquals() {

@@ -22,7 +22,6 @@ public class AttributeTemplate {
         public String getExternalName() {
             return externalName;
         }
-
     }
 
     public static enum Cardinality {
@@ -90,6 +89,30 @@ public class AttributeTemplate {
 
     public Requirement getRequirement() {
         return requirement;
+    }
+
+    public boolean isMandatory() {
+        return this.requirement == Requirement.MANDATORY;
+    }
+
+    public boolean isOptional() {
+        return this.requirement == Requirement.OPTIONAL;
+    }
+
+    public boolean isGenerated() {
+        return this.requirement == Requirement.GENERATED;
+    }
+
+    public boolean isDeprecated() {
+        return this.requirement == Requirement.DEPRECATED;
+    }
+
+    public boolean isMultiple() {
+        return this.cardinality == Cardinality.MULTIPLE;
+    }
+
+    public boolean isSingle() {
+        return this.cardinality == Cardinality.SINGLE;
     }
 
     public Cardinality getCardinality() {
