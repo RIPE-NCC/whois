@@ -91,7 +91,7 @@ public class PendingUpdatesCleanup implements DailyScheduledTask {
             updateContext.setAction(update, Action.CREATE);
             updateContext.status(update, UpdateStatus.FAILED_AUTHENTICATION);
             updateContext.setPreparedUpdate(new PreparedUpdate(update, rpslObject, rpslObject, Action.CREATE));
-            final UpdateRequest updateRequest = new UpdateRequest(origin, Keyword.NONE, updateMessage, ImmutableList.of(update));
+            final UpdateRequest updateRequest = new UpdateRequest(origin, Keyword.NONE, ImmutableList.of(update));
 
             updateLog.logUpdateResult(updateRequest, updateContext, update, Stopwatch.createStarted());
 

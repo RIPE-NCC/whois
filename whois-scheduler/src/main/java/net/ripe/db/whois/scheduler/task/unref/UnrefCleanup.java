@@ -268,7 +268,7 @@ public class UnrefCleanup implements DailyScheduledTask {
                         LOGGER.warn("Unable to delete {}: {}", objectId, updateContext.getMessages(update));
                     }
 
-                    final UpdateRequest updateRequest = new UpdateRequest(origin, Keyword.NONE, updateMessage, ImmutableList.of(update));
+                    final UpdateRequest updateRequest = new UpdateRequest(origin, Keyword.NONE, ImmutableList.of(update));
                     updateLog.logUpdateResult(updateRequest, updateContext, update, stopwatch.stop());
 
                     if (--remainingDeletes <= 0) {

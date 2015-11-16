@@ -63,4 +63,11 @@ public class ResourceDataDaoTest extends AbstractDaoTest {
         final AuthoritativeResource loadedData = subject.load("zoh");
         assertThat(loadedData.getResources(), hasSize(0));
     }
+
+    @Test
+    public void compare_state() {
+        assertThat(new ResourceDataDao.State("test", 1, 1).compareTo(new ResourceDataDao.State("test", 0, 0)), is(1));
+        assertThat(new ResourceDataDao.State("test", 1, 1).compareTo(new ResourceDataDao.State("test", 1, 1)), is(0));
+        assertThat(new ResourceDataDao.State("test", 1, 1).compareTo(new ResourceDataDao.State("test", 2, 2)), is(-1));
+    }
 }

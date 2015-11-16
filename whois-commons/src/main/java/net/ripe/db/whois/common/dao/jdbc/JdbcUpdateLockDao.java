@@ -27,6 +27,6 @@ class JdbcUpdateLockDao implements UpdateLockDao {
             throw new IllegalStateException("Invalid isolation level: " + isolationLevel);
         }
 
-        jdbcTemplate.queryForInt("SELECT global_lock FROM update_lock WHERE global_lock = 0 FOR UPDATE");
+        jdbcTemplate.queryForObject("SELECT global_lock FROM update_lock WHERE global_lock = 0 FOR UPDATE", Integer.class);
     }
 }

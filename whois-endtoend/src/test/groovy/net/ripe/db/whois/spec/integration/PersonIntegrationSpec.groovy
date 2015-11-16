@@ -733,7 +733,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /\\*\\*\\*Error:   Syntax error in INVALID/
     }
 
-    def "change person attribute of existing person fails"() {
+    def "change person attribute of existing person succeeds"() {
       given:
         def data = fixtures["TEST-PN2"].stripIndent() + "password:update"
         data = (data =~ /person:  Test Person2/).replaceFirst("person: Modify Person")
