@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.pipeline;
 
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import org.jboss.netty.channel.Channel;
 import org.junit.Test;
@@ -13,7 +14,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QueryCompletedEventTest {
+public class QueryCompletedEventTest extends ObjectTemplateDependentTest {
     @Mock private Channel channel;
 
     private QueryCompletedEvent subject;

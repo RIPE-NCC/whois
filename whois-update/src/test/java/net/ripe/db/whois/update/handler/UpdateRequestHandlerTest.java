@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -37,7 +38,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateRequestHandlerTest {
+public class UpdateRequestHandlerTest extends ObjectTemplateDependentTest {
     @Mock UpdateRequest updateRequest;
     @Mock Update update;
     @Mock UpdateContext updateContext;

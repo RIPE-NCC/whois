@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.route;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -21,7 +22,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ValueWithinPrefixValidatorTest {
+public class ValueWithinPrefixValidatorTest extends ObjectTemplateDependentTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 

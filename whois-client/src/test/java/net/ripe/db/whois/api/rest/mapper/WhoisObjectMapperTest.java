@@ -2,7 +2,9 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +25,7 @@ public class WhoisObjectMapperTest {
 
     @Before
     public void setup() {
+        new ObjectTemplateProvider(new ChangedAttrFeatureToggle(true));
         mapper = new WhoisObjectMapper(BASE_URL, new AttributeMapper[]{new FormattedClientAttributeMapper()});
     }
 

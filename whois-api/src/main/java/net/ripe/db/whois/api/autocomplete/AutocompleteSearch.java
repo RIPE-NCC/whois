@@ -9,6 +9,7 @@ import net.ripe.db.whois.api.freetext.FreeTextIndex;
 import net.ripe.db.whois.api.search.IndexTemplate;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
@@ -88,7 +89,7 @@ public class AutocompleteSearch {
                     result.put("type", doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME));
 
                     for (final String attribute : attributes) {
-                        final ObjectTemplate template = ObjectTemplate.getTemplate(
+                        final ObjectTemplate template = ObjectTemplateProvider.getTemplate(
                                 ObjectType.getByName(doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME)));
 
                         if (template.getMultipleAttributes().contains(AttributeType.getByName(attribute))) {
@@ -134,7 +135,7 @@ public class AutocompleteSearch {
             @Nullable
             @Override
             public String apply(final ObjectType input) {
-                return ObjectTemplate.getTemplate(input).getKeyLookupAttribute().getName();
+                return ObjectTemplateProvider.getTemplate(input).getKeyLookupAttribute().getName();
             }
         }).toSet();
     }
