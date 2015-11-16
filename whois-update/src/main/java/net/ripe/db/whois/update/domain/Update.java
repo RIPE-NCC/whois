@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.Validate;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class Update implements UpdateContainer {
     private final List<String> deleteReasons;
     private final RpslObject submittedObject;
 
-    public Update(final Paragraph paragraph, final Operation operation, final List<String> deleteReasons, final RpslObject submittedObject) {
+    public Update(final Paragraph paragraph, final Operation operation, @Nullable final List<String> deleteReasons, final RpslObject submittedObject) {
         Validate.notNull(paragraph, "paragraph cannot be null");
         Validate.notNull(operation, "operation cannot be null");
         Validate.notNull(submittedObject, "submittedObject cannot be null");
@@ -41,6 +42,7 @@ public class Update implements UpdateContainer {
         return operation;
     }
 
+    @Nullable
     public List<String> getDeleteReasons() {
         return deleteReasons;
     }

@@ -27,7 +27,7 @@ class JdbcExportDao implements ExportDao {
 
     @Override
     public int getMaxSerial() {
-        return jdbcTemplate.queryForInt("SELECT max(serial_id) FROM serials");
+        return jdbcTemplate.queryForObject("SELECT max(serial_id) FROM serials", Integer.class);
     }
 
     @Override

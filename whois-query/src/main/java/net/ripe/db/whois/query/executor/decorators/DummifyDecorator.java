@@ -24,7 +24,7 @@ public class DummifyDecorator implements ResponseDecorator {
     private final Dummifier dummifier;
 
     @Autowired
-    public DummifyDecorator(SourceContext sourceContext, @Qualifier("dummifierLegacy") final Dummifier dummifier) {
+    public DummifyDecorator(SourceContext sourceContext, @Qualifier("dummifierNrtm") final Dummifier dummifier) {
         this.sourceContext = sourceContext;
         this.dummifier = dummifier;
     }

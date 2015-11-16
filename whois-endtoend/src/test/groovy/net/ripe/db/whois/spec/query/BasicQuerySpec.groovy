@@ -1,6 +1,7 @@
 package net.ripe.db.whois.spec.query
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class BasicQuerySpec extends BaseQueryUpdateSpec {
@@ -810,4 +811,51 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
 
 
     // --list-versions, --diff-versions and show-version see VersionHistorySpec
+
+    // filtering
+
+//    @Ignore
+    def "query for object, objects not filtered should not have # Filtered flag "() {
+      given:
+        databaseHelper.addObject(
+                "person:         New Test Person\n" +
+                "address:        St James Street\n" +
+                "address:        Burnley\n" +
+                "address:        UK\n" +
+                "phone:          +44 282 420469\n" +
+                "nic-hdl:        TP22-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST")
+
+
+      expect:
+        def qry = query("New Test Person")
+
+      !(qry =~ /source:\s+TEST # Filtered/)
+      (qry =~ /(?ms)source:\s+TEST\n/)
+    }
+
+    def "query for object, objects filtered should have # Filtered flag "() {
+        given:
+
+        databaseHelper.addObject(
+                "person:         New Test Person\n" +
+                        "address:        St James Street\n" +
+                        "address:        Burnley\n" +
+                        "address:        UK\n" +
+                        "phone:          +44 282 420469\n" +
+                        "nic-hdl:        TP22-TEST\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "changed:        noreply@ripe.net 20100101\n" +
+                        "source:         TEST")
+
+
+        expect:
+        def qry = query("New Test Person")
+
+        qry =~ /source:\s+TEST # Filtered/
+        !(qry =~ /(?ms)source:\s+TEST\n/)
+
+    }
+
 }

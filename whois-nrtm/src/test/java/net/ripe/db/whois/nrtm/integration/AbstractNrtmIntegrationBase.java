@@ -31,7 +31,7 @@ public abstract class AbstractNrtmIntegrationBase extends AbstractDatabaseHelper
     }
 
     protected void objectExists(final ObjectType type, final String key, final boolean exists) {
-        Awaitility.waitAtMost(Duration.FOREVER).until(new Callable<Boolean>() {
+        Awaitility.waitAtMost(Duration.FIVE_SECONDS).until(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 try {

@@ -10,27 +10,40 @@ import java.util.Collections;
 import java.util.List;
 
 public class RestClientException extends RuntimeException {
-
+    private int status = 0;
     private List<ErrorMessage> errorMessages;
 
-    public RestClientException(final List<ErrorMessage> errorMessages) {
+    public RestClientException(final int status, final List<ErrorMessage> errorMessages) {
+        this.status = status;
         this.errorMessages = errorMessages;
     }
 
-    public RestClientException(@Nullable final String message) {
+    public RestClientException(final int status, @Nullable final String message) {
+        this.status = status;
         this.errorMessages = Collections.singletonList(
                 new ErrorMessage(new Message(Messages.Type.ERROR, message != null ? message : "no message")));
     }
 
-    public RestClientException(@Nullable final Throwable cause) {
+    public RestClientException( @Nullable final Throwable cause) {
         super(cause);
+        this.errorMessages = Collections.singletonList(
+                new ErrorMessage(new Message(Messages.Type.ERROR, cause != null ? cause.getMessage() : "no cause")));
+    }
+
+    public RestClientException(final int status, @Nullable final Throwable cause) {
+        super(cause);
+        this.status = status;
         this.errorMessages = Collections.singletonList(
                 new ErrorMessage(new Message(Messages.Type.ERROR, cause != null ? cause.getMessage() : "no cause")));
     }
 
     @Override
     public String toString() {
-        return StringUtils.join(errorMessages, '\n');
+        return "status:" + status + ", errorMessages:" + StringUtils.join(errorMessages, '\n');
+    }
+
+    public int getStatus() {
+        return status;
     }
 
     public List<ErrorMessage> getErrorMessages() {

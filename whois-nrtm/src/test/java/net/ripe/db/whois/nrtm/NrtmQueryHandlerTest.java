@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
-import net.ripe.db.whois.common.rpsl.DummifierLegacy;
+import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelException;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 public class NrtmQueryHandlerTest {
 
     @Mock private SerialDao serialDaoMock;
-    @Mock private DummifierLegacy dummifierMock;
+    @Mock private DummifierNrtm dummifierMock;
     @Mock private TaskScheduler mySchedulerMock;
     @Mock private ChannelHandlerContext contextMock;
     @Mock private ChannelStateEvent channelStateEventMock;
@@ -93,7 +93,7 @@ public class NrtmQueryHandlerTest {
         when(dummifierMock.isAllowed(2, person)).thenReturn(true);
         when(dummifierMock.isAllowed(2, inetnum)).thenReturn(true);
         when(dummifierMock.dummify(2, inetnum)).thenReturn(inetnum);
-        when(dummifierMock.dummify(2, person)).thenReturn(DummifierLegacy.getPlaceholderPersonObject());
+        when(dummifierMock.dummify(2, person)).thenReturn(DummifierNrtm.getPlaceholderPersonObject());
 
         when(messageEventMock.getMessage()).thenReturn("-g RIPE:2:1-2");
 
@@ -106,7 +106,7 @@ public class NrtmQueryHandlerTest {
         orderedChannelMock.verify(channelMock).write("ADD\n\n");
         orderedChannelMock.verify(channelMock).write(inetnum + "\n");
         orderedChannelMock.verify(channelMock).write("ADD\n\n");
-        orderedChannelMock.verify(channelMock).write(DummifierLegacy.getPlaceholderPersonObject() + "\n");
+        orderedChannelMock.verify(channelMock).write(DummifierNrtm.getPlaceholderPersonObject() + "\n");
     }
 
     @Test

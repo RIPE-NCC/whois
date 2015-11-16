@@ -136,7 +136,7 @@ public class ObjectTemplateTest {
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [generated]  [single]     [ ]\n" +
+                "sponsoring-org: [optional]   [single]     [ ]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
@@ -169,7 +169,7 @@ public class ObjectTemplateTest {
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [generated]  [single]     [ ]\n" +
+                "sponsoring-org: [optional]   [single]     [ ]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "status:         [mandatory]  [single]     [ ]\n" +
@@ -240,5 +240,14 @@ public class ObjectTemplateTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void name_transformations() {
+        assertThat(ObjectTemplate.getTemplate(ObjectType.MNTNER).getNameToFirstLower(), is("mntner") );
+        assertThat(ObjectTemplate.getTemplate(ObjectType.INETNUM).getNameToFirstUpper(), is("Inetnum"));
+
+        assertThat(ObjectTemplate.getTemplate(ObjectType.KEY_CERT).getNameToFirstLower(), is("keyCert") );
+        assertThat(ObjectTemplate.getTemplate(ObjectType.KEY_CERT).getNameToFirstUpper(), is("KeyCert") );
     }
 }

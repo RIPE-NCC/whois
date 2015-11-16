@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 
 import javax.annotation.Nonnull;
@@ -186,7 +187,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE, USER_ORDER),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
+                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, GENERATED, SINGLE),
@@ -262,7 +263,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
+                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, MANDATORY, SINGLE),
@@ -287,7 +288,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, GENERATED, SINGLE),
+                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(STATUS, MANDATORY, SINGLE),
@@ -730,6 +731,33 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
     public boolean isSet() {
         return ObjectType.getSets().contains(objectType);
+    }
+
+    private String stripDashes( String in) {
+        return StringUtils.replace(in, "-", "");
+    }
+
+    private static String toCamelCase( final String in) {
+        final StringBuilder camelCaseString = new StringBuilder("");
+        final String[] parts = StringUtils.split(in, "-");
+
+        for (String part : parts){
+            final String capitalized = StringUtils.capitalize(part);
+            camelCaseString.append(capitalized);
+        }
+        return camelCaseString.toString();
+    }
+
+    private static String toFirstLower( final String in ) {
+        return StringUtils.uncapitalize(in);
+    }
+
+    public String getNameToFirstUpper(  ) {
+        return toCamelCase(this.objectType.getName());
+    }
+
+    public String getNameToFirstLower( ) {
+        return toFirstLower(toCamelCase(this.objectType.getName()));
     }
 
     @Override

@@ -91,7 +91,7 @@ public class JdbcPendingUpdateDaoTest extends AbstractUpdateDaoTest {
         final PendingUpdate pending = new PendingUpdate(Sets.newHashSet("RouteIpAddressAuthentication"), object, testDateTimeProvider.getCurrentDateTime());
         subject.store(pending);
 
-        final int pendingId = new JdbcTemplate(dataSource).queryForInt("select id from pending_updates");
+        final int pendingId = new JdbcTemplate(dataSource).queryForObject("select id from pending_updates", Integer.class);
         subject.remove(new PendingUpdate(pendingId, Sets.newHashSet("RouteIpAddressAuthentication"), object, new LocalDateTime()));
 
         final List<Map<String, Object>> result = getPendingUpdates(object);
@@ -117,6 +117,6 @@ public class JdbcPendingUpdateDaoTest extends AbstractUpdateDaoTest {
     }
 
     private int getPendingUpdateCount() {
-        return databaseHelper.getInternalsTemplate().queryForInt("SELECT count(*) FROM pending_updates");
+        return databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class);
     }
 }

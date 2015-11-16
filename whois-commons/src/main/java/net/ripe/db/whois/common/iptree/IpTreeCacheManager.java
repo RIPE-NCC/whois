@@ -20,11 +20,13 @@ import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -43,10 +45,12 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
 public class IpTreeCacheManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(IpTreeCacheManager.class);
 
+    private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
 
     @Autowired
-    public IpTreeCacheManager(final SourceContext sourceContext) {
+    public IpTreeCacheManager(@Qualifier("sourceAwareDataSource") final DataSource dataSource, final SourceContext sourceContext) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.sourceContext = sourceContext;
     }
 
@@ -188,6 +192,14 @@ public class IpTreeCacheManager {
     }
 
     public void update(final SourceConfiguration sourceConfiguration) {
+        update(sourceConfiguration, sourceConfiguration.getJdbcTemplate());
+    }
+
+    public void updateTransactional(final SourceConfiguration sourceConfiguration) {
+        update(sourceConfiguration, this.jdbcTemplate);
+    }
+
+    private void update(final SourceConfiguration sourceConfiguration, final JdbcTemplate jdbcTemplate) {
         final CIString source = sourceConfiguration.getSource().getName();
         final CacheEntry cacheEntry = cache.get(source);
         if (cacheEntry == null) {
@@ -197,7 +209,7 @@ public class IpTreeCacheManager {
         // don't wait here if other thread is already busy updating the tree
         if (cacheEntry.updateLock.tryAcquire()) {
             try {
-                update(sourceConfiguration.getJdbcTemplate(), cacheEntry);
+                update(jdbcTemplate, cacheEntry);
             } catch (DataAccessException e) {
                 LOGGER.warn("Unable to update {} due to {}", sourceConfiguration, e.getMessage());
             } finally {
@@ -357,7 +369,12 @@ public class IpTreeCacheManager {
         cacheEntry.nestedIntervalMaps = nestedIntervalMaps;
     }
 
-    private int getLastSerial(final JdbcTemplate jdbcTemplate) {
-        return jdbcTemplate.queryForInt("SELECT MAX(serial_id) FROM serials");
+    private long getLastSerial(final JdbcTemplate jdbcTemplate) {
+        return jdbcTemplate.queryForObject("SELECT MAX(serial_id) FROM serials", new RowMapper<Long>() {
+            @Override
+            public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getLong(1);
+            }
+        });
     }
 }

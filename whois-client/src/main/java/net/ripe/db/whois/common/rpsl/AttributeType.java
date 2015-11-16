@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
 import java.util.Arrays;
@@ -75,7 +76,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PHONE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PINGABLE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POEM_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POETIC_FORM_SYNTAX;
-import static net.ripe.db.whois.common.rpsl.AttributeSyntax.REFERRAL_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE6_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SET_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SYNTAX;
@@ -602,7 +602,7 @@ public enum AttributeType implements Documented {
 
     SPONSORING_ORG(new Builder("sponsoring-org", "sp")
             .doc("Points to an existing organisation object representing the sponsoring organisation responsible for the resource.")
-            .syntax(GENERATED_SYNTAX)
+            .syntax(ORGANISATION_SYNTAX)
             .references(ObjectType.ORGANISATION)),
 
     STATUS(new Builder("status", "st")
@@ -699,6 +699,35 @@ public enum AttributeType implements Documented {
         return this.name;
     }
 
+    private static String toCamelCase( final String in) {
+        final StringBuilder camelCaseString = new StringBuilder("");
+
+        final String[] parts = StringUtils.split(in, "-");
+        for (final String part : parts){
+            final String capitalized = StringUtils.capitalize(part);
+            camelCaseString.append(capitalized);
+        }
+
+        return camelCaseString.toString();
+    }
+
+    private static String toFirstLower( String in ) {
+        if( in.equalsIgnoreCase("import") || in.equalsIgnoreCase("default") || in.equalsIgnoreCase("interface") ) {
+            in = in + "_";
+        }
+        return StringUtils.uncapitalize(in);
+    }
+
+    public String getNameToFirstUpper(  ) {
+        final String extension = isReference() ? "Ref" : "";
+
+        return toCamelCase(this.name) + extension;
+    }
+
+    public String getNameToFirstLower( ) {
+        return isReference() ? toFirstLower(toCamelCase(this.name))+"Ref" : toFirstLower(toCamelCase(this.name));
+    }
+
     public String getFlag() {
         return flag;
     }
@@ -709,6 +738,10 @@ public enum AttributeType implements Documented {
 
     public AttributeSyntax getSyntax() {
         return syntax;
+    }
+
+    public boolean isReference() {
+        return !references.isEmpty();
     }
 
     public boolean isValidValue(final ObjectType objectType, final CIString value) {
