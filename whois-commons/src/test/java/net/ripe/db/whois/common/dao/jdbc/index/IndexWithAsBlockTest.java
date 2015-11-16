@@ -30,7 +30,7 @@ public class IndexWithAsBlockTest extends IndexTestBase {
     public void addToIndex() {
         subject.addToIndex(whoisTemplate, asBlockInfo, asBlock, asBlock.getTypeAttribute().getCleanValue());
 
-        assertThat(whoisTemplate.queryForInt("SELECT COUNT(*) FROM as_block"), is(1));
+        assertThat(whoisTemplate.queryForObject("SELECT COUNT(*) FROM as_block", Integer.class), is(1));
     }
 
     @Test
