@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv4Tree;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Test;
@@ -24,7 +25,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class HierarchyLookupTest {
+public class HierarchyLookupTest extends ObjectTemplateDependentTest {
     @Mock Ipv4Tree ipv4Tree;
     @Mock RpslObjectDao rpslObjectDao;
     @InjectMocks HierarchyLookupIpv4 subject;
