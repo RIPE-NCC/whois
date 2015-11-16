@@ -3,6 +3,7 @@ package net.ripe.db.whois.query.executor;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SearchQueryExecutorTest {
+public class SearchQueryExecutorTest extends ObjectTemplateDependentTest {
     @Mock SourceContext sourceContext;
     @Mock RpslObjectSearcher rpslObjectSearcher;
     @Mock RpslResponseDecorator rpslResponseDecorator;

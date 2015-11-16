@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.executor;
 
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;
@@ -9,7 +10,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-public class TemplateQueryExecutorTest {
+public class TemplateQueryExecutorTest extends ObjectTemplateDependentTest {
     private TemplateQueryExecutor subject;
 
     @Before

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.authentication.credential;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.PasswordCredential;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AuthenticationModuleTest {
+public class AuthenticationModuleTest extends ObjectTemplateDependentTest {
     @Mock private PreparedUpdate update;
     @Mock private UpdateContext updateContext;
     @Mock private PasswordCredentialValidator credentialValidator;
