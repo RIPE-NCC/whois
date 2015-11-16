@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import sun.reflect.Reflection;
+import sun.reflect.CallerSensitive;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -51,11 +51,12 @@ public class AuthenticationModule {
         }
     }
 
+    @CallerSensitive
     public List<RpslObject> authenticate(final PreparedUpdate update, final UpdateContext updateContext, final Collection<RpslObject> maintainers) {
         final Credentials offered = update.getCredentials();
         boolean passwordRemovedRemark = false;
 
-        loggerContext.logAuthenticationStrategy(update.getUpdate(), Reflection.getCallerClass().getCanonicalName(), maintainers);
+        loggerContext.logAuthenticationStrategy(update.getUpdate(), getCaller(), maintainers);
 
         final List<RpslObject> authenticatedCandidates = Lists.newArrayList();
         for (final RpslObject maintainer : maintainers) {
@@ -124,6 +125,14 @@ public class AuthenticationModule {
         }
 
         return false;
+    }
+
+    private String getCaller() {
+        return (new SecurityManager() {
+            public String getCaller() {
+                return getClassContext()[3].getCanonicalName();
+            }
+        }).getCaller();
     }
 
     private static class AuthComparator implements Comparator<CIString> {
