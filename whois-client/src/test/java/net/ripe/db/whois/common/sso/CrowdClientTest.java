@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.sso;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

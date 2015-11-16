@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.generator;
 
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -27,7 +28,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TimestampAttributeGeneratorTest {
+public class TimestampAttributeGeneratorTest extends ObjectTemplateDependentTest {
     //TODO [TP]: remove defensive code checks wher we check whether timestamp attributes are in original object.
     final private static DateTimeFormatter ISO_FORMATTER = ISODateTimeFormat.dateTimeNoMillis();
 

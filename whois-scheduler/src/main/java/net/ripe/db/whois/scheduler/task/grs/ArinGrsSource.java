@@ -205,15 +205,6 @@ class ArinGrsSource extends GrsSource {
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
             @Override
             public RpslAttribute apply(final RpslAttribute input) {
-                String date = input.getCleanValue().toString().replaceAll("[^0-9]", "");
-                final String value = String.format("unread@ripe.net %s", date);
-                return new RpslAttribute(AttributeType.CHANGED, value);
-            }
-        }, "Updated");
-
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
                 final String value = input.getCleanValue().toString();
 
                 // Fix IPv6 syntax

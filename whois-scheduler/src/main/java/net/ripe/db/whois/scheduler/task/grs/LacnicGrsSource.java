@@ -166,15 +166,6 @@ class LacnicGrsSource extends GrsSource {
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
             @Override
             public RpslAttribute apply(final RpslAttribute input) {
-                final String date = input.getCleanValue().toString().replaceAll("-", "");
-                final String value = String.format("unread@ripe.net %s # %s", date, input.getKey());
-                return new RpslAttribute(AttributeType.CHANGED, value);
-            }
-        }, "changed", "created");
-
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
                 final IpInterval<?> ipInterval = IpInterval.parse(input.getCleanValue());
                 if (ipInterval instanceof Ipv4Resource) {
                     return new RpslAttribute(AttributeType.INETNUM, input.getValue());
