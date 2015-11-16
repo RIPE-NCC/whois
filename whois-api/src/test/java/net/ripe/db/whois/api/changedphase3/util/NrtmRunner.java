@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.changedphase3;
+package net.ripe.db.whois.api.changedphase3.util;
 
 public class NrtmRunner extends AbstactScenarioRunner {
 

@@ -1,7 +1,7 @@
-package net.ripe.db.whois.api.changedphase3;
+package net.ripe.db.whois.api.changedphase3.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Req.NOT_APPLIC__;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Req.NOT_APPLIC__;
 
 public class Scenario {
     private final Mode mode;
@@ -59,7 +59,7 @@ public class Scenario {
     }
 
     public void run(final Context context) {
-        //System.err.println("*** Start running test " + this);
+        System.err.println("*** Start running test " + this);
         ScenarioRunner runner = RunnerProvider.getRunnerForProtocol(protocol, context);
         runner.before(this);
         switch (method) {
@@ -97,7 +97,7 @@ public class Scenario {
     }
 
     public String toString() {
-        return String.format("GIVEN( %s, %s ) WHEN( %s  %s, %s ) THEN( %s, %s )",
+        return String.format("GIVEN( %s, %s ) WHEN( %s,  %s, %s ) THEN( %s, %s )",
                 getMode(), getPreCond(), getProtocol(), getMethod(), getReq(), getResult(), getPostCond());
     }
 
@@ -141,7 +141,7 @@ public class Scenario {
         FAILED
     }
 
-    static class Builder {
+    public static class Builder {
         private Mode mode;
         private ObjectStatus preCond;
         private Protocol protocol;

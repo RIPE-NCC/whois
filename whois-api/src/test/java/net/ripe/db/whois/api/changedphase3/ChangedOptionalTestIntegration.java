@@ -7,28 +7,28 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import static net.ripe.db.whois.api.changedphase3.Scenario.Builder.given;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Method.CREATE;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Method.DELETE;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Method.EVENT_;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Method.GET___;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Method.META__;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Method.MODIFY;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Method.SEARCH;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Mode.OLD_MODE;
-import static net.ripe.db.whois.api.changedphase3.Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____;
-import static net.ripe.db.whois.api.changedphase3.Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__;
-import static net.ripe.db.whois.api.changedphase3.Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Protocol.MAILUPD;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Protocol.NRTM___;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Protocol.REST___;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Protocol.SYNCUPD;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Protocol.TELNET_;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Req.NOT_APPLIC__;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Req.NO_CHANGED__;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Req.WITH_CHANGED;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Result.FAILED;
-import static net.ripe.db.whois.api.changedphase3.Scenario.Result.SUCCESS;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Builder.given;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Method.CREATE;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Method.DELETE;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Method.EVENT_;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Method.GET___;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Method.META__;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Method.MODIFY;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Method.SEARCH;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Mode.OLD_MODE;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Protocol.MAILUPD;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Protocol.NRTM___;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Protocol.REST___;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Protocol.SYNCUPD;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Protocol.TELNET_;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Req.NOT_APPLIC__;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Req.NO_CHANGED__;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Req.WITH_CHANGED;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Result.FAILED;
+import static net.ripe.db.whois.api.changedphase3.util.Scenario.Result.SUCCESS;
 
 
 @Category(IntegrationTest.class)
@@ -44,7 +44,6 @@ public class ChangedOptionalTestIntegration extends AbstractChangedPhase3Integra
         System.clearProperty("feature.toggle.changed.attr.available");
     }
 
-    //@Ignore
     @Test
     public void old_mode_rest_test() {
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
@@ -76,7 +75,7 @@ public class ChangedOptionalTestIntegration extends AbstractChangedPhase3Integra
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(TELNET_, META__, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void old_mode_syncupdates_test() {
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(SYNCUPD, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
