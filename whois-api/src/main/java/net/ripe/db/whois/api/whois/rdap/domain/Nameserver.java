@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "nameserver", propOrder = {
@@ -29,6 +30,17 @@ public class Nameserver extends RdapObject implements Serializable {
     protected String unicodeName;
     @XmlElement
     protected Nameserver.IpAddresses ipAddresses;
+
+    public Nameserver() {
+        // required no-arg constructor
+    }
+
+    public Nameserver(final String handle, final String ldhName, final String unicodeName, final Nameserver.IpAddresses ipAddresses) {
+        this.handle = handle;
+        this.ldhName = ldhName;
+        this.unicodeName = unicodeName;
+        this.ipAddresses = ipAddresses;
+    }
 
     public String getHandle() {
         return handle;
@@ -60,6 +72,28 @@ public class Nameserver extends RdapObject implements Serializable {
 
     public void setIpAddresses(Nameserver.IpAddresses value) {
         this.ipAddresses = value;
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        final Nameserver nameserver = (Nameserver)object;
+        return Objects.equals(nameserver.handle, handle) &&
+            Objects.equals(nameserver.ldhName, ldhName) &&
+            Objects.equals(nameserver.unicodeName, unicodeName) &&
+            Objects.equals(nameserver.ipAddresses, ipAddresses);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(handle, ldhName, unicodeName, ipAddresses);
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
@@ -98,17 +132,21 @@ public class Nameserver extends RdapObject implements Serializable {
 
         @Override
         public boolean equals(Object object) {
-        if (this == object) {
-            return true;
+            if (this == object) {
+                return true;
+            }
+
+            if (object == null || getClass() != object.getClass()) {
+                return false;
+            }
+
+            return Objects.equals(((IpAddresses)object).ipv4, ipv4) &&
+                Objects.equals(((IpAddresses)object).ipv6, ipv6);
         }
 
-        if (object == null || getClass() != object.getClass()) {
-            return false;
-        }
-
-        final IpAddresses ipAddresses = (IpAddresses) object;
-        return (ipAddresses.ipv4 != null ? ipAddresses.ipv4.equals(ipv4) : ipv4 == null) &&
-                (ipAddresses.ipv6 != null ? ipAddresses.ipv6.equals(ipv6) : ipv6 == null);
+        @Override
+        public int hashCode() {
+            return Objects.hash(ipv4, ipv6);
         }
     }
 }

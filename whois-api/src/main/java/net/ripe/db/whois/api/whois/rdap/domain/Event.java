@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "event", propOrder = {
@@ -50,5 +51,25 @@ public class Event implements Serializable {
 
     public void setEventActor(final String value) {
         this.eventActor = value;
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        return Objects.equals(((Event)object).eventAction, eventAction) &&
+            Objects.equals(((Event)object).eventDate, eventDate) &&
+            Objects.equals(((Event)object).eventActor, eventActor);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(eventAction, eventDate, eventActor);
     }
 }

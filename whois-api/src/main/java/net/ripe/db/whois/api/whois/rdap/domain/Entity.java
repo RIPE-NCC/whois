@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "entity", propOrder = {
@@ -30,6 +31,17 @@ public class Entity extends RdapObject implements Serializable, Comparable<Entit
     protected List<Object> vcardArray;
     protected List<Role> roles;
     protected Map publicIds;
+
+    public Entity() {
+        // required no-arg constructor
+    }
+
+    public Entity(final String handle, final List<Object> vcardArray, final List<Role> roles, final Map publicIds) {
+        this.handle = handle;
+        this.vcardArray = vcardArray;
+        this.roles = roles;
+        this.publicIds = publicIds;
+    }
 
     public String getHandle() {
         return handle;
@@ -62,12 +74,36 @@ public class Entity extends RdapObject implements Serializable, Comparable<Entit
         return publicIds;
     }
 
-    public void setPublicIds(final Map value) {
-        this.publicIds = value;
+    @Override
+    public boolean equals(final Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        return Objects.equals(((Entity)object).handle, handle) &&
+            Objects.equals(((Entity)object).vcardArray, vcardArray) &&
+            equalsInAnyOrder(roles, ((Entity)object).roles) &&
+            Objects.equals(((Entity)object).publicIds, publicIds);
+    }
+
+    private boolean equalsInAnyOrder(final List first, final List second) {
+        return (first == null && second == null) ||
+                ( (first != null && second != null) &&
+                    first.size() == second.size() &&
+                    first.containsAll(second));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(handle, vcardArray, roles, publicIds);
     }
 
     @Override
     public int compareTo(Entity o) {
-        return this.getHandle().compareTo(o.getHandle());
+        return this.handle.compareTo(o.handle);
     }
 }

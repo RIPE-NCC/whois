@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -36,6 +37,19 @@ public class Domain extends RdapObject implements Serializable {
     protected List<Nameserver> nameservers;
     protected Domain.SecureDNS secureDNS;
     protected Map publicIds;
+
+    public Domain() {
+        // requried no-arg constructor
+    }
+
+    public Domain(final String handle, final String ldhName, final String unicodeName, final List<Nameserver> nameservers, final Domain.SecureDNS secureDNS, final Map publicIds) {
+        this.handle = handle;
+        this.ldhName = ldhName;
+        this.unicodeName = unicodeName;
+        this.nameservers = nameservers;
+        this.secureDNS = secureDNS;
+        this.publicIds = publicIds;
+    }
 
     public String getHandle() {
         return handle;
@@ -82,6 +96,29 @@ public class Domain extends RdapObject implements Serializable {
 
     public void setPublicIds(final Map value) {
         this.publicIds = value;
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        return Objects.equals(((Domain)object).handle, handle) &&
+            Objects.equals(((Domain)object).ldhName, ldhName) &&
+            Objects.equals(((Domain)object).unicodeName, unicodeName) &&
+            Objects.equals(((Domain)object).nameservers, nameservers) &&
+            Objects.equals(((Domain)object).secureDNS, secureDNS) &&
+            Objects.equals(((Domain)object).publicIds, publicIds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(handle, ldhName, unicodeName, nameservers, secureDNS, publicIds);
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
@@ -138,6 +175,28 @@ public class Domain extends RdapObject implements Serializable {
             return this.keyData;
         }
 
+        @Override
+        public boolean equals(final Object object) {
+            if (this == object) {
+                return true;
+            }
+
+            if (object == null || getClass() != object.getClass()) {
+                return false;
+            }
+
+            return Objects.equals(((SecureDNS)object).zoneSigned, zoneSigned) &&
+                Objects.equals(((SecureDNS)object).delegationSigned, delegationSigned) &&
+                Objects.equals(((SecureDNS)object).maxSigLife, maxSigLife) &&
+                Objects.equals(((SecureDNS)object).dsData, dsData) &&
+                Objects.equals(((SecureDNS)object).keyData, keyData);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(zoneSigned, delegationSigned, maxSigLife, dsData, keyData);
+        }
+
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
             "keyTag",
@@ -158,6 +217,18 @@ public class Domain extends RdapObject implements Serializable {
             @XmlElement(required = true)
             protected int digestType;
             protected List<Event> events;
+
+            public DsData() {
+                // required no-arg constructor
+            }
+
+            public DsData(final long keyTag, final int algorithm, final String digest, final int digestType, final List<Event> events) {
+                this.keyTag = keyTag;
+                this.algorithm = algorithm;
+                this.digest = digest;
+                this.digestType = digestType;
+                this.events = events;
+            }
 
             public long getKeyTag() {
                 return keyTag;
@@ -198,6 +269,27 @@ public class Domain extends RdapObject implements Serializable {
                 return this.events;
             }
 
+            @Override
+            public boolean equals(final Object object) {
+                if (this == object) {
+                    return true;
+                }
+
+                if (object == null || getClass() != object.getClass()) {
+                    return false;
+                }
+
+                return Objects.equals(((DsData)object).keyTag, keyTag) &&
+                    Objects.equals(((DsData)object).algorithm, algorithm) &&
+                    Objects.equals(((DsData)object).digest, digest) &&
+                    Objects.equals(((DsData)object).digestType, digestType) &&
+                    Objects.equals(((DsData)object).events, events);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(keyTag, algorithm, digest, digestType, events);
+            }
         }
 
 
@@ -222,43 +314,26 @@ public class Domain extends RdapObject implements Serializable {
             protected int algorithm;
             protected List<Event> events;
 
-            public String getFlags() {
-                return flags;
-            }
-
-            public void setFlags(final String value) {
-                this.flags = value;
-            }
-
-            public String getProtocol() {
-                return protocol;
-            }
-
-            public void setProtocol(final String value) {
-                this.protocol = value;
-            }
-
-            public String getPublicKey() {
-                return publicKey;
-            }
-
-            public void setPublicKey(final String value) {
-                this.publicKey = value;
-            }
-
-            public int getAlgorithm() {
-                return algorithm;
-            }
-
-            public void setAlgorithm(final int value) {
-                this.algorithm = value;
-            }
-
-            public List<Event> getEvents() {
-                if (events == null) {
-                    events = Lists.newArrayList();
+            @Override
+            public boolean equals(final Object object) {
+                if (this == object) {
+                    return true;
                 }
-                return this.events;
+
+                if (object == null || getClass() != object.getClass()) {
+                    return false;
+                }
+
+                return Objects.equals(((KeyData)object).flags, flags) &&
+                    Objects.equals(((KeyData)object).protocol, protocol) &&
+                    Objects.equals(((KeyData)object).publicKey, publicKey) &&
+                    Objects.equals(((KeyData)object).algorithm, algorithm) &&
+                    Objects.equals(((KeyData)object).events, events);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(flags, protocol, publicKey, algorithm, events);
             }
         }
     }
