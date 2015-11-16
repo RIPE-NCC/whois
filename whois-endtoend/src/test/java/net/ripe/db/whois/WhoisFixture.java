@@ -222,14 +222,14 @@ public class WhoisFixture {
     }
 
     public boolean objectExists(final ObjectType objectType, final String pkey) {
-        return 1 == new JdbcTemplate(whoisDataSource).queryForInt("" +
+        return 1 == new JdbcTemplate(whoisDataSource).queryForObject(
                 "select count(*) " +
                 "from last " +
                 "where object_type = ? " +
                 "and pkey = ? " +
                 "and sequence_id != 0 ",
-                ObjectTypeIds.getId(objectType),
-                pkey);
+                Integer.class,
+                ObjectTypeIds.getId(objectType), pkey);
     }
 
     public DatabaseHelper getDatabaseHelper() {

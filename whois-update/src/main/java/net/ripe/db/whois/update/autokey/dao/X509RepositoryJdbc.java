@@ -28,7 +28,7 @@ public class X509RepositoryJdbc implements X509Repository {
 
     @Override
     public X509KeycertId claimNextAvailableIndex(final String space, final String suffix) {
-        final int highestX509Id = jdbcTemplate.queryForInt("SELECT keycert_id FROM x509");
+        final int highestX509Id = jdbcTemplate.queryForObject("SELECT keycert_id FROM x509", Integer.class);
         final X509KeycertId x509 = new X509KeycertId(space, highestX509Id + 1, suffix);
         final int updatedRows = jdbcTemplate.update("UPDATE x509 SET keycert_id = ? WHERE keycert_id = ?", x509.getIndex(), highestX509Id);
 
