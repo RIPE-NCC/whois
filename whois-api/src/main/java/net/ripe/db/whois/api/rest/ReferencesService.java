@@ -74,6 +74,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -182,7 +183,7 @@ public class ReferencesService {
             final RpslObject updatedMntner = replaceAdminC(mntner, "AUTO-1");
             actionRequests.add(new ActionRequest(updatedMntner, Action.MODIFY));
 
-            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null);
+            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.ACCOUNT);
             return createResponse(request, filterWhoisObjects(whoisResources), Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -231,7 +232,9 @@ public class ReferencesService {
             final List<ActionRequest> actionRequests,
             final List<String> passwords,
             final String crowdTokenKey,
-            final String override) {
+            final String override,
+            final SsoAuthForm ssoAuthForm) {
+
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
@@ -241,7 +244,15 @@ public class ReferencesService {
             final List<Update> updates = Lists.newArrayList();
             for (ActionRequest actionRequest : actionRequests) {
                 final String deleteReason = Action.DELETE.equals(actionRequest.getAction()) ? "--" : null;
-                updates.add(updatePerformer.createUpdate(updateContext, actionRequest.getRpslObject(), passwords, deleteReason, override));
+
+                final RpslObject rpslObject;
+                if (ssoAuthForm == SsoAuthForm.UUID){
+                    ssoTranslator.populateCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
+                    rpslObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, actionRequest.getRpslObject());
+                } else {
+                    rpslObject = actionRequest.getRpslObject();
+                }
+                updates.add(updatePerformer.createUpdate(updateContext, rpslObject, passwords, deleteReason, override));
             }
 
             final WhoisResources whoisResources = updatePerformer.performUpdates(updateContext, origin, updates, Keyword.NONE, request);
@@ -312,6 +323,7 @@ public class ReferencesService {
         return whoisResources;
     }
 
+    //TODO [TP]: This method has to go to its own class and path.
     /**
      * Update one or more objects together (in the same transaction). If any update fails, then all changes are cancelled (rolled back).
      *
@@ -327,8 +339,6 @@ public class ReferencesService {
             final WhoisResources resource,
             @PathParam("source") final String sourceParam,
             @Context final HttpServletRequest request,
-            @QueryParam("password") final List<String> passwords,
-            @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override) {
 
         if (resource == null) {
@@ -342,7 +352,7 @@ public class ReferencesService {
         checkForMainSource(request, sourceParam);
 
         try {
-            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(resource), passwords, crowdTokenKey, override);
+            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(resource), Collections.<String>emptyList(), "", override, SsoAuthForm.ACCOUNT);
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -408,7 +418,9 @@ public class ReferencesService {
 
             // update the maintainer to point to a dummy person / role
 
-            actionRequests.add(new ActionRequest(replaceReferencesInMntner(allObjects), Action.MODIFY));
+            final RpslObjectWithReplacements tmpMntnerWithReplacements = replaceReferencesInMntner(allObjects);
+
+            actionRequests.add(new ActionRequest(tmpMntnerWithReplacements.rpslObject, Action.MODIFY));
 
             // delete the person / role objects
 
@@ -419,28 +431,48 @@ public class ReferencesService {
             }
 
             // delete the maintainer
-
-            actionRequests.add(new ActionRequest(replaceReferencesInMntner(allObjects), Action.DELETE));
+            actionRequests.add(new ActionRequest(tmpMntnerWithReplacements.rpslObject, Action.DELETE));
 
             // batch update
-            performUpdates(request, actionRequests, passwords, crowdTokenKey, null);
-            return createResponse(request, allObjects, Response.Status.OK);
+            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.UUID);
 
-        } catch (WebApplicationException e) {
-            switch (e.getResponse().getStatus()) {
-                case HttpStatus.UNAUTHORIZED_401:
-                    throw new NotAuthorizedException(createResponse(request, primaryObject, Response.Status.UNAUTHORIZED));
-                case HttpStatus.INTERNAL_SERVER_ERROR_500:
-                    throw new InternalServerErrorException(createResponse(request, primaryObject, Response.Status.INTERNAL_SERVER_ERROR));
-                default:
-                    throw new BadRequestException(createResponse(request, primaryObject, Response.Status.BAD_REQUEST));
-            }
+            removeDuplicatesAndRestoreReplacedReferences(whoisResources, tmpMntnerWithReplacements);
+
+            return createResponse(request, whoisResources, Response.Status.OK);
+
         } catch (ReferenceUpdateFailedException e) {
-            return createResponse(request, e.whoisResources, e.status);
+            return createResponse(request, removeWhoisObjects(e.whoisResources), e.status);
         } catch (Exception e) {
             LOGGER.error("Unexpected", e);
-            return createResponse(request, primaryObject, Response.Status.INTERNAL_SERVER_ERROR);
+            throw e;
         }
+    }
+
+    private WhoisResources removeWhoisObjects(final WhoisResources whoisResources){
+        whoisResources.setWhoisObjects(null);
+        return whoisResources;
+    }
+
+    private void removeDuplicatesAndRestoreReplacedReferences(final WhoisResources whoisResources, final RpslObjectWithReplacements tmpMntnerWithReplacements) {
+        final Map<List<Attribute>, WhoisObject> result = Maps.newHashMap();
+
+        for (final WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
+            if (whoisObject.getType().equalsIgnoreCase(AttributeType.MNTNER.getName())){
+                final RpslObject mntnerWithDummyRole = whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
+
+                final RpslObjectBuilder builder = new RpslObjectBuilder(mntnerWithDummyRole);
+
+                for (final Map.Entry<RpslAttribute, RpslAttribute> entry : tmpMntnerWithReplacements.replacements.entrySet()) {
+                    builder.removeAttribute(entry.getValue())
+                            .addAttributeSorted(entry.getKey());
+                }
+                result.put(whoisObject.getPrimaryKey(), whoisObjectMapper.map(builder.get(), FormattedServerAttributeMapper.class));
+            } else {
+                result.put(whoisObject.getPrimaryKey(), whoisObject);
+            }
+        }
+
+        whoisResources.setWhoisObjects(Lists.newArrayList(result.values()));
     }
 
     /**
@@ -577,7 +609,7 @@ public class ReferencesService {
         }).build();
     }
 
-    private RpslObject replaceReferencesInMntner(final Collection<RpslObject> allObjects) {
+    private RpslObjectWithReplacements replaceReferencesInMntner(final Collection<RpslObject> allObjects) {
         for (final RpslObject rpslObject : ImmutableSet.copyOf(allObjects)) {
             if (rpslObject.getType().equals(ObjectType.MNTNER)) {
                 return replaceReferences(rpslObject, allObjects);
@@ -586,7 +618,7 @@ public class ReferencesService {
         throw new IllegalStateException("No maintainer found");
     }
 
-    private RpslObject replaceReferences(final RpslObject mntner, final Collection<RpslObject> references) {
+    private RpslObjectWithReplacements replaceReferences(final RpslObject mntner, final Collection<RpslObject> references) {
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
 
         for (final RpslAttribute rpslAttribute : mntner.getAttributes()) {
@@ -600,14 +632,14 @@ public class ReferencesService {
         }
 
         if (replacements.isEmpty()) {
-            return mntner;
+            return new RpslObjectWithReplacements(mntner, replacements);
         }
 
         final RpslObjectBuilder builder = new RpslObjectBuilder(mntner);
         for (Map.Entry<RpslAttribute, RpslAttribute> entry : replacements.entrySet()) {
             builder.replaceAttribute(entry.getKey(), entry.getValue());
         }
-        return builder.get();
+        return new RpslObjectWithReplacements(builder.get(), replacements);
     }
 
     private boolean referenceMatches(final RpslObjectInfo reference, final RpslObject rpslObject) {
@@ -676,6 +708,18 @@ public class ReferencesService {
     }
 
     // model classes
+
+    static class RpslObjectWithReplacements {
+        private final RpslObject rpslObject;
+        private final Map<RpslAttribute, RpslAttribute> replacements;
+
+        RpslObjectWithReplacements(final RpslObject rpslObject, final Map<RpslAttribute, RpslAttribute> replacements) {
+            this.rpslObject = rpslObject;
+            this.replacements = replacements;
+        }
+    }
+
+    enum SsoAuthForm {ACCOUNT, UUID}
 
     @XmlRootElement(name = "references")
     @JsonInclude(NON_EMPTY)

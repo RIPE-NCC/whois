@@ -143,6 +143,6 @@ public class IndexWithMntRoutesTest extends IndexTestBase {
     }
 
     private int getNrMntRoutes() {
-        return whoisTemplate.queryForInt("select count(*) from mnt_routes");
+        return whoisTemplate.queryForObject("select count(*) from mnt_routes", Integer.class);
     }
 }

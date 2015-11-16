@@ -1,7 +1,7 @@
 package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.rpsl.DummifierLegacy;
+import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -19,10 +19,10 @@ interface DecorationStrategy {
 
     class DummifyLegacy implements DecorationStrategy {
         private static final int VERSION = 3;
-        private final DummifierLegacy dummifier;
+        private final DummifierNrtm dummifier;
         private final Set<ObjectType> writtenPlaceHolders = Sets.newHashSet();
 
-        public DummifyLegacy(final DummifierLegacy dummifier) {
+        public DummifyLegacy(final DummifierNrtm dummifier) {
             this.dummifier = dummifier;
         }
 
@@ -35,9 +35,9 @@ interface DecorationStrategy {
             final ObjectType objectType = object.getType();
             if (writtenPlaceHolders.add(objectType)) {
                 if (objectType.equals(ObjectType.ROLE)) {
-                    return DummifierLegacy.getPlaceholderRoleObject();
+                    return DummifierNrtm.getPlaceholderRoleObject();
                 } else {
-                    return DummifierLegacy.getPlaceholderPersonObject();
+                    return DummifierNrtm.getPlaceholderPersonObject();
                 }
             }
 
