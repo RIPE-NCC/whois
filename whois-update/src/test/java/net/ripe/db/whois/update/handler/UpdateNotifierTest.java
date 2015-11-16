@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Notification;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateNotifierTest {
+public class UpdateNotifierTest extends ObjectTemplateDependentTest {
     @Mock UpdateRequest updateRequest;
     @Mock UpdateContext updateContext;
 
