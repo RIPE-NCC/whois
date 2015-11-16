@@ -22,6 +22,7 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
@@ -85,6 +86,7 @@ public class WhoisFixture {
     protected WhoisServer whoisServer;
     protected RestClient restClient;
     protected TestWhoisLog testWhoisLog;
+    protected ObjectTemplateProvider objectTemplateProvider;
 
     static {
         Slf4JLogConfiguration.init();
@@ -102,6 +104,7 @@ public class WhoisFixture {
         System.setProperty("unrefcleanup.deletes", "true");
         System.setProperty("nrtm.enabled", "false");
         System.setProperty("grs.sources", "TEST-GRS");
+        System.setProperty("feature.toggle.changed.attr.available", "true");
     }
 
     public void start() throws Exception {
@@ -130,6 +133,8 @@ public class WhoisFixture {
         indexDao = applicationContext.getBean(IndexDao.class);
         restClient = applicationContext.getBean(RestClient.class);
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
+
+        objectTemplateProvider = applicationContext.getBean(ObjectTemplateProvider.class);
 
         databaseHelper.setup();
         whoisServer.start();
