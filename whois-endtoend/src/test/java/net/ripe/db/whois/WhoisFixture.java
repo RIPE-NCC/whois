@@ -1,6 +1,5 @@
 package net.ripe.db.whois;
 
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
@@ -27,8 +26,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.db.WhoisServer;
 import net.ripe.db.whois.query.QueryServer;
@@ -228,14 +227,14 @@ public class WhoisFixture {
     }
 
     public boolean objectExists(final ObjectType objectType, final String pkey) {
-        return 1 == new JdbcTemplate(whoisDataSource).queryForInt("" +
+        return 1 == new JdbcTemplate(whoisDataSource).queryForObject(
                 "select count(*) " +
                 "from last " +
                 "where object_type = ? " +
                 "and pkey = ? " +
                 "and sequence_id != 0 ",
-                ObjectTypeIds.getId(objectType),
-                pkey);
+                Integer.class,
+                ObjectTypeIds.getId(objectType), pkey);
     }
 
     public DatabaseHelper getDatabaseHelper() {

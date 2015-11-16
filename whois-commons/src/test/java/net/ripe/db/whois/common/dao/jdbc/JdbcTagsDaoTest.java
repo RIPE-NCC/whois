@@ -134,7 +134,7 @@ public class JdbcTagsDaoTest extends AbstractDaoTest {
         assertThat(subject.getTags(1).size(), is(0));
         assertThat(subject.getTags(2).size(), is(0));
         assertThat(subject.getTags(3).size(), is(0));
-        assertThat(databaseHelper.getWhoisTemplate().queryForInt("SELECT count(*) FROM tags WHERE tag_id != \"unref\""), is(1));
+        assertThat(databaseHelper.getWhoisTemplate().queryForObject("SELECT count(*) FROM tags WHERE tag_id != \"unref\"", Integer.class), is(1));
     }
 
     @Test
@@ -142,10 +142,10 @@ public class JdbcTagsDaoTest extends AbstractDaoTest {
         final RpslObject person = databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST\nsource: TEST");
 
         subject.createTag(new Tag(CIString.ciString("unref"), person.getObjectId()));
-        assertThat(databaseHelper.getWhoisTemplate().queryForInt("SELECT count(*) FROM tags"), is(1));
+        assertThat(databaseHelper.getWhoisTemplate().queryForObject("SELECT count(*) FROM tags", Integer.class), is(1));
         databaseHelper.deleteObject(person);
 
         subject.deleteOrphanedTags();
-        assertThat(databaseHelper.getWhoisTemplate().queryForInt("SELECT count(*) FROM tags"), is(0));
+        assertThat(databaseHelper.getWhoisTemplate().queryForObject("SELECT count(*) FROM tags", Integer.class), is(0));
     }
 }
