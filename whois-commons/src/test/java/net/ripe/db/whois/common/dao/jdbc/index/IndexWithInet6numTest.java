@@ -70,6 +70,6 @@ public class IndexWithInet6numTest extends IndexTestBase {
     }
 
     private void checkRows(int expectedCount) {
-        assertThat(whoisTemplate.queryForInt("SELECT COUNT(*) FROM inet6num"), is(expectedCount));
+        assertThat(whoisTemplate.queryForObject("SELECT COUNT(*) FROM inet6num", Integer.class), is(expectedCount));
     }
 }

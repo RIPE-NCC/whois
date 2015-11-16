@@ -24,12 +24,13 @@ class IndexWithMntRoutes extends IndexWithReference {
             throw new IllegalArgumentException("Referenced object does not exist: " + value);
         }
 
-        int existing = jdbcTemplate.queryForInt("" +
+        final int existing = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) " +
                 "FROM mnt_routes " +
                 "WHERE object_id = ? " +
                 "AND " + lookupColumnName + " = ? " +
                 "AND object_type = ?",
+                Integer.class,
                 objectInfo.getObjectId(),
                 reference.getObjectId(),
                 ObjectTypeIds.getId(objectInfo.getObjectType()));
@@ -38,7 +39,7 @@ class IndexWithMntRoutes extends IndexWithReference {
             return existing;
         }
 
-        return jdbcTemplate.update("" +
+        return jdbcTemplate.update(
                 "INSERT INTO mnt_routes " +
                 "(object_id, " + lookupColumnName + ", object_type) " +
                 "VALUES (?, ?, ?)",

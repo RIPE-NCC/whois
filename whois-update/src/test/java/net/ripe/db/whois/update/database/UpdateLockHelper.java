@@ -34,7 +34,7 @@ public class UpdateLockHelper {
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void testUpdateLock() {
-        jdbcTemplate.queryForInt("SELECT count(*) FROM mntner");
+        jdbcTemplate.queryForObject("SELECT count(*) FROM mntner", Integer.class);
 
         // if setting update lock is not the first select after transaction starts,
         // other transactions won't see changes if using repeatable_read isolation

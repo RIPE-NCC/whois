@@ -33,7 +33,7 @@ public class IndexWithRoute6Test extends IndexTestBase {
     public void addToIndex() {
         subject.addToIndex(whoisTemplate, route6Info, route6, route6.getTypeAttribute().getCleanValue());
 
-        assertThat(whoisTemplate.queryForInt("SELECT COUNT(*) FROM route6"), is(1));
+        assertThat(whoisTemplate.queryForObject("SELECT COUNT(*) FROM route6", Integer.class), is(1));
     }
 
     @Test

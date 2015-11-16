@@ -1,30 +1,39 @@
 package net.ripe.db.whois.scheduler.task.export.dao;
 
 import com.google.common.collect.Sets;
+import com.jayway.awaitility.Awaitility;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.IntStream;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
+import static org.springframework.test.util.MatcherAssertionErrors.assertThat;
 
 public class JdbcExportDaoTest extends AbstractSchedulerIntegrationTest {
     @Autowired ExportDao subject;
 
     @Test
     public void getMaxSerial_in_context() {
-        subject.getMaxSerial();
+        databaseHelper.addObject(RpslObject.parse("mntner: DEV-MNT"));
+
+        assertThat(subject.getMaxSerial(), is(1));
     }
 
     @Test
     public void exportObjects_in_context() {
-        subject.exportObjects(new ExportCallbackHandler() {
-            @Override
-            public void exportObject(final RpslObject object) {
-            }
-        });
+        databaseHelper.addObject(RpslObject.parse("mntner: DEV-MNT"));
+        final AtomicBoolean callback = new AtomicBoolean();
+
+        subject.exportObjects(invocation -> callback.set(true));
+
+        Awaitility.await().until(() -> true);
     }
 
     @Test
@@ -32,38 +41,29 @@ public class JdbcExportDaoTest extends AbstractSchedulerIntegrationTest {
         databaseHelper.addObject(RpslObject.parse("mntner: DEV-MNT"));
 
         try {
-            subject.exportObjects(new ExportCallbackHandler() {
-                @Override
-                public void exportObject(final RpslObject object) {
-                    throw new RuntimeException("Oops");
-                }
-            });
-
-            Assert.fail("Should throw exception");
+            subject.exportObjects(invocation -> { throw new RuntimeException("Oops"); });
+            fail("Should throw exception");
         } catch (RuntimeException ignored) {
+            // expected
         }
     }
 
     @Test
     public void exportObjects() {
-        final int nrObjects = 100;
+        final Set<RpslObject> objects = Sets.newHashSet();
 
-        final Set<RpslObject> objects = Sets.newHashSetWithExpectedSize(nrObjects);
-        for (int i = 0; i < nrObjects; i++) {
-            final RpslObject object = RpslObject.parse("mntner: DEV-MNT" + i);
+        IntStream.range(0, 100).forEach(index -> {
+            final RpslObject object = RpslObject.parse("mntner: DEV-MNT" + index);
             objects.add(object);
             databaseHelper.addObject(object);
-        }
+        });
 
-        subject.exportObjects(new ExportCallbackHandler() {
-            @Override
-            public void exportObject(final RpslObject object) {
-                if (!objects.remove(object)) {
-                    Assert.fail("Object not in set: " + object);
-                }
+        subject.exportObjects(object -> {
+            if (!objects.remove(object)) {
+                fail("Object not in set: " + object);
             }
         });
 
-        Assert.assertThat(objects, Matchers.hasSize(0));
+        assertThat(objects, hasSize(0));
     }
 }
