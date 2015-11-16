@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.changedphase3;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.changedphase3.util.Context;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
@@ -37,8 +38,6 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
         databaseHelper.addObject(OWNER_MNTNER);
         databaseHelper.updateObject(TEST_PERSON);
         maintenanceMode.set("FULL,FULL");
-        context = new Context(getPort(),whoisObjectMapper );
+        context = new Context(getPort(),getPort(),whoisObjectMapper );
     }
-
-
 }
