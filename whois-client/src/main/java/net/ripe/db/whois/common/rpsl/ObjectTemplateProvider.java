@@ -8,10 +8,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-@Component
+@Component("objectTemplateProvider")
 @Lazy(false)
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ObjectTemplateProvider {
