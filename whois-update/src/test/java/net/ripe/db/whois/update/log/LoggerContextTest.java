@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
@@ -30,7 +31,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LoggerContextTest {
+public class LoggerContextTest extends ObjectTemplateDependentTest {
     @Mock Update update;
     @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks LoggerContext subject;

@@ -11,7 +11,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateResultTest {
+public class UpdateResultTest extends ObjectTemplateDependentTest {
     @Mock Update update;
 
     @Test

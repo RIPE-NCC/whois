@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.planner;
 
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.query.Query;
@@ -15,12 +16,15 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RelatedIrtDecoratorTest {
+public class RelatedIrtDecoratorTest extends ObjectTemplateDependentTest {
     @Mock
     private HierarchyLookupIpv4 hierarchyLookupIpv4;
     @Mock

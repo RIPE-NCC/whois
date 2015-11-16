@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.keycert;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.LocalDateTime;
@@ -22,7 +23,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PgpPublicKeyWrapperTest {
+public class PgpPublicKeyWrapperTest extends ObjectTemplateDependentTest {
 
     @Mock DateTimeProvider dateTimeProvider;
 
