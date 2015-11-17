@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ObjectMismatchValidatorTest  {
+public class ObjectMismatchValidatorTest {
     public static final RpslObject OBJECT = RpslObject.parse("mntner: foo");
 
     @InjectMocks ObjectMismatchValidator subject;

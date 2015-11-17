@@ -33,7 +33,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RouteIpAddressAuthenticationTest  {
+public class RouteIpAddressAuthenticationTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 

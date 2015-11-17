@@ -24,7 +24,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IpDomainUniqueHierarchyValidatorTest  {
+public class IpDomainUniqueHierarchyValidatorTest {
     @Mock UpdateContext updateContext;
     @Mock PreparedUpdate update;
 

@@ -23,7 +23,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QueryHandler_ExceptionTest  {
+public class QueryHandler_ExceptionTest {
     @Mock WhoisLog whoisLog;
     @Mock AccessControlListManager accessControlListManager;
     @Mock SourceContext sourceContext;

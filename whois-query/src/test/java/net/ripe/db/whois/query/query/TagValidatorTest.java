@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TagValidatorTest  {
+public class TagValidatorTest {
     private Messages messages;
     private TagValidator subject;
 

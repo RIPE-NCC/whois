@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AccessControlListManagerTest  {
+public class AccessControlListManagerTest {
 
     private final RpslObject role = RpslObject.parse("role: Test Role\nnic-hdl: TR1-TEST");
     private final RpslObject roleWithAbuseMailbox = RpslObject.parse("role: Test Role\nnic-hdl: TR1-TEST\nabuse-mailbox: abuse@mailbox.com");

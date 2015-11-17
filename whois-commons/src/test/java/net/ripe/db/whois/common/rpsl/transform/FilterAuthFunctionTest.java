@@ -21,7 +21,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FilterAuthFunctionTest  {
+public class FilterAuthFunctionTest {
 
     @Mock
     private SsoTokenTranslator ssoTokenTranslator;

@@ -28,7 +28,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TimestampAttributeGeneratorTest  {
+public class TimestampAttributeGeneratorTest {
     //TODO [TP]: remove defensive code checks wher we check whether timestamp attributes are in original object.
     final private static DateTimeFormatter ISO_FORMATTER = ISODateTimeFormat.dateTimeNoMillis();
 

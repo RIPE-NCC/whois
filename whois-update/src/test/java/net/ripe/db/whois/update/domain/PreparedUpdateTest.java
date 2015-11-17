@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PreparedUpdateTest  {
+public class PreparedUpdateTest {
     @Mock Update update;
     RpslObject originalObject;
     RpslObject updatedObject;

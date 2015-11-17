@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IntersectionValidatorTest  {
+public class IntersectionValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 

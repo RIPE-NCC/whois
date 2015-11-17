@@ -22,7 +22,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MaintainedReferencedMaintainerPersonRolesValidatorTest  {
+public class MaintainedReferencedMaintainerPersonRolesValidatorTest {
     @Mock private RpslObjectDao rpslObjectDao;
     @Spy @InjectMocks private MaintainedReferencedMaintainerPersonRolesValidator subject;
 

@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WhoisObjectMapperTest  {
+public class WhoisObjectMapperTest {
 
     private static final String BASE_URL = "http://rest.db.ripe.net/lookup";
 

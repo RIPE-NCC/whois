@@ -31,7 +31,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LoggerContextTest  {
+public class LoggerContextTest {
     @Mock Update update;
     @Mock DateTimeProvider dateTimeProvider;
     @InjectMocks LoggerContext subject;

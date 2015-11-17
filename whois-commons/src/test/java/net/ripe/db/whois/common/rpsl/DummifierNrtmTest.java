@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DummifierNrtmTest  {
+public class DummifierNrtmTest {
 
     @InjectMocks
     DummifierNrtm subject;

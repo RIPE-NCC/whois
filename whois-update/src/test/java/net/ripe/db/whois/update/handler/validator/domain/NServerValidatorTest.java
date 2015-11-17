@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NServerValidatorTest  {
+public class NServerValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 

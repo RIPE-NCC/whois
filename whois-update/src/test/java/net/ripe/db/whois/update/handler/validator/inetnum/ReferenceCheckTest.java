@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReferenceCheckTest  {
+public class ReferenceCheckTest {
 
     @Mock private PreparedUpdate update;
     @Mock private UpdateContext updateContext;

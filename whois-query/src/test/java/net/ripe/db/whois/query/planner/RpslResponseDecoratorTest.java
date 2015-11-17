@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class RpslResponseDecoratorTest  {
+public class RpslResponseDecoratorTest {
 
     @Mock SourceContext sourceContext;
     @Mock FilterPersonalDecorator filterPersonalDecorator;

@@ -34,7 +34,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SearchQueryExecutorTest  {
+public class SearchQueryExecutorTest {
     @Mock SourceContext sourceContext;
     @Mock RpslObjectSearcher rpslObjectSearcher;
     @Mock RpslResponseDecorator rpslResponseDecorator;

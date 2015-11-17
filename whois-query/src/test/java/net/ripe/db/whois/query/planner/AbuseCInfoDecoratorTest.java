@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class AbuseCInfoDecoratorTest  {
+public class AbuseCInfoDecoratorTest {
     @Mock private AbuseCFinder abuseCFinder;
     @Mock private SourceContext sourceContext;
     @InjectMocks AbuseCInfoDecorator subject;

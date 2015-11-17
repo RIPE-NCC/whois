@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReferencedTypeResolverTest  {
+public class ReferencedTypeResolverTest {
 
     @Mock private RpslObjectDao rpslObjectDao;
     @InjectMocks private ReferencedTypeResolver subject;

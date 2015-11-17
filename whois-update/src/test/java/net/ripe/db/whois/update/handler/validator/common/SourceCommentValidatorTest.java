@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SourceCommentValidatorTest  {
+public class SourceCommentValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 

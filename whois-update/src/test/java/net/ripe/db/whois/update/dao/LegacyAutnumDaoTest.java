@@ -11,7 +11,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 
-public class LegacyAutnumDaoTest extends AbstractUpdateDaoTest  {
+public class LegacyAutnumDaoTest extends AbstractUpdateDaoTest {
     @Autowired LegacyAutnumDao subject;
 
     @Before

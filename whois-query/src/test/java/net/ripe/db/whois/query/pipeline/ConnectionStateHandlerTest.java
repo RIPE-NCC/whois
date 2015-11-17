@@ -17,7 +17,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionStateHandlerTest  {
+public class ConnectionStateHandlerTest {
 
     @Mock private MessageEvent messageMock;
     @Mock private Channel channelMock;

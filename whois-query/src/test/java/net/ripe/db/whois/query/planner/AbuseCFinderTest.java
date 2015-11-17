@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AbuseCFinderTest  {
+public class AbuseCFinderTest {
 
     @Mock Ipv4Tree ipv4Tree;
     @Mock Ipv6Tree ipv6Tree;

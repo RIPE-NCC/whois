@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QueryCompletedEventTest  {
+public class QueryCompletedEventTest {
     @Mock private Channel channel;
 
     private QueryCompletedEvent subject;

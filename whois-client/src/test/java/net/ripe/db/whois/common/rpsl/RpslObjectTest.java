@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class RpslObjectTest  {
+public class RpslObjectTest {
     private final String maintainer = "" +
             "mntner:          DEV-MNT\n" +
             "descr:           DEV maintainer\n" +

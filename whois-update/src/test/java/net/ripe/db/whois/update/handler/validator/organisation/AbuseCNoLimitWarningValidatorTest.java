@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AbuseCNoLimitWarningValidatorTest  {
+public class AbuseCNoLimitWarningValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @InjectMocks AbuseCNoLimitWarningValidator subject;

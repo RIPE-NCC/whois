@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import joptsimple.OptionException;
 
-public class QueryTest  {
+public class QueryTest {
 
     public static final String SOURCE = "RIPE";
 

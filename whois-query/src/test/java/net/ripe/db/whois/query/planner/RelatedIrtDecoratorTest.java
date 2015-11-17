@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RelatedIrtDecoratorTest  {
+public class RelatedIrtDecoratorTest {
     @Mock
     private HierarchyLookupIpv4 hierarchyLookupIpv4;
     @Mock

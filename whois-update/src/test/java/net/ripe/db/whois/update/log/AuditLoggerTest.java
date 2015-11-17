@@ -28,7 +28,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AuditLoggerTest  {
+public class AuditLoggerTest {
     @Spy ByteArrayOutputStream outputStream;
     @Mock DateTimeProvider dateTimeProvider;
     AuditLogger subject;

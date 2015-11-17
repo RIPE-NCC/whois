@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MntRouteRangeValidatorTest  {
+public class MntRouteRangeValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @InjectMocks MntRouteRangeValidator subject;

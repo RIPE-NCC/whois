@@ -22,7 +22,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ValueWithinPrefixValidatorTest  {
+public class ValueWithinPrefixValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 

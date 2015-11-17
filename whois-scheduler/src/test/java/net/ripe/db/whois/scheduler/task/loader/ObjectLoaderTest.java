@@ -17,7 +17,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ObjectLoaderTest  {
+public class ObjectLoaderTest {
     @Mock NicHandleFactory nicHandleFactory;
 
     @InjectMocks ObjectLoader subject;

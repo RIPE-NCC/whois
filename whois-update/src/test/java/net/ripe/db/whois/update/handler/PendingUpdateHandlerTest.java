@@ -26,7 +26,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PendingUpdateHandlerTest  {
+public class PendingUpdateHandlerTest {
     @Mock private PendingUpdateDao pendingUpdateDao;
     @Mock private PreparedUpdate preparedUpdate;
     @Mock private UpdateContext updateContext;

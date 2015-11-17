@@ -32,7 +32,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ExportFileWriterTest  {
+public class ExportFileWriterTest {
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
     @Mock FilenameStrategy filenameStrategy;

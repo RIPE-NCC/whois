@@ -9,7 +9,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class UpdateTest  {
+public class UpdateTest {
 
     private final String content = "mntner: mntner\nsource: TEST\n";
     private final RpslObject rpslObject = RpslObject.parse(content);

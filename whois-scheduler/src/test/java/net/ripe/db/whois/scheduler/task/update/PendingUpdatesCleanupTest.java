@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PendingUpdatesCleanupTest  {
+public class PendingUpdatesCleanupTest {
     @Mock private PendingUpdateDao pendingUpdateDao;
     @Mock private RpslObjectDao rpslObjectDao;
     @Mock private DateTimeProvider dateTimeProvider;

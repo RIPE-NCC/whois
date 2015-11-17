@@ -26,7 +26,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GroupRelatedFunctionTest  {
+public class GroupRelatedFunctionTest {
     private Query query;
     private ResponseObject relatedToMessage;
 

@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InternalUpdatePerformerTest  {
+public class InternalUpdatePerformerTest {
 
     @Mock private UpdateRequestHandler updateRequestHandlerMock;
     @Mock private DateTimeProvider dateTimeProviderMock;

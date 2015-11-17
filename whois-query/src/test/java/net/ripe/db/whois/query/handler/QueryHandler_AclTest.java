@@ -31,7 +31,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QueryHandler_AclTest  {
+public class QueryHandler_AclTest {
     @Mock WhoisLog whoisLog;
     @Mock AccessControlListManager accessControlListManager;
     @Mock SourceContext sourceContext;

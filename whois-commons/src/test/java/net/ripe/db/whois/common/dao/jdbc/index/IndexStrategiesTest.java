@@ -14,7 +14,7 @@ import java.util.Set;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class IndexStrategiesTest  {
+public class IndexStrategiesTest {
     @Test
     public void check_index_strategied_for_lookup_attributes() {
 
