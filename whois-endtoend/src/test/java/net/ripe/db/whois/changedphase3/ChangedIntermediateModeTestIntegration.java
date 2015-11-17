@@ -29,7 +29,7 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Req.NO_CHANGED__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Req.WITH_CHANGED;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
 
-
+@Ignore("TODO: [ES] strip changed from updates and queries")
 @Category(IntegrationTest.class)
 public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
@@ -43,7 +43,6 @@ public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase
         System.clearProperty("feature.toggle.changed.attr.available");
     }
 
-    @Ignore
     @Test
     public void intermediate_mode_rest_test() {
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
@@ -66,7 +65,6 @@ public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, META__, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
     }
 
-    @Ignore
     @Test
     public void intermediate_mode_telnet_test() {
         given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(TELNET_, SEARCH, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
@@ -75,7 +73,6 @@ public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(TELNET_, META__, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
     }
 
-    @Ignore
     @Test
     public void intermediate_mode_syncupdates_test() {
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(SYNCUPD, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
@@ -92,7 +89,6 @@ public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
-    @Ignore
     @Test
     public void intermediate_mode_mailupdates_test() {
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(MAILUPD, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
@@ -109,7 +105,6 @@ public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
-    @Ignore
     @Test
     public void intermediate_mode_nrtm_test() {
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
@@ -121,7 +116,6 @@ public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
     }
 
-    @Ignore
     @Test
     public void intermediate_mode_dump_test() {
 
