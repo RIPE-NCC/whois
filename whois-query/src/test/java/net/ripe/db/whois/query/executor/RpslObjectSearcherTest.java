@@ -10,7 +10,7 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.iptree.*;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.dao.Inet6numDao;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RpslObjectSearcherTest  extends ObjectTemplateDependentTest {
+public class RpslObjectSearcherTest   {
     AtomicInteger rpslObjectId;
     Map<RpslObject, RpslObjectInfo> map;
 

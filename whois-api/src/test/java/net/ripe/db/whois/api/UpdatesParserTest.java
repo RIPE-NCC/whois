@@ -2,7 +2,7 @@ package net.ripe.db.whois.api;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Credential;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UpdatesParserTest extends ObjectTemplateDependentTest {
+public class UpdatesParserTest {
     private static final String SOURCE = "RIPE";
     private static final String MNTNER_DEV_MNT = "mntner: DEV-MNT\nsource: " + SOURCE;
 

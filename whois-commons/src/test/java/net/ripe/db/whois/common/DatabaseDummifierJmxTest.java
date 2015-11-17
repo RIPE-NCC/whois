@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class DatabaseDummifierJmxTest  extends ObjectTemplateDependentTest {
+public class DatabaseDummifierJmxTest   {
     final RpslObject mntnerWithPgp = RpslObject.parse(
             "mntner: NINJA\n" +
             "auth: PGP-111\n" +

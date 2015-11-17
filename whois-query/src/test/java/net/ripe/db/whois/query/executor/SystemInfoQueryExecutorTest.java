@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.executor;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -23,7 +23,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SystemInfoQueryExecutorTest extends ObjectTemplateDependentTest {
+public class SystemInfoQueryExecutorTest  {
 
     private SystemInfoQueryExecutor subject;
 

@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class AttributeTypeTest extends ObjectTemplateDependentTest {
+public class AttributeTypeTest  {
     @Test
     public void getByName() {
         for (AttributeType attributeType : AttributeType.values()) {

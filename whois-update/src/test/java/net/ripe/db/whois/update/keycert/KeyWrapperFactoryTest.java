@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.keycert;
 
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
-public class KeyWrapperFactoryTest extends ObjectTemplateDependentTest {
+public class KeyWrapperFactoryTest  {
     @Mock UpdateContainer updateContainer;
     @Mock UpdateContext updateContext;
 

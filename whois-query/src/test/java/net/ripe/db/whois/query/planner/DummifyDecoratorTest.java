@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.planner;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.Dummifier;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -27,7 +27,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DummifyDecoratorTest extends ObjectTemplateDependentTest {
+public class DummifyDecoratorTest  {
     @Mock Dummifier dummifier;
     @Mock SourceContext sourceContext;
     @InjectMocks DummifyDecorator subject;

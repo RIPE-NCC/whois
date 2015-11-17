@@ -13,13 +13,11 @@ import java.util.Collection;
 @Lazy(false)
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ObjectTemplateProvider {
-    private static ObjectTemplate objectTemplate;
+    private static ObjectTemplate objectTemplate = new ObjectTemplateWithChanged();
 
     @Autowired
     public ObjectTemplateProvider(ChangedAttrFeatureToggle changedAttrFeatureToggle) {
-        if(changedAttrFeatureToggle.isChangedAttrAvailable()) {
-            this.objectTemplate = new ObjectTemplateWithChanged();
-        } else {
+        if(!changedAttrFeatureToggle.isChangedAttrAvailable()) {
             this.objectTemplate = new ObjectTemplateWithoutChanged();
         }
     }

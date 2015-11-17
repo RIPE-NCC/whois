@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Operation;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 @Transactional
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateObjectHandlerImplTest extends ObjectTemplateDependentTest {
+public class UpdateObjectHandlerImplTest  {
 
     @Mock UpdateContext updateContext;
     @Mock RpslObjectUpdateDao rpslObjectUpdateDao;

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -18,7 +18,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ObjectMismatchValidatorTest extends ObjectTemplateDependentTest {
+public class ObjectMismatchValidatorTest  {
     public static final RpslObject OBJECT = RpslObject.parse("mntner: foo");
 
     @InjectMocks ObjectMismatchValidator subject;

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.autokey.ClaimException;
 import net.ripe.db.whois.update.autokey.NicHandleFactory;
@@ -17,7 +17,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ObjectLoaderTest extends ObjectTemplateDependentTest {
+public class ObjectLoaderTest  {
     @Mock NicHandleFactory nicHandleFactory;
 
     @InjectMocks ObjectLoader subject;

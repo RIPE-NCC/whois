@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class RpslResponseDecoratorTest extends ObjectTemplateDependentTest {
+public class RpslResponseDecoratorTest  {
 
     @Mock SourceContext sourceContext;
     @Mock FilterPersonalDecorator filterPersonalDecorator;

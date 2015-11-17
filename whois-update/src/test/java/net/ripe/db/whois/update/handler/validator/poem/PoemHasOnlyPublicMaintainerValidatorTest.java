@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.poem;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PoemHasOnlyPublicMaintainerValidatorTest extends ObjectTemplateDependentTest {
+public class PoemHasOnlyPublicMaintainerValidatorTest  {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @InjectMocks PoemHasOnlyPublicMaintainerValidator subject;

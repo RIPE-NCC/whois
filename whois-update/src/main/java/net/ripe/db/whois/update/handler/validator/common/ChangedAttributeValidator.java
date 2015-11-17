@@ -23,19 +23,27 @@ public class ChangedAttributeValidator implements BusinessRuleValidator {
 
     @Override
     public List<Action> getActions() {
-        checkIfChangedIsActive();
-        return Lists.newArrayList(Action.CREATE, Action.MODIFY);
+        if(ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
+            return Lists.newArrayList(Action.CREATE, Action.MODIFY);
+        } else {
+            return Lists.newArrayList();
+        }
     }
 
     @Override
     public List<ObjectType> getTypes() {
-        checkIfChangedIsActive();
-        return Lists.newArrayList(ObjectType.values());
+        if(ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
+            return Lists.newArrayList(ObjectType.values());
+        } else {
+            return Lists.newArrayList();
+        }
     }
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        checkIfChangedIsActive();
+        if(!ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
+            throw new IllegalStateException("Operation not allowed (changed attribute is disabled)");
+        }
 
         int missing = 0;
         List<LocalDate> localDateOrder = Lists.newArrayList();
@@ -69,9 +77,4 @@ public class ChangedAttributeValidator implements BusinessRuleValidator {
         return toCheck.isAfter(today.plusDays(1));
     }
 
-    private void checkIfChangedIsActive() {
-        if(!ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
-            throw new IllegalStateException("Operation not allowed (changed attribute is disabled)");
-        }
-    }
 }

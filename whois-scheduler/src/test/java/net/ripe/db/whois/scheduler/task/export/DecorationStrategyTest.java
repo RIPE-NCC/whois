@@ -2,7 +2,7 @@ package net.ripe.db.whois.scheduler.task.export;
 
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -18,7 +18,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DecorationStrategyTest extends ObjectTemplateDependentTest {
+public class DecorationStrategyTest  {
     RpslObject object;
     @Mock
     DummifierNrtm dummifier;
