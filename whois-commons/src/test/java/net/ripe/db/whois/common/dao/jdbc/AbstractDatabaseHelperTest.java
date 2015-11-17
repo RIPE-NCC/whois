@@ -36,11 +36,14 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     private static byte[] propertyStore = null;
 
     @BeforeClass
+    public static void changedAttributeToggle() throws Exception {
+        new ObjectTemplateProvider(new ChangedAttrFeatureToggle(true));
+    }
+
+    @BeforeClass
     public synchronized static void setupAbstractDatabaseHelperTest() throws Exception {
         DatabaseHelper.setupDatabase();
         Slf4JLogConfiguration.init();
-
-        new ObjectTemplateProvider(new ChangedAttrFeatureToggle(true));
 
         if (propertyStore == null) {
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -53,9 +56,6 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("grs.sources.dummify", "TEST-GRS");
         System.setProperty("api.rest.baseurl", "http://rest-test.db.ripe.net");
-
-        new ObjectTemplateProvider(new ChangedAttrFeatureToggle(true));
-
     }
 
     @AfterClass
