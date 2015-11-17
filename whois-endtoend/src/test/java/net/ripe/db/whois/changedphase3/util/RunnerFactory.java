@@ -1,6 +1,6 @@
 package net.ripe.db.whois.changedphase3.util;
 
-public class RunnerProvider {
+public class RunnerFactory {
     public static ScenarioRunner getRunnerForProtocol(final Scenario.Protocol protocol, final Context context) {
         ScenarioRunner runner = null;
         switch (protocol) {
@@ -22,6 +22,10 @@ public class RunnerProvider {
 
             case NRTM___:
                 runner = new NrtmRunner(context);
+                break;
+
+            case DUMP___:
+                runner = new DumpRunner(context);
                 break;
 
         }

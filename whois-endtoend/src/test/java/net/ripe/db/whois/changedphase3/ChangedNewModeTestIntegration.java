@@ -32,7 +32,7 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
 
 
 @Category(IntegrationTest.class)
-public class ChangedRemovedTestIntegration extends AbstractChangedPhase3IntegrationTest {
+public class ChangedNewModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
     @BeforeClass
     public static void beforeClass() {
@@ -113,11 +113,16 @@ public class ChangedRemovedTestIntegration extends AbstractChangedPhase3Integrat
     @Ignore
     @Test
     public void new_mode_nrtm_test() {
-        // create
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        // modify
         given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
     }
+
+    @Ignore
+    @Test
+    public void new_mode_dump_test() {
+
+    }
+
 }

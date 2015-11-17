@@ -60,7 +60,7 @@ public class Scenario {
 
     public void run(final Context context) {
         System.err.println("*** Start running test " + this);
-        ScenarioRunner runner = RunnerProvider.getRunnerForProtocol(protocol, context);
+        ScenarioRunner runner = RunnerFactory.getRunnerForProtocol(protocol, context);
         runner.before(this);
         switch (method) {
             case CREATE:
@@ -117,7 +117,8 @@ public class Scenario {
         TELNET_,
         SYNCUPD,
         MAILUPD,
-        NRTM___
+        NRTM___,
+        DUMP___
     }
 
     public enum Method {

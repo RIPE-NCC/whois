@@ -3,6 +3,7 @@ package net.ripe.db.whois.changedphase3;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -26,12 +27,11 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Protocol.TELNET_;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Req.NOT_APPLIC__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Req.NO_CHANGED__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Req.WITH_CHANGED;
-import static net.ripe.db.whois.changedphase3.util.Scenario.Result.FAILED;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
 
 
 @Category(IntegrationTest.class)
-public class ChangedOptionalTestIntegration extends AbstractChangedPhase3IntegrationTest {
+public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
     @BeforeClass
     public static void beforeClass() {
@@ -43,79 +43,87 @@ public class ChangedOptionalTestIntegration extends AbstractChangedPhase3Integra
         System.clearProperty("feature.toggle.changed.attr.available");
     }
 
+    @Ignore
     @Test
-    public void old_mode_rest_test() {
-        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+    public void intermediate_mode_rest_test() {
+        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, CREATE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(REST___, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(REST___, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(REST___, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(REST___, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(REST___, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(REST___, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
         given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(REST___, DELETE, NOT_APPLIC__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(REST___, DELETE, NOT_APPLIC__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
 
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(REST___, SEARCH, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(REST___, SEARCH, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(REST___, SEARCH, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(REST___, GET___, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(REST___, GET___, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(REST___, GET___, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, META__, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, META__, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
     }
 
+    @Ignore
     @Test
-    public void old_mode_telnet_test() {
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(TELNET_, SEARCH, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+    public void intermediate_mode_telnet_test() {
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(TELNET_, SEARCH, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(TELNET_, SEARCH, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(TELNET_, META__, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(TELNET_, META__, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
     }
 
+    @Ignore
     @Test
-    public void old_mode_syncupdates_test() {
-        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(SYNCUPD, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+    public void intermediate_mode_syncupdates_test() {
+        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(SYNCUPD, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(SYNCUPD, CREATE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(SYNCUPD, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(SYNCUPD, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(SYNCUPD, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(SYNCUPD, MODIFY, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
         given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(SYNCUPD, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(SYNCUPD, DELETE, NO_CHANGED__).then(FAILED).run(context);
-        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, DELETE, WITH_CHANGED).then(FAILED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(SYNCUPD, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
+    @Ignore
     @Test
-    public void old_mode_mailupdates_test() {
-        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(MAILUPD, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+    public void intermediate_mode_mailupdates_test() {
+        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(MAILUPD, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(MAILUPD, CREATE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(MAILUPD, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(MAILUPD, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(MAILUPD, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
         given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(MAILUPD, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(MAILUPD, DELETE, NO_CHANGED__).then(FAILED).run(context);
-        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, DELETE, WITH_CHANGED).then(FAILED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(MAILUPD, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
+    @Ignore
     @Test
-    public void old_mode_nrtm_test() {
-        // create
-        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+    public void intermediate_mode_nrtm_test() {
+        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        // modify
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
     }
 
+    @Ignore
+    @Test
+    public void intermediate_mode_dump_test() {
+
+    }
 }
