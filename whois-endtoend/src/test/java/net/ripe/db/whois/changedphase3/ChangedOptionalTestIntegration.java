@@ -106,11 +106,17 @@ public class ChangedOptionalTestIntegration extends AbstractChangedPhase3Integra
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
-    @Ignore
     @Test
     public void old_mode_nrtm_test() {
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
-        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        // create
+        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+
+        // modify
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
     }
 
 }
