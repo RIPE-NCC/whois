@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query.planner;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
-
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
