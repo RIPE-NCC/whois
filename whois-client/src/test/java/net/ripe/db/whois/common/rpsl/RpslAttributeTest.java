@@ -12,7 +12,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
-public class RpslAttributeTest {
+public class RpslAttributeTest extends ObjectTemplateDependentTest {
     private RpslAttribute subject;
 
     @Before
