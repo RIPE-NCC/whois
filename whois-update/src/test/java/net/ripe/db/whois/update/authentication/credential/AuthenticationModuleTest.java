@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.authentication.credential;
 
 import com.google.common.collect.Lists;
-
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.PasswordCredential;

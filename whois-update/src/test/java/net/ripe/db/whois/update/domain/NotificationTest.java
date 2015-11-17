@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Lists;
-
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Test;
