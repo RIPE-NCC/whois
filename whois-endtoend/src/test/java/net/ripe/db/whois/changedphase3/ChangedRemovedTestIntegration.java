@@ -16,6 +16,7 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Method.META__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.MODIFY;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.SEARCH;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Mode.NEW_MODE;
+import static net.ripe.db.whois.changedphase3.util.Scenario.Mode.OLD_MODE;
 import static net.ripe.db.whois.changedphase3.util.Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____;
 import static net.ripe.db.whois.changedphase3.util.Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED;
@@ -36,6 +37,9 @@ public class ChangedRemovedTestIntegration extends AbstractChangedPhase3Integrat
 
     @BeforeClass
     public static void beforeClass() {
+
+        System.setProperty("nrtm.enabled", "true");
+        System.setProperty("nrtm.update.interval", "1");
         System.setProperty("feature.toggle.changed.attr.available", "false");
     }
 
@@ -113,7 +117,12 @@ public class ChangedRemovedTestIntegration extends AbstractChangedPhase3Integrat
     @Ignore
     @Test
     public void new_mode_nrtm_test() {
-        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        // create
+        given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+
+        // modify
+        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+
     }
 }

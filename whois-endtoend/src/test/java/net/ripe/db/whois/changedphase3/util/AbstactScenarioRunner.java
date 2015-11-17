@@ -50,6 +50,17 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         } else if (scenario.getPreCond() == Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__) {
             doCreate(MNTNER_WITHOUT_CHANGED());
         }
+
+//        if(scenario.getProtocol() == Scenario.Protocol.NRTM___) {
+//            context.getNrtmServer().start();
+//        }
+    }
+
+
+    public void after(Scenario scenario) {
+//        if(scenario.getProtocol() == Scenario.Protocol.NRTM___) {
+//            context.getNrtmServer().stop(true);
+//        }
     }
 
     public void create(Scenario scenario) {
@@ -80,8 +91,6 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         throw new UnsupportedOperationException("Meta method not supported for protocol " + getProtocolName());
     }
 
-    public void after(Scenario scenario) {
-    }
 
     protected RpslObject MNTNER_WITHOUT_CHANGED() {
         return TEST_OBJECT;
@@ -130,11 +139,21 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
                     .request()
                     .post(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, obj), MediaType.APPLICATION_XML), WhoisResources.class);
         } catch (ClientErrorException exc) {
-            WhoisResources whoisResources = exc.getResponse().readEntity(WhoisResources.class);
+            logEvent("doCreate", exc.getResponse().readEntity(WhoisResources.class));
             throw exc;
         }
     }
 
+    protected void doModify(final RpslObject obj) {
+        try {
+            RestTest.target(context.getRestPort(), "whois/test/mntner/TESTING-MNT?password=123")
+                    .request()
+                    .put(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, obj), MediaType.APPLICATION_XML), WhoisResources.class);
+        } catch (ClientErrorException exc) {
+            logEvent("doModify", exc.getResponse().readEntity(WhoisResources.class));
+            throw exc;
+        }
+    }
 
 //    protected void verifyResponse(final RpslObject obj, final boolean mustContainChanged) {
 //        if (mustContainChanged) {
