@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -39,7 +39,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UnrefCleanupTest extends ObjectTemplateDependentTest {
+public class UnrefCleanupTest  {
     @Mock UnrefCleanupDao unrefCleanupDao;
     @Mock SourceContext sourceContext;
     @Mock RpslObjectDao objectDao;

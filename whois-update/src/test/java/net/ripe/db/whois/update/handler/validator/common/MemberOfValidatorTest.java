@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MemberOfValidatorTest extends ObjectTemplateDependentTest {
+public class MemberOfValidatorTest  {
 
     @Mock RpslObjectDao objectDao;
     @Mock PreparedUpdate update;

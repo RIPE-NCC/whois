@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NotificationTest extends ObjectTemplateDependentTest {
+public class NotificationTest  {
     @Mock Update update;
     @Mock UpdateContext updateContext;
     Notification subject;

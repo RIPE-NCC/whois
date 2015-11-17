@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.rpsl.transform;
 
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class FilterEmailFunctionTest extends ObjectTemplateDependentTest {
+public class FilterEmailFunctionTest  {
     FilterEmailFunction subject;
 
     @Before

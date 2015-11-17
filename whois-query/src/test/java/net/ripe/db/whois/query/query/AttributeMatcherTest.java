@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
@@ -12,7 +12,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class AttributeMatcherTest extends ObjectTemplateDependentTest {
+public class AttributeMatcherTest  {
 
     @Test
     public void searchKeyTypesName() {

@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.autokey;
 
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.autokey.dao.NicHandleRepository;
@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NicHandleFactoryTest extends ObjectTemplateDependentTest {
+public class NicHandleFactoryTest  {
     private static final String SOURCE = "RIPE";
 
     @Mock NicHandleRepository nicHandleRepository;

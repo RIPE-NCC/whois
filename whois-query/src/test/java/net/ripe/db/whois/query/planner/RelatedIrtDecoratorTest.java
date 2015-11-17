@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.planner;
 
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.query.Query;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RelatedIrtDecoratorTest extends ObjectTemplateDependentTest {
+public class RelatedIrtDecoratorTest  {
     @Mock
     private HierarchyLookupIpv4 hierarchyLookupIpv4;
     @Mock

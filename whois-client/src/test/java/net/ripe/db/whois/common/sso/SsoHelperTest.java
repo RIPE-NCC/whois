@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.sso;
 
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SsoHelperTest extends ObjectTemplateDependentTest {
+public class SsoHelperTest  {
     @Mock private AuthTranslator authTranslator;
 
     @Test

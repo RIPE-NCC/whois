@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.dao.TagsDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.Tag;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.query.Query;
 import org.junit.Test;
@@ -24,7 +24,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FilterTagsDecoratorTest extends ObjectTemplateDependentTest {
+public class FilterTagsDecoratorTest  {
 
     @Mock TagsDao tagsDao;
     @Mock RpslObjectDao objectDao;

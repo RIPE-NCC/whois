@@ -16,7 +16,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AttributeSanitizerTest extends ObjectTemplateDependentTest {
+public class AttributeSanitizerTest  {
     @Mock DateTimeProvider dateTimeProvider;
     @Mock ObjectMessages objectMessages;
     @InjectMocks AttributeSanitizer attributeSanitizer;

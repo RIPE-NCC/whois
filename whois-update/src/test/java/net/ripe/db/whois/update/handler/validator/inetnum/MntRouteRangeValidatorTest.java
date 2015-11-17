@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MntRouteRangeValidatorTest extends ObjectTemplateDependentTest {
+public class MntRouteRangeValidatorTest  {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @InjectMocks MntRouteRangeValidator subject;

@@ -7,12 +7,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import org.junit.Test;
 
 import joptsimple.OptionException;
 
-public class QueryTest extends ObjectTemplateDependentTest {
+public class QueryTest  {
 
     public static final String SOURCE = "RIPE";
 

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.planner;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BriefAbuseCFunctionTest extends ObjectTemplateDependentTest {
+public class BriefAbuseCFunctionTest  {
     @Mock private AbuseCFinder abuseCFinder;
     @InjectMocks BriefAbuseCFunction subject;
 

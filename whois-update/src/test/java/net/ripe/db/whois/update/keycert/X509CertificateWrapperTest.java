@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.keycert;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.LocalDateTime;
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class X509CertificateWrapperTest extends ObjectTemplateDependentTest {
+public class X509CertificateWrapperTest  {
 
     @Mock DateTimeProvider dateTimeProvider;
     private RpslObject x509Keycert;

@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.query;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -28,7 +28,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class QueryTest extends ObjectTemplateDependentTest {
+public class QueryTest  {
     private Query subject;
 
     private Query parseWithNewline(String input) {

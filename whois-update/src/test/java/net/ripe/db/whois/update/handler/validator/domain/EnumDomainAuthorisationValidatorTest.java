@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.domain;
 
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EnumDomainAuthorisationValidatorTest extends ObjectTemplateDependentTest {
+public class EnumDomainAuthorisationValidatorTest  {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock Subject authSubject;

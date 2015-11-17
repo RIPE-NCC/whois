@@ -4,7 +4,7 @@ package net.ripe.db.whois.update.authentication.credential;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -30,7 +30,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class X509CredentialValidatorTest  extends ObjectTemplateDependentTest {
+public class X509CredentialValidatorTest   {
 
     @Mock private PreparedUpdate update;
     @Mock private UpdateContext updateContext;

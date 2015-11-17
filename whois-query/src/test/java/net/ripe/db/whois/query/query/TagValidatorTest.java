@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.QueryMessages;
 import org.junit.Before;
@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TagValidatorTest extends ObjectTemplateDependentTest {
+public class TagValidatorTest  {
     private Messages messages;
     private TagValidator subject;
 

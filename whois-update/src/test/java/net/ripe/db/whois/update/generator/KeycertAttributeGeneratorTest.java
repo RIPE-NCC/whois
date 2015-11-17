@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class KeycertAttributeGeneratorTest  extends ObjectTemplateDependentTest {
+public class KeycertAttributeGeneratorTest   {
     @Mock private Update update;
     @Mock private UpdateContext updateContext;
     @Mock private KeyWrapperFactory keyWrapperFactory;

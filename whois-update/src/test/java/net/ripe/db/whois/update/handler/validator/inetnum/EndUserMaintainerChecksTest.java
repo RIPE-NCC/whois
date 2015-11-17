@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.Maintainers;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -21,7 +21,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EndUserMaintainerChecksTest extends ObjectTemplateDependentTest {
+public class EndUserMaintainerChecksTest  {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock Subject principalSubject;

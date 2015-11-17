@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.pipeline;
 
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
@@ -32,7 +32,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WhoisServerHandlerTest extends ObjectTemplateDependentTest {
+public class WhoisServerHandlerTest  {
     @Mock ChannelHandlerContext ctx;
     @Mock Channel channel;
     @Mock ChannelPipeline pipeline;

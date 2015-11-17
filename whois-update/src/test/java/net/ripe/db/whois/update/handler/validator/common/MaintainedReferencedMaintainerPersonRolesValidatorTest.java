@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -22,7 +22,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MaintainedReferencedMaintainerPersonRolesValidatorTest extends ObjectTemplateDependentTest {
+public class MaintainedReferencedMaintainerPersonRolesValidatorTest  {
     @Mock private RpslObjectDao rpslObjectDao;
     @Spy @InjectMocks private MaintainedReferencedMaintainerPersonRolesValidator subject;
 

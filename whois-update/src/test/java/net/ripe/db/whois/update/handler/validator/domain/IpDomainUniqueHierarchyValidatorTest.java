@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.Ipv4DomainTree;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
 import net.ripe.db.whois.common.iptree.Ipv6DomainTree;
+
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -23,7 +24,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IpDomainUniqueHierarchyValidatorTest {
+public class IpDomainUniqueHierarchyValidatorTest  {
     @Mock UpdateContext updateContext;
     @Mock PreparedUpdate update;
 

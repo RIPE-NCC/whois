@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.planner;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class AbuseCInfoDecoratorTest extends ObjectTemplateDependentTest {
+public class AbuseCInfoDecoratorTest  {
     @Mock private AbuseCFinder abuseCFinder;
     @Mock private SourceContext sourceContext;
     @InjectMocks AbuseCInfoDecorator subject;

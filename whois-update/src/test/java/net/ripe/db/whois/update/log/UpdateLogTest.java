@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.log;
 
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.*;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateLogTest extends ObjectTemplateDependentTest {
+public class UpdateLogTest  {
     @Mock UpdateRequest updateRequest;
     @Mock UpdateContext updateContext;
     @Mock Update update;

@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WhoisObjectMapperTest extends ObjectTemplateDependentTest {
+public class WhoisObjectMapperTest  {
 
     private static final String BASE_URL = "http://rest.db.ripe.net/lookup";
 

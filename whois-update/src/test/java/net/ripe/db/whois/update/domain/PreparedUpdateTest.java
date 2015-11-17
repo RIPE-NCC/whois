@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.domain;
 
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PreparedUpdateTest extends ObjectTemplateDependentTest {
+public class PreparedUpdateTest  {
     @Mock Update update;
     RpslObject originalObject;
     RpslObject updatedObject;
