@@ -44,7 +44,7 @@ public class ChangedRemovedTestIntegration extends AbstractChangedPhase3Integrat
         System.clearProperty("feature.toggle.changed.attr.available");
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void new_mode_rest_test() {
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, CREATE, WITH_CHANGED).then(FAILED).run(context);
@@ -76,7 +76,7 @@ public class ChangedRemovedTestIntegration extends AbstractChangedPhase3Integrat
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(TELNET_, META__, NOT_APPLIC__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void new_mode_syncupdates_test() {
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(SYNCUPD, CREATE, WITH_CHANGED).then(FAILED).run(context);

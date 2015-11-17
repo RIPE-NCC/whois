@@ -199,7 +199,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
             WhoisResources whoisResources = RestTest.target(context.getRestPort(), "whois/test/mntner/TESTING-MNT?unfiltered=true&password=123")
                     .request()
                     .get(WhoisResources.class);
-           logEvent("Fetch", whoisResources);
+            logEvent("Fetch", whoisResources);
             return context.getWhoisObjectMapper().map(whoisResources.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
         } catch (NotFoundException exc) {
             // swallow
@@ -207,25 +207,25 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         return null;
     }
 
-    protected void logEvent(final String msg, String result ) {
-        if( context.isDebug()) {
+    protected void logEvent(final String msg, String result) {
+        if (context.isDebug()) {
             System.err.println(msg + ":" + result);
         }
     }
 
-    protected void logEvent(final String msg, RpslObject rpslObject ) {
-        if( context.isDebug()) {
+    protected void logEvent(final String msg, RpslObject rpslObject) {
+        if (context.isDebug()) {
             System.err.println(msg + ":" + rpslObject);
         }
     }
 
-    protected void logEvent(final String msg, WhoisResources whoisResources ) {
-        if( context.isDebug()) {
-            for (WhoisObject obj: whoisResources.getWhoisObjects()) {
+    protected void logEvent(final String msg, WhoisResources whoisResources) {
+        if (context.isDebug()) {
+            for (WhoisObject obj : whoisResources.getWhoisObjects()) {
                 System.err.println(msg + ":" + context.getWhoisObjectMapper().map(obj, FormattedClientAttributeMapper.class));
             }
-            for (ErrorMessage em: whoisResources.getErrorMessages()) {
-                System.err.println("Error:"+ msg + ":" +em);
+            for (ErrorMessage em : whoisResources.getErrorMessages()) {
+                System.err.println("Error:" + msg + ":" + em);
             }
         }
     }

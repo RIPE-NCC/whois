@@ -101,13 +101,15 @@ public class RestRunner extends AbstactScenarioRunner {
             verifyPreCondition(scenario);
 
             WhoisResources whoisResources = RestTest.target(context.getRestPort(),
-                    "whois/test/mntner/TESTING-MNT?password=123")
+                    "whois/test/mntner/TESTING-MNT?unfiltered=true&password=123")
                     .request()
                     .get(WhoisResources.class);
+            List<RpslObject> result = context.getWhoisObjectMapper().mapWhoisObjects(whoisResources.getWhoisObjects(), FormattedClientAttributeMapper.class);
+            assertThat(result, hasSize(1));
 
-            logEvent("Got", whoisResources);
+            logEvent("Got", result.get(0));
 
-            verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+            verifyObject(scenario.getPostCond(), result.get(0));
 
         } catch (ClientErrorException exc) {
             logEvent("Get", exc.getResponse().readEntity(WhoisResources.class));
