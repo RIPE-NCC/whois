@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
 public class SyncUpdateRunner extends AbstactScenarioRunner {
-    public SyncUpdateRunner(Context context) {
+    public SyncUpdateRunner(final Context context) {
         super(context);
     }
 
@@ -19,7 +19,7 @@ public class SyncUpdateRunner extends AbstactScenarioRunner {
         return "SyncUpdate";
     }
 
-    public void create(Scenario scenario) {
+    public void create(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
 
@@ -49,7 +49,7 @@ public class SyncUpdateRunner extends AbstactScenarioRunner {
         }
     }
 
-    public void modify(Scenario scenario) {
+    public void modify(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
 
@@ -74,12 +74,12 @@ public class SyncUpdateRunner extends AbstactScenarioRunner {
                 verifyPostCondition(scenario, Scenario.Result.FAILED);
             }
 
-        } catch( Exception exc ) {
+        } catch (Exception exc) {
             verifyPostCondition(scenario, Scenario.Result.FAILED);
         }
     }
 
-    public void delete(Scenario scenario) {
+    public void delete(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
 
@@ -106,7 +106,7 @@ public class SyncUpdateRunner extends AbstactScenarioRunner {
                 verifyPostCondition(scenario, Scenario.Result.FAILED);
             }
 
-        } catch( Exception exc ) {
+        } catch (Exception exc) {
             verifyPostCondition(scenario, Scenario.Result.FAILED);
         }
     }

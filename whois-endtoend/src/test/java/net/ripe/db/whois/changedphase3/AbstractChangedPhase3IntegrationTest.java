@@ -14,7 +14,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 
 @Category(IntegrationTest.class)
@@ -36,21 +35,20 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
             "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
             "mnt-by:        OWNER-MNT\n" +
             "source:        TEST");
+    @Autowired protected AccessControlList accessControlList;
+    protected Context context;
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private MailUpdatesTestSupport mailUpdatesTestSupport;
     @Autowired private MailSenderStub mailSenderStub;
     @Autowired private NrtmServer nrtmServer;
-    @Autowired protected AccessControlList accessControlList;
-
-    protected Context context;
 
     @Before
     public void setup() {
+        // Allow nrtm from localhost
         databaseHelper.insertAclMirror("127.0.0.1/32");
         databaseHelper.insertAclMirror("0:0:0:0:0:0:0:1");
         accessControlList.reload();
-
 
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject(OWNER_MNTNER);

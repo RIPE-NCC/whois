@@ -11,7 +11,8 @@ public class Scenario {
     private final Result result;
     private final ObjectStatus postCond;
 
-    public Scenario(Mode mode, ObjectStatus preCond, Protocol protocol, Method method, Req req, Result result, ObjectStatus postCond) {
+    public Scenario(final Mode mode, final ObjectStatus preCond, final Protocol protocol, final Method method,
+                    final Req req, final Result result, final ObjectStatus postCond) {
         checkArgument(mode != null);
         checkArgument(preCond != null);
         checkArgument(protocol != null);

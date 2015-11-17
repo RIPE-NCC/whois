@@ -12,7 +12,7 @@ import static org.junit.Assert.assertThat;
 
 public class MailUpdateRunner extends AbstactScenarioRunner {
 
-    public MailUpdateRunner(Context context) {
+    public MailUpdateRunner(final Context context) {
         super(context);
     }
 
@@ -20,7 +20,7 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
         return "Mail";
     }
 
-    public void create(Scenario scenario) {
+    public void create(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
 
@@ -37,12 +37,12 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
                 verifyPostCondition(scenario, Scenario.Result.FAILED);
             }
 
-        } catch( MessagingException  | IOException exc ) {
+        } catch (MessagingException | IOException exc) {
             verifyPostCondition(scenario, Scenario.Result.FAILED);
         }
     }
 
-    public void modify(Scenario scenario) {
+    public void modify(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
 
@@ -59,12 +59,12 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
                 verifyPostCondition(scenario, Scenario.Result.FAILED);
             }
 
-        } catch( MessagingException  | IOException exc ) {
+        } catch (MessagingException | IOException exc) {
             verifyPostCondition(scenario, Scenario.Result.FAILED);
         }
     }
 
-    public void delete(Scenario scenario) {
+    public void delete(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
 
@@ -81,7 +81,7 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
                 verifyPostCondition(scenario, Scenario.Result.FAILED);
             }
 
-        } catch( MessagingException  | IOException exc ) {
+        } catch (MessagingException | IOException exc) {
             verifyPostCondition(scenario, Scenario.Result.FAILED);
         }
     }

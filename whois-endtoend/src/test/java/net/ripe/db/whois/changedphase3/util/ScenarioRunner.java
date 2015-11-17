@@ -1,24 +1,24 @@
 package net.ripe.db.whois.changedphase3.util;
 
 public interface ScenarioRunner {
-    void before(Scenario scenario);
+    void before(final Scenario scenario);
 
-    void after(Scenario scenario);
+    void after(final Scenario scenario);
 
     String getProtocolName();
 
-    void create(Scenario scenario);
+    void create(final Scenario scenario);
 
-    void modify(Scenario scenario);
+    void modify(final Scenario scenario);
 
-    void delete(Scenario scenario);
+    void delete(final Scenario scenario);
 
-    void get(Scenario scenario);
+    void get(final Scenario scenario);
 
-    void search(Scenario scenario);
+    void search(final Scenario scenario);
 
-    void event(Scenario scenario);
+    void event(final Scenario scenario);
 
-    void meta(Scenario scenario);
+    void meta(final Scenario scenario);
 
 }
