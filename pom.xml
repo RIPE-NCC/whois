@@ -701,6 +701,7 @@
                     </includes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
+                    <reuseForks>false</reuseForks>
                     <excludedGroups>
                         net.ripe.db.whois.common.IntegrationTest,
                         net.ripe.db.whois.common.EndToEndTest,
