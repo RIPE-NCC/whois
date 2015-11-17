@@ -66,7 +66,6 @@ public class ChangedOptionalTestIntegration extends AbstractChangedPhase3Integra
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, META__, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
     }
 
-    @Ignore
     @Test
     public void old_mode_telnet_test() {
         given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(TELNET_, SEARCH, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
@@ -75,7 +74,6 @@ public class ChangedOptionalTestIntegration extends AbstractChangedPhase3Integra
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(TELNET_, META__, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
     }
 
-    //@Ignore
     @Test
     public void old_mode_syncupdates_test() {
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(SYNCUPD, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);

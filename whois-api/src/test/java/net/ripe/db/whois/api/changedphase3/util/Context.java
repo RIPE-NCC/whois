@@ -6,7 +6,7 @@ public class Context {
     private int restPort;
     private int syncUpdatePort;
     private WhoisObjectMapper whoisObjectMapper;
-    private boolean debug = true;
+    private boolean debug = false;
 
     public Context(int restPort, int syncUpdatePort, WhoisObjectMapper whoisObjectMapper) {
         this.restPort = restPort;
