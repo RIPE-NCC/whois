@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.changedphase3.util;
+package net.ripe.db.whois.changedphase3.util;
 
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;

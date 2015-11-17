@@ -1,9 +1,8 @@
-package net.ripe.db.whois.api.changedphase3.util;
+package net.ripe.db.whois.changedphase3.util;
 
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class Context {
     private int restPort;

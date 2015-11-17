@@ -1,9 +1,9 @@
-package net.ripe.db.whois.api.changedphase3;
+package net.ripe.db.whois.changedphase3;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
-import net.ripe.db.whois.api.changedphase3.util.Context;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.changedphase3.util.Context;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -30,10 +30,11 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
             "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
             "mnt-by:        OWNER-MNT\n" +
             "source:        TEST");
-    @Autowired protected MaintenanceMode maintenanceMode;
+    @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private WhoisObjectMapper whoisObjectMapper;
-    @Autowired MailUpdatesTestSupport mailUpdatesTestSupport;
-    @Autowired MailSenderStub mailSenderStub;
+    @Autowired private MailUpdatesTestSupport mailUpdatesTestSupport;
+    @Autowired private MailSenderStub mailSenderStub;
+
     protected Context context;
 
     @Before
@@ -42,6 +43,6 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
         databaseHelper.addObject(OWNER_MNTNER);
         databaseHelper.updateObject(TEST_PERSON);
         maintenanceMode.set("FULL,FULL");
-        context = new Context(getPort(),getPort(),whoisObjectMapper,mailUpdatesTestSupport,mailSenderStub );
+        context = new Context(getPort(), getPort(), whoisObjectMapper, mailUpdatesTestSupport, mailSenderStub);
     }
 }

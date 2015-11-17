@@ -1,11 +1,9 @@
-package net.ripe.db.whois.api.changedphase3.util;
+package net.ripe.db.whois.changedphase3.util;
 
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 

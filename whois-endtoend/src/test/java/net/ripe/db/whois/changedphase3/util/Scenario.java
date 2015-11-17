@@ -1,7 +1,6 @@
-package net.ripe.db.whois.api.changedphase3.util;
+package net.ripe.db.whois.changedphase3.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static net.ripe.db.whois.api.changedphase3.util.Scenario.Req.NOT_APPLIC__;
 
 public class Scenario {
     private final Mode mode;
@@ -158,7 +157,7 @@ public class Scenario {
         public Builder when(final Protocol protocol, final Method method) {
             this.protocol = protocol;
             this.method = method;
-            this.req = NOT_APPLIC__;
+            this.req = Req.NOT_APPLIC__;
             return this;
         }
 
