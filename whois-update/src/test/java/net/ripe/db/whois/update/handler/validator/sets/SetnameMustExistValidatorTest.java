@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SetnameMustExistValidatorTest  {
+public class SetnameMustExistValidatorTest {
 
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;

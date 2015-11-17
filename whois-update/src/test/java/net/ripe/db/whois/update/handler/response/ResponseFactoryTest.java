@@ -40,7 +40,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ResponseFactoryTest  {
+public class ResponseFactoryTest {
     public static final String SKIPPED_PARAGRAPH = "" +
             "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
             "The following paragraph(s) do not look like objects\n" +

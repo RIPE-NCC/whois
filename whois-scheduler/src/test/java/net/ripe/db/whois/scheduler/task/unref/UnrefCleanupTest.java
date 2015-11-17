@@ -39,7 +39,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UnrefCleanupTest  {
+public class UnrefCleanupTest {
     @Mock UnrefCleanupDao unrefCleanupDao;
     @Mock SourceContext sourceContext;
     @Mock RpslObjectDao objectDao;

@@ -32,7 +32,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WhoisServerHandlerTest  {
+public class WhoisServerHandlerTest {
     @Mock ChannelHandlerContext ctx;
     @Mock Channel channel;
     @Mock ChannelPipeline pipeline;

@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PoemHasOnlyPublicMaintainerValidatorTest  {
+public class PoemHasOnlyPublicMaintainerValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @InjectMocks PoemHasOnlyPublicMaintainerValidator subject;

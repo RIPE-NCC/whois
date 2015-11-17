@@ -25,7 +25,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class HierarchyLookupTest  {
+public class HierarchyLookupTest {
     @Mock Ipv4Tree ipv4Tree;
     @Mock RpslObjectDao rpslObjectDao;
     @InjectMocks HierarchyLookupIpv4 subject;

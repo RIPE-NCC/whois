@@ -17,7 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateLogTest  {
+public class UpdateLogTest {
     @Mock UpdateRequest updateRequest;
     @Mock UpdateContext updateContext;
     @Mock Update update;

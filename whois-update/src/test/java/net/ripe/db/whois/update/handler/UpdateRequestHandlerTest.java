@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateRequestHandlerTest  {
+public class UpdateRequestHandlerTest {
     @Mock UpdateRequest updateRequest;
     @Mock Update update;
     @Mock UpdateContext updateContext;

@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
-public class KeyWrapperFactoryTest  {
+public class KeyWrapperFactoryTest {
     @Mock UpdateContainer updateContainer;
     @Mock UpdateContext updateContext;
 

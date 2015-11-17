@@ -17,7 +17,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SelfReferencePreventionValidatorTest  {
+public class SelfReferencePreventionValidatorTest {
     @Mock UpdateContext updateContext;
     @Mock PreparedUpdate preparedUpdate;
     @Mock Update update;

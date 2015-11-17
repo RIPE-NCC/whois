@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 
-public class AsblockHierarchyValidatorTest  {
+public class AsblockHierarchyValidatorTest {
 
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;

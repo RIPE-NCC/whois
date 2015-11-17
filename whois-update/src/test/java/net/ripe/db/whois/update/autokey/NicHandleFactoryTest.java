@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NicHandleFactoryTest  {
+public class NicHandleFactoryTest {
     private static final String SOURCE = "RIPE";
 
     @Mock NicHandleRepository nicHandleRepository;

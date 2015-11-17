@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MntByAuthenticationTest  {
+public class MntByAuthenticationTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 

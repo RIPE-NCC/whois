@@ -21,7 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RelatedToDecoratorTest  {
+public class RelatedToDecoratorTest {
     @Mock private RpslObjectDao rpslObjectDao;
     @InjectMocks private RelatedToDecorator subject;
 

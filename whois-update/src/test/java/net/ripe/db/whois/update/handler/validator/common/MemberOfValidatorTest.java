@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MemberOfValidatorTest  {
+public class MemberOfValidatorTest {
 
     @Mock RpslObjectDao objectDao;
     @Mock PreparedUpdate update;

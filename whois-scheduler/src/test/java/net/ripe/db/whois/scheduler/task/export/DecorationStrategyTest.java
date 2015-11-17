@@ -18,7 +18,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DecorationStrategyTest  {
+public class DecorationStrategyTest {
     RpslObject object;
     @Mock
     DummifierNrtm dummifier;

@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class NrtmQueryHandlerTest  {
+public class NrtmQueryHandlerTest {
 
     @Mock private SerialDao serialDaoMock;
     @Mock private DummifierNrtm dummifierMock;

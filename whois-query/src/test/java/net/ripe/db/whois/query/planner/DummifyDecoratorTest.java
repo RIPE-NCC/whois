@@ -27,7 +27,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DummifyDecoratorTest  {
+public class DummifyDecoratorTest {
     @Mock Dummifier dummifier;
     @Mock SourceContext sourceContext;
     @InjectMocks DummifyDecorator subject;

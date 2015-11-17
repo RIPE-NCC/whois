@@ -31,7 +31,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WhoisObjectServerMapperTest  {
+public class WhoisObjectServerMapperTest {
     private static final String BASE_URL = "http://rest.db.ripe.net/lookup";
 
     @Mock

@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class X509CertificateWrapperTest  {
+public class X509CertificateWrapperTest {
 
     @Mock DateTimeProvider dateTimeProvider;
     private RpslObject x509Keycert;

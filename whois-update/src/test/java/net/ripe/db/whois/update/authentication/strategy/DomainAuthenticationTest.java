@@ -37,7 +37,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DomainAuthenticationTest  {
+public class DomainAuthenticationTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 

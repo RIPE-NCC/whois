@@ -27,7 +27,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AddOrRemoveRipeNccMaintainerValidatorTest  {
+public class AddOrRemoveRipeNccMaintainerValidatorTest {
     @Mock Subject authSubject;
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;

@@ -30,7 +30,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RouteAutnumAuthenticationTest  {
+public class RouteAutnumAuthenticationTest {
     @Mock
     PreparedUpdate update;
     @Mock

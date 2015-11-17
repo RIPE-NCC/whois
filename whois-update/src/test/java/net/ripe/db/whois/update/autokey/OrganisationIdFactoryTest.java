@@ -19,7 +19,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OrganisationIdFactoryTest  {
+public class OrganisationIdFactoryTest {
     private static final String SOURCE = "RIPE";
 
     @Mock OrganisationIdRepository organisationIdRepository;

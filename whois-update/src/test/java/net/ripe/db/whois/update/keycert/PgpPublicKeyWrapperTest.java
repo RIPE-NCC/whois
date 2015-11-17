@@ -23,7 +23,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PgpPublicKeyWrapperTest  {
+public class PgpPublicKeyWrapperTest {
 
     @Mock DateTimeProvider dateTimeProvider;
 

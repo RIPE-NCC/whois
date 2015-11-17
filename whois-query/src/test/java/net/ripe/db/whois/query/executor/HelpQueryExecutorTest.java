@@ -10,7 +10,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-public class HelpQueryExecutorTest  {
+public class HelpQueryExecutorTest {
     private HelpQueryExecutor subject;
 
     @Before

@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ArinGrsSourceTest  {
+public class ArinGrsSourceTest {
     @Mock SourceContext sourceContext;
     @Mock DataSourceFactory dataSourceFactory;
     @Mock DateTimeProvider dateTimeProvider;

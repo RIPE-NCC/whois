@@ -25,7 +25,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ChangedAttributeValidatorTest  {
+public class ChangedAttributeValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
 

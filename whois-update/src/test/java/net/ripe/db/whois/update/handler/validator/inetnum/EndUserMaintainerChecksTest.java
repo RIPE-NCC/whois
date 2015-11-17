@@ -21,7 +21,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EndUserMaintainerChecksTest  {
+public class EndUserMaintainerChecksTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @Mock Subject principalSubject;

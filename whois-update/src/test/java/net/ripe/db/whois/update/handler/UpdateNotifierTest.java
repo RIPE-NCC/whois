@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateNotifierTest  {
+public class UpdateNotifierTest {
     @Mock UpdateRequest updateRequest;
     @Mock UpdateContext updateContext;
 

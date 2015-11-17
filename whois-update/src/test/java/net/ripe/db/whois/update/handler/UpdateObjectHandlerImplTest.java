@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 @Transactional
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateObjectHandlerImplTest  {
+public class UpdateObjectHandlerImplTest {
 
     @Mock UpdateContext updateContext;
     @Mock RpslObjectUpdateDao rpslObjectUpdateDao;

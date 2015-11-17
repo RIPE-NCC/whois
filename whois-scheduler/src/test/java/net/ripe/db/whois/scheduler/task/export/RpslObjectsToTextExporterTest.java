@@ -32,7 +32,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RpslObjectsToTextExporterTest  {
+public class RpslObjectsToTextExporterTest {
     @Rule public TemporaryFolder folder = new TemporaryFolder();
 
     @Mock ExportFileWriterFactory exportFileWriterFactory;
