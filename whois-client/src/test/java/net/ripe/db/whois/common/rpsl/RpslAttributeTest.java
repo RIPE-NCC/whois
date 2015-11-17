@@ -1,7 +1,5 @@
 package net.ripe.db.whois.common.rpsl;
 
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.not;
@@ -14,11 +12,6 @@ import static org.junit.Assert.assertThat;
 
 public class RpslAttributeTest {
     private RpslAttribute subject;
-
-    @Before
-    public void setup() {
-        new ChangedAttrFeatureToggle(true);
-    }
 
     @Test
     public void remove_comments_single_line() {
