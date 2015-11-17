@@ -90,7 +90,6 @@ public class ChangedOptionalTestIntegration extends AbstractChangedPhase3Integra
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
-    @Ignore
     @Test
     public void old_mode_mailupdates_test() {
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(MAILUPD, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_WITH_CHANGED).run(context);
@@ -105,7 +104,6 @@ public class ChangedOptionalTestIntegration extends AbstractChangedPhase3Integra
         given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(MAILUPD, DELETE, NO_CHANGED__).then(FAILED).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, DELETE, WITH_CHANGED).then(FAILED).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
-
     }
 
     @Ignore
