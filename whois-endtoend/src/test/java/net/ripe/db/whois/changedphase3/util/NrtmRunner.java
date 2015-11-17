@@ -14,7 +14,7 @@ import static org.junit.Assert.assertThat;
 
 public class NrtmRunner extends AbstactScenarioRunner {
 
-    public NrtmRunner(Context context) {
+    public NrtmRunner(final Context context) {
         super(context);
     }
 
@@ -22,7 +22,7 @@ public class NrtmRunner extends AbstactScenarioRunner {
         return "Nrtm";
     }
 
-    public void event(Scenario scenario) {
+    public void event(final Scenario scenario) {
 
         try {
             verifyPreCondition(scenario);
@@ -58,8 +58,8 @@ public class NrtmRunner extends AbstactScenarioRunner {
 
     private Integer getCurrentOffset() {
         final String currentStatusResp = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
-        for( String line: currentStatusResp.split("\n")) {
-            if( line.startsWith("TEST:")) {
+        for (String line : currentStatusResp.split("\n")) {
+            if (line.startsWith("TEST:")) {
                 return Integer.parseInt(line.split("-")[1]);
             }
         }

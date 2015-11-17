@@ -34,11 +34,11 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
     protected static String CHANGED_VALUE = "test@ripe.net 20121016";
     protected Context context;
 
-    public AbstactScenarioRunner(Context context) {
+    public AbstactScenarioRunner(final Context context) {
         this.context = context;
     }
 
-    public void before(Scenario scenario) {
+    public void before(final Scenario scenario) {
         // delete if exists
         if (doesObjectExist()) {
             doDelete("TESTING-MNT");
@@ -50,32 +50,25 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         } else if (scenario.getPreCond() == Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__) {
             doCreate(MNTNER_WITHOUT_CHANGED());
         }
-
-//        if(scenario.getProtocol() == Scenario.Protocol.NRTM___) {
-//            context.getNrtmServer().start();
-//        }
     }
 
 
-    public void after(Scenario scenario) {
-//        if(scenario.getProtocol() == Scenario.Protocol.NRTM___) {
-//            context.getNrtmServer().stop(true);
-//        }
+    public void after(final Scenario scenario) {
     }
 
-    public void create(Scenario scenario) {
+    public void create(final Scenario scenario) {
         throw new UnsupportedOperationException("Create method not supported for protocol " + getProtocolName());
     }
 
-    public void modify(Scenario scenario) {
+    public void modify(final Scenario scenario) {
         throw new UnsupportedOperationException("Modify method not supported for protocol " + getProtocolName());
     }
 
-    public void delete(Scenario scenario) {
+    public void delete(final Scenario scenario) {
         throw new UnsupportedOperationException("Delete method not supported for protocol " + getProtocolName());
     }
 
-    public void get(Scenario scenario) {
+    public void get(final Scenario scenario) {
         throw new UnsupportedOperationException("Get method not supported for protocol " + getProtocolName());
     }
 
@@ -83,11 +76,11 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         throw new UnsupportedOperationException("Search method not supported for protocol " + getProtocolName());
     }
 
-    public void event(Scenario scenario) {
+    public void event(final Scenario scenario) {
         throw new UnsupportedOperationException("Event method not supported for protocol " + getProtocolName());
     }
 
-    public void meta(Scenario scenario) {
+    public void meta(final Scenario scenario) {
         throw new UnsupportedOperationException("Meta method not supported for protocol " + getProtocolName());
     }
 
@@ -155,26 +148,6 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         }
     }
 
-//    protected void verifyResponse(final RpslObject obj, final boolean mustContainChanged) {
-//        if (mustContainChanged) {
-//            assertThat(obj.findAttribute(AttributeType.CHANGED).getValue(), is(CHANGED_VALUE));
-//        } else {
-//            assertThat(obj.containsAttribute(AttributeType.CHANGED), is(false));
-//        }
-//    }
-
-//    protected void verifyMail(final boolean mustContainChanged) throws MessagingException, IOException {
-//        final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
-//
-//        if (mustContainChanged) {
-//            assertThat(message, containsString(CHANGED_VALUE));
-//        } else {
-//            assertThat(message, not(containsString(CHANGED_VALUE)));
-//        }
-//        assertFalse(mailSenderStub.anyMoreMessages());
-//
-//    }
-
     protected RpslObject objectForScenario(final Scenario scenario) {
         RpslObject obj = null;
         if (scenario.getReq() == Scenario.Req.WITH_CHANGED) {
@@ -189,17 +162,17 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         verifyState(scenario.getPreCond());
     }
 
-    protected void verifyPostCondition(final Scenario scenario, Scenario.Result actualResult) {
+    protected void verifyPostCondition(final Scenario scenario, final Scenario.Result actualResult) {
         assertThat(actualResult, is(scenario.getResult()));
         verifyState(scenario.getPostCond());
     }
 
-    private void verifyState(Scenario.ObjectStatus objectState) {
+    private void verifyState(final Scenario.ObjectStatus objectState) {
         RpslObject result = fetchObject();
         verifyObject(objectState, result);
     }
 
-    public void verifyObject(Scenario.ObjectStatus objectState, RpslObject result) {
+    public void verifyObject(final Scenario.ObjectStatus objectState, final RpslObject result) {
         if (objectState == Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____) {
             assertThat(result, is(nullValue()));
         } else {
@@ -226,19 +199,19 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         return null;
     }
 
-    protected void logEvent(final String msg, String result) {
+    protected void logEvent(final String msg, final String result) {
         if (context.isDebug()) {
             System.err.println(msg + ":" + result);
         }
     }
 
-    protected void logEvent(final String msg, RpslObject rpslObject) {
+    protected void logEvent(final String msg, final RpslObject rpslObject) {
         if (context.isDebug()) {
             System.err.println(msg + ":" + rpslObject);
         }
     }
 
-    protected void logEvent(final String msg, WhoisResources whoisResources) {
+    protected void logEvent(final String msg, final WhoisResources whoisResources) {
         if (context.isDebug()) {
             for (WhoisObject obj : whoisResources.getWhoisObjects()) {
                 System.err.println(msg + ":" + context.getWhoisObjectMapper().map(obj, FormattedClientAttributeMapper.class));

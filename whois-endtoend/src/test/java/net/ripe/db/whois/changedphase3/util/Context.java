@@ -6,17 +6,17 @@ import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 
 public class Context {
-    private int restPort;
-    private int syncUpdatePort;
-    private WhoisObjectMapper whoisObjectMapper;
-    private boolean debug = false;
-    private MailUpdatesTestSupport mailUpdatesTestSupport;
-    private MailSenderStub mailSenderStub;
-    private NrtmServer nrtmServer;
+    private final int restPort;
+    private final int syncUpdatePort;
+    private final WhoisObjectMapper whoisObjectMapper;
+    private final boolean debug = false;
+    private final MailUpdatesTestSupport mailUpdatesTestSupport;
+    private final MailSenderStub mailSenderStub;
+    private final NrtmServer nrtmServer;
 
-    public Context(int restPort, int syncUpdatePort, WhoisObjectMapper whoisObjectMapper,
-                   MailUpdatesTestSupport mailUpdatesTestSupport, MailSenderStub mailSenderStub,
-                   NrtmServer nrtmServer) {
+    public Context(final int restPort, final int syncUpdatePort, final WhoisObjectMapper whoisObjectMapper,
+                   final MailUpdatesTestSupport mailUpdatesTestSupport, final MailSenderStub mailSenderStub,
+                   final NrtmServer nrtmServer) {
         this.restPort = restPort;
         this.syncUpdatePort = syncUpdatePort;
         this.whoisObjectMapper = whoisObjectMapper;

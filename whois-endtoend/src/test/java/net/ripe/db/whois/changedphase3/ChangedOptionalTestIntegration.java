@@ -3,7 +3,6 @@ package net.ripe.db.whois.changedphase3;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 

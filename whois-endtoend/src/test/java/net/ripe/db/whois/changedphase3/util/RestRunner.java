@@ -5,9 +5,11 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
+import javax.mail.MessagingException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
@@ -15,10 +17,11 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class RestRunner extends AbstactScenarioRunner {
 
-    public RestRunner(Context context) {
+    public RestRunner(final Context context) {
         super(context);
     }
 
@@ -26,9 +29,11 @@ public class RestRunner extends AbstactScenarioRunner {
         return "Rest";
     }
 
-    public void create(Scenario scenario) {
+    public void create(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
+
+            resetMail();
 
             RpslObject objectForScenario = objectForScenario(scenario);
 
@@ -45,16 +50,20 @@ public class RestRunner extends AbstactScenarioRunner {
 
             verifyPostCondition(scenario, Scenario.Result.SUCCESS);
 
+            verifyNotificationEmail(scenario);
+
         } catch (ClientErrorException exc) {
             logEvent("Create", exc.getResponse().readEntity(WhoisResources.class));
-
             verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyNotificationEmail(scenario);
         }
     }
 
-    public void modify(Scenario scenario) {
+    public void modify(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
+
+            resetMail();
 
             RpslObject objectForScenario = addRemarks(objectForScenario(scenario));
 
@@ -71,15 +80,20 @@ public class RestRunner extends AbstactScenarioRunner {
 
             verifyPostCondition(scenario, Scenario.Result.SUCCESS);
 
+            verifyNotificationEmail(scenario);
+
         } catch (ClientErrorException exc) {
             logEvent("Modify", exc.getResponse().readEntity(WhoisResources.class));
             verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyNotificationEmail(scenario);
         }
     }
 
-    public void delete(Scenario scenario) {
+    public void delete(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
+
+            resetMail();
 
             WhoisResources whoisResources = RestTest.target(context.getRestPort(),
                     "whois/test/mntner/TESTING-MNT?password=123")
@@ -90,13 +104,16 @@ public class RestRunner extends AbstactScenarioRunner {
 
             verifyPostCondition(scenario, Scenario.Result.SUCCESS);
 
+            verifyNotificationEmail(scenario);
+
         } catch (ClientErrorException exc) {
             logEvent("Delete", exc.getResponse().readEntity(WhoisResources.class));
             verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyNotificationEmail(scenario);
         }
     }
 
-    public void get(Scenario scenario) {
+    public void get(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
 
@@ -117,7 +134,7 @@ public class RestRunner extends AbstactScenarioRunner {
         }
     }
 
-    public void search(Scenario scenario) {
+    public void search(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
 
@@ -138,7 +155,7 @@ public class RestRunner extends AbstactScenarioRunner {
         }
     }
 
-    public void meta(Scenario scenario) {
+    public void meta(final Scenario scenario) {
         try {
             String result = RestTest.target(context.getRestPort(),
                     "whois/metadata/templates/mntner")
@@ -153,6 +170,35 @@ public class RestRunner extends AbstactScenarioRunner {
         } catch (ClientErrorException exc) {
             logEvent("Meta", exc.getResponse().readEntity(WhoisResources.class));
             assertThat(scenario.getResult(), not(is(Scenario.Result.SUCCESS)));
+        }
+    }
+
+    private void resetMail() {
+        context.getMailSenderStub().reset();
+    }
+
+    private void verifyNotificationEmail(final Scenario scenario) {
+        try {
+            if (scenario.getResult() == Scenario.Result.FAILED &&
+                    (scenario.getMethod() == Scenario.Method.MODIFY || scenario.getMethod() == Scenario.Method.DELETE)) {
+                verifyMailContents(scenario, context.getMailSenderStub().getMessage("upd-to@ripe.net").getContent().toString());
+            }
+            if (scenario.getResult() == Scenario.Result.SUCCESS) {
+                verifyMailContents(scenario, context.getMailSenderStub().getMessage("mnt-nfy@ripe.net").getContent().toString());
+            }
+            assertThat(context.getMailSenderStub().anyMoreMessages(), is(false));
+        } catch (MessagingException | IOException exc) {
+            fail();
+        }
+    }
+
+    private void verifyMailContents(Scenario scenario, String mailContents) {
+        if (scenario.getPostCond() == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
+            // note the starting \n
+            assertThat(mailContents, containsString("\nchanged:        " + CHANGED_VALUE));
+        } else if (scenario.getPostCond() == Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__) {
+            // note the starting \n
+            assertThat(mailContents, not(containsString("\nchanged:")));
         }
     }
 }

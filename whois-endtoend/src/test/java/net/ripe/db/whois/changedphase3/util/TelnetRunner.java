@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 public class TelnetRunner extends AbstactScenarioRunner {
-    public TelnetRunner(Context context) {
+    public TelnetRunner(final Context context) {
         super(context);
     }
 
@@ -16,7 +16,7 @@ public class TelnetRunner extends AbstactScenarioRunner {
         return "Telnet";
     }
 
-    public void search(Scenario scenario) {
+    public void search(final Scenario scenario) {
 
         try {
 
@@ -35,7 +35,7 @@ public class TelnetRunner extends AbstactScenarioRunner {
         }
     }
 
-    public void meta(Scenario scenario) {
+    public void meta(final Scenario scenario) {
         try {
             final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-t mntner");
 

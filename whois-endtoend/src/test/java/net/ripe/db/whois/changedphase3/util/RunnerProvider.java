@@ -1,7 +1,7 @@
 package net.ripe.db.whois.changedphase3.util;
 
 public class RunnerProvider {
-    public static ScenarioRunner getRunnerForProtocol(final Scenario.Protocol protocol, Context context) {
+    public static ScenarioRunner getRunnerForProtocol(final Scenario.Protocol protocol, final Context context) {
         ScenarioRunner runner = null;
         switch (protocol) {
             case REST___:
