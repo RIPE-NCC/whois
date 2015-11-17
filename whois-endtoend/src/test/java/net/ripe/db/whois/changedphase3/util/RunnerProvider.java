@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.changedphase3.util;
+package net.ripe.db.whois.changedphase3.util;
 
 public class RunnerProvider {
     public static ScenarioRunner getRunnerForProtocol(final Scenario.Protocol protocol, Context context) {

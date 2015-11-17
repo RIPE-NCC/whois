@@ -1,10 +1,9 @@
-package net.ripe.db.whois.api.changedphase3.util;
+package net.ripe.db.whois.changedphase3.util;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-
 import java.io.IOException;
 
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
