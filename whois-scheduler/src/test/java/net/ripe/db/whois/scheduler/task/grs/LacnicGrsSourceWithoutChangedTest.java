@@ -1,12 +1,15 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -19,7 +22,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LacnicGrsSourceTest extends ObjectTemplateDependentTest {
+public class LacnicGrsSourceWithoutChangedTest {
     @Mock SourceContext sourceContext;
     @Mock DateTimeProvider dateTimeProvider;
     @Mock AuthoritativeResourceData authoritativeResourceData;
@@ -27,6 +30,11 @@ public class LacnicGrsSourceTest extends ObjectTemplateDependentTest {
 
     LacnicGrsSource subject;
     CaptureInputObjectHandler objectHandler;
+
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        new ObjectTemplateProvider(new ChangedAttrFeatureToggle(false));
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -47,8 +55,6 @@ public class LacnicGrsSourceTest extends ObjectTemplateDependentTest {
                         "aut-num:        AS278\n" +
                         "descr:          Description\n" +
                         "country:        MX\n" +
-                        "changed:        unread@ripe.net 19890331 # created\n" +
-                        "changed:        unread@ripe.net 20110503 # changed\n" +
                         "source:         LACNIC\n"),
 
                 RpslObject.parse("" +
@@ -57,8 +63,6 @@ public class LacnicGrsSourceTest extends ObjectTemplateDependentTest {
                         "descr:          Description\n" +
                         "country:        AR\n" +
                         "tech-c:\n" +
-                        "changed:        unread@ripe.net 19990312 # created\n" +
-                        "changed:        unread@ripe.net 19990312 # changed\n" +
                         "source:         LACNIC\n"),
 
                 RpslObject.parse("" +
@@ -68,8 +72,6 @@ public class LacnicGrsSourceTest extends ObjectTemplateDependentTest {
                         "country:        MX\n" +
                         "tech-c:         IIM\n" +
                         "abuse-c:        IIM\n" +
-                        "changed:        unread@ripe.net 20061106 # created\n" +
-                        "changed:        unread@ripe.net 20061106 # changed\n" +
                         "source:         LACNIC\n")
         ));
     }

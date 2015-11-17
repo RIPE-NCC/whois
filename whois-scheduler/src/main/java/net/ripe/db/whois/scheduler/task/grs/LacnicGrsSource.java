@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.HttpClient;
@@ -129,6 +130,14 @@ class LacnicGrsSource extends GrsSource {
 
                     final List<RpslAttribute> newAttributes = Lists.newArrayList();
                     for (RpslAttribute attribute : rpslObjectBase.getAttributes()) {
+                        if("changed".equalsIgnoreCase(attribute.getKey()) ||
+                           "created".equalsIgnoreCase(attribute.getKey())) {
+
+                            if (!ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
+                                continue;
+                            }
+                        }
+
                         final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
                         if (transformFunction != null) {
                             attribute = transformFunction.apply(attribute);
@@ -162,6 +171,15 @@ class LacnicGrsSource extends GrsSource {
                 return new RpslAttribute(AttributeType.AUT_NUM, "AS" + input.getCleanValue());
             }
         }, "aut-num");
+
+        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
+            @Override
+            public RpslAttribute apply(final RpslAttribute input) {
+                final String date = input.getCleanValue().toString().replaceAll("-", "");
+                final String value = String.format("unread@ripe.net %s # %s", date, input.getKey());
+                return new RpslAttribute(AttributeType.CHANGED, value);
+            }
+        }, "changed", "created");
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
             @Override

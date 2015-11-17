@@ -16,6 +16,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,6 +123,12 @@ class ArinGrsSource extends GrsSource {
                 private List<RpslAttribute> transform(final List<RpslAttribute> attributes) {
                     final List<RpslAttribute> newAttributes = Lists.newArrayList();
                     for (RpslAttribute attribute : attributes) {
+                        if("updated".equalsIgnoreCase(attribute.getKey()) &&
+                                !ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
+                            logger.debug("Ignoring:\n\n{}\n", attribute.getKey());
+                            continue;
+                        }
+
                         final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
                         if (transformFunction != null) {
                             attribute = transformFunction.apply(attribute);
@@ -201,6 +208,15 @@ class ArinGrsSource extends GrsSource {
                 return new RpslAttribute(AttributeType.ADDRESS, String.format("%s # %s", input.getValue(), input.getKey()));
             }
         }, "City", "Country", "PostalCode", "Street", "State/Prov");
+
+        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
+            @Override
+            public RpslAttribute apply(final RpslAttribute input) {
+                String date = input.getCleanValue().toString().replaceAll("[^0-9]", "");
+                final String value = String.format("unread@ripe.net %s", date);
+                return new RpslAttribute(AttributeType.CHANGED, value);
+            }
+        }, "Updated");
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
             @Override
