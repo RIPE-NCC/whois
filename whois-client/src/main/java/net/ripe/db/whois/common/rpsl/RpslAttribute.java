@@ -36,8 +36,6 @@ public final class RpslAttribute {
     }
 
     public RpslAttribute(final AttributeType attributeType, final String value) {
-        checkIfChangedCanBeUsed(attributeType.getName());
-
         Validate.notNull(attributeType);
         Validate.notNull(value);
         this.key = attributeType.getName();
@@ -50,19 +48,11 @@ public final class RpslAttribute {
     }
 
     public RpslAttribute(final String key, final String value) {
-        checkIfChangedCanBeUsed(key);
         Validate.notNull(key);
         Validate.notNull(value);
         this.key = key.toLowerCase();
         this.value = value;
         this.type = AttributeType.getByNameOrNull(this.key);
-    }
-
-    private void checkIfChangedCanBeUsed(String attributeTypeName) {
-        if(AttributeType.CHANGED.name().toLowerCase().equals(attributeTypeName) &&
-            !ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
-            throw new IllegalArgumentException(AttributeType.CHANGED.getName()+" is not a valid attribute");
-        }
     }
 
     public String getKey() {
