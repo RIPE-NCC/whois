@@ -10,7 +10,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class DatabaseDummifierJmxTest   {
+public class DatabaseDummifierJmxTest {
     final RpslObject mntnerWithPgp = RpslObject.parse(
             "mntner: NINJA\n" +
             "auth: PGP-111\n" +

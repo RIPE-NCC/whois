@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query.executor;
 
 import net.ripe.db.whois.common.domain.ResponseObject;
-
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.domain.QueryException;
