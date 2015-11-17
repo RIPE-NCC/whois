@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.asblock;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectDao;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Subject;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 
-public class AsblockHierarchyValidatorTest {
+public class AsblockHierarchyValidatorTest extends ObjectTemplateDependentTest {
 
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;

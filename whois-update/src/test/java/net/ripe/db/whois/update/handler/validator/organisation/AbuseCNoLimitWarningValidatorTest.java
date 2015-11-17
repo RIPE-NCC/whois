@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
+import net.ripe.db.whois.common.rpsl.ObjectTemplateDependentTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -17,7 +18,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AbuseCNoLimitWarningValidatorTest {
+public class AbuseCNoLimitWarningValidatorTest extends ObjectTemplateDependentTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
     @InjectMocks AbuseCNoLimitWarningValidator subject;
