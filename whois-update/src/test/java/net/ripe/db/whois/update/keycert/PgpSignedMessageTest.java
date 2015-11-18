@@ -484,7 +484,6 @@ public class PgpSignedMessageTest {
                         "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
                         "notify:         noreply@ripe.net\n" +
                         "mnt-by:         OWNER-MNT\n" +
-                        "changed:        noreply@ripe.net 20120101\n" +
                         "source:         TEST\n"));
 
         return wrapper.getPublicKey();
@@ -529,7 +528,6 @@ public class PgpSignedMessageTest {
                         "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
                         "notify:         noreply@ripe.net\n" +
                         "mnt-by:         ADMIN-MNT\n" +
-                        "changed:        noreply@ripe.net 20010101\n" +
                         "source:         TEST"));
 
         return wrapper.getPublicKey();
@@ -573,7 +571,6 @@ public class PgpSignedMessageTest {
                         "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
                         "notify:         unread@ripe.net\n" +
                         "mnt-by:         ADMIN-MNT\n" +
-                        "changed:        unread@ripe.net 20010101\n" +
                         "source:         TEST"));
         return wrapper.getPublicKey();
     }

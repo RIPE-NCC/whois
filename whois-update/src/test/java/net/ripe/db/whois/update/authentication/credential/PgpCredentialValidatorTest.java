@@ -79,7 +79,6 @@ public class PgpCredentialValidatorTest {
             "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
             "notify:         noreply@ripe.net\n" +
             "mnt-by:         TEST-MNT\n" +
-            "changed:        noreply@ripe.net 20070917\n" +
             "source:         RIPE\n");
 
     @Before
