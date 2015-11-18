@@ -36,11 +36,6 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     private static byte[] propertyStore = null;
 
     @BeforeClass
-    public static void changedAttributeToggle() throws Exception {
-        new ObjectTemplateProvider(new ChangedAttrFeatureToggle(true));
-    }
-
-    @BeforeClass
     public synchronized static void setupAbstractDatabaseHelperTest() throws Exception {
         DatabaseHelper.setupDatabase();
         Slf4JLogConfiguration.init();

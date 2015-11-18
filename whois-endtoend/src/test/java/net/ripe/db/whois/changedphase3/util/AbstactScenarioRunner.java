@@ -149,17 +149,18 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
     }
 
     protected RpslObject objectForScenario(final Scenario scenario) {
-        RpslObject obj = null;
-        if (scenario.getReq() == Scenario.Req.WITH_CHANGED) {
-            obj = MNTNER_WITH_CHANGED();
-        } else if (scenario.getReq() == Scenario.Req.NO_CHANGED__) {
-            obj = MNTNER_WITHOUT_CHANGED();
+        switch (scenario.getReq()) {
+            case NO_CHANGED__:
+                return MNTNER_WITHOUT_CHANGED();
+            case WITH_CHANGED:
+                return MNTNER_WITH_CHANGED();
+            default:
+                return null;
         }
-        return obj;
     }
 
     protected void verifyPreCondition(final Scenario scenario) {
-        verifyState(scenario.getPreCond());
+//        verifyState(scenario.getPreCond());
     }
 
     protected void verifyPostCondition(final Scenario scenario, final Scenario.Result actualResult) {
