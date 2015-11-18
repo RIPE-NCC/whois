@@ -324,7 +324,6 @@ public class MessageParserTest {
                 "certif:          -----END CERTIFICATE-----\n" +
                 "mnt-by:          TEST-DBM-MNT\n" +
                 "remarks:         remark\n" +
-                "changed:         noreply@ripe.net 20121001\n" +
                 "source:          TEST";
 
         assertThat(message.getUpdateMessage(), is(expectedValue));
