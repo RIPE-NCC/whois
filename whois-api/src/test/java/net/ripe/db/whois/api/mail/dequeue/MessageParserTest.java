@@ -204,7 +204,6 @@ public class MessageParserTest {
                 "status: ASSIGNED PA\n" +
                 "mnt-by: TEST-MNT\n" +
                 "password: password\n" +
-                "changed: changed@ripe.net 20120528\n" +
                 "source: RIPE\n" +
                 "\n" +
                 "inetnum: 109.69.68.0 - 109.69.68.7\n" +
@@ -216,7 +215,6 @@ public class MessageParserTest {
                 "status: ASSIGNED PA\n" +
                 "mnt-by: TEST-MNT\n" +
                 "password: password\n" +
-                "changed: changed@ripe.net 20120528\n" +
                 "source: RIPE\n" +
                 "delete: new subnet size\n";
 
@@ -262,7 +260,6 @@ public class MessageParserTest {
                 "country:US\n" +
                 "country:BY\n" +
                 "country:RU\n" +
-                "changed:test@foo.com 20120824\n" +
                 "source:TEST";
         assertThat(message.getUpdateMessage(), is(expectedValue));
 
@@ -349,7 +346,6 @@ public class MessageParserTest {
                 "admin-c:     P1-RIPE\n" +
                 "mnt-by:      TEST-MNT\n" +
                 "mnt-by:      TEST-MNT\n" +
-                "changed:     test@bogus.fr 20120531\n" +
                 "source:      RIPE\n\n\n" +
                 "as-set:      AS1:AS-FOO-BOGUS\n" +
                 "descr:       Description\n" +
@@ -357,7 +353,6 @@ public class MessageParserTest {
                 "admin-c:     P1-RIPE\n" +
                 "mnt-by:      TEST-MNT\n" +
                 "mnt-by:      TEST-MNT\n" +
-                "changed:     test@bogus.fr 20120531\n" +
                 "source:      RIPE\n";
 
         assertThat(message.getUpdateMessage(), is(expectedValue));
