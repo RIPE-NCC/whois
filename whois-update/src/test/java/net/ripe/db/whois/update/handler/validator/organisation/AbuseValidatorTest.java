@@ -130,7 +130,14 @@ public class AbuseValidatorTest {
 
     @Test
     public void allow_removeAbuseC_when_referencing_object_is_not_resource() {
-        RpslObject referencingPerson = RpslObject.parse("person: A Person\naddress: Address 1\nphone: +31 20 535 4444\nnic-hdl: DUMY-RIPE\norg: ORG-1\nmnt-by: A_NON_RS_MAINTAINER\nchanged: ripe-dbm@ripe.net 20090724\nsource: RIPE");
+        RpslObject referencingPerson = RpslObject.parse(
+            "person: A Person\n" +
+            "address: Address 1\n" +
+            "phone: +31 20 535 4444\n" +
+            "nic-hdl: DUMY-RIPE\n" +
+            "org: ORG-1\n" +
+            "mnt-by: A_NON_RS_MAINTAINER\n" +
+            "source: RIPE");
         RpslObjectInfo info = new RpslObjectInfo(1, ObjectType.PERSON, "a");
 
         when(update.getAction()).thenReturn(Action.MODIFY);
