@@ -51,7 +51,7 @@ public class SyncUpdateRunner extends AbstactScenarioRunner {
 
     public void modify(final Scenario scenario) {
         try {
-//            verifyPreCondition(scenario);
+            verifyPreCondition(scenario);
 
             RpslObject objectForScenario = addRemarks(objectForScenario(scenario));
 
