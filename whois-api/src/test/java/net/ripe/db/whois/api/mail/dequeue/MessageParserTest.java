@@ -276,26 +276,27 @@ public class MessageParserTest {
         assertThat(message.getId(), is("<ABC593474ADCF6EC3E43BC80@XXX[10.41.147.77]>"));
         assertThat(message.getReplyTo(), is("John Doe <bitbucket@ripe.net>"));
         assertThat(message.getKeyword(), is(Keyword.NONE));
-        final String expectedValue = "" +
+        final String expectedValue =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
                 "\n" +
-                "route:        194.39.132.0/24\n" +
-                "descr:        Description\n" +
-                "origin:       AS12510\n" +
-                "notify:       foo@bar.com\n" +
-                "mnt-by:       BOGUS-MNT\n" +
-                "mnt-by:       T8-MNT\n" +
-                "changed:      nm@bogus.com 20120504\n" +
-                "changed:      nm@bogus.com 20120529\n" +
-                "source:       RIPE\n" +
-                "delete:       no longer required for AS12510\n" +
+                "route:          99.13.0.0/16\n" +
+                "descr:          Route\n" +
+                "origin:         AS3333\n" +
+                "mnt-by:         TEST-DBM-MNT\n" +
+                "source:         TEST\n" +
+                "delete:         no longer required\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.9 (SunOS)\n" +
+                "Version: GnuPG v1\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iEYEARECAAYFAk/FbSMACgkQsAWoDcAb7KJmJgCfe2PjxUFIeHycZ85jteosU1ez\n" +
-                "kL0An3ypg8F75jlPyTYIUuiCQEcP/9sz\n" +
-                "=j7tD\n" +
+                "iQEcBAEBAgAGBQJWTIkmAAoJELvMuy1XY5UN2yAH/jrxCDpjg0rPZQJQaF33eyNS\n" +
+                "rWXaIcfNO1pOMTIBLsDLHG2b0gEwRMYNsN+/J50Wb2VaXYI/kjRQEZPgJOTZomFX\n" +
+                "kt+aWDXSWTE+fsclfoB+vcSraGJFgFTtJM66MHDvKSJ80tWf2VK64Y8MgKmOv6vW\n" +
+                "hqxmZePeIr4p4L3w3q3n9GrOkpaPscJtEMTPqqFhft6hsiKTBfUuq/8Inski0LZt\n" +
+                "85cWPo4wZP4L2z5OfGsEXnrFAF69AzyXaSwL5B9FsEmQEK/cS09n7mU+fqsKNCAB\n" +
+                "npzCZ/Wa9t0alM7BtUZFS7Q2z4BWmSkc75R9U+cv7rafDv8Z2thlvEcHf9fqG0s=\n" +
+                "=zw+b\n" +
                 "-----END PGP SIGNATURE-----";
 
         assertThat(message.getUpdateMessage(), is(expectedValue));
