@@ -69,8 +69,7 @@ See below for public/private keypairs used in the signed message test cases.
 
 To use these keys, copy/paste into a text file, and use: gpg --import <filename>
 
-The password for both private keys is: password
-
+The password for the private keys is: password
 
 (1) noreply@ripe.net (public key id 5763950D)
 
@@ -262,3 +261,43 @@ RayDC3Nolwkofg==
 =de59
 -----END PGP PRIVATE KEY BLOCK-----
 
+(3) dsa@ripe.net (key id E5F13570)
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1
+Comment: GPGTools - http://gpgtools.org
+
+mQGiBFFkCDwRBADNr7Cs+XQ1uy1qeG913uc/HBPUgffA7i7BOBWCLTkDw2nbVhDO
+ASKW+S2CutgI/ufWYlyrSYklE8zyhYC8m/Lz6G9ZV0V7jNro0NJHV+QaPNi1TQ7u
+0MB+u1U3O4CvhOgNYn4v6GJxZq73kfsbhWEVN2m3xRuwU7WuK3DjyfdOYwCgzUhB
+ncQB+l3Wqqf353u1Z+zz+yUEAMkM42BBKeK3k0iS6yBvNx0fo0RW7ZX7WzOgX033
+BFbDoi1PTE584iK+/fMIKtpR+RIiim0EcPOCIGVs4eyt0Iktji/wjmk2zcEKm2Ls
+kSOo3tsKtc0LDrE56tAyQwtTxhFG00i8v0E0j9k01GQIxkcYgaPP1X8x/+TlokVv
+g2GdBACGuBP0KIQTos3k9rNkyFdw7pM6Qy9SS6Qf1hlYbYkmCITEbwOT1K1mfv2v
+Bqz2pcaAhOHdBgUvZnHugCbKHFplBQ4I+hl9m7B7CAKPWHuIoRe9CboAENl8YMaj
+mBOUdBr4ZyXhbdDKNvlMvZHtJmHw0+/OAlQwG6imqSVWFykrw7QWRFNBIEtleSA8
+ZHNhQHJpcGUubmV0PohiBBMRAgAiBQJRZAg8AhsDBgsJCAcDAgYVCAIJCgsEFgID
+AQIeAQIXgAAKCRBEbNO95fE1cNmPAKCldAcZtWRG8tiJkx/fPjFBlq7uFgCfX0Cj
+AQJkry0+lVRZdbNeeNsT0jA=
+=7PXv
+-----END PGP PUBLIC KEY BLOCK-----
+
+-----BEGIN PGP PRIVATE KEY BLOCK-----
+Version: GnuPG v1
+Comment: GPGTools - http://gpgtools.org
+
+lQHhBFFkCDwRBADNr7Cs+XQ1uy1qeG913uc/HBPUgffA7i7BOBWCLTkDw2nbVhDO
+ASKW+S2CutgI/ufWYlyrSYklE8zyhYC8m/Lz6G9ZV0V7jNro0NJHV+QaPNi1TQ7u
+0MB+u1U3O4CvhOgNYn4v6GJxZq73kfsbhWEVN2m3xRuwU7WuK3DjyfdOYwCgzUhB
+ncQB+l3Wqqf353u1Z+zz+yUEAMkM42BBKeK3k0iS6yBvNx0fo0RW7ZX7WzOgX033
+BFbDoi1PTE584iK+/fMIKtpR+RIiim0EcPOCIGVs4eyt0Iktji/wjmk2zcEKm2Ls
+kSOo3tsKtc0LDrE56tAyQwtTxhFG00i8v0E0j9k01GQIxkcYgaPP1X8x/+TlokVv
+g2GdBACGuBP0KIQTos3k9rNkyFdw7pM6Qy9SS6Qf1hlYbYkmCITEbwOT1K1mfv2v
+Bqz2pcaAhOHdBgUvZnHugCbKHFplBQ4I+hl9m7B7CAKPWHuIoRe9CboAENl8YMaj
+mBOUdBr4ZyXhbdDKNvlMvZHtJmHw0+/OAlQwG6imqSVWFykrw/4DAwK668Hz/WeX
+KmCN/lh3XWLSfJ1mj7iOLShkfrrwhh74GFNSyXF91umF/auDyObIP3bplKXqQVNu
+X0Sw+rQWRFNBIEtleSA8ZHNhQHJpcGUubmV0PohiBBMRAgAiBQJRZAg8AhsDBgsJ
+CAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBEbNO95fE1cNmPAKCldAcZtWRG8tiJ
+kx/fPjFBlq7uFgCfX0CjAQJkry0+lVRZdbNeeNsT0jA=
+=disC
+-----END PGP PRIVATE KEY BLOCK-----
