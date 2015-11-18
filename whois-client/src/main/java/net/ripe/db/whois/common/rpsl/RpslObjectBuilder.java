@@ -32,6 +32,7 @@ public class RpslObjectBuilder {
     }
 
     public RpslObject get() {
+        this.removeAttributeType(AttributeType.CHANGED);
         return original == null ? new RpslObject(attributes) : new RpslObject(original, attributes);
     }
 

@@ -24,11 +24,11 @@ public class TelnetRunner extends AbstactScenarioRunner {
 
             final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-rB TESTING-MNT");
 
-            if (scenario.getPreCond() == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
-                assertThat(result, containsString("changed:        " + CHANGED_VALUE));
-            } else if (scenario.getPreCond() == Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__) {
-                assertThat(result, not(containsString("changed:")));
-            }
+//            if (scenario.getPreCond() == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
+//                assertThat(result, containsString("changed:        " + CHANGED_VALUE));
+//            } else if (scenario.getPreCond() == Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__) {
+//                assertThat(result, not(containsString("changed:")));
+//            }
 
         } catch (Exception exc) {
             verifyPostCondition(scenario, Scenario.Result.FAILED);

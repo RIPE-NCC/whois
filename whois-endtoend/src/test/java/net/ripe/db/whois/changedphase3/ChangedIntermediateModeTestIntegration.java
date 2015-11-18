@@ -29,7 +29,6 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Req.NO_CHANGED__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Req.WITH_CHANGED;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
 
-@Ignore("TODO: [ES] strip changed from updates and queries")
 @Category(IntegrationTest.class)
 public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
@@ -79,7 +78,7 @@ public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(SYNCUPD, CREATE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
         given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(SYNCUPD, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(SYNCUPD, MODIFY, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(SYNCUPD, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
