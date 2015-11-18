@@ -42,7 +42,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "ROOT4"               : """\
@@ -55,7 +54,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TP1-TEST
                 status: ALLOCATED UNSPECIFIED
                 mnt-by: RIPE-NCC-HM-MNT
-                changed: ripe@test.net 20120505
                 source: TEST
                 """,
             "ORGHR"               : """\
@@ -67,7 +65,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         RIPE-NCC-HM-MNT
                 mnt-by:          RIPE-NCC-HM-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "RIPE-NCC-HM-MNT"     : """\
@@ -79,7 +76,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss.  #hm
                 mnt-by:      RIPE-NCC-HM-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "OWNER-MNT"           : """\
@@ -89,7 +85,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
                 upd-to:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "INVALID-PGP-KEYCERT" : """\
@@ -99,7 +94,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 """,
             "INVALID-X509-KEYCERT": """\
@@ -108,7 +102,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----BEGIN CERTIFICATE-----
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 """,
             "PGPKEY-5763950D": """\
@@ -149,7 +142,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 """,
             "PGPKEY-28F6CD6C": """\
@@ -201,7 +193,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         =Aova
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 """
     ]
@@ -247,7 +238,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -325,7 +315,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -454,7 +443,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -736,7 +724,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -848,7 +835,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         =GpqF
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -966,7 +952,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -1164,7 +1149,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
                 """.stripIndent())
@@ -1208,7 +1192,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
                 """.stripIndent())
@@ -1302,7 +1285,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         unread@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        unread@ripe.net 20010101
                 source:         TEST
                 password:       owner
                 """.stripIndent())
@@ -1869,7 +1851,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -2011,7 +1992,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -2307,7 +2287,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:       w0L5DyjKGe0dbjMKtaDdgQhxj8aBHNnQVbS9Oqhvmc65XgNi
                 certif:       -----END CERTIFICATE-----
                 mnt-by:       OWNER-MNT
-                changed:      noreply@ripe.net 20010101
                 source:       TEST
                 password:     owner
              """.stripIndent())
@@ -2516,7 +2495,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -2623,7 +2601,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:       +o7S6hzwbNsUve3+zPyhSf50
                 certif:       -----END CERTIFICATE-----
                 mnt-by:       OWNER-MNT
-                changed:      noreply@ripe.net 20010101
                 source:       TEST
                 password:     owner
              """.stripIndent())
@@ -2707,7 +2684,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:       SSZdF8vYxaL77qAvHUqerGo2H3K660GF
                 certif:       -----END CERTIFICATE-----
                 mnt-by:       OWNER-MNT
-                changed:      noreply@ripe.net 20010101
                 source:       TEST
                 password:     owner
              """.stripIndent())
@@ -2803,7 +2779,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -3003,7 +2978,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         =p8dm
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
