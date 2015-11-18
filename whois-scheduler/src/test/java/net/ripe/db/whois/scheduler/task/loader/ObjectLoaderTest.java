@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
-
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.autokey.ClaimException;
 import net.ripe.db.whois.update.autokey.NicHandleFactory;

@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.grs;
 
-
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.Rule;

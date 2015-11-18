@@ -2,7 +2,6 @@ package net.ripe.db.whois.update.log;
 
 import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
-
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.*;
 import org.junit.Test;
