@@ -2,7 +2,6 @@ package net.ripe.db.whois.query.query;
 
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;

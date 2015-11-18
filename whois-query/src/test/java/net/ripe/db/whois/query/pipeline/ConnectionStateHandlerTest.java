@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.pipeline;
 
-
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.query.Query;

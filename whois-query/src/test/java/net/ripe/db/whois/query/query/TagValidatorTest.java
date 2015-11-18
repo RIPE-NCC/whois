@@ -1,7 +1,6 @@
 package net.ripe.db.whois.query.query;
 
 import net.ripe.db.whois.common.Messages;
-
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.QueryMessages;
 import org.junit.Before;

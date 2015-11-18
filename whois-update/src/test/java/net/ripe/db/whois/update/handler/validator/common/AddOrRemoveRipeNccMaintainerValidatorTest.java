@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.handler.validator.common;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;

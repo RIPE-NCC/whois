@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.pipeline;
 
-
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import org.jboss.netty.channel.Channel;
 import org.junit.Test;
