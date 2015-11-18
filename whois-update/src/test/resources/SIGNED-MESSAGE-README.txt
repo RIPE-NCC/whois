@@ -29,9 +29,9 @@ To create an SMIME message using openssl, first export the private key from the 
 
 (1) keytool -importkeystore -srckeystore keystore.jks -destkeystore keystore.p12 -deststoretype PKCS12
 (2) openssl pkcs12 -in keystore.p12 -out extracted.pem -nodes
-(3) (... Edit extracted.pem, and and copy/paste the private key block into noreply.private.key ...) 
+(3) (... Edit extracted.pem, and and copy/paste the private key block into noreply.private.key ...)
 (4) openssl smime -sign -inform pem -inkey noreply.private.key -signer noreply.crt -in test.txt -out test.signed
-(5) openssl smime -verify -in test.signed -CAfile noreply.crt 
+(5) openssl smime -verify -in test.signed -CAfile noreply.crt
 
 PGP Public Keys
 ---------------------------
@@ -43,13 +43,15 @@ To import a public key block (keyring): gpg --import key.txt
 
 To list all key-pairs in your keyring (stored in ~/.gpg/ directory):  gpg --list-keys  OR  gpg --list-keys <key-id or alias>
 
-To sign a text file with a public key:  gpg --clearsign update.txt  (creates signed file update.txt.asc)
+To sign a text file with your default private key:  gpg --clearsign update.txt  (creates signed file update.txt.asc)
 
 To sign a text file with a different key: gpg --clearsign --default-key E7220D0A update.txt
 
 To verify a signed message (public key must be in keyring):  gpg --verify update.txt.asc
 
 To export a public key (creates public key block to paste into keycert):  gpg --export --armor E7220D0A
+
+To export a private key: gpg --export-secret-keys --armor <key-id>
 
 To display full fingerprint:  gpg --fingerprint E7220D0A
 
@@ -63,11 +65,14 @@ Any subkeys are included when a public key is exported.
 
 PGP Keys used for test cases
 -----------------------------
-See below for public/private keypairs used in the signed message testcases.
+See below for public/private keypairs used in the signed message test cases.
 
-I exported the private keys used for signing updates using the command: gpg --export-secret-keys --armor <keyid>.
+To use these keys, copy/paste into a text file, and use: gpg --import <filename>
 
-(1) noreply@ripe.net
+The password for both private keys is: password
+
+
+(1) noreply@ripe.net (public key id 5763950D)
 
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1.4.12 (Darwin)
@@ -162,7 +167,7 @@ HvGyqMmyKENitzkODIfMoiPgI4k=
 =1brL
 -----END PGP PRIVATE KEY BLOCK-----
 
-(2) unread@ripe.net
+(2) unread@ripe.net (public key id 81CCF97D)
 
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1.4.12 (Darwin)
@@ -256,8 +261,4 @@ A39ajM0uS29cjbpw9FLeasQqt38XHSwZP2WoB5rV6HpYRwZ4PE0TQ/3A1Flh+0Yb
 RayDC3Nolwkofg==
 =de59
 -----END PGP PRIVATE KEY BLOCK-----
-
-To use these keys, copy/paste into a text file, and use: gpg --import <filename>
-
-The secret key password is: password
 
