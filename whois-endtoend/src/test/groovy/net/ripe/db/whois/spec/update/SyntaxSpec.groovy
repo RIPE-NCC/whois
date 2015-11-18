@@ -545,6 +545,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: ***
                 address: UK
                 phone:   +44 282 4.. ...
+                notify:  ***@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -560,7 +561,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
 
 
