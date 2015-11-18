@@ -371,25 +371,26 @@ public class MessageParserTest {
     public void parse_multipart_alternative_inline_pgp_signature() throws Exception {
         final MailMessage message = subject.parse(MimeMessageProvider.getMessageMultipartAlternativePgpSigned(), updateContext);
 
-        final String expectedValue = "" +
+        final String expectedValue =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA1\n" +
                 "\n" +
                 "route:          165.251.168.0/22\n" +
                 "descr:          Description\n" +
                 "origin:         AS1\n" +
                 "notify:         ripe-admin@foo.net\n" +
                 "mnt-by:         TEST-MNT\n" +
-                "changed:        john@doe.net 20120530\n" +
                 "source:         RIPE\n" +
-                "\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: PGP 6.5.8\n" +
+                "Version: GnuPG v1\n" +
                 "\n" +
-                "iQCVAwUBT8amRPVKpQwG/7ZlAQFM0gP+N3d2N2IivRzte0o6bvU3nqN84yGC4l3r\n" +
-                "zeZKi7dvU3R2betF8IElvL4x/bpBPAHXQWO+QaYMg3Yz6HCBKLJwMFgyWbmcJtD0\n" +
-                "zL1HUOJmGyNv/eFjNSMgfpeZEsPZ3R+Pz9gSjEAW5aAj1wLdpXvVK9rYOQPc3TVc\n" +
-                "z2xhfX4BqpQ=\n" +
-                "=ODtr\n" +
+                "iQEcBAEBAgAGBQJWTI+jAAoJELvMuy1XY5UNLksH/184MpXD2xGRlEXHaGfvZ3X4\n" +
+                "5m9LrlowItjCiSM3a9rdsVAlijxpCnz7IgkdqbU7hIk8HfiUotKUAk0vgxDWTQnG\n" +
+                "1wQFvdgi0pjt6y+1kSxCUeVwuiub9St9SyCam1yz7RROFjzdQ654Z5X3vNQnxwog\n" +
+                "aO1VT/cRfXoi2GvFHHzMdXVRhtu11OdwdvFxXY+1HXLxc8+OCAYymaRxLGBU9sPA\n" +
+                "7A1aKgMxgFOvPrDuRM52KkwxFueqcVU/yi+LH/c2BTuNoQBmunPlu3Lqqq7+R4Wo\n" +
+                "8F8NV8aCvn1Jtb6apKhrDUMA/MTOuaD36FKl5KwL0/Ty1OlZCFlw47JwZL31e4I=\n" +
+                "=oiZ5\n" +
                 "-----END PGP SIGNATURE-----";
 
         assertThat(message.getUpdateMessage(), is(expectedValue));
