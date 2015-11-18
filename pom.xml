@@ -721,7 +721,8 @@
                     </includes>
                     <groups>${test.groups}</groups>
                     <forkCount>${test.forkCount.integration}</forkCount>
-                    <reuseForks>true</reuseForks>
+                    <!-- TODO: turn back on, once changed is removed -->
+                    <reuseForks>false</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
                     <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
