@@ -30,7 +30,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class X509CredentialValidatorTest   {
+public class X509CredentialValidatorTest {
 
     @Mock private PreparedUpdate update;
     @Mock private UpdateContext updateContext;
