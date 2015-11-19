@@ -6,14 +6,13 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -127,25 +126,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
     }
 
     protected void doCreate(final RpslObject obj) {
-        try {
-            RestTest.target(context.getRestPort(), "whois/test/mntner?password=123")
-                    .request()
-                    .post(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, obj), MediaType.APPLICATION_XML), WhoisResources.class);
-        } catch (ClientErrorException exc) {
-            logEvent("doCreate", exc.getResponse().readEntity(WhoisResources.class));
-            throw exc;
-        }
-    }
-
-    protected void doModify(final RpslObject obj) {
-        try {
-            RestTest.target(context.getRestPort(), "whois/test/mntner/TESTING-MNT?password=123")
-                    .request()
-                    .put(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, obj), MediaType.APPLICATION_XML), WhoisResources.class);
-        } catch (ClientErrorException exc) {
-            logEvent("doModify", exc.getResponse().readEntity(WhoisResources.class));
-            throw exc;
-        }
+        context.getDatabaseHelper().addObject(obj);
     }
 
     protected RpslObject objectForScenario(final Scenario scenario) {
@@ -160,17 +141,18 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
     }
 
     protected void verifyPreCondition(final Scenario scenario) {
-//        verifyState(scenario.getPreCond());
+        if(Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____ == scenario.getPreCond()) {
+            final RpslObject result = fetchObjectViaRestApi();
+            verifyObject(scenario.getPreCond(), result);
+        } else {
+            final RpslObject rpslObject = context.getDatabaseHelper().lookupObject(ObjectType.MNTNER, "TESTING_MNT");
+            verifyObject(scenario.getPreCond(), rpslObject);
+        }
     }
 
     protected void verifyPostCondition(final Scenario scenario, final Scenario.Result actualResult) {
         assertThat(actualResult, is(scenario.getResult()));
-        verifyState(scenario.getPostCond());
-    }
-
-    private void verifyState(final Scenario.ObjectStatus objectState) {
-        RpslObject result = fetchObject();
-        verifyObject(objectState, result);
+        verifyObject(scenario.getPostCond(), fetchObjectViaRestApi());
     }
 
     public void verifyObject(final Scenario.ObjectStatus objectState, final RpslObject result) {
@@ -180,14 +162,14 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
             assertThat(result, is(notNullValue()));
             if (objectState == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
                 assertThat(result.containsAttribute(AttributeType.CHANGED), is(true));
-                assertThat(result.findAttribute(AttributeType.CHANGED).getValue(), is(CHANGED_VALUE));
+                assertThat(result.findAttribute(AttributeType.CHANGED).getValue().trim(), is(CHANGED_VALUE.trim()));
             } else if (objectState == Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__) {
                 assertThat(result.containsAttribute(AttributeType.CHANGED), is(false));
             }
         }
     }
 
-    private RpslObject fetchObject() {
+    private RpslObject fetchObjectViaRestApi() {
         try {
             WhoisResources whoisResources = RestTest.target(context.getRestPort(), "whois/test/mntner/TESTING-MNT?unfiltered=true&password=123")
                     .request()

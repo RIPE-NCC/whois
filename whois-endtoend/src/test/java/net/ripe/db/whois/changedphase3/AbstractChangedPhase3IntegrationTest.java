@@ -54,7 +54,7 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
         databaseHelper.addObject(OWNER_MNTNER);
         databaseHelper.updateObject(TEST_PERSON);
         maintenanceMode.set("FULL,FULL");
-        context = new Context(getPort(), getPort(), whoisObjectMapper, mailUpdatesTestSupport, mailSenderStub, nrtmServer);
+        context = new Context(getPort(), getPort(), whoisObjectMapper, mailUpdatesTestSupport, mailSenderStub, nrtmServer, databaseHelper);
     }
 
     @After
