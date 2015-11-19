@@ -2,6 +2,7 @@ package net.ripe.db.whois.changedphase3.util;
 
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 
@@ -13,16 +14,19 @@ public class Context {
     private final MailUpdatesTestSupport mailUpdatesTestSupport;
     private final MailSenderStub mailSenderStub;
     private final NrtmServer nrtmServer;
+    private final DatabaseHelper databaseHelper;
+
 
     public Context(final int restPort, final int syncUpdatePort, final WhoisObjectMapper whoisObjectMapper,
                    final MailUpdatesTestSupport mailUpdatesTestSupport, final MailSenderStub mailSenderStub,
-                   final NrtmServer nrtmServer) {
+                   final NrtmServer nrtmServer, final DatabaseHelper databaseHelper) {
         this.restPort = restPort;
         this.syncUpdatePort = syncUpdatePort;
         this.whoisObjectMapper = whoisObjectMapper;
         this.mailUpdatesTestSupport = mailUpdatesTestSupport;
         this.mailSenderStub = mailSenderStub;
         this.nrtmServer = nrtmServer;
+        this.databaseHelper = databaseHelper;
     }
 
     public int getRestPort() {
@@ -53,4 +57,7 @@ public class Context {
         return debug;
     }
 
+    public DatabaseHelper getDatabaseHelper() {
+        return databaseHelper;
+    }
 }

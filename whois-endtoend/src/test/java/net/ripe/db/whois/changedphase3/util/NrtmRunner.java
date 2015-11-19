@@ -1,8 +1,15 @@
 package net.ripe.db.whois.changedphase3.util;
 
+import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -55,6 +62,29 @@ public class NrtmRunner extends AbstactScenarioRunner {
             context.getNrtmServer().stop(true);
         }
     }
+
+    protected void doCreate(final RpslObject obj) {
+        try {
+            RestTest.target(context.getRestPort(), "whois/test/mntner?password=123")
+                    .request()
+                    .post(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, obj), MediaType.APPLICATION_XML), WhoisResources.class);
+        } catch (ClientErrorException exc) {
+            logEvent("doCreate", exc.getResponse().readEntity(WhoisResources.class));
+            throw exc;
+        }
+    }
+
+    protected void doModify(final RpslObject obj) {
+        try {
+            RestTest.target(context.getRestPort(), "whois/test/mntner/TESTING-MNT?password=123")
+                    .request()
+                    .put(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, obj), MediaType.APPLICATION_XML), WhoisResources.class);
+        } catch (ClientErrorException exc) {
+            logEvent("doModify", exc.getResponse().readEntity(WhoisResources.class));
+            throw exc;
+        }
+    }
+
 
     private Integer getCurrentOffset() {
         final String currentStatusResp = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
