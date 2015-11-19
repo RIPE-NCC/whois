@@ -145,7 +145,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
             final RpslObject result = fetchObjectViaRestApi();
             verifyObject(scenario.getPreCond(), result);
         } else {
-            final RpslObject rpslObject = context.getDatabaseHelper().lookupObject(ObjectType.MNTNER, "TESTING_MNT");
+            final RpslObject rpslObject = context.getDatabaseHelper().lookupObject(ObjectType.MNTNER, "TESTING-MNT");
             verifyObject(scenario.getPreCond(), rpslObject);
         }
     }
