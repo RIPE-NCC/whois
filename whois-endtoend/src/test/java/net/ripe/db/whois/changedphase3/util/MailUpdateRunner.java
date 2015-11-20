@@ -6,7 +6,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 
-import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
@@ -26,7 +25,7 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
 
             RpslObject objectForScenario = objectForScenario(scenario);
 
-            final String response = context.getMailUpdatesTestSupport().insert("NEW", buildGenericObject(objectForScenario, "mntner: TESTING-MNT").toString() + "\npassword:123");
+            final String response = context.getMailUpdatesTestSupport().insert("NEW", objectForScenario.toString() + "\npassword:123");
             final MimeMessage message = context.getMailSenderStub().getMessage(response);
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
@@ -48,7 +47,7 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
 
             RpslObject objectForScenario = addRemarks(objectForScenario(scenario));
 
-            final String response = context.getMailUpdatesTestSupport().insert("MODIFY", buildGenericObject(objectForScenario, "mntner: TESTING-MNT").toString() + "password:123");
+            final String response = context.getMailUpdatesTestSupport().insert("MODIFY", objectForScenario.toString() + "password:123");
             final MimeMessage message = context.getMailSenderStub().getMessage(response);
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
@@ -70,7 +69,7 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
 
             RpslObject objectForScenario = objectForScenario(scenario);
 
-            final String response = context.getMailUpdatesTestSupport().insert("DELETE", buildGenericObject(objectForScenario, "mntner: TESTING-MNT").toString() + "delete: testing\npassword:123");
+            final String response = context.getMailUpdatesTestSupport().insert("DELETE", objectForScenario.toString() + "delete: testing\npassword:123");
             final MimeMessage message = context.getMailSenderStub().getMessage(response);
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {

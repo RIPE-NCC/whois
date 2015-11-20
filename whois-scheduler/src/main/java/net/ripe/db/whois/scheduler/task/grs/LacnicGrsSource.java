@@ -15,7 +15,6 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.HttpClient;
@@ -130,13 +129,6 @@ class LacnicGrsSource extends GrsSource {
 
                     final List<RpslAttribute> newAttributes = Lists.newArrayList();
                     for (RpslAttribute attribute : rpslObjectBase.getAttributes()) {
-                        if("changed".equalsIgnoreCase(attribute.getKey()) ||
-                           "created".equalsIgnoreCase(attribute.getKey())) {
-
-                            if (!ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
-                                continue;
-                            }
-                        }
 
                         final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
                         if (transformFunction != null) {
