@@ -123,11 +123,6 @@ class ArinGrsSource extends GrsSource {
                 private List<RpslAttribute> transform(final List<RpslAttribute> attributes) {
                     final List<RpslAttribute> newAttributes = Lists.newArrayList();
                     for (RpslAttribute attribute : attributes) {
-                        if("updated".equalsIgnoreCase(attribute.getKey()) &&
-                                !ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
-                            logger.debug("Ignoring:\n\n{}\n", attribute.getKey());
-                            continue;
-                        }
 
                         final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
                         if (transformFunction != null) {
