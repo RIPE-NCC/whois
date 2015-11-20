@@ -85,7 +85,6 @@ public class RestRunner extends AbstactScenarioRunner {
         } catch (ClientErrorException exc) {
             logEvent("Modify", exc.getResponse().readEntity(WhoisResources.class));
             verifyPostCondition(scenario, Scenario.Result.FAILED);
-            verifyNotificationEmail(scenario);
         }
     }
 
