@@ -1,9 +1,7 @@
 package net.ripe.db.whois.common.rpsl;
 
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -30,11 +28,6 @@ public class ObjectTemplateWithChangedTest {
             "source:          DEV";
 
     private ObjectTemplate subject;
-
-    @BeforeClass
-    public static void beforeClass() {
-        new ObjectTemplateProvider(new ChangedAttrFeatureToggle(true));
-    }
 
     @Before
     public void setUp() throws Exception {

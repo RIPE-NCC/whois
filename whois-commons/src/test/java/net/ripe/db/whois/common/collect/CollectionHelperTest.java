@@ -3,10 +3,8 @@ package net.ripe.db.whois.common.collect;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -57,7 +55,6 @@ public class CollectionHelperTest {
 
     @Test
     public void iterateProxy() {
-        new ObjectTemplateProvider(new ChangedAttrFeatureToggle(true));
         final RpslObjectInfo info1 = new RpslObjectInfo(1, ObjectType.INETNUM, "1");
         final RpslObject object1 = RpslObject.parse("inetnum: 10.0.0.0");
 
