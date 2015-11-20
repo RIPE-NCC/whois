@@ -3017,7 +3017,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       clearPowerMaintainers();
 
     then:
-      def message = send "From: inetnum@ripe.net\n" +
+          def message = send  "From: inetnum@ripe.net\n" +
               "Content-Type: multipart/signed; boundary=\"Apple-Mail=_02EDC824-733F-459F-93D6-8E066E37EFC8\"; " +
               "protocol=\"application/pgp-signature\"; micalg=pgp-sha1\n" +
               "Subject: NEW\n" +
