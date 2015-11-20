@@ -1,8 +1,6 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.joda.time.LocalDate;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -10,11 +8,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class ChangedTest {
-
-    @Before
-    public void before() {
-        new ChangedAttrFeatureToggle(true);
-    }
 
     @Test(expected = AttributeParseException.class)
     public void empty() {
