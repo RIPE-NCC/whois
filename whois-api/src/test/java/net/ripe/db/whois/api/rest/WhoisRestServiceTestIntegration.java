@@ -3182,6 +3182,44 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void update_person_fails_no_notification_on_syntax_error() throws Exception {
+        final RpslObject mntner = RpslObject.parse(
+                "mntner:        TEST-MNT\n" +
+                "descr:         Test maintainer\n" +
+                "admin-c:       TP1-TEST\n" +
+                "upd-to:        upd-to@ripe.net\n" +
+                "mnt-nfy:       mnt-nfy@ripe.net\n" +
+                "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "source:        TEST"
+        );
+        databaseHelper.addObject(mntner);
+        final RpslObject person = RpslObject.parse(
+                "person:        Pauleth Palthen\n" +
+                "address:       Singel 258\n" +
+                "phone:         +31-1234567890\n" +
+                "e-mail:        noreply@ripe.net\n" +
+                "mnt-by:        TEST-MNT\n" +
+                "nic-hdl:       PP1-TEST\n" +
+                "remarks:       remark\n" +
+                "source:        TEST\n"
+        );
+        databaseHelper.addObject(person);
+
+        final RpslObject updatedPerson = new RpslObjectBuilder(person).append(new RpslAttribute(AttributeType.PHONE, "invalid")).get();
+
+        try {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=123")
+                    .request()
+                    .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("Syntax error"));
+            assertFalse(mailSenderStub.anyMoreMessages());
+        }
+    }
+
+    @Test
     public void update_person_notifications_with_override() throws Exception {
         databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
         final RpslObject mntner = RpslObject.parse(
