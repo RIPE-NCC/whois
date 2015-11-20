@@ -304,6 +304,11 @@ public abstract class ObjectTemplate implements Comparable<ObjectTemplate> {
             final int attributeTypeCount = attributeCount.get(attributeType);
 
             if( attributeTemplate.getRequirement() == DEPRECATED && attributeTypeCount > 0) {
+                if (attributeType.equals(AttributeType.CHANGED)) {
+                    objectMessages.addMessage(ValidationMessages.changedAttributeRemoved());
+                    continue;
+                }
+
                 objectMessages.addMessage(ValidationMessages.deprecatedAttributeFound(attributeType));
             }
 
