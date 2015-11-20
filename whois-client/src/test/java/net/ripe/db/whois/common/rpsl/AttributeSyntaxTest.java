@@ -165,14 +165,6 @@ public class AttributeSyntaxTest {
     }
 
     @Test
-    public void changed_not_available() {
-        new ChangedAttrFeatureToggle(false);
-
-        verifyFailure(ObjectType.PERSON, AttributeType.CHANGED, "foo@provider.com");
-        verifyFailure(ObjectType.PERSON, AttributeType.CHANGED, "a@a.a 20010101");
-    }
-
-    @Test
     public void components() throws Exception {
         verifySuccess(ObjectType.ROUTE, AttributeType.COMPONENTS, "{217.113.0.0/19^19-24 }");
         verifySuccess(ObjectType.ROUTE, AttributeType.COMPONENTS, "atomic");
