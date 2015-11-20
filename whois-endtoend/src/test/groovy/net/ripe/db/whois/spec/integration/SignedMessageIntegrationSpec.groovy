@@ -3277,19 +3277,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "phone:   +49 123456\n" +
               "nic-hdl: FP1-TEST\n" +
               "mnt-by:  OWNER-MNT\n" +
-              "changed: noreply@ripe.net 20121016\n" +
               "source:  TEST\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
               "Version: GnuPG v1\n" +
               "Comment: GPGTools - http://gpgtools.org\n" +
               "\n" +
-              "iQEcBAEBAgAGBQJTsUDjAAoJELvMuy1XY5UNW28H/isQgDeFQbnZY3UtI5UoObCc\n" +
-              "VOWFud24PhB+KanBG29qw8cRzkrhfwm+3H2sOcwJHXPKY/svQi8dx+7FfA+awuFK\n" +
-              "/2mtXboVL37W8GimZGt3Yx7Ecdgt4y9S+uKqb2s5MvPkAxKFCO6cUiXeO6dsHPvn\n" +
-              "AXn6dcV0dOhNDrPuQLJQdcUw8JtJLhVbNNnceccEUhtLLCa8kItfNq71RYCgJDep\n" +
-              "IZxiaQr0udN/ktQ+a1HmkXx+2TaGAShXb1TcxMbxs/8Sq/RrVU/d+b82831Ov/iC\n" +
-              "4WqKdU+Vx704cq3VzfK0SjC2xYwaPg+5GrqNm+2xmynyDw4tA1RDTc8v5ZZAfy8\n" +
-              "=3D=3DlGM8\n" +
+              "iQEcBAEBAgAGBQJWTyqkAAoJELvMuy1XY5UNZ+gIAJGoZDmvkcXxsqfn3FFxcfXB\n" +
+              "Wmg6mzvazbTvqB96whPXQGU5rj3cK/4bhiXYBi8rlZSjm4M33aAsvBuQ47YXy6HD\n" +
+              "BGvoMf2n5SdCFYU+u8QhVB1S++N1clkmwD/dljtUn6TdjjupjiHSLIAJ+ON4qSiB\n" +
+              "iQr8v0VL87F2WhjTsrv5v0x8LryYFn7E4mz26EdcP+1JbVoiXpiGnsy4OFnAIA/P\n" +
+              "yaNIoFaMuBSBxsIScnMmwH1arUeN/0VzAFARaEfi/H4S7jh88Rsz37rEzbZngkHX\n" +
+              "T2ihLvi1VtGexAF4PbxVpTSY09WCXDInvxvsiVcCOqhDX06XqbwcBrKMUYPo+dg\n" +
+              "=3D=3DqzbX\n" +
               "-----END PGP SIGNATURE-----"
     then:
       def ack = ackFor message
@@ -3317,7 +3316,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
 
@@ -3359,7 +3357,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 -----BEGIN PGP SIGNATURE-----
