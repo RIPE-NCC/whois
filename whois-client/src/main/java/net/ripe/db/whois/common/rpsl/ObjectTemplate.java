@@ -258,12 +258,6 @@ public abstract class ObjectTemplate implements Comparable<ObjectTemplate> {
 
     public void validateStructure(final RpslObject rpslObject, final ObjectMessages objectMessages) {
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
-//            if(!ChangedAttrFeatureToggle.isChangedAttrAvailable()) {
-//                if(rpslObject.containsAttribute(AttributeType.CHANGED)) {
-//                    objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(AttributeType.CHANGED));
-//                }
-//            }
-
             final AttributeType attributeType = attribute.getType();
             if (attributeType == null) {
                 objectMessages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
