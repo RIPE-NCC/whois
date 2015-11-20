@@ -29,7 +29,7 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Req.WITH_CHANGED;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.FAILED;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
 
-@Ignore
+//@Ignore
 @Category(IntegrationTest.class)
 public class ChangedNewModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
@@ -43,7 +43,6 @@ public class ChangedNewModeTestIntegration extends AbstractChangedPhase3Integrat
         System.clearProperty("feature.toggle.changed.attr.available");
     }
 
-    
     @Test
     public void new_mode_rest_test() {
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, CREATE, WITH_CHANGED).then(FAILED).run(context);
@@ -61,7 +60,6 @@ public class ChangedNewModeTestIntegration extends AbstractChangedPhase3Integrat
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, META__, NOT_APPLIC__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
-    
     @Test
     public void new_mode_telnet_test() {
         given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(TELNET_, SEARCH, NOT_APPLIC__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
@@ -69,7 +67,6 @@ public class ChangedNewModeTestIntegration extends AbstractChangedPhase3Integrat
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(TELNET_, META__, NOT_APPLIC__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
-    
     @Test
     public void new_mode_syncupdates_test() {
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(SYNCUPD, CREATE, WITH_CHANGED).then(FAILED).run(context);
@@ -78,11 +75,10 @@ public class ChangedNewModeTestIntegration extends AbstractChangedPhase3Integrat
         given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, MODIFY, WITH_CHANGED).then(FAILED).run(context);
         given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, DELETE, WITH_CHANGED).then(FAILED).run(context);
+        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
         given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(SYNCUPD, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
-    
     @Test
     public void new_mode_mailupdates_test() {
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(MAILUPD, CREATE, WITH_CHANGED).then(FAILED).run(context);
@@ -91,11 +87,10 @@ public class ChangedNewModeTestIntegration extends AbstractChangedPhase3Integrat
         given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, MODIFY, WITH_CHANGED).then(FAILED, OBJ_EXISTS_NO_CHANGED__).run(context);
         given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, DELETE, WITH_CHANGED).then(FAILED, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
         given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(MAILUPD, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
-    
     @Test
     public void new_mode_nrtm_test() {
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
@@ -103,7 +98,6 @@ public class ChangedNewModeTestIntegration extends AbstractChangedPhase3Integrat
         given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
     }
 
-    
     @Test
     public void new_mode_dump_test() {
 
