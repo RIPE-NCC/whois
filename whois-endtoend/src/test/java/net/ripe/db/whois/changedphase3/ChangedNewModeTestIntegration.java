@@ -99,7 +99,7 @@ public class ChangedNewModeTestIntegration extends AbstractChangedPhase3Integrat
     @Test
     public void new_mode_nrtm_test() {
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        
+
         given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
     }
 
