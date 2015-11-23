@@ -115,7 +115,7 @@ public class Scenario {
         SYNCUPD,
         MAILUPD,
         NRTM___,
-        SPLITFILE
+        EXPORT_
     }
 
     public enum Method {

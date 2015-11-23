@@ -16,6 +16,9 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -64,6 +67,8 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
 
     protected RpslObject MNTNER_WITH_CHANGED() {
         return new RpslObjectBuilder(TEST_OBJECT)
+                // Create more than one changed attribute
+                .addAttributeSorted(new RpslAttribute(AttributeType.CHANGED, CHANGED_VALUE))
                 .addAttributeSorted(new RpslAttribute(AttributeType.CHANGED, CHANGED_VALUE))
                 .get();
     }
@@ -136,7 +141,10 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
             assertThat(result, is(notNullValue()));
             if (objectState == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
                 assertThat(result.containsAttribute(AttributeType.CHANGED), is(true));
-                assertThat(result.findAttribute(AttributeType.CHANGED).getValue().trim(), is(CHANGED_VALUE.trim()));
+                List<RpslAttribute> attrs = result.findAttributes(AttributeType.CHANGED);
+                assertThat(attrs,hasSize(2));
+                assertThat(attrs.get(0).getValue().trim(), is(CHANGED_VALUE));
+                assertThat(attrs.get(1).getValue().trim(), is(CHANGED_VALUE));
             } else if (objectState == Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__) {
                 assertThat(result.containsAttribute(AttributeType.CHANGED), is(false));
             }
