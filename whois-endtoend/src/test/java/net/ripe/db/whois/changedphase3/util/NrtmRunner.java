@@ -29,7 +29,19 @@ public class NrtmRunner extends AbstactScenarioRunner {
         return "Nrtm";
     }
 
-    public void event(final Scenario scenario) {
+    public void create(final Scenario scenario) {
+        triggerNrtmEvent(scenario, (RpslObject obj) -> createObject(obj));
+    }
+
+    public void modify(final Scenario scenario) {
+        triggerNrtmEvent(scenario, (RpslObject obj) -> modifyObject(obj));
+    }
+
+    public void delete(final Scenario scenario) {
+        triggerNrtmEvent(scenario, (RpslObject obj) -> deleteObject(obj));
+    }
+
+    private void triggerNrtmEvent(final Scenario scenario, final Updater updater) {
 
         try {
             verifyPreCondition(scenario);
@@ -40,47 +52,68 @@ public class NrtmRunner extends AbstactScenarioRunner {
             AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), nrtmCommand, 2);
             client.start();
 
-            // Perform a create or modify action
-            if (scenario.getPreCond() == Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____) {
-                doCreateViaApi(objectForScenario(scenario));
-            } else {
-                doModifyViaApi(addRemarks(objectForScenario(scenario)));
-            }
+            // Perform a create, modify or delete action
+            updater.update(objectForScenario(scenario));
+
             String eventStream = client.end();
             /*
              * Unexpectedly, the stream starts with the previous delete (that can contain a "changed" attribute).
              * TODO: Extract the last object from the stream and verify presence of changed based on scenario
              */
 
-            assertThat(eventStream, not(containsString("changed:")));
+            logEvent("nrtm-event", eventStream);
+
+            if( scenario.getPostCond() == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
+                assertThat(eventStream, containsString("changed:"));
+            } else if( scenario.getPostCond() == Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__) {
+                assertThat(eventStream, not(containsString("changed:")));
+            } else if( scenario.getPostCond() == Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____) {
+                /* no event received whatsoever */
+                assertThat(eventStream, not(containsString("mntner:")));
+            }
 
         } finally {
             context.getNrtmServer().stop(true);
         }
     }
 
-    private void doCreateViaApi(final RpslObject obj) {
+    interface Updater {
+        void update(final RpslObject obj);
+    }
+
+    private void createObject(final RpslObject obj) {
         try {
             RestTest.target(context.getRestPort(), "whois/test/mntner?password=123")
                     .request()
                     .post(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, obj), MediaType.APPLICATION_XML), WhoisResources.class);
         } catch (ClientErrorException exc) {
-            logEvent("doCreate", exc.getResponse().readEntity(WhoisResources.class));
+            logEvent("Create-to-trigger-nrtm-event", exc.getResponse().readEntity(WhoisResources.class));
             throw exc;
         }
     }
 
-    private void doModifyViaApi(final RpslObject obj) {
+    private void modifyObject(final RpslObject obj) {
+        try {
+            final RpslObject objAdjusted = addRemarks(obj);
+            RestTest.target(context.getRestPort(), "whois/test/mntner/TESTING-MNT?password=123")
+                    .request()
+                    .put(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, objAdjusted), MediaType.APPLICATION_XML), WhoisResources.class);
+        } catch (ClientErrorException exc) {
+            logEvent("Modify-to-trigger-nrtm-event", exc.getResponse().readEntity(WhoisResources.class));
+            throw exc;
+        }
+    }
+
+    private void deleteObject(final RpslObject obj) {
         try {
             RestTest.target(context.getRestPort(), "whois/test/mntner/TESTING-MNT?password=123")
                     .request()
-                    .put(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, obj), MediaType.APPLICATION_XML), WhoisResources.class);
+                    .delete(WhoisResources.class);
         } catch (ClientErrorException exc) {
-            logEvent("doModify", exc.getResponse().readEntity(WhoisResources.class));
+            logEvent("Delete-to-trigger-nrtm-event", exc.getResponse().readEntity(WhoisResources.class));
             throw exc;
         }
     }
-
 
     private Integer getCurrentOffset() {
         final String currentStatusResp = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");

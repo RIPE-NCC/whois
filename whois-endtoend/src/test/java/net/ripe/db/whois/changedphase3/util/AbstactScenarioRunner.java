@@ -51,38 +51,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         }
     }
 
-
-    public void after(final Scenario scenario) {
-    }
-
-    public void create(final Scenario scenario) {
-        throw new UnsupportedOperationException("Create method not supported for protocol " + getProtocolName());
-    }
-
-    public void modify(final Scenario scenario) {
-        throw new UnsupportedOperationException("Modify method not supported for protocol " + getProtocolName());
-    }
-
-    public void delete(final Scenario scenario) {
-        throw new UnsupportedOperationException("Delete method not supported for protocol " + getProtocolName());
-    }
-
-    public void get(final Scenario scenario) {
-        throw new UnsupportedOperationException("Get method not supported for protocol " + getProtocolName());
-    }
-
-    public void search(Scenario scenario) {
-        throw new UnsupportedOperationException("Search method not supported for protocol " + getProtocolName());
-    }
-
-    public void event(final Scenario scenario) {
-        throw new UnsupportedOperationException("Event method not supported for protocol " + getProtocolName());
-    }
-
-    public void meta(final Scenario scenario) {
-        throw new UnsupportedOperationException("Meta method not supported for protocol " + getProtocolName());
-    }
-
+    public void after(final Scenario scenario) {}
 
     protected RpslObject MNTNER_WITHOUT_CHANGED() {
         return TEST_OBJECT;

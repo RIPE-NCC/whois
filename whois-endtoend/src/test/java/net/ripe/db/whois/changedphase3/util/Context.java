@@ -10,12 +10,11 @@ public class Context {
     private final int restPort;
     private final int syncUpdatePort;
     private final WhoisObjectMapper whoisObjectMapper;
-    private final boolean debug = true;
+    private final boolean debug = false;
     private final MailUpdatesTestSupport mailUpdatesTestSupport;
     private final MailSenderStub mailSenderStub;
     private final NrtmServer nrtmServer;
     private final DatabaseHelper databaseHelper;
-
 
     public Context(final int restPort, final int syncUpdatePort, final WhoisObjectMapper whoisObjectMapper,
                    final MailUpdatesTestSupport mailUpdatesTestSupport, final MailSenderStub mailSenderStub,
