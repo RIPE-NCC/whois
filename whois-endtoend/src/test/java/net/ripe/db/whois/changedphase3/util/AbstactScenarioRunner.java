@@ -37,6 +37,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         this.context = context;
     }
 
+    @Override
     public void before(final Scenario scenario) {
         // delete if exists
         if (doesObjectExist()) {
@@ -51,6 +52,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         }
     }
 
+    @Override
     public void after(final Scenario scenario) {}
 
     protected RpslObject MNTNER_WITHOUT_CHANGED() {
@@ -69,7 +71,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
                 .get();
     }
 
-    protected boolean doesObjectExist() {
+    private boolean doesObjectExist() {
         boolean exists = false;
         try {
             RestTest.target(context.getRestPort(), "whois/test/mntner/TESTING-MNT")
@@ -83,7 +85,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
     }
 
 
-    protected void doDelete(final String uid) {
+    private void doDelete(final String uid) {
         try {
 
             RestTest.target(context.getRestPort(), "whois/test/mntner/" + uid + "?password=123")
@@ -94,7 +96,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         }
     }
 
-    protected void doCreate(final RpslObject obj) {
+    private void doCreate(final RpslObject obj) {
         context.getDatabaseHelper().addObject(obj);
     }
 
@@ -124,7 +126,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         verifyObject(scenario.getPostCond(), fetchObjectViaRestApi());
     }
 
-    public void verifyObject(final Scenario.ObjectStatus objectState, final RpslObject result) {
+    protected void verifyObject(final Scenario.ObjectStatus objectState, final RpslObject result) {
         if (objectState == Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____) {
             assertThat(result, is(nullValue()));
         } else {
