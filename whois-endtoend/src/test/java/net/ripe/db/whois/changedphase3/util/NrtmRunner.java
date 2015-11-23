@@ -42,9 +42,9 @@ public class NrtmRunner extends AbstactScenarioRunner {
 
             // Perform a create or modify action
             if (scenario.getPreCond() == Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____) {
-                doCreate(objectForScenario(scenario));
+                doCreateViaApi(objectForScenario(scenario));
             } else {
-                doModify(addRemarks(objectForScenario(scenario)));
+                doModifyViaApi(addRemarks(objectForScenario(scenario)));
             }
             String eventStream = client.end();
             /*
@@ -52,18 +52,14 @@ public class NrtmRunner extends AbstactScenarioRunner {
              * TODO: Extract the last object from the stream and verify presence of changed based on scenario
              */
 
-            if (scenario.getMode() == Scenario.Mode.NEW_MODE) {
-                assertThat(eventStream, not(containsString("changed:")));
-            } else {
-                // changed is dummified, so we don't really care about the actual value
-            }
+            assertThat(eventStream, not(containsString("changed:")));
 
         } finally {
             context.getNrtmServer().stop(true);
         }
     }
 
-    protected void doCreate(final RpslObject obj) {
+    private void doCreateViaApi(final RpslObject obj) {
         try {
             RestTest.target(context.getRestPort(), "whois/test/mntner?password=123")
                     .request()
@@ -74,7 +70,7 @@ public class NrtmRunner extends AbstactScenarioRunner {
         }
     }
 
-    protected void doModify(final RpslObject obj) {
+    private void doModifyViaApi(final RpslObject obj) {
         try {
             RestTest.target(context.getRestPort(), "whois/test/mntner/TESTING-MNT?password=123")
                     .request()
