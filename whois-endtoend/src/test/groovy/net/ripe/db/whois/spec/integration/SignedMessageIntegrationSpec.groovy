@@ -3116,18 +3116,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "phone:   +44 282 420469\n" +
               "nic-hdl: FP1-TEST\n" +
               "mnt-by:  OWNER-MNT\n" +
-              "changed: denis@ripe.net 20121016\n" +
               "source:  TEST\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
-              "Version: GnuPG v1.4.12 (Darwin)\n" +
-              "Comment: GPGTools - http://gpgtools.org\n\n" +
-              "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+\n" +
-              "fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx\n" +
-              "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
-              "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux\n" +
-              "4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
-              "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
-              "=it26\n" +
+              "Version: GnuPG v1\n" +
+              "Comment: GPGTools - http://gpgtools.org\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJWTyycAAoJELvMuy1XY5UNgIMH/RnFAmwKu8rs6eqzWlWIGgZ+\n" +
+              "QkCxy/cdWn8LOyUw77JtJ+gXGsjcZjy1rRCtHlYGnM97I/oiAwDCaiPGnCzD6bjI\n" +
+              "A0zGc21K/cZjBZmjB2+fOouNbLnn2PE/XQi6JR/tX4VIN7FOXQqjk1i7Rpwy/yug\n" +
+              "aHepJIlIyrgGKEyhunojctk1VUdNwOlp0yaS0sPWjJLldEFxq2HbDnSRcgRtfB5z\n" +
+              "ep2YNgDgCuVZLkF6GCIQ0cXSelIYhkwfpcgxIcEmwI2frPYAm+uTxTe5J2sjJNDz\n" +
+              "a52BaUJYffxrAAXSo1NWX4XQCDL632NRAJ6aLU79+MBrETkPxyebd4DyG0lyHBE=\n" +
+              "=xrVg\n" +
               "-----END PGP SIGNATURE-----"
 
     then:
@@ -3138,11 +3138,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 2, 0)
+      ack.countErrorWarnInfo(0, 0, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute has been removed.",
-                "Message was signed more than one week ago"]
+//      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+//                "Message was signed more than one week ago"]
   }
 
   def "pgp signed message with public key attached is not supported"() {
@@ -3180,7 +3179,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "phone:   +44 282 420469\n" +
               "nic-hdl: FP1-TEST\n" +
               "mnt-by:  OWNER-MNT\n" +
-              "changed: denis@ripe.net 20121016\n" +
               "source:  TEST\n" +
               "\n" +
               "\n" +
