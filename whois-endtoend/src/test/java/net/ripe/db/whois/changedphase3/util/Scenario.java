@@ -87,9 +87,6 @@ public class Scenario {
                 runner.meta(this);
                 break;
 
-            case EVENT_:
-                runner.event(this);
-                break;
         }
         runner.after(this);
         //System.err.println("*** Done running test " + this);
@@ -128,7 +125,6 @@ public class Scenario {
         SEARCH,
         GET___,
         META__,
-        EVENT_
     }
 
     public enum Req {

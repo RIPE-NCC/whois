@@ -10,7 +10,6 @@ import org.junit.experimental.categories.Category;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Builder.given;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.CREATE;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.DELETE;
-import static net.ripe.db.whois.changedphase3.util.Scenario.Method.EVENT_;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.GET___;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.META__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.MODIFY;
@@ -106,13 +105,18 @@ public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase
 
     @Test
     public void intermediate_mode_nrtm_test() {
-        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(NRTM___, CREATE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, EVENT_, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, MODIFY, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(NRTM___, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(NRTM___, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
     }
 
     @Test
