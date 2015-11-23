@@ -18,7 +18,7 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Mode.OLD_MODE;
 import static net.ripe.db.whois.changedphase3.util.Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____;
 import static net.ripe.db.whois.changedphase3.util.Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED;
-import static net.ripe.db.whois.changedphase3.util.Scenario.Protocol.SPLITFILE;
+import static net.ripe.db.whois.changedphase3.util.Scenario.Protocol.EXPORT_;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Protocol.MAILUPD;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Protocol.NRTM___;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Protocol.REST___;
@@ -121,16 +121,16 @@ public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase
     }
 
     @Test
-    public void intermediate_mode_splitfiles_test() {
-        given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(SPLITFILE, CREATE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+    public void intermediate_mode_export_test() {
+        given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(EXPORT_, CREATE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(SPLITFILE, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(SPLITFILE, MODIFY, NO_CHANGED__).then(SUCCESS).run(context);
+        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(EXPORT_, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(EXPORT_, MODIFY, NO_CHANGED__).then(SUCCESS).run(context);
 
-        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(SPLITFILE, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
-        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(SPLITFILE, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
-        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(SPLITFILE, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
-        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(SPLITFILE, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
+        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(EXPORT_, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
+        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(EXPORT_, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
+        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(EXPORT_, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
+        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(EXPORT_, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
 }
