@@ -25,18 +25,22 @@ public class NrtmRunner extends AbstactScenarioRunner {
         super(context);
     }
 
+    @Override
     public String getProtocolName() {
         return "Nrtm";
     }
 
+    @Override
     public void create(final Scenario scenario) {
         triggerNrtmEvent(scenario, (RpslObject obj) -> createObject(obj));
     }
 
+    @Override
     public void modify(final Scenario scenario) {
         triggerNrtmEvent(scenario, (RpslObject obj) -> modifyObject(obj));
     }
 
+    @Override
     public void delete(final Scenario scenario) {
         triggerNrtmEvent(scenario, (RpslObject obj) -> deleteObject(obj));
     }

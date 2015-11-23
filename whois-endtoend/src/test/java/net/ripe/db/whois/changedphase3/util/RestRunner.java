@@ -25,10 +25,12 @@ public class RestRunner extends AbstactScenarioRunner {
         super(context);
     }
 
+    @Override
     public String getProtocolName() {
         return "Rest";
     }
 
+    @Override
     public void create(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
@@ -59,6 +61,7 @@ public class RestRunner extends AbstactScenarioRunner {
         }
     }
 
+    @Override
     public void modify(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
@@ -88,6 +91,7 @@ public class RestRunner extends AbstactScenarioRunner {
         }
     }
 
+    @Override
     public void delete(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
@@ -112,6 +116,7 @@ public class RestRunner extends AbstactScenarioRunner {
         }
     }
 
+    @Override
     public void get(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
@@ -133,6 +138,7 @@ public class RestRunner extends AbstactScenarioRunner {
         }
     }
 
+    @Override
     public void search(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
@@ -154,6 +160,7 @@ public class RestRunner extends AbstactScenarioRunner {
         }
     }
 
+    @Override
     public void meta(final Scenario scenario) {
         try {
             String result = RestTest.target(context.getRestPort(),
