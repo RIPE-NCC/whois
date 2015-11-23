@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.nrtm.AccessControlList;
 import net.ripe.db.whois.nrtm.NrtmServer;
+import net.ripe.db.whois.scheduler.task.export.DatabaseTextExport;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.After;
 import org.junit.Before;
@@ -42,6 +43,8 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
     @Autowired private MailUpdatesTestSupport mailUpdatesTestSupport;
     @Autowired private MailSenderStub mailSenderStub;
     @Autowired private NrtmServer nrtmServer;
+    @Autowired private DatabaseTextExport databaseTextExport;
+
 
     @Before
     public void setup() {
@@ -54,7 +57,8 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
         databaseHelper.addObject(OWNER_MNTNER);
         databaseHelper.updateObject(TEST_PERSON);
         maintenanceMode.set("FULL,FULL");
-        context = new Context(getPort(), getPort(), whoisObjectMapper, mailUpdatesTestSupport, mailSenderStub, nrtmServer, databaseHelper);
+        context = new Context(getPort(), getPort(), whoisObjectMapper, mailUpdatesTestSupport, mailSenderStub,
+                nrtmServer, databaseHelper, databaseTextExport);
     }
 
     @After

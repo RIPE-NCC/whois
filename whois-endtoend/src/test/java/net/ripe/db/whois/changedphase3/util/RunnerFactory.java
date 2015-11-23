@@ -24,8 +24,8 @@ public class RunnerFactory {
                 runner = new NrtmRunner(context);
                 break;
 
-            case DUMP___:
-                runner = new DumpRunner(context);
+            case SPLITFILE:
+                runner = new SplitFilesRunner(context);
                 break;
 
         }

@@ -13,6 +13,8 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -29,6 +31,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
             "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
             "mnt-by:        OWNER-MNT\n" +
             "mnt-by:        TESTING-MNT\n" +
+            "created:       2010-11-12T13:14:15Z\n" +
             "source:        TEST\n");
     protected static String CHANGED_VALUE = "test@ripe.net 20121016";
     protected Context context;
@@ -176,4 +179,41 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
         }
     }
 
+    interface Updater {
+        void update(final RpslObject obj);
+    }
+
+    protected void createObjectViaApi(final RpslObject obj) {
+        try {
+            RestTest.target(context.getRestPort(), "whois/test/mntner?password=123")
+                    .request()
+                    .post(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, obj), MediaType.APPLICATION_XML), WhoisResources.class);
+        } catch (ClientErrorException exc) {
+            logEvent("Create-to-trigger-nrtm-event", exc.getResponse().readEntity(WhoisResources.class));
+            throw exc;
+        }
+    }
+
+    protected void modifyObjectViaApi(final RpslObject obj) {
+        try {
+            final RpslObject objAdjusted = addRemarks(obj);
+            RestTest.target(context.getRestPort(), "whois/test/mntner/TESTING-MNT?password=123")
+                    .request()
+                    .put(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, objAdjusted), MediaType.APPLICATION_XML), WhoisResources.class);
+        } catch (ClientErrorException exc) {
+            logEvent("Modify-to-trigger-nrtm-event", exc.getResponse().readEntity(WhoisResources.class));
+            throw exc;
+        }
+    }
+
+    protected void deleteObjectViaApi(final RpslObject obj) {
+        try {
+            RestTest.target(context.getRestPort(), "whois/test/mntner/TESTING-MNT?password=123")
+                    .request()
+                    .delete(WhoisResources.class);
+        } catch (ClientErrorException exc) {
+            logEvent("Delete-to-trigger-nrtm-event", exc.getResponse().readEntity(WhoisResources.class));
+            throw exc;
+        }
+    }
 }

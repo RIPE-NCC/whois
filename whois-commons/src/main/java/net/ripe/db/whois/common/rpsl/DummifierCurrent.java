@@ -35,7 +35,8 @@ public class DummifierCurrent implements Dummifier {
     private static final Splitter EMAIL_SPLITTER = Splitter.on('@');
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ');
 
-    private static final Set<AttributeType> EMAIL_ATTRIBUTES = Sets.immutableEnumSet(E_MAIL, NOTIFY, CHANGED, REF_NFY, IRT_NFY, MNT_NFY, UPD_TO);
+    private static final Set<AttributeType> ATTRIBUTES_TO_DROP = Sets.immutableEnumSet(CHANGED);
+    private static final Set<AttributeType> EMAIL_ATTRIBUTES = Sets.immutableEnumSet(E_MAIL, NOTIFY, REF_NFY, IRT_NFY, MNT_NFY, UPD_TO);
     private static final Set<AttributeType> PHONE_FAX_ATTRIBUTES = Sets.immutableEnumSet(PHONE, FAX_NO);
 
     public RpslObject dummify(final int version, final RpslObject rpslObject) {
@@ -50,6 +51,11 @@ public class DummifierCurrent implements Dummifier {
         for (int i = 0; i < attributes.size(); i++) {
             RpslAttribute replacement = attributes.get(i);
             final AttributeType attributeType = replacement.getType();
+
+            if(ATTRIBUTES_TO_DROP.contains(attributeType)) {
+                attributes.remove(i);
+                continue;
+            }
 
             try {
                 if (!(objectType == ObjectType.ROLE && rpslObject.containsAttribute(ABUSE_MAILBOX))) {

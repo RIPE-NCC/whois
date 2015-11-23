@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.nrtm.NrtmServer;
+import net.ripe.db.whois.scheduler.task.export.DatabaseTextExport;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 
 public class Context {
@@ -15,10 +16,11 @@ public class Context {
     private final MailSenderStub mailSenderStub;
     private final NrtmServer nrtmServer;
     private final DatabaseHelper databaseHelper;
+    private final DatabaseTextExport databaseTextExport;
 
     public Context(final int restPort, final int syncUpdatePort, final WhoisObjectMapper whoisObjectMapper,
                    final MailUpdatesTestSupport mailUpdatesTestSupport, final MailSenderStub mailSenderStub,
-                   final NrtmServer nrtmServer, final DatabaseHelper databaseHelper) {
+                   final NrtmServer nrtmServer, final DatabaseHelper databaseHelper, final DatabaseTextExport databaseTextExport) {
         this.restPort = restPort;
         this.syncUpdatePort = syncUpdatePort;
         this.whoisObjectMapper = whoisObjectMapper;
@@ -26,6 +28,7 @@ public class Context {
         this.mailSenderStub = mailSenderStub;
         this.nrtmServer = nrtmServer;
         this.databaseHelper = databaseHelper;
+        this.databaseTextExport = databaseTextExport;
     }
 
     public int getRestPort() {
@@ -58,5 +61,9 @@ public class Context {
 
     public DatabaseHelper getDatabaseHelper() {
         return databaseHelper;
+    }
+
+    public DatabaseTextExport getDatabaseTextExport() {
+        return databaseTextExport;
     }
 }
