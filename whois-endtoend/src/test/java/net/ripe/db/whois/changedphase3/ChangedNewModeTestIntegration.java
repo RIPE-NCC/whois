@@ -17,6 +17,7 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Mode.NEW_MODE;
 import static net.ripe.db.whois.changedphase3.util.Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____;
 import static net.ripe.db.whois.changedphase3.util.Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED;
+import static net.ripe.db.whois.changedphase3.util.Scenario.Protocol.SPLITFILE;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Protocol.MAILUPD;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Protocol.NRTM___;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Protocol.REST___;
@@ -115,7 +116,14 @@ public class ChangedNewModeTestIntegration extends AbstractChangedPhase3Integrat
     }
 
     @Test
-    public void new_mode_dump_test() {
+    public void new_mode_splitfiles_test() {
+        given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(SPLITFILE, CREATE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+
+        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(SPLITFILE, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(SPLITFILE, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+
+        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(SPLITFILE, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(SPLITFILE, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
     }
 
