@@ -14,6 +14,7 @@ import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import static org.junit.Assert.assertThat;
 
 @Category(ManualTest.class)
 @DirtiesContext
+@Ignore
 public class GrsImporterLacnicManualTest extends AbstractSchedulerIntegrationTest {
 
     @Autowired GrsImporter grsImporter;

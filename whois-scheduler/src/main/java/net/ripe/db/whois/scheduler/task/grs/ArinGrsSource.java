@@ -16,7 +16,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
+import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +45,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 class ArinGrsSource extends GrsSource {
     private static final Pattern IPV6_SPLIT_PATTERN = Pattern.compile("(?i)([0-9a-f:]*)\\s*-\\s*([0-9a-f:]*)\\s*");
     private static final Pattern AS_NUMBER_RANGE = Pattern.compile("^(\\d+) [-] (\\d+)$");
+    private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
 
     private final String download;
     private final String zipEntryName;
@@ -92,7 +93,7 @@ class ArinGrsSource extends GrsSource {
 
                     final RpslObjectBuilder rpslObjectBuilder = new RpslObjectBuilder(Joiner.on("").join(lines));
                     for (RpslObject next : expand(rpslObjectBuilder.getAttributes())) {
-                        handler.handle(next);
+                        handler.handle(FILTER_CHANGED_FUNCTION.apply(next));
                     }
                 }
 
