@@ -15,10 +15,12 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
         super(context);
     }
 
+    @Override
     public String getProtocolName() {
         return "Mail";
     }
 
+    @Override
     public void create(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
@@ -41,6 +43,7 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
         }
     }
 
+    @Override
     public void modify(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
@@ -63,6 +66,7 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
         }
     }
 
+    @Override
     public void delete(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);

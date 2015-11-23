@@ -15,10 +15,12 @@ public class SyncUpdateRunner extends AbstactScenarioRunner {
         super(context);
     }
 
+    @Override
     public String getProtocolName() {
         return "SyncUpdate";
     }
 
+    @Override
     public void create(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
@@ -49,6 +51,7 @@ public class SyncUpdateRunner extends AbstactScenarioRunner {
         }
     }
 
+    @Override
     public void modify(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);
@@ -80,6 +83,7 @@ public class SyncUpdateRunner extends AbstactScenarioRunner {
         }
     }
 
+    @Override
     public void delete(final Scenario scenario) {
         try {
             verifyPreCondition(scenario);

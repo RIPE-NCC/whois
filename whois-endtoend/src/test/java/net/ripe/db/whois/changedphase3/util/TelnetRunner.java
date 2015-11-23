@@ -12,10 +12,12 @@ public class TelnetRunner extends AbstactScenarioRunner {
         super(context);
     }
 
+    @Override
     public String getProtocolName() {
         return "Telnet";
     }
 
+    @Override
     public void search(final Scenario scenario) {
 
         try {
@@ -35,6 +37,7 @@ public class TelnetRunner extends AbstactScenarioRunner {
         }
     }
 
+    @Override
     public void meta(final Scenario scenario) {
         try {
             final String result = TelnetWhoisClient.queryLocalhost(QueryServer.port, "-t mntner");

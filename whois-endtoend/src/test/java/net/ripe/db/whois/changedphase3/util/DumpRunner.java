@@ -6,6 +6,7 @@ public class DumpRunner extends AbstactScenarioRunner {
         super(context);
     }
 
+    @Override
     public String getProtocolName() {
         return "Dump";
     }
