@@ -122,15 +122,15 @@ public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase
 
     @Test
     public void intermediate_mode_export_test() {
-        given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(EXPORT_, CREATE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(EXPORT_, CREATE, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(EXPORT_, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
-        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(EXPORT_, MODIFY, NO_CHANGED__).then(SUCCESS).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(EXPORT_, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(EXPORT_, MODIFY, NO_CHANGED__).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);
 
-        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(EXPORT_, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
-        given(NEW_MODE, OBJ_EXISTS_WITH_CHANGED).when(EXPORT_, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
-        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(EXPORT_, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
-        given(NEW_MODE, OBJ_EXISTS_NO_CHANGED__).when(EXPORT_, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(EXPORT_, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
+        given(OLD_MODE, OBJ_EXISTS_WITH_CHANGED).when(EXPORT_, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(EXPORT_, DELETE, WITH_CHANGED).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
+        given(OLD_MODE, OBJ_EXISTS_NO_CHANGED__).when(EXPORT_, DELETE, NO_CHANGED__).then(SUCCESS, OBJ_DOES_NOT_EXIST_____).run(context);
     }
 
 }

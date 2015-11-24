@@ -135,7 +135,7 @@ public class Scenario {
 
     public enum Result {
         SUCCESS,
-        FAILED
+        FAILURE
     }
 
     public static class Builder {

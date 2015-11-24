@@ -33,7 +33,7 @@ public class TelnetRunner extends AbstactScenarioRunner {
             }
 
         } catch (Exception exc) {
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
         }
     }
 
@@ -49,7 +49,7 @@ public class TelnetRunner extends AbstactScenarioRunner {
             }
 
         } catch (Exception exc) {
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
         }
     }
 

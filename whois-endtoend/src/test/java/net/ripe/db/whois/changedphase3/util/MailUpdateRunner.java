@@ -35,11 +35,11 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
                 verifyPostCondition(scenario, Scenario.Result.SUCCESS);
             } else {
                 assertThat(message.getContent().toString(), containsString("***Error:"));
-                verifyPostCondition(scenario, Scenario.Result.FAILED);
+                verifyPostCondition(scenario, Scenario.Result.FAILURE);
             }
 
         } catch (MessagingException | IOException exc) {
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
         }
     }
 
@@ -58,11 +58,11 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
                 verifyPostCondition(scenario, Scenario.Result.SUCCESS);
             } else {
                 assertThat(message.getContent().toString(), containsString("***Error:"));
-                verifyPostCondition(scenario, Scenario.Result.FAILED);
+                verifyPostCondition(scenario, Scenario.Result.FAILURE);
             }
 
         } catch (MessagingException | IOException exc) {
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
         }
     }
 
@@ -81,11 +81,11 @@ public class MailUpdateRunner extends AbstactScenarioRunner {
                 verifyPostCondition(scenario, Scenario.Result.SUCCESS);
             } else {
                 assertThat(message.getContent().toString(), containsString("***Error:"));
-                verifyPostCondition(scenario, Scenario.Result.FAILED);
+                verifyPostCondition(scenario, Scenario.Result.FAILURE);
             }
 
         } catch (MessagingException | IOException exc) {
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
         }
     }
 }

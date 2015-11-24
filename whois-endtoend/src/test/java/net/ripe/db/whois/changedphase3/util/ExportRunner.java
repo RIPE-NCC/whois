@@ -13,6 +13,7 @@ import java.util.zip.GZIPInputStream;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class ExportRunner extends AbstactScenarioRunner {
     private static final String EXPORT_DIR = "./export";
@@ -115,7 +116,8 @@ public class ExportRunner extends AbstactScenarioRunner {
             }
 
         } catch (IOException exc) {
-            logEvent("Error reading splitfile", exc.toString());
+            System.err.println("Error reading splitfile:" +exc.toString());
+            fail();
         } finally {
             context.getNrtmServer().stop(true);
         }
@@ -151,7 +153,9 @@ public class ExportRunner extends AbstactScenarioRunner {
             return sb.toString();
         } finally {
             if (in != null) {
-                in.close();
+                try {
+                    in.close();
+                } catch( IOException exc) {}
             }
         }
     }
