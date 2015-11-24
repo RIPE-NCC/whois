@@ -151,7 +151,6 @@ public class DummifierNrtmTest {
                         "last-modified:  2001-02-04T17:00:00Z\n" +
                         "abuse-c:        FOO\n" +
                         "address:        Dummy address for FOO\n" +
-                        "changed:        unread@ripe.net 20000101\n" +
                         "e-mail:         unread@ripe.net\n" +
                         "mnt-by:         FOO\n" +
                         "mnt-ref:        FOO\n" +
@@ -185,7 +184,6 @@ public class DummifierNrtmTest {
                 "abuse-c:        FOO\n" +
                 "admin-c:        DUMY-RIPE\n" +
                 "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
-                "changed:        unread@ripe.net 20000101\n" +
                 "descr:          FOO\n" +
                 "mnt-by:         FOO\n" +
                 "source:         FOO\n" +
