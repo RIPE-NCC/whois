@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
@@ -99,6 +100,7 @@ public class GrsImporterJpirrTestIntegration extends AbstractSchedulerIntegratio
         assertThat(query("-s JPIRR-GRS SOME-MNT"), containsString("mntner:         SOME-MNT"));
         assertThat(query("-s JPIRR-GRS -i mnt-by SOME-MNT"), containsString("mntner:         SOME-MNT"));
         assertThat(query("-s JPIRR-GRS 192.168.0.0/16"), containsString("route:          192.168.0.0/16"));
+        assertThat(query("-s JPIRR-GRS 192.168.0.0/16"), not(containsString("changed:")));
     }
 
     private void awaitAll(final List<Future> futures) throws ExecutionException, InterruptedException {
