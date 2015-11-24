@@ -43,11 +43,11 @@ public class SyncUpdateRunner extends AbstactScenarioRunner {
                 verifyPostCondition(scenario, Scenario.Result.SUCCESS);
             } else {
                 assertThat(result, containsString("***Error:"));
-                verifyPostCondition(scenario, Scenario.Result.FAILED);
+                verifyPostCondition(scenario, Scenario.Result.FAILURE);
             }
 
         } catch (Exception exc) {
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
         }
     }
 
@@ -74,12 +74,12 @@ public class SyncUpdateRunner extends AbstactScenarioRunner {
                 verifyPostCondition(scenario, Scenario.Result.SUCCESS);
             } else {
                 assertThat(result, containsString("***Error:"));
-                verifyPostCondition(scenario, Scenario.Result.FAILED);
+                verifyPostCondition(scenario, Scenario.Result.FAILURE);
             }
 
         } catch (Exception exc) {
             exc.printStackTrace();
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
         }
     }
 
@@ -108,11 +108,11 @@ public class SyncUpdateRunner extends AbstactScenarioRunner {
                 verifyPostCondition(scenario, Scenario.Result.SUCCESS);
             } else {
                 assertThat(result, containsString("***Error:"));
-                verifyPostCondition(scenario, Scenario.Result.FAILED);
+                verifyPostCondition(scenario, Scenario.Result.FAILURE);
             }
 
         } catch (Exception exc) {
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
         }
     }
 }

@@ -56,7 +56,7 @@ public class RestRunner extends AbstactScenarioRunner {
 
         } catch (ClientErrorException exc) {
             logEvent("Create", exc.getResponse().readEntity(WhoisResources.class));
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
             verifyNotificationEmail(scenario);
         }
     }
@@ -87,7 +87,7 @@ public class RestRunner extends AbstactScenarioRunner {
 
         } catch (ClientErrorException exc) {
             logEvent("Modify", exc.getResponse().readEntity(WhoisResources.class));
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
         }
     }
 
@@ -111,7 +111,7 @@ public class RestRunner extends AbstactScenarioRunner {
 
         } catch (ClientErrorException exc) {
             logEvent("Delete", exc.getResponse().readEntity(WhoisResources.class));
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
             verifyNotificationEmail(scenario);
         }
     }
@@ -134,7 +134,7 @@ public class RestRunner extends AbstactScenarioRunner {
 
         } catch (ClientErrorException exc) {
             logEvent("Get", exc.getResponse().readEntity(WhoisResources.class));
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
         }
     }
 
@@ -156,7 +156,7 @@ public class RestRunner extends AbstactScenarioRunner {
 
         } catch (ClientErrorException exc) {
             logEvent("Search", exc.getResponse().readEntity(WhoisResources.class));
-            verifyPostCondition(scenario, Scenario.Result.FAILED);
+            verifyPostCondition(scenario, Scenario.Result.FAILURE);
         }
     }
 
@@ -185,7 +185,7 @@ public class RestRunner extends AbstactScenarioRunner {
 
     private void verifyNotificationEmail(final Scenario scenario) {
         try {
-            if (scenario.getResult() == Scenario.Result.FAILED &&
+            if (scenario.getResult() == Scenario.Result.FAILURE &&
                     (scenario.getMethod() == Scenario.Method.MODIFY || scenario.getMethod() == Scenario.Method.DELETE)) {
                 verifyMailContents(scenario, context.getMailSenderStub().getMessage("upd-to@ripe.net").getContent().toString());
             }
