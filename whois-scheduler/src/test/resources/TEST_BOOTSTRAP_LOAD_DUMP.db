@@ -4,11 +4,10 @@ admin-c:        AA1-TEST
 tech-c:         AA2-TEST
 upd-to:         bitbucket@ripe.net
 mnt-nfy:        bitbucket@ripe.net
-auth:           MD5-PW $1$XXXXXXXX$XXXXXXXXXXXXXXXXXXXXX/ 
+auth:           MD5-PW $1$XXXXXXXX$XXXXXXXXXXXXXXXXXXXXX/
 notify:         bitbucket@ripe.net
 mnt-by:         TEST-ROOT-MNT
 remarks:        This is an automatically created object.
-changed:        bitbucket@ripe.net 20051031
 source:         TEST
 
 person:         Test Person
@@ -19,7 +18,6 @@ fax-no:         +12 34 5678900
 e-mail:         bitbucket@ripe.net
 nic-hdl:        AA1-TEST
 remarks:        This is an automatically created object.
-changed:        bitbucket@ripe.net 20051031
 source:         TEST
 
 role:           TEST ROLE
@@ -33,5 +31,4 @@ admin-c:        AA1-TEST
 tech-c:         AA2-TEST
 mnt-by:         TEST-ROOT-MNT
 remarks:        This is an automatically created object.
-changed:        bitbucket@ripe.net 20051031
 source:         TEST

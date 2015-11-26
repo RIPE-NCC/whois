@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Category(IntegrationTest.class)
@@ -117,6 +118,8 @@ public class GrsImporterArinTestIntegration extends AbstractSchedulerIntegration
         assertThat(query("-s ARIN-GRS 198.151.193.0"), containsString("status:         ASSIGNMENT"));
         assertThat(query("-s ARIN-GRS 198.151.193.0 - 198.151.193.255"), containsString("status:         ASSIGNMENT"));
         assertThat(query("-s ARIN-GRS 198.151.193.0 - 198.151.194.255"), containsString("status:         ASSIGNMENT"));
+        assertThat(query("-s ARIN-GRS 198.151.193.0 - 198.151.194.255"), not(containsString("changed:")));
+
         assertThat(query("-s ARIN-GRS 88.202.240.0"), containsString("No entries found"));
         assertThat(query("-s APNIC-GRS 88.202.224.0 - 88.202.239.255"),  containsString("unknown source"));
     }

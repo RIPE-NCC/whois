@@ -165,7 +165,6 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
                 "nic-hdl:       DW-RIPE\n" +
                 "abuse-mailbox: abuse@ripe.net\n" +
                 "e-mail:        test@ripe.net\n" +
-                "changed:       noreply@ripe.net 20120101\n" +
                 "created:       2001-02-04T17:00:00Z\n" +
                 "last-modified: 2001-02-04T17:00:00Z\n" +
                 "source:        TEST");
@@ -177,7 +176,6 @@ public class SimpleTestIntegration extends AbstractNrtmIntegrationBase {
                 "nic-hdl:        DW-RIPE\n" +
                 "abuse-mailbox:  abuse@ripe.net\n" +
                 "e-mail:         unread@ripe.net\n" +
-                "changed:        unread@ripe.net 20000101\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST"));

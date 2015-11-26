@@ -37,16 +37,6 @@ public class UpdateObjectHandlerImplTest {
     @Mock SsoTranslator ssoTranslator;
     private UpdateObjectHandler subject;
 
-    private final String RIPE_NCC_BA_MNT_MAINTAINER = "" +
-            "mntner:            RIPE-NCC-BA-MNT\n" +
-            "descr:             RIPE-NCC BA Maintainer\n" +
-            "admin-c:           BADT-RIPE\n" +
-            "upd-to:            bad@ripe.net\n" +
-            "auth:              MD5-PW $1$LFXfnt7M$FhrMgErGJsTP9QIGbk8s9.\n" +
-            "mnt-by:            RIPE-NCC-BA-MNT\n" +
-            "changed:           bad@ripe.net 20071025\n" +
-            "source:            TEST";
-
     @Before
     public void setUp() throws Exception {
         when(ssoTranslator.translateFromCacheAuthToUsername(any(UpdateContext.class), any(RpslObject.class))).thenAnswer(new Answer<Object>() {
