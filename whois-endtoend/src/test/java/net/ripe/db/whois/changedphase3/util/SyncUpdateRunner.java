@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
-public class SyncUpdateRunner extends AbstactScenarioRunner {
+public class SyncUpdateRunner extends AbstractScenarioRunner {
     public SyncUpdateRunner(final Context context) {
         super(context);
     }

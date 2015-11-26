@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class RestRunner extends AbstactScenarioRunner {
+public class RestRunner extends AbstractScenarioRunner {
 
     public RestRunner(final Context context) {
         super(context);

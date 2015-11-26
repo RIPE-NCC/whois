@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public abstract class AbstactScenarioRunner implements ScenarioRunner {
+public abstract class AbstractScenarioRunner implements ScenarioRunner {
     protected static final RpslObject TEST_OBJECT = RpslObject.parse("" +
             "mntner:        TESTING-MNT\n" +
             "descr:         Test maintainer\n" +
@@ -39,7 +39,7 @@ public abstract class AbstactScenarioRunner implements ScenarioRunner {
     protected static String CHANGED_VALUE = "test@ripe.net 20121016";
     protected Context context;
 
-    public AbstactScenarioRunner(final Context context) {
+    public AbstractScenarioRunner(final Context context) {
         this.context = context;
     }
 
