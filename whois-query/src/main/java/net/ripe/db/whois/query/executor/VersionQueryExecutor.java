@@ -13,6 +13,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
+import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryMessages;
@@ -43,6 +44,7 @@ public class VersionQueryExecutor implements QueryExecutor {
 
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
+    private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
 
     protected final VersionDao versionDao;
     protected final BasicSourceContext sourceContext;
@@ -225,8 +227,9 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private RpslObject filter(final RpslObject rpslObject) {
-        return FILTER_AUTH_FUNCTION.apply(
-                FILTER_EMAIL_FUNCTION.apply(rpslObject));
+        return FILTER_CHANGED_FUNCTION.apply(
+                FILTER_AUTH_FUNCTION.apply(
+                    FILTER_EMAIL_FUNCTION.apply(rpslObject)));
     }
 
 }

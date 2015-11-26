@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.84-SNAPSHOT</version>
+    <version>1.84-CHANGED-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -701,6 +701,7 @@
                     </includes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
+                    <reuseForks>false</reuseForks>
                     <excludedGroups>
                         net.ripe.db.whois.common.IntegrationTest,
                         net.ripe.db.whois.common.EndToEndTest,
@@ -720,7 +721,8 @@
                     </includes>
                     <groups>${test.groups}</groups>
                     <forkCount>${test.forkCount.integration}</forkCount>
-                    <reuseForks>true</reuseForks>
+                    <!-- TODO: turn back on, once changed is removed -->
+                    <reuseForks>false</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
                     <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
