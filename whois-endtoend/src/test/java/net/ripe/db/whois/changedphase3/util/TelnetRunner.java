@@ -7,7 +7,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-public class TelnetRunner extends AbstactScenarioRunner {
+public class TelnetRunner extends AbstractScenarioRunner {
     public TelnetRunner(final Context context) {
         super(context);
     }

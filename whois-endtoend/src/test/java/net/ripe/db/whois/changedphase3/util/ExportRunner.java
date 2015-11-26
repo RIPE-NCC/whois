@@ -15,7 +15,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class ExportRunner extends AbstactScenarioRunner {
+public class ExportRunner extends AbstractScenarioRunner {
     private static final String EXPORT_DIR = "./export";
 
     public ExportRunner(final Context context) {

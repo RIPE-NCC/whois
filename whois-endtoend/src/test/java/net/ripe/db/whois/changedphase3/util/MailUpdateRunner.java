@@ -9,7 +9,7 @@ import java.io.IOException;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
-public class MailUpdateRunner extends AbstactScenarioRunner {
+public class MailUpdateRunner extends AbstractScenarioRunner {
 
     public MailUpdateRunner(final Context context) {
         super(context);

@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-public class NrtmRunner extends AbstactScenarioRunner {
+public class NrtmRunner extends AbstractScenarioRunner {
 
     public NrtmRunner(final Context context) {
         super(context);
