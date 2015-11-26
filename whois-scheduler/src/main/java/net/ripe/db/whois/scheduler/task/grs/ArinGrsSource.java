@@ -7,16 +7,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,6 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 class ArinGrsSource extends GrsSource {
     private static final Pattern IPV6_SPLIT_PATTERN = Pattern.compile("(?i)([0-9a-f:]*)\\s*-\\s*([0-9a-f:]*)\\s*");
     private static final Pattern AS_NUMBER_RANGE = Pattern.compile("^(\\d+) [-] (\\d+)$");
-    private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
 
     private final String download;
     private final String zipEntryName;
@@ -93,7 +91,7 @@ class ArinGrsSource extends GrsSource {
 
                     final RpslObjectBuilder rpslObjectBuilder = new RpslObjectBuilder(Joiner.on("").join(lines));
                     for (RpslObject next : expand(rpslObjectBuilder.getAttributes())) {
-                        handler.handle(FILTER_CHANGED_FUNCTION.apply(next));
+                        handler.handle(next);
                     }
                 }
 
@@ -124,7 +122,6 @@ class ArinGrsSource extends GrsSource {
                 private List<RpslAttribute> transform(final List<RpslAttribute> attributes) {
                     final List<RpslAttribute> newAttributes = Lists.newArrayList();
                     for (RpslAttribute attribute : attributes) {
-
                         final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
                         if (transformFunction != null) {
                             attribute = transformFunction.apply(attribute);
@@ -160,7 +157,7 @@ class ArinGrsSource extends GrsSource {
         }
     }
 
-    private static final Set<CIString> IGNORED_OBJECTS = ciSet("OrgID", "POCHandle");
+    private static final Set<CIString> IGNORED_OBJECTS = ciSet("OrgID", "POCHandle", "Updated");
 
     private static final Map<CIString, Function<RpslAttribute, RpslAttribute>> TRANSFORM_FUNCTIONS = Maps.newHashMap();
 
@@ -204,15 +201,6 @@ class ArinGrsSource extends GrsSource {
                 return new RpslAttribute(AttributeType.ADDRESS, String.format("%s # %s", input.getValue(), input.getKey()));
             }
         }, "City", "Country", "PostalCode", "Street", "State/Prov");
-
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Override
-            public RpslAttribute apply(final RpslAttribute input) {
-                String date = input.getCleanValue().toString().replaceAll("[^0-9]", "");
-                final String value = String.format("unread@ripe.net %s", date);
-                return new RpslAttribute(AttributeType.CHANGED, value);
-            }
-        }, "Updated");
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
             @Override
