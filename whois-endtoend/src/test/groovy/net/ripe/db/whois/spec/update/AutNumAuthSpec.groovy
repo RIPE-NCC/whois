@@ -1742,7 +1742,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT aut-num AS200", "aut-num", "AS200", "just added")
     }
 
-    
+
     def "modify aut-num, LIR auth, remove RS mntner"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
@@ -2602,7 +2602,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObject("-rBG -T aut-num AS702", "aut-num", "AS702")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -2687,7 +2687,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS260", "aut-num", "AS260", "status:\\s*OTHER")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status LEGACY, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -2733,7 +2733,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status OTHER, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -2778,7 +2778,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by LIR, status ASSIGNED, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -2821,7 +2821,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by LIR, no status, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -2862,7 +2862,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by LIR, status LEGACY, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -2904,7 +2904,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by LIR, status OTHER, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -2947,7 +2947,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "create aut-num, apnic as-block, with mnt-by LIR, status ASSIGNED, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3037,7 +3037,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "create aut-num, apnic as-block, with mnt-by LIR, status LEGACY, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3128,7 +3128,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3171,7 +3171,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, LIR pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3214,7 +3214,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3259,7 +3259,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, remove status, LIR pw, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3304,7 +3304,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, remove status, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3347,7 +3347,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, remove status, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3392,7 +3392,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, remove status, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3435,7 +3435,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add ASSIGNED, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3476,7 +3476,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add LEGACY, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3519,7 +3519,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add OTHER, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3562,7 +3562,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add ASSIGNED, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3605,7 +3605,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add LEGACY, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3650,7 +3650,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add OTHER, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3695,7 +3695,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, no status, add ASSIGNED, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3712,7 +3712,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
                 "mnt-by:         LIR-MNT\n" +
-                "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST")
 
         expect:
@@ -3769,7 +3768,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
                 "mnt-by:         LIR-MNT\n" +
-                "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST")
 
         expect:
@@ -3810,7 +3808,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, no status, add ASSIGNED, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3853,7 +3851,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, no status, add LEGACY, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3943,7 +3941,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, change to OTHER, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3991,7 +3989,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, change to ASSIGNED, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -4037,7 +4035,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, change to LEGACY, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -4083,7 +4081,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to ASSIGNED, LIR pw, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -4129,7 +4127,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to OTHER, LIR pw, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -4175,7 +4173,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to ASSIGNED, add mnt-by RS, override, no longer on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")

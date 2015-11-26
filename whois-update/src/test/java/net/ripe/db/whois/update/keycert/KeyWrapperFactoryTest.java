@@ -32,7 +32,6 @@ public class KeyWrapperFactoryTest {
                 "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
                 "mnt-by:       UPD-MNT\n" +
                 "notify:       eshryane@ripe.net\n" +
-                "changed:      eshryane@ripe.net 20120213\n" +
                 "source:       TEST\n"
         );
 
@@ -51,7 +50,6 @@ public class KeyWrapperFactoryTest {
                 "certif:          -----END CERTIFICATE-----\n" +
                 "mnt-by:          UPD-MNT\n" +
                 "remarks:         remark\n" +
-                "changed:         noreply@ripe.net 20121001\n" +
                 "source:          TEST\n"
         );
 
@@ -85,7 +83,6 @@ public class KeyWrapperFactoryTest {
                 "certif:       w0L5DyjKGe0dbjMKtaDdgQhxj8aBHNnQVbS9Oqhvmc65XgNi\n" +
                 "certif:       -----END CERTIFICATE-----\n" +
                 "mnt-by:       UPD-MNT\n" +
-                "changed:      noreply@ripe.net 20040927\n" +
                 "source:       TEST\n"
         );
 
@@ -133,7 +130,6 @@ public class KeyWrapperFactoryTest {
                 "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
                 "mnt-by:         UPD-MNT\n" +
                 "notify:         noreply@ripe.net\n" +
-                "changed:        noreply@ripe.net 20120213\n" +
                 "source:         TEST\n"
         );
 

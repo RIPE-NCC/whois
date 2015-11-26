@@ -46,23 +46,24 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: quoted-printable
 
 -----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 route:          165.251.168.0/22
 descr:          Description
 origin:         AS1
 notify:         ripe-admin@foo.net
 mnt-by:         TEST-MNT
-changed:        john@doe.net 20120530
 source:         RIPE
-
 -----BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8
+Version: GnuPG v1
 
-iQCVAwUBT8amRPVKpQwG/7ZlAQFM0gP+N3d2N2IivRzte0o6bvU3nqN84yGC4l3r
-zeZKi7dvU3R2betF8IElvL4x/bpBPAHXQWO+QaYMg3Yz6HCBKLJwMFgyWbmcJtD0
-zL1HUOJmGyNv/eFjNSMgfpeZEsPZ3R+Pz9gSjEAW5aAj1wLdpXvVK9rYOQPc3TVc
-z2xhfX4BqpQ=3D
-=3DODtr
+iQEcBAEBAgAGBQJWTI+jAAoJELvMuy1XY5UNLksH/184MpXD2xGRlEXHaGfvZ3X4
+5m9LrlowItjCiSM3a9rdsVAlijxpCnz7IgkdqbU7hIk8HfiUotKUAk0vgxDWTQnG
+1wQFvdgi0pjt6y+1kSxCUeVwuiub9St9SyCam1yz7RROFjzdQ654Z5X3vNQnxwog
+aO1VT/cRfXoi2GvFHHzMdXVRhtu11OdwdvFxXY+1HXLxc8+OCAYymaRxLGBU9sPA
+7A1aKgMxgFOvPrDuRM52KkwxFueqcVU/yi+LH/c2BTuNoQBmunPlu3Lqqq7+R4Wo
+8F8NV8aCvn1Jtb6apKhrDUMA/MTOuaD36FKl5KwL0/Ty1OlZCFlw47JwZL31e4I=3D
+=3DoiZ5
 -----END PGP SIGNATURE-----
 ------=_NextPart_000_00A9_01CD3EC0.81D734E0
 Content-Type: text/html;
@@ -74,6 +75,7 @@ Content-Transfer-Encoding: quoted-printable
 <DIV dir=3Dltr>
 <DIV style=3D"FONT-FAMILY: 'Calibri'; COLOR: #000000; FONT-SIZE: 12pt">
 <DIV>-----BEGIN PGP SIGNED MESSAGE-----</DIV>
+<DIV>Hash:&nbsp;SHA1</DIV>
 <DIV>&nbsp;</DIV>
 <DIV>route:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
 165.251.168.0/22</DIV>
@@ -86,21 +88,24 @@ AS1</DIV>
 ripe-admin@foo.net</DIV>
 <DIV>mnt-by:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
 TEST-MNT</DIV>
-<DIV>changed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
-john@doe.net 20120530</DIV>
 <DIV>source:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RIPE</DIV>
 <DIV>&nbsp;</DIV>
 <DIV>-----BEGIN PGP SIGNATURE-----</DIV>
-<DIV>Version: PGP 6.5.8</DIV>
+<DIV>Version: GnuPG v1</DIV>
 <DIV>&nbsp;</DIV>
-<DIV>iQCVAwUBT8amRPVKpQwG/7ZlAQFM0gP+N3d2N2IivRzte0o6bvU3nqN84yGC4l3r</DI=
+<DIV>iQEcBAEBAgAGBQJWTI+jAAoJELvMuy1XY5UNLksH/184MpXD2xGRlEXHaGfvZ3X4</DI=
 V>
-<DIV>zeZKi7dvU3R2betF8IElvL4x/bpBPAHXQWO+QaYMg3Yz6HCBKLJwMFgyWbmcJtD0</DI=
+<DIV>5m9LrlowItjCiSM3a9rdsVAlijxpCnz7IgkdqbU7hIk8HfiUotKUAk0vgxDWTQnG</DI=
 V>
-<DIV>zL1HUOJmGyNv/eFjNSMgfpeZEsPZ3R+Pz9gSjEAW5aAj1wLdpXvVK9rYOQPc3TVc</DI=
+<DIV>1wQFvdgi0pjt6y+1kSxCUeVwuiub9St9SyCam1yz7RROFjzdQ654Z5X3vNQnxwog</DI=
 V>
-<DIV>z2xhfX4BqpQ=3D</DIV>
-<DIV>=3DODtr</DIV>
+<DIV>aO1VT/cRfXoi2GvFHHzMdXVRhtu11OdwdvFxXY+1HXLxc8+OCAYymaRxLGBU9sPA</DI=
+V>
+<DIV>7A1aKgMxgFOvPrDuRM52KkwxFueqcVU/yi+LH/c2BTuNoQBmunPlu3Lqqq7+R4Wo</DI=
+V>
+<DIV>8F8NV8aCvn1Jtb6apKhrDUMA/MTOuaD36FKl5KwL0/Ty1OlZCFlw47JwZL31e4I=3D</=
+DIV>
+<DIV>=3DoiZ5</DIV>
 <DIV>-----END PGP SIGNATURE-----</DIV></DIV></DIV></BODY></HTML>
 
 ------=_NextPart_000_00A9_01CD3EC0.81D734E0--
