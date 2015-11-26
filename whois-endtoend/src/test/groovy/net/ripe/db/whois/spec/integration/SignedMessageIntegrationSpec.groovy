@@ -282,10 +282,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 0, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-//      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-//                "Message was signed more than one week ago"]
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Message was signed more than one week ago"]
   }
 
   def "inline pgp signed mailupdate with DSA key and RIPEMD160 Hash"() {
@@ -564,10 +564,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 0, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-//      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-//                "Message was signed more than one week ago"]
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Message was signed more than one week ago"]
   }
 
   def "inline pgp signed mailupdate with invalid keycert referenced by mntner"() {
@@ -1220,10 +1220,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 0, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-//      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-//                "Message was signed more than one week ago"]
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Message was signed more than one week ago"]
   }
 
   def "inline pgp signed mailupdate with double pgp signed update"() {
@@ -1326,10 +1326,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 0, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-//      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-//                "Message was signed more than one week ago"]
+      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Message was signed more than one week ago"]
   }
 
   @Ignore("TODO")
