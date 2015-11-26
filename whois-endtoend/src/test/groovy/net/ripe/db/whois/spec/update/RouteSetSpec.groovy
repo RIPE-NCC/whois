@@ -148,7 +148,6 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
      *                 admin-c:      TP1-TEST
      *                 mnt-by:       LIR-MNT
      *                 mnt-lower:    LIR-MNT
-     *                 changed:      dbtest@ripe.net
      *                 source:  TEST
      */
     def "create top level route-set object with ASNs & as-sets in members & mp-members"() {

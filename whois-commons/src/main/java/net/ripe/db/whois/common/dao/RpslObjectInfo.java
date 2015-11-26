@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.dao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -48,7 +49,7 @@ public class RpslObjectInfo implements Identifiable, Comparable<RpslObjectInfo> 
 
     @Override
     public int compareTo(final RpslObjectInfo o) {
-        final int result = ObjectTemplate.getTemplate(objectType).compareTo(ObjectTemplate.getTemplate(o.getObjectType()));
+        final int result = ObjectTemplateProvider.getTemplate(objectType).compareTo(ObjectTemplateProvider.getTemplate(o.getObjectType()));
         if (result != 0) {
             return result;
         }

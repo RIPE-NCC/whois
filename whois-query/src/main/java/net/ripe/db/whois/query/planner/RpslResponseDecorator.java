@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
+import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.CrowdClient;
@@ -44,6 +45,7 @@ import java.util.Set;
 public class RpslResponseDecorator {
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
+    private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
 
     private final RpslObjectDao rpslObjectDao;
     private final FilterPersonalDecorator filterPersonalDecorator;
@@ -98,6 +100,7 @@ public class RpslResponseDecorator {
         decoratedResult = applySyntaxFilter(query, decoratedResult);
         decoratedResult = filterEmail(query, decoratedResult);
         decoratedResult = filterAuth(query, decoratedResult);
+        decoratedResult = filterChanged(decoratedResult);
 
         decoratedResult = applyOutputFilters(query, decoratedResult);
 
@@ -139,6 +142,21 @@ public class RpslResponseDecorator {
         }
 
         return new GroupObjectTypesFunction(rpslObjectDao, query, decorators);
+    }
+
+    private Iterable<? extends ResponseObject> filterChanged(final Iterable<? extends ResponseObject> objects) {
+
+        return Iterables.transform(objects, new Function<ResponseObject, ResponseObject>() {
+            @Nullable
+            @Override
+            public ResponseObject apply(final ResponseObject input) {
+                if (input instanceof RpslObject) {
+                    return FILTER_CHANGED_FUNCTION.apply((RpslObject) input);
+                }
+
+                return input;
+            }
+        });
     }
 
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {

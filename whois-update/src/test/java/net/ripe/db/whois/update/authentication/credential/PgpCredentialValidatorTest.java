@@ -42,7 +42,7 @@ public class PgpCredentialValidatorTest {
     @Mock private LoggerContext loggerContext;
     @InjectMocks private PgpCredentialValidator subject;
 
-    private RpslObject keycertObject = RpslObject.parse("" +
+    private static final RpslObject KEYCERT_OBJECT = RpslObject.parse("" +
             "key-cert:       PGPKEY-5763950D\n" +
             "method:         PGP\n" +
             "owner:          noreply@ripe.net <noreply@ripe.net>\n" +
@@ -79,7 +79,6 @@ public class PgpCredentialValidatorTest {
             "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
             "notify:         noreply@ripe.net\n" +
             "mnt-by:         TEST-MNT\n" +
-            "changed:        noreply@ripe.net 20070917\n" +
             "source:         RIPE\n");
 
     @Before
@@ -89,7 +88,7 @@ public class PgpCredentialValidatorTest {
 
     @Test
     public void authenticateExistingRpslObject() throws Exception {
-        final String message = "" +
+        final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
                 "\n" +
@@ -102,35 +101,32 @@ public class PgpCredentialValidatorTest {
                 "status:         ASSIGNED PA\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "mnt-lower:      TEST-MNT\n" +
-                "changed:        foo@test.de 20090129\n" +
                 "source:         RIPE\n" +
                 "delete:         reason\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.13 (Darwin)\n" +
+                "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iQEcBAEBAgAGBQJRb/OqAAoJELvMuy1XY5UNovsH+QHj69vbPg7dLw49TY4Giqff\n" +
-                "+W56/Z67iedP8dRJkhbSt4MzSBJaJi7VPrJDZjw7qXFmBDgHWHyDVCI6fJKUXFHA\n" +
-                "d41lS0cs/4kA2olfhjfXB3djUAPyUuldT7nNyuZFHi/oTAjao7siCktPLgn5ZN0E\n" +
-                "/IUpBvI5KNgMLpABfR8s5H8htTxGtaiOqVpfH7pc2VsxbC5PDUzjOOfb0nOmsegn\n" +
-                "PAhZ3TnMmO78rBsuILfkYqaR9s9E+M7R7nMIPBchALaoUKYyzUxt1Ic/WHn1ECcN\n" +
-                "hQvAyyc1xARDiOcJYziYChDxFX6zDCYIadDnIhfw3590KDNyl9ZjjkycK6NvlqA=\n" +
-                "=tOGn\n" +
+                "iQEcBAEBAgAGBQJWTc5TAAoJELvMuy1XY5UNorkIAJsWhjbTcPBLCtug50Hkp0ty\n" +
+                "6hMMVWfIS92fGFzpUKkS3fTnUXkTwsaF0+KQRSHEa6pobMXsP5MCl0SPJaVY4FTz\n" +
+                "CtlpTHQ1avld/o281Y44wGmN/JFcGml8cnpY9/wseNS2OogemJ1ZQdd9Y4zNuCNX\n" +
+                "YS5y2jXLQyuLEzmhg423+b4IqeVZBHdWX43tituzk5phy9U2ZuVAnxLQWvNt0QZC\n" +
+                "v6g0Rig345U3rn0aRCAAFz6C/Al1QbRt5dsH3vQ/lQfiCBoR0A1x9ttsUkB7oCdJ\n" +
+                "P4eeAXVVIZIqCPKBmNo2fRoDJW5Ly1YEAIASp1pjh0h/kDfJwPQc+mqOQ1CRwgQ=\n" +
+                "=KPdC\n" +
                 "-----END PGP SIGNATURE-----";
 
         final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
-
-        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenReturn(keycertObject);
-
+        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
         assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
 
     @Test
     public void authenticateExistingRpslObjectGreekEncoding() throws Exception {
-        final String message = "" +
+        final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
                 "\n" +
@@ -139,28 +135,25 @@ public class PgpCredentialValidatorTest {
                 "phone:      +30 123 411141\n" +
                 "fax-no:     +30 123 411140\n" +
                 "nic-hdl:    TP1-TEST\n" +
-                "changed:    dbtest@ripe.net 20120101\n" +
                 "mnt-by:     UPD-MNT\n" +
                 "source:     TEST\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
                 "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iQEcBAEBAgAGBQJUM8WSAAoJELvMuy1XY5UNvGMIAIIz2bc9wMo2SP69U8ESDyJd\n" +
-                "2aHX8i6qLeAqY50UQfO9Ygv4/LoovyCZMYKuQ2FFDhOmOoAldbSbFTvnwE/HyME2\n" +
-                "vFewmkHCKlp0ZqMFanAdIvRaQvkO/uwSZbfYlHiZxC4ZkHQnMv8DR1R/phCCUh/F\n" +
-                "PDDW3dWC4MquVz3wuOfsHjKMNk+8znelIrxgkG+xdFcGf4FTEKaB9wcSRkUMp1nk\n" +
-                "Vefg63MkZ1BJICMqzgIiPa1fngsCuWfbRzX3uMDglTi5yXQeYX0PcmUvlBZcPG6A\n" +
-                "Nm0TxAvI+61ETHx53v5P7IpBPlhnCR3LKqm7WTa7txnT5nsSNUbig0IIs9e8qjc=\n" +
-                "=rP64\n" +
+                "iQEcBAEBAgAGBQJWTa/LAAoJELvMuy1XY5UNpukIAIOAgObWVSNbyOklWgIGjH6q\n" +
+                "XeJY6LhysQCQTEbD+AMJhd5rQQbN4jnK+MwaTneCwKuEwppzcWzthd0ZFdWFk+gR\n" +
+                "N5PYtfHcWn46a0jW6pA1EUxGf+8V8vVSM0hnDJnK/rHv7F+aCo/4uYTID6AGit/Q\n" +
+                "/lsURfe58oQZ88N8rJcA+WVDkEdEpqsRErqWi0J5TE7h0lnm7xLyGOF8OQBs/kqg\n" +
+                "QypGr+WzELhLkrL7nBCiL00wylYR4pD1P2VzNSrezgcsprgrCGpzurXaXVi7nWgs\n" +
+                "//7jgTneD5yXfR4iWV6/JKps9zksPLR33bcB0rWLdnzdXRGO83FbORtdGOfVjqE=\n" +
+                "=0RVp\n" +
                 "-----END PGP SIGNATURE-----";
 
         final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message, Charset.forName("ISO-8859-7"));
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
-
-        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenReturn(keycertObject);
-
+        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
         assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
@@ -181,17 +174,13 @@ public class PgpCredentialValidatorTest {
                 "-----END PGP SIGNATURE-----\n");
 
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
-
-        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenReturn(keycertObject);
-
-        boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
-
-        assertThat(result, is(false));
+        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
+        assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
     }
 
     @Test
     public void authenticateKeycertNotFound() throws Exception {
-        final String message = "" +
+        final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
                 "\n" +
@@ -204,35 +193,31 @@ public class PgpCredentialValidatorTest {
                 "status:         ASSIGNED PA\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "mnt-lower:      TEST-MNT\n" +
-                "changed:        foo@test.de 20090129\n" +
                 "source:         RIPE\n" +
                 "delete:         reason\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.13 (Darwin)\n" +
+                "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iQEcBAEBAgAGBQJRb/OqAAoJELvMuy1XY5UNovsH+QHj69vbPg7dLw49TY4Giqff\n" +
-                "+W56/Z67iedP8dRJkhbSt4MzSBJaJi7VPrJDZjw7qXFmBDgHWHyDVCI6fJKUXFHA\n" +
-                "d41lS0cs/4kA2olfhjfXB3djUAPyUuldT7nNyuZFHi/oTAjao7siCktPLgn5ZN0E\n" +
-                "/IUpBvI5KNgMLpABfR8s5H8htTxGtaiOqVpfH7pc2VsxbC5PDUzjOOfb0nOmsegn\n" +
-                "PAhZ3TnMmO78rBsuILfkYqaR9s9E+M7R7nMIPBchALaoUKYyzUxt1Ic/WHn1ECcN\n" +
-                "hQvAyyc1xARDiOcJYziYChDxFX6zDCYIadDnIhfw3590KDNyl9ZjjkycK6NvlqA=\n" +
-                "=tOGn\n" +
+                "iQEcBAEBAgAGBQJWTc9CAAoJELvMuy1XY5UNl2oH/2i2JeUvWsrOF/FAxJsvCUMG\n" +
+                "4KqGWJKb1/Sdgp3NJbtrqoZo54+vdI3f0Oqb6q5nspTQJntfA0uq08GFbwcOHA5T\n" +
+                "9fgyh0BVE/OFNUY336r+Gr8Sf9sfLWVgAIUNhe5hyUeoqSD+zcp0buYE/HFLp4Yh\n" +
+                "EVoOSHSGdSpRtkErE3eMYEjYCle7zJhC3MDnauWYYHQzZVJEvQ8mnEi3fZd+OetL\n" +
+                "XnngoRCUa3z3J8tFx0GYNNxP+YA24+gJf+BuJqxX86N0Nua8ZZqzR+AkbAffvXwv\n" +
+                "HR3C5Mn2WOXspKRfdevzV34k4x/SzqFa1qGoF62AKmY5pLMX8XSvU4WV4zjOEDU=\n" +
+                "=UgWC\n" +
                 "-----END PGP SIGNATURE-----";
 
         final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
-        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenThrow(new EmptyResultDataAccessException(1));
-
-        boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
-
-        assertThat(result, is(false));
+        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenThrow(new EmptyResultDataAccessException(1));
+        assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
     }
 
     @Test
     public void authenticateKnownCredentialIsInvalid() {
-        final String message = "" +
+        final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
                 "\n" +
@@ -245,38 +230,33 @@ public class PgpCredentialValidatorTest {
                 "status:         ASSIGNED PA\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "mnt-lower:      TEST-MNT\n" +
-                "changed:        foo@test.de 20090129\n" +
                 "source:         RIPE\n" +
                 "delete:         reason\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.13 (Darwin)\n" +
+                "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iQEcBAEBAgAGBQJRb/OqAAoJELvMuy1XY5UNovsH+QHj69vbPg7dLw49TY4Giqff\n" +
-                "+W56/Z67iedP8dRJkhbSt4MzSBJaJi7VPrJDZjw7qXFmBDgHWHyDVCI6fJKUXFHA\n" +
-                "d41lS0cs/4kA2olfhjfXB3djUAPyUuldT7nNyuZFHi/oTAjao7siCktPLgn5ZN0E\n" +
-                "/IUpBvI5KNgMLpABfR8s5H8htTxGtaiOqVpfH7pc2VsxbC5PDUzjOOfb0nOmsegn\n" +
-                "PAhZ3TnMmO78rBsuILfkYqaR9s9E+M7R7nMIPBchALaoUKYyzUxt1Ic/WHn1ECcN\n" +
-                "hQvAyyc1xARDiOcJYziYChDxFX6zDCYIadDnIhfw3590KDNyl9ZjjkycK6NvlqA=\n" +
-                "=tOGn\n" +
+                "iQEcBAEBAgAGBQJWTdB6AAoJELvMuy1XY5UN96QIAJjssbJrKuJvWmgq/iTYjHYz\n" +
+                "iq3qJGprdxM0G+OErsydLmG5R7BhW6aLmV/H07Ap84T9KUniGm+sWgAHJdC0Eb/n\n" +
+                "cf+8sC7hy5Fkmwabam52Ncr+c4mEuR7Tt2s0bfm2x+IgFb/doMoJjCydYk5FQKL/\n" +
+                "QzhgR3whwhftsrSgj2MAD2VDVo7HsvD1Otp/hVLISdnPQuR6i9wRp7gipn+QSdp/\n" +
+                "PBK/UzdvUGItTM/wCoekEcwh41plq7VepL6rbA2NXe9x65rvMprEhL0ulQVP8YXZ\n" +
+                "9LF/bGg8YGezpktt8iFnLKsOCek74mSdVi70xTNsc4sq9mNfdBXrsZstNHvDJ+E=\n" +
+                "=Pr87\n" +
                 "-----END PGP SIGNATURE-----";
 
         final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
-        keycertObject = new RpslObjectBuilder(keycertObject).removeAttributeType(AttributeType.CERTIF).get();
-
-        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenReturn(keycertObject);
-
-        boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
-
-        assertThat(result, is(false));
+        final RpslObject emptyKeycertObject = new RpslObjectBuilder(KEYCERT_OBJECT).removeAttributeType(AttributeType.CERTIF).get();
+        when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, emptyKeycertObject.getKey().toString())).thenReturn(emptyKeycertObject);
+        assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
     }
 
     @Test
     public void knownCredentialEqualsAndHashCode() {
-        PgpCredential first = PgpCredential.createKnownCredential("PGPKEY-AAAAAAAA");
-        PgpCredential second = PgpCredential.createKnownCredential("PGPKEY-BBBBBBBB");
+        final PgpCredential first = PgpCredential.createKnownCredential("PGPKEY-AAAAAAAA");
+        final PgpCredential second = PgpCredential.createKnownCredential("PGPKEY-BBBBBBBB");
 
         assertTrue(first.equals(first));
         assertFalse(first.equals(second));
@@ -287,8 +267,8 @@ public class PgpCredentialValidatorTest {
 
     @Test
     public void offeredCredentialEqualsAndHashCode() {
-        PgpCredential first = PgpCredential.createOfferedCredential("signedData1", "signature1", Charsets.ISO_8859_1);
-        PgpCredential second = PgpCredential.createOfferedCredential("signedData2", "signature2", Charsets.ISO_8859_1);
+        final PgpCredential first = PgpCredential.createOfferedCredential("signedData1", "signature1", Charsets.ISO_8859_1);
+        final PgpCredential second = PgpCredential.createOfferedCredential("signedData2", "signature2", Charsets.ISO_8859_1);
 
         assertTrue(first.equals(first));
         assertFalse(first.equals(second));
@@ -299,8 +279,8 @@ public class PgpCredentialValidatorTest {
 
     @Test
     public void offeredAndKnownCredentialsEqualsAndHashCode() {
-        PgpCredential known = PgpCredential.createKnownCredential("X509-1");
-        PgpCredential offered = PgpCredential.createOfferedCredential("signedData", "signature", Charsets.ISO_8859_1);
+        final PgpCredential known = PgpCredential.createKnownCredential("X509-1");
+        final PgpCredential offered = PgpCredential.createOfferedCredential("signedData", "signature", Charsets.ISO_8859_1);
 
         assertFalse(known.equals(offered));
         assertFalse(known.hashCode() == offered.hashCode());
@@ -308,7 +288,7 @@ public class PgpCredentialValidatorTest {
 
     @Test
     public void knownCredentialIsInvalid() {
-        final String message = "" +
+        final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
                 "\n" +
@@ -321,26 +301,25 @@ public class PgpCredentialValidatorTest {
                 "status:         ASSIGNED PA\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "mnt-lower:      TEST-MNT\n" +
-                "changed:        foo@test.de 20090129\n" +
                 "source:         RIPE\n" +
                 "delete:         reason\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.13 (Darwin)\n" +
+                "Version: GnuPG v1\n" +
                 "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iQEcBAEBAgAGBQJRb/OqAAoJELvMuy1XY5UNovsH+QHj69vbPg7dLw49TY4Giqff\n" +
-                "+W56/Z67iedP8dRJkhbSt4MzSBJaJi7VPrJDZjw7qXFmBDgHWHyDVCI6fJKUXFHA\n" +
-                "d41lS0cs/4kA2olfhjfXB3djUAPyUuldT7nNyuZFHi/oTAjao7siCktPLgn5ZN0E\n" +
-                "/IUpBvI5KNgMLpABfR8s5H8htTxGtaiOqVpfH7pc2VsxbC5PDUzjOOfb0nOmsegn\n" +
-                "PAhZ3TnMmO78rBsuILfkYqaR9s9E+M7R7nMIPBchALaoUKYyzUxt1Ic/WHn1ECcN\n" +
-                "hQvAyyc1xARDiOcJYziYChDxFX6zDCYIadDnIhfw3590KDNyl9ZjjkycK6NvlqA=\n" +
-                "=tOGn\n" +
+                "iQEcBAEBAgAGBQJWTf5ZAAoJELvMuy1XY5UNfeEIAIfqwKn4DjyZRGm9NUyXZ3nX\n" +
+                "5OY1YuH+d7IXicw5fADSzCED1Kg411TYUphCIM+TUGY8per8MiR1UV9OF+i4tRFc\n" +
+                "aeuNEFY+ZkCQaSp6qhlYFVPqiboKAd2sg2NKoa/aTwk+IEX1RrVxXURNvKgoVqQ5\n" +
+                "4ChIw2yZvuWoZk5qnZQ/ztl0axi7ZngUACNX7pN2LpaIzAT2FrA1FADmHmktmAt0\n" +
+                "eWS70m/fOTCN2DEw46irBgjqiY/rQcClxUX596OlV/dQ1l/Gmo4wDwKPxJ9dzHS5\n" +
+                "y2aPt9iULKozTlOZDWDAXxsjxqHFUHxSC5aSAiU9qRP6uzdN5dil2Y0LLh+7hB4=\n" +
+                "=J7hj\n" +
                 "-----END PGP SIGNATURE-----";
 
         final PgpCredential offeredCredential = PgpCredential.createOfferedCredential(message);
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
-        RpslObject keycertObject = RpslObject.parse("key-cert: PGPKEY-5763950D");
+        final RpslObject keycertObject = RpslObject.parse("key-cert: PGPKEY-5763950D");
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenReturn(keycertObject);
 
         assertThat(subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));

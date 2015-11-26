@@ -326,21 +326,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             """.stripIndent()
     }
 
-    def "changed before 1984"() {
-      given:
-        def data = fixtures["ORG1"].stripIndent() + "password:update"
-        data = (data =~ /source:\s+TEST/).replaceFirst("changed:      dbtest@ripe.net 19830505\nsource:       TEST")
-
-        def org = new SyncUpdate(data: data)
-
-      when:
-        def response = syncUpdate org
-
-      then:
-        response =~ /FAIL/
-        response =~ "Error:   Date is older than the database itself in changed: attribute\n            \"19830505\""
-    }
-
     def "create selfreferencing organisation"() {
       given:
         def data = new SyncUpdate(data: """\

@@ -229,7 +229,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 "nic-hdl: AB-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:  TST-MNT2\n" +
-                "changed: dbtest@ripe.net 20121016\n" +
                 "source:  TEST")
         databaseHelper.addObjectToSource("1-GRS", "role: Abuse Me\nnic-hdl: AB-TEST\nsource: 1-GRS")
 
@@ -254,7 +253,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 "nic-hdl: AB-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:  TST-MNT2\n" +
-                "changed: dbtest@ripe.net 20121016\n" +
                 "source:  TEST")
         databaseHelper.addObjectToSource("1-GRS", "role: Abuse Me\nnic-hdl: AB-TEST")
 
@@ -276,7 +274,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 "nic-hdl: AB-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:  TST-MNT2\n" +
-                "changed: dbtest@ripe.net 20121016\n" +
                 "source:  TEST")
 
         expect:
@@ -298,7 +295,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 "nic-hdl: AB-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:  TST-MNT2\n" +
-                "changed: dbtest@ripe.net 20121016\n" +
                 "source:  TEST")
 
       expect:

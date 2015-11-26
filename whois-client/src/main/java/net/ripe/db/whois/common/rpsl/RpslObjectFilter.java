@@ -59,7 +59,7 @@ public class RpslObjectFilter {
 
 
     public static RpslObjectBuilder keepKeyAttributesOnly(final RpslObjectBuilder builder) {
-        final ObjectTemplate template = ObjectTemplate.getTemplate(ObjectType.getByFirstAttribute(builder.getTypeAttribute()));
+        final ObjectTemplate template = ObjectTemplateProvider.getTemplate(ObjectType.getByFirstAttribute(builder.getTypeAttribute()));
         final Set<AttributeType> keyAttributes = Sets.newHashSet();
         keyAttributes.addAll(template.getLookupAttributes());
         keyAttributes.addAll(template.getKeyAttributes());
@@ -127,6 +127,7 @@ public class RpslObjectFilter {
         private static final List<AttributeType> PURELY_GENERATED_ATTRIBUTES =
                 Lists.newArrayList(
                         AttributeType.CREATED,
+                        AttributeType.CHANGED,
                         AttributeType.LAST_MODIFIED,
                         AttributeType.FINGERPR,
                         AttributeType.OWNER,
