@@ -1,7 +1,6 @@
 package net.ripe.db.whois.spec.query
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class BasicQuerySpec extends BaseQueryUpdateSpec {
@@ -814,7 +813,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
 
     // filtering
 
-//    @Ignore
     def "query for object, objects not filtered should not have # Filtered flag "() {
       given:
         databaseHelper.addObject(
