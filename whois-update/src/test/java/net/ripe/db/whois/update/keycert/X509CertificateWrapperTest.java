@@ -103,6 +103,7 @@ public class X509CertificateWrapperTest {
                 "certif:          UK1J2P3MpSIP8TFJp8fIJDlad3hoRsZeNxuV6D8=\n" +
                 "certif:          -----END CERTIFICATE-----\n" +
                 "mnt-by:          UPD-MNT\n" +
+                "changed:         noreply@ripe.net 20111128\n" +
                 "source:          TEST");
 
         X509CertificateWrapper.parse(keycert);
@@ -118,6 +119,7 @@ public class X509CertificateWrapperTest {
                 "certif:          -----BEGIN CERTIFICATE-----\n" +
                 "certif:          -----END CERTIFICATE-----\n" +
                 "mnt-by:          UPD-MNT\n" +
+                "changed:         noreply@ripe.net 20111128\n" +
                 "source:          TEST");
 
         X509CertificateWrapper.parse(keycert);
@@ -134,6 +136,7 @@ public class X509CertificateWrapperTest {
                 "certif:          xxx\n" +
                 "certif:          -----END CERTIFICATE-----\n" +
                 "mnt-by:          UPD-MNT\n" +
+                "changed:         noreply@ripe.net 20111128\n" +
                 "source:          TEST");
 
         X509CertificateWrapper.parse(keycert);
@@ -147,6 +150,7 @@ public class X509CertificateWrapperTest {
                 "owner:           /description=570433-veZWA34E9nftz1i7/C=PL/ST=Foo/L=Bar/CN=Test/emailAddress=noreply@test.com\n" +
                 "fingerpr:        07:AC:10:C0:22:64:84:E7:00:18:5A:29:F0:54:2C:F3\n" +
                 "mnt-by:          UPD-MNT\n" +
+                "changed:         noreply@ripe.net 20111128\n" +
                 "source:          TEST");
 
         X509CertificateWrapper.parse(keycert);

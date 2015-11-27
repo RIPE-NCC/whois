@@ -8,12 +8,10 @@ import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +41,6 @@ class GrsSourceImporter {
     private final SourceContext sourceContext;
 
     private Path downloadDir;
-
-    private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
 
     @Autowired
     public GrsSourceImporter(
@@ -138,7 +134,7 @@ class GrsSourceImporter {
                             return;
                         }
 
-                        handle(FILTER_CHANGED_FUNCTION.apply(rpslObject));
+                        handle(rpslObject);
                     }
 
                     @Override
@@ -162,7 +158,7 @@ class GrsSourceImporter {
                     }
 
                     private RpslObject filterObject(final RpslObject rpslObject) {
-                        final ObjectTemplate objectTemplate = ObjectTemplateProvider.getTemplate(rpslObject.getType());
+                        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
 
                         final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
 

@@ -15,7 +15,6 @@ import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.HttpClient;
@@ -44,7 +43,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
 class LacnicGrsSource extends GrsSource {
-    private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
+
     private static final int TIMEOUT = 10_000;
 
     private final String userId;
@@ -130,7 +129,6 @@ class LacnicGrsSource extends GrsSource {
 
                     final List<RpslAttribute> newAttributes = Lists.newArrayList();
                     for (RpslAttribute attribute : rpslObjectBase.getAttributes()) {
-
                         final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
                         if (transformFunction != null) {
                             attribute = transformFunction.apply(attribute);
@@ -141,7 +139,7 @@ class LacnicGrsSource extends GrsSource {
                         }
                     }
 
-                    handler.handle(FILTER_CHANGED_FUNCTION.apply(new RpslObject(newAttributes)));
+                    handler.handle(new RpslObject(newAttributes));
                 }
             });
         } finally {
@@ -169,10 +167,10 @@ class LacnicGrsSource extends GrsSource {
             @Override
             public RpslAttribute apply(final RpslAttribute input) {
                 final String date = input.getCleanValue().toString().replaceAll("-", "");
-                final String value = String.format("%s", date);
-                return new RpslAttribute(AttributeType.CREATED, value);
+                final String value = String.format("unread@ripe.net %s # %s", date, input.getKey());
+                return new RpslAttribute(AttributeType.CHANGED, value);
             }
-        }, "created");
+        }, "changed", "created");
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
             @Override

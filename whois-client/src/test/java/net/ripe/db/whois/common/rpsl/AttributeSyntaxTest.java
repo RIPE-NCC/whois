@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.rpsl;
 
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -142,8 +141,6 @@ public class AttributeSyntaxTest {
 
     @Test
     public void changed() throws Exception {
-        new ChangedAttrFeatureToggle(true);
-
         verifyFailure(ObjectType.PERSON, AttributeType.CHANGED, "a@a");
         verifyFailure(ObjectType.PERSON, AttributeType.CHANGED, "a.a.a");
 
