@@ -2671,8 +2671,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT inet6num 2001:600::/56", "inet6num", "2001:600::/56")
     }
 
-    // TODO: [ES] failing test
-    @Ignore
     def "create child AGGREGATED-BY-LIR then create 2 grand-child ASSIGNED with correct size"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
