@@ -341,7 +341,6 @@ public class IpTreeCacheManager {
                 new RowMapper<IpTreeUpdate>() {
                     @Override
                     public IpTreeUpdate mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-
                         return new IpTreeUpdate(ROUTE6,
                                 new Ipv6Entry(Ipv6Resource.parseFromStrings(rs.getString(1), rs.getString(2), rs.getInt(3)), rs.getInt(4)).getKey() + rs.getString(5),
                                 rs.getInt(4),
@@ -370,11 +369,6 @@ public class IpTreeCacheManager {
     }
 
     private long getLastSerial(final JdbcTemplate jdbcTemplate) {
-        return jdbcTemplate.queryForObject("SELECT MAX(serial_id) FROM serials", new RowMapper<Long>() {
-            @Override
-            public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return rs.getLong(1);
-            }
-        });
+        return jdbcTemplate.queryForObject("SELECT IFNULL(MAX(serial_id),0) FROM serials", Long.class);
     }
 }
