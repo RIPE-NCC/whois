@@ -19,7 +19,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
     @Override
     Map<String, String> getTransients() { [
             "PERSON_WITHOUT_CHANGED": """\
-            person:  First Person
+            person:  Person without changed
             address: St James Street
             address: Burnley
             address: UK
@@ -29,7 +29,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
             source:  TEST
             """,
             "PERSON_WITHOUT_CHANGED_ADJUSTED": """\
-            person:  First Person
+            person:  Person without changed
             address: St James Street
             address: Amsterdam
             address: NL
@@ -39,7 +39,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
             source:  TEST
             """,
             "PERSON_WITH_CHANGED": """\
-            person:  First Person
+            person:  Person with changed
             address: St James Street
             address: Burnley
             address: UK
@@ -50,7 +50,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
             source:  TEST
             """,
             "PERSON_WITH_CHANGED_ADJUSTED": """\
-            person:  First Person
+            person:  Person with changed
             address: St James Street
             address: Amsterdam
             address: NL
@@ -72,7 +72,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         then:
         syncUpdateVerifyCreateSuccess(PERSON_WITH_CHANGED,response)
         syncUpdateVerifyHasDeprecatedWarning(response)
-        verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
+        verifyExistsAndEquals(PERSON_WITH_CHANGED)
     }
 
     def "mail: create person with changed"() {
@@ -293,7 +293,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = syncUpdateModify(PERSON_WITHOUT_CHANGED)
 
         then:
-        syncUpdateVerifyNoopSuccess(PERSON_WITHOUT_CHANGED,response)
+        syncUpdateVerifyModifySuccess(PERSON_WITHOUT_CHANGED,response)
         syncUpdateVerifyHasNoWarnings(response)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
     }
@@ -309,7 +309,8 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = mailModify(PERSON_WITHOUT_CHANGED)
 
         then:
-        mailVerifyNoopSuccess(PERSON_WITHOUT_CHANGED,response)
+        mailVerifyModifySuccess(PERSON_WITHOUT_CHANGED,response)
+        mailVerifyHasNoWarnings(response)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
     }
 
@@ -324,7 +325,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def errorsAndWarnings = restModify(PERSON_WITHOUT_CHANGED)
 
         then:
-        restVerifyHasIdenticalWarning(errorsAndWarnings)
+        restVerifyHasNoWarnings(errorsAndWarnings)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
     }
 
@@ -339,7 +340,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = syncUpdateCreateModify(PERSON_WITH_CHANGED)
 
         then:
-        syncUpdateVerifyNoopSuccess(PERSON_WITH_CHANGED,response)
+        syncUpdateVerifyModifySuccess(PERSON_WITH_CHANGED,response)
         syncUpdateVerifyHasDeprecatedWarning(response)
         verifyExistsAndEquals(PERSON_WITH_CHANGED)
     }
@@ -355,7 +356,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = mailModify(PERSON_WITH_CHANGED)
 
         then:
-        mailVerifyNoopSuccess(PERSON_WITH_CHANGED,response)
+        mailVerifyModifySuccess(PERSON_WITH_CHANGED,response)
         mailVerifyHasDeprecatedWarning(response)
         verifyExistsAndEquals(PERSON_WITH_CHANGED)
     }
@@ -477,11 +478,11 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         verifyExistsAndEquals(PERSON_WITH_CHANGED)
 
         when:
-        def response = syncupdateDelete(PERSON_WITH_CHANGED)
+        def response = syncupdateDelete(PERSON_WITHOUT_CHANGED)
 
         then:
-        syncUpdateVerifyDeleteSuccess(PERSON_WITH_CHANGED,response)
-        doesNotExist(PERSON_WITH_CHANGED)
+        syncUpdateVerifyNoMatchError(response)
+        verifyExistsAndEquals(PERSON_WITH_CHANGED)
     }
 
     def "mail: delete person without changed: existing has changed-attribute"() {
@@ -495,8 +496,8 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = mailDelete(PERSON_WITHOUT_CHANGED)
 
         then:
-        mailVerifyDeleteSuccess(PERSON_WITHOUT_CHANGED,response)
-        doesNotExist(PERSON_WITH_CHANGED)
+        mailVerifyNoMatchError(response)
+        verifyExistsAndEquals(PERSON_WITH_CHANGED)
     }
 
     def "rest: delete person without changed: existing has changed-attribute"() {
@@ -525,8 +526,8 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = syncupdateDelete(PERSON_WITH_CHANGED)
 
         then:
-        syncUpdateVerifyDeleteSuccess(PERSON_WITH_CHANGED,response)
-        doesNotExist(PERSON_WITHOUT_CHANGED)
+        syncUpdateVerifyNoMatchError(response)
+        verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
     }
 
     def "mail: delete person with changed: existing has no changed-attribute"() {
@@ -540,8 +541,8 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = mailDelete(PERSON_WITH_CHANGED)
 
         then:
-        mailVerifyDeleteSuccess(PERSON_WITH_CHANGED,response)
-        doesNotExist(PERSON_WITHOUT_CHANGED)
+        mailVerifyNoMatchError(response)
+        verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
     }
 
     def "rest: delete person with changed: existing has no changed-attribute"() {
@@ -621,12 +622,17 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         RpslObject obj = RpslObject.parse(getTransient(uid));
         final String nicHandleValue = obj.getValueForAttribute(AttributeType.NIC_HDL).toString();
         final String personValue = obj.getValueForAttribute(AttributeType.PERSON).toString();
+        final boolean queryShouldContainChanged = obj.containsAttribute(AttributeType.CHANGED);
 
         final String queryResponse = queryObject("-r -B -T person " + nicHandleValue, "person", personValue);
 
         assert queryResponse =~ personValue;
         assert queryResponse =~ nicHandleValue;
-        assert queryResponse !=~ "changed:";
+        if( queryShouldContainChanged ) {
+            assert queryResponse =~ "changed:";
+        } else {
+            assert queryResponse !=~ "changed:";
+        }
         return true
     }
 
@@ -675,7 +681,9 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
     def syncUpdateVerifyCreateSuccess(final String uid, final String response ) {
         RpslObject obj = RpslObject.parse(getTransient(uid));
-        assert response =~ "Create SUCCEEDED: \\[person\\] " + obj.getValueForAttribute(AttributeType.NIC_HDL).toString()
+        assert response =~ "Create SUCCEEDED: \\[person\\] " + obj.getValueForAttribute(AttributeType.NIC_HDL).toString() + "   " +
+                obj.getValueForAttribute(AttributeType.PERSON).toString()
+
         return true
     }
 
@@ -694,28 +702,9 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         return syncUpdate(getTransient(uid) + "password: owner")
     }
 
-    def syncUpdateVerifyNoopSuccess(final String uid, final String response ) {
-        RpslObject obj = RpslObject.parse(getTransient(uid));
-        assert response =~ "No operation: \\[person\\] " + obj.getValueForAttribute(AttributeType.NIC_HDL).toString() + "   " +
-                obj.getValueForAttribute(AttributeType.PERSON).toString()
-
-        return true
-    }
-
     def syncUpdateVerifyModifySuccess(final String uid, final String response ) {
         RpslObject obj = RpslObject.parse(getTransient(uid));
         assert response =~ "Modify SUCCEEDED: \\[person\\] " + obj.getValueForAttribute(AttributeType.NIC_HDL).toString() + "   " +
-                obj.getValueForAttribute(AttributeType.PERSON).toString()
-
-        return true
-    }
-
-    def mailVerifyNoopSuccess(final String uid, final AckResponse response ) {
-        RpslObject obj = RpslObject.parse(getTransient(uid));
-        assert response.subject =~ "SUCCESS:"
-        assert response.contents =~ "Number of objects processed successfully:  1"
-        assert response.contents =~ "No Operation:   1"
-        assert response.contents =~ "No operation: \\[person\\] " + obj.getValueForAttribute(AttributeType.NIC_HDL).toString() + "   " +
                 obj.getValueForAttribute(AttributeType.PERSON).toString()
 
         return true
@@ -783,28 +772,31 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
     }
 
     def syncUpdateVerifyHasDeprecatedWarning(final String response ) {
-        assert response =~ "Warning: Deprecated attribute \"changed\". This attribute has been removed."
+        assert response =~ "Warning: Deprecated attribute \"changed\". This attribute will be removed in"
+
         return true
     }
 
     def restVerifyHasDeprecatedWarning( final List<ErrorMessage> errorsAndWarnings ) {
         boolean found = false;
         for (ErrorMessage msg : errorsAndWarnings) {
-            if( msg.toString().contains("Deprecated attribute \"changed\". This attribute has been removed.")) {
+            if( msg.toString().contains("Deprecated attribute \"changed\". This attribute will be removed in the future.")) {
                 found = true;
                 break;
             }
         }
-        assert found
+        assert found == true
+
         return true
     }
 
     def mailVerifyHasDeprecatedWarning(final AckResponse response  ) {
-        response.contents =~ "Warning: Deprecated attribute \"changed\". This attribute has been removed."
+        response.contents =~ "Warning: Deprecated attribute \"changed\". This attribute will be removed in"
     }
 
     def syncUpdateVerifyHasIdenticalWarning(final String response ) {
         assert response =~ "Warning: Submitted object identical to database object"
+
         return true
     }
 
@@ -816,7 +808,8 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
                 break;
             }
         }
-        assert found
+        assert found == true
+
         return true
     }
 
@@ -827,34 +820,38 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
     def syncUpdateVerifyNoMatchError(final String response ) {
         assert response =~ "doesn't match"
+
         return true
     }
 
     def restVerifyNoMatchError(final List<ErrorMessage> errorsAndWarnings ) {
-        boolean found = false
         for (ErrorMessage msg : errorsAndWarnings) {
             if( msg.toString().contains("doesn't match")) {
                 found = true;
                 break;
             }
         }
-        assert found
+        assert found == true
+
         return true
     }
 
     def mailVerifyNoMatchError(final AckResponse response  ) {
         assert response.contents =~ "doesn't match"
+
         return true
     }
 
     def syncUpdateVerifyHasNoWarnings(final String response ) {
         assert response !=~  "Warning:"
+
         return true
     }
 
     def mailVerifyHasNoWarnings(final AckResponse response ) {
         def warnings = response.allWarnings
-        assert warnings.isEmpty()
+        assert warnings.size() == 0
+
         return true
     }
 
@@ -863,7 +860,9 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
             System.err.println("error:"+msg.toString())
         }
 
-        assert errorsAndWarnings.size() == 0;
+        boolean noWarningsFound = errorsAndWarnings.size() == 0;
+        assert noWarningsFound == true
+
         return true
     }
 }

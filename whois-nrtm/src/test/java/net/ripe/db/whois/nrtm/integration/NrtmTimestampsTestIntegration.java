@@ -29,6 +29,7 @@ public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
         databaseHelper.addObject("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
+                "changed:        noreply@ripe.net 20000101\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n");
@@ -38,6 +39,7 @@ public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
         assertThat(response, containsString("" +
                 "aut-num:        AS102\n" +
                 "as-name:        End-User-2\n" +
+                "changed:        unread@ripe.net 20000101\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n"));
@@ -49,6 +51,7 @@ public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
                 "organisation:   ORG1-TEST\n" +
                 "org-name:       Wasp Corp\n" +
                 "org-type:       OTHER\n" +
+                "changed:        unread@ripe.net 20000101\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n");
@@ -59,6 +62,7 @@ public class NrtmTimestampsTestIntegration extends AbstractNrtmIntegrationBase {
                 "organisation:   ORG1-TEST\n" +
                 "org-name:       Wasp Corp\n" +
                 "org-type:       OTHER\n" +
+                "changed:        unread@ripe.net 20000101\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n"));

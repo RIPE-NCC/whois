@@ -133,6 +133,7 @@ public class PgpPublicKeyWrapperTest {
                         "certif:         =XcVO\n" +
                         "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
                         "mnt-by:         UPD-MNT\n" +
+                        "changed:        dbtest@ripe.net 20120101\n" +
                         "source:         TEST"));
 
         assertThat(subject.isExpired(dateTimeProvider), is(true));
@@ -179,6 +180,7 @@ public class PgpPublicKeyWrapperTest {
                             "certif:         =fnvN\n" +
                             "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
                             "mnt-by:         UPD-MNT\n" +
+                            "changed:        dbtest@ripe.net 20120101\n" +
                             "source:         TEST"));
             fail();
         } catch (IllegalArgumentException e) {

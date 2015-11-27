@@ -189,7 +189,7 @@ public class AuthoritativeResourceTest {
                 "ripencc|EU|ipv4|2.16.0.0|524288|20100910|allocated\n"));
 
         assertThat(resourceData.isEmpty(), is(false));
-
+        
         assertThat(resourceData.isMaintainedInRirSpace(RpslObject.parse("inetnum: 1.0.0.0 - 1.255.255.255")), is(false));
         assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("1.0.0.0 - 1.255.255.255")), is(false));
         assertThat(resourceData.isMaintainedInRirSpace(RpslObject.parse("inetnum: 2.0.0.0 - 2.0.0.0")), is(true));
@@ -256,7 +256,7 @@ public class AuthoritativeResourceTest {
                 "ripencc|NL|ipv6|2001:610::|32|19990819|allocated\n"));
 
         assertThat(resourceData.isEmpty(), is(false));
-
+        
         assertThat(resourceData.isMaintainedInRirSpace(RpslObject.parse("inet6num: 2001::")), is(false));
         assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001::")), is(false));
         assertThat(resourceData.isMaintainedInRirSpace(RpslObject.parse("inet6num: 2002:608::")), is(false));

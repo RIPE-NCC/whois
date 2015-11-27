@@ -274,6 +274,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "admin-c:   PN1-RIPE\n" +
                 "tech-c:    PN1-RIPE\n" +
                 "notify:    test@ripe.net\n" +
+                "changed:   test@ripe.net 20120101\n" +
                 "source:    TEST"));
 
         databaseHelper.addObject(RpslObject.parse("" +
@@ -310,6 +311,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "fax-no:    +12 345 678\n" +
                 "e-mail:    test@bar.com\n" +
                 "nic-hdl:   ROLE-NIC\n" +
+                "changed:   foo@test.net\n" +
                 "source:    TEST"));
 
         databaseHelper.addObject(RpslObject.parse("" +
@@ -322,6 +324,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "e-mail:        test@bar.com\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "nic-hdl:       AB-NIC\n" +
+                "changed:       foo@test.net\n" +
                 "source:        TEST"));
 
         sourceContext.removeCurrentSource();
@@ -338,6 +341,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "admin-c:        PN1-RIPE\n" +
                 "tech-c:         PN1-RIPE\n" +
                 "notify:         ***@ripe.net\n" +
+                "changed:        ***@ripe.net 20120101\n" +
                 "source:         TEST");
 
         checkFile("dbase_new/split/ripe.db.organisation.gz", "" +
@@ -374,6 +378,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "fax-no:         +12 3.. ...\n" +
                 "e-mail:         ***@bar.com\n" +
                 "nic-hdl:        ROLE-NIC\n" +
+                "changed:        ***@test.net\n" +
                 "source:         TEST");
 
         checkFile("dbase_new/split/ripe.db.role.gz", "" +
@@ -386,6 +391,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "e-mail:         ***@bar.com\n" +
                 "abuse-mailbox:  abuse@test.net\n" +
                 "nic-hdl:        AB-NIC\n" +
+                "changed:        ***@test.net\n" +
                 "source:         TEST");
     }
 

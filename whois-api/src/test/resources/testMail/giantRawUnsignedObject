@@ -2605,5 +2605,6 @@ export:          to AS1
                  announce AS-TEST
 export:          to AS1
                  announce AS-TEST
+changed:         changed@test.net 20120813
 source:          RIPE
 

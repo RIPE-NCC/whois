@@ -58,11 +58,6 @@
             <artifactId>whois-db</artifactId>
             <type>test-jar</type>
         </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-nrtm</artifactId>
-            <type>test-jar</type>
-        </dependency>
     </dependencies>
 
     <build>

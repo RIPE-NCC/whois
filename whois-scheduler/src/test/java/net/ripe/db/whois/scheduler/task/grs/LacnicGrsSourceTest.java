@@ -46,7 +46,8 @@ public class LacnicGrsSourceTest {
                         "aut-num:        AS278\n" +
                         "descr:          Description\n" +
                         "country:        MX\n" +
-                        "created:        19890331 # created\n" +
+                        "changed:        unread@ripe.net 19890331 # created\n" +
+                        "changed:        unread@ripe.net 20110503 # changed\n" +
                         "source:         LACNIC\n"),
 
                 RpslObject.parse("" +
@@ -55,7 +56,8 @@ public class LacnicGrsSourceTest {
                         "descr:          Description\n" +
                         "country:        AR\n" +
                         "tech-c:\n" +
-                        "created:        19990312 # created\n" +
+                        "changed:        unread@ripe.net 19990312 # created\n" +
+                        "changed:        unread@ripe.net 19990312 # changed\n" +
                         "source:         LACNIC\n"),
 
                 RpslObject.parse("" +
@@ -65,7 +67,8 @@ public class LacnicGrsSourceTest {
                         "country:        MX\n" +
                         "tech-c:         IIM\n" +
                         "abuse-c:        IIM\n" +
-                        "created:        20061106 # created\n" +
+                        "changed:        unread@ripe.net 20061106 # created\n" +
+                        "changed:        unread@ripe.net 20061106 # changed\n" +
                         "source:         LACNIC\n")
         ));
     }

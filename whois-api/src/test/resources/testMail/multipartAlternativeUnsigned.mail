@@ -46,6 +46,7 @@ tech-c:      P1-RIPE
 admin-c:     P1-RIPE
 mnt-by:      TEST-MNT
 mnt-by:      TEST-MNT
+changed:     test@bogus.fr 20120531
 source:      RIPE
 
 
@@ -55,6 +56,7 @@ tech-c:      P1-RIPE
 admin-c:     P1-RIPE
 mnt-by:      TEST-MNT
 mnt-by:      TEST-MNT
+changed:     test@bogus.fr 20120531
 source:      RIPE
 
 --14dae9340989a2357404c1487137
@@ -64,6 +66,7 @@ Content-Transfer-Encoding: quoted-printable
 <div>password: password</div><div>password: password</div><div><br></div><div>as-set: =A0 =A0 =A0AS198792:AS-TEST</di=
 v>
 
-<div>source: =A0 =A0 =A0RIPE</div>
+changed: =A0 =A0 <a href=3D"mailto:test@bogus.fr">test@bogus.fr=
+</a> 20120531</div><div>source: =A0 =A0 =A0RIPE</div>
 
 --14dae9340989a2357404c1487137--
