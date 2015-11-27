@@ -90,7 +90,6 @@ public class LoggingDriverTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void getPropertyInfo() throws Exception {
-        // TODO: [ES] validate if this is actually used anywhere
         subject.getPropertyInfo("jdbc:log:mariadb://localhost;driver=org.mariadb.jdbc.Driver;logger=" + TestLoggingHandler.class.getName(), properties);
     }
 
