@@ -21,7 +21,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-@Ignore("TODO [ES] slow on mariadb branch")
 @Category(IntegrationTest.class)
 @ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
