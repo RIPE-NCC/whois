@@ -1,18 +1,29 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
+import net.ripe.db.whois.api.freetext.FreeTextIndex;
+import net.ripe.db.whois.api.freetext.FreeTextSearch;
+import net.ripe.db.whois.api.freetext.FreeTextSolrUtils;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.database.diff.Database;
 import net.ripe.db.whois.common.support.database.diff.DatabaseDiff;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 
@@ -22,7 +33,24 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
     private Bootstrap bootstrap;
 
     @Autowired
+    private FreeTextSearch freeTextSearch;
+
+    @Autowired
+    private FreeTextIndex freeTextIndex;
+
+    @Autowired
     private RpslObjectUpdateDao rpslObjectUpdateDao;
+
+    @BeforeClass
+    public static void setProperty() {
+        // We only enable freetext indexing here, so it doesn't slow down the rest of the test suite
+        System.setProperty("dir.freetext.index", "var${jvmId:}/idx");
+    }
+
+    @AfterClass
+    public static void clearProperty() {
+        System.clearProperty("dir.freetext.index");
+    }
 
     @Test
     public void testThatBootstrapLeavesDatabaseInWorkingState() throws Exception {
@@ -186,6 +214,30 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         final String bootstrapLoadResults = bootstrap.bootstrap();
 
         assertThat(bootstrapLoadResults, containsString("FINISHED\n3 succeeded\n0 failed in pass 1\n0 failed in pass 2\n"));
+    }
+
+    @Test
+    public void freeText_index_is_rebuild_after_bootstrap() throws IOException {
+
+        freeTextIndex.rebuild();
+
+        databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
+
+        assertThat(query("TP1").getResults().getNumFound(), is(0L));
+
+        freeTextIndex.rebuild();
+
+        assertThat(query("TP1").getResults().getNumFound(), is(1L));
+
+        bootstrapInitialObjects();
+
+        assertThat(query("TP1").getResults().getNumFound(), is(0L));
+    }
+
+    private QueryResponse query(final String queryStr) throws IOException {
+        final StringWriter writer = new StringWriter();
+        freeTextSearch.freeTextSearch(String.format("q=%s", queryStr), writer);
+        return FreeTextSolrUtils.parseResponse(writer.toString());
     }
 
 }
