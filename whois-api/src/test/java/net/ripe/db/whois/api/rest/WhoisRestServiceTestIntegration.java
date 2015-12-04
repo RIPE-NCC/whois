@@ -1336,6 +1336,40 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    @Test
+    public void lookup_xml_script_injection_not_possible() {
+        databaseHelper.addObject(
+                "person:         Test Person\n" +
+                "nic-hdl:        TP9-TEST\n" +
+                "remarks:        <script>alert('hello');</script>\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = RestTest.target(getPort(), "whois/test/person/TP9-TEST.xml")
+                    .request(MediaType.APPLICATION_XML_TYPE)
+                    .get(String.class);
+
+        assertThat(response, containsString("&lt;script&gt;alert('hello');&lt;/script&gt;"));
+    }
+
+    @Test
+    public void lookup_json_script_injection_not_possible() {
+        databaseHelper.addObject(
+                "person:         Test Person\n" +
+                "nic-hdl:        TP9-TEST\n" +
+                "remarks:        <script>alert('hello');</script>\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = RestTest.target(getPort(), "whois/test/person/TP9-TEST.xml")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(String.class);
+
+        assertThat(response, containsString("&lt;script&gt;alert('hello');&lt;/script&gt;"));
+    }
+
+
+
     // create
 
     @Test
