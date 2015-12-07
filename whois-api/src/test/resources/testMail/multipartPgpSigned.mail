@@ -25,7 +25,6 @@ certif:          -----BEGIN CERTIFICATE-----
 certif:          -----END CERTIFICATE-----
 mnt-by:          TEST-DBM-MNT
 remarks:         remark
-changed:         noreply@ripe.net 20121001
 source:          TEST
 --Apple-Mail=_9CDFE7D2-22AE-464F-ABDA-BF5CACC56A4C
 Content-Transfer-Encoding: 7bit
@@ -36,15 +35,15 @@ Content-Type: application/pgp-signature;
 Content-Description: Message signed with OpenPGP using GPGMail
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (Darwin)
+Version: GnuPG v1
 
-iQEcBAEBAgAGBQJQxcmXAAoJEO6ZHuIo9s1sHaQH/1OaQvFu9UBKCm9xwaVAsV+4
-jD//LmrFWJS1ddyhc5VqrClVrEjZdDFltiESofCbNUh6Q3jLcw/QdkjV5B/Vx3XG
-iO3BmqHhzvrmkZ4M+2kajeLsFtO0I7s7sK/GAjGuD6XzljXAym+PnMHpEAHs+Dl1
-F0Kvnww//eqV0dEmedF/Pmm8WAcg1PJso4ZtK+vMumZs/21//CmxiPo/N4jBsbxE
-QTkjxG9BMAiD6+ssmN04uf98T8lXqbrlmZkdiI0Kjgk6bFaGPTAAG/GX+ynq9NQL
-gcJBGslVNe4vcBxgVFePSC4YnpgjaVQ/DGivYoOdX9xaxYhCiOpBynTlf8EiN3Y=
-=t2Xd
+iQEcBAEBAgAGBQJWTJL2AAoJELvMuy1XY5UNLykH/1J+LakYAIMroFbmhWBi6sP6
+Oa2bxppGokGUrrKOKvBFLNGDISTL/em4UHiO6YIMVmXlf4B3NGQ8fp7rknn6kfHJ
+i/cksO7kSon45NbIwTgCgZQjDrPJivEr5HqM1HYYyhdGolEZ++lzkh1Yyx10qKm5
+BiCGg0jrueh3/QcfKJWpDvnYfUm2iDYm8jZ5A8TXEED13+QaIeB7ISUh5RtZGY2J
+g8J2T6eTDiGlcFqOJA4LiKsYkPv639IY37jQCJxwJLA0izUk4nzfHlWvKvyDODG4
+n3PHNi/46R7luoMfL1coWEUUDkrZs3D92rYEXE8/busoUaDX/aOHdAN41PDkdH8=
+=Fybh
 -----END PGP SIGNATURE-----
 
 --Apple-Mail=_9CDFE7D2-22AE-464F-ABDA-BF5CACC56A4C--

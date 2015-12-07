@@ -28,7 +28,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QueryHandler_BlockedTest {
+public class QueryHandlerBlockedTest {
     @Mock WhoisLog whoisLog;
     @Mock AccessControlListManager accessControlListManager;
     @Mock SourceContext sourceContext;

@@ -47,20 +47,21 @@ X-RIPE-Signature: c1fd93f532921d1072cc649857a29cdeea74373c9cf6711aa0258820de741e
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-route:        194.39.132.0/24
-descr:        Description
-origin:       AS12510
-notify:       foo@bar.com
-mnt-by:       BOGUS-MNT
-mnt-by:       T8-MNT
-changed:      nm@bogus.com 20120504
-changed:      nm@bogus.com 20120529
-source:       RIPE
-delete:       no longer required for AS12510
+route:          99.13.0.0/16
+descr:          Route
+origin:         AS3333
+mnt-by:         TEST-DBM-MNT
+source:         TEST
+delete:         no longer required
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (SunOS)
+Version: GnuPG v1
+Comment: GPGTools - http://gpgtools.org
 
-iEYEARECAAYFAk/FbSMACgkQsAWoDcAb7KJmJgCfe2PjxUFIeHycZ85jteosU1ez
-kL0An3ypg8F75jlPyTYIUuiCQEcP/9sz
-=j7tD
+iQEcBAEBAgAGBQJWTIkmAAoJELvMuy1XY5UN2yAH/jrxCDpjg0rPZQJQaF33eyNS
+rWXaIcfNO1pOMTIBLsDLHG2b0gEwRMYNsN+/J50Wb2VaXYI/kjRQEZPgJOTZomFX
+kt+aWDXSWTE+fsclfoB+vcSraGJFgFTtJM66MHDvKSJ80tWf2VK64Y8MgKmOv6vW
+hqxmZePeIr4p4L3w3q3n9GrOkpaPscJtEMTPqqFhft6hsiKTBfUuq/8Inski0LZt
+85cWPo4wZP4L2z5OfGsEXnrFAF69AzyXaSwL5B9FsEmQEK/cS09n7mU+fqsKNCAB
+npzCZ/Wa9t0alM7BtUZFS7Q2z4BWmSkc75R9U+cv7rafDv8Z2thlvEcHf9fqG0s=
+=zw+b
 -----END PGP SIGNATURE-----
