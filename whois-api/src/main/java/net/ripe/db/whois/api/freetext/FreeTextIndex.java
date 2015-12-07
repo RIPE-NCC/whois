@@ -56,8 +56,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class FreeTextIndex extends RebuildableIndex {
     private static final Logger LOGGER = getLogger(FreeTextIndex.class);
 
-    private static final int INDEX_UPDATE_INTERVAL_IN_SECONDS = 60;
-
     public static final String OBJECT_TYPE_FIELD_NAME = "object-type";
     public static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
     public static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
@@ -203,7 +201,7 @@ public class FreeTextIndex extends RebuildableIndex {
         updateMetadata(indexWriter, source, maxSerial);
     }
 
-    @Scheduled(fixedDelay = INDEX_UPDATE_INTERVAL_IN_SECONDS * 1000)
+    @Scheduled(fixedDelayString = "${freetext.index.update.interval.msecs:60000}" )
     public void scheduledUpdate() {
         if (StringUtils.isBlank(indexDir)) {
             return;

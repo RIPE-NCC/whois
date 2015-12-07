@@ -120,22 +120,6 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Automatic creation of %s objects of this size in not allowed, please contact lir-help@ripe.net for further information.", type);
     }
 
-    public static Message invalidDateFormat() {
-        return new Message(Type.ERROR, "Invalid date format, expected YYYYMMDD");
-    }
-
-    public static Message invalidDate(final CharSequence date) {
-        return new Message(Type.ERROR, "Date is older than the database itself in changed: attribute \"%s\"", date);
-    }
-
-    public static Message dateTooFuturistic(final CharSequence date) {
-        return new Message(Type.ERROR, "Date is in the future in changed: attribute \"%s\"", date);
-    }
-
-    public static Message multipleMissingChangeDates() {
-        return new Message(Type.ERROR, "More than one \"changed:\" attribute without date");
-    }
-
     // NOTE: this errormessage is being used by webupdates.
     public static Message authenticationFailed(final RpslObject object, final AttributeType attributeType, final Iterable<RpslObject> candidates) {
         final CharSequence joined = LIST_JOINED.join(

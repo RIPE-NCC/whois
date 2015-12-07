@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.DummifierCurrent;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 
 import javax.annotation.CheckForNull;
 import java.util.Set;
@@ -12,8 +13,8 @@ import java.util.Set;
 interface DecorationStrategy {
     class None implements DecorationStrategy {
         @Override
-        public RpslObject decorate(final RpslObject object) {
-            return object;
+        public RpslObject decorate( final RpslObject object) {
+            return new FilterChangedFunction().apply(object);
         }
     }
 
