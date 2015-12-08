@@ -46,6 +46,8 @@ public final class Source {
         return name.endsWith("-grs");
     }
 
+    public boolean isTest() { return name.equals("TEST"); }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
