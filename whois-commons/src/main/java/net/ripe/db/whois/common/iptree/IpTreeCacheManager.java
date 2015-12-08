@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
+import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
@@ -225,8 +226,23 @@ public class IpTreeCacheManager {
         if (fromExclusive == toInclusive) {
             LOGGER.debug("No update of IpTree needed (serial {} unchanged)", fromExclusive);
         } else if (fromExclusive > toInclusive) {
-            LOGGER.warn("Database went away; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
-            rebuild(jdbcTemplate, cacheEntry);
+            if( cacheEntry.sourceConfiguration.getSource().isTest()) {
+                LOGGER.warn("Database went away; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
+                // For the test source, we reload the database every night, so in this case we do need a full rebuild of the ipTree.
+                rebuild(jdbcTemplate, cacheEntry);
+            } else {
+                LOGGER.info("IpTree is ahead of local database; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
+                //
+                // Situation typically appears when:
+                // - a batch-update (=multiple updates in single transaction) is performed and
+                // - the "IpTreeUpdater"-scheduled-task kicks in on that node before replication from master to local database has completed.
+                //
+                // In this particular situation the in-memory tree is ahead of the local database.
+                // Regular replication events will eventually solve this situation.
+                // We do not consider this situation an error: So there is no nned to rebuild the ipTree.
+                //        Especially since the full-tree-rebuild takes long and makes consequent updates fail.
+                //
+            }
         } else {
             final List<IpTreeUpdate> ipTreeUpdates = jdbcTemplate.query("" +
                             "SELECT last.object_type, last.pkey, last.object_id, serials.operation " +
