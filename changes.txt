@@ -1,5 +1,8 @@
 ## next
 
+## 1.84.1
+[update] Fixed database went away bug
+
 ## 1.84
 [all] upgrade to MariaDB
 [nrtm] removed new (unused) dummifier
