@@ -20,6 +20,7 @@ import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.iptree.RouteEntry;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
@@ -47,7 +48,7 @@ class RpslObjectSearcher {
 
     static {
         for (final ObjectType objectType : ObjectType.values()) {
-            INVERSE_ATTRIBUTE_TYPES.addAll(ObjectTemplate.getTemplate(objectType).getInverseLookupAttributes());
+            INVERSE_ATTRIBUTE_TYPES.addAll(ObjectTemplateProvider.getTemplate(objectType).getInverseLookupAttributes());
         }
     }
 
@@ -225,7 +226,7 @@ class RpslObjectSearcher {
     }
 
     private Iterable<ResponseObject> indexLookup(final Query query, final ObjectType type, final String searchValue) {
-        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(type);
+        final ObjectTemplate objectTemplate = ObjectTemplateProvider.getTemplate(type);
         final Set<AttributeType> keyAttributes = objectTemplate.getKeyAttributes();
 
         final Set<RpslObjectInfo> result = Sets.newTreeSet();
