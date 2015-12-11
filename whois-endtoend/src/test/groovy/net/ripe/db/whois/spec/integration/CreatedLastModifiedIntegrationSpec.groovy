@@ -434,7 +434,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                     phone:   +44 282 420469
                     nic-hdl: NP1-TEST
                     mnt-by:  TST-MNT
-                    changed: dbtest@ripe.net 20120101
                     source:  TEST
                     password: update
                  """.stripIndent())

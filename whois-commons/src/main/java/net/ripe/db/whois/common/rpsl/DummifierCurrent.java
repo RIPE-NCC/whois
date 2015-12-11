@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,6 @@ import java.util.Set;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.AUTH;
-import static net.ripe.db.whois.common.rpsl.AttributeType.CHANGED;
 import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IRT_NFY;
@@ -35,10 +35,13 @@ public class DummifierCurrent implements Dummifier {
     private static final Splitter EMAIL_SPLITTER = Splitter.on('@');
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ');
 
-    private static final Set<AttributeType> EMAIL_ATTRIBUTES = Sets.immutableEnumSet(E_MAIL, NOTIFY, CHANGED, REF_NFY, IRT_NFY, MNT_NFY, UPD_TO);
+    private static final Set<AttributeType> EMAIL_ATTRIBUTES = Sets.immutableEnumSet(E_MAIL, NOTIFY, REF_NFY, IRT_NFY, MNT_NFY, UPD_TO);
     private static final Set<AttributeType> PHONE_FAX_ATTRIBUTES = Sets.immutableEnumSet(PHONE, FAX_NO);
+    private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
 
     public RpslObject dummify(final int version, final RpslObject rpslObject) {
+
+
         final ObjectType objectType = rpslObject.getType();
         Validate.isTrue(isAllowed(version, rpslObject), "The version is not supported by this dummifier", version);
 
@@ -76,7 +79,7 @@ public class DummifierCurrent implements Dummifier {
             attributes.set(lastAddressLineIndex, lastAddressLine);
         }
 
-        return new RpslObject(rpslObject, attributes);
+        return FILTER_CHANGED_FUNCTION.apply(new RpslObject(rpslObject, attributes));
     }
 
     private RpslAttribute replacePhoneFax(final AttributeType attributeType, final RpslAttribute attribute) {

@@ -65,7 +65,7 @@ public class RpslObject implements Identifiable, ResponseObject {
         this.type = ObjectType.getByName(typeAttribute.getKey());
         this.attributes = Collections.unmodifiableList(attributes);
 
-        final Set<AttributeType> keyAttributes = ObjectTemplate.getTemplate(type).getKeyAttributes();
+        final Set<AttributeType> keyAttributes = ObjectTemplateProvider.getTemplate(type).getKeyAttributes();
         if (keyAttributes.size() == 1) {
             this.key = getValueForAttribute(keyAttributes.iterator().next());
             Validate.notEmpty(this.key.toString(), "key attributes must have value");

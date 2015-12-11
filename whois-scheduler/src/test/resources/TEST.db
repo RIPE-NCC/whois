@@ -16,8 +16,6 @@ remarks:        This object is only an example!
 remarks:        *******************************
 mnt-by:         EXAMPLE-MNT
 abuse-mailbox:  abuse@example.com
-changed:        john.smith@example.com 20051104
-changed:        john.smith@example.com 20051105
 source:         TEST
 
 mntner:         TEST-ROOT-MNT
@@ -26,11 +24,10 @@ admin-c:        AA1-TEST
 tech-c:         AA2-TEST
 upd-to:         bitbucket@ripe.net
 mnt-nfy:        bitbucket@ripe.net
-auth:           MD5-PW $1$XXXXXXXX$XXXXXXXXXXXXXXXXXXXXX/ 
+auth:           MD5-PW $1$XXXXXXXX$XXXXXXXXXXXXXXXXXXXXX/
 notify:         bitbucket@ripe.net
 mnt-by:         TEST-ROOT-MNT
 remarks:        This is an automatically created object.
-changed:        bitbucket@ripe.net 20051031
 source:         TEST
 
 mntner:         TEST-DBM-MNT
@@ -40,13 +37,12 @@ tech-c:         AA2-TEST
 upd-to:         bitbucket@ripe.net
 mnt-nfy:        bitbucket@ripe.net
 auth:           MD5-PW $1$N2zhyJ3g$hzX7XTL84DtBkCWhBZE2c/
-remarks:        ********************************************************************** 
+remarks:        **********************************************************************
 remarks:        Password is "emptypassword" without the quotes.
-remarks:        ********************************************************************** 
+remarks:        **********************************************************************
 notify:         bitbucket@ripe.net
 mnt-by:         TEST-ROOT-MNT
 remarks:        This is an automatically created object.
-changed:        bitbucket@ripe.net 20051031
 source:         TEST
 
 person:         Test Person
@@ -57,7 +53,6 @@ fax-no:         +12 34 5678900
 e-mail:         bitbucket@ripe.net
 nic-hdl:        AA1-TEST
 remarks:        This is an automatically created object.
-changed:        bitbucket@ripe.net 20051031
 source:         TEST
 
 role:           TEST ROLE
@@ -71,7 +66,6 @@ admin-c:        AA1-TEST
 tech-c:         AA2-TEST
 mnt-by:         TEST-ROOT-MNT
 remarks:        This is an automatically created object.
-changed:        bitbucket@ripe.net 20051031
 source:         TEST
 
 organisation: ORG-TT1-TEST
@@ -88,7 +82,6 @@ mnt-ref:      TEST-DBM-MNT
 notify:       bitbucket@ripe.net
 mnt-by:       TEST-ROOT-MNT
 remarks:      This is an automatically created object.
-changed:      bitbucket@ripe.net 20051031
 source:       TEST
 
 inetnum:      0.0.0.0 - 255.255.255.255
@@ -104,7 +97,6 @@ mnt-by:       TEST-ROOT-MNT
 mnt-lower:    TEST-DBM-MNT
 mnt-routes:   TEST-DBM-MNT
 remarks:      This is an automatically created object.
-changed:      bitbucket@ripe.net 20051031
 source:       TEST
 
 inet6num:     0::/0
@@ -120,7 +112,6 @@ mnt-routes:   TEST-DBM-MNT
 status:       ALLOCATED-BY-RIR
 remarks:      This network in not allocated.
 remarks:      This is an automatically created object.
-changed:      bitbucket@ripe.net 20051031
 source:       TEST
 
 as-block:     AS1 - AS4294967295
@@ -131,7 +122,6 @@ tech-c:       AA2-TEST
 mnt-by:       TEST-ROOT-MNT
 mnt-lower:    TEST-DBM-MNT
 remarks:      This is an automatically created object.
-changed:      bitbucket@ripe.net 20051031
 source:       TEST
 
 domain:       in-addr.arpa
@@ -143,7 +133,6 @@ nserver:      ns.ripe.net # this is just a placeholder
 mnt-by:       TEST-ROOT-MNT
 mnt-lower:    TEST-DBM-MNT
 remarks:      This is an automatically created object.
-changed:      bitbucket@ripe.net 20051031
 source:       TEST
 
 domain:       ip6.arpa
@@ -155,7 +144,6 @@ nserver:      ns.ripe.net # this is just a placeholder
 mnt-by:       TEST-ROOT-MNT
 mnt-lower:    TEST-DBM-MNT
 remarks:      This is an automatically created object.
-changed:      bitbucket@ripe.net 20051031
 source:       TEST
 
 domain:       e164.arpa
@@ -167,7 +155,6 @@ nserver:      ns.ripe.net # this is just a placeholder
 mnt-by:       TEST-ROOT-MNT
 mnt-lower:    TEST-DBM-MNT
 remarks:      This is an automatically created object.
-changed:      bitbucket@ripe.net 20051031
 source:       TEST
 
 inetnum:        10.0.0.0 - 10.255.255.255
@@ -185,7 +172,6 @@ mnt-lower:      TEST-DBM-MNT
 mnt-routes:     TEST-DBM-MNT
 geoloc:		52.37559917665907 4.888916015625
 org:		ORG-TT1-TEST
-changed:        bitbucket@ripe.net 20051031
 source:         TEST
 
 mntner:         EXAMPLE-MNT
@@ -198,7 +184,6 @@ auth:           MD5-PW $1$wCDUXtMe$MptgAFcPa3sy9QqQnbX4X/
 notify:         john.smith@example.com
 abuse-mailbox:  abuse@example.com
 mnt-by:         EXAMPLE-MNT
-changed:        john.smith@example.com 20051104
 source:         TEST
 
 inetnum:        10.11.11.0 - 10.11.11.255
@@ -213,7 +198,6 @@ notify:         john.smith@example.com
 mnt-by:         EXAMPLE-MNT
 mnt-lower:      EXAMPLE-MNT
 mnt-routes:     EXAMPLE-MNT
-changed:        john.smith@example.com 20051125
 source:         TEST
 
 aut-num:        AS101111
@@ -223,14 +207,12 @@ org:		ORG-TT1-TEST
 admin-c:        JS1-TEST
 tech-c:         JS1-TEST
 mnt-by:         EXAMPLE-MNT
-changed:        unread@ripe.net 20101010
 source:         TEST
 
 route:          10.11.11.0/24
 origin:         AS101111
 descr:          route
 mnt-by:         EXAMPLE-MNT
-changed:        unread@ripe.net 20110101
 source:         TEST
 
 inetnum:        10.11.13.0 - 10.11.13.255
@@ -245,7 +227,6 @@ notify:         john.smith@example.com
 mnt-by:         EXAMPLE-MNT
 mnt-lower:      EXAMPLE-MNT
 mnt-routes:     EXAMPLE-MNT
-changed:        john.smith@example.com 20051125
 source:         TEST
 
 ###
@@ -262,7 +243,6 @@ address:        NL
 e-mail:         bad@ripe.net
 mnt-ref:        RIPE-NCC-BA-MNT
 mnt-by:         TEST-NCC-HM-MNT
-changed:        bad@ripe.net 20071025
 source:         TEST
 
 mntner:         TEST-NCC-HM-MNT
@@ -274,7 +254,6 @@ remarks:        ****************************************************************
 remarks:        Password is "emptypassword" without the quotes.
 remarks:        **********************************************************************
 mnt-by:         TEST-ROOT-MNT
-changed:        me@ripe.net 20010314
 source:         TEST
 
 person:         BA Engineer
@@ -287,7 +266,6 @@ fax-no:         +31 0000000000
 nic-hdl:        BADT-RIPE
 mnt-by:         RIPE-NCC-BA-MNT
 source:         TEST
-changed:        bitbucket@ripe.net 20110301
 
 mntner:         RIPE-NCC-BA-MNT
 descr:          RIPE-NCC BA Maintainer
@@ -295,7 +273,6 @@ admin-c:        BADT-RIPE
 upd-to:         bad@ripe.net
 auth:           MD5-PW $1$gzTyjS7h$3ctGphaA6wjahQ6V6WKVY/
 mnt-by:         RIPE-NCC-BA-MNT
-changed:        bad@ripe.net 20071025
 source:         TEST
 
 
@@ -309,8 +286,6 @@ mnt-nfy: unread@ripe.net
 auth: MD5-PW $1$umvARPdD$7HVvS66psAx9qZtkDpmWY/
 notify: unread@ripe.net
 mnt-by: RIPE-DBM-STARTUP-MNT
-changed: ripe-dbm@ripe.net 20080806
-changed: ripe-dbm@ripe.net 20080909
 source: TEST
 
 ###
@@ -331,7 +306,6 @@ remarks:        * To view the original object, please query the RIPE
 remarks:        * Database at:
 remarks:        * http://www.ripe.net/whois
 remarks:        **********************************************************
-changed:        bitbucket@ripe.net 20090724
 source:         TEST
 
 ###
@@ -346,7 +320,6 @@ phone:		+31205354444
 e-mail:		trainer@example.org
 nic-hdl:	TS1-TEST
 mnt-by:		TS1-MNT
-changed:	trainer@example.org 20120508
 source:		TEST
 
 mntner:		TS1-MNT
@@ -355,7 +328,6 @@ descr:		Managed by trainer
 admin-c:	TS1-TEST
 mnt-by:		TS1-MNT
 auth:		MD5-PW $1$nhN4mW9L$CtrhHYQwR6m6Q1KdL5V8d1
-changed:	hostmaster@example.org 20121115
 upd-to:		trainer@example.org
 abuse-mailbox:	abuse@example.org
 source:		TEST
@@ -374,7 +346,6 @@ ref-nfy:	auto@example.net
 notify:		xnotify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 as-set:		AS-set-attendees
@@ -385,7 +356,6 @@ members:	as1,as2,as3,as4,as5,as6,as7,as8,as9,as10,
 members:	as11,as12,as13,as14,as15,as16,as17,as18,as19,as20
 members:	as21,as22,as23,as24,as25,as26,as27,as28,as29,as30
 mnt-by:		TS1-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 aut-num:	AS101
@@ -402,7 +372,6 @@ import-via: AS67777 from AS5580 accept AS-ATRATO
 export-via: AS67777 to AS5580 announce AS101
 mnt-by:		TEST-DBM-MNT
 mnt-by:		TS1-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 aut-num:	AS601
@@ -419,7 +388,6 @@ mp-import:	afi ipv6.unicast from AS-set-attendees accept  201
 mp-export:	afi ipv6.unicast to AS-set-attendees announce 601
 mnt-by:		TEST-DBM-MNT
 mnt-by:		TS1-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 aut-num:	AS201
@@ -434,7 +402,6 @@ mp-import:	afi ipv6.unicast from AS-set-attendees accept ANY
 mp-export:	afi ipv6.unicast to AS-set-attendees announce as201
 mnt-by:		TEST-DBM-MNT
 mnt-by:		TS1-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inetnum:	172.16.60.0 - 172.16.60.255
@@ -449,7 +416,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	TS1-MNT
 mnt-routes:	TS1-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:60::/48
@@ -464,7 +430,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	TS1-MNT
 mnt-routes:	TS1-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee1
@@ -475,7 +440,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA1-TEST
 mnt-by:		CM1-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM1-MNT
@@ -484,7 +448,6 @@ descr:		Managed by attendee 1
 admin-c:	CA1-TEST
 mnt-by:		CM1-MNT
 auth:		MD5-PW $1$FX2KLhzv$z2onl0vKBOXeNyR11rWKs.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -501,7 +464,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.1.0 - 172.16.1.255
@@ -516,7 +478,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM1-MNT
 mnt-routes:	CM1-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:1::/48
@@ -531,7 +492,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM1-MNT
 mnt-routes:	CM1-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS1
@@ -542,7 +502,6 @@ admin-c:	CA1-TEST
 tech-c:		CA1-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM1-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee2
@@ -553,7 +512,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA2-TEST
 mnt-by:		CM2-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM2-MNT
@@ -562,7 +520,6 @@ descr:		Managed by attendee 2
 admin-c:	CA2-TEST
 mnt-by:		CM2-MNT
 auth:		MD5-PW $1$1iIgIZez$3m5T8y5GXwvuUYolYG8YJ.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -579,7 +536,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.2.0 - 172.16.2.255
@@ -594,7 +550,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM2-MNT
 mnt-routes:	CM2-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:2::/48
@@ -609,7 +564,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM2-MNT
 mnt-routes:	CM2-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS2
@@ -620,7 +574,6 @@ admin-c:	CA2-TEST
 tech-c:		CA2-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM2-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee3
@@ -631,7 +584,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA3-TEST
 mnt-by:		CM3-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM3-MNT
@@ -640,7 +592,6 @@ descr:		Managed by attendee 3
 admin-c:	CA3-TEST
 mnt-by:		CM3-MNT
 auth:		MD5-PW $1$MRAzBivc$vxFE81qLIMRNDi5VI0Fzn.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -657,7 +608,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.3.0 - 172.16.3.255
@@ -672,7 +622,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM3-MNT
 mnt-routes:	CM3-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:3::/48
@@ -687,7 +636,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM3-MNT
 mnt-routes:	CM3-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS3
@@ -698,7 +646,6 @@ admin-c:	CA3-TEST
 tech-c:		CA3-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM3-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee4
@@ -709,7 +656,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA4-TEST
 mnt-by:		CM4-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM4-MNT
@@ -718,7 +664,6 @@ descr:		Managed by attendee 4
 admin-c:	CA4-TEST
 mnt-by:		CM4-MNT
 auth:		MD5-PW $1$xtwDyXI0$I..kpGzHD2IZsxfUakPid/
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -735,7 +680,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.4.0 - 172.16.4.255
@@ -750,7 +694,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM4-MNT
 mnt-routes:	CM4-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:4::/48
@@ -765,7 +708,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM4-MNT
 mnt-routes:	CM4-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS4
@@ -776,7 +718,6 @@ admin-c:	CA4-TEST
 tech-c:		CA4-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM4-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee5
@@ -787,7 +728,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA5-TEST
 mnt-by:		CM5-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM5-MNT
@@ -796,7 +736,6 @@ descr:		Managed by attendee 5
 admin-c:	CA5-TEST
 mnt-by:		CM5-MNT
 auth:		MD5-PW $1$eNRgFFG1$9X7uk6YmYGTUEEyjEt5ZZ/
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -813,7 +752,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.5.0 - 172.16.5.255
@@ -828,7 +766,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM5-MNT
 mnt-routes:	CM5-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:5::/48
@@ -843,7 +780,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM5-MNT
 mnt-routes:	CM5-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS5
@@ -854,7 +790,6 @@ admin-c:	CA5-TEST
 tech-c:		CA5-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM5-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee6
@@ -865,7 +800,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA6-TEST
 mnt-by:		CM6-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM6-MNT
@@ -874,7 +808,6 @@ descr:		Managed by attendee 6
 admin-c:	CA6-TEST
 mnt-by:		CM6-MNT
 auth:		MD5-PW $1$lt5viqIA$VM61cekUhk.nCcnEyikBO1
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -891,7 +824,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.6.0 - 172.16.6.255
@@ -906,7 +838,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM6-MNT
 mnt-routes:	CM6-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:6::/48
@@ -921,7 +852,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM6-MNT
 mnt-routes:	CM6-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS6
@@ -932,7 +862,6 @@ admin-c:	CA6-TEST
 tech-c:		CA6-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM6-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee7
@@ -943,7 +872,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA7-TEST
 mnt-by:		CM7-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM7-MNT
@@ -952,7 +880,6 @@ descr:		Managed by attendee 7
 admin-c:	CA7-TEST
 mnt-by:		CM7-MNT
 auth:		MD5-PW $1$BoBcSQmy$OTDmkgl.6nY/5eJ71UiG/1
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -969,7 +896,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.7.0 - 172.16.7.255
@@ -984,7 +910,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM7-MNT
 mnt-routes:	CM7-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:7::/48
@@ -999,7 +924,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM7-MNT
 mnt-routes:	CM7-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS7
@@ -1010,7 +934,6 @@ admin-c:	CA7-TEST
 tech-c:		CA7-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM7-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee8
@@ -1021,7 +944,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA8-TEST
 mnt-by:		CM8-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM8-MNT
@@ -1030,7 +952,6 @@ descr:		Managed by attendee 8
 admin-c:	CA8-TEST
 mnt-by:		CM8-MNT
 auth:		MD5-PW $1$vid76srh$ND3KX0XMfhfsMltRgehc.1
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1047,7 +968,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.8.0 - 172.16.8.255
@@ -1062,7 +982,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM8-MNT
 mnt-routes:	CM8-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:8::/48
@@ -1077,7 +996,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM8-MNT
 mnt-routes:	CM8-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS8
@@ -1088,7 +1006,6 @@ admin-c:	CA8-TEST
 tech-c:		CA8-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM8-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee9
@@ -1099,7 +1016,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA9-TEST
 mnt-by:		CM9-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM9-MNT
@@ -1108,7 +1024,6 @@ descr:		Managed by attendee 9
 admin-c:	CA9-TEST
 mnt-by:		CM9-MNT
 auth:		MD5-PW $1$7NZhJNFb$62Ca3eb60acmn8/Zj8A86.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1125,7 +1040,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.9.0 - 172.16.9.255
@@ -1140,7 +1054,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM9-MNT
 mnt-routes:	CM9-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:9::/48
@@ -1155,7 +1068,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM9-MNT
 mnt-routes:	CM9-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS9
@@ -1166,7 +1078,6 @@ admin-c:	CA9-TEST
 tech-c:		CA9-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM9-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee10
@@ -1177,7 +1088,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA10-TEST
 mnt-by:		CM10-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM10-MNT
@@ -1186,7 +1096,6 @@ descr:		Managed by attendee 10
 admin-c:	CA10-TEST
 mnt-by:		CM10-MNT
 auth:		MD5-PW $1$FpVRXzth$Sexp75.TW1GyDJEVD2Q/E1
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1203,7 +1112,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.10.0 - 172.16.10.255
@@ -1218,7 +1126,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM10-MNT
 mnt-routes:	CM10-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:10::/48
@@ -1233,7 +1140,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM10-MNT
 mnt-routes:	CM10-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS10
@@ -1244,7 +1150,6 @@ admin-c:	CA10-TEST
 tech-c:		CA10-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM10-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee11
@@ -1255,7 +1160,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA11-TEST
 mnt-by:		CM11-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM11-MNT
@@ -1264,7 +1168,6 @@ descr:		Managed by attendee 11
 admin-c:	CA11-TEST
 mnt-by:		CM11-MNT
 auth:		MD5-PW $1$oUTcKCg7$IkIFeYABRdgQgChlwiK4S.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1281,7 +1184,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.11.0 - 172.16.11.255
@@ -1296,7 +1198,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM11-MNT
 mnt-routes:	CM11-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:11::/48
@@ -1311,7 +1212,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM11-MNT
 mnt-routes:	CM11-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS11
@@ -1322,7 +1222,6 @@ admin-c:	CA11-TEST
 tech-c:		CA11-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM11-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee12
@@ -1333,7 +1232,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA12-TEST
 mnt-by:		CM12-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM12-MNT
@@ -1342,7 +1240,6 @@ descr:		Managed by attendee 12
 admin-c:	CA12-TEST
 mnt-by:		CM12-MNT
 auth:		MD5-PW $1$kEWL8xPp$ccr6YFfASGSu6UnNjMETS0
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1359,7 +1256,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.12.0 - 172.16.12.255
@@ -1374,7 +1270,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM12-MNT
 mnt-routes:	CM12-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:12::/48
@@ -1389,7 +1284,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM12-MNT
 mnt-routes:	CM12-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS12
@@ -1400,7 +1294,6 @@ admin-c:	CA12-TEST
 tech-c:		CA12-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM12-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee13
@@ -1411,7 +1304,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA13-TEST
 mnt-by:		CM13-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM13-MNT
@@ -1420,7 +1312,6 @@ descr:		Managed by attendee 13
 admin-c:	CA13-TEST
 mnt-by:		CM13-MNT
 auth:		MD5-PW $1$nV3LRovs$uH7UEvIDKYhLa2vDzrD28/
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1437,7 +1328,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.13.0 - 172.16.13.255
@@ -1452,7 +1342,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM13-MNT
 mnt-routes:	CM13-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:13::/48
@@ -1467,7 +1356,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM13-MNT
 mnt-routes:	CM13-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS13
@@ -1478,7 +1366,6 @@ admin-c:	CA13-TEST
 tech-c:		CA13-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM13-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee14
@@ -1489,7 +1376,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA14-TEST
 mnt-by:		CM14-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM14-MNT
@@ -1498,7 +1384,6 @@ descr:		Managed by attendee 14
 admin-c:	CA14-TEST
 mnt-by:		CM14-MNT
 auth:		MD5-PW $1$92vrBtpP$iVnO8reiNvUUVduHbadbc/
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1515,7 +1400,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.14.0 - 172.16.14.255
@@ -1530,7 +1414,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM14-MNT
 mnt-routes:	CM14-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:14::/48
@@ -1545,7 +1428,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM14-MNT
 mnt-routes:	CM14-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS14
@@ -1556,7 +1438,6 @@ admin-c:	CA14-TEST
 tech-c:		CA14-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM14-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee15
@@ -1567,7 +1448,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA15-TEST
 mnt-by:		CM15-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM15-MNT
@@ -1576,7 +1456,6 @@ descr:		Managed by attendee 15
 admin-c:	CA15-TEST
 mnt-by:		CM15-MNT
 auth:		MD5-PW $1$SfKfxorc$WxZ2zJeZJVdJIk2gd5uBc/
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1593,7 +1472,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.15.0 - 172.16.15.255
@@ -1608,7 +1486,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM15-MNT
 mnt-routes:	CM15-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:15::/48
@@ -1623,7 +1500,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM15-MNT
 mnt-routes:	CM15-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS15
@@ -1634,7 +1510,6 @@ admin-c:	CA15-TEST
 tech-c:		CA15-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM15-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee16
@@ -1645,7 +1520,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA16-TEST
 mnt-by:		CM16-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM16-MNT
@@ -1654,7 +1528,6 @@ descr:		Managed by attendee 16
 admin-c:	CA16-TEST
 mnt-by:		CM16-MNT
 auth:		MD5-PW $1$PPgvpJ3C$yuU3LevqFHzj4fhlADwJh.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1671,7 +1544,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.16.0 - 172.16.16.255
@@ -1686,7 +1558,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM16-MNT
 mnt-routes:	CM16-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:16::/48
@@ -1701,7 +1572,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM16-MNT
 mnt-routes:	CM16-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS16
@@ -1712,7 +1582,6 @@ admin-c:	CA16-TEST
 tech-c:		CA16-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM16-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee17
@@ -1723,7 +1592,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA17-TEST
 mnt-by:		CM17-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM17-MNT
@@ -1732,7 +1600,6 @@ descr:		Managed by attendee 17
 admin-c:	CA17-TEST
 mnt-by:		CM17-MNT
 auth:		MD5-PW $1$HklibzRO$6W4wE3Rta7d5GVhZHhuPd1
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1749,7 +1616,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.17.0 - 172.16.17.255
@@ -1764,7 +1630,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM17-MNT
 mnt-routes:	CM17-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:17::/48
@@ -1779,7 +1644,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM17-MNT
 mnt-routes:	CM17-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS17
@@ -1790,7 +1654,6 @@ admin-c:	CA17-TEST
 tech-c:		CA17-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM17-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee18
@@ -1801,7 +1664,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA18-TEST
 mnt-by:		CM18-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM18-MNT
@@ -1810,7 +1672,6 @@ descr:		Managed by attendee 18
 admin-c:	CA18-TEST
 mnt-by:		CM18-MNT
 auth:		MD5-PW $1$dQTKgRSx$peQM1JsQk3KJJjDny1hN9.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1827,7 +1688,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.18.0 - 172.16.18.255
@@ -1842,7 +1702,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM18-MNT
 mnt-routes:	CM18-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:18::/48
@@ -1857,7 +1716,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM18-MNT
 mnt-routes:	CM18-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS18
@@ -1868,7 +1726,6 @@ admin-c:	CA18-TEST
 tech-c:		CA18-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM18-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee19
@@ -1879,7 +1736,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA19-TEST
 mnt-by:		CM19-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM19-MNT
@@ -1888,7 +1744,6 @@ descr:		Managed by attendee 19
 admin-c:	CA19-TEST
 mnt-by:		CM19-MNT
 auth:		MD5-PW $1$pvz2lhAr$9hABRQS7Ki8piCdjjFAqf.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1905,7 +1760,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.19.0 - 172.16.19.255
@@ -1920,7 +1774,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM19-MNT
 mnt-routes:	CM19-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:19::/48
@@ -1935,7 +1788,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM19-MNT
 mnt-routes:	CM19-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS19
@@ -1946,7 +1798,6 @@ admin-c:	CA19-TEST
 tech-c:		CA19-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM19-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee20
@@ -1957,7 +1808,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA20-TEST
 mnt-by:		CM20-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM20-MNT
@@ -1966,7 +1816,6 @@ descr:		Managed by attendee 20
 admin-c:	CA20-TEST
 mnt-by:		CM20-MNT
 auth:		MD5-PW $1$JB4gZIOq$wiGHR2NA9QsPkF/NCnwYv1
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -1983,7 +1832,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.20.0 - 172.16.20.255
@@ -1998,7 +1846,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM20-MNT
 mnt-routes:	CM20-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:20::/48
@@ -2013,7 +1860,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM20-MNT
 mnt-routes:	CM20-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS20
@@ -2024,7 +1870,6 @@ admin-c:	CA20-TEST
 tech-c:		CA20-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM20-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee21
@@ -2035,7 +1880,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA21-TEST
 mnt-by:		CM21-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM21-MNT
@@ -2044,7 +1888,6 @@ descr:		Managed by attendee 21
 admin-c:	CA21-TEST
 mnt-by:		CM21-MNT
 auth:		MD5-PW $1$0TTg5cT9$kMUS8q1csfij.jvZRimLl.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -2061,7 +1904,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.21.0 - 172.16.21.255
@@ -2076,7 +1918,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM21-MNT
 mnt-routes:	CM21-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:21::/48
@@ -2091,7 +1932,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM21-MNT
 mnt-routes:	CM21-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS21
@@ -2102,7 +1942,6 @@ admin-c:	CA21-TEST
 tech-c:		CA21-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM21-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee22
@@ -2113,7 +1952,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA22-TEST
 mnt-by:		CM22-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM22-MNT
@@ -2122,7 +1960,6 @@ descr:		Managed by attendee 22
 admin-c:	CA22-TEST
 mnt-by:		CM22-MNT
 auth:		MD5-PW $1$4IoxOVaB$AbkpGx7IcdPWo/yc4OyvS.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -2139,7 +1976,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.22.0 - 172.16.22.255
@@ -2154,7 +1990,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM22-MNT
 mnt-routes:	CM22-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:22::/48
@@ -2169,7 +2004,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM22-MNT
 mnt-routes:	CM22-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS22
@@ -2180,7 +2014,6 @@ admin-c:	CA22-TEST
 tech-c:		CA22-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM22-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee23
@@ -2191,7 +2024,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA23-TEST
 mnt-by:		CM23-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM23-MNT
@@ -2200,7 +2032,6 @@ descr:		Managed by attendee 23
 admin-c:	CA23-TEST
 mnt-by:		CM23-MNT
 auth:		MD5-PW $1$tyJCeBrp$4GYg7KGxbxvGsB8wTMVKq1
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -2217,7 +2048,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.23.0 - 172.16.23.255
@@ -2232,7 +2062,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM23-MNT
 mnt-routes:	CM23-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:23::/48
@@ -2247,7 +2076,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM23-MNT
 mnt-routes:	CM23-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS23
@@ -2258,7 +2086,6 @@ admin-c:	CA23-TEST
 tech-c:		CA23-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM23-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee24
@@ -2269,7 +2096,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA24-TEST
 mnt-by:		CM24-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM24-MNT
@@ -2278,7 +2104,6 @@ descr:		Managed by attendee 24
 admin-c:	CA24-TEST
 mnt-by:		CM24-MNT
 auth:		MD5-PW $1$gRjcdCYi$aiMhOCJk4lW62Zwn2EMbs.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -2295,7 +2120,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.24.0 - 172.16.24.255
@@ -2310,7 +2134,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM24-MNT
 mnt-routes:	CM24-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:24::/48
@@ -2325,7 +2148,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM24-MNT
 mnt-routes:	CM24-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS24
@@ -2336,7 +2158,6 @@ admin-c:	CA24-TEST
 tech-c:		CA24-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM24-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee25
@@ -2347,7 +2168,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA25-TEST
 mnt-by:		CM25-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM25-MNT
@@ -2356,7 +2176,6 @@ descr:		Managed by attendee 25
 admin-c:	CA25-TEST
 mnt-by:		CM25-MNT
 auth:		MD5-PW $1$A1EQTwyH$B3.oRwJX1Aj7pKMiAyrPl.
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -2373,7 +2192,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.25.0 - 172.16.25.255
@@ -2388,7 +2206,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM25-MNT
 mnt-routes:	CM25-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:25::/48
@@ -2403,7 +2220,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM25-MNT
 mnt-routes:	CM25-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS25
@@ -2414,7 +2230,6 @@ admin-c:	CA25-TEST
 tech-c:		CA25-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM25-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee26
@@ -2425,7 +2240,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA26-TEST
 mnt-by:		CM26-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM26-MNT
@@ -2434,7 +2248,6 @@ descr:		Managed by attendee 26
 admin-c:	CA26-TEST
 mnt-by:		CM26-MNT
 auth:		MD5-PW $1$2D2kfoGG$d3XCqy0vUnpU2abXe9Poe/
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -2451,7 +2264,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.26.0 - 172.16.26.255
@@ -2466,7 +2278,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM26-MNT
 mnt-routes:	CM26-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:26::/48
@@ -2481,7 +2292,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM26-MNT
 mnt-routes:	CM26-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS26
@@ -2492,7 +2302,6 @@ admin-c:	CA26-TEST
 tech-c:		CA26-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM26-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee27
@@ -2503,7 +2312,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA27-TEST
 mnt-by:		CM27-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM27-MNT
@@ -2512,7 +2320,6 @@ descr:		Managed by attendee 27
 admin-c:	CA27-TEST
 mnt-by:		CM27-MNT
 auth:		MD5-PW $1$sMkBNQqo$IXm1vhHFYEKrnX77aaRH9/
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -2529,7 +2336,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.27.0 - 172.16.27.255
@@ -2544,7 +2350,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM27-MNT
 mnt-routes:	CM27-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:27::/48
@@ -2559,7 +2364,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM27-MNT
 mnt-routes:	CM27-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS27
@@ -2570,7 +2374,6 @@ admin-c:	CA27-TEST
 tech-c:		CA27-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM27-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee28
@@ -2581,7 +2384,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA28-TEST
 mnt-by:		CM28-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM28-MNT
@@ -2590,7 +2392,6 @@ descr:		Managed by attendee 28
 admin-c:	CA28-TEST
 mnt-by:		CM28-MNT
 auth:		MD5-PW $1$rihOr6cf$K/U4VXZZs5dJtGSV/ThHf/
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -2607,7 +2408,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.28.0 - 172.16.28.255
@@ -2622,7 +2422,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM28-MNT
 mnt-routes:	CM28-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:28::/48
@@ -2637,7 +2436,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM28-MNT
 mnt-routes:	CM28-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS28
@@ -2648,7 +2446,6 @@ admin-c:	CA28-TEST
 tech-c:		CA28-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM28-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee29
@@ -2659,7 +2456,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA29-TEST
 mnt-by:		CM29-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM29-MNT
@@ -2668,7 +2464,6 @@ descr:		Managed by attendee 29
 admin-c:	CA29-TEST
 mnt-by:		CM29-MNT
 auth:		MD5-PW $1$Cq70ClVa$ccLu849vcMsYGG8ub585U0
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -2685,7 +2480,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.29.0 - 172.16.29.255
@@ -2700,7 +2494,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM29-MNT
 mnt-routes:	CM29-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:29::/48
@@ -2715,7 +2508,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM29-MNT
 mnt-routes:	CM29-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS29
@@ -2726,7 +2518,6 @@ admin-c:	CA29-TEST
 tech-c:		CA29-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM29-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 person:		Course Attendee30
@@ -2737,7 +2528,6 @@ phone:		+31205354444
 e-mail:		attendee@example.org
 nic-hdl:	CA30-TEST
 mnt-by:		CM30-MNT
-changed:	attendee@example.org 
 source:		TEST
 
 mntner:		CM30-MNT
@@ -2746,7 +2536,6 @@ descr:		Managed by attendee 30
 admin-c:	CA30-TEST
 mnt-by:		CM30-MNT
 auth:		MD5-PW $1$y1OeN4vi$2hYgjgi.jP9snzo0kc9s51
-changed:	attendee@example.org 20121115
 abuse-mailbox:	abuse@example.org
 source:		TEST
 
@@ -2763,7 +2552,6 @@ ref-nfy:	auto@example.net
 notify:		notify@example.org
 mnt-ref:	TEST-DBM-MNT
 mnt-by:		TEST-DBM-MNT
-changed:	trainer@example.org 20121115
 source:		TEST
 
 inetnum:	172.16.30.0 - 172.16.30.255
@@ -2778,7 +2566,6 @@ status:		ALLOCATED PA
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM30-MNT
 mnt-routes:	CM30-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 inet6num:	2001:db8:30::/48
@@ -2793,7 +2580,6 @@ status:		ALLOCATED-BY-RIR
 mnt-by:		TEST-DBM-MNT
 mnt-lower:	CM30-MNT
 mnt-routes:	CM30-MNT
-changed:	hostmaster@ripe.net 
 source:		TEST
 
 aut-num:	AS30
@@ -2804,7 +2590,6 @@ admin-c:	CA30-TEST
 tech-c:		CA30-TEST
 mnt-by:		TEST-DBM-MNT
 mnt-by:		CM30-MNT
-changed:	hostmaster@ripe.net 20121115
 source:		TEST
 
 
@@ -2819,7 +2604,6 @@ address:1016 AB Amsterdam
 phone:+31 20 535 4444
 nic-hdl:BL123-RIPE
 mnt-by:BL123-MNT
-changed:andrzej@ripencc-ts.example.com 20120907
 source:TEST
 e-mail:noc@ripencc-ts.example.com
 
@@ -2830,7 +2614,6 @@ tech-c:BL123-RIPE
 upd-to:noc@ripencc-ts.example.com
 auth:MD5-PW $1$LKfJKnHh$y.fIUZBlKy79elGMES5PU.
 mnt-by:BL123-MNT
-changed:andrzej@ripencc-ts.example.com 20120907
 source:TEST
 
 inetnum:85.118.184.0 - 85.118.191.255
@@ -2846,8 +2629,6 @@ mnt-by:TEST-NCC-HM-MNT
 mnt-lower:BL123-MNT
 mnt-domains:BL123-MNT
 mnt-routes:BL123-MNT
-changed:hostmaster@ripe.net 20120224
-changed:andrzej@ripencc-ts.example.com 20120907
 source:TEST
 
 person:Marc Bromski
@@ -2857,7 +2638,6 @@ phone:+31 20 535 4444
 e-mail:marc@laika.example.com
 nic-hdl:MB54321-RIPE
 mnt-by:laika-mnt
-changed:marc@laika.example.com 20120308
 source:TEST
 
 mntner:laika-mnt
@@ -2867,7 +2647,6 @@ upd-to:marc@laika.example.com
 auth:MD5-PW $1$PYZL9cL7$WIJMB7UALo6zjAik5TOko0
 mnt-by:laika-mnt
 notify:marc@laika.example.com
-changed:marc@laika.example.com 20120308
 remarks:Accepted the RIPE Database Terms and Conditions
 source:TEST
 
@@ -2902,7 +2681,6 @@ certif:     RI8=
 certif:     =YaII
 certif:     -----END PGP PUBLIC KEY BLOCK-----
 mnt-by:     RIPE-DBM-STARTUP-MNT
-changed:    test@localhost.com 20110801
 source:     TEST
 
 mntner:      TEST-NOPASS-MNT
@@ -2911,6 +2689,5 @@ admin-c:     AA1-TEST
 upd-to:      bitbucket@ripe.net
 auth:        PGPKEY-10B066BE
 mnt-by:      TEST-NOPASS-MNT
-changed:     bitbucket@ripe.net 20111124
 source:      TEST
 

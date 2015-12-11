@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @Category(ManualTest.class)
@@ -71,7 +72,7 @@ public class GrsImporterLacnicManualTest extends AbstractSchedulerIntegrationTes
     }
 
     @Test
-    public void import_lacnic_grs_download_dump() throws Exception {
+    public void  import_lacnic_grs_download_dump() throws Exception {
         awaitAll(grsImporter.grsImport("LACNIC-GRS", false));
 
         assertThat(query("-s LACNIC-GRS SOME-MNT"), containsString("mntner:         SOME-MNT"));
@@ -84,6 +85,7 @@ public class GrsImporterLacnicManualTest extends AbstractSchedulerIntegrationTes
 
         assertThat(query("-s LACNIC-GRS SOME-MNT"), containsString("mntner:         SOME-MNT"));
         assertThat(query("-s LACNIC-GRS -i mnt-by SOME-MNT"), containsString("mntner:         SOME-MNT"));
+        assertThat(query("-s LACNIC-GRS -i mnt-by SOME-MNT"), not(containsString("changed:")));
     }
 
     private void awaitAll(final List<Future> futures) throws ExecutionException, InterruptedException {

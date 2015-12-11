@@ -78,7 +78,7 @@ public enum QueryFlag {
             .describedAs("Disables the grouping of objects by relevance.")),
 
     NO_FILTERING(new Builder("B", "no-filtering")
-            .describedAs("Disables the filtering of \"notify:\", \"changed:\" and \"e-mail:\" attributes.")),
+            .describedAs("Disables the filtering of \"notify:\" and \"e-mail:\" attributes.")),
 
     VALID_SYNTAX(new Builder("valid-syntax")
             .describedAs("Returns only syntactically correct objects")),

@@ -127,7 +127,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   44 282 420469   # missing '+'
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
-                remarks:                 # missing mandatory attribute changed:
+                remarks:                 # none
                 source:  TEST
                 password: owner
                 """.stripIndent()

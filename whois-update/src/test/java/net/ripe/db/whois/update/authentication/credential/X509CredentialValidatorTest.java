@@ -74,7 +74,6 @@ public class X509CredentialValidatorTest {
                         "certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==\n" +
                         "certif:         -----END CERTIFICATE-----\n" +
                         "mnt-by:         OWNER-MNT\n" +
-                        "changed:        noreply@ripe.net 20010101\n" +
                         "source:         TEST\n");
             }
         });
@@ -105,10 +104,9 @@ public class X509CredentialValidatorTest {
             public RpslObject answer(InvocationOnMock invocation) throws Throwable {
                 return RpslObject.parse(
                         "key-cert:       AUTO-1\n" +
-                                "method:         X509\n" +
-                                "mnt-by:         OWNER-MNT\n" +
-                                "changed:        noreply@ripe.net 20010101\n" +
-                                "source:         TEST\n");
+                        "method:         X509\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "source:         TEST\n");
             }
         });
 
