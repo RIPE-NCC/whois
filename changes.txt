@@ -1,5 +1,8 @@
 ## next
 
+# 1.85
+[all] changed phase 3 (changed attribute is configurable: either optional or invalid)
+
 ## 1.84.1
 [update] Fixed database went away bug
 
