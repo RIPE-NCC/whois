@@ -54,4 +54,13 @@ public final class ValidationMessages {
     public static Message attributeCanBeRemovedOnlyByRipe(final AttributeType attributeType) {
         return new Message(Messages.Type.WARNING, "The attribute '%s' can only be removed by RIPE NCC", attributeType.getName());
     }
+
+    public static Message deprecatedAttributeFound(final AttributeType type) {
+        return new Message(Messages.Type.WARNING, "Deprecated attribute \"%s\". This attribute will be removed in the future.", type.getName());
+    }
+
+    public static Message changedAttributeRemoved() {
+        return new Message(Messages.Type.WARNING, "Deprecated attribute \"changed\". This attribute has been removed.");
+    }
+
 }

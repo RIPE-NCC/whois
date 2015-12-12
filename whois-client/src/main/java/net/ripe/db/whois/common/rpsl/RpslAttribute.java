@@ -215,7 +215,7 @@ public final class RpslAttribute {
         writer.write('\n');
     }
 
-    /** value as it is written to mysql/port43 client */
+    /** value as it is written to database/port43 client */
     public String getFormattedValue() {
         try {
             final StringWriter writer = new StringWriter();
@@ -240,6 +240,9 @@ public final class RpslAttribute {
             } else if (c == ' ' || c == '\t' || c == '\r') {
                 spaces++;
             } else if (c == '\n') {
+                if (spaces > 0 && leadColumn == 0) {
+                    writer.write('+');
+                }
                 leadColumn = 0;
                 spaces = 0;
                 writer.write(c);
@@ -256,6 +259,10 @@ public final class RpslAttribute {
 
                 writer.write(c);
             }
+        }
+
+        if (spaces > 0 && leadColumn == 0) {
+            writer.write('+');
         }
     }
 

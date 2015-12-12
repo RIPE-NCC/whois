@@ -22,7 +22,7 @@ public class MailMessageLogCallbackTest {
     public void log() throws IOException, MessagingException {
         final MailMessageLogCallback subject = new MailMessageLogCallback(message);
         subject.log(outputStream);
-        verify(message).writeTo(outputStream);
+        verify(outputStream).write("".getBytes());
     }
 
     @Test
@@ -32,6 +32,6 @@ public class MailMessageLogCallbackTest {
         doThrow(MessagingException.class).when(message).writeTo(outputStream);
 
         subject.log(outputStream);
-        verify(message).writeTo(outputStream);
+        verify(outputStream).write("".getBytes());
     }
 }

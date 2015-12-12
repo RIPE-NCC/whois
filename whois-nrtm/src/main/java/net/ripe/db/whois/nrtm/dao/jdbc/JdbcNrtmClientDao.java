@@ -53,7 +53,10 @@ public class JdbcNrtmClientDao implements NrtmClientDao {
 
     @Override
     public boolean objectExistsWithSerial(final int serialId, final int objectId) {
-        final int found = jdbcTemplate.queryForInt("SELECT count(*) FROM serials WHERE serial_id = ? AND object_id = ?", serialId, objectId);
+        final int found = jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM serials WHERE serial_id = ? AND object_id = ?",
+                Integer.class,
+                serialId, objectId);
         return found > 0;
     }
 }

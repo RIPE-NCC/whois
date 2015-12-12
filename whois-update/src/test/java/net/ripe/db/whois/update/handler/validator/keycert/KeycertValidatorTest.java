@@ -112,7 +112,6 @@ public class KeycertValidatorTest {
                 "certif:       -----END PGP PUBLIC KEY BLOCK-----\n" +
                 "mnt-by:       UPD-MNT\n" +
                 "notify:       noreply@ripe.net\n" +
-                "changed:      noreply@ripe.net 20120213\n" +
                 "source:       TEST\n");
         when(update.getAction()).thenReturn(Action.CREATE);
         when(update.getUpdatedObject()).thenReturn(object);

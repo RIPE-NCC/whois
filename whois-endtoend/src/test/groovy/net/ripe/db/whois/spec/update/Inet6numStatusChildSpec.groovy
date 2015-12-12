@@ -1,8 +1,8 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
@@ -20,7 +20,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "RIR-ALLOC-20-2a": """\
@@ -34,7 +33,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "RIR-ALLOC-25": """\
@@ -48,7 +46,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    lir-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "USER-RIR-ALLOC-25": """\
@@ -63,7 +60,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-MNT
                 mnt-lower:    lir-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "RIR-ALLOC-25-NO-LOW": """\
@@ -76,7 +72,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-HM-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "RIR-ALLOC-25-LOW-R-D": """\
@@ -93,7 +88,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-ROUTES:   lir2-MNT
                 mnt-DOMAINS:  lir3-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-ALLOC-20": """\
@@ -107,7 +101,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-MNT
                 mnt-lower:    LiR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-ALLOC-30": """\
@@ -121,7 +114,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-MNT
                 mnt-lower:    LiR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-32-48": """\
@@ -136,7 +128,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-32-50": """\
@@ -151,7 +142,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 50
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-48-56": """\
@@ -166,7 +156,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-48-64": """\
@@ -181,7 +170,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "LIR-AGGR-56-64": """\
@@ -196,7 +184,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LiR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size:64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ASS-64": """\
@@ -209,7 +196,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ASS-32": """\
@@ -222,7 +208,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ASS-ANY-32": """\
@@ -235,7 +220,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-HM-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ASSPI-64": """\
@@ -249,7 +233,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       lir-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "ASSPI-32": """\
@@ -263,7 +246,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       lir-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 """,
             "PN": """\
@@ -274,7 +256,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """
     ]}
@@ -303,7 +284,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 MNT-LOWER:    lir-mnt
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2a00:c90::/34
@@ -314,7 +294,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-mnt
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2a00:c90:4000::/34
@@ -325,7 +304,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-mnt
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2a00:c90:8000::/34
@@ -336,7 +314,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-mnt
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2a00:c90:c000::/34
@@ -347,7 +324,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-mnt
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -394,7 +370,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-mnt
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2a00:c90:4000::/34
@@ -405,7 +380,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-mnt
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2a00:c90:8000::/34
@@ -416,7 +390,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-mnt
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2a00:c90:c000::/34
@@ -427,7 +400,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       lir-mnt
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2a00:c90::/32
@@ -440,7 +412,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 MNT-LOWER:    lir-mnt
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -487,7 +458,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -527,7 +497,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -570,7 +539,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -613,7 +581,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -656,7 +623,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -699,7 +665,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -741,7 +706,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -782,7 +746,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -824,7 +787,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -864,7 +826,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -904,7 +865,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-RIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -946,7 +906,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -986,7 +945,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1027,7 +985,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1070,7 +1027,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1113,7 +1069,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1156,7 +1111,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1198,7 +1152,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1237,7 +1190,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1277,7 +1229,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1317,7 +1268,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1359,7 +1309,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ALLOCATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1404,7 +1353,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1445,7 +1393,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1487,7 +1434,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1529,7 +1475,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1573,7 +1518,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1617,7 +1561,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1660,7 +1603,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1700,7 +1642,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1741,7 +1682,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1782,7 +1722,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1825,7 +1764,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1866,7 +1804,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -1912,7 +1849,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
                 assignment-size: 48
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1959,7 +1895,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -2006,7 +1941,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -2029,6 +1963,7 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/48")
     }
 
+    @Ignore("Ref. Assignment-size can't be smaller than 48")
     def "create child AGGREGATED-BY-LIR, assignment-size = 0"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
@@ -2053,7 +1988,98 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 0
-                changed:      dbtest@ripe.net
+                source:       TEST
+
+                password: lir
+                password: owner3
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
+                ["\"assignment-size:\" value cannot be smaller than 48",
+                 "\"assignment-size:\" value must be greater than prefix size 32"]
+
+        queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+    }
+
+    @Ignore("Ref. Assignment-size can't be smaller than 48")
+    def "create child AGGREGATED-BY-LIR, assignment-size = 40"() {
+        given:
+        syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
+        queryObject("-r -T inet6num 2001::/20", "inet6num", "2001::/20")
+        syncUpdate(getTransient("LIR-ALLOC-30") + "password: owner3\npassword: hm\npassword: lir")
+        queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+
+        expect:
+        queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inet6num:     2001:600::/32
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       LIR-MNT
+                mnt-lower:    liR-MNT
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 40
+                source:       TEST
+
+                password: lir
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
+                ["\"assignment-size:\" value cannot be smaller than 48"]
+
+        queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+    }
+
+    @Ignore("Ref. Assignment-size can't be smaller than 48")
+    def "create child AGGREGATED-BY-LIR, assignment-size = 128"() {
+      given:
+        syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
+        queryObject("-r -T inet6num 2001::/20", "inet6num", "2001::/20")
+        syncUpdate(getTransient("LIR-ALLOC-30") + "password: owner3\npassword: hm\npassword: lir")
+        queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+
+      expect:
+        queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inet6num:     2001:600::/32
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       LIR-MNT
+                mnt-lower:    liR-MNT
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 128
                 source:       TEST
 
                 password: lir
@@ -2071,7 +2097,54 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
-                ["\"assignment-size:\" value must be greater than prefix size 32"]
+                ["\"assignment-size:\" value cannot be greater than 64"]
+
+        queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+    }
+
+    @Ignore("Ref. Assignment-size can't be smaller than 48")
+    def "create child AGGREGATED-BY-LIR, assignment-size > 128"() {
+      given:
+        syncUpdate(getTransient("RIR-ALLOC-20") + "password: owner3\npassword: hm")
+        queryObject("-r -T inet6num 2001::/20", "inet6num", "2001::/20")
+        syncUpdate(getTransient("LIR-ALLOC-30") + "password: owner3\npassword: hm\npassword: lir")
+        queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+
+      expect:
+        queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inet6num:     2001:600::/32
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       LIR-MNT
+                mnt-lower:    liR-MNT
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 130
+                source:       TEST
+
+                password: lir
+                password: owner3
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
+                ["\"assignment-size:\" value cannot be greater than 64"]
 
         queryObjectNotFound("-rGBT inet6num 2001:600::/32", "inet6num", "2001:600::/32")
     }
@@ -2100,7 +2173,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: large
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -2147,7 +2219,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/32
@@ -2160,7 +2231,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 50
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2208,7 +2278,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/48
@@ -2221,7 +2290,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2268,7 +2336,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/32
@@ -2281,7 +2348,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2325,7 +2391,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/32
@@ -2338,7 +2403,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2383,7 +2447,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/32
@@ -2396,7 +2459,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2444,7 +2506,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600:1::/64
@@ -2456,7 +2517,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/32
@@ -2469,7 +2529,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2520,7 +2579,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/48
@@ -2532,7 +2590,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2581,7 +2638,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/56
@@ -2593,7 +2649,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2640,7 +2695,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600:0:100::/56
@@ -2652,7 +2706,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/56
@@ -2664,7 +2717,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2713,7 +2765,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/48
@@ -2725,7 +2776,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600:1::/48
@@ -2738,7 +2788,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2787,7 +2836,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600:1::/48
@@ -2800,7 +2848,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/48
@@ -2812,7 +2859,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2861,7 +2907,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600:1::/56
@@ -2874,7 +2919,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2923,7 +2967,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/32
@@ -2936,7 +2979,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -2985,7 +3027,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/48
@@ -2998,7 +3039,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/32
@@ -3011,7 +3051,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete:
 
@@ -3060,7 +3099,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/48
@@ -3073,7 +3111,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/56
@@ -3085,7 +3122,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/48
@@ -3098,7 +3134,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
                 delete:
 
@@ -3149,7 +3184,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600:1::/48
@@ -3162,7 +3196,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/48
@@ -3175,7 +3208,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -3224,7 +3256,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/48
@@ -3237,7 +3268,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/32
@@ -3250,7 +3280,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -3299,7 +3328,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600:1::/48
@@ -3312,7 +3340,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/48
@@ -3325,7 +3352,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600:1:100::/56
@@ -3337,7 +3363,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600:5::/48
@@ -3349,7 +3374,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600:0:f::/64
@@ -3361,7 +3385,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -3416,7 +3439,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/48
@@ -3429,7 +3451,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/56
@@ -3442,7 +3463,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -3493,7 +3513,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 56
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/56
@@ -3506,7 +3525,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 64
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 inet6num:     2001:600::/32
@@ -3519,7 +3537,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    liR-MNT
                 status:       AGGREGATED-BY-LIR
                 assignment-size: 48
-                changed:      dbtest@ripe.net 20130101
                 source:       TEST
 
                 password: lir
@@ -3569,7 +3586,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -3609,7 +3625,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -3650,7 +3665,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -3691,7 +3705,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -3734,7 +3747,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -3777,7 +3789,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -3819,7 +3830,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -3858,7 +3868,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -3898,7 +3907,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -3938,7 +3946,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -3980,7 +3987,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4024,7 +4030,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4064,7 +4069,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -4107,7 +4111,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -4150,7 +4153,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -4193,7 +4195,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -4236,7 +4237,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -4278,7 +4278,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4319,7 +4318,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4359,7 +4357,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4399,7 +4396,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4442,7 +4438,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED PI
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4486,7 +4481,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4526,7 +4520,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -4569,7 +4562,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -4612,7 +4604,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -4655,7 +4646,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -4698,7 +4688,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -4740,7 +4729,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4781,7 +4769,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4821,7 +4808,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4861,7 +4847,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm
@@ -4903,7 +4888,6 @@ class Inet6numStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       ripe-ncc-hm-MNT
                 mnt-lower:    liR-MNT
                 status:       ASSIGNED ANYCAST
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: hm

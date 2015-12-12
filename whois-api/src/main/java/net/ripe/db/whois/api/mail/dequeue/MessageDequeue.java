@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.mail.Message;
@@ -156,6 +157,8 @@ public class MessageDequeue implements ApplicationService {
                     freeThreads.decrementAndGet();
                     handlerExecutor.submit(new MessageHandler(messageId));
                 }
+            } catch (DataAccessException e) {
+                LOGGER.warn("Unable to claim message due to {}", e.getMessage());
             } catch (RuntimeException e) {
                 LOGGER.error("Unexpected", e);
             }
@@ -238,7 +241,7 @@ public class MessageDequeue implements ApplicationService {
     private void handleUpdates(final MailMessage mailMessage, final UpdateContext updateContext) {
         final List<Update> updates = updatesParser.parse(updateContext, mailMessage.getContentWithCredentials());
 
-        final UpdateRequest updateRequest = new UpdateRequest(mailMessage, mailMessage.getKeyword(), mailMessage.getUpdateMessage(), updates);
+        final UpdateRequest updateRequest = new UpdateRequest(mailMessage, mailMessage.getKeyword(), updates);
         final UpdateResponse response = messageHandler.handle(updateRequest, updateContext);
         mailGateway.sendEmail(mailMessage.getReplyToEmail(), response.getStatus() + ": " + mailMessage.getSubject(), response.getResponse());
     }

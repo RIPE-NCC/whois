@@ -179,8 +179,8 @@ public class AttributeParserTestIntegration {
             } finally {
                 reader.close();
             }
-        } catch (FileNotFoundException e) {
-            // ignore
+        } catch (FileNotFoundException ignored) {
+            // ignored
         }
     }
 

@@ -15,15 +15,19 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
+import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -42,10 +46,12 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE6;
 public class IpTreeCacheManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(IpTreeCacheManager.class);
 
+    private final JdbcTemplate jdbcTemplate;
     private final SourceContext sourceContext;
 
     @Autowired
-    public IpTreeCacheManager(final SourceContext sourceContext) {
+    public IpTreeCacheManager(@Qualifier("sourceAwareDataSource") final DataSource dataSource, final SourceContext sourceContext) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.sourceContext = sourceContext;
     }
 
@@ -93,7 +99,7 @@ public class IpTreeCacheManager {
                 try {
                     update(ipTreeUpdate);
                 } catch (IntersectingIntervalException e) {
-                    LOGGER.warn("Skipping intersecting entry in " + cacheEntry.sourceConfiguration.getSource() + ": " + e.getMessage());
+                    LOGGER.warn("Skipping intersecting entry in {}: {}", cacheEntry.sourceConfiguration.getSource(), e.getMessage());
                 } catch (RuntimeException e) {
                     LOGGER.warn("Unable to update object {}: {}", ipTreeUpdate, e.getMessage());
                 }
@@ -187,6 +193,14 @@ public class IpTreeCacheManager {
     }
 
     public void update(final SourceConfiguration sourceConfiguration) {
+        update(sourceConfiguration, sourceConfiguration.getJdbcTemplate());
+    }
+
+    public void updateTransactional(final SourceConfiguration sourceConfiguration) {
+        update(sourceConfiguration, this.jdbcTemplate);
+    }
+
+    private void update(final SourceConfiguration sourceConfiguration, final JdbcTemplate jdbcTemplate) {
         final CIString source = sourceConfiguration.getSource().getName();
         final CacheEntry cacheEntry = cache.get(source);
         if (cacheEntry == null) {
@@ -196,7 +210,9 @@ public class IpTreeCacheManager {
         // don't wait here if other thread is already busy updating the tree
         if (cacheEntry.updateLock.tryAcquire()) {
             try {
-                update(sourceConfiguration.getJdbcTemplate(), cacheEntry);
+                update(jdbcTemplate, cacheEntry);
+            } catch (DataAccessException e) {
+                LOGGER.warn("Unable to update {} due to {}", sourceConfiguration, e.getMessage());
             } finally {
                 cacheEntry.updateLock.release();
             }
@@ -210,8 +226,23 @@ public class IpTreeCacheManager {
         if (fromExclusive == toInclusive) {
             LOGGER.debug("No update of IpTree needed (serial {} unchanged)", fromExclusive);
         } else if (fromExclusive > toInclusive) {
-            LOGGER.warn("Database went away; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
-            rebuild(jdbcTemplate, cacheEntry);
+            if( cacheEntry.sourceConfiguration.getSource().isTest()) {
+                LOGGER.warn("Database went away; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
+                // For the test source, we reload the database every night, so in this case we do need a full rebuild of the ipTree.
+                rebuild(jdbcTemplate, cacheEntry);
+            } else {
+                LOGGER.info("IpTree is ahead of local database; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
+                //
+                // Situation typically appears when:
+                // - a batch-update (=multiple updates in single transaction) is performed and
+                // - the "IpTreeUpdater"-scheduled-task kicks in on that node before replication from master to local database has completed.
+                //
+                // In this particular situation the in-memory tree is ahead of the local database.
+                // Regular replication events will eventually solve this situation.
+                // We do not consider this situation an error: So there is no nned to rebuild the ipTree.
+                //        Especially since the full-tree-rebuild takes long and makes consequent updates fail.
+                //
+            }
         } else {
             final List<IpTreeUpdate> ipTreeUpdates = jdbcTemplate.query("" +
                             "SELECT last.object_type, last.pkey, last.object_id, serials.operation " +
@@ -326,7 +357,6 @@ public class IpTreeCacheManager {
                 new RowMapper<IpTreeUpdate>() {
                     @Override
                     public IpTreeUpdate mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-
                         return new IpTreeUpdate(ROUTE6,
                                 new Ipv6Entry(Ipv6Resource.parseFromStrings(rs.getString(1), rs.getString(2), rs.getInt(3)), rs.getInt(4)).getKey() + rs.getString(5),
                                 rs.getInt(4),
@@ -354,7 +384,7 @@ public class IpTreeCacheManager {
         cacheEntry.nestedIntervalMaps = nestedIntervalMaps;
     }
 
-    private int getLastSerial(final JdbcTemplate jdbcTemplate) {
-        return jdbcTemplate.queryForInt("SELECT MAX(serial_id) FROM serials");
+    private long getLastSerial(final JdbcTemplate jdbcTemplate) {
+        return jdbcTemplate.queryForObject("SELECT IFNULL(MAX(serial_id),0) FROM serials", Long.class);
     }
 }

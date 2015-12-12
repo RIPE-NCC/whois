@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
 import java.util.Arrays;
@@ -75,7 +76,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PHONE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PINGABLE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POEM_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POETIC_FORM_SYNTAX;
-import static net.ripe.db.whois.common.rpsl.AttributeSyntax.REFERRAL_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE6_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SET_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SYNTAX;
@@ -156,8 +156,9 @@ public enum AttributeType implements Documented {
             .syntax(CERTIF_SYNTAX)),
 
     CHANGED(new Builder("changed", "ch")
-            .doc("Specifies who submitted the update, and when the object was updated. " +
-                    "This attribute is filtered from the default whois output.")
+            .doc("Specifies who submitted the update, and when the object was updated.\n" +
+                    "This attribute is filtered from the default whois output.\n" +
+                    "This attribute is deprecated and will be removed in a next release.")
             .syntax(CHANGED_SYNTAX)),
 
     COMPONENTS(new Builder("components", "co")
@@ -167,6 +168,11 @@ public enum AttributeType implements Documented {
     COUNTRY(new Builder("country", "cy")
             .doc("Identifies the country.")
             .syntax(COUNTRY_CODE_SYNTAX)),
+
+    CREATED(new Builder("created", "cr")
+            .doc("This attributes reflects when the object was created in\n" +
+                 "ISO8601 format (yyyy-MM-dd'T'HH:mm:ssZ).")
+            .syntax(GENERATED_SYNTAX)),
 
     DEFAULT(new Builder("default", "df")
             .doc("Specifies default routing policies.")
@@ -282,6 +288,11 @@ public enum AttributeType implements Documented {
     LANGUAGE(new Builder("language", "ln")
             .doc("Identifies the language.")
             .syntax(LANGUAGE_CODE_SYNTAX)),
+
+    LAST_MODIFIED(new Builder("last-modified", "lm")
+            .doc("This attributes reflects when the object was last changed in\n"+
+                    "ISO8601 format (yyyy-MM-dd'T'HH:mm:ssZ).")
+            .syntax(GENERATED_SYNTAX)),
 
     LOCAL_AS(new Builder("local-as", "la")
             .doc("Specifies the autonomous system that operates the router.")
@@ -548,11 +559,6 @@ public enum AttributeType implements Documented {
             .doc("Specifies the poem type.")
             .syntax(POETIC_FORM_SYNTAX)),
 
-    REFERRAL_BY(new Builder("referral-by", "rb")
-            .doc("Mandatory historical attribute referencing a mntner name. Not used. Suggest setting it to this mntner name.")
-            .syntax(REFERRAL_SYNTAX)
-            .references(ObjectType.MNTNER)),
-
     REF_NFY(new Builder("ref-nfy", "rn")
             .doc("Specifies the e-mail address to be notified when a reference to the organisation object is added " +
                     "or removed. This attribute is filtered from the default whois output when at least one of the " +
@@ -596,7 +602,7 @@ public enum AttributeType implements Documented {
 
     SPONSORING_ORG(new Builder("sponsoring-org", "sp")
             .doc("Points to an existing organisation object representing the sponsoring organisation responsible for the resource.")
-            .syntax(GENERATED_SYNTAX)
+            .syntax(ORGANISATION_SYNTAX)
             .references(ObjectType.ORGANISATION)),
 
     STATUS(new Builder("status", "st")
@@ -693,6 +699,35 @@ public enum AttributeType implements Documented {
         return this.name;
     }
 
+    private static String toCamelCase( final String in) {
+        final StringBuilder camelCaseString = new StringBuilder("");
+
+        final String[] parts = StringUtils.split(in, "-");
+        for (final String part : parts){
+            final String capitalized = StringUtils.capitalize(part);
+            camelCaseString.append(capitalized);
+        }
+
+        return camelCaseString.toString();
+    }
+
+    private static String toFirstLower( String in ) {
+        if( in.equalsIgnoreCase("import") || in.equalsIgnoreCase("default") || in.equalsIgnoreCase("interface") ) {
+            in = in + "_";
+        }
+        return StringUtils.uncapitalize(in);
+    }
+
+    public String getNameToFirstUpper(  ) {
+        final String extension = isReference() ? "Ref" : "";
+
+        return toCamelCase(this.name) + extension;
+    }
+
+    public String getNameToFirstLower( ) {
+        return isReference() ? toFirstLower(toCamelCase(this.name))+"Ref" : toFirstLower(toCamelCase(this.name));
+    }
+
     public String getFlag() {
         return flag;
     }
@@ -703,6 +738,10 @@ public enum AttributeType implements Documented {
 
     public AttributeSyntax getSyntax() {
         return syntax;
+    }
+
+    public boolean isReference() {
+        return !references.isEmpty();
     }
 
     public boolean isValidValue(final ObjectType objectType, final CIString value) {

@@ -27,7 +27,6 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
             "e-mail:    noreply@ripe.net\n" +
             "mnt-by:    OWNER-MNT\n" +
             "nic-hdl:   PP1-TEST\n" +
-            "changed:   noreply@ripe.net 20120101\n" +
             "remarks:   remark\n" +
             "source:    TEST\n");
 
@@ -40,8 +39,6 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
             "auth:        SSO person@net.net\n" +
             "auth:        PGPKEY-A8D16B70\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "referral-by: OWNER-MNT\n" +
-            "changed:     dbtest@ripe.net 20120101\n" +
             "source:      TEST");
 
     private static final RpslObject KEYCERT = RpslObject.parse(
@@ -70,7 +67,6 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
             "certif:         =DgsR\n" +
             "certif:         -----END PGP PUBLIC KEY BLOCK-----\n" +
             "mnt-by:         OWNER-MNT\n" +
-            "changed:        dbtest@ripe.net 20120101\n" +
             "source:         TEST");
 
     @Autowired IpRanges ipRanges;
@@ -142,6 +138,25 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
     public void inverse_auth_unknown_md5() {
         assertThat(query("-B -i auth MD5-PW $1$deadbeef$Si7YudNf4rUGmR71n/cqk/"),
                 containsString("% Inverse search on 'auth' attribute is limited to 'key-cert' objects only"));
+    }
+
+    @Test
+    public void inverse_invalid_nic_hdl() {
+        databaseHelper.addObject(
+                "person:    Henry Mitchell\n" +
+                "nic-hdl:   TEST-HM3\n" +
+                "source:    TEST");
+        databaseHelper.addObject(
+                "mntner:    Another Maintainer\n" +
+                "tech-c:    TEST-HM3\n" +
+                "source:    TEST");
+
+        assertThat(query("-i tech-c TEST-HM3"), containsString("Another Maintainer"));
+    }
+
+    @Test
+    public void inverse_referral_by_is_invalid() {
+        assertThat(query("-i referral-by TEST"), containsString("\"referral-by\" is not a known attribute."));
     }
 
     private String query(final String query) {

@@ -81,14 +81,14 @@ public class UpdateNotifier {
         }
     }
 
-    private void addVersionId(PreparedUpdate preparedUpdate, UpdateContext context) {
+    private void addVersionId(final PreparedUpdate preparedUpdate, final UpdateContext context) {
         if (preparedUpdate.getAction() != Action.MODIFY || context.isDryRun()) {
             return;
         }
 
         VersionLookupResult res = versionDao.findByKey(preparedUpdate.getType(), preparedUpdate.getKey());
         if (res == null) {
-            LOGGER.info("Failed to find version lookup result on update for " + preparedUpdate.toString());
+            LOGGER.info("Failed to find version lookup result on update for {}", preparedUpdate.toString());
         } else {
             try {
                 final RpslObjectUpdateInfo updateInfo = context.getUpdateInfo(preparedUpdate);
@@ -99,7 +99,7 @@ public class UpdateNotifier {
         }
     }
 
-    private boolean notificationsDisabledByOverride(PreparedUpdate preparedUpdate) {
+    private boolean notificationsDisabledByOverride(final PreparedUpdate preparedUpdate) {
         final OverrideOptions overrideOptions = preparedUpdate.getOverrideOptions();
         return overrideOptions.isNotifyOverride() && !overrideOptions.isNotify();
     }
@@ -107,38 +107,38 @@ public class UpdateNotifier {
     private void addNotifications(final Map<CIString, Notification> notifications, final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject object = update.getReferenceObject();
 
-            switch (updateContext.getStatus(update)) {
-                case SUCCESS:
-                    if (updateContext.getAction(update) != Action.NOOP) {
-                        addVersionId(update, updateContext);
-                        add(notifications, updateContext, update, Notification.Type.SUCCESS, Collections.singletonList(object), AttributeType.NOTIFY);
-                        add(notifications, updateContext, update, Notification.Type.SUCCESS, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.MNT_NFY);
-                        add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.ORGANISATION, update.getDifferences(AttributeType.ORG)), AttributeType.REF_NFY);
-                        add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.IRT, update.getDifferences(AttributeType.MNT_IRT)), AttributeType.IRT_NFY);
+        switch (updateContext.getStatus(update)) {
+            case SUCCESS:
+                if (updateContext.getAction(update) != Action.NOOP) {
+                    addVersionId(update, updateContext);
+                    add(notifications, updateContext, update, Notification.Type.SUCCESS, Collections.singletonList(object), AttributeType.NOTIFY);
+                    add(notifications, updateContext, update, Notification.Type.SUCCESS, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.MNT_NFY);
+                    add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.ORGANISATION, update.getDifferences(AttributeType.ORG)), AttributeType.REF_NFY);
+                    add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.IRT, update.getDifferences(AttributeType.MNT_IRT)), AttributeType.IRT_NFY);
+                }
+                break;
+
+            case FAILED_AUTHENTICATION:
+                add(notifications, updateContext, update, Notification.Type.FAILED_AUTHENTICATION, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.UPD_TO);
+                break;
+
+            case PENDING_AUTHENTICATION:
+                final Iterable<RpslObject> pendingAuthenticationCandidates = Iterables.filter(updateContext.getSubject(update).getPendingAuthenticationCandidates(), new Predicate<RpslObject>() {
+                    @Override
+                    public boolean apply(final RpslObject input) {
+                        return !maintainers.getRsMaintainers().contains(input.getKey());
                     }
-                    break;
+                });
+                add(notifications, updateContext, update, Notification.Type.PENDING_UPDATE, pendingAuthenticationCandidates, AttributeType.UPD_TO);
+                break;
 
-                case FAILED_AUTHENTICATION:
-                    add(notifications, updateContext, update, Notification.Type.FAILED_AUTHENTICATION, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.UPD_TO);
-                    break;
-
-                case PENDING_AUTHENTICATION:
-                    final Iterable<RpslObject> pendingAuthenticationCandidates = Iterables.filter(updateContext.getSubject(update).getPendingAuthenticationCandidates(), new Predicate<RpslObject>() {
-                        @Override
-                        public boolean apply(final RpslObject input) {
-                            return !maintainers.getRsMaintainers().contains(input.getKey());
-                        }
-                    });
-                    add(notifications, updateContext, update, Notification.Type.PENDING_UPDATE, pendingAuthenticationCandidates, AttributeType.UPD_TO);
-                    break;
-
-                default:
-                    break;
+            default:
+                break;
 
         }
     }
 
-    private void add(final Map<CIString, Notification> notifications, UpdateContext updateContext, final PreparedUpdate update, final Notification.Type type, final Iterable<RpslObject> objects, final AttributeType attributeType) {
+    private void add(final Map<CIString, Notification> notifications, final UpdateContext updateContext, final PreparedUpdate update, final Notification.Type type, final Iterable<RpslObject> objects, final AttributeType attributeType) {
         for (final RpslObject object : objects) {
             for (final CIString email : object.getValuesForAttribute(attributeType)) {
                 Notification notification = notifications.get(email);

@@ -16,8 +16,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "TST-MNT2": """\
@@ -27,8 +25,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$bnGNJ2PC\$4r38DENnw07.9ktKP//Kf1  #test2
                 mnt-by:      TST-MNT2
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "TEST-PN": """\
@@ -39,7 +35,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 phone:   +44 282 420469
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "TEST-PN2": """\
@@ -50,7 +45,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 phone:   +44 282 411141
                 nic-hdl: TP2-TEST
                 mnt-by:  TST-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "OWNER-MNT": """\
@@ -62,8 +56,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 notify:      notify_owner@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
     ]
@@ -237,7 +229,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 "nic-hdl: AB-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:  TST-MNT2\n" +
-                "changed: dbtest@ripe.net 20121016\n" +
                 "source:  TEST")
         databaseHelper.addObjectToSource("1-GRS", "role: Abuse Me\nnic-hdl: AB-TEST\nsource: 1-GRS")
 
@@ -262,7 +253,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 "nic-hdl: AB-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:  TST-MNT2\n" +
-                "changed: dbtest@ripe.net 20121016\n" +
                 "source:  TEST")
         databaseHelper.addObjectToSource("1-GRS", "role: Abuse Me\nnic-hdl: AB-TEST")
 
@@ -284,7 +274,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 "nic-hdl: AB-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:  TST-MNT2\n" +
-                "changed: dbtest@ripe.net 20121016\n" +
                 "source:  TEST")
 
         expect:
@@ -306,7 +295,6 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 "nic-hdl: AB-TEST\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "mnt-by:  TST-MNT2\n" +
-                "changed: dbtest@ripe.net 20121016\n" +
                 "source:  TEST")
 
       expect:

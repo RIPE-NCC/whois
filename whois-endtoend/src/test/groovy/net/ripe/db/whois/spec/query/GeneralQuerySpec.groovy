@@ -20,7 +20,6 @@ class GeneralQuerySpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-mnt
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "RL": """\
@@ -33,7 +32,6 @@ class GeneralQuerySpec extends BaseQueryUpdateSpec {
                 tech-c:  TP1-TEST
                 nic-hdl: FR1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20121016
                 source:  TEST
                 """,
         ]}

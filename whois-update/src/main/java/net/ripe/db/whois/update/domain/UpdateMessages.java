@@ -27,6 +27,7 @@ public final class UpdateMessages {
     }
 
     private UpdateMessages() {
+        // do not instantiate
     }
 
     public static Message invalidKeywordsFound(final CharSequence subject) {
@@ -117,22 +118,6 @@ public final class UpdateMessages {
 
     public static Message invalidRoutePrefix(final CharSequence type) {
         return new Message(Type.ERROR, "Automatic creation of %s objects of this size in not allowed, please contact lir-help@ripe.net for further information.", type);
-    }
-
-    public static Message invalidDateFormat() {
-        return new Message(Type.ERROR, "Invalid date format, expected YYYYMMDD");
-    }
-
-    public static Message invalidDate(final CharSequence date) {
-        return new Message(Type.ERROR, "Date is older than the database itself in changed: attribute \"%s\"", date);
-    }
-
-    public static Message dateTooFuturistic(final CharSequence date) {
-        return new Message(Type.ERROR, "Date is in the future in changed: attribute \"%s\"", date);
-    }
-
-    public static Message multipleMissingChangeDates() {
-        return new Message(Type.ERROR, "More than one \"changed:\" attribute without date");
     }
 
     // NOTE: this errormessage is being used by webupdates.
@@ -257,11 +242,6 @@ public final class UpdateMessages {
     }
 
     // NOTE: this errormessage is being used by webupdates.
-    public static Message authorisationRequiredForFirstAttrChange(final AttributeType attributeType) {
-        return new Message(Type.ERROR, "Changing first \"%s:\" value requires administrative authorisation", attributeType);
-    }
-
-    // NOTE: this errormessage is being used by webupdates.
     public static Message authorisationRequiredForAttrChange(final AttributeType attributeType) {
         return new Message(Type.ERROR, "Changing \"%s:\" value requires administrative authorisation", attributeType.getName());
     }
@@ -362,6 +342,10 @@ public final class UpdateMessages {
 
     public static Message dnsCheckTimeout() {
         return new Message(Type.ERROR, "Timeout performing DNS check");
+    }
+
+    public static Message dnsCheckMessageParsingError() {
+        return new Message(Type.ERROR, "Error parsing response while performing DNS check");
     }
 
     // NOTE: this errormessage is being used by webupdates.
@@ -572,15 +556,15 @@ public final class UpdateMessages {
     }
 
     public static Message sponsoringOrgChanged() {
-        return new Message(Type.ERROR, "The sponsoring-org can only be changed by the RIPE NCC");
+        return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC");
     }
 
     public static Message sponsoringOrgAdded() {
-        return new Message(Type.ERROR, "The sponsoring-org can only be added by the RIPE NCC");
+        return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be added by the RIPE NCC");
     }
 
     public static Message sponsoringOrgRemoved() {
-        return new Message(Type.ERROR, "The sponsoring-org can only be removed by the RIPE NCC");
+        return new Message(Type.ERROR, "The \"sponsoring-org\" attribute can only be removed by the RIPE NCC");
     }
 
     public static Message sponsoringOrgNotLIR() {
@@ -595,7 +579,11 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This resource object must be created with a sponsoring-org attribute");
     }
 
-    public static Message informationLostDueToLatin1Conversion(String attributeName) {
-        return new Message(Type.WARNING, "Attribute \"%s\" has information loss due to conversion into ISO-8859-1 (Latin-1) character-set", attributeName);
+    public static Message valueChangedDueToLatin1Conversion(String attributeName) {
+        return new Message(Type.WARNING, "Attribute \"%s\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set", attributeName);
+    }
+
+    public static Message oldPasswordsRemoved() {
+        return new Message(Type.WARNING, "MD5 passwords older than November 2011 were removed for one or more maintainers of this object, see: https://www.ripe.net/removed2011pw");
     }
 }

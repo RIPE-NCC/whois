@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
-import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -79,10 +79,10 @@ public class SingleUpdateHandler {
         this.ssoTranslator = ssoTranslator;
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public void handle(final Origin origin, final Keyword keyword, final Update update, final UpdateContext updateContext) {
         updateLockDao.setUpdateLock();
-        ipTreeUpdater.updateCurrent();
+        ipTreeUpdater.updateTransactional();
 
         if (updateContext.isDryRun()) {
             updateContext.addMessage(update, UpdateMessages.dryRunNotice());
@@ -139,8 +139,7 @@ public class SingleUpdateHandler {
 
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
-        // TODO: [AH] pending updates is scattered across the code
-        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION.equals(updateContext.getStatus(preparedUpdate));
+        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION == updateContext.getStatus(preparedUpdate);
 
         if ((pendingAuthentication && !businessRulesOk) || (!pendingAuthentication && updateContext.hasErrors(update))) {
             throw new UpdateFailedException();
@@ -156,15 +155,23 @@ public class SingleUpdateHandler {
             pendingUpdateHandler.handle(preparedUpdate, updateContext);
         } else {
             updateObjectHandler.execute(preparedUpdate, updateContext);
+            if (eligibleForPendingUpdateCleanup(preparedUpdate, updateContext)) {
+                pendingUpdateHandler.cleanup(preparedUpdate.getUpdatedObject());
+            }
         }
     }
 
-    @CheckForNull
-    private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext ) {
-        RpslObject submittedObject = update.getSubmittedObject();
-        for( RpslAttribute attribute: submittedObject.getAttributes() ) {
-            if( ! CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue() )) {
-                updateContext.addMessage(update, UpdateMessages.informationLostDueToLatin1Conversion(attribute.getKey()) );
+    private boolean eligibleForPendingUpdateCleanup(final PreparedUpdate preparedUpdate, final UpdateContext updateContext) {
+        return authenticator.supportsPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) &&
+                Action.CREATE == preparedUpdate.getAction() &&
+                UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
+    }
+
+    private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext) {
+        final RpslObject submittedObject = update.getSubmittedObject();
+        for (RpslAttribute attribute: submittedObject.getAttributes()) {
+            if (!CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue())) {
+                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()));
             }
         }
     }
@@ -226,8 +233,8 @@ public class SingleUpdateHandler {
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
-            ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
-            ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
+            ObjectTemplateProvider.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
+            ObjectTemplateProvider.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
         }
 
         return updatedObject;
@@ -242,10 +249,11 @@ public class SingleUpdateHandler {
             return Action.CREATE;
         }
 
-        if (originalObject.equals(updatedObject) && !updateContext.hasErrors(update)) {
+        if (RpslObjectFilter.ignoreGeneratedAttributesEqual(originalObject, updatedObject) && !updateContext.hasErrors(update)) {
             return Action.NOOP;
         }
 
         return Action.MODIFY;
     }
+
 }

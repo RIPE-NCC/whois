@@ -1,13 +1,11 @@
 package net.ripe.db.whois.spec
-
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
 import net.ripe.db.whois.common.Message
 import net.ripe.db.whois.common.Messages
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.RpslObject
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.format.DateTimeFormatter
+import org.joda.time.LocalDateTime
 
 import static net.ripe.db.whois.common.domain.CIString.ciString
 
@@ -82,8 +80,6 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
     }
 
     def grepQueryLog(String pattern) {
-        DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
-
         boolean result = false;
         getTestWhoisLog().messages.each { line ->
             if (line =~ pattern) result = true;
@@ -98,5 +94,17 @@ abstract class BaseQueryUpdateSpec extends BaseEndToEndSpec {
         }
 
         getDnsGatewayStub().addResponse(ciString(domain), messageList)
+    }
+
+    def setTime(LocalDateTime localDateTime) {
+        whoisFixture.setTime(localDateTime)
+    }
+
+    def getTime() {
+        return whoisFixture.getTestDateTimeProvider().currentDateTime
+    }
+
+    def resetTime() {
+        whoisFixture.getTestDateTimeProvider().reset()
     }
 }

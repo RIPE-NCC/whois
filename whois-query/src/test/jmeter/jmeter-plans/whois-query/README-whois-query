@@ -1,0 +1,11 @@
+Test plan for whois-telnet services
+
+[TP] create an input file using the qrylog files. They have the following format:
+20141010 00:00:00   11111234 PW-QRY-INFO <2+2+0>  3ms [10.0.0.1] -- -T person test
+
+To have the qry logs of a day as input: 
+- combine the qrylogs for a whole day from all PRD servers
+- optionally filter out the api and the BLOCKED queries
+
+also
+- add the shaded whois-db-version.jar in the jmeter lib folder

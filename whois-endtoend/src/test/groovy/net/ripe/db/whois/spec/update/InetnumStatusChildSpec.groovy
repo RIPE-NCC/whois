@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
@@ -22,7 +23,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA": """\
@@ -37,7 +37,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA2": """\
@@ -52,7 +51,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA3": """\
@@ -67,7 +65,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PI": """\
@@ -82,7 +79,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "RS-ALLOC-PI": """\
@@ -96,7 +92,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "USER-ALLOC-PI": """\
@@ -110,7 +105,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "PART-PA": """\
@@ -122,7 +116,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "PART-PI": """\
@@ -134,7 +127,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "SUB-ALLOC-PA": """\
@@ -148,7 +140,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    SUB-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "PART2-PA": """\
@@ -161,7 +152,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       SUB-MNT
                 mnt-lower:    SUB-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ASS-END": """\
@@ -173,7 +163,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ASSPI": """\
@@ -187,7 +176,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ASSANY": """\
@@ -200,7 +188,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "LEGACYROOT": """\
@@ -214,7 +201,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "NOTSET": """\
@@ -226,7 +212,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       NOT-SET
                 mnt-by:       RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """
     ]}
@@ -252,7 +237,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -296,7 +280,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -341,7 +324,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -383,7 +365,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -423,7 +404,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -466,7 +446,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -511,7 +490,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -556,7 +534,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -601,7 +578,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -646,7 +622,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -673,7 +648,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO: needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -691,7 +666,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -735,7 +709,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -779,7 +752,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -822,7 +794,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -861,7 +832,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -903,7 +873,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -944,7 +913,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -986,7 +954,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1026,7 +993,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1068,7 +1034,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1110,7 +1075,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1150,7 +1114,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1173,6 +1136,47 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
     }
 
+    @Ignore("Ref. Override should not bypass Inetnum status check")
+    def "create child ALLOCATED PA, parent status ALLOCATED PA with override"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+      expect:
+        queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+      when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                override: denis,override1
+                """.stripIndent()
+        )
+
+      then:
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
+                ["inetnum parent has incorrect status: ALLOCATED PA"]
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+    }
+
+
     def "create child ALLOCATED PA, parent status ALLOCATED PI"() {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: owner3\npassword: hm")
@@ -1193,7 +1197,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1238,7 +1241,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1283,7 +1285,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1328,7 +1329,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1373,7 +1373,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1400,7 +1399,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -1418,7 +1417,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1462,7 +1460,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1504,7 +1501,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -1547,7 +1543,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1586,7 +1581,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1628,7 +1622,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1669,7 +1662,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1711,7 +1703,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1751,7 +1742,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1793,7 +1783,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1835,7 +1824,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1875,7 +1863,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1918,7 +1905,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -1963,7 +1949,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2008,7 +1993,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2053,7 +2037,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2098,7 +2081,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2125,7 +2107,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -2143,7 +2125,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2187,7 +2168,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2229,7 +2209,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -2273,7 +2252,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2312,7 +2290,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2354,7 +2331,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2395,7 +2371,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2437,7 +2412,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2477,7 +2451,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2519,7 +2492,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2561,7 +2533,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2604,7 +2575,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -2646,7 +2616,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -2689,7 +2658,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       lIr-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -2736,7 +2704,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LiR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -2781,7 +2748,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -2828,7 +2794,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -2863,7 +2828,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
             tech-c:       TP1-TEST
             status:       ASSIGNED PA
             mnt-by:       END-USER-MNT
-            changed:      dbtest@ripe.net 20020101
             source:       TEST
 
             password:     end
@@ -2889,7 +2853,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -2927,12 +2890,11 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
             mnt-by:       RIPE-NCC-HM-MNT
             mnt-by:       LIR-MNT
             mnt-lower:    RIPE-NCC-HM-MNT
-            changed:      dbtest@ripe.net 20020101
             source:       TEST
 
             password: hm
             password: lir
-            """.stripIndent())  // <--- needs bug fix for assigned PI creation
+            """.stripIndent())  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.199.0 - 192.168.200.255", "inetnum", "192.168.199.0 - 192.168.200.255")
 
       expect:
@@ -2950,7 +2912,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -2995,7 +2956,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -3038,7 +2998,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -3081,7 +3040,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -3123,7 +3081,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -3167,7 +3124,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -3209,7 +3165,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -3252,7 +3207,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -3297,7 +3251,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -3342,7 +3295,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       SUB-ALLOCATED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -3387,7 +3339,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -3428,7 +3379,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -3470,7 +3420,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       lIr-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -3517,7 +3466,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LiR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -3562,7 +3510,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -3609,7 +3556,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -3655,7 +3601,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -3683,7 +3628,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -3701,7 +3646,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -3746,7 +3690,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -3789,7 +3732,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -3832,7 +3774,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -3874,7 +3815,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -3918,7 +3858,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -3960,7 +3899,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -4003,7 +3941,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -4048,7 +3985,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -4093,7 +4029,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -4138,7 +4073,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -4181,7 +4115,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -4226,7 +4159,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       lIr-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -4271,7 +4203,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LiR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -4318,7 +4249,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -4363,7 +4293,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -4411,7 +4340,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -4439,7 +4367,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -4457,7 +4385,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -4502,7 +4429,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -4545,7 +4471,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -4588,7 +4513,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -4630,7 +4554,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -4674,7 +4597,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -4716,7 +4638,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -4759,7 +4680,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -4804,7 +4724,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -4849,7 +4768,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -4894,7 +4812,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -4934,7 +4851,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -4977,7 +4893,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5020,7 +4935,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5063,7 +4977,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5108,7 +5021,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5153,7 +5065,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5198,7 +5109,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5225,7 +5135,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -5243,7 +5153,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -5287,7 +5196,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -5328,7 +5236,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED ANYCAST
                 mnt-by:       lir-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -5371,7 +5278,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -5410,7 +5316,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5452,7 +5357,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -5492,7 +5396,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -5533,7 +5436,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -5576,7 +5478,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -5619,7 +5520,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -5664,7 +5564,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -5704,7 +5603,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5747,7 +5645,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5790,7 +5687,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5835,7 +5731,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5882,7 +5777,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       lir-MNT
                 mnt-lower:    lir-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5926,7 +5820,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5971,7 +5864,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -5998,7 +5890,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
       given:
         syncUpdate(getTransient("ALLOC-PI") + "password: hm\npassword: owner3")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- needs bug fix for assigned PI creation
+        syncUpdate(getTransient("ASSPI") + "password: hm\npassword: lir")  // <--- TODO needs bug fix for assigned PI creation
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
       expect:
@@ -6016,7 +5908,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -6060,7 +5951,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       LIR-MNT
                 mnt-lower:    lir-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -6105,7 +5995,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -6146,7 +6035,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
                 mnt-by:       lir-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -6189,7 +6077,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -6228,7 +6115,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -6270,7 +6156,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -6310,7 +6195,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -6351,7 +6235,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -6392,7 +6275,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -6435,7 +6317,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -6480,7 +6361,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -6521,7 +6401,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -6563,7 +6442,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       lIr-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -6610,7 +6488,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LiR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -6655,7 +6532,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -6702,7 +6578,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       lir-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -6750,7 +6625,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -6796,7 +6670,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -6841,7 +6714,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -6884,7 +6756,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -6927,7 +6798,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: hm
@@ -6967,7 +6837,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -7011,7 +6880,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -7053,7 +6921,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -7096,7 +6963,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -7141,7 +7007,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -7186,7 +7051,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -7228,7 +7092,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: lir
@@ -7274,7 +7137,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.200.0 - 192.168.200.127
@@ -7286,7 +7148,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.200.128 - 192.168.200.255
@@ -7298,7 +7159,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.200.255 - 192.168.200.255
@@ -7310,7 +7170,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -7322,7 +7181,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       LEGACY
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password:  lir
@@ -7372,7 +7230,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       NOT-SET
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: owner3
@@ -7416,7 +7273,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 status:       NOT-SET
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 """.stripIndent()
@@ -7467,7 +7323,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       SUB-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
 
                 password: sub

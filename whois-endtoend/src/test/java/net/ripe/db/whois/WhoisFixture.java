@@ -3,7 +3,9 @@ package net.ripe.db.whois;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
+import net.ripe.db.whois.api.rest.client.NotifierCallback;
 import net.ripe.db.whois.api.rest.client.RestClient;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
@@ -19,12 +21,13 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceAwareDataSource;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.db.WhoisServer;
 import net.ripe.db.whois.query.QueryServer;
@@ -82,6 +85,7 @@ public class WhoisFixture {
     protected WhoisServer whoisServer;
     protected RestClient restClient;
     protected TestWhoisLog testWhoisLog;
+    protected ObjectTemplateProvider objectTemplateProvider;
 
     static {
         Slf4JLogConfiguration.init();
@@ -99,6 +103,7 @@ public class WhoisFixture {
         System.setProperty("unrefcleanup.deletes", "true");
         System.setProperty("nrtm.enabled", "false");
         System.setProperty("grs.sources", "TEST-GRS");
+        System.setProperty("feature.toggle.changed.attr.available", "true");
     }
 
     public void start() throws Exception {
@@ -127,6 +132,8 @@ public class WhoisFixture {
         indexDao = applicationContext.getBean(IndexDao.class);
         restClient = applicationContext.getBean(RestClient.class);
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
+
+        objectTemplateProvider = applicationContext.getBean(ObjectTemplateProvider.class);
 
         databaseHelper.setup();
         whoisServer.start();
@@ -170,6 +177,10 @@ public class WhoisFixture {
 
     public MimeMessage getMessage(final String to) throws MessagingException {
         return mailSender.getMessage(to);
+    }
+
+    public void clearAllMails()  {
+        mailSender.reset();
     }
 
     public boolean anyMoreMessages() {
@@ -216,14 +227,14 @@ public class WhoisFixture {
     }
 
     public boolean objectExists(final ObjectType objectType, final String pkey) {
-        return 1 == new JdbcTemplate(whoisDataSource).queryForInt("" +
+        return 1 == new JdbcTemplate(whoisDataSource).queryForObject(
                 "select count(*) " +
                 "from last " +
                 "where object_type = ? " +
                 "and pkey = ? " +
                 "and sequence_id != 0 ",
-                ObjectTypeIds.getId(objectType),
-                pkey);
+                Integer.class,
+                ObjectTypeIds.getId(objectType), pkey);
     }
 
     public DatabaseHelper getDatabaseHelper() {
@@ -252,6 +263,43 @@ public class WhoisFixture {
                 .lookup(objectType, pkey);
     }
 
+
+    public RpslObject restPost(RpslObject rpslObject, final List<ErrorMessage> errors, String... passwords) {
+        return restClient.request()
+                .addParams("password", passwords)
+                .setNotifier(new NotifierCallback() {
+                    @Override
+                    public void notify(List<ErrorMessage> messages) {
+                        errors.addAll(messages);
+                    }
+                })
+                .create(rpslObject);
+    }
+
+    public RpslObject restPut(RpslObject rpslObject,  final List<ErrorMessage> errors, String... passwords) {
+        return restClient.request()
+                .addParams("password", passwords)
+                .setNotifier(new NotifierCallback() {
+                    @Override
+                    public void notify(List<ErrorMessage> messages) {
+                        errors.addAll(messages);
+                    }
+                })
+                .update(rpslObject);
+    }
+
+    public RpslObject restDelete(RpslObject rpslObject,  final List<ErrorMessage> errors, String... passwords) {
+        return restClient.request()
+                .addParams("password", passwords)
+                .setNotifier(new NotifierCallback() {
+                    @Override
+                    public void notify(List<ErrorMessage> messages) {
+                        errors.addAll(messages);
+                    }
+                })
+                .delete(rpslObject);
+    }
+
     public List<String> queryPersistent(final List<String> queries) throws Exception {
         final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
         final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
@@ -259,6 +307,7 @@ public class WhoisFixture {
         List<String> responses = new ArrayList<>();
 
         client.connectAndWait();
+        client.waitForResponseEndsWith(END_OF_HEADER);
 
         for (Iterator<String> it = queries.iterator(); it.hasNext(); ) {
             client.sendLine(it.next());

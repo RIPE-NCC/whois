@@ -59,7 +59,7 @@ public class CrowdServerDummy implements Stub {
         final Map<String, UserSession> crowdSessionMap;
         {
             crowdSessionMap = Maps.newHashMap();
-            crowdSessionMap.put("valid-token", new UserSession("person@net.net", true, "2033-01-30T16:38:27.369+11:00"));
+            crowdSessionMap.put("valid-token", new UserSession("person@net.net", "Test User", true, "2033-01-30T16:38:27.369+11:00"));
             crowdSessionMap.put("invalid-token", null);
         }
 
@@ -137,7 +137,7 @@ public class CrowdServerDummy implements Stub {
         this.port = server.getConnectors()[0].getLocalPort();
 
         final String restUrl = String.format("http://localhost:%s/crowd", getPort());
-        LOGGER.info("Crowd dummy server restUrl: "+restUrl);
+        LOGGER.info("Crowd dummy server restUrl: {}", restUrl);
         ReflectionTestUtils.setField(crowdClient, "restUrl", restUrl);
     }
 

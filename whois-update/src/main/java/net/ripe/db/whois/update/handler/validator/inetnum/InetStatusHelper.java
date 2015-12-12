@@ -40,11 +40,13 @@ final class InetStatusHelper {
                 try {
                     return InetnumStatus.getStatusFor(value);
                 } catch (IllegalArgumentException ignored) {
+                    return null;
                 }
             case INET6NUM:
                 try {
                     return Inet6numStatus.getStatusFor(value);
                 } catch (IllegalArgumentException ignored) {
+                    return null;
                 }
         }
 

@@ -31,7 +31,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
     static final int SECONDS_PER_DAY = 60 * 60 * 24;
     static final int HISTORY_AGE_LIMIT = 14 * SECONDS_PER_DAY;
-    static final int MAX_PENDING_WRITES = 16;
 
     private final SerialDao serialDao;
     private final Dummifier dummifier;
@@ -41,8 +40,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     private final String applicationVersion;
     private final String source;
     private final long updateInterval;
-
-    static final ChannelLocal<AtomicInteger> PENDING_WRITES = new ChannelLocal<>();
 
     private volatile ScheduledFuture<?> scheduledFuture;
 
@@ -75,7 +72,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         final Channel channel = ctx.getChannel();
 
         if (query.isMirrorQuery()) {
-            SerialRange range = serialDao.getSerials();
+            final SerialRange range = serialDao.getSerials();
 
             if (query.getSerialEnd() == -1 || query.isKeepalive()) {
                 query.setSerialEnd(range.getEnd());
@@ -85,7 +82,9 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
                 throw new IllegalArgumentException("%ERROR:401: invalid range: Not within " + range.getBegin() + "-" + range.getEnd());
             }
 
-            if (serialDao.getSerialAge(query.getSerialBegin()) > HISTORY_AGE_LIMIT) {
+            final Integer serialAge = serialDao.getAgeOfExactOrNextExistingSerial(query.getSerialBegin());
+
+            if (serialAge == null || serialAge > HISTORY_AGE_LIMIT) {
                 throw new IllegalArgumentException(String.format("%%ERROR:401: (Requesting serials older than %d days will be rejected)", HISTORY_AGE_LIMIT / SECONDS_PER_DAY));
             }
 
@@ -125,7 +124,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         return scheduledFuture != null;
     }
 
-    private Query parseQueryString(String queryString) {
+    private Query parseQueryString(final String queryString) {
         try {
             return new Query(source, queryString);
         } catch (OptionException e) {
@@ -136,7 +135,7 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     void handleMirrorQueryWithKeepalive(final Query query, final Channel channel) {
         final int version = query.getVersion();
 
-        Runnable instance = new Runnable() {
+        final Runnable instance = new Runnable() {
             private int serial = query.getSerialBegin();
 
             @Override
@@ -157,7 +156,6 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     private void handleMirrorQuery(final Query query, final Channel channel) {
-
         for (int serial = query.getSerialBegin(); serial <= query.getSerialEnd(); ) {
             serial = writeSerials(serial, query.getSerialEnd(), query.getVersion(), channel);
             if (serial <= query.getSerialEnd()) {
@@ -173,12 +171,12 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
 
         while (serial <= end) {
 
-            if (PENDING_WRITES.get(channel).get() > MAX_PENDING_WRITES) {
-                break;
+            if (PendingWrites.isPending(channel)) {
+                Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+                continue;
             }
 
-            final SerialEntry serialEntry = serialDao.getById(serial);
-
+            final SerialEntry serialEntry = serialDao.getByIdForNrtm(serial);
             if (serialEntry != null) {
                 if (dummifier.isAllowed(version, serialEntry.getRpslObject())) {
                     final String operation = serialEntry.getOperation().toString();
@@ -214,8 +212,8 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     @Override
-    public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        PENDING_WRITES.set(ctx.getChannel(), new AtomicInteger());
+    public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+        PendingWrites.add(ctx.getChannel());
 
         writeMessage(ctx.getChannel(), TERMS_AND_CONDITIONS);
 
@@ -223,12 +221,12 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
     }
 
     @Override
-    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+    public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
 
-        PENDING_WRITES.remove(ctx.getChannel());
+        PendingWrites.remove(ctx.getChannel());
 
         super.channelDisconnected(ctx, e);
     }
@@ -237,20 +235,53 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         if (!channel.isOpen()) {
             throw new ChannelException();
         }
-        AtomicInteger pending = PENDING_WRITES.get(channel);
-        if (pending != null) {
-            pending.incrementAndGet();
-        }
+
+        PendingWrites.increment(channel);
+
         channel.write(message + "\n\n").addListener(LISTENER);
     }
 
     private static final ChannelFutureListener LISTENER = new ChannelFutureListener() {
         @Override
         public void operationComplete(ChannelFuture future) throws Exception {
-            AtomicInteger pending = PENDING_WRITES.get(future.getChannel());
+            PendingWrites.decrement(future.getChannel());
+        }
+    };
+
+    static final class PendingWrites {
+
+        private static final ChannelLocal<AtomicInteger> PENDING_WRITES = new ChannelLocal<>();
+        private static final int MAX_PENDING_WRITES = 16;
+
+        static void add(final Channel channel) {
+            PENDING_WRITES.set(channel, new AtomicInteger());
+        }
+
+        static void remove(final Channel channel) {
+            PENDING_WRITES.remove(channel);
+        }
+
+        static void increment(final Channel channel) {
+            final AtomicInteger pending = PENDING_WRITES.get(channel);
+            if (pending != null) {
+                pending.incrementAndGet();
+            }
+        }
+
+        static void decrement(final Channel channel) {
+            final AtomicInteger pending = PENDING_WRITES.get(channel);
             if (pending != null) {
                 pending.decrementAndGet();
             }
         }
-    };
+
+        static boolean isPending(final Channel channel) {
+            final AtomicInteger pending = PENDING_WRITES.get(channel);
+            if (pending == null) {
+                throw new ChannelException("channel removed");
+            }
+
+            return (pending.get() > MAX_PENDING_WRITES);
+        }
+    }
 }

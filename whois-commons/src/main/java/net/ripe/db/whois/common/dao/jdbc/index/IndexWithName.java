@@ -17,7 +17,7 @@ import java.util.Set;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 class IndexWithName extends IndexStrategyWithSingleLookupTable {
-    protected static final int MYSQL_MAX_JOINS = 61;
+    protected static final int MARIADB_MAX_JOINS = 61;
     protected static final Splitter SPACE_SPLITTER = Splitter.on(' ').trimResults().omitEmptyStrings();
 
     public IndexWithName(final AttributeType attributeType, final String lookupTableName) {
@@ -33,7 +33,7 @@ class IndexWithName extends IndexStrategyWithSingleLookupTable {
 
     protected static String getObjectQueryByName(String table, String[] names) {
         Validate.notEmpty(names, "no name");
-        Validate.isTrue(names.length < MYSQL_MAX_JOINS, "reached join limit");
+        Validate.isTrue(names.length < MARIADB_MAX_JOINS, "reached join limit");
 
         StringBuilder query = new StringBuilder();
         query.append("SELECT l.object_id, l.object_type, l.pkey FROM last l JOIN ");

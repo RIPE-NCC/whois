@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.Validate;
@@ -35,7 +36,7 @@ class IndexWithReference extends IndexStrategySimpleLookup {
 
             final Set<IndexStrategy> tmpReferenceStrategies = Sets.newHashSet();
             for (final ObjectType reference : references) {
-                final ObjectTemplate template = ObjectTemplate.getTemplate(reference);
+                final ObjectTemplate template = ObjectTemplateProvider.getTemplate(reference);
                 for (final AttributeType keyAttribute : template.getKeyAttributes()) {
                     tmpReferenceStrategies.add(IndexStrategies.get(keyAttribute));
                 }

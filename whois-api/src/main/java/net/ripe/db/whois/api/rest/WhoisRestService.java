@@ -44,7 +44,9 @@ import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -157,8 +159,8 @@ public class WhoisRestService {
     private final WhoisObjectServerMapper whoisObjectServerMapper;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
-
     private final WhoisService whoisService;
+    private final LoggerContext loggerContext;
 
     @Autowired
     public WhoisRestService(final RpslObjectDao rpslObjectDao,
@@ -169,7 +171,8 @@ public class WhoisRestService {
                             final WhoisObjectServerMapper whoisObjectServerMapper,
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator,
-                            final WhoisService whoisService) {
+                            final WhoisService whoisService,
+                            final LoggerContext loggerContext) {
         this.rpslObjectDao = rpslObjectDao;
         this.sourceContext = sourceContext;
         this.queryHandler = queryHandler;
@@ -179,6 +182,7 @@ public class WhoisRestService {
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
         this.whoisService = whoisService;
+        this.loggerContext = loggerContext;
     }
 
     @DELETE
@@ -192,26 +196,39 @@ public class WhoisRestService {
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
-            @QueryParam("override") final String override) {
-
-        checkForMainSource(request, source);
-
-        final Origin origin = updatePerformer.createOrigin(request);
-        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+            @QueryParam("override") final String override,
+            @QueryParam("dry-run") final String dryRun) {
 
         try {
+            final Origin origin = updatePerformer.createOrigin(request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+
+            auditlogRequest(request);
+
+            checkForMainSource(request, source);
+            setDryRun(updateContext, dryRun);
+
             RpslObject originalObject = rpslObjectDao.getByKey(ObjectType.getByName(objectType), key);
 
             ssoTranslator.populateCacheAuthToUsername(updateContext, originalObject);
             originalObject = ssoTranslator.translateFromCacheAuthToUsername(updateContext, originalObject);
 
-            return updatePerformer.performUpdate(
+            final Update update = updatePerformer.createUpdate(updateContext, originalObject, passwords, reason, override);
+
+            return updatePerformer.createResponse(
                     updateContext,
-                    origin,
-                    updatePerformer.createUpdate(updateContext, originalObject, passwords, reason, override),
-                    updatePerformer.createContent(originalObject, passwords, reason, override),
-                    Keyword.NONE,
+                    updatePerformer.performUpdate(
+                            updateContext,
+                            origin,
+                            update,
+                            Keyword.NONE,
+                            request),
+                    update,
                     request);
+
+        } catch (Exception e) {
+            updatePerformer.logWarning(String.format("Caught %s for %s: %s", e.getClass().toString(), key, e.getMessage()));
+            throw e;
         } finally {
             updatePerformer.closeContext();
         }
@@ -229,23 +246,36 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
-            @QueryParam("override") final String override) {
-
-        checkForMainSource(request, source);
+            @QueryParam("override") final String override,
+            @QueryParam("dry-run") final String dryRun) {
 
         final RpslObject submittedObject = getSubmittedObject(request, resource);
         validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
-        final Origin origin = updatePerformer.createOrigin(request);
-        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
         try {
-            return updatePerformer.performUpdate(
+            final Origin origin = updatePerformer.createOrigin(request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+
+            auditlogRequest(request);
+
+            checkForMainSource(request, source);
+            setDryRun(updateContext, dryRun);
+
+            final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
+
+            return updatePerformer.createResponse(
                     updateContext,
-                    origin,
-                    updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override),
-                    updatePerformer.createContent(submittedObject, passwords, null, override),
-                    Keyword.NONE,
+                    updatePerformer.performUpdate(
+                            updateContext,
+                            origin,
+                            update,
+                            Keyword.NONE,
+                            request),
+                    update,
                     request);
+        } catch (Exception e) {
+            updatePerformer.logWarning(String.format("Caught %s for %s: %s", e.getClass().toString(), key, e.getMessage()));
+            throw e;
         } finally {
             updatePerformer.closeContext();
         }
@@ -262,23 +292,37 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
-            @QueryParam("override") final String override) {
+            @QueryParam("override") final String override,
+            @QueryParam("dry-run") final String dryRun) {
 
-        checkForMainSource(request, source);
-
-        final RpslObject submittedObject = getSubmittedObject(request, resource);
-        validateSubmittedCreateObject(request, submittedObject, objectType);
-
-        final Origin origin = updatePerformer.createOrigin(request);
-        final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
         try {
-            return updatePerformer.performUpdate(
-                    updateContext,
-                    origin,
-                    updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override),
-                    updatePerformer.createContent(submittedObject, passwords, null, override),
-                    Keyword.NEW,
-                    request);
+            final Origin origin = updatePerformer.createOrigin(request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
+
+            auditlogRequest(request);
+
+            checkForMainSource(request, source);
+            setDryRun(updateContext, dryRun);
+
+            final RpslObject submittedObject = getSubmittedObject(request, resource);
+            validateSubmittedCreateObject(request, submittedObject, objectType);
+
+            final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
+
+            return updatePerformer.createResponse(
+                updateContext,
+                updatePerformer.performUpdate(
+                        updateContext,
+                        origin,
+                        update,
+                        Keyword.NEW,
+                        request),
+                update,
+                request);
+
+        } catch (Exception e) {
+            updatePerformer.logWarning(String.format("Caught %s: %s", e.getClass().toString(), e.getMessage()));
+            throw e;
         } finally {
             updatePerformer.closeContext();
         }
@@ -296,7 +340,9 @@ public class WhoisRestService {
             @CookieParam("crowd.token_key") final String crowdTokenKey) {
 
         if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source))).build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source)))
+                    .build());
         }
 
         QueryBuilder queryBuilder = new QueryBuilder().
@@ -344,7 +390,9 @@ public class WhoisRestService {
         final List<VersionResponseObject> versions = versionsResponseHandler.getVersionObjects();
 
         if (versions.isEmpty() && deleted.isEmpty()) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors())).build());
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+                    .entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors()))
+                    .build());
         }
 
         final String type = (versions.size() > 0) ? versions.get(0).getType().getName() : deleted.size() > 0 ? deleted.get(0).getType().getName() : null;
@@ -383,7 +431,9 @@ public class WhoisRestService {
         final VersionWithRpslResponseObject versionWithRpslResponseObject = versionsResponseHandler.getVersionWithRpslResponseObject();
 
         if (versionWithRpslResponseObject == null) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors())).build());
+            throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+                    .entity(whoisService.createErrorEntity(request, versionsResponseHandler.getErrors()))
+                    .build());
         }
 
         // TODO: [AH] this should use StreamingMarshal to properly handle newlines in errormessages
@@ -449,22 +499,30 @@ public class WhoisRestService {
 
     private void validateSearchKey(final HttpServletRequest request, final String searchKey) {
         if (StringUtils.isBlank(searchKey)) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.queryStringEmpty())).build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.queryStringEmpty()))
+                    .build());
         }
 
         try {
             if (QueryParser.hasFlags(searchKey)) {
-                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString())).build());
+                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                        .entity(whoisService.createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString()))
+                        .build());
             }
         } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString())).build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.flagsNotAllowedInQueryString()))
+                    .build());
         }
     }
 
     private void validateSources(final HttpServletRequest request, final Set<String> sources) {
         for (final String source : sources) {
             if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
-                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source))).build());
+                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                        .entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source)))
+                        .build());
             }
         }
     }
@@ -487,7 +545,9 @@ public class WhoisRestService {
                     if (forShortFlag != null) {
                         separateFlags.add(forShortFlag);
                     } else {
-                        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.invalidSearchFlag(flagParameter, flagString))).build());
+                        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                                .entity(whoisService.createErrorEntity(request, RestMessages.invalidSearchFlag(flagParameter, flagString)))
+                                .build());
                     }
                 }
             }
@@ -498,16 +558,19 @@ public class WhoisRestService {
     private void checkForInvalidFlags(final HttpServletRequest request, final Set<QueryFlag> flags) {
         for (final QueryFlag flag : flags) {
             if (NOT_ALLOWED_SEARCH_QUERY_FLAGS.contains(flag)) {
-                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.disallowedSearchFlag(flag))).build());
+                throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                        .entity(whoisService.createErrorEntity(request, RestMessages.disallowedSearchFlag(flag)))
+                        .build());
             }
         }
     }
 
     private RpslObject getSubmittedObject(final HttpServletRequest request, final WhoisResources whoisResources) {
-        final int size = (whoisResources == null || CollectionUtils.isEmpty(whoisResources.getWhoisObjects())) ? 0 :
-                whoisResources.getWhoisObjects().size();
+        final int size = (whoisResources == null || CollectionUtils.isEmpty(whoisResources.getWhoisObjects())) ? 0 : whoisResources.getWhoisObjects().size();
         if (size != 1) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.singleObjectExpected(whoisResources.getWhoisObjects().size()))).build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.singleObjectExpected(size)))
+                    .build());
         }
 
         return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), getServerAttributeMapper(request.getQueryString()));
@@ -515,14 +578,22 @@ public class WhoisRestService {
 
     private void validateSubmittedUpdateObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
         if (!object.getKey().equals(key) || !object.getType().getName().equalsIgnoreCase(objectType)) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType, key))).build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType, key)))
+                    .build());
         }
     }
 
     private void validateSubmittedCreateObject(final HttpServletRequest request, final RpslObject object, final String objectType) {
         if (!object.getType().getName().equalsIgnoreCase(objectType)) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType))).build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType)))
+                    .build());
         }
+    }
+
+    private void auditlogRequest(final HttpServletRequest request) {
+        loggerContext.log(new HttpRequestMessage(request));
     }
 
     private class VersionsResponseHandler extends ApiResponseHandler {
@@ -600,7 +671,15 @@ public class WhoisRestService {
 
     private void checkForMainSource(final HttpServletRequest request, final String source) {
         if (!sourceContext.getCurrentSource().getName().toString().equalsIgnoreCase(source)) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source))).build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.invalidSource(source)))
+                    .build());
+        }
+    }
+
+    void setDryRun(final UpdateContext updateContext, final String dryRun) {
+        if (dryRun != null && (dryRun.isEmpty() || dryRun.equalsIgnoreCase("true"))) {
+            updateContext.dryRun();
         }
     }
 
@@ -632,7 +711,9 @@ public class WhoisRestService {
                 queryHandler.streamResults(query, remoteAddress, contextId, responseHandler);
 
                 if (!responseHandler.rpslObjectFound()) {
-                    throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity(whoisService.createErrorEntity(request, responseHandler.flushAndGetErrors())).build());
+                    throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+                            .entity(whoisService.createErrorEntity(request, responseHandler.flushAndGetErrors()))
+                            .build());
                 }
                 responseHandler.flushAndGetErrors();
 

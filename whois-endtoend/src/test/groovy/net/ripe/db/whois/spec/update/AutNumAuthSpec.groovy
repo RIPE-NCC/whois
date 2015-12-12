@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -22,8 +21,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$0W0joRg1\$eOOcT4JsBIh6q3mu/yTvj1 # rpsl
                 notify:      dbtest@ripe.net
                 mnt-by:      RIPE-DBM-MNT
-                changed:     dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "AS251NOSTAT": """\
@@ -41,7 +38,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS445NOSTAT": """\
@@ -57,7 +53,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS12667NOSTAT": """\
@@ -73,7 +68,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
         ]
@@ -95,7 +89,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       OWNER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "AS222 - AS333": """\
@@ -103,14 +96,12 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS222 - AS333-NOLOW": """\
                 as-block:       AS222 - AS333
                 descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS12557 - AS13223": """\
@@ -118,7 +109,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 descr:          RIPE NCC ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS444 - AS555": """\
@@ -126,7 +116,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 descr:          APNIC ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-RPSL-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS0 - AS4294967295": """\
@@ -134,7 +123,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 descr:          RIPE ASN block
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS-SET": """\
@@ -145,7 +133,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 members:        AS1
                 mbrs-by-ref:    LIR-MNT
                 mnt-by:         LIR-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS-SET-NO-REF": """\
@@ -155,7 +142,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 members:        AS1
                 mnt-by:         LIR-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
             "AS-SET-200": """\
@@ -168,7 +154,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "AS200": """\
@@ -185,7 +170,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS250": """\
@@ -202,7 +186,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS300": """\
@@ -219,7 +202,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS444": """\
@@ -235,7 +217,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS12666": """\
@@ -251,7 +232,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "ROUTE": """\
@@ -259,7 +239,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS200
                 mnt-by:         CHILD-MB-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
             "AS12668": """\
@@ -275,7 +254,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
         ]
@@ -304,7 +282,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -349,7 +326,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -391,7 +367,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -434,7 +409,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:       denis,override1
 
@@ -473,7 +447,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -511,7 +484,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:      denis,override1
 
@@ -603,7 +575,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -666,7 +637,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -720,7 +690,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -788,7 +757,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -830,7 +798,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -871,7 +838,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -916,7 +882,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -955,7 +920,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -998,7 +962,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1041,7 +1004,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1083,7 +1045,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1129,7 +1090,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1176,7 +1136,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1223,7 +1182,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1270,7 +1228,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -1316,7 +1273,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      as7775535:as-test:AS94967295
                 source:         TEST
 
@@ -1360,7 +1316,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      as777.5535:as-test:AS94967295
                 member-of:      as7775535:as-test:AS7777777234
                 member-of:      as7775535:as-test:AS0777234
@@ -1411,7 +1366,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR2-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      as7775535:as-test:AS94967295
                 source:         TEST
 
@@ -1455,7 +1409,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      as7775535:as-test:AS94967295
                 source:         TEST
 
@@ -1498,7 +1451,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 member-of:      as7775535:as-test:AS94967295
                 source:         TEST
 
@@ -1544,7 +1496,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
 
@@ -1589,7 +1540,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
 
@@ -1639,7 +1589,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
                 password:   nccend
@@ -1685,7 +1634,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
 
@@ -1731,7 +1679,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 delete:  RS delete
 
@@ -1777,7 +1724,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1796,7 +1742,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT aut-num AS200", "aut-num", "AS200", "just added")
     }
 
-    
+
     def "modify aut-num, LIR auth, remove RS mntner"() {
       given:
         syncUpdate(getTransient("AS0 - AS4294967295") + "password: dbm\noverride: denis,override1")
@@ -1823,7 +1769,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1890,7 +1835,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -2641,7 +2585,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-routes:   ROUTES-MNT
                 mnt-by:       RIPE-NCC-END-MNT
-                changed:      dbtest@ripe.net 20030101
                 source:       TEST
 
                 password:   nccend
@@ -2659,7 +2602,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         queryObject("-rBG -T aut-num AS702", "aut-num", "AS702")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -2684,7 +2627,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -2727,7 +2669,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -2746,7 +2687,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS260", "aut-num", "AS260", "status:\\s*OTHER")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status LEGACY, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -2771,7 +2712,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -2793,7 +2733,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by RS and LIR, status OTHER, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -2818,7 +2758,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -2839,7 +2778,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by LIR, status ASSIGNED, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -2862,7 +2801,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2883,7 +2821,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by LIR, no status, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -2905,7 +2843,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2925,7 +2862,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by LIR, status LEGACY, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -2948,7 +2885,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -2968,7 +2904,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "remarks:\\s*For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources")
     }
 
-    
+
     def "create aut-num, ripe as-block, with mnt-by LIR, status OTHER, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -2991,7 +2927,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3012,7 +2947,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "create aut-num, apnic as-block, with mnt-by LIR, status ASSIGNED, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3037,7 +2972,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3083,7 +3017,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3104,7 +3037,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "create aut-num, apnic as-block, with mnt-by LIR, status LEGACY, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3129,7 +3062,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3176,7 +3108,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3197,7 +3128,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3222,7 +3153,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -3241,7 +3171,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, LIR pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3266,7 +3196,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3285,7 +3214,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, remove status, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3310,7 +3239,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3331,7 +3259,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, remove status, LIR pw, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3356,7 +3284,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3377,7 +3304,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, remove status, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3400,7 +3327,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3421,7 +3347,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, remove status, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3446,7 +3372,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -3467,7 +3392,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, remove status, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3490,7 +3415,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3511,7 +3435,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add ASSIGNED, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3536,7 +3460,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -3553,7 +3476,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add LEGACY, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3578,7 +3501,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -3597,7 +3519,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add OTHER, RS pw, not on legacy list"() {
         given:
             syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3622,7 +3544,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   nccend
@@ -3641,7 +3562,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add ASSIGNED, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3666,7 +3587,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3685,7 +3605,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add LEGACY, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3710,7 +3630,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3731,7 +3650,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, no status, add OTHER, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -3756,7 +3675,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3777,7 +3695,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, no status, add ASSIGNED, override, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -3794,7 +3712,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
                 "mnt-by:         LIR-MNT\n" +
-                "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST")
 
         expect:
@@ -3815,7 +3732,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3852,7 +3768,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 "admin-c:        TP1-TEST\n" +
                 "tech-c:         TP1-TEST\n" +
                 "mnt-by:         LIR-MNT\n" +
-                "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST")
 
         expect:
@@ -3873,7 +3788,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3894,7 +3808,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, no status, add ASSIGNED, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3917,7 +3831,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -3938,7 +3851,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS445", "aut-num", "AS445", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, no status, add LEGACY, override, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -3961,7 +3874,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 
@@ -4009,7 +3921,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4030,7 +3941,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by RS and LIR, status ASSIGNED, change to OTHER, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS222 - AS333") + "override: denis,override1")
@@ -4058,7 +3969,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4079,7 +3989,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, change to ASSIGNED, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -4105,7 +4015,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4126,7 +4035,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, apnic as-block, with mnt-by LIR, status OTHER, change to LEGACY, LIR pw, not on legacy list"() {
         given:
         syncUpdate(getTransient("AS444 - AS555") + "override: denis,override1")
@@ -4152,7 +4061,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4173,7 +4081,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS444", "aut-num", "AS444", "status:\\s*OTHER")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to ASSIGNED, LIR pw, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -4199,7 +4107,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4220,7 +4127,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to OTHER, LIR pw, on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -4246,7 +4153,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 admin-c:        TP1-TEST
                 tech-c:         TP1-TEST
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -4267,7 +4173,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBG -T aut-num AS12666", "aut-num", "AS12666", "status:\\s*LEGACY")
     }
 
-    
+
     def "modify aut-num, ripe as-block, with mnt-by LIR, status LEGACY, change to ASSIGNED, add mnt-by RS, override, no longer on legacy list"() {
         given:
         syncUpdate(getTransient("AS12557 - AS13223") + "override: denis,override1")
@@ -4292,7 +4198,6 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 tech-c:         TP1-TEST
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 override:   denis,override1
 

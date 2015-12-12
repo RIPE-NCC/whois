@@ -28,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
@@ -260,21 +259,13 @@ public class ResponseFactoryTest {
                 "origin:        AS1\n" +
                 "notify:        notify@test.com\n" +
                 "mnt-by:        TEST-MNT\n" +
-                "changed:       test@test.com 20120504\n" +
-                "changed:       test@test.com 20120529\n" +
                 "source:        RIPE\n" +
                 "delete:        no longer required\n";
 
-        final Paragraph paragraph = new Paragraph(rpslObjectString);
         final RpslObject rpslObject = RpslObject.parse(rpslObjectString);
-        final Update update = new Update(paragraph, Operation.DELETE, Arrays.asList("no longer required"), rpslObject);
-
         final ObjectMessages objectMessages = new ObjectMessages();
-
         objectMessages.addMessage(rpslObject.findAttribute(AttributeType.SOURCE), UpdateMessages.unrecognizedSource("RIPE"));
-
         updateResults.add(new UpdateResult(rpslObject, rpslObject, Action.DELETE, UpdateStatus.FAILED, objectMessages, 0, false));
-
         final Ack ack = new Ack(updateResults, ignoredParagraphs);
 
         final String response = subject.createAckResponse(updateContext, origin, ack);
@@ -316,8 +307,6 @@ public class ResponseFactoryTest {
                 "origin:         AS1\n" +
                 "notify:         notify@test.com\n" +
                 "mnt-by:         TEST-MNT\n" +
-                "changed:        test@test.com 20120504\n" +
-                "changed:        test@test.com 20120529\n" +
                 "source:         RIPE\n" +
                 "***Error:   Unrecognized source: RIPE\n" +
                 "delete:         no longer required\n" +

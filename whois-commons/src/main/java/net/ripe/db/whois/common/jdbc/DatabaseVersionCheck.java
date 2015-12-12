@@ -17,7 +17,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -68,9 +67,8 @@ public class DatabaseVersionCheck {
 
     public Iterable<String> getSqlPatchResources() throws IOException {
         return Iterables.transform(Arrays.asList(applicationContext.getResources("patch/*-*.*.sql")), new Function<Resource, String>() {
-            @Nullable
             @Override
-            public String apply(@Nullable Resource input) {
+            public String apply(final Resource input) {
                 final String ret = input.getFilename();
                 if (ret.endsWith(".sql")) {
                     return ret.substring(0, ret.length() - 4);
@@ -130,13 +128,13 @@ public class DatabaseVersionCheck {
     }
 
     public void checkDatabase(Iterable<String> resources, String dataSourceName, String dbVersion) {
-        Matcher dbVersionMatcher = RESOURCE_MATCHER.matcher(dbVersion);
+        final Matcher dbVersionMatcher = RESOURCE_MATCHER.matcher(dbVersion);
         if (!dbVersionMatcher.matches()) {
             throw new IllegalStateException("Invalid version: " + dbVersion);
         }
 
         for (String resource : resources) {
-            Matcher resourceMatcher = RESOURCE_MATCHER.matcher(resource);
+            final Matcher resourceMatcher = RESOURCE_MATCHER.matcher(resource);
             if (!resourceMatcher.matches()) continue;
             if (!dbVersionMatcher.group(1).equals(resourceMatcher.group(1))) continue;
 

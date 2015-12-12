@@ -18,7 +18,8 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
+                created: 2012-02-22T11:56:08Z
+                last-modified: 2012-02-22T11:56:08Z
                 source:  TEST
                 """
    ]}
@@ -43,7 +44,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """.stripIndent()
         )
@@ -82,7 +82,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """.stripIndent()
         )
@@ -117,7 +116,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """.stripIndent()
         )
@@ -152,7 +150,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """.stripIndent()
         )
@@ -187,7 +184,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -225,7 +221,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -266,7 +261,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -305,7 +299,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -343,7 +336,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -377,7 +369,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -413,7 +404,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST     ### fred's # handle
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -449,7 +439,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST     # source comment
 
                 password: owner
@@ -484,7 +473,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST     #
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -521,7 +509,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -542,258 +529,6 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         queryObject("-rBT person FP1-TEST", "person", "First Person")
     }
 
-    def "create person object with 2 changed attrs no date"() {
-      expect:
-        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                person:  First Person
-                address: St James Street
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net
-                changed: denis@ripe.net
-                source:  TEST
-
-                password: owner
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.errors
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
-                ["More than one \"changed:\" attribute without date"]
-
-        queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
-    }
-
-    def "create person object with 3 changed attrs dates wrong order"() {
-      expect:
-        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                person:  First Person
-                address: St James Street
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20130112
-                changed: denis@ripe.net 20101009
-                changed: denis@ripe.net 20121009
-                source:  TEST
-
-                password: owner
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-
-        queryObject("-rBT person FP1-TEST", "person", "First Person")
-    }
-
-    def "create person object with changed attrs date syntax error month"() {
-      expect:
-        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                person:  First Person
-                address: St James Street
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20129909
-                source:  TEST
-
-                password: owner
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.errors
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
-                ["Syntax error in denis@ripe.net 20129909"]
-
-        queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
-    }
-
-    def "create person object with changed attrs date syntax error day in month"() {
-      expect:
-        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                person:  First Person
-                address: St James Street
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20120231
-                source:  TEST
-
-                password: owner
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.errors
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
-                ["Syntax error in denis@ripe.net 20120231"]
-
-        queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
-    }
-
-    def "create person object with changed attrs date syntax error day"() {
-      expect:
-        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                person:  First Person
-                address: St James Street
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121199
-                source:  TEST
-
-                password: owner
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.errors
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
-                ["Syntax error in denis@ripe.net 20121199"]
-
-        queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
-    }
-
-    def "create person object with changed attrs date syntax error year"() {
-      expect:
-        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                person:  First Person
-                address: St James Street
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 19010912
-                source:  TEST
-
-                password: owner
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.errors
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
-                ["Date is older than the database itself in changed: attribute \"19010912\""]
-
-        queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
-    }
-
-    def "create person object with changed attrs date in future"() {
-      expect:
-        queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
-
-      when:
-        def message = send new Message(
-                subject: "",
-                body: """\
-                person:  First Person
-                address: St James Street
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20201109
-                source:  TEST
-
-                password: owner
-                """.stripIndent()
-        )
-
-      then:
-        def ack = ackFor message
-
-        ack.errors
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 1, 0, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
-                ["Date is in the future in changed: attribute \"20201109\""]
-
-        queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
-    }
-
     def "modify person, make dummification style changes"() {
         given:
         dbfixture(getTransient("PN"))
@@ -810,9 +545,9 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: ***
                 address: UK
                 phone:   +44 282 4.. ...
+                notify:  ***@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: ***@ripe.net 20121016
                 source:  TEST
 
                 password: owner
@@ -828,6 +563,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
+
 
         query_object_matches("-rBG -T person FP1-TEST", "person", "First Person", "\\*\\*\\*@")
         query_object_matches("-rBG -T person FP1-TEST", "person", "First Person", "4\\.\\.")

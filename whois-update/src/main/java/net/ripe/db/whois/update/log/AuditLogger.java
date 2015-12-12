@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -78,7 +79,7 @@ class AuditLogger {
         final Element typeElement = doc.createElement(message.getType().toString());
 
         final Element messageElement = doc.createElement("message");
-        messageElement.setTextContent(message.toString());
+        messageElement.setTextContent(PasswordFilter.filterPasswordsInContents(message.toString()));
         typeElement.appendChild(messageElement);
 
         if (t != null) {
@@ -106,6 +107,10 @@ class AuditLogger {
 
     public void logDryRun() {
         dbupdate.appendChild(doc.createElement("dryRun"));
+    }
+
+    public void logBatchUpdate() {
+        dbupdate.appendChild(doc.createElement("batchUpdate"));
     }
 
     public void logUpdate(final Update update) {
@@ -192,7 +197,7 @@ class AuditLogger {
 
     public void logString(Update update, String element, String auditMessage) {
         final Element updateElement = createOrGetUpdateElement(update);
-        updateElement.appendChild(keyValue(element, auditMessage));
+        updateElement.appendChild(keyValue(element, PasswordFilter.filterPasswordsInContents(auditMessage)));
     }
 
     public void logAuthenticationStrategy(Update update, String authenticationStrategy, Collection<RpslObject> maintainers) {
@@ -230,12 +235,12 @@ class AuditLogger {
 
     public void logMessage(final Update update, final Message message) {
         final Element updateElement = createOrGetUpdateElement(update);
-        updateElement.appendChild(keyValue("message", message.toString()));
+        updateElement.appendChild(keyValue("message", PasswordFilter.filterPasswordsInContents(message.toString())));
     }
 
     public void logMessage(final Update update, final RpslAttribute attribute, final Message message) {
         final Element updateElement = createOrGetUpdateElement(update);
-        updateElement.appendChild(keyValue("message", MessageFormat.format("{0} (in attribute [{1}])", message.toString(), attribute.toString())));
+        updateElement.appendChild(keyValue("message", MessageFormat.format("{0} (in attribute [{1}])", PasswordFilter.filterPasswordsInContents(message.toString()), attribute.toString())));
     }
 
     private Element createOrGetUpdateElement(final Update update) {
@@ -279,4 +284,5 @@ class AuditLogger {
             outputStream.close();
         }
     }
+
 }

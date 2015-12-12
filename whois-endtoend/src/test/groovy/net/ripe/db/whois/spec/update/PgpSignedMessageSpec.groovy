@@ -36,7 +36,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 certif:       =iWqc
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       TST-MNT
-                changed:      tp1@3ripe.net 20010713
                 source:       TEST
                 """,
                 "PGP-KEYCERT-TWO": """\
@@ -65,7 +64,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 certif:       =nOlw
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       TST-MNT2
-                changed:      tp2@3ripe.net 20010713
                 source:       TEST
                 """,
                 "TST-MNT-NEW"    : """\
@@ -75,8 +73,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        PGPKEY-EBEEB05E
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
                 "TEST-DBM-MNT"   : """\
@@ -87,8 +83,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 auth:         MD5-PW \$1\$tTr8D75J\$ruGCSs6bNrwr25ZrervtR0 # test-dbm
                 upd-to:       dbtest@ripe.net
                 mnt-by:       TST-MNT
-                referral-by:  TST-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
                 "IRT-TEST"       : """\
@@ -103,8 +97,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 irt-nfy:      case027-1@ripe.net
                 notify:       case027-2@ripe.net
                 mnt-by:       TST-MNT
-                changed:      dbtest@ripe.net 20030101
-                changed:      dbtest@ripe.net 20030201
                 source:       TEST
                 """
         ]
@@ -125,8 +117,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        PGPKEY-EBEEB05E
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test
@@ -160,8 +150,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        PGPKEY-EBEEB05E
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test
@@ -196,8 +184,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:       dbtest@ripe.net
                 auth:         MD5-PW \$1\$12345678\$knzUanD5W.zU11AJAAbNw/   # test-dbm
                 mnt-by:       TST-MNT
-                referral-by:  TST-MNT
-                changed:      dbtest@ripe.net 20130110
                 source:       TEST
                 override:     denis,override1
 
@@ -227,6 +213,49 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         queryObject("-rBT mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT")
     }
 
+    def "incorrect pgpkey does not get created"() {
+        when:
+        def create = syncUpdate("""\
+                key-cert:     PGPKEY-EBEEB05E
+                method:       PGP
+                owner:        Test Person1 <noreply1@ripe.net>
+                fingerpr:     2A4F DFBE F26C 1951 449E  B450 73BB 96F8 EBEE B05E
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Version: GnuPG/MacGPG2 v2.0.18 (Darwin)
+                certif:       Comment: GPGTools - http://gpgtools.org
+                certif:
+                certif:       mI0EUXAD2gEEAN0pQnR+zoMx1nrwEtqKtzs8uIp6f7zrTWwTyiGM5jWnQW0+2nj+
+                certif:       2IBA3Rvdehyz8uUeEw5hd8UbqBb3cKZTTq669q4gaf4iFLcaaLZ3rqo1r9f2Qjg+
+                certif:       DdoGjskpGWOA6sJvsdV7jLDGRB2WJpCLM3I9Ckm7d6gvZC33kCWQZ/eFABEBAAG0
+                certif:       IFRlc3QgUGVyc29uMSA8bm9yZXBseTFAcmlwZS5uZXQ+iLkEEwECACMFAlFwA9oC
+                certif:       GwMHCwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRBzu5b46+6wXmu3A/40xywR
+                certif:       laNR+WZ4/OWrYLifvebXHyrCDjhLcUoM0njZKJeVSHFW8Qmh5Llerk7yDy1hcs5G
+                certif:       gvsY3iQ2Uhq2vYhAEQWOZaXTg3Fb4UTzotTPPrLf0m1JXP9a28FI2ZkLrhGv1PlX
+                certif:       ansEoXlWgnwPp9PV6HW1GUuIBIAqyanOCKYbmLiNBFFwA9oBBADUd1qRQ1/StzdW
+                certif:       xkJlypQ5vedAwk/Oc7zRzv1Jzp96eTIMOpALzmlrKB4+pJELYcYCeFy6zagoqFJa
+                certif:       y77IqFfo5V8EXlW9IZj54jiLtz1+G/LSSabOs2d5DdjT5ihmPolyzWepWk5SOaNq
+                certif:       LJNgc20FVc02d6bwr9a0RKbgc7UyvwARAQABiJ8EGAECAAkFAlFwA9oCGwwACgkQ
+                certif:       c7uW+OvusF5m2QP+LnB/M/VI0/AHycrkZBKoy269jf8F1wkbK7gSe6rVXVFpm06L
+                certif:       LhdmBbGrZhapjXb+7QhS0XL4s3tfoDCXjO3FnY2uAfDmfRmxlaMuEajDnFQyQc3T
+                certif:       KepilxrKtIkIb31RcHiefTcOSB8a2hKwGLK6QTo/X3bzSJl4NonvAArJITs==iWqc
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                mnt-by:       TST-MNT
+                source:       TEST
+                password:     test""".stripIndent())
+
+        then:
+        def ack = new AckResponse("", create)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[key-cert] PGPKEY-EBEEB05E" }
+        ack.errorMessagesFor("Create", "[key-cert] PGPKEY-EBEEB05E") == ["The supplied object has no key"]
+
+        queryObjectNotFound("-rBT key-cert PGPKEY-EBEEB05E", "key-cert", "PGPKEY-EBEEB05E")
+    }
+
     def "modify mntr authorized by PGP-Key"() {
         given:
         syncUpdate(getTransient("PGP-KEYCERT-ONE") + "password:test")
@@ -244,8 +273,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        PGPKEY-EBEEB05E
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test
@@ -284,8 +311,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 auth:        PGPKEY-EBEEB05E
                 auth:        PGPKEY-44AF2B48
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test
@@ -324,8 +349,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:       dbtest@ripe.net
                 auth:         MD5-PW \$1\$12345678\$knzUanD5W.zU11AJAAbNw/   # test-dbm
                 mnt-by:       TST-MNT
-                referral-by:  TST-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:     denis,override1
 
@@ -366,13 +389,12 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
 
                 mntner:       TEST-DBM-MNT
                 descr:        Mntner for RIPE DBM objects.........
+                remarks:      My remarks
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 upd-to:       dbtest@ripe.net
                 auth:         MD5-PW \$1\$tTr8D75J\$ruGCSs6bNrwr25ZrervtR0 # test-dbm
                 mnt-by:       TST-MNT
-                referral-by:  TST-MNT2
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 override:     denis,override1
 
@@ -398,7 +420,7 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TEST-DBM-MNT" }
 
-        query_object_matches("-rBT mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT", "referral-by:\\s*TST-MNT2")
+        query_object_matches("-rBT mntner TEST-DBM-MNT", "mntner", "TEST-DBM-MNT", "remarks:\\s*My remarks")
     }
 
     def "create irt using pgp key using override"() {
@@ -423,7 +445,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 auth:                MD5-PW \$1\$12345678\$wza1MMo7nPUnBHNJMOMq3.   # irt
                 mnt-by:              TST-MNT
                 notify:              dbtest@ripe.net
-                changed:             dbtest@ripe.net
                 source:              TEST
                 override:            denis,override1
                 """.stripIndent()
@@ -465,8 +486,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 irt-nfy:      case027-1@ripe.net
                 notify:       case027-2@ripe.net
                 mnt-by:       TST-MNT2
-                changed:      dbtest@ripe.net 20030101
-                changed:      dbtest@ripe.net 20030201
                 source:       TEST
                 override:     denis,override1
                 """.stripIndent()
@@ -495,7 +514,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 certif:       =Nphm
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       TEST-MNT
-                changed:      dbtest@ripe.net 20030101
                 source:       TEST
                 """.stripIndent()
         )
@@ -545,7 +563,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 certif:       =iWqc
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       TST-MNT
-                changed:      tp1@3ripe.net 20010713
                 source:       TEST
                 delete: test delete
 
@@ -555,8 +572,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        PGPKEY-EBEEB05E
                 mnt-by:      TST-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: test
@@ -600,7 +615,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 certif:       AJsEYkdtXwMM69Nd+JWsiEk+48ns3w==
                 certif:       =3+2Y
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
-                changed:      dbtest@ripe.net 20020101
                 mnt-by:       TST-MNT
                 source:       TEST
                 password:     test
@@ -623,7 +637,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 certif:       AJsEYkdtXwMM69Nd+JWsiEk+48ns3w==
                 certif:       =3+2Y
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
-                changed:      dbtest@ripe.net 20020101
                 mnt-by:       TST-MNT
                 source:       TEST
                 delete: test delete
@@ -668,7 +681,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 certif:       AJsEYkdtXwMM69Nd+JWsiEk+48ns3w==
                 certif:       =3+2Y
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
-                changed:      dbtest@ripe.net 20020101
                 mnt-by:       TST-MNT
                 source:       TEST
                 password:     test
@@ -694,7 +706,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                 certif:         AJsEYkdtXwMM69Nd+JWsiEk+48ns3w==
                 certif:         =3+2Y
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
-                changed:        dbtest@ripe.net 20020101
                 mnt-by:         TST-MNT
                 source:         TEST
                 delete: test delete
@@ -893,7 +904,6 @@ class PgpSignedMessageSpec extends BaseQueryUpdateSpec {
                               =4TVE
                               -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       TST-MNT
-                changed:      bit-bucket@ripe.net
                 source:       TEST
 
                 password: test

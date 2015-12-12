@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois</artifactId>
-    <version>1.77-SNAPSHOT</version>
+    <version>1.86-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -18,21 +18,22 @@
             <url>https://raw.github.com/RIPE-NCC/whois/master/LICENSE.txt</url>
             <distribution>repo</distribution>
         </license>
-
     </licenses>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring.version>3.2.10.RELEASE</spring.version>
-        <aspectj.version>1.7.4</aspectj.version>
-        <java.version>1.7</java.version>
+        <!-- [ES] recommended Spring 4 w/Java 8 -->
+        <spring.version>4.2.3.RELEASE</spring.version>
+        <aspectj.version>1.8.7</aspectj.version>
+        <java.version>1.8</java.version>
+        <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.11</jersey.version>
-        <lucene.version>4.10.0</lucene.version>
-        <jetty.version>8.1.15.v20140411</jetty.version>
+        <lucene.version>4.10.4</lucene.version>
+        <jetty.version>8.1.17.v20150415</jetty.version>
         <whois.main>OVERRIDE</whois.main>
-        <sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
-        <sonar.jdbc.driver>com.mysql.jdbc.Driver</sonar.jdbc.driver>
+        <sonar.jdbc.url>jdbc:mariadb://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
+        <sonar.jdbc.driver>org.mariadb.jdbc.Driver</sonar.jdbc.driver>
         <sonar.jdbc.username>dbint</sonar.jdbc.username>
         <sonar.jdbc.password />
     </properties>
@@ -166,7 +167,7 @@
             <dependency>
                 <groupId>net.ripe.commons</groupId>
                 <artifactId>commons-ip-math</artifactId>
-                <version>1.10</version>
+                <version>1.22</version>
             </dependency>
             <dependency>
                 <groupId>de.jflex</groupId>
@@ -209,7 +210,6 @@
                 <artifactId>spring-tx</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
@@ -223,7 +223,7 @@
             <dependency>
                 <groupId>net.sf.jopt-simple</groupId>
                 <artifactId>jopt-simple</artifactId>
-                <version>4.7</version>
+                <version>4.8</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -253,80 +253,80 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>16.0.1</version>
+                <version>18.0</version>
             </dependency>
             <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.21</version>
+                <groupId>org.mariadb.jdbc</groupId>
+                <artifactId>mariadb-java-client</artifactId>
+                <version>1.2.0</version>
             </dependency>
             <dependency>
-                <groupId>c3p0</groupId>
+                <groupId>com.mchange</groupId>
                 <artifactId>c3p0</artifactId>
-                <version>0.9.1.2</version>
+                <version>0.9.5.1</version>
             </dependency>
+            <!-- TODO: [ES] netty 3.10.0 creates excessive threads during integration tests -->
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty</artifactId>
                 <version>3.4.6.Final</version>
             </dependency>
-
+            <!-- TODO: [ES] javax.mail-api 1.5.2 causes gmaven plugin to fail -->
             <dependency>
                 <groupId>javax.mail</groupId>
                 <artifactId>mail</artifactId>
                 <version>1.4.5</version>
             </dependency>
-
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
-                <version>2.6.7</version>
+                <version>2.6.9</version>
             </dependency>
-
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.3</version>
+                <version>2.7</version>
             </dependency>
 
             <!-- bouncy castle -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpg-jdk15on</artifactId>
-                <version>1.51</version>
+                <version>1.52</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcmail-jdk15on</artifactId>
-                <version>1.51</version>
+                <version>1.52</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.51</version>
+                <version>1.52</version>
             </dependency>
 
             <!-- apache commons -->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.3</version>
+                <version>2.4</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.7</version>
+                <version>1.10</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.4.1</version>
+                <version>1.9</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
-                <version>3.1</version>
+                <version>3.3</version>
             </dependency>
+            <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
@@ -335,7 +335,7 @@
             <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
-                <version>1.4.0</version>
+                <version>1.4.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
@@ -345,20 +345,25 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.3.3</version>
+                <version>4.4</version>
             </dependency>
 
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
-                <version>1.7.3</version>
+                <version>1.8.1</version>
             </dependency>
 
             <!-- Jetty as an embedded server -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-webapp</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-jmx</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
 
@@ -383,12 +388,12 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-base</artifactId>
-                <version>2.4.1</version>
+                <version>2.4.4</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>2.4.1</version>
+                <version>2.4.4</version>
             </dependency>
 
             <!-- StaxUtils for the XMLWriterUtils -->
@@ -407,12 +412,12 @@
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
-                <version>2.2.7</version>
+                <version>2.2.11</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.2.7</version>
+                <version>2.2.11</version>
             </dependency>
 
             <!-- lucene for fulltext search -->
@@ -463,6 +468,7 @@
             </dependency>
 
             <!-- Solr -->
+            <!-- TODO: [ES] update solr-solrj -->
             <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
@@ -470,6 +476,7 @@
                 <scope>test</scope>
             </dependency>
 
+            <!-- TODO: [ES] update gson -->
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
@@ -492,6 +499,7 @@
             <scope>compile</scope>
         </dependency>
         <!-- common test dependencies -->
+        <!-- TODO: [ES] update jsr305 -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
@@ -501,7 +509,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -522,6 +530,7 @@
             <version>0.7-groovy-1.8</version>
             <scope>test</scope>
         </dependency>
+        <!-- TODO: [ES] update mockito-core -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -534,6 +543,7 @@
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
+        <!-- TODO: [ES] update springockito-annotations -->
         <dependency>
             <groupId>org.kubek2k</groupId>
             <artifactId>springockito-annotations</artifactId>
@@ -546,6 +556,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- TODO: [ES] update awaitility -->
         <dependency>
             <groupId>com.jayway.awaitility</groupId>
             <artifactId>awaitility</artifactId>
@@ -645,6 +656,7 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.6</version>
             </plugin>
+            <!-- TODO: [ES] update gmaven plugin to 1.5 -->
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
@@ -676,7 +688,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.16</version>
+                <version>2.18.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx512m -DjvmId=${surefire.forkNumber}</argLine>
@@ -685,6 +697,7 @@
                     </includes>
                     <runOrder>random</runOrder>
                     <threadCount>1</threadCount>
+                    <reuseForks>false</reuseForks>
                     <excludedGroups>
                         net.ripe.db.whois.common.IntegrationTest,
                         net.ripe.db.whois.common.EndToEndTest,
@@ -695,7 +708,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.16</version>
+                <version>2.18.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber}</argLine>
@@ -704,7 +717,8 @@
                     </includes>
                     <groups>${test.groups}</groups>
                     <forkCount>${test.forkCount.integration}</forkCount>
-                    <reuseForks>true</reuseForks>
+                    <!-- TODO: turn back on, once changed is removed -->
+                    <reuseForks>false</reuseForks>
                     <threadCount>1</threadCount>
                     <runOrder>random</runOrder>
                     <testFailureIgnore>${test.ignoreFailure}</testFailureIgnore>
@@ -721,16 +735,17 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.8</version>
                 <configuration>
-                    <showWeaveInfo>false</showWeaveInfo>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <Xlint>warning</Xlint>
                     <complianceLevel>${java.version}</complianceLevel>
+                    <Xlint>warning</Xlint>
+                    <verbose>true</verbose>
+                    <forceAjcCompile>true</forceAjcCompile>
+                    <showWeaveInfo>true</showWeaveInfo>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <verbose>false</verbose>
-                    <warn>true</warn>
+                    <warn>none</warn>
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>
@@ -793,7 +808,11 @@
                 <test.ignoreFailure>false</test.ignoreFailure>
                 <test.groups>net.ripe.db.whois.common.ManualTest</test.groups>
                 <test.files.unit>None</test.files.unit>
-                <test.files.integration>**/CompareTwoQueryInstancesByComparisonFile.class,**/RestCompareTwoInstancesByComparisonFile.class</test.files.integration>
+                <test.files.integration>
+                    **/CompareTwoQueryInstancesByFile.class,
+                    **/CompareTwoRestInstancesByFile.class,
+                    **/CompareTwoNrtmInstances.class
+                </test.files.integration>
             </properties>
         </profile>
         <profile>
@@ -835,7 +854,32 @@
                 <test.groups>None</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>None</test.files.integration>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
             </properties>
+        </profile>
+        <profile>
+            <id>jmeter</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.lazerycode.jmeter</groupId>
+                        <artifactId>jmeter-maven-plugin</artifactId>
+                        <version>1.10.0</version>
+                        <configuration>
+                            <reportDir>${project.build.directory}/jmeter-reports</reportDir>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>jmeter</id>
+                                <phase>none</phase>
+                                <goals>
+                                    <goal>jmeter</goal>
+                                </goals>
+                           </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

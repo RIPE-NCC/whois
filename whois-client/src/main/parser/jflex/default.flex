@@ -16,7 +16,9 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
 
 %%
 
+%public
 %class DefaultLexer
+%implements net.ripe.db.whois.common.rpsl.AttributeLexer
 
 %byaccj
 
@@ -37,6 +39,13 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
         this(r);
         this.yyparser = yyparser;
     }
+
+    /* assign value associated with current token to the external parser variable yylval. */
+    private void storeTokenValue() {
+        if ((this.yyparser != null) && (this.yyparser.yylval != null)) {
+            yyparser.yylval.sval = yytext();
+        }
+    }
 %}
 
 /* macro definitions */
@@ -48,13 +57,11 @@ FLTRNAME       = FLTR-[a-zA-Z0-9_-]*{ALNUM}
 ASNAME         = AS-[a-zA-Z0-9_-]*{ALNUM}
 RSNAME         = RS-[a-zA-Z0-9_-]*{ALNUM}
 PRNGNAME       = PRNG-[a-zA-Z0-9_-]*{ALNUM}
-RTRSNAME       = RTRS-[a-zA-Z0-9_-]*{ALNUM}
 INT            = [0-9]+
 IPV4           = {INT}(\.{INT}){3}
 PRFXV4         = {IPV4}\/{INT}
 PRFXV4RNG      = {PRFXV4}("^+"|"^-"|"^"{INT}|"^"{INT}-{INT})
 COMM_NO        = {INT}:{INT}
-PROTOCOL_NAME  = BGP4|OSPF|RIP|IGRP|IS-IS|STATIC|RIPng|DVMRP|PIM-DM|PIM-SM|CBT|MOSPF
 DNAME          = [a-zA-Z]([0-9a-zA-Z-]*{ALNUM})?
 
 %%
@@ -162,13 +169,13 @@ COST        { return DefaultParser.TKN_COST; }
 }
 
 {INT} {
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return DefaultParser.TKN_INT;
 }
 
 {DNAME} {
     ParserHelper.validateDomainNameLabel(yytext());
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return DefaultParser.TKN_DNS;
 }
 

@@ -49,4 +49,9 @@ public class Arg {
 
         return Objects.equals(value, ((Arg)o).getValue());
     }
+
+    @Override
+    public int hashCode() {
+        return value != null ? value.hashCode() : 0;
+    }
 }

@@ -56,7 +56,6 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
                 "origin: AS123\n" +
                 "notify: noreply@ripe.net\n" +
                 "mnt-by: OWNER-MNT\n" +
-                "changed: noreplY@ripe.net\n" +
                 "source: TEST");
 
         pendingUpdateDao.store(new PendingUpdate(Sets.newHashSet("RouteAuthentication"), route, LocalDateTime.now().minusDays(8)));
@@ -78,7 +77,6 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
                 "origin: AS123\n" +
                 "notify: noreply@ripe.net\n" +
                 "mnt-by: OWNER-MNT\n" +
-                "changed: noreplY@ripe.net\n" +
                 "source: TEST");
         pendingUpdateDao.store(new PendingUpdate(Sets.newHashSet("RouteAuthentication"), route, LocalDateTime.now().minusDays(6)));
         assertThat(getPendingUpdateCount(), is(1));
@@ -91,6 +89,6 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
     }
 
     private int getPendingUpdateCount() {
-        return databaseHelper.getInternalsTemplate().queryForInt("SELECT count(*) FROM pending_updates");
+        return databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class);
     }
 }

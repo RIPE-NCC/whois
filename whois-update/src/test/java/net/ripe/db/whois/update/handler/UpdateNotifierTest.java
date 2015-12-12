@@ -3,7 +3,15 @@ package net.ripe.db.whois.update.handler;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Notification;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.ResponseMessage;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.mail.MailGateway;
 import org.junit.Test;
@@ -14,7 +22,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UpdateNotifierTest {
@@ -50,7 +62,7 @@ public class UpdateNotifierTest {
     @Test
     public void sendNotifications_single_no_notifications() {
         final Update update = mock(Update.class);
-        final RpslObject rpslObject = RpslObject.parse("" +
+        final RpslObject rpslObject = RpslObject.parse(
                 "mntner: UPD-MNT\n" +
                 "descr: description\n" +
                 "admin-c: TEST-RIPE\n" +
@@ -59,10 +71,8 @@ public class UpdateNotifierTest {
                 "mnt-nfy: mntnotify2@me.com\n" +
                 "notify: notify1@me.com\n" +
                 "notify: notify2@me.com\n" +
-                "referral-by: ADMIN-MNT\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source: TEST\n");
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, null, rpslObject, Action.CREATE);
@@ -80,7 +90,7 @@ public class UpdateNotifierTest {
     @Test
     public void sendNotifications_sanitized_email() {
         final Update update = mock(Update.class);
-        final RpslObject rpslObject = RpslObject.parse("" +
+        final RpslObject rpslObject = RpslObject.parse(
                 "mntner: UPD-MNT\n" +
                 "descr: description\n" +
                 "admin-c: TEST-RIPE\n" +
@@ -88,10 +98,8 @@ public class UpdateNotifierTest {
                 "mnt-nfy: mntnotify1@me.com\n" +
                 "mnt-nfy: mntnotify2@me.com\n" +
                 "notify: notifies us <mailto:notify@me.com>\n" +
-                "referral-by: ADMIN-MNT\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source: TEST\n");
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, null, rpslObject, Action.CREATE);

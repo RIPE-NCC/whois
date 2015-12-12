@@ -103,6 +103,15 @@ public class ErrorMessage implements Comparable<ErrorMessage> {
     }
 
     @Override
+    public int hashCode() {
+        int result = (severity != null ? severity.hashCode() : 0);
+        result = 31 * result + (attribute != null ? attribute.hashCode() : 0);
+        result = 31 * result + (text != null ? text.hashCode() : 0);
+        result = 31 * result + (args != null ? args.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public int compareTo(final ErrorMessage errorMessage) {
         final Messages.Type thisType = Messages.Type.valueOf(severity.toUpperCase());
         final Messages.Type otherType = Messages.Type.valueOf(errorMessage.getSeverity().toUpperCase());

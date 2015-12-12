@@ -19,7 +19,6 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED UNSPECIFIED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA": """\
@@ -34,7 +33,6 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ALLOC-PA-A": """\
@@ -49,7 +47,6 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "LIR-PART-PA": """\
@@ -63,7 +60,6 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
                 status:       LIR-PARTITIONED PA
                 mnt-by:       LIR2-MNT
                 mnt-lower:    LIR2-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ASS-END": """\
@@ -75,7 +71,6 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ASS-END-NOTIFY": """\
@@ -88,7 +83,6 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
                 notify:       test-inverse-notify@ripe.net
                 status:       ASSIGNED PA
                 mnt-by:       END-USER-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "DOM": """\
@@ -100,7 +94,6 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
                 nserver:        pri.authdns.ripe.net
                 nserver:        ns3.nic.fr
                 mnt-by:         owner-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
         ]
@@ -484,6 +477,7 @@ class LongOptionsSpec extends BaseQueryUpdateSpec {
                                        "--persistent-connection"])
                               .get(1), "inetnum","192.168.0.0 - 192.169.255.255")
 
+// TODO
 //        "-rBG -T inetnum -k 192.168.200.0 - 192.168.200.255\n\n-rBG -T inetnum 192.168.0.0 - 192.169.255.255\n\n-k", "inetnum", "192.168.0.0 - 192.169.255.255")
 //        "-rBG -T inetnum --persistent-connection 192.168.200.0 - 192.168.200.255\n\n-rBG -T inetnum 192.168.0.0 - 192.169.255.255\n\n--persistent-connection", "inetnum", "192.168.0.0 - 192.169.255.255")
 

@@ -117,6 +117,48 @@ public class OverrideOptionsTest {
         verify(updateContext).addMessage(update, UpdateMessages.overrideOptionInvalid("unknown=123"));
     }
 
+    @Test
+    public void override_last_modified_true() {
+        useCredentialWithRemarks("{skip-last-modified=true}");
+
+        final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
+
+        assertThat(overrideOptions.isSkipLastModified(), is(true));
+        verifyZeroInteractions(updateContext);
+    }
+
+    @Test
+    public void override_last_modified_false() {
+        useCredentialWithRemarks("{skip-last-modified=false}");
+
+        final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
+
+        assertThat(overrideOptions.isSkipLastModified(), is(false));
+        verifyZeroInteractions(updateContext);
+    }
+
+    @Test
+    public void override_last_modified_unknown() {
+        useCredentialWithRemarks("{skip-last-modified=unknown}");
+
+        final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
+
+        //!!!!!!!!!!!!!! check TO DO in OverrideOptions
+        assertThat(overrideOptions.isSkipLastModified(), is(false));
+        verifyZeroInteractions(updateContext);
+    }
+
+    @Test
+    public void override_last_modified_default() {
+        useCredentialWithRemarks("");
+
+        final OverrideOptions overrideOptions = OverrideOptions.parse(update, updateContext);
+
+        //!!!!!!!!!!!!!! check TO DO in OverrideOptions
+        assertThat(overrideOptions.isSkipLastModified(), is(false));
+        verifyZeroInteractions(updateContext);
+    }
+
     private void useCredentialWithRemarks(final String remarks) {
         when(update.getCredentials()).thenReturn(new Credentials(Collections.<Credential>singleton(OverrideCredential.parse("user,pw," + remarks))));
     }

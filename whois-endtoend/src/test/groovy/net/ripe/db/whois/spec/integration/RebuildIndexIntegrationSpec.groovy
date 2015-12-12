@@ -17,10 +17,8 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  TST-MNT
-            referral-by: TST-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "TST-MNT2": """\
@@ -28,10 +26,8 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  TST-MNT2
-            referral-by: TST-MNT2
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \\\$1\\\$fU9ZMQN9\\\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "PWR-MNT": """\
@@ -39,10 +35,8 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  RIPE-NCC-HM-MNT
-            referral-by: RIPE-NCC-HM-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "ADMIN-PN": """\
@@ -53,7 +47,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """,
                 "ORG1": """\
@@ -65,7 +58,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             e-mail:       org1@test.com
             mnt-ref:      TST-MNT
             mnt-by:       TST-MNT
-            changed:      dbtest@ripe.net 20120505
             source:       TEST
             """,
                 "ORG2": """\
@@ -79,7 +71,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-ref:      TST-MNT2
             mnt-by:       TST-MNT
             mnt-by:       TST-MNT2
-            changed:      dbtest@ripe.net 20120505
             source:       TEST
             """,
                 "ABUSE-ROLE": """\
@@ -93,7 +84,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl: AB-NIC
             abuse-mailbox: abuse@test.net
             mnt-by:  TST-MNT2
-            changed: dbtest@ripe.net 20121016
             source:  TEST
             """,
                 "NOT-ABUSE-ROLE": """\
@@ -106,7 +96,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:  TEST-RIPE
             nic-hdl: NAB-NIC
             mnt-by:  TST-MNT2
-            changed: dbtest@ripe.net 20121016
             source:  TEST
             """
         ]
@@ -129,7 +118,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: NP-RIPE
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """.stripIndent()))
 
@@ -151,7 +139,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:     TEST-RIPE
                 status:     OTHER
                 mnt-by:     TST-MNT
-                changed:    ripe@test.net 20120505
                 source:     TEST
                 """.stripIndent()))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
@@ -163,7 +150,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:     TEST-RIPE
                 status:     OTHER
                 mnt-by:     TST-MNT
-                changed:    ripe@test.net 20120505
                 source:     TEST
                 """.stripIndent()))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
@@ -172,7 +158,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 descr:      Testing
                 org:        ORG-TOL1-TEST
                 mnt-by:     TST-MNT
-                changed:    ripe@test.net 20091015
                 source:     TEST
                 """.stripIndent()))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
@@ -180,7 +165,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 descr:      Test route
                 origin:     AS123
                 mnt-by:     TST-MNT
-                changed:    ripe@test.net 20091015
                 source:     TEST
                 """.stripIndent()))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
@@ -188,7 +172,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 descr:      TEST
                 origin:     AS123
                 mnt-by:     TST-MNT
-                changed:    ripe@test.net 20091015
                 source:     TEST
                 """.stripIndent()))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
@@ -200,7 +183,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 nserver:    ns.foo.net
                 nserver:    ns.bar.net
                 mnt-by:     TST-MNT
-                changed:    test@ripe.net 20120505
                 source:     TEST
                 """.stripIndent()))
           insertIntoLastAndUpdateSerials(new ClockDateTimeProvider(), whoisFixture.databaseHelper.whoisTemplate, RpslObject.parse("""\
@@ -211,7 +193,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c:    TEST-RIPE
                 tech-c:     TEST-RIPE
                 mnt-by:     TST-MNT
-                changed:    test@ripe.net 20120622
                 source:     TEST
                 """.stripIndent()))
 
@@ -233,7 +214,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "descr:          ARIN ASN block\n" +
                 "org:            ORG-TOL2-TEST\n" +
                 "notify:         notify@test.net\n" +
-                "changed:        chg@test.net\n" +
                 "mnt-lower:      TST-MNT2\n" +
                 "mnt-by:         TST-MNT\n" +
                 "source:         TEST");
@@ -249,6 +229,7 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("-i mnt-lower TST-MNT2", "as-block", "AS222 - AS333")
     }
 
+    // TODO: [ES] failing test
     def "rebuild with autnum"() {
         databaseHelper.addObject("" +
                 "aut-num:        AS101\n" +
@@ -261,7 +242,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-lower:      TST-MNT\n" +
                 "mnt-routes:     TST-MNT\n" +
                 "mnt-by:         TST-MNT2\n" +
-                "changed:        noreply@ripe.net 20120101\n" +
                 "source:         TEST\n")
 
       when:
@@ -290,7 +270,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:          TST-MNT2\n" +
                 "notify:          notify@ripe.net\n" +
                 "ds-rdata:        52151  1  1  13ee60f7499a70e5aadaf05828e7fc59e8e70bc1\n" +
-                "changed:         test@ripe.net 20120505\n" +
                 "source:          TEST")
 
       when:
@@ -318,7 +297,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:       test@test.net\n" +
                 "mnt-by:       TST-MNT2\n" +
                 "mnt-lower:    TST-MNT\n" +
-                "changed:      dbtest@ripe.net\n" +
                 "source:       TEST")
 
       when:
@@ -342,7 +320,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "tech-c:       AB-NIC\n" +
                 "mnt-by:       TST-MNT\n" +
                 "mnt-lower:    TST-MNT\n" +
-                "changed:      dbtest@ripe.net\n" +
                 "source:       TEST")
 
         databaseHelper.addObject("" +
@@ -353,7 +330,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c:      TEST-RIPE\n" +
                 "mbrs-by-ref:  TST-MNT\n" +
                 "mnt-by:       TST-MNT\n" +
-                "changed:      dbtest@ripe.net\n" +
                 "source:       TEST")
 
         databaseHelper.addObject("" +
@@ -367,7 +343,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "tech-c:      AB-NIC\n" +
                 "mnt-by:      TST-MNT\n" +
                 "notify:      dbtest@ripe.net\n" +
-                "changed:     dbtest@ripe.net\n" +
                 "source:      TEST")
       when:
         whoisFixture.rebuildIndexes()
@@ -397,7 +372,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "irt-nfy:   irtnfy@test.net\n" +
                 "notify:    nfy@test.net\n" +
                 "mnt-by:    RIPE-NCC-HM-MNT\n" +
-                "changed:   test@ripe.net 20120505\n" +
                 "source:    TEST")
 
         databaseHelper.addObject("" +
@@ -415,7 +389,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
             "mnt-routes:    TST-MNT\n" +
             "mnt-irt:       irt-IRT1\n" +
             "org:           ORG-TOL2-TEST\n" +
-            "changed:       ripe@test.net 20120505\n" +
             "source:        TEST")
 
       when:
@@ -456,7 +429,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "irt-nfy:   irtnfy@test.net\n" +
                 "notify:    nfy@test.net\n" +
                 "mnt-by:    RIPE-NCC-HM-MNT\n" +
-                "changed:   test@ripe.net 20120505\n" +
                 "source:    TEST")
 
         databaseHelper.addObject("" +
@@ -474,7 +446,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-routes:    TST-MNT\n" +
                 "mnt-irt:       irt-IRT1\n" +
                 "org:           ORG-TOL2-TEST\n" +
-                "changed:       ripe@test.net 20120505\n" +
                 "source:        TEST")
 
       when:
@@ -536,7 +507,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "tech-c:         NAB-NIC\n" +
                 "mnt-by:         TST-MNT\n" +
                 "notify:         noreply@ripe.net\n" +
-                "changed:        noreply@ripe.net 20120213\n" +
                 "source:         TEST")
 
       when:
@@ -564,10 +534,8 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-by:    TST-MNT\n" +
                 "notify:    notify@ripe.net\n" +
                 "abuse-mailbox: abuse@ripe.net\n" +
-                "referral-by: TST-MNT\n" +
                 "upd-to:    dbtest@ripe.net\n" +
                 "auth:      MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed:   dbtest@ripe.net 20120707\n" +
                 "source:    TEST")
 
       when:
@@ -596,7 +564,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:       notify@ripe.net\n" +
                 "mnt-by:       TST-MNT\n" +
                 "mnt-lower:    TST-MNT2\n" +
-                "changed:      dbtest@ripe.net\n" +
                 "source:       TEST")
       when:
         whoisFixture.rebuildIndexes()
@@ -623,7 +590,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:  notify@test.net\n" +
                 "nic-hdl: REB-RIPE\n" +
                 "mnt-by:  TST-MNT\n" +
-                "changed: tester@test.net 20120101\n" +
                 "source:  TEST\n"));
 
         whoisFixture.rebuildIndexes();
@@ -656,7 +622,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:        rebuild@test.net\n" +
                 "mnt-ref:       TST-MNT\n" +
                 "mnt-by:        TST-MNT\n" +
-                "changed:       dbtest@test.net 20120505\n" +
                 "source:        TEST"));
 
       when:
@@ -682,7 +647,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c:         TEST-RIPE\n" +
                 "notify:          pform@test.net\n" +
                 "mnt-by:          TST-MNT\n" +
-                "changed:         ripe-dbm@test.net 20060913\n" +
                 "source:          TEST"));
 
         databaseHelper.addObject(RpslObject.parse("" +
@@ -694,7 +658,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "remarks:   blabla\n" +
                 "notify:    rebuild@test.net\n" +
                 "mnt-by:    TST-MNT\n" +
-                "changed:   dbtest@test.net 20120505\n" +
                 "source:    TEST"))
 
       when:
@@ -725,7 +688,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "abuse-mailbox: abuse@test.net\n" +
                 "notify:        notify@test.net\n" +
                 "mnt-by:        TST-MNT\n" +
-                "changed:       tester@test.net 20120101\n" +
                 "source:        TEST\n"))
 
       when:
@@ -753,7 +715,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-lower:    TST-MNT\n" +
                 "abuse-mailbox: abuse@test.net\n" +
                 "notify:       notify@test.net\n" +
-                "changed:      changed@test.net\n" +
                 "source:       TEST"))
       when:
         whoisFixture.rebuildIndexes();
@@ -777,7 +738,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c: TEST-RIPE\n" +
                 "mnt-by: TST-MNT\n" +
                 "mbrs-by-ref: ANY\n" +
-                "changed: ripe@test.net 20120202\n" +
                 "source: TEST"))
 
         databaseHelper.addObject(RpslObject.parse("" +
@@ -789,7 +749,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "tech-c:       TEST-RIPE\n" +
                 "mbrs-by-ref:  ANY\n" +
                 "notify:       asnotify@test.net\n" +
-                "changed:      changed@test.com\n" +
                 "source:       TEST"))
 
         databaseHelper.addObject(RpslObject.parse("" +
@@ -803,7 +762,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-lower:    TST-MNT\n" +
                 "mnt-routes:   TST-MNT2\n" +
                 "mnt-by:       TST-MNT\n" +
-                "changed:      changed@test.net\n" +
                 "source:       TEST\n"))
 
         when:
@@ -837,7 +795,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "tech-c:       TEST-RIPE\n" +
                 "mbrs-by-ref:  ANY\n" +
                 "notify:       rsnotify@test.net\n" +
-                "changed:      changed@test.com\n" +
                 "source:       TEST"))
 
         databaseHelper.addObject(RpslObject.parse("" +
@@ -851,7 +808,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "mnt-lower:    TST-MNT\n" +
                 "mnt-routes:   TST-MNT2\n" +
                 "mnt-by:       TST-MNT\n" +
-                "changed:      changed@test.net\n" +
                 "source:       TEST\n"))
 
       when:
@@ -887,7 +843,6 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
                 "notify:        notf@test.net\n" +
                 "mnt-by:        TST-MNT2\n" +
                 "mnt-lower:     TST-MNT\n" +
-                "changed:       chg@test.net\n" +
                 "source:        TEST"))
 
       when:

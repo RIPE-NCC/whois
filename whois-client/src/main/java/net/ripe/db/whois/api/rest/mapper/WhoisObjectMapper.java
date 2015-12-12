@@ -1,13 +1,14 @@
 package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Source;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,13 +73,25 @@ public class WhoisObjectMapper {
         return whoisResources;
     }
 
+    public WhoisResources mapRpslObjects(final Class<? extends AttributeMapper> mapFunction, final ActionRequest ... requests) {
+        final WhoisResources whoisResources = new WhoisResources();
+        final List<WhoisObject> whoisObjects = Lists.newArrayList();
+        for (ActionRequest request : requests) {
+            final WhoisObject whoisObject = map(request.getRpslObject(), mapFunction);
+            whoisObject.setAction(request.getAction());
+            whoisObjects.add(whoisObject);
+        }
+        whoisResources.setWhoisObjects(whoisObjects);
+        return whoisResources;
+    }
+
     public WhoisObject map(final RpslObject rpslObject, final Class<?> mapFunction) {
         final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
         final String type = rpslObject.getType().getName();
         final AttributeMapper attributeMapper = objectMapperFunctions.get(mapFunction);
 
         final List<Attribute> primaryKeyAttributes = new ArrayList<>();
-        for (RpslAttribute keyAttribute : rpslObject.findAttributes(ObjectTemplate.getTemplate(rpslObject.getType()).getKeyAttributes())) {
+        for (RpslAttribute keyAttribute : rpslObject.findAttributes(ObjectTemplateProvider.getTemplate(rpslObject.getType()).getKeyAttributes())) {
             primaryKeyAttributes.addAll(primaryKeyAttributeMapper.map(keyAttribute, source));
         }
 

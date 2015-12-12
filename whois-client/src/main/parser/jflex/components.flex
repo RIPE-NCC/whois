@@ -15,7 +15,9 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
 */
 %%
 
+%public
 %class ComponentsLexer
+%implements net.ripe.db.whois.common.rpsl.AttributeLexer
 
 %byaccj
 
@@ -35,6 +37,13 @@ import net.ripe.db.whois.common.rpsl.ParserHelper;
     public ComponentsLexer(java.io.Reader r, ComponentsParser yyparser) {
         this(r);
         this.yyparser = yyparser;
+    }
+
+    /* assign value associated with current token to the external parser variable yylval. */
+    private void storeTokenValue() {
+        if ((this.yyparser != null) && (this.yyparser.yylval != null)) {
+            yyparser.yylval.sval = yytext();
+        }
     }
 %}
 
@@ -147,7 +156,7 @@ PROTOCOL         { return ComponentsParser.KEYW_PROTOCOL; }
 }
 
 {INT} {
-    yyparser.yylval.sval = yytext();
+    storeTokenValue();
     return ComponentsParser.TKN_INT;
 }
 

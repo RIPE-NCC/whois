@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
@@ -19,7 +18,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "X509-1": """\
@@ -54,7 +52,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
                 """,
             "X509-2": """\
@@ -89,9 +86,65 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
-                """
+                """,
+            "PGPKEY-F6A10C2D": """\
+                key-cert:     PGPKEY-F6A10C2D
+                method:       PGP
+                owner:        Michael Holzt <kju@kju.de>
+                fingerpr:     9D50 042E FF89 9543 64AF  01CF 5098 80E3 F6A1 0C2D
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Version: GnuPG v1.0.6 (GNU/Linux)
+                certif:       Comment: For info see http://www.gnupg.org
+                certif:
+                certif:       mQGiBDyVvpMRBADC78dTf/xLoq4DRMb3rKJw7oO93wHh9bd2cwvLNR6yWggNNE3g
+                certif:       Wvas4dFKSZB5KwnYXMLJyW21GIkaDKs3RCTnYfBmNag/JS22lJC0/Ok7Zprdyofc
+                certif:       OmiDF2iwIJ7wXrLV14PjjQINTByIWoEJzBBlMJQOTnxH/on6jnLc9CZJBwCg/3Ss
+                certif:       QxrVRwN7JJIz1vjQLh8TC7cD/jhgvj5MhBALmhVHxuLwf4uEGD1DaiZGvJQeHan3
+                certif:       5x3gXMkJrRzvHFJEscyYbA6yWgsjLHiUh56xuUvowpXR1XcVRmTzKfgaMAcUfg4j
+                certif:       Ww6aWD6ecf6RvdXOMgGjQ/Y2OP+pNkIEQrkQbqvtzmVD8PruLtZ/Su1E6gisvnvD
+                certif:       bKA5A/9rXhF0GQjVQoXphYSUs4ym1FHQcuQ5rhlqRaBABoj9IVTGYU4qYnILzbFp
+                certif:       sexdle3kotB2J/G2IzWveALUIeHumAl+p9FORE88B0aMKpbLsjct9cGwX33pxhE8
+                certif:       zJ5XxKQdKOAopqUXWFldG4sIQNz0rsUHI+MzFzbvnVauojD+cLQaTWljaGFlbCBI
+                certif:       b2x6dCA8a2p1QGtqdS5kZT6IXQQTEQIAHQUCPJY2oQUJA8O4gAULBwoDBAMVAwID
+                certif:       FgIBAheAAAoJEFCYgOP2oQwt1iYAn3a99ju/2wSYYMi/3JQn8CLkpnvvAKCXog/t
+                certif:       dMvoStUzt4t1NgQgkgWM77QcTWljaGFlbCBIb2x6dCA8a2p1QGZxZG4ub3JnPohd
+                certif:       BBMRAgAdBQI8lja1BQkDw7iABQsHCgMEAxUDAgMWAgECF4AACgkQUJiA4/ahDC14
+                certif:       YwCgr6qRVR+K0tdmYAgB9H2+MqQGWtQAoP3dsDLpeVi+BxiXW07qgqINUY0KtB1N
+                certif:       aWNoYWVsIEhvbHp0IDxwb3N0QGhvbHp0LmRlPohdBBMRAgAdBQI8ljbFBQkDw7iA
+                certif:       BQsHCgMEAxUDAgMWAgECF4AACgkQUJiA4/ahDC1IdgCgx9YhL792obiUopWQMD9y
+                certif:       nTUm+CkAoJXjJK9Ur5HJFQdQPVN7mTSqKL2/tB5NaWNoYWVsIEhvbHp0IDxranVA
+                certif:       ZGViaWFuLm9yZz6IXQQTEQIAHQUCPJY3GAUJA8O4gAULBwoDBAMVAwIDFgIBAheA
+                certif:       AAoJEFCYgOP2oQwtgaMAn0ydknekY6jW1X5f4dboFyhVik5CAJ4+GCyR9S+OADIq
+                certif:       l+N98OSajXBYJLkEDQQ8lb6TEBAA+RigfloGYXpDkJXcBWyHhuxh7M1FHw7Y4KN5
+                certif:       xsncegus5D/jRpS2MEpT13wCFkiAtRXlKZmpnwd00//jocWWIE6YZbjYDe4QXau2
+                certif:       FxxR2FDKIldDKb6V6FYrOHhcC9v4TE3V46pGzPvOF+gqnRRh44SpT9GDhKh5tu+P
+                certif:       p0NGCMbMHXdXJDhK4sTw6I4TZ5dOkhNh9tvrJQ4X/faY98h8ebByHTh1+/bBc8SD
+                certif:       ESYrQ2DD4+jWCv2hKCYLrqmus2UPogBTAaB81qujEh76DyrOH3SET8rzF/OkQOnX
+                certif:       0ne2Qi0CNsEmy2henXyYCQqNfi3t5F159dSST5sYjvwqp0t8MvZCV7cIfwgXcqK6
+                certif:       1qlC8wXo+VMROU+28W65Szgg2gGnVqMU6Y9AVfPQB8bLQ6mUrfdMZIZJ+AyDvWXp
+                certif:       F9Sh01D49Vlf3HZSTz09jdvOmeFXklnN/biudE/F/Ha8g8VHMGHOfMlm/xX5u/2R
+                certif:       XscBqtNbno2gpXI61Brwv0YAWCvl9Ij9WE5J280gtJ3kkQc2azNsOA1FHQ98iLMc
+                certif:       fFstjvbzySPAQ/ClWxiNjrtVjLhdONM0/XwXV0OjHRhs3jMhLLUq/zzhsSlAGBGN
+                certif:       fISnCnLWhsQDGcgHKXrKlQzZlp+r0ApQmwJG0wg9ZqRdQZ+cfL2JSyIZJrqrol7D
+                certif:       Ves91hcAAgIP/R5K8oZ1pxV86+JYprPNe/039jVBZJFUeIgnUuoj6p6J+ZMONYz2
+                certif:       QVJ0dzxMRaMdjkoE3o09j114U6m99YRp+RC7TJ3g7QhjlI4WbEpPVqyjG0CHqdI5
+                certif:       za44bWUoOzs2jrhzk9b6kjE0qEIJ4kSe6iyC+NFd1rGqZhPyq69PeQeH4SuzmDzQ
+                certif:       eW3dqyF44Vf62LbmNwKLAYjrJZ/+pqQ9lGRqyNhdn1xRBgoIjLCiHVKcL8TbWCA8
+                certif:       skegDe7sE+3bsNyyz+0P5fA+0U20sfz2dAoPkAcwF/ShEb4NBM4IeYJntqGs2uq1
+                certif:       B5mM9ULG/ESS2SAp6BIPKl1Vr2Dc1xx9ZuaOK9YlEdzODhrYDaDtsnO7NcKRttnq
+                certif:       7Rv0vi7JzRDr1GlL0GHBP6cL61MCf1fH2KWKXB3RDBUk4TRmJBsE/5QAdiF+PRgA
+                certif:       SpCN2hnAy72Qj0eOFhPoe37vST4kb8G4ox1myMW1nFX9Amjv2TmfXm5VXFICbsOa
+                certif:       jrPkacTiAYOxhRiYTrJZh1+3OX2klJUYcrUk7V4tVJeXuII0iAoUiYKAWFCGqczW
+                certif:       deKU1VSqysoLSu4XGtSO3gBEAXBD5gi9BW77M6BxCzrBnLhXN0sDIhhDI5Ye5vex
+                certif:       73nb/lnPwamLCaBZTK5kKRv43gOGunPDT3VPRfW0yLGfZjPWpAU8pu+piEwEGBEC
+                certif:       AAwFAjyVvpMFCQPDuIAACgkQUJiA4/ahDC3p2gCeLVkD/IAECJ/WShFOUS17iZhK
+                certif:       5noAn1Z5m4/1YrZBVKg5+kPg6ia0Y9Vk
+                certif:       =X7rJ
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                mnt-by:       LIR-MNT
+                source:       TEST
+                """,
     ]}
 
     def "create X509 key-cert object, no gen attrs, no X509 exists, X509-1 created"() {
@@ -130,7 +183,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -190,7 +242,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -253,7 +304,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 key-cert:     AUTO-1
@@ -284,7 +334,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR2-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -344,7 +393,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 key-cert:     AUTO-1
@@ -375,7 +423,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR2-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -439,7 +486,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -453,8 +499,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        auto-1
                 auth:        AuTo-2
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 password:    owner
 
@@ -486,7 +530,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR2-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
                 """.stripIndent()
         )
@@ -527,8 +570,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        aUtO-1
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 password:    owner
 
@@ -560,7 +601,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -572,8 +612,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$bnGNJ2PC\$4r38DENnw07.9ktKP//Kf1  #test2
                 auth:        aUtO-2
                 mnt-by:      TST-MNT2
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 key-cert:     auto-2
@@ -604,7 +642,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR2-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password:    test2
@@ -669,7 +706,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -728,7 +764,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -786,7 +821,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 mntner:      TST-MNT
@@ -797,8 +831,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        auto-1
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 person:  First Person
@@ -808,7 +840,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: aUtO-2
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: lir
@@ -869,7 +900,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 mntner:      TST-MNT
@@ -880,8 +910,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        auto-2
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 person:  First Person
@@ -891,7 +919,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: aUtO-2
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: lir
@@ -954,7 +981,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -1010,7 +1036,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 person:  First Person
@@ -1020,7 +1045,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: aUtO-1
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: lir
@@ -1079,7 +1103,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 mntner:      TST-MNT
@@ -1089,8 +1112,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: lir
@@ -1149,7 +1170,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -1205,7 +1225,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 key-cert:     AUTO2
@@ -1236,7 +1255,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 key-cert:     AUTO--3
@@ -1267,7 +1285,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 key-cert:     AUTO_4
@@ -1298,7 +1315,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -1343,7 +1359,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: aUtO-1
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 organisation:    auto-2
@@ -1357,7 +1372,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 admin-c:         AUTO-1
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1393,7 +1407,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 admin-c:      auto-1
                 org:          AUTO-2
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 mntner:      TST-MNT
@@ -1405,8 +1418,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        auto-3
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 password: lir
@@ -1454,8 +1465,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 auth:        auto-3
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
 
                 key-cert:     AUTo-3
@@ -1489,7 +1498,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 admin-c:      auto-1
                 org:          AUTO-2
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 organisation:    auto-2
@@ -1503,7 +1511,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 admin-c:         AUTO-1
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed:         denis@ripe.net 20121016
                 source:          TEST
 
                 password: owner2
@@ -1515,7 +1522,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: aUtO-1
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: lir
@@ -1583,10 +1589,9 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 certif:       hZNmF5c/d0gauqvL+egb+3V+Zg+sJTzHMVKQLF1ybWgJjU75Pi+mO7BG0zsQ13pT
                 certif:       YxuZCR2W15nwt7zLiHtmfw==
                 certif:       -----END CERTIFICATE-----
-                remarks:      Sample Key Certificate
+                remarks:      Sample Key Certificate (updated)
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1645,10 +1650,9 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 certif:       hZNmF5c/d0gauqvL+egb+3V+Zg+sJTzHMVKQLF1ybWgJjU75Pi+mO7BG0zsQ13pT
                 certif:       YxuZCR2W15nwt7zLiHtmfw==
                 certif:       -----END CERTIFICATE-----
-                remarks:      Sample Key Certificate
+                remarks:      Sample Key Certificate (updated)
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1711,10 +1715,9 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 certif:       hZNmF5c/d0gauqvL+egb+3V+Zg+sJTzHMVKQLF1ybWgJjU75Pi+mO7BG0zsQ13pT
                 certif:       YxuZCR2W15nwt7zLiHtmfw==
                 certif:       -----END CERTIFICATE-----
-                remarks:      Sample Key Certificate
+                remarks:      Sample Key Certificate (updated)
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1777,7 +1780,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1839,7 +1841,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1901,7 +1902,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -1964,7 +1964,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -2021,7 +2020,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -2078,7 +2076,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -2136,7 +2133,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -2193,7 +2189,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net
                 source:       TEST
 
                 password: lir
@@ -2252,7 +2247,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 admin-c:      auto-2
                 tech-c:       auto-3
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 person:  First Person
@@ -2262,7 +2256,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 nic-hdl: aUtO-2
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
 
                 password: lir
@@ -2289,31 +2282,48 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
     def "modify key-cert with single key, wrong generated values"() {
       expect:
-        queryObject("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0")
+        queryObject("-rBT key-cert PGPKEY-5763950D", "key-cert", "PGPKEY-5763950D")
 
       when:
         def message = send new Message(
                 subject: "",
                 body: """\
-                key-cert:     PGPKEY-459F13C0
-                method:       PGP
-                owner:        Test User (testing) <dbtest@ripe.net>
-                fingerpr:     F127 F439 9286 0A5E 06D0  809B 471A AB9F D83C 3FBD
+                key-cert:     PGPKEY-5763950D
+                method:       NONE
+                owner:        No Owner
+                fingerpr:     AAAA AAAA AAAA AAAA AAAA  BBBB BBBB BBBB BBBB BBBB
                 certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
-                              Version: GnuPG v1.4.12 (Darwin)
+                              Version: GnuPG v1
                 +
-                              mI0EUM8WtAEEALnqIV3MGrTZpzspsUPFozlNYts2KK136IvmHNjySNSlp8inLTTq
-                              hOU+6bdpQYsLJOhzlFwoH/RXdCouRJ64Xq3VginxqpYfww5PKuO3MHs6hkBZgted
-                              I/+/qcBvK4PWTNeD6xEWvKFZiBPsijU7etXbo+K2hQOSu2LrbDncLFkBABEBAAG0
-                              MkRCIFRlc3QgKFJTQSBrZXkgZm9yIERCIHRlc3RpbmcpIDxkYnRlc3RAcmlwZS5u
-                              ZXQ+iLkEEwECACMFAlDPFrQCGy8HCwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAK
-                              CRByxObDRZ8TwLPkA/42vdjRKQ3zQmFYcjszCy5L/MLlj4gYjZkOJICVudLMz3c1
-                              Ztda5JaUu+KnFZ664ekVLxLJY6coH1N9bxWKNSzKaoEx4WhV8OHGk2xdSkJHK887
-                              f4UYpA4085JxwkgzljzxAxfLf1GQuSNw3eY0b3T2GDgXRQwcSl4xdufto0zERQ==
-                              =t1N2
+                              mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+
+                              yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH
+                              2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN
+                              E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L
+                              A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd
+                              YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u
+                              ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV
+                              CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF
+                              Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB
+                              0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe
+                              xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt
+                              0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z
+                              xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA
+                              uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv
+                              eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12
+                              pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck
+                              xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec
+                              YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4
+                              dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC
+                              GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4
+                              HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3
+                              eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y
+                              6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC
+                              RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip
+                              a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ==
+                              =HQmg
                               -----END PGP PUBLIC KEY BLOCK-----
+                remarks:      Updated
                 mnt-by:       owner-MNT
-                changed:      bit-bucket@ripe.net
                 source:       TEST
 
                 password: owner
@@ -2325,32 +2335,32 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
         ack.success
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 0, 0, 1)
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 3, 0)
 
-        ack.successes.any { it.operation == "No operation" && it.key == "[key-cert] PGPKEY-459F13C0" }
-        ack.warningSuccessMessagesFor("No operation", "[key-cert] PGPKEY-459F13C0") == [
+        ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] PGPKEY-5763950D" }
+        ack.warningSuccessMessagesFor("Modify", "[key-cert] PGPKEY-5763950D") == [
+                "Supplied attribute 'method' has been replaced with a generated value",
                 "Supplied attribute 'owner' has been replaced with a generated value",
-                "Supplied attribute 'fingerpr' has been replaced with a generated value",
-                "Submitted object identical to database object"]
+                "Supplied attribute 'fingerpr' has been replaced with a generated value"]
 
-        query_object_matches("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0", "DB Test \\(RSA key for DB testing\\) <dbtest@ripe.net>")
+        query_object_matches("-rBT key-cert PGPKEY-5763950D", "key-cert", "PGPKEY-5763950D", "noreply@ripe.net <noreply@ripe.net>")
     }
 
     def "modify key-cert with multiple master keys, long certif data, wrong generated values"() {
       expect:
-        queryObject("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0")
+        queryObject("-rBT key-cert PGPKEY-5763950D", "key-cert", "PGPKEY-5763950D")
 
       when:
         def message = send new Message(
                 subject: "",
                 body: """\
-                key-cert:     PGPKEY-459F13C0
+                key-cert:     PGPKEY-5763950D
                 method:       PGP
-                owner:        Test User (testing) <dbtest@ripe.net>
-                fingerpr:     F127 F439 9286 0A5E 06D0  809B 471A AB9F D83C 3FBD
+                owner:        noreply@ripe.net <noreply@ripe.net>
+                fingerpr:     884F 8E23 69E5 E6F1 9FB3  63F4 BBCC BB2D 5763 950D
                 certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
                               Version: GnuPG/MacGPG2 v2.0.18 (Darwin)
                               Comment: GPGTools - http://gpgtools.org
@@ -2517,7 +2527,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                               =4TVE
                               -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       owner-MNT
-                changed:      bit-bucket@ripe.net
+                remarks:      Updated
                 source:       TEST
 
                 password: owner
@@ -2533,11 +2543,11 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[key-cert] PGPKEY-459F13C0" }
-        ack.errorMessagesFor("Modify", "[key-cert] PGPKEY-459F13C0") ==
+        ack.errors.any { it.operation == "Modify" && it.key == "[key-cert] PGPKEY-5763950D" }
+        ack.errorMessagesFor("Modify", "[key-cert] PGPKEY-5763950D") ==
                 ["The supplied object has multiple keys"]
 
-        query_object_not_matches("-rBT key-cert PGPKEY-459F13C0", "key-cert", "PGPKEY-459F13C0", "Test User \\(testing\\) <dbtest@ripe.net>")
+        query_object_not_matches("-rBT key-cert PGPKEY-5763950D", "key-cert", "PGPKEY-5763950D", "Test User \\(testing\\) <dbtest@ripe.net>")
     }
 
     def "create X509 key-cert obj X509-99, ref in mntner, delete key-cert"() {
@@ -2574,7 +2584,6 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 remarks:      Sample Key Certificate
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20040101
                 source:       TEST
 
                 password: lir
@@ -2595,5 +2604,231 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
         queryObjectNotFound("-rGBT key-cert X509-99", "key-cert", "X509-99")
     }
+
+    def "#275 delete keycert object doesn't match version in database"() {
+      given:
+        syncUpdate(getTransient("PGPKEY-F6A10C2D") + "password: lir")
+        databaseHelper.whoisTemplate.update("UPDATE last SET object = ? WHERE pkey = ?", getTransient("PGPKEY-F6A10C2D"), "PGPKEY-F6A10C2D")
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                key-cert:     PGPKEY-F6A10C2D
+                method:       PGP
+                owner:        Michael Holzt <kju@kju.de>
+                fingerpr:     9D50 042E FF89 9543 64AF  01CF 5098 80E3 F6A1 0C2D
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Version: GnuPG v1.0.6 (GNU/Linux)
+                certif:       Comment: For info see http://www.gnupg.org
+                certif:
+                certif:       mQGiBDyVvpMRBADC78dTf/xLoq4DRMb3rKJw7oO93wHh9bd2cwvLNR6yWggNNE3g
+                certif:       Wvas4dFKSZB5KwnYXMLJyW21GIkaDKs3RCTnYfBmNag/JS22lJC0/Ok7Zprdyofc
+                certif:       OmiDF2iwIJ7wXrLV14PjjQINTByIWoEJzBBlMJQOTnxH/on6jnLc9CZJBwCg/3Ss
+                certif:       QxrVRwN7JJIz1vjQLh8TC7cD/jhgvj5MhBALmhVHxuLwf4uEGD1DaiZGvJQeHan3
+                certif:       5x3gXMkJrRzvHFJEscyYbA6yWgsjLHiUh56xuUvowpXR1XcVRmTzKfgaMAcUfg4j
+                certif:       Ww6aWD6ecf6RvdXOMgGjQ/Y2OP+pNkIEQrkQbqvtzmVD8PruLtZ/Su1E6gisvnvD
+                certif:       bKA5A/9rXhF0GQjVQoXphYSUs4ym1FHQcuQ5rhlqRaBABoj9IVTGYU4qYnILzbFp
+                certif:       sexdle3kotB2J/G2IzWveALUIeHumAl+p9FORE88B0aMKpbLsjct9cGwX33pxhE8
+                certif:       zJ5XxKQdKOAopqUXWFldG4sIQNz0rsUHI+MzFzbvnVauojD+cLQaTWljaGFlbCBI
+                certif:       b2x6dCA8a2p1QGtqdS5kZT6IXQQTEQIAHQUCPJY2oQUJA8O4gAULBwoDBAMVAwID
+                certif:       FgIBAheAAAoJEFCYgOP2oQwt1iYAn3a99ju/2wSYYMi/3JQn8CLkpnvvAKCXog/t
+                certif:       dMvoStUzt4t1NgQgkgWM77QcTWljaGFlbCBIb2x6dCA8a2p1QGZxZG4ub3JnPohd
+                certif:       BBMRAgAdBQI8lja1BQkDw7iABQsHCgMEAxUDAgMWAgECF4AACgkQUJiA4/ahDC14
+                certif:       YwCgr6qRVR+K0tdmYAgB9H2+MqQGWtQAoP3dsDLpeVi+BxiXW07qgqINUY0KtB1N
+                certif:       aWNoYWVsIEhvbHp0IDxwb3N0QGhvbHp0LmRlPohdBBMRAgAdBQI8ljbFBQkDw7iA
+                certif:       BQsHCgMEAxUDAgMWAgECF4AACgkQUJiA4/ahDC1IdgCgx9YhL792obiUopWQMD9y
+                certif:       nTUm+CkAoJXjJK9Ur5HJFQdQPVN7mTSqKL2/tB5NaWNoYWVsIEhvbHp0IDxranVA
+                certif:       ZGViaWFuLm9yZz6IXQQTEQIAHQUCPJY3GAUJA8O4gAULBwoDBAMVAwIDFgIBAheA
+                certif:       AAoJEFCYgOP2oQwtgaMAn0ydknekY6jW1X5f4dboFyhVik5CAJ4+GCyR9S+OADIq
+                certif:       l+N98OSajXBYJLkEDQQ8lb6TEBAA+RigfloGYXpDkJXcBWyHhuxh7M1FHw7Y4KN5
+                certif:       xsncegus5D/jRpS2MEpT13wCFkiAtRXlKZmpnwd00//jocWWIE6YZbjYDe4QXau2
+                certif:       FxxR2FDKIldDKb6V6FYrOHhcC9v4TE3V46pGzPvOF+gqnRRh44SpT9GDhKh5tu+P
+                certif:       p0NGCMbMHXdXJDhK4sTw6I4TZ5dOkhNh9tvrJQ4X/faY98h8ebByHTh1+/bBc8SD
+                certif:       ESYrQ2DD4+jWCv2hKCYLrqmus2UPogBTAaB81qujEh76DyrOH3SET8rzF/OkQOnX
+                certif:       0ne2Qi0CNsEmy2henXyYCQqNfi3t5F159dSST5sYjvwqp0t8MvZCV7cIfwgXcqK6
+                certif:       1qlC8wXo+VMROU+28W65Szgg2gGnVqMU6Y9AVfPQB8bLQ6mUrfdMZIZJ+AyDvWXp
+                certif:       F9Sh01D49Vlf3HZSTz09jdvOmeFXklnN/biudE/F/Ha8g8VHMGHOfMlm/xX5u/2R
+                certif:       XscBqtNbno2gpXI61Brwv0YAWCvl9Ij9WE5J280gtJ3kkQc2azNsOA1FHQ98iLMc
+                certif:       fFstjvbzySPAQ/ClWxiNjrtVjLhdONM0/XwXV0OjHRhs3jMhLLUq/zzhsSlAGBGN
+                certif:       fISnCnLWhsQDGcgHKXrKlQzZlp+r0ApQmwJG0wg9ZqRdQZ+cfL2JSyIZJrqrol7D
+                certif:       Ves91hcAAgIP/R5K8oZ1pxV86+JYprPNe/039jVBZJFUeIgnUuoj6p6J+ZMONYz2
+                certif:       QVJ0dzxMRaMdjkoE3o09j114U6m99YRp+RC7TJ3g7QhjlI4WbEpPVqyjG0CHqdI5
+                certif:       za44bWUoOzs2jrhzk9b6kjE0qEIJ4kSe6iyC+NFd1rGqZhPyq69PeQeH4SuzmDzQ
+                certif:       eW3dqyF44Vf62LbmNwKLAYjrJZ/+pqQ9lGRqyNhdn1xRBgoIjLCiHVKcL8TbWCA8
+                certif:       skegDe7sE+3bsNyyz+0P5fA+0U20sfz2dAoPkAcwF/ShEb4NBM4IeYJntqGs2uq1
+                certif:       B5mM9ULG/ESS2SAp6BIPKl1Vr2Dc1xx9ZuaOK9YlEdzODhrYDaDtsnO7NcKRttnq
+                certif:       7Rv0vi7JzRDr1GlL0GHBP6cL61MCf1fH2KWKXB3RDBUk4TRmJBsE/5QAdiF+PRgA
+                certif:       SpCN2hnAy72Qj0eOFhPoe37vST4kb8G4ox1myMW1nFX9Amjv2TmfXm5VXFICbsOa
+                certif:       jrPkacTiAYOxhRiYTrJZh1+3OX2klJUYcrUk7V4tVJeXuII0iAoUiYKAWFCGqczW
+                certif:       deKU1VSqysoLSu4XGtSO3gBEAXBD5gi9BW77M6BxCzrBnLhXN0sDIhhDI5Ye5vex
+                certif:       73nb/lnPwamLCaBZTK5kKRv43gOGunPDT3VPRfW0yLGfZjPWpAU8pu+piEwEGBEC
+                certif:       AAwFAjyVvpMFCQPDuIAACgkQUJiA4/ahDC3p2gCeLVkD/IAECJ/WShFOUS17iZhK
+                certif:       5noAn1Z5m4/1YrZBVKg5+kPg6ia0Y9Vk
+                certif:       =X7rJ
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                mnt-by:       LIR-MNT
+                source:       TEST
+                delete:  reason
+                password: lir
+            """.stripIndent())
+      then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Delete" && it.key == "[key-cert] PGPKEY-F6A10C2D" }
+    }
+
+    def "keycert object with multiple owners"() {
+      expect:
+        queryObjectNotFound("-r -T key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
+
+      when:
+        def createResponse = syncUpdate("""\
+                key-cert:     PGPKEY-A9B98446
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Version: GnuPG v1
+                certif:       Comment: GPGTools - http://gpgtools.org
+                certif:
+                certif:       mI0EVUngSwEEALM4Bo/7klJLW0tQPc3l5PDYNYiyt8bl5H7KAlC6noOrprJDP7I8
+                certif:       aUffODojNvMYrPY9qbJFqinajnkbSHqpNu9knHpbuTEpHn9dJpE/Qfs+9HAH42IK
+                certif:       cVLv+FRYb80zZ1GeISBHyXwYw273ojXZrDbFR/pzt4IFMqiUzLnsf9W3ABEBAAG0
+                certif:       G05vIFJlcGx5IDxub3JlcGx5QHJpcGUubmV0Poi4BBMBAgAiBQJVSeBLAhsDBgsJ
+                certif:       CAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBAvAzEu0YzQJ+NA/48qhokmbjVuUEm
+                certif:       5I1nvmiOwcO/aa0tA/JuLLq3IO5iGB9oUKshd8FDo5h7G+/ksLS2tEMYQoInjofK
+                certif:       spRAEaGU/OFT5wR5UCoMdqlNNRWcgy1qIUDBD6Yd5OQYMH+xRu1QKagv+Xtuo6Hh
+                certif:       WsH7Ql4P614M8zh71cnkfoWSRm4t+LQZVW5rbm93biA8dW5yZWFkQHJpcGUubmV0
+                certif:       Poi4BBMBAgAiBQJVSeCVAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBA
+                certif:       vAzEu0YzQLU2BACrCdr2aWEN5Mc2AtlSm50C//uFTYfyIxr7H4p7aW1xaBy2Z/D/
+                certif:       g96e1xvzqQIjJLCe8afXnlV/QAZfudoKzYPP5GLFXi0z98D+o1klWpiJ77gG8IPQ
+                certif:       a4iPr04FFSuxfxI0jIXS1CNUgq7QNj4TTeproBia5d6gJUfxZaYRUyghNbiNBFVJ
+                certif:       4EsBBACxgrTLvkplgf7HC+5r7ckRPmMl6tF8xWuwrm21W5HqWEMc/d6CpQIDL6bS
+                certif:       Q0edzhVOq+z4D3MjQm1DYp/DYljLFvizPOcc0pFrIyt6iK0kgsNgz1naQjHcYNl2
+                certif:       QIYIRuYUFlHET/qjjhxHzE4iJWnSOSzrQY8QwoATagJnC7aEvQARAQABiJ8EGAEC
+                certif:       AAkFAlVJ4EsCGwwACgkQQLwMxLtGM0BeEAP9E1sdWG42A9Rvra9P1356qZomu6+4
+                certif:       YDfDeT5/GV9FCYleV3Who8cfRfc5POWfR8TQHY3JENsJC8CmHLaNx9s6O/xez9fY
+                certif:       atzEY1G/dR+rFkHMSwaQgEp3hCsuUSsy3XjYfDaW0f4iE+2/PAGOlL8nhuDfYa3+
+                certif:       C/iqTixGmdgjTk4=
+                certif:       =GTeW
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                remarks:      public key with multiple uids
+                notify:       noreply@ripe.net
+                mnt-by:       LIR-MNT
+                source:       TEST
+
+                password: lir
+                """.stripIndent())
+
+      then:
+        def createAck = new AckResponse("", createResponse)
+
+        createAck.summary.nrFound == 1
+        createAck.summary.assertSuccess(1, 1, 0, 0, 0)
+        createAck.summary.assertErrors(0, 0, 0, 0)
+        createAck.countErrorWarnInfo(0, 0, 0)
+
+      then:
+        def createdKeycert = queryObject("-rGBT key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
+        createdKeycert =~ "owner:          Unknown <unread@ripe.net>"
+        createdKeycert =~ "owner:          No Reply <noreply@ripe.net>"
+
+      then:
+        def updateResponse = syncUpdate("""\
+                key-cert:     PGPKEY-A9B98446
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Version: GnuPG v1
+                certif:       Comment: GPGTools - http://gpgtools.org
+                certif:
+                certif:       mI0EVUngSwEEALM4Bo/7klJLW0tQPc3l5PDYNYiyt8bl5H7KAlC6noOrprJDP7I8
+                certif:       aUffODojNvMYrPY9qbJFqinajnkbSHqpNu9knHpbuTEpHn9dJpE/Qfs+9HAH42IK
+                certif:       cVLv+FRYb80zZ1GeISBHyXwYw273ojXZrDbFR/pzt4IFMqiUzLnsf9W3ABEBAAG0
+                certif:       G05vIFJlcGx5IDxub3JlcGx5QHJpcGUubmV0Poi4BBMBAgAiBQJVSeBLAhsDBgsJ
+                certif:       CAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBAvAzEu0YzQJ+NA/48qhokmbjVuUEm
+                certif:       5I1nvmiOwcO/aa0tA/JuLLq3IO5iGB9oUKshd8FDo5h7G+/ksLS2tEMYQoInjofK
+                certif:       spRAEaGU/OFT5wR5UCoMdqlNNRWcgy1qIUDBD6Yd5OQYMH+xRu1QKagv+Xtuo6Hh
+                certif:       WsH7Ql4P614M8zh71cnkfoWSRm4t+LQZVW5rbm93biA8dW5yZWFkQHJpcGUubmV0
+                certif:       Poi4BBMBAgAiBQJVSeCVAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBA
+                certif:       vAzEu0YzQLU2BACrCdr2aWEN5Mc2AtlSm50C//uFTYfyIxr7H4p7aW1xaBy2Z/D/
+                certif:       g96e1xvzqQIjJLCe8afXnlV/QAZfudoKzYPP5GLFXi0z98D+o1klWpiJ77gG8IPQ
+                certif:       a4iPr04FFSuxfxI0jIXS1CNUgq7QNj4TTeproBia5d6gJUfxZaYRUyghNbiNBFVJ
+                certif:       4EsBBACxgrTLvkplgf7HC+5r7ckRPmMl6tF8xWuwrm21W5HqWEMc/d6CpQIDL6bS
+                certif:       Q0edzhVOq+z4D3MjQm1DYp/DYljLFvizPOcc0pFrIyt6iK0kgsNgz1naQjHcYNl2
+                certif:       QIYIRuYUFlHET/qjjhxHzE4iJWnSOSzrQY8QwoATagJnC7aEvQARAQABiJ8EGAEC
+                certif:       AAkFAlVJ4EsCGwwACgkQQLwMxLtGM0BeEAP9E1sdWG42A9Rvra9P1356qZomu6+4
+                certif:       YDfDeT5/GV9FCYleV3Who8cfRfc5POWfR8TQHY3JENsJC8CmHLaNx9s6O/xez9fY
+                certif:       atzEY1G/dR+rFkHMSwaQgEp3hCsuUSsy3XjYfDaW0f4iE+2/PAGOlL8nhuDfYa3+
+                certif:       C/iqTixGmdgjTk4=
+                certif:       =GTeW
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                remarks:      updated remarks
+                notify:       noreply@ripe.net
+                mnt-by:       LIR-MNT
+                source:       TEST
+
+                password: lir
+                """.stripIndent())
+
+      then:
+        def updateAck = new AckResponse("", updateResponse)
+
+        updateAck.summary.nrFound == 1
+        updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
+        updateAck.summary.assertErrors(0, 0, 0, 0)
+        updateAck.countErrorWarnInfo(0, 0, 0)
+
+      then:
+        def deleteResponse = syncUpdate("""\
+                key-cert:     PGPKEY-A9B98446
+                method:       PGP
+                fingerpr:     1293 BC61 A96F 7152 64CB  9F4E 40BC 0CC4 BB46 3340
+                certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:       Version: GnuPG v1
+                certif:       Comment: GPGTools - http://gpgtools.org
+                certif:
+                certif:       mI0EVUngSwEEALM4Bo/7klJLW0tQPc3l5PDYNYiyt8bl5H7KAlC6noOrprJDP7I8
+                certif:       aUffODojNvMYrPY9qbJFqinajnkbSHqpNu9knHpbuTEpHn9dJpE/Qfs+9HAH42IK
+                certif:       cVLv+FRYb80zZ1GeISBHyXwYw273ojXZrDbFR/pzt4IFMqiUzLnsf9W3ABEBAAG0
+                certif:       G05vIFJlcGx5IDxub3JlcGx5QHJpcGUubmV0Poi4BBMBAgAiBQJVSeBLAhsDBgsJ
+                certif:       CAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBAvAzEu0YzQJ+NA/48qhokmbjVuUEm
+                certif:       5I1nvmiOwcO/aa0tA/JuLLq3IO5iGB9oUKshd8FDo5h7G+/ksLS2tEMYQoInjofK
+                certif:       spRAEaGU/OFT5wR5UCoMdqlNNRWcgy1qIUDBD6Yd5OQYMH+xRu1QKagv+Xtuo6Hh
+                certif:       WsH7Ql4P614M8zh71cnkfoWSRm4t+LQZVW5rbm93biA8dW5yZWFkQHJpcGUubmV0
+                certif:       Poi4BBMBAgAiBQJVSeCVAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRBA
+                certif:       vAzEu0YzQLU2BACrCdr2aWEN5Mc2AtlSm50C//uFTYfyIxr7H4p7aW1xaBy2Z/D/
+                certif:       g96e1xvzqQIjJLCe8afXnlV/QAZfudoKzYPP5GLFXi0z98D+o1klWpiJ77gG8IPQ
+                certif:       a4iPr04FFSuxfxI0jIXS1CNUgq7QNj4TTeproBia5d6gJUfxZaYRUyghNbiNBFVJ
+                certif:       4EsBBACxgrTLvkplgf7HC+5r7ckRPmMl6tF8xWuwrm21W5HqWEMc/d6CpQIDL6bS
+                certif:       Q0edzhVOq+z4D3MjQm1DYp/DYljLFvizPOcc0pFrIyt6iK0kgsNgz1naQjHcYNl2
+                certif:       QIYIRuYUFlHET/qjjhxHzE4iJWnSOSzrQY8QwoATagJnC7aEvQARAQABiJ8EGAEC
+                certif:       AAkFAlVJ4EsCGwwACgkQQLwMxLtGM0BeEAP9E1sdWG42A9Rvra9P1356qZomu6+4
+                certif:       YDfDeT5/GV9FCYleV3Who8cfRfc5POWfR8TQHY3JENsJC8CmHLaNx9s6O/xez9fY
+                certif:       atzEY1G/dR+rFkHMSwaQgEp3hCsuUSsy3XjYfDaW0f4iE+2/PAGOlL8nhuDfYa3+
+                certif:       C/iqTixGmdgjTk4=
+                certif:       =GTeW
+                certif:       -----END PGP PUBLIC KEY BLOCK-----
+                remarks:      updated remarks
+                notify:       noreply@ripe.net
+                mnt-by:       LIR-MNT
+                source:       TEST
+                delete: reason
+
+                password: lir
+                """.stripIndent())
+
+      then:
+        def deleteAck = new AckResponse("", deleteResponse)
+
+        deleteAck.summary.nrFound == 1
+        deleteAck.summary.assertSuccess(1, 0, 0, 1, 0)
+        deleteAck.summary.assertErrors(0, 0, 0, 0)
+        deleteAck.countErrorWarnInfo(0, 0, 0)
+
+      then:
+        queryObjectNotFound("-r -T key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
+    }
+
 
 }

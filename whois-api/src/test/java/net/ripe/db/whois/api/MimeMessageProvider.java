@@ -28,7 +28,7 @@ public final class MimeMessageProvider {
         return getUpdateMessage(new ClassPathResource("testMail/" + filename));
     }
 
-    public static MimeMessage getUpdateMessage(final Resource resource) {
+    private static MimeMessage getUpdateMessage(final Resource resource) {
         try {
             final InputStream inputStream = resource.getInputStream();
             try {

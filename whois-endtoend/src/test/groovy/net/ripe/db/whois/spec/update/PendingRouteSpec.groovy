@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.update
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.scheduler.task.update.PendingUpdatesCleanup
@@ -8,7 +7,6 @@ import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import net.ripe.db.whois.update.dao.PendingUpdateDao
-import org.joda.time.LocalDateTime
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class PendingRouteSpec extends BaseQueryUpdateSpec {
@@ -25,8 +23,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_as@ripe.net
                 auth:        MD5-PW \$1\$eUJDS9FF\$M.Rnslf2/Joum8D1e8cLQ/  #as
                 mnt-by:      AS-MNT
-                referral-by: AS-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
                 "AS2-MNT": """\
@@ -38,8 +34,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_as2@ripe.net
                 auth:        MD5-PW \$1\$xrdaPju9\$pdea/wDdhZd4nGNaCH5xI1  #as2
                 mnt-by:      AS2-MNT
-                referral-by: AS2-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
                 "P-INET-MNT": """\
@@ -51,8 +45,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:      notify_pinet@ripe.net
                 auth:        MD5-PW \$1\$oHHeFFDr\$wUBxFsxTb6GQykxSlZN4S.  #pinet
                 mnt-by:      P-INET-MNT
-                referral-by: P-INET-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
         ]
@@ -66,7 +58,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Full ASN range
                 mnt-by:         RIPE-DBM-MNT
                 mnt-lower:      RIPE-NCC-HM-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
                 "AS100": """\
@@ -78,7 +69,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:         notify_as100@ripe.net
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         AS-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
                 "AS200": """\
@@ -90,7 +80,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 notify:         notify_as200@ripe.net
                 mnt-by:         RIPE-NCC-END-MNT
                 mnt-by:         AS2-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
                 "PARENT-INET": """\
@@ -103,7 +92,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 status:         ALLOCATED PA
                 mnt-by:         RIPE-NCC-HM-MNT
                 mnt-lower:      P-INET-MNT
-                changed:        dbtest@ripe.net
                 source:         TEST
                 """,
                 "ROUTE": """\
@@ -111,7 +99,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
                 """,
         ]
@@ -133,7 +120,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -159,6 +145,353 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
     }
 
+    def "Mails are sent when confirmation by other mntner times out"() {
+
+        given:
+        setTime(getTime().minusWeeks(2))
+        syncUpdate(new SyncUpdate(data: """
+                inetnum:        192.168.0.0 - 192.169.255.255
+                netname:        EXACT-INETNUM
+                descr:          Exact match inetnum object
+                country:        EU
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                status:         ALLOCATED PA
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                aut-num:        AS100
+                as-name:        ASTEST
+                descr:          description
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                notify:         notify_as100@ripe.net
+                mnt-by:         AS-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        expect:
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+
+        when:
+        // route create attempt by AS holder (pending)
+        syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route AS-MNT
+                origin:         AS100
+                mnt-by:         AS-MNT
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                password:   as
+                """.stripIndent(), redirect: false))
+        then:
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 1
+
+
+        when:
+        clearAllMails()
+        resetTime()
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+
+        then:
+        def notifOwner = notificationFor "updto_owner@ripe.net"
+        notifOwner.subject =~ "Notification of RIPE Database pending update timeout on"
+
+        def notifAs = notificationFor "updto_as@ripe.net"
+        notifAs.subject =~ "Notification of RIPE Database pending update timeout on"
+
+        noMoreMessages()
+
+    }
+
+    def "Create route, pending request is removed on creation: both parties required"() {
+        given:
+        setTime(getTime().minusWeeks(2))
+        syncUpdate(new SyncUpdate(data: """
+                inetnum:        192.168.0.0 - 192.169.255.255
+                netname:        EXACT-INETNUM
+                descr:          Exact match inetnum object
+                country:        EU
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                status:         ALLOCATED PA
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                aut-num:        AS100
+                as-name:        ASTEST
+                descr:          description
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                notify:         notify_as100@ripe.net
+                mnt-by:         AS-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        expect:
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+
+        when:
+        // route create attempt by AS holder (pending)
+          syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route AS-MNT
+                origin:         AS100
+                mnt-by:         AS2-MNT
+                source:         TEST
+                password:   as
+                password:   as2
+                """.stripIndent(), redirect: false))
+        then:
+          queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+          // route create attempt by owner (both AS and IP) (success)
+          syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route AS-MNT
+                origin:         AS100
+                mnt-by:         AS2-MNT
+                source:         TEST
+                password:   owner
+                password:   as2
+                """.stripIndent(), redirect: false))
+        then:
+        queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+        clearAllMails()
+        resetTime()
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+
+        then:
+        noMoreMessages()
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+
+    }
+
+    def "Create route, with 3 involved maintainers"() {
+        given:
+        setTime(getTime().minusWeeks(2))
+        syncUpdate(new SyncUpdate(data: """
+                mntner:      AS200-MNT
+                descr:       used for aut-num 200
+                admin-c:     TP1-TEST
+                upd-to:      updto_as@ripe.net
+                mnt-nfy:     mntnfy_as@ripe.net
+                notify:      notify_as@ripe.net
+                auth:        MD5-PW \$1\$oHHeFFDr\$wUBxFsxTb6GQykxSlZN4S.  #pinet
+                mnt-by:      AS200-MNT
+                source:      TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                inetnum:        37.221.216.0 - 37.221.223.255
+                netname:        EXACT-INETNUM-1
+                descr:          Exact match inetnum object
+                country:        EU
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                status:         ALLOCATED PA
+                mnt-by:         AS-MNT
+                mnt-routes:     AS200-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                aut-num:        AS200
+                as-name:        ASTEST200
+                descr:          description
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                notify:         notify_as100@ripe.net
+                mnt-by:         AS200-MNT
+                mnt-routes:     AS200-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                inetnum:        37.221.220.0 - 37.221.221.255
+                netname:        EXACT-INETNUM-0
+                descr:          Exact match inetnum object
+                country:        EU
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                status:         ASSIGNED PA
+                mnt-by:         AS-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                mntner:      AS100-MNT
+                descr:       used for aut-num 100
+                admin-c:     TP1-TEST
+                upd-to:      updto_as@ripe.net
+                mnt-nfy:     mntnfy_as@ripe.net
+                notify:      notify_as@ripe.net
+                auth:        MD5-PW \$1\$oHHeFFDr\$wUBxFsxTb6GQykxSlZN4S.  #pinet
+                mnt-by:      AS100-MNT
+                source:      TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                aut-num:        AS100
+                as-name:        ASTEST100
+                descr:          description
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                notify:         notify_as100@ripe.net
+                mnt-by:         AS100-MNT
+                mnt-routes:     AS100-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                route:          37.221.216.0/21
+                descr:          Route AS200-MNT
+                origin:         AS200
+                mnt-by:         AS200-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        expect:
+        queryObject("-rGBT inetnum 37.221.216.0 - 37.221.223.255", "inetnum", "37.221.216.0 - 37.221.223.255")
+        queryObject("-rGBT aut-num AS200", "aut-num", "AS200")
+        queryObject("-rGBT route 37.221.216.0/21", "route", "37.221.216.0/21")
+        queryObject("-rGBT inetnum 37.221.220.0 - 37.221.221.255", "inetnum", "37.221.220.0 - 37.221.221.255")
+        queryObject("-rGBT aut-num AS100", "aut-num", "AS100")
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+
+        when:
+        def message = send new Message(
+                    subject: "",
+                    body: """\
+                    route:          37.221.220.0/24
+                    descr:          Route AS-MNT
+                    origin:         AS100
+                    mnt-by:         AS-MNT
+                    source:         TEST
+
+                    password: as
+                    """.stripIndent()
+        )
+        then:
+        queryObjectNotFound("-rGBT route 37.221.220.0/24", "route", "37.221.220.0/24")
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[route] 37.221.220.0/24AS100" }
+        ack.errorMessagesFor("Create", "[route] 37.221.220.0/24AS100") == [
+                "Authorisation for [aut-num] AS100 failed using \"mnt-routes:\" not authenticated by: AS100-MNT",
+                "Authorisation for [route] 37.221.216.0/21AS200 failed using \"mnt-by:\" not authenticated by: AS200-MNT"
+        ]
+
+        when:
+        clearAllMails()
+        resetTime()
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+
+        then:
+        noMoreMessages()
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+    }
+
+    def "create route, pending request is removed on creation, second party could do it all"() {
+        given:
+        setTime(getTime().minusWeeks(2))
+        syncUpdate(new SyncUpdate(data: """
+                inetnum:        192.168.0.0 - 192.169.255.255
+                netname:        EXACT-INETNUM
+                descr:          Exact match inetnum object
+                country:        EU
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                status:         ALLOCATED PA
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+
+        syncUpdate(new SyncUpdate(data: """
+                aut-num:        AS100
+                as-name:        ASTEST
+                descr:          description
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                notify:         notify_as100@ripe.net
+                mnt-by:         OWNER-MNT
+                mnt-by:         AS-MNT
+                source:         TEST
+                override: denis,override1
+                """.stripIndent(), redirect: false))
+        expect:
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+
+
+        when:
+        // route create attempt by AS holder (pending)
+        syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route AS-MNT
+                origin:         AS100
+                mnt-by:         AS-MNT
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                password:   as
+                """.stripIndent(), redirect: false))
+        then:
+        queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+        // route create attempt by owner (both AS and IP) (success)
+        syncUpdate(new SyncUpdate(data: """
+                route:          192.168.0.0/16
+                descr:          Route AS-MNT
+                origin:         AS100
+                mnt-by:         AS-MNT
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                password:   owner
+                """.stripIndent(), redirect: false))
+        then:
+        queryObject("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
+
+        when:
+        clearAllMails()
+        resetTime()
+        ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
+
+        then:
+        noMoreMessages()
+        // TODO: [ES] move to an integration test
+        databaseHelper.getInternalsTemplate().queryForObject("SELECT count(*) FROM pending_updates", Integer.class) == 0
+    }
+
     def "create route, no hierarchical pw supplied"() {
         given:
         syncUpdate(getTransient("PARENT-INET") + "override: denis,override1")
@@ -177,7 +510,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -218,7 +550,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -258,7 +589,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   as
@@ -299,7 +629,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -340,7 +669,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -389,7 +717,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -438,7 +765,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -477,7 +803,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -521,7 +846,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -560,7 +884,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -600,7 +923,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -613,7 +935,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -626,7 +947,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -657,7 +977,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -669,7 +988,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route 2
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120111
                 source:         TEST
 
                 password:   owner
@@ -684,7 +1002,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -717,7 +1034,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -756,7 +1072,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -795,7 +1110,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -840,7 +1154,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -879,7 +1192,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   as
@@ -917,13 +1229,12 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        setTime(getTime().minusWeeks(2))
         def message = syncUpdate(new SyncUpdate(data: """\
                 route:          192.168.0.0/16
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -954,7 +1265,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        whoisFixture.getTestDateTimeProvider().reset()
+        resetTime()
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
       then:
@@ -970,7 +1281,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1012,13 +1322,12 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
       when:
-        whoisFixture.getTestDateTimeProvider().setTime(new LocalDateTime().minusWeeks(2))
+        setTime(getTime().minusWeeks(2))
         def message = syncUpdate(new SyncUpdate(data: """\
                 route:          192.168.0.0/16
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1048,7 +1357,7 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT route 192.168.0.0/16", "route", "192.168.0.0/16")
 
         when:
-        whoisFixture.getTestDateTimeProvider().reset()
+        resetTime()
         ((PendingUpdatesCleanup)whoisFixture.getApplicationContext().getBean("pendingUpdatesCleanup")).run()
 
       then:
@@ -1064,7 +1373,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -1107,7 +1415,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1145,7 +1452,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 remarks:         same same but different
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -1184,7 +1490,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1221,7 +1526,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT  #endoflinecomment
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   as
@@ -1262,7 +1566,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1300,7 +1603,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS100
                 remarks:         same same but different
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1333,7 +1635,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS100
                 remarks:         same same but different
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   as
@@ -1374,7 +1675,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner
@@ -1411,7 +1711,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   lir
@@ -1448,7 +1747,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         LIR-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   as
@@ -1480,7 +1778,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 descr:          Route
                 origin:         AS100
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   pinet
@@ -1525,7 +1822,6 @@ class PendingRouteSpec extends BaseQueryUpdateSpec {
                 origin:         AS100
                 mnt-by:         OWNER-MNT
                 remarks:        just added
-                changed:        noreply@ripe.net 20120101
                 source:         TEST
 
                 password:   owner

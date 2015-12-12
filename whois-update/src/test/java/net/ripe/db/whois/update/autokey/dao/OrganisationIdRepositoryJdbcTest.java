@@ -21,12 +21,12 @@ public class OrganisationIdRepositoryJdbcTest extends AbstractUpdateDaoTest {
     public void claimSpecified() {
         final boolean availableAndCreated = subject.claimSpecified(new OrganisationId("AK", 4, "RIPE"));
         assertThat(availableAndCreated, is(true));
-        final int indexCreated = whoisTemplate.queryForInt("SELECT range_end FROM organisation_id WHERE space = 'AK' AND source = '-RIPE'");
+        final int indexCreated = whoisTemplate.queryForObject("SELECT range_end FROM organisation_id WHERE space = 'AK' AND source = '-RIPE'", Integer.class);
         assertThat(indexCreated, is(4));
 
         final boolean availableAndUpdated = subject.claimSpecified(new OrganisationId("AK", 7, "RIPE"));
         assertThat(availableAndUpdated, is(true));
-        final int indexUpdated = whoisTemplate.queryForInt("SELECT range_end FROM organisation_id WHERE space = 'AK' AND source = '-RIPE'");
+        final int indexUpdated = whoisTemplate.queryForObject("SELECT range_end FROM organisation_id WHERE space = 'AK' AND source = '-RIPE'", Integer.class);
         assertThat(indexUpdated, is(7));
     }
 

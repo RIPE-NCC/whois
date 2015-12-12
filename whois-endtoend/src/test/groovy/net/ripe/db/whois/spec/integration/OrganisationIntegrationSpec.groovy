@@ -1,5 +1,4 @@
 package net.ripe.db.whois.spec.integration
-
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
@@ -14,10 +13,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  TST-MNT
-            referral-by: TST-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "TST-MNT2": """\
@@ -25,10 +22,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  TST-MNT2
-            referral-by: TST-MNT2
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \\\$1\\\$fU9ZMQN9\\\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "PWR-MNT": """\
@@ -36,10 +31,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             descr:   description
             admin-c: TEST-RIPE
             mnt-by:  RIPE-NCC-HM-MNT
-            referral-by: RIPE-NCC-HM-MNT
             upd-to:  dbtest@ripe.net
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
-            changed: dbtest@ripe.net 20120707
             source:  TEST
             """,
                 "ADMIN-PN": """\
@@ -50,7 +43,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             phone:   +44 282 411141
             nic-hdl: TEST-RIPE
             mnt-by:  TST-MNT
-            changed: dbtest@ripe.net 20120101
             source:  TEST
             """,
                 "ORG1": """\
@@ -62,7 +54,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             e-mail:       org1@test.com
             mnt-ref:      TST-MNT
             mnt-by:       TST-MNT
-            changed:      dbtest@ripe.net 20120505
             source:       TEST
             """,
                 "ORG2": """\
@@ -76,7 +67,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-ref:      TST-MNT2
             mnt-by:       TST-MNT
             mnt-by:       TST-MNT2
-            changed:      dbtest@ripe.net 20120505
             source:       TEST
             """,
                 "ABUSE-ROLE": """\
@@ -90,7 +80,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl: AB-NIC
             abuse-mailbox: abuse@test.net
             mnt-by:  TST-MNT2
-            changed: dbtest@ripe.net 20121016
             source:  TEST
             """,
                 "NOT-ABUSE-ROLE": """\
@@ -103,7 +92,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:  TEST-RIPE
             nic-hdl: NAB-NIC
             mnt-by:  TST-MNT2
-            changed: dbtest@ripe.net 20121016
             source:  TEST
             """
         ]
@@ -116,7 +104,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     OTHER
             address:      Singel 258
             e-mail:        bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -128,6 +115,28 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+    }
+
+    def "blank line in organisation object is converted to a continuation character"() {
+        def org = new SyncUpdate(data:
+            "organisation: AUTO-1\n" +
+            "org-name:     Ripe NCC organisation\n" +
+            "org-type:     OTHER\n" +
+            "address:      Singel 258\n" +
+            "phone: +31-2-12345678\n" +
+            " \n" +
+            "e-mail:        bitbucket@ripe.net\n" +
+            "mnt-by:       TST-MNT\n" +
+            "mnt-ref:      TST-MNT\n" +
+            "source:       TEST\n" +
+            "password: update\n")
+
+      when:
+        def response = syncUpdate org
+
+      then:
+        response =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
+        query("ORG-RNO1-TEST") =~ /organisation/
     }
 
 
@@ -192,7 +201,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             e-mail:       org1@test.com
             mnt-ref:      TST-MNT
             mnt-by:       RIPE-NCC-HM-MNT
-            changed:      dbtest@ripe.net 20120505
             source:       TEST
             password:     update
             """.stripIndent()
@@ -213,7 +221,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     LIR
             address:      Singel 258
             e-mail:        bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             source:       TEST
               """.stripIndent())
 
@@ -221,7 +228,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate org
 
       then:
-        println(response)
         response =~ /Create FAILED: \[organisation\] AUTO-1/
         response =~ /\\*\\*\\*Error:   Mandatory attribute \"mnt-by\" is missing/
         response =~ /\\*\\*\\*Error:   Mandatory attribute \"mnt-ref\" is missing/
@@ -234,7 +240,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     LIR
             address:      Singel 258
             e-mail:        bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -260,7 +265,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             address:      Singel 258
             org:          ORG-NON1-EXISTENT
             e-mail:        bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -282,7 +286,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             address:      Singel 258
             org:          ORG-TOL2-TEST
             e-mail:        bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -306,7 +309,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             address:      Singel 258
             org:          ORG-TOL1-TEST
             e-mail:        bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -324,21 +326,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             """.stripIndent()
     }
 
-    def "changed before 1984"() {
-      given:
-        def data = fixtures["ORG1"].stripIndent() + "password:update"
-        data = (data =~ /changed:      dbtest@ripe.net 20120505/).replaceFirst("changed:      dbtest@ripe.net 19830505")
-
-        def org = new SyncUpdate(data: data)
-
-      when:
-        def response = syncUpdate org
-
-      then:
-        response =~ /FAIL/
-        response =~ "Error:   Date is older than the database itself in changed: attribute\n            \"19830505\""
-    }
-
     def "create selfreferencing organisation"() {
       given:
         def data = new SyncUpdate(data: """\
@@ -347,7 +334,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
             org-type:     OTHER
             address:      Singel 258
             e-mail:        bitbucket@ripe.net
-            changed:      admin@test.com 20120505
             mnt-by:       TST-MNT
             mnt-ref:      TST-MNT
             source:       TEST
@@ -399,7 +385,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 abuse-c:      NAB-NIC
                 address:      Singel 258
                 e-mail:        bitbucket@ripe.net
-                changed:      admin@test.com 20120505
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -425,7 +410,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 abuse-c:      FAKE-NIC
                 address:      Singel 258
                 e-mail:        bitbucket@ripe.net
-                changed:      admin@test.com 20120505
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -448,7 +432,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 abuse-c:      AB-NIC
                 address:      Singel 258
                 e-mail:        bitbucket@ripe.net
-                changed:      admin@test.com 20120505
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -470,7 +453,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 abuse-c:      TEST-RIPE
                 address:      Singel 258
                 e-mail:        bitbucket@ripe.net
-                changed:      admin@test.com 20120505
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -494,7 +476,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 "abuse-c:      AB-NIC\n" +
                 "address:      Singel 258\n" +
                 "e-mail:        bitbucket@ripe.net\n" +
-                "changed:      admin@test.com 20120505\n" +
                 "mnt-by:       TST-MNT\n" +
                 "mnt-ref:      TST-MNT\n" +
                 "source:       TEST")
@@ -504,7 +485,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                   org-type:     LIR
                   address:      Singel 258
                   e-mail:        bitbucket@ripe.net
-                  changed:      admin@test.com 20120505
                   mnt-by:       TST-MNT
                   mnt-ref:      TST-MNT
                   source:       TEST
@@ -527,7 +507,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 "abuse-c:      AB-NIC\n" +
                 "address:      Singel 258\n" +
                 "e-mail:        bitbucket@ripe.net\n" +
-                "changed:      admin@test.com 20120505\n" +
                 "mnt-by:       TST-MNT\n" +
                 "mnt-ref:      TST-MNT\n" +
                 "source:       TEST")
@@ -537,7 +516,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                   org-type:     OTHER
                   address:      Singel 258
                   e-mail:        bitbucket@ripe.net
-                  changed:      admin@test.com 20120505
                   mnt-by:       TST-MNT
                   mnt-ref:      TST-MNT
                   source:       TEST
@@ -558,7 +536,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 "org-type:     LIR\n" +
                 "address:      Singel 258\n" +
                 "e-mail:        bitbucket@ripe.net\n" +
-                "changed:      admin@test.com 20120505\n" +
                 "mnt-by:       TST-MNT\n" +
                 "mnt-ref:      TST-MNT\n" +
                 "source:       TEST")
@@ -569,7 +546,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                   remarks:       update
                   address:      Singel 258
                   e-mail:        bitbucket@ripe.net
-                  changed:      admin@test.com 20120505
                   mnt-by:       TST-MNT
                   mnt-ref:      TST-MNT
                   source:       TEST
@@ -591,7 +567,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 "abuse-c:      AB-NIC\n" +
                 "address:      Singel 258\n" +
                 "e-mail:        bitbucket@ripe.net\n" +
-                "changed:      admin@test.com 20120505\n" +
                 "mnt-by:       TST-MNT\n" +
                 "mnt-ref:      TST-MNT\n" +
                 "source:       TEST")
@@ -604,7 +579,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
               "tech-c: TEST-RIPE\n" +
               "mnt-by: TST-MNT\n" +
               "mnt-by: RIPE-NCC-HM-MNT\n" +
-              "changed: test@ripe.net\n" +
               "source: TEST")
         def update = new SyncUpdate(data: """\
                       organisation: ORG-RNO-TEST
@@ -612,7 +586,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                       org-type:     OTHER
                       address:      Singel 258
                       e-mail:        bitbucket@ripe.net
-                      changed:      admin@test.com 20120505
                       mnt-by:       TST-MNT
                       mnt-ref:      TST-MNT
                       source:       TEST
@@ -635,7 +608,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 "abuse-c:      AB-NIC\n" +
                 "address:      Singel 258\n" +
                 "e-mail:        bitbucket@ripe.net\n" +
-                "changed:      admin@test.com 20120505\n" +
                 "mnt-by:       TST-MNT\n" +
                 "mnt-ref:      TST-MNT\n" +
                 "source:       TEST")
@@ -647,7 +619,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c: TEST-RIPE\n" +
                 "tech-c: TEST-RIPE\n" +
                 "mnt-by: TST-MNT\n" +
-                "changed: test@ripe.net\n" +
                 "source: TEST")
         def update = new SyncUpdate(data: """\
                         organisation: ORG-RNO-TEST
@@ -655,7 +626,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                         org-type:     OTHER
                         address:      Singel 258
                         e-mail:        bitbucket@ripe.net
-                        changed:      admin@test.com 20120505
                         mnt-by:       TST-MNT
                         mnt-ref:      TST-MNT
                         source:       TEST
@@ -677,7 +647,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c: TEST-RIPE\n" +
                 "tech-c: TEST-RIPE\n" +
                 "mnt-by: TST-MNT\n" +
-                "changed: test@ripe.net\n" +
                 "source: TEST");
 
       when:
@@ -689,7 +658,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-RIPE
                 tech-c: TEST-RIPE
                 mnt-by: TST-MNT
-                changed: test@ripe.net
                 source: TEST
                 password: update
                 override: denis,override1
@@ -707,7 +675,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c: TEST-RIPE\n" +
                 "tech-c: TEST-RIPE\n" +
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
-                "changed: test@ripe.net\n" +
                 "source: TEST");
 
       when:
@@ -719,7 +686,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-RIPE
                 tech-c: TEST-RIPE
                 mnt-by: RIPE-NCC-HM-MNT
-                changed: test@ripe.net
                 source: TEST
                 password: update
                 override: denis,override1
@@ -738,7 +704,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c: TEST-RIPE\n" +
                 "tech-c: TEST-RIPE\n" +
                 "mnt-by: TST-MNT\n" +
-                "changed: test@ripe.net\n" +
                 "source: TEST");
 
       when:
@@ -750,7 +715,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-RIPE
                 tech-c: TEST-RIPE
                 mnt-by: TST-MNT
-                changed: test@ripe.net
                 source: TEST
                 password: update
                 """)
@@ -774,7 +738,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 "admin-c: TEST-RIPE\n" +
                 "tech-c: TEST-RIPE\n" +
                 "mnt-by: RIPE-NCC-HM-MNT\n" +
-                "changed: test@ripe.net\n" +
                 "source: TEST");
 
       when:
@@ -786,7 +749,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 admin-c: TEST-RIPE
                 tech-c: TEST-RIPE
                 mnt-by: RIPE-NCC-END-MNT
-                changed: test@ripe.net
                 source: TEST
                 password: update
                 """)
@@ -810,7 +772,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 org-type:     OTHER
                 address:      Singel 258
                 e-mail:        bitbucket@ripe.net
-                changed:      admin@test.com 20120505
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -842,7 +803,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 org-type:     OTHER
                 address:      Singel 258
                 e-mail:        bitbucket@ripe.net
-                changed:      admin@test.com 20120505
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -874,7 +834,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 org-type:     OTHER
                 address:      Singel 258
                 e-mail:        bitbucket@ripe.net
-                changed:      admin@test.com 20120505
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -912,7 +871,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 org-type:     OTHER
                 address:      Singel 258
                 e-mail:        bitbucket@ripe.net
-                changed:      admin@test.com 20120505
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -943,7 +901,6 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 org-type:     OTHER
                 address:      Singel 258
                 e-mail:        bitbucket@ripe.net
-                changed:      admin@test.com 20120505
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST

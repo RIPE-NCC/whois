@@ -11,7 +11,6 @@ class BasicFixtures {
                 phone:   +44 282 420469
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "OWNER-MNT": """\
@@ -23,8 +22,6 @@ class BasicFixtures {
                 notify:      notify_owner@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
-                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "OWNER2-MNT": """\
@@ -36,8 +33,6 @@ class BasicFixtures {
                 notify:      notify_owner2@ripe.net
                 auth:        MD5-PW \$1\$9vNwegLB\$SrX4itajapDaACGZaLOIY1  #owner2
                 mnt-by:      OWNER2-MNT
-                referral-by: OWNER2-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "OWNER3-MNT": """\
@@ -49,8 +44,6 @@ class BasicFixtures {
                 notify:      notify_owner3@ripe.net
                 auth:        MD5-PW \$1\$u/Ttxt8r\$zeII/ZqRwC2PuRyGyv0U51  #owner3
                 mnt-by:      OWNER3-MNT
-                referral-by: OWNER3-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "OWNER4-MNT": """\
@@ -64,8 +57,6 @@ class BasicFixtures {
                 notify:      notify_owner4@ripe.net
                 auth:        MD5-PW \$1\$69rcgbTr\$Sh0R8PKbHIN5jf/Nv.FKk/  #owner4
                 mnt-by:      OWNER4-MNT
-                referral-by: OWNER4-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "RIPE-NCC-HM-MNT": """\
@@ -77,8 +68,6 @@ class BasicFixtures {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss.  #hm
                 mnt-by:      RIPE-NCC-HM-MNT
-                referral-by: RIPE-NCC-HM-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "LIR-MNT": """\
@@ -90,8 +79,6 @@ class BasicFixtures {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$epUPWc4g\$/6BKqK4lKR/lNqLa7K5qT0  #lir
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "END-USER-MNT": """\
@@ -103,8 +90,6 @@ class BasicFixtures {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$4qnKkEY3\$9NduUoRMNiBbAX9QEDMkh1  #end
                 mnt-by:      END-USER-MNT
-                referral-by: END-USER-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ORGLIR": """\
@@ -116,7 +101,6 @@ class BasicFixtures {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "ROOT4": """\
@@ -133,7 +117,6 @@ class BasicFixtures {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 mnt-routes:   RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ROOT6": """\
@@ -145,7 +128,6 @@ class BasicFixtures {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED-BY-RIR
                 mnt-by:       RIPE-NCC-HM-MNT
-                changed:      ripe@test.net 20120505
                 remarks:      This network in not allocated.
                 remarks:      This object is here for Database
                 remarks:      consistency and to allow hierarchical
@@ -160,8 +142,6 @@ class BasicFixtures {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "TEST-PN2": """\
@@ -172,7 +152,6 @@ class BasicFixtures {
                 phone:   +44 282 411141
                 nic-hdl: TP2-TEST
                 mnt-by:  TST-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "TEST-PN3": """\
@@ -183,7 +162,6 @@ class BasicFixtures {
                 phone:   +44 282 411141
                 nic-hdl: TP3-TEST
                 mnt-by:  TST-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "RIPE-NCC-HM2-MNT": """\
@@ -195,8 +173,6 @@ class BasicFixtures {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$GAdTrvdG\$SEqxCNjKkR3ogcIq7teRv0  #hm2
                 mnt-by:      RIPE-NCC-HM2-MNT
-                referral-by: RIPE-NCC-HM2-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "LOWER-MNT": """\
@@ -208,8 +184,6 @@ class BasicFixtures {
                 notify:      notify_lower@ripe.net
                 auth:        MD5-PW \$1\$dYNAtacz\$p4AOgwz3Igu5CiCVzs4Hz.  #lower
                 mnt-by:      LOWER-MNT
-                referral-by: LOWER-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ROUTES-MNT": """\
@@ -221,8 +195,6 @@ class BasicFixtures {
                 notify:      notify_routes@ripe.net
                 auth:        MD5-PW \$1\$bCCnYJ3M\$uAVVUpzdGA9TOecv9L.KD/  #routes
                 mnt-by:      ROUTES-MNT
-                referral-by: ROUTES-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "DOMAINS-MNT": """\
@@ -234,8 +206,6 @@ class BasicFixtures {
                 notify:      notify_domains@ripe.net
                 auth:        MD5-PW \$1\$anTWxMgQ\$8aBWq5u5ZFHLA5aeZsSxG0  #domains
                 mnt-by:      DOMAINS-MNT
-                referral-by: DOMAINS-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "SUB-MNT": """\
@@ -247,8 +217,6 @@ class BasicFixtures {
                 notify:      notify_domains@ripe.net
                 auth:        MD5-PW \$1\$63qqt67X\$irszXgCNN2RdN6cZC12pK1  #sub
                 mnt-by:      SUB-MNT
-                referral-by: SUB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "LIR2-MNT": """\
@@ -260,8 +228,6 @@ class BasicFixtures {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$m4UsfkN3\$kLY5AaJuJrxaTR94HW5Ad0  #lir2
                 mnt-by:      LIR2-MNT
-                referral-by: LIR2-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "LIR3-MNT": """\
@@ -273,8 +239,6 @@ class BasicFixtures {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$6WUBtqxZ\$eXeV7vu4Soq7tGjUF0kmr.  #lir3
                 mnt-by:      LIR3-MNT
-                referral-by: LIR3-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "RIPE-DBM-MNT": """\
@@ -286,8 +250,6 @@ class BasicFixtures {
                 auth:        MD5-PW \$1\$6C2pGjXQ\$NwOQteHu2M//N34BfZCEB1 # dbm
                 notify:      unread@ripe.net
                 mnt-by:      RIPE-DBM-MNT
-                changed:     dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "RIPE-NCC-LOCKED-MNT": """\
@@ -299,8 +261,6 @@ class BasicFixtures {
                 auth:        MD5-PW \$1\$3XUSpceh\$LbPI6.J1IUGLNA2rmSKA3. # locked
                 notify:      dbtest@ripe.net
                 mnt-by:      RIPE-DBM-MNT
-                changed:     dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "RIPE-NCC-END-MNT": """\
@@ -312,8 +272,6 @@ class BasicFixtures {
                 auth:        MD5-PW \$1\$bzCpMX7h\$wl3EmBzNXG..8oTMmGVF51 # nccend
                 org:         ORG-OTO1-TEST
                 mnt-by:      RIPE-NCC-END-MNT
-                changed:     dbtest@ripe.net
-                referral-by: RIPE-DBM-MNT
                 source:      TEST
                 """,
             "RIPE-NCC-LEGACY-MNT": """\
@@ -325,8 +283,6 @@ class BasicFixtures {
                 auth:        MD5-PW \$1\$gTs46J2Z\$.iohp.IUDhNAMj7evxnFS1   # legacy
                 org:         ORG-OTO1-TEST
                 mnt-by:      RIPE-NCC-LEGACY-MNT
-                changed:     dbtest@ripe.net
-                referral-by: RIPE-DBM-MNT
                 source:      TEST
                 """,
             "TST-MNT2": """\
@@ -336,8 +292,6 @@ class BasicFixtures {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$bnGNJ2PC\$4r38DENnw07.9ktKP//Kf1  #test2
                 mnt-by:      TST-MNT2
-                referral-by: TST-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "TST-MNT3": """\
@@ -347,8 +301,6 @@ class BasicFixtures {
                 upd-to:      dbtest@ripe.net
                 auth:        MD5-PW \$1\$p4syt8vq\$AOwjgBvR4MA3o4ccMSMvh0  #test3
                 mnt-by:      OWNER3-MNT
-                referral-by: TST-MNT3
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "TST-MNT4": """\
@@ -359,8 +311,6 @@ class BasicFixtures {
                 notify:      notify_tst4@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
-                referral-by: TST-MNT4
-                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "TST-MNT5": """\
@@ -373,8 +323,6 @@ class BasicFixtures {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER-MNT
                 mnt-by:      OWNER4-MNT
-                referral-by: TST-MNT5
-                changed:     dbtest@ripe.net 20120101
                 source:      TEST
                 """,
             "TST-MNT6": """\
@@ -386,8 +334,6 @@ class BasicFixtures {
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      OWNER3-MNT
                 mnt-by:      OWNER4-MNT
-                referral-by: TST-MNT6
-                changed:     dbtest@ripe.net 20120101
                 source:      TEST
                 """,
             "LIM-MNT": """\
@@ -395,10 +341,8 @@ class BasicFixtures {
                 descr:        description
                 admin-c:      TP1-TEST
                 mnt-by:       LIM-MNT
-                referral-by:  LIM-MNT
                 upd-to:       dbtest@ripe.net
                 auth:         MD5-PW \$1\$QYTtsWT5\$85vDaZp72krdzAYa7F3X20 # lim
-                changed:      dbtest@ripe.net 20120707
                 source:       TEST
                 """,
             "PGP-MNT": """\
@@ -406,10 +350,8 @@ class BasicFixtures {
                 descr:       used for testing PGP signed messages
                 admin-c:     TP1-TEST
                 upd-to:      updto_lir@ripe.net
-                auth:        PGPKEY-459F13C0    #RSA
+                auth:        PGPKEY-5763950D
                 mnt-by:      PGP-MNT
-                referral-by: PGP-MNT
-                changed:     dbtest@ripe.net 20120101
                 source:      TEST
                 """,
             "TST": """\
@@ -420,8 +362,6 @@ class BasicFixtures {
                 notify:      notify_tst6@ripe.net
                 auth:        MD5-PW \$1\$d9fKeTr2\$Si7YudNf4rUGmR71n/cqk/  #test
                 mnt-by:      TST
-                referral-by: TST
-                changed:     dbtest@ripe.net 20120101
                 source:      TEST
                 """,
             "CHILD-MB-MNT": """\
@@ -431,8 +371,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:    MD5-PW \$1\$12345678\$28Jr/8MuLiKvwiHIYC1C21  # mb-child
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-MB-MNT": """\
@@ -442,8 +380,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:    MD5-PW \$1\$12345678\$G.oSSx.FZsRJWiXhhfDD21  # mb-parent
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-ML-MNT": """\
@@ -453,8 +389,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:    MD5-PW \$1\$12345678\$/iBm2/pCiHFyPqSAiUHyI1  # ml-parent
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-MR-MNT": """\
@@ -464,8 +398,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:    MD5-PW \$1\$12345678\$9CtqUE3cI5b86PUAhP90p0  # mr-parent
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "EXACT-MB-MNT": """\
@@ -475,8 +407,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$aSbOhtjqSm2lwyTQ7Bur/.  # mb-exact
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "EXACT-ML-MNT": """\
@@ -486,8 +416,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$3Xfx8h0lFJhhi2tnbPXAF0  # ml-exact
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "EXACT-MR-MNT": """\
@@ -497,8 +425,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$rojUwYzu10ruwqO00IKh41  # mr-exact
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "EXACT-INETNUM-MB-MNT": """\
@@ -508,8 +434,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$AFX.FXWoEsfqJUYWs4hX8.  # mbi-exact
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-INETNUM-MB-MNT": """\
@@ -519,8 +443,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$gstFsI6qeiN9pwDIth8pr1  # mbi-parent
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ORIGIN-MB-MNT": """\
@@ -530,8 +452,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$trXVUy8x5HyizFaU0CHT51  # mb-origin
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ORIGIN-ML-MNT": """\
@@ -541,8 +461,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$0D0reGeFBPYowpN2PHKDP/  # ml-origin
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ORIGIN-MR-MNT": """\
@@ -552,8 +470,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$12345678\$gKLHiPhaIfaniZB0kSZuB1  # mr-origin
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "DOMAIN-MB-MNT": """\
@@ -563,8 +479,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$Sc/q29n8\$r5Ydny1YhQM4/m1mRWXr0/  # mb-dom
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "GII-MNT": """\
@@ -574,8 +488,6 @@ class BasicFixtures {
                 upd-to:      updto_lir@ripe.net
                 auth:        MD5-PW \$1\$MrTjfqBG\$rOJhT7Qo9cLNbwalAt9Dd/  # gii
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-ROUTE": """\
@@ -583,7 +495,6 @@ class BasicFixtures {
                 descr:       parent route object
                 origin:      AS1000
                 mnt-by:      PARENT-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "PARENT-ROUTE99": """\
@@ -591,7 +502,6 @@ class BasicFixtures {
                 descr:       parent route object
                 origin:      AS1000
                 mnt-by:      PARENT-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "EXACT-ROUTE": """\
@@ -599,7 +509,6 @@ class BasicFixtures {
                 descr:       exact match route object
                 origin:      AS3000
                 mnt-by:      EXACT-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ROUTE-NON-ORIGIN": """\
@@ -607,7 +516,6 @@ class BasicFixtures {
                 descr:       exact match route object
                 origin:      AS999000
                 mnt-by:      EXACT-MB-MNT
-                changed:     dbtest@ripe.net 20120202
                 source:      TEST
                 """,
             "AS1000": """\
@@ -617,7 +525,6 @@ class BasicFixtures {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      PARENT-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "AS2000": """\
@@ -627,7 +534,6 @@ class BasicFixtures {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      CHILD-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "AS3000": """\
@@ -637,7 +543,6 @@ class BasicFixtures {
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
                 mnt-by:      EXACT-MB-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ORG1": """\
@@ -649,7 +554,6 @@ class BasicFixtures {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "ORGHR": """\
@@ -661,7 +565,6 @@ class BasicFixtures {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "ORGSUB": """\
@@ -673,7 +576,6 @@ class BasicFixtures {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "ORGRIR": """\
@@ -685,7 +587,6 @@ class BasicFixtures {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "ORGNIR": """\
@@ -697,7 +598,6 @@ class BasicFixtures {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "ORGIANA": """\
@@ -709,7 +609,6 @@ class BasicFixtures {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "ORGLIR-A": """\
@@ -724,7 +623,6 @@ class BasicFixtures {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       ripe-ncc-hm-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
                 """,
             "ORGLIR-NO-A": """\
@@ -738,7 +636,6 @@ class BasicFixtures {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       ripe-ncc-hm-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
                 """,
             "ORG-OTHER-NO-A": """\
@@ -752,7 +649,6 @@ class BasicFixtures {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
                 """,
             "ORG-OTH-A": """\
@@ -767,7 +663,6 @@ class BasicFixtures {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
                 """,
             "ORG-END-A": """\
@@ -782,7 +677,6 @@ class BasicFixtures {
                 ref-nfy:      dbtest-org@ripe.net
                 mnt-ref:      owner3-mnt
                 mnt-by:       lir-mnt
-                changed:      denis@ripe.net 20121016
                 source:       TEST
                 """,
             "ROLE-A": """\
@@ -796,7 +690,6 @@ class BasicFixtures {
                 tech-c:       TP1-TEST
                 nic-hdl:      AH1-TEST
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20121016
                 source:       TEST
                 """,
             "ROLE-A200": """\
@@ -810,7 +703,6 @@ class BasicFixtures {
                 tech-c:       TP1-TEST
                 nic-hdl:      AH200-TEST
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20121016
                 source:       TEST
                 """,
             "ROLE-NO-A": """\
@@ -823,7 +715,6 @@ class BasicFixtures {
                 tech-c:       TP1-TEST
                 nic-hdl:      SR1-TEST
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20121016
                 source:       TEST
                 """,
             "SLASH8": """\
@@ -839,7 +730,6 @@ class BasicFixtures {
                 mnt-lower:   OWNER2-MNT
                 mnt-routes:  OWNER3-MNT
                 mnt-domains: OWNER4-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "NONE": """\
@@ -850,7 +740,6 @@ class BasicFixtures {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 mnt-by:       LIR-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "KC": """\
@@ -883,29 +772,44 @@ class BasicFixtures {
                 certif:       =8uv/
                 certif:       -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       owner-MNT
-                changed:      bit-bucket@ripe.net
                 source:       TEST
                 """,
             "KC-RSA": """\
-                key-cert:     PGPKEY-459F13C0
+                key-cert:     PGPKEY-5763950D
                 method:       PGP
-                owner:        DB Test (RSA key for DB testing) <dbtest@ripe.net>
-                fingerpr:     3706 556B E8CA 6E6D CDE7  4312 72C4 E6C3 459F 13C0
+                owner:        noreply@ripe.net <noreply@ripe.net>
+                fingerpr:     884F 8E23 69E5 E6F1 9FB3  63F4 BBCC BB2D 5763 950D
                 certif:       -----BEGIN PGP PUBLIC KEY BLOCK-----
-                              Version: GnuPG v1.4.12 (Darwin)
+                              Version: GnuPG v1
                 +
-                              mI0EUM8WtAEEALnqIV3MGrTZpzspsUPFozlNYts2KK136IvmHNjySNSlp8inLTTq
-                              hOU+6bdpQYsLJOhzlFwoH/RXdCouRJ64Xq3VginxqpYfww5PKuO3MHs6hkBZgted
-                              I/+/qcBvK4PWTNeD6xEWvKFZiBPsijU7etXbo+K2hQOSu2LrbDncLFkBABEBAAG0
-                              MkRCIFRlc3QgKFJTQSBrZXkgZm9yIERCIHRlc3RpbmcpIDxkYnRlc3RAcmlwZS5u
-                              ZXQ+iLkEEwECACMFAlDPFrQCGy8HCwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAK
-                              CRByxObDRZ8TwLPkA/42vdjRKQ3zQmFYcjszCy5L/MLlj4gYjZkOJICVudLMz3c1
-                              Ztda5JaUu+KnFZ664ekVLxLJY6coH1N9bxWKNSzKaoEx4WhV8OHGk2xdSkJHK887
-                              f4UYpA4085JxwkgzljzxAxfLf1GQuSNw3eY0b3T2GDgXRQwcSl4xdufto0zERQ==
-                              =t1N2
+                              mQENBFC0yvUBCACn2JKwa5e8Sj3QknEnD5ypvmzNWwYbDhLjmD06wuZxt7Wpgm4+
+                              yO68swuow09jsrh2DAl2nKQ7YaODEipis0d4H2i0mSswlsC7xbmpx3dRP/yOu4WH
+                              2kZciQYxC1NY9J3CNIZxgw6zcghJhtm+LT7OzPS8s3qp+w5nj+vKY09A+BK8yHBN
+                              E+VPeLOAi+D97s+Da/UZWkZxFJHdV+cAzQ05ARqXKXeadfFdbkx0Eq2R0RZm9R+L
+                              A9tPUhtw5wk1gFMsN7c5NKwTUQ/0HTTgA5eyKMnTKAdwhIY5/VDxUd1YprnK+Ebd
+                              YNZh+L39kqoUL6lqeu0dUzYp2Ll7R2IURaXNABEBAAG0I25vcmVwbHlAcmlwZS5u
+                              ZXQgPG5vcmVwbHlAcmlwZS5uZXQ+iQE4BBMBAgAiBQJQtMr1AhsDBgsJCAcDAgYV
+                              CAIJCgsEFgIDAQIeAQIXgAAKCRC7zLstV2OVDdjSCACYAyyWr83Df/zzOWGP+qMF
+                              Vukj8xhaM5f5MGb9FjMKClo6ezT4hLjQ8hfxAAZxndwAXoz46RbDUsAe/aBwdwKB
+                              0owcacoaxUd0i+gVEn7CBHPVUfNIuNemcrf1N7aqBkpBLf+NINZ2+3c3t14k1BGe
+                              xCInxEqHnq4zbUmunCNYjHoKbUj6Aq7janyC7W1MIIAcOY9/PvWQyf3VnERQImgt
+                              0fhiekCr6tRbANJ4qFoJQSM/ACoVkpDvb5PHZuZXf/v+XB1DV7gZHjJeZA+Jto5Z
+                              xrmS5E+HEHVBO8RsBOWDlmWCcZ4k9olxp7/z++mADXPprmLaK8vjQmiC2q/KOTVA
+                              uQENBFC0yvUBCADTYI6i4baHAkeY2lR2rebpTu1nRHbIET20II8/ZmZDK8E2Lwyv
+                              eWold6pAWDq9E23J9xAWL4QUQRQ4V+28+lknMySXbU3uFLXGAs6W9PrZXGcmy/12
+                              pZ+82hHckh+jN9xUTtF89NK/wHh09SAxDa/ST/z/Dj0k3pQWzgBdi36jwEFtHhck
+                              xFwGst5Cv8SLvA9/DaP75m9VDJsmsSwh/6JqMUb+hY71Dr7oxlIFLdsREsFVzVec
+                              YHsKINlZKh60dA/Br+CC7fClBycEsR4Z7akw9cPLWIGnjvw2+nq9miE005QLqRy4
+                              dsrwydbMGplaE/mZc0d2WnNyiCBXAHB5UhmZABEBAAGJAR8EGAECAAkFAlC0yvUC
+                              GwwACgkQu8y7LVdjlQ1GMAgAgUohj4q3mAJPR6d5pJ8Ig5E3QK87z3lIpgxHbYR4
+                              HNaR0NIV/GAt/uca11DtIdj3kBAj69QSPqNVRqaZja3NyhNWQM4OPDWKIUZfolF3
+                              eY2q58kEhxhz3JKJt4z45TnFY2GFGqYwFPQ94z1S9FOJCifL/dLpwPBSKucCac9y
+                              6KiKfjEehZ4VqmtM/SvN23GiI/OOdlHL/xnU4NgZ90GHmmQFfdUiX36jWK99LBqC
+                              RNW8V2MV+rElPVRHev+nw7vgCM0ewXZwQB/bBLbBrayx8LzGtMvAo4kDJ1kpQpip
+                              a/bmKCK6E+Z9aph5uoke8bKoybIoQ2K3OQ4Mh8yiI+AjiQ==
+                              =HQmg
                               -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:       owner-MNT
-                changed:      bit-bucket@ripe.net
                 source:       TEST
                 """,
             "OLD-V6-STATUS": """\
@@ -919,7 +823,6 @@ class BasicFixtures {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 status:       SUBTLA
-                changed:      dbtest@ripe.net 20120202
                 source:       TEST
                 """,
     ]
@@ -934,7 +837,6 @@ class BasicFixtures {
                 phone:   +44 282 420469
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "OWNER-MNT": """\
@@ -946,8 +848,6 @@ class BasicFixtures {
                 notify:      notify_owner@ripe.net
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
-                referral-by: OWNER-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "OWNER2-MNT": """\
@@ -959,8 +859,6 @@ class BasicFixtures {
                 notify:      notify_owner2@ripe.net
                 auth:        MD5-PW \$1\$9vNwegLB\$SrX4itajapDaACGZaLOIY1  #owner2
                 mnt-by:      OWNER2-MNT
-                referral-by: OWNER2-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "OWNER3-MNT": """\
@@ -972,8 +870,6 @@ class BasicFixtures {
                 notify:      notify_owner3@ripe.net
                 auth:        MD5-PW \$1\$u/Ttxt8r\$zeII/ZqRwC2PuRyGyv0U51  #owner3
                 mnt-by:      OWNER3-MNT
-                referral-by: OWNER3-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "OWNER4-MNT": """\
@@ -987,8 +883,6 @@ class BasicFixtures {
                 notify:      notify_owner4@ripe.net
                 auth:        MD5-PW \$1\$69rcgbTr\$Sh0R8PKbHIN5jf/Nv.FKk/  #owner4
                 mnt-by:      OWNER4-MNT
-                referral-by: OWNER4-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "RIPE-NCC-HM-MNT": """\
@@ -1000,8 +894,6 @@ class BasicFixtures {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss.  #hm
                 mnt-by:      RIPE-NCC-HM-MNT
-                referral-by: RIPE-NCC-HM-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "LIR-MNT": """\
@@ -1013,8 +905,6 @@ class BasicFixtures {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$epUPWc4g\$/6BKqK4lKR/lNqLa7K5qT0  #lir
                 mnt-by:      LIR-MNT
-                referral-by: LIR-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "END-USER-MNT": """\
@@ -1026,8 +916,6 @@ class BasicFixtures {
                 notify:      notify_lir@ripe.net
                 auth:        MD5-PW \$1\$4qnKkEY3\$9NduUoRMNiBbAX9QEDMkh1  #end
                 mnt-by:      END-USER-MNT
-                referral-by: END-USER-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "ORGLIR": """\
@@ -1039,7 +927,6 @@ class BasicFixtures {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         owner3-mnt
                 mnt-by:          owner2-mnt
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "ROOT4": """\
@@ -1056,7 +943,6 @@ class BasicFixtures {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 mnt-routes:   RIPE-NCC-HM-MNT
-                changed:      dbtest@ripe.net 20020101
                 source:       TEST
                 """,
             "ROOT6": """\
@@ -1068,7 +954,6 @@ class BasicFixtures {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED-BY-RIR
                 mnt-by:       RIPE-NCC-HM-MNT
-                changed:      ripe@test.net 20120505
                 remarks:      This network in not allocated.
                 remarks:      This object is here for Database
                 remarks:      consistency and to allow hierarchical

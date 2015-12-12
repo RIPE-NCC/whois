@@ -1,0 +1,23 @@
+to run jmeter plans
+- download jmeter
+- unpack it
+- ignore the startup scripts provided in the bin directory
+
+In each jmeter plan's directory: 
+- make sure that the .jmx file has the correct: 
+  - input/output file names
+  - server/port under test
+- check again the thread number, loops, delays. best way to check these
+    options is to open the .jmx file from the GUI  
+
+- make sure that the run-xxxxx.sh script points to the correct locations for 
+  - the jmeter jar file, 
+  - the jmeter home dir (-d), 
+  - the test plan (-t) 
+  - the log files 
+- execute the run script using screen.
+
+- read the README in each test plan's directory for further instructions
+
+Note that the output of the test run will be a CSV file with extension .jtl. It is different for
+each plan and it can be visualised with jmeter itself or with logstash-elasticsearch-kibana.

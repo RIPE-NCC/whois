@@ -16,7 +16,6 @@ import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -41,9 +40,8 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
                                            @Value("${dir.grs.import.download:}") final String downloadDir)
     {
         this.sourceNames = Sets.newHashSet(Iterables.transform(PROPERTY_LIST_SPLITTER.split(grsSourceNames), new Function<String, String>() {
-            @Nullable
             @Override
-            public String apply(@Nullable String input) {
+            public String apply(final String input) {
                 return input.toLowerCase().replace("-grs", "");
             }
         }));
@@ -59,7 +57,7 @@ public class AuthoritativeResourceImportTask implements DailyScheduledTask, Embe
 
     @Override
     public void run() {
-        for (String sourceName: sourceNames) {
+        for (final String sourceName : sourceNames) {
             try {
                 final AuthoritativeResource authoritativeResource = downloadAuthoritativeResource(sourceName);
                 resourceDataDao.store(sourceName, authoritativeResource);

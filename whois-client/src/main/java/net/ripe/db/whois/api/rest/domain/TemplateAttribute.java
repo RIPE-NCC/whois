@@ -3,6 +3,8 @@ package net.ripe.db.whois.api.rest.domain;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Collections;
 import java.util.Set;
 
@@ -16,6 +18,7 @@ public class TemplateAttribute {
     @XmlAttribute(required = true)
     private String name;
     @XmlAttribute(required = true)
+    @XmlJavaTypeAdapter(value = RequirementAdapter.class)
     private Requirement requirement;
     @XmlAttribute(required = true)
     private Cardinality cardinality;
@@ -56,5 +59,17 @@ public class TemplateAttribute {
     public TemplateAttribute setKeys(final Set<Key> keys) {
         this.keys = keys;
         return this;
+    }
+
+    public static class RequirementAdapter extends XmlAdapter<String, Requirement> {
+        @Override
+        public Requirement unmarshal(String v) throws Exception {
+            return Requirement.valueOf(v);
+        }
+
+        @Override
+        public String marshal(Requirement v) throws Exception {
+            return v.getExternalName().toUpperCase();
+        }
     }
 }

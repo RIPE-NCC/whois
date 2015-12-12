@@ -7,11 +7,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -157,7 +157,7 @@ class ArinGrsSource extends GrsSource {
         }
     }
 
-    private static final Set<CIString> IGNORED_OBJECTS = ciSet("OrgID", "POCHandle");
+    private static final Set<CIString> IGNORED_OBJECTS = ciSet("OrgID", "POCHandle", "Updated");
 
     private static final Map<CIString, Function<RpslAttribute, RpslAttribute>> TRANSFORM_FUNCTIONS = Maps.newHashMap();
 
@@ -188,36 +188,23 @@ class ArinGrsSource extends GrsSource {
                 {"Source", AttributeType.SOURCE},
         }) {
             addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-                @Nullable
                 @Override
-                public RpslAttribute apply(final @Nullable RpslAttribute input) {
+                public RpslAttribute apply(final RpslAttribute input) {
                     return new RpslAttribute((AttributeType) mapped[1], input.getValue());
                 }
             }, (String) mapped[0]);
         }
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Nullable
             @Override
-            public RpslAttribute apply(final @Nullable RpslAttribute input) {
+            public RpslAttribute apply(final RpslAttribute input) {
                 return new RpslAttribute(AttributeType.ADDRESS, String.format("%s # %s", input.getValue(), input.getKey()));
             }
         }, "City", "Country", "PostalCode", "Street", "State/Prov");
 
         addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Nullable
             @Override
-            public RpslAttribute apply(final @Nullable RpslAttribute input) {
-                String date = input.getCleanValue().toString().replaceAll("[^0-9]", "");
-                final String value = String.format("unread@ripe.net %s", date);
-                return new RpslAttribute(AttributeType.CHANGED, value);
-            }
-        }, "Updated");
-
-        addTransformFunction(new Function<RpslAttribute, RpslAttribute>() {
-            @Nullable
-            @Override
-            public RpslAttribute apply(final @Nullable RpslAttribute input) {
+            public RpslAttribute apply(final RpslAttribute input) {
                 final String value = input.getCleanValue().toString();
 
                 // Fix IPv6 syntax

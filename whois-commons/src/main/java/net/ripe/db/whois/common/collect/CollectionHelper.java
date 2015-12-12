@@ -12,15 +12,18 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Collection;
 
 public final class CollectionHelper {
+
     public static final IsBlankPredicate IS_BLANK_PREDICATE = new IsBlankPredicate();
+
     public static final byte[] EMPTY_BYTE_ARRAY = new byte[] {};
 
     private CollectionHelper() {
+        // do not instantiate
     }
 
     static class IsBlankPredicate implements Predicate<CIString> {
         @Override
-        public boolean apply(@javax.annotation.Nullable CIString input) {
+        public boolean apply(final CIString input) {
             return StringUtils.isBlank(input.toString());
         }
     }
@@ -37,8 +40,12 @@ public final class CollectionHelper {
     }
 
     // TODO: [AH] result is wrapped by 2 iterable wrappers in this method - optimize!
-    public static Iterable<ResponseObject> iterateProxy(final ProxyLoader<Identifiable, RpslObject> rpslObjectLoader, final Iterable<? extends Identifiable> identifiables) {
-        final ProxyIterable<Identifiable, ? extends ResponseObject> rpslObjects = new ProxyIterable<>((Iterable<Identifiable>) identifiables, rpslObjectLoader, 100);
-        return (Iterable<ResponseObject>) Iterables.filter(rpslObjects, Predicates.notNull());
+    public static Iterable<ResponseObject> iterateProxy(
+            final ProxyLoader<Identifiable,
+                    RpslObject> rpslObjectLoader,
+            final Iterable<? extends Identifiable> identifiables) {
+        final ProxyIterable<Identifiable, ? extends ResponseObject> rpslObjects =
+                new ProxyIterable<>((Iterable<Identifiable>) identifiables, rpslObjectLoader, 100);
+        return Iterables.filter((Iterable<ResponseObject>)rpslObjects, Predicates.notNull());
     }
 }

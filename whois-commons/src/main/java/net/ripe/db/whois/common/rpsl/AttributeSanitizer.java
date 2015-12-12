@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
@@ -24,6 +25,7 @@ import java.util.Set;
 
 // TODO: [AH] during syntax check/sanitization we parse all attributes into their domain object, we should keep a reference to that instead of reparsing all the time
 @Component
+@DependsOn("objectTemplateProvider")
 public class AttributeSanitizer {
     protected final Logger LOGGER = LoggerFactory.getLogger(AttributeSanitizer.class);
 
@@ -52,7 +54,7 @@ public class AttributeSanitizer {
         SANITIZER_MAP.put(AttributeType.STATUS, new UppercaseSanitizer());
 
         // add the default sanitizer for keys and primary attributes
-        for (ObjectTemplate objectTemplate : ObjectTemplate.getTemplates()) {
+        for (ObjectTemplate objectTemplate : ObjectTemplateProvider.getTemplates()) {
             keyAttributes.addAll(objectTemplate.getKeyAttributes());
             keyAttributes.add(objectTemplate.getAttributeTemplates().get(0).getAttributeType());
         }
@@ -78,7 +80,7 @@ public class AttributeSanitizer {
         final List<RpslAttribute> keyRelatedAttributes = Lists.newArrayList();
         keyRelatedAttributes.add(originalObject.getTypeAttribute());
 
-        final Set<AttributeType> keyAttributeTypesForObject = ObjectTemplate.getTemplate(originalObject.getType()).getKeyAttributes();
+        final Set<AttributeType> keyAttributeTypesForObject = ObjectTemplateProvider.getTemplate(originalObject.getType()).getKeyAttributes();
 
         for (final RpslAttribute attr : originalObject.getAttributes()) {
             if (keyAttributeTypesForObject.contains(attr.getType())) {
@@ -120,9 +122,12 @@ public class AttributeSanitizer {
         return new RpslObject(sanitizeKeyAttributes(keyRelatedAttributes)).getKey();
     }
 
+    // TODO: messages are added at object level, not at attribute level (so not clear to which attribute the message relates to)
+    //
     public RpslObject sanitize(final RpslObject object, final ObjectMessages objectMessages) {
         final Map<RpslAttribute, RpslAttribute> replacements = Maps.newHashMap();
         for (final RpslAttribute attribute : object.getAttributes()) {
+
             final AttributeType type = attribute.getType();
             String newValue = null;
 
@@ -135,7 +140,7 @@ public class AttributeSanitizer {
             try {
                 newValue = sanitizer.sanitize(attribute);
             } catch (IllegalArgumentException ignored) {
-                // no break on syntactically broken objects
+                // no break on syntactically broken objects  TODO: investigate why this is
             }
 
             if (newValue == null) {

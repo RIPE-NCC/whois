@@ -86,7 +86,7 @@ abstract class GrsSource implements InitializingBean {
             }
 
             final char firstChar = line.charAt(0);
-            if (firstChar == '#') {
+            if (firstChar == '#' || firstChar == '%') {
                 continue;
             }
 

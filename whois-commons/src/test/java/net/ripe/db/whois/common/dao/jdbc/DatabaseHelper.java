@@ -70,7 +70,7 @@ import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.keepKeyAttributesOn
 public class DatabaseHelper implements EmbeddedValueResolverAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseHelper.class);
 
-    private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    private static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
 
     private DataSource mailupdatesDataSource;
     private DataSource dnsCheckDataSource;
@@ -172,15 +172,15 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
 
-        final String masterUrl = String.format("jdbc:log:mysql://localhost/%s_WHOIS;driver=%s", dbBaseName, JDBC_DRIVER);
+        final String masterUrl = String.format("jdbc:log:mariadb://localhost/%s_WHOIS;driver=%s", dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
 
-        final String slaveUrl = String.format("jdbc:mysql://localhost/%s_WHOIS", dbBaseName);
+        final String slaveUrl = String.format("jdbc:mariadb://localhost/%s_WHOIS", dbBaseName);
         System.setProperty("whois.db.slave.url", slaveUrl);
         System.setProperty("whois.db.driver", JDBC_DRIVER);
 
-        final String grsSlaveUrl = String.format("jdbc:mysql://localhost/%s", dbBaseName);
+        final String grsSlaveUrl = String.format("jdbc:mariadb://localhost/%s", dbBaseName);
         System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);
         System.setProperty("whois.db.grs.master.baseurl", grsSlaveUrl);
     }
@@ -223,7 +223,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
         loadScripts(new JdbcTemplate(createDataSource(dbName)), sql);
 
-        System.setProperty(propertyBase + ".url", "jdbc:mysql://localhost/" + dbName);
+        System.setProperty(propertyBase + ".url", "jdbc:mariadb://localhost/" + dbName);
         System.setProperty(propertyBase + ".username", "dbint");
         System.setProperty(propertyBase + ".password", "");
     }
@@ -239,7 +239,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
             final SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
             dataSource.setDriverClass(driverClass);
-            dataSource.setUrl("jdbc:mysql://localhost/" + databaseName);
+            dataSource.setUrl("jdbc:mariadb://localhost/" + databaseName);
             dataSource.setUsername("dbint");
 
             return dataSource;
@@ -405,7 +405,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         try {
             Object bean = applicationContext.getBean("objectLoader");
             bean.getClass().getMethod("claimIds", RpslObject.class).invoke(bean, rpslObject);
-            LOGGER.info("Claimed IDs for " + rpslObject.getFormattedKey());
+            LOGGER.info("Claimed IDs for {}", rpslObject.getFormattedKey());
         } catch (Exception ignored) {}
     }
 
@@ -489,10 +489,10 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
                 user.getUsername(),
                 user.getHashedPassword(),
                 Joiner.on(',').join(user.getObjectTypes()),
-                new Date());
+                new java.sql.Date(new Date().getTime()));
     }
 
-    public static void dumpSchema(final DataSource datasource) throws SQLException {
+    public static void dumpSchema(final DataSource datasource) {
         new JdbcTemplate(datasource).execute(new StatementCallback<Object>() {
             @Override
             public Object doInStatement(Statement statement) throws SQLException, DataAccessException {

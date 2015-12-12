@@ -422,7 +422,7 @@ CREATE TABLE `last` (
   PRIMARY KEY (`object_id`,`sequence_id`),
   KEY `last_pkey` (`pkey`),
   KEY `object_type_index` (`object_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=12650254 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -622,7 +622,7 @@ CREATE TABLE `nic_hdl` (
   KEY `range_start` (`range_start`),
   KEY `range_end` (`range_end`),
   KEY `space` (`space`,`source`)
-) ENGINE=InnoDB AUTO_INCREMENT=1924502 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -653,48 +653,6 @@ CREATE TABLE `nserver` (
   `host` varchar(254) NOT NULL DEFAULT '',
   PRIMARY KEY (`host`,`object_id`),
   KEY `object_id` (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `object_version`
---
-
-DROP TABLE  IF EXISTS `object_version`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `object_version` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `pkey` varchar(254) NOT NULL DEFAULT '',
-  `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `from_timestamp` int(10) unsigned NOT NULL,
-  `to_timestamp` int(10) unsigned DEFAULT NULL,
-  `revision` int(10) unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_version` (`pkey`,`object_type`,`revision`),
-  KEY `pkey` (`pkey`),
-  KEY `object_type` (`object_type`),
-  KEY `revision` (`revision`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `object_reference`
---
-
-DROP TABLE  IF EXISTS `object_reference`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `object_reference` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `from_version` int(11) unsigned NOT NULL,
-  `to_version` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_reference` (`from_version`,`to_version`),
-  KEY `from_version` (`from_version`),
-  KEY `to_version` (`to_version`),
-  CONSTRAINT FOREIGN KEY (`from_version`) REFERENCES `object_version` (`id`),
-  CONSTRAINT FOREIGN KEY (`to_version`) REFERENCES `object_version` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -758,7 +716,7 @@ CREATE TABLE `organisation_id` (
   `source` char(10) NOT NULL DEFAULT '',
   PRIMARY KEY (`range_id`),
   UNIQUE KEY `space` (`space`,`source`)
-) ENGINE=InnoDB AUTO_INCREMENT=22661 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -857,23 +815,6 @@ CREATE TABLE `ref_nfy` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `referral_by`
---
-
-DROP TABLE IF EXISTS `referral_by`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `referral_by` (
-  `object_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `mnt_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `object_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`mnt_id`,`object_id`),
-  KEY `object_id` (`object_id`),
-  KEY `object_type` (`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `route`
 --
 
@@ -955,7 +896,7 @@ CREATE TABLE `serials` (
   `operation` tinyint(4) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`serial_id`),
   KEY `object` (`object_id`,`sequence_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25050923 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

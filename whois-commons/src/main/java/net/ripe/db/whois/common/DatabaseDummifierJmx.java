@@ -3,7 +3,6 @@ package net.ripe.db.whois.common;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -32,6 +31,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -43,10 +43,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "Dummifier", description = "Whois data dummifier")
 /**
  * in jmxterm, run with:
- *      run dummify jdbc:mysql://<host>/<db> <user> <pass>
+ *      run dummify jdbc:mariadb://<host>/<db> <user> <pass>
  *
  * in console, run with
- *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbc-url jdbc:mysql://localhost/BLAH --user XXX --pass XXX
+ *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbc-url jdbc:mariadb://localhost/BLAH --user XXX --pass XXX
  *
  */
 public class DatabaseDummifierJmx extends JmxBase {
@@ -79,7 +79,7 @@ public class DatabaseDummifierJmx extends JmxBase {
             @Override
             public String call() {
                 validateJdbcUrl(user, pass);
-                final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("com.mysql.jdbc.Driver");
+                final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("org.mariadb.jdbc.Driver");
                 final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
                 jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -93,10 +93,11 @@ public class DatabaseDummifierJmx extends JmxBase {
                 final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
                         0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
-                LOGGER.info("Started " + numThreads + " threads");
+                LOGGER.info("Started {} threads", numThreads);
 
                 addWork("last", jdbcTemplate, executorService);
                 addWork("history", jdbcTemplate, executorService);
+                cleanUpAuthIndex(jdbcTemplate, executorService);
 
                 executorService.shutdown();
                 try {
@@ -116,7 +117,7 @@ public class DatabaseDummifierJmx extends JmxBase {
     }
 
     private void addWork(final String table, final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
-        LOGGER.info("Dummifying " + table);
+        LOGGER.info("Dummifying {}", table);
         transactionTemplate.execute(new TransactionCallback<Object>() {
             @Override
             public Object doInTransaction(TransactionStatus status) {
@@ -133,7 +134,29 @@ public class DatabaseDummifierJmx extends JmxBase {
                 return null;
             }
         });
-        LOGGER.info("Jobs size:" + jobsAdded);
+        LOGGER.info("Jobs size:{}", jobsAdded);
+    }
+
+    private void cleanUpAuthIndex(final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
+        LOGGER.info("Removing index entries for SSO lines");
+        transactionTemplate.execute(new TransactionCallback<Object>() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                executorService.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            jdbcTemplate.update("DELETE FROM auth WHERE auth LIKE 'SSO %' AND object_type=9");
+                            jobsAdded.incrementAndGet();
+                        } catch (RuntimeException e) {
+                            LOGGER.error("Failed to delete SSO auth lines from auth index table", e);
+                        }
+                    }
+                });
+                return null;
+            }
+        });
+        LOGGER.info("Jobs size:{}", jobsAdded);
     }
 
     static final class DatabaseObjectProcessor implements Runnable {
@@ -158,57 +181,40 @@ public class DatabaseDummifierJmx extends JmxBase {
                         final RpslObject rpslObject = RpslObject.parse(object);
                         RpslObject dummyObject = dummifier.dummify(3, rpslObject);
 
-                        if (ObjectType.MNTNER.equals(rpslObject.getType()) && hasPassword(rpslObject)) {
-                            dummyObject = replaceWithMntnerNamePassword(dummyObject);
+                        if (ObjectType.MNTNER.equals(rpslObject.getType())) {
+                            dummyObject = replaceAuthAttributes(dummyObject);
                         }
 
                         jdbcTemplate.update("UPDATE " + table + " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
                     } catch (RuntimeException e) {
-                        LOGGER.error(table + ": " + objectId + "," + sequenceId + " failed\n" + new String(object), e);
+                        LOGGER.error(String.format("%s: %s,%d failed\n%s", table, objectId, sequenceId, new String(object)), e);
                     }
                     int count = jobsDone.incrementAndGet();
                     if (count % 100000 == 0) {
-                        LOGGER.info("Finished jobs: " + count);
+                        LOGGER.info("Finished jobs: {}", count);
                     }
                     return null;
                 }
             });
         }
 
-        static RpslObject replaceWithMntnerNamePassword(final RpslObject rpslObject) {
-            boolean foundPassword = false;
+        static RpslObject replaceAuthAttributes(final RpslObject rpslObject) {
             RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
-            for (int i = 0; i < builder.size(); i++) {
-                RpslAttribute attribute = builder.get(i);
+
+            final Iterator<RpslAttribute> attributes = builder.getAttributes().iterator();
+            while (attributes.hasNext()) {
+                final RpslAttribute attribute = attributes.next();
                 if (AttributeType.AUTH.equals(attribute.getType())) {
-                    if (attribute.getCleanValue().startsWith("md5-pw")) {
-                        if (foundPassword) {
-                            builder.remove(i);
-                        } else {
-                            builder.set(i, new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toString())));
-                            foundPassword = true;
-                        }
-                    } else if (!foundPassword) {
-                        builder.set(i, new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toString())));
-                        foundPassword = true;
+                    if (attribute.getCleanValue().startsWith("md5-pw") ||
+                            attribute.getCleanValue().startsWith("sso")) {
+                        attributes.remove();
                     }
                 }
             }
 
-            if (!foundPassword) {
-                throw new IllegalStateException("No 'auth: md5-pw' found after dummifying " + rpslObject.getFormattedKey());
-            }
+            builder.addAttributeAfter(new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toUpperCase())), AttributeType.MNTNER);
 
             return builder.get();
-        }
-
-        static boolean hasPassword(RpslObject rpslObject) {
-            for (CIString auth : rpslObject.getValuesForAttribute(AttributeType.AUTH)) {
-                if (auth.startsWith("md5-pw")) {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 

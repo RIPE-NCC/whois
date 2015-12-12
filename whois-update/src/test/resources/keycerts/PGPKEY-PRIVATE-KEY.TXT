@@ -64,5 +64,4 @@ certif:       =de59
 certif:       -----END PGP PRIVATE KEY BLOCK-----
 mnt-by:       UPD-MNT
 notify:       noreply@ripe.net
-changed:      noreply@ripe.net 20120213
 source:       TEST

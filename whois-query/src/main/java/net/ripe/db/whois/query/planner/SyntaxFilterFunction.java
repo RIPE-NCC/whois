@@ -5,11 +5,11 @@ import com.google.common.base.Function;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.QueryMessages;
+import net.ripe.db.whois.query.domain.MessageObject;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -21,7 +21,7 @@ class SyntaxFilterFunction implements Function<ResponseObject, Iterable<? extend
     }
 
     @Override
-    public Iterable<? extends ResponseObject> apply(@Nullable final ResponseObject input) {
+    public Iterable<? extends ResponseObject> apply(final ResponseObject input) {
         if (input instanceof RpslObject) {
             final RpslObject object = (RpslObject) input;
 
@@ -36,7 +36,7 @@ class SyntaxFilterFunction implements Function<ResponseObject, Iterable<? extend
     }
 
     private boolean validSyntax(final RpslObject object) {
-        final ObjectMessages objectMessages = ObjectTemplate.getTemplate(object.getType()).validate(object);
+        final ObjectMessages objectMessages = ObjectTemplateProvider.getTemplate(object.getType()).validate(object);
         return objectMessages.getErrorCount() == 0;
     }
 }

@@ -48,7 +48,7 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
 
     @Override
     public boolean isReferenced(final RpslObject object) {
-        for (final RpslAttribute attribute : object.findAttributes(ObjectTemplate.getTemplate(object.getType()).getKeyAttributes())) {
+        for (final RpslAttribute attribute : object.findAttributes(ObjectTemplateProvider.getTemplate(object.getType()).getKeyAttributes())) {
             for (final IndexStrategy indexStrategy : IndexStrategies.getReferencing(object.getType())) {
                 for (final CIString value : attribute.getReferenceValues()) {
                     for (final RpslObjectInfo result : indexStrategy.findInIndex(jdbcTemplate, value)) {
@@ -70,7 +70,7 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
         final List<IndexStrategy> indexStrategies = IndexStrategies.getReferencing(object.getType());
 
         // for route(6), individually check each key
-        for (final RpslAttribute keyAttr : object.findAttributes(ObjectTemplate.getTemplate(object.getType()).getKeyAttributes())) {
+        for (final RpslAttribute keyAttr : object.findAttributes(ObjectTemplateProvider.getTemplate(object.getType()).getKeyAttributes())) {
             for (final IndexStrategy indexStrategy : indexStrategies) {
                 for (final CIString value : keyAttr.getReferenceValues()) {
                     final List<RpslObjectInfo> results = indexStrategy.findInIndex(jdbcTemplate, value);
@@ -150,7 +150,7 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
     }
 
     private RpslObjectInfo getAttributeReference(final ObjectType objectType, final CIString keyValue) {
-        final ObjectTemplate referenceTemplate = ObjectTemplate.getTemplate(objectType);
+        final ObjectTemplate referenceTemplate = ObjectTemplateProvider.getTemplate(objectType);
         final Set<AttributeType> referenceKeyAttributes = referenceTemplate.getKeyAttributes();
         Validate.isTrue(referenceKeyAttributes.size() == 1, "We can never have a reference to a composed key");
         final IndexStrategy indexStrategy = IndexStrategies.get(referenceKeyAttributes.iterator().next());
@@ -171,7 +171,7 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
 
     @Override
     public RpslObjectUpdateInfo undeleteObject(final int objectId) {
-        final RpslObject rpslObject = jdbcTemplate.queryForObject("" +
+        final RpslObject rpslObject = jdbcTemplate.queryForObject(
                 "select h.object_id, h.object " +
                 "from last l " +
                 "left join history h on l.object_id = h.object_id " +
@@ -181,7 +181,10 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
                 new RpslObjectRowMapper(),
                 objectId, objectId);
 
-        final int sequenceId = jdbcTemplate.queryForInt("select max(sequence_id) from serials where object_id = ?", objectId);
+        final int sequenceId = jdbcTemplate.queryForObject(
+                "select max(sequence_id) from serials where object_id = ?",
+                Integer.class,
+                objectId);
 
         final ObjectType objectType = rpslObject.getType();
         final String pkey = rpslObject.getKey().toString();

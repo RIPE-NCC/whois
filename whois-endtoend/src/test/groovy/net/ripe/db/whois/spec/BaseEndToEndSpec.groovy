@@ -133,10 +133,6 @@ ${result}
 
     def query_object_not_matches(String qry_str, String type, String pkey, String pattern) {
         !query_object_matches(qry_str, type, pkey, pattern)
-        // query_object_not_matches from integration tests:
-        // def query_object_not_matches(String qry_str, String type, String pkey, String regex) {
-        //     def qry = query(qry_str)
-        //     (qry =~ type + ":\\s*" + pkey) && !(qry =~ regex)
     }
 
     def queryCommentMatches(String qry_str, String prePattern, String pkey, String postPattern) {
@@ -241,7 +237,15 @@ ${notification.contents}
     }
 
     String syncUpdate(String content) {
-        syncUpdate(new SyncUpdate(data: content, redirect: true))
+        syncUpdate(content, false)
+    }
+
+    String syncUpdate(String content, boolean notifications) {
+        def response = syncUpdate(new SyncUpdate(data: content))
+        if (!notifications) {
+            clearAllMails()
+        }
+        return response
     }
 
     String syncUpdate(SyncUpdate syncUpdate) {
@@ -280,13 +284,18 @@ ${response}
         new SyncUpdateResponse(syncUpdate(content));
     }
 
-    SyncUpdateResponse syncUpdateWithResponseNoRedirect(String content) {
-        syncUpdateWithResponse(new SyncUpdate(data: content, redirect: false));
+    SyncUpdateResponse syncUpdateWithResponseWithNotifications(String content) {
+        new SyncUpdateResponse(syncUpdate(content, true));
     }
 
     def noMoreMessages() {
         !whoisFixture.anyMoreMessages()
     }
+
+    def clearAllMails() {
+        whoisFixture.getMailSender().reset()
+    }
+
 
     def object(String string) {
         return RpslObject.parse(string.stripIndent()).toString()

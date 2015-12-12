@@ -68,7 +68,7 @@ public class SyncUpdatesServiceTest {
         when(request.getCookies()).thenReturn(new Cookie[]{});
         when(messageHandler.handle(any(UpdateRequest.class), any(UpdateContext.class))).thenReturn(new UpdateResponse(UpdateStatus.SUCCESS, "OK"));
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
-        when(ssoTokenTranslator.translateSsoToken("valid-token")).thenReturn(new UserSession("test@ripe.net", true, "2033-01-30T16:38:27.369+11:00"));
+        when(ssoTokenTranslator.translateSsoToken("valid-token")).thenReturn(new UserSession("test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00"));
         when(ssoTokenTranslator.translateSsoToken("invalid-token")).thenThrow(new CrowdClientException("Unknown RIPE NCC Access token: invalid-token"));
     }
 
@@ -296,7 +296,7 @@ public class SyncUpdatesServiceTest {
     }
 
     @Test
-    public void handle_redirect_not_allowed() throws Exception {
+    public void handle_redirect_is_ignored() throws Exception {
         final String data = "person";
         final String help = null;
         final String nnew = null;
@@ -308,8 +308,8 @@ public class SyncUpdatesServiceTest {
 
         final Response response = subject.doGet(request, source, data, help, nnew, diff, redirect, contentType, ssoToken);
 
-        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_FORBIDDEN));
-        assertThat(response.getEntity().toString(), is("Not allowed to disable notifications: 127.0.0.1"));
+        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
+        assertThat(response.getEntity().toString(), is("OK"));
     }
 
     @Test
@@ -319,7 +319,6 @@ public class SyncUpdatesServiceTest {
                 "phone:    +31-61238-2827\n" +
                 "nic-hdl:  ES222-RIPE\n" +
                 "mnt-by:   TEST-DBM-MNT\n" +
-                "changed:  eshryane@ripe.net 20120829\n" +
                 "source:   test\n" +
                 "remarks:  something\n" +
                 "\n" +
@@ -340,7 +339,6 @@ public class SyncUpdatesServiceTest {
                     public boolean matches(final Object argument) {
                         final UpdateRequest updateRequest = (UpdateRequest) argument;
                         assertThat(updateRequest.getKeyword(), is(Keyword.NONE));
-                        assertThat(updateRequest.getUpdateMessage(), is(data));
                         return true;
                     }
                 }),
@@ -361,7 +359,6 @@ public class SyncUpdatesServiceTest {
                 "phone:    +31-61238-2827\n" +
                 "nic-hdl:  ES222-RIPE\n" +
                 "mnt-by:   TEST-DBM-MNT\n" +
-                "changed:  eshryane@ripe.net 20120829\n" +
                 "source:   test\n" +
                 "remarks:  something\n" +
                 "\n" +
@@ -382,7 +379,6 @@ public class SyncUpdatesServiceTest {
                     public boolean matches(final Object argument) {
                         final UpdateRequest updateRequest = (UpdateRequest) argument;
                         assertThat(updateRequest.getKeyword(), is(Keyword.NONE));
-                        assertThat(updateRequest.getUpdateMessage(), is(data));
                         return true;
                     }
                 }),
