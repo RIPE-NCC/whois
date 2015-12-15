@@ -10,6 +10,9 @@
 [all] upgrade to MariaDB
 [nrtm] removed new (unused) dummifier
 
+## 1.83.1
+[update] Fixed database went away bug
+
 ## 1.83
 [all] better error message for syntax error in organisation attribute
 [update] fixed bug where SyncUpdates POST without content type header results in an Internal Server Error
