@@ -231,6 +231,7 @@ public class FreeTextIndex extends RebuildableIndex {
                     // suboptimal;there could be big gaps in serial entries.
                     continue;
                 }
+
                 final RpslObject rpslObject = serialEntry.getRpslObject();
 
                 switch (serialEntry.getOperation()) {

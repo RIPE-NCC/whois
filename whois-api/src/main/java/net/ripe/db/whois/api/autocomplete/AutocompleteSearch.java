@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.freetext.FreeTextAnalyzer;
 import net.ripe.db.whois.api.freetext.FreeTextIndex;
-import net.ripe.db.whois.api.search.IndexTemplate;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
@@ -53,10 +52,8 @@ public class AutocompleteSearch {
     }
 
     public List<String> search(final String queryString, final String fieldName) throws IOException {
-        return freeTextIndex.search(new IndexTemplate.SearchCallback<List<String>>() {
-            @Override
-            public List<String> search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
-
+        return freeTextIndex.search(
+            (final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) -> {
                 final List<String> results = Lists.newArrayList();
 
                 final Query query = constructQuery(getObjectTypeLookupKeys(fieldName), queryString);
@@ -68,15 +65,12 @@ public class AutocompleteSearch {
                 }
 
                 return results;
-            }
         });
     }
 
     public List<Map<String, Object>> searchExtended(final String queryString, final String fieldName, final List<String> attributes) throws IOException {
-        return freeTextIndex.search(new IndexTemplate.SearchCallback<List<Map<String, Object>>>() {
-            @Override
-            public List<Map<String, Object>> search(final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) throws IOException {
-
+        return freeTextIndex.search(
+            (final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) -> {
                 final List<Map<String, Object>> results = Lists.newArrayList();
 
                 final Query query = constructQuery(getObjectTypeLookupKeys(fieldName), queryString);
@@ -102,15 +96,14 @@ public class AutocompleteSearch {
                     results.add(result);
 
                 }
+
                 return results;
-            }
         });
     }
 
     private Query constructQuery(final Set<String> fields, final String queryString) {
         try {
-            final MultiFieldQueryParser parser = new MultiFieldQueryParser(fields.toArray(new String[fields.size()]),
-                    new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY));
+            final MultiFieldQueryParser parser = new MultiFieldQueryParser(fields.toArray(new String[fields.size()]), new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY));
             parser.setAnalyzer(FreeTextIndex.QUERY_ANALYZER);
             parser.setDefaultOperator(QueryParser.Operator.AND);
             return parser.parse(String.format("%s*", queryString.toLowerCase()));
@@ -118,7 +111,6 @@ public class AutocompleteSearch {
             LOGGER.debug("Unable to parse query", e);
             throw new IllegalStateException(e.getMessage());
         }
-
     }
 
     private Set<String> getObjectTypeLookupKeys(final String fieldType){
