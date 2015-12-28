@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.autocomplete;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.api.freetext.FreeTextAnalyzer;
@@ -27,12 +25,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class AutocompleteSearch {
@@ -113,7 +111,8 @@ public class AutocompleteSearch {
         }
     }
 
-    private Set<String> getObjectTypeLookupKeys(final String fieldType){
+    // return which object types the field can contain
+    private Set<String> getObjectTypeLookupKeys(final String fieldType) {
         final AttributeType attributeType = AttributeType.getByNameOrNull(fieldType);
         if ( attributeType == null ) {
             throw new IllegalArgumentException("not valid field");
@@ -123,12 +122,9 @@ public class AutocompleteSearch {
             return Collections.singleton(fieldType);
         }
 
-        return FluentIterable.from(attributeType.getReferences()).transform(new Function<ObjectType, String>() {
-            @Nullable
-            @Override
-            public String apply(final ObjectType input) {
-                return ObjectTemplateProvider.getTemplate(input).getKeyLookupAttribute().getName();
-            }
-        }).toSet();
+        return attributeType.getReferences()
+            .stream()
+            .map(input -> ObjectTemplateProvider.getTemplate(input).getKeyLookupAttribute().getName())
+            .collect(Collectors.toSet());
     }
 }
