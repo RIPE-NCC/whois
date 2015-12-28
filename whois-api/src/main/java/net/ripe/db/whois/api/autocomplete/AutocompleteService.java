@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Autocomplete - Suggestions - Typeahead API
@@ -57,13 +57,10 @@ public class AutocompleteService {
             return badRequest("invalid name for field");
         }
 
-        final List<String> badAttributes = Lists.newArrayList();
-        for (final String attribute : attributes){
-            if (AttributeType.getByNameOrNull(attribute) == null) {
-                badAttributes.add(attribute);
-            }
-        }
-        if (!badAttributes.isEmpty()){
+        final List<String> badAttributes = attributes.stream()
+                                .filter(input -> (AttributeType.getByNameOrNull(input) == null))
+                                .collect(Collectors.toList());
+        if (!badAttributes.isEmpty()) {
             return badRequest(String.format("invalid name for attribute(s) : %s", badAttributes));
         }
 

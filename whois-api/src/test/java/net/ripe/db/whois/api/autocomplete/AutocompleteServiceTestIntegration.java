@@ -304,7 +304,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void attribute_parameters_not_valid() {
+    public void single_attribute_parameter_not_valid() {
         try {
             queryExtended("abc", "mntner", "invalidAttr");
             fail();
@@ -313,6 +313,15 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         }
     }
 
+    @Test
+    public void multiple_attribute_parameters_not_valid() {
+        try {
+            queryExtended("abc", "mntner", "invalidAttr1", "invalidAttr2");
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), is("invalid name for attribute(s) : [invalidAttr1, invalidAttr2]"));
+        }
+    }
 
     // helper methods
 
