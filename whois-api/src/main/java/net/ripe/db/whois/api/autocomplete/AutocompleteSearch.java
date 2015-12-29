@@ -92,7 +92,6 @@ public class AutocompleteSearch {
                     }
 
                     results.add(result);
-
                 }
 
                 return results;

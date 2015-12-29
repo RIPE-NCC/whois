@@ -131,7 +131,6 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(query("mIxeD", "mntner"), contains("MiXEd-MNT"));
     }
 
-
     @Test
     public void query_returns_maximum_results_and_sorted() {
         databaseHelper.addObject("mntner: ABC0-MNT");
@@ -187,8 +186,8 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(query("bla", "mntner"), containsInAnyOrder("bla1-mnt", "bla2-mnt", "bLA3-mnt"));
     }
 
+    // extended
 
-    //extended
     @Test
     public void key_type_only() {
         databaseHelper.addObject(
@@ -325,22 +324,24 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
     // helper methods
 
-    private String queryExtended(final String query, final String field, final String... attributeNames) {
-
-        final StringBuffer attrParams = new StringBuffer("");
-        for (String attributeName : attributeNames) {
-            attrParams.append("&attribute=").append(attributeName);
-        }
-
-        return RestTest.target(getPort(), String.format("whois/autocomplete?extended&query=%s&field=%s%s", query, field, attrParams.toString())).request(MediaType.APPLICATION_JSON_TYPE).get(String.class);
-    }
-
     private List<String> query(final String query, final String field) {
         return RestTest
             .target(getPort(), String.format("whois/autocomplete?query=%s&field=%s", query, field))
             .request(MediaType.APPLICATION_JSON_TYPE)
             .get(new GenericType<List<String>>(){});
+    }
 
+    private String queryExtended(final String query, final String field, final String... attributes) {
+
+        final StringBuilder attrParams = new StringBuilder();
+        for (String attribute : attributes) {
+            attrParams.append("&attribute=").append(attribute);
+        }
+
+        return RestTest
+            .target(getPort(), String.format("whois/autocomplete?extended&query=%s&field=%s%s", query, field, attrParams.toString()))
+            .request(MediaType.APPLICATION_JSON_TYPE)
+            .get(String.class);
     }
 
     private void rebuildIndex() {

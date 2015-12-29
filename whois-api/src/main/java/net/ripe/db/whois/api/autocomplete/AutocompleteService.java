@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.base.Strings;
+import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Autocomplete - Suggestions - Typeahead API
- *
- *
+ * Autocomplete - Suggestions - Type-ahead API
  */
 @Component
 @Path("/autocomplete")
@@ -37,6 +36,15 @@ public class AutocompleteService {
         this.autocompleteSearch = autocompleteSearch;
     }
 
+    /**
+     * Autocomplete lookup service
+     *
+     * @param query (required) term to search for (i.e. whatever the user has typed)
+     * @param field (required) query field name
+     * @param extended (optional) flag for extended mode (key and type included in response)
+     * @param attributes (optional) also include specified attribute(s) in response
+     * @return
+     */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response lookup(
@@ -65,7 +73,7 @@ public class AutocompleteService {
         }
 
         try {
-            if ((isExtendedParameter(extended)) || !attributes.isEmpty()) {
+            if ((RestServiceHelper.isQueryParamSet(extended)) || !attributes.isEmpty()) {
                 return ok(autocompleteSearch.searchExtended(query, field, attributes));
             }
 
@@ -74,10 +82,6 @@ public class AutocompleteService {
         } catch (IOException e) {
             return badRequest("Query failed.");
         }
-    }
-
-    private boolean isExtendedParameter(final String extended) {
-        return extended != null && (extended.isEmpty() || extended.equalsIgnoreCase("true"));
     }
 
     // helper methods
