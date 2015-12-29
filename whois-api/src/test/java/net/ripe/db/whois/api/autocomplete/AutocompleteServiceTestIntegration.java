@@ -53,34 +53,36 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         rebuildIndex();
     }
 
+    // simple searches (field and value)
+
     @Test
     public void single_maintainer_found() {
-        assertThat(query("AA1-MNT", "mntner"), contains("AA1-MNT"));
+        assertThat(queryForList("AA1-MNT", "mntner"), contains("AA1-MNT"));
     }
 
     @Test
     public void match_start_of_word_dash_is_tokenised() {
-        assertThat(query("AA1", "mntner"), contains("AA1-MNT"));
+        assertThat(queryForList("AA1", "mntner"), contains("AA1-MNT"));
     }
 
     @Test
     public void match_start_of_word_first_syllable_only() {
-        assertThat(query("some", "mntner"), contains("something-mnt"));
+        assertThat(queryForList("some", "mntner"), contains("something-mnt"));
     }
 
     @Test
     public void match_start_of_word_first_syllable_only_case_insensitive() {
-        assertThat(query("SoMe", "mntner"), contains("something-mnt"));
+        assertThat(queryForList("SoMe", "mntner"), contains("something-mnt"));
     }
 
     @Test
     public void match_multiple_maintainers() {
-        assertThat(query("random", "mntner"), containsInAnyOrder("random1-mnt", "random2-mnt"));
+        assertThat(queryForList("random", "mntner"), containsInAnyOrder("random1-mnt", "random2-mnt"));
     }
 
     @Test
     public void no_maintainers_found() {
-        assertThat(query("invalid", "mntner"), is(empty()));
+        assertThat(queryForList("invalid", "mntner"), is(empty()));
     }
 
     @Test
@@ -128,7 +130,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("mntner: MiXEd-MNT");
         rebuildIndex();
 
-        assertThat(query("mIxeD", "mntner"), contains("MiXEd-MNT"));
+        assertThat(queryForList("mIxeD", "mntner"), contains("MiXEd-MNT"));
     }
 
     @Test
@@ -147,7 +149,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         rebuildIndex();
 
         // TODO: [ES] search results are NOT sorted
-        assertThat(query("ABC", "mntner"), hasSize(10));
+        assertThat(queryForList("ABC", "mntner"), hasSize(10));
     }
 
     @Test
@@ -158,7 +160,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        assertThat(query("ad1", "admin-c"), contains("AD1-TEST"));
+        assertThat(queryForList("ad1", "admin-c"), contains("AD1-TEST"));
     }
 
     @Test
@@ -172,7 +174,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        assertThat(query("ww", "admin-c"), containsInAnyOrder("ww1-test", "ww2-test"));
+        assertThat(queryForList("ww", "admin-c"), containsInAnyOrder("ww1-test", "ww2-test"));
     }
 
     @Test
@@ -183,26 +185,20 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        assertThat(query("bla", "mntner"), containsInAnyOrder("bla1-mnt", "bla2-mnt", "bLA3-mnt"));
+        assertThat(queryForList("bla", "mntner"), containsInAnyOrder("bla1-mnt", "bla2-mnt", "bLA3-mnt"));
     }
 
-    // extended
-
     @Test
-    public void key_type_only() {
+    public void key_type_only_no_attributes() {
         databaseHelper.addObject(
                 "person:  person test\n" +
                 "nic-hdl: ww1-test");
 
         rebuildIndex();
 
-        final String results = queryExtended("ww", "admin-c");
+        final String results = query("ww", "admin-c");
 
-        assertThat(results, containsString("" +
-                "[ {\n" +
-                "  \"key\" : \"ww1-test\",\n" +
-                "  \"type\" : \"person\"\n" +
-                "} ]"));
+        assertThat(results, containsString("[ \"ww1-test\" ]"));
     }
 
     @Test
@@ -212,7 +208,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                 "nic-hdl: ww1-test");
         rebuildIndex();
 
-        final String results = queryExtended("ww", "admin-c", "person");
+        final String results = query("ww", "admin-c", "person");
 
         assertThat(results, containsString("" +
                 "[ {\n" +
@@ -221,6 +217,8 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                 "  \"person\" : \"person test\"\n" +
                 "} ]"));
     }
+
+    // search by field and value and specify response attribute(s)
 
     @Test
     public void key_type_multiple_single_attributes_returned() {
@@ -231,7 +229,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        final String results = queryExtended("ww", "admin-c", "person", "created");
+        final String results = query("ww", "admin-c", "person", "created");
 
         assertThat(results, containsString("" +
                 "[ {\n" +
@@ -251,7 +249,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        final String results = queryExtended("ww", "admin-c", "remarks");
+        final String results = query("ww", "admin-c", "remarks");
 
         assertThat(results, containsString("" +
                 "[ {\n" +
@@ -271,7 +269,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        final String results = queryExtended("ww", "admin-c", "remarks");
+        final String results = query("ww", "admin-c", "remarks");
 
         assertThat(results, containsString("" +
                 "[ {\n" +
@@ -292,7 +290,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        final String results = queryExtended("AuTH", "mntner", "auth");
+        final String results = query("AuTH", "mntner", "auth");
 
         assertThat(results, containsString("" +
                 "[ {\n" +
@@ -305,7 +303,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     @Test
     public void single_attribute_parameter_not_valid() {
         try {
-            queryExtended("abc", "mntner", "invalidAttr");
+            query("abc", "mntner", "invalidAttr");
             fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), is("invalid name for attribute(s) : [invalidAttr]"));
@@ -315,7 +313,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     @Test
     public void multiple_attribute_parameters_not_valid() {
         try {
-            queryExtended("abc", "mntner", "invalidAttr1", "invalidAttr2");
+            query("abc", "mntner", "invalidAttr1", "invalidAttr2");
             fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), is("invalid name for attribute(s) : [invalidAttr1, invalidAttr2]"));
@@ -324,14 +322,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
     // helper methods
 
-    private List<String> query(final String query, final String field) {
-        return RestTest
-            .target(getPort(), String.format("whois/autocomplete?query=%s&field=%s", query, field))
-            .request(MediaType.APPLICATION_JSON_TYPE)
-            .get(new GenericType<List<String>>(){});
-    }
-
-    private String queryExtended(final String query, final String field, final String... attributes) {
+    private String query(final String query, final String field, final String... attributes) {
 
         final StringBuilder attrParams = new StringBuilder();
         for (String attribute : attributes) {
@@ -339,9 +330,16 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         }
 
         return RestTest
-            .target(getPort(), String.format("whois/autocomplete?extended&query=%s&field=%s%s", query, field, attrParams.toString()))
+            .target(getPort(), String.format("whois/autocomplete?&query=%s&field=%s%s", query, field, attrParams.toString()))
             .request(MediaType.APPLICATION_JSON_TYPE)
             .get(String.class);
+    }
+
+    private List<String> queryForList(final String query, final String field) {
+        return RestTest
+            .target(getPort(), String.format("whois/autocomplete?query=%s&field=%s", query, field))
+            .request(MediaType.APPLICATION_JSON_TYPE)
+            .get(new GenericType<List<String>>(){});
     }
 
     private void rebuildIndex() {

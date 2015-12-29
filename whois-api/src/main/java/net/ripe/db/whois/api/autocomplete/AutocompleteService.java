@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.base.Strings;
-import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,21 +36,35 @@ public class AutocompleteService {
     }
 
     /**
-     * Autocomplete lookup service
+     * Autocomplete service
      *
-     * @param query (required) term to search for (i.e. whatever the user has typed)
-     * @param field (required) query field name
-     * @param extended (optional) flag for extended mode (key and type included in response)
-     * @param attributes (optional) also include specified attribute(s) in response
-     * @return
+     * There are two ways of calling this service, either using the field name, or by attribute name(s).
+     *
+     * Lookup by field name:
+     *
+     *      query (required)      = term to search for (i.e. whatever the user has typed)
+     *      field (required)      = query field name
+     *      attributes (optional) = also include specified attribute(s) in response. By default, only the primary key is returned.
+     *
+     * Lookup by attribute(s):
+     *
+     *      select = attributes to return
+     *      from   = object type
+     *      where  = attribute(s) to search in
+     *      like   = query string
      */
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response lookup(
+            // query by field name
             @QueryParam("query") final String query,
             @QueryParam("field") final String field,
-            @QueryParam("extended") final String extended,
-            @QueryParam("attribute") final List<String> attributes) {
+            @QueryParam("attribute") final List<String> attributes,
+            // query by attribute(s)
+            @QueryParam("select") final List<String> select,
+            @QueryParam("from") final String from,
+            @QueryParam("where") final List<String> where,
+            @QueryParam("like") final String like) {
 
         if (Strings.isNullOrEmpty(query) || query.length() < MINIMUM_PREFIX_LENGTH) {
             return badRequest("query parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
@@ -73,16 +86,16 @@ public class AutocompleteService {
         }
 
         try {
-            if ((RestServiceHelper.isQueryParamSet(extended)) || !attributes.isEmpty()) {
+            if (!attributes.isEmpty()) {
                 return ok(autocompleteSearch.searchExtended(query, field, attributes));
+            } else {
+                return ok(autocompleteSearch.search(query, field));
             }
-
-            return ok(autocompleteSearch.search(query, field));
-
         } catch (IOException e) {
             return badRequest("Query failed.");
         }
     }
+
 
     // helper methods
 
