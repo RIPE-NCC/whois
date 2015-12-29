@@ -81,8 +81,7 @@ public class AutocompleteSearch {
                     result.put("type", doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME));
 
                     for (final String attribute : attributes) {
-                        final ObjectTemplate template = ObjectTemplateProvider.getTemplate(
-                                ObjectType.getByName(doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME)));
+                        final ObjectTemplate template = ObjectTemplateProvider.getTemplate(ObjectType.getByName(doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME)));
 
                         if (template.getMultipleAttributes().contains(AttributeType.getByName(attribute))) {
                             result.put(attribute, Lists.newArrayList(doc.getValues(attribute)));
