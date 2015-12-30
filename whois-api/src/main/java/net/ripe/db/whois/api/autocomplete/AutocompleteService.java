@@ -2,6 +2,8 @@ package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.base.Strings;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -66,38 +70,65 @@ public class AutocompleteService {
             @QueryParam("where") final List<String> where,
             @QueryParam("like") final String like) {
 
-        if (Strings.isNullOrEmpty(query) || query.length() < MINIMUM_PREFIX_LENGTH) {
-            return badRequest("query parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
-        }
+        if (!Strings.isNullOrEmpty(query) && !Strings.isNullOrEmpty(field)) {
 
-        if (Strings.isNullOrEmpty(field)) {
-            return badRequest("field parameter is required");
-        }
+            // (simple) field and value lookup
 
-        if (AttributeType.getByNameOrNull(field) == null) {
-            return badRequest("invalid name for field");
-        }
-
-        final List<String> badAttributes = attributes.stream()
-                                .filter(input -> (AttributeType.getByNameOrNull(input) == null))
-                                .collect(Collectors.toList());
-        if (!badAttributes.isEmpty()) {
-            return badRequest(String.format("invalid name for attribute(s) : %s", badAttributes));
-        }
-
-        try {
-            if (!attributes.isEmpty()) {
-                return ok(autocompleteSearch.searchExtended(query, field, attributes));
-            } else {
-                return ok(autocompleteSearch.search(query, field));
+            if (query.length() < MINIMUM_PREFIX_LENGTH) {
+                return badRequest("query parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
             }
-        } catch (IOException e) {
-            return badRequest("Query failed.");
+
+            if (AttributeType.getByNameOrNull(field) == null) {
+                return badRequest("invalid name for field");
+            }
+
+            try {
+                return ok(autocompleteSearch.search(query, getLookupAttributes(field), getResponseAttributes(attributes), Collections.emptySet()));
+            } catch (IOException e) {
+                return badRequest("Query failed.");
+            } catch (IllegalArgumentException e) {
+                return badRequest(e.getMessage());
+            }
+
+        } else if (!select.isEmpty() && !where.isEmpty() && !Strings.isNullOrEmpty(like)) {
+
+            // TODO: select lookup
+
+            return badRequest("not implemented yet");
+
+
+        } else {
+            return badRequest("invalid arguments");
         }
     }
 
-
     // helper methods
+
+    //    translate from field to attributes
+    //      e.g. abuse-c (input field) -> role -> nic-hdl (attribute to search on)
+    //
+    private Set<AttributeType> getLookupAttributes(final String field) {
+        final AttributeType attributeType = AttributeType.getByNameOrNull(field);
+        if ( attributeType == null ) {
+            throw new IllegalArgumentException("not valid field");  // TODO: map to bad request
+        }
+
+        final ObjectType objectType = ObjectType.getByNameOrNull(field);
+        if (objectType != null) {
+            return Collections.singleton(ObjectTemplateProvider.getTemplate(objectType).getKeyLookupAttribute());
+        }
+
+        return attributeType.getReferences()
+            .stream()
+            .map(input -> ObjectTemplateProvider.getTemplate(input).getKeyLookupAttribute())
+            .collect(Collectors.toSet());
+    }
+
+    private Set<AttributeType> getResponseAttributes(final List<String> attributes) {
+        return attributes.stream()
+                .map(input -> AttributeType.getByName(input))
+                .collect(Collectors.toSet());
+    }
 
     private Response badRequest(final String message) {
         return Response.status(Response.Status.BAD_REQUEST).entity(message).build();

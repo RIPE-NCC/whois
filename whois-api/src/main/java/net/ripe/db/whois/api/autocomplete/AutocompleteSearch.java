@@ -14,6 +14,8 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -26,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,29 +50,20 @@ public class AutocompleteSearch {
         this.freeTextIndex = freeTextIndex;
     }
 
-    public List<String> search(final String queryString, final String fieldName) throws IOException {
-        return freeTextIndex.search(
-            (final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) -> {
-                final List<String> results = Lists.newArrayList();
-
-                final Query query = constructQuery(getObjectTypeLookupKeys(fieldName), queryString);
-                final TopFieldDocs topDocs = indexSearcher.search(query, MAX_SEARCH_RESULTS, SORT_BY_LOOKUP_KEY);
-
-                for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-                    final Document doc = indexSearcher.doc(scoreDoc.doc);
-                    results.add(doc.get(FreeTextIndex.LOOKUP_KEY_FIELD_NAME));
-                }
-
-                return results;
-        });
-    }
-
-    public List<Map<String, Object>> searchExtended(final String queryString, final String fieldName, final List<String> attributes) throws IOException {
+    public List<Map<String, Object>> search(
+        final String queryString,                       // search value
+        final Set<AttributeType> queryAttributes,       // attribute(s) to search in
+        final Set<AttributeType> responseAttributes,    // attribute(s) to return
+        final Set<ObjectType> objectTypes)              // filter by object type(s)
+            throws IOException {                        // TODO: wrap IOException, return something sensible
         return freeTextIndex.search(
             (final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) -> {
                 final List<Map<String, Object>> results = Lists.newArrayList();
 
-                final Query query = constructQuery(getObjectTypeLookupKeys(fieldName), queryString);
+                // query by attribute fields (OR)
+                // TODO: also filter by object type (AND) if applicable, and then combine queries together
+
+                final Query query = constructQuery(queryAttributes, queryString);
                 final TopFieldDocs topDocs = indexSearcher.search(query, MAX_SEARCH_RESULTS, SORT_BY_LOOKUP_KEY);
 
                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
@@ -80,13 +72,13 @@ public class AutocompleteSearch {
                     result.put("key", doc.get(FreeTextIndex.LOOKUP_KEY_FIELD_NAME));
                     result.put("type", doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME));
 
-                    for (final String attribute : attributes) {
+                    for (final AttributeType attribute : responseAttributes) {
                         final ObjectTemplate template = ObjectTemplateProvider.getTemplate(ObjectType.getByName(doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME)));
 
-                        if (template.getMultipleAttributes().contains(AttributeType.getByName(attribute))) {
-                            result.put(attribute, Lists.newArrayList(doc.getValues(attribute)));
+                        if (template.getMultipleAttributes().contains(attribute)) {
+                            result.put(attribute.getName(), Lists.newArrayList(doc.getValues(attribute.getName())));
                         } else {
-                            result.put(attribute, doc.get(attribute));
+                            result.put(attribute.getName(), doc.get(attribute.getName()));
                         }
                     }
 
@@ -97,9 +89,13 @@ public class AutocompleteSearch {
         });
     }
 
-    private Query constructQuery(final Set<String> fields, final String queryString) {
+    private Query constructQuery(final Set<AttributeType> queryAttributes, final String queryString) {
         try {
-            final MultiFieldQueryParser parser = new MultiFieldQueryParser(fields.toArray(new String[fields.size()]), new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY));
+            final Set<String> queryAttributeNames = queryAttributes.stream().map(attributeType -> attributeType.getName()).collect(Collectors.toSet());
+
+            final MultiFieldQueryParser parser = new MultiFieldQueryParser(
+                                                            queryAttributeNames.toArray(new String[queryAttributeNames.size()]),
+                                                            new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY));
             parser.setAnalyzer(FreeTextIndex.QUERY_ANALYZER);
             parser.setDefaultOperator(QueryParser.Operator.AND);
             return parser.parse(String.format("%s*", queryString.toLowerCase()));
@@ -109,20 +105,19 @@ public class AutocompleteSearch {
         }
     }
 
-    // return which object types the field can contain
-    private Set<String> getObjectTypeLookupKeys(final String fieldType) {
-        final AttributeType attributeType = AttributeType.getByNameOrNull(fieldType);
-        if ( attributeType == null ) {
-            throw new IllegalArgumentException("not valid field");
+    //  combine multiple queries together
+    //   (attr:value OR attr:value OR attr:value ... ) AND (object-type OR object-type ... )
+    //
+
+    private Query combine(final Query ... queries) {
+        final BooleanQuery result = new BooleanQuery();
+
+        for (Query query : queries) {
+            result.add(query, BooleanClause.Occur.MUST);
         }
 
-        if (ObjectType.getByNameOrNull(fieldType) != null) {
-            return Collections.singleton(fieldType);
-        }
-
-        return attributeType.getReferences()
-            .stream()
-            .map(input -> ObjectTemplateProvider.getTemplate(input).getKeyLookupAttribute().getName())
-            .collect(Collectors.toSet());
+        return result;
     }
+
+
 }
