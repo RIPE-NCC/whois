@@ -418,6 +418,26 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
+    public void select_from_role_no_duplicates() {
+        databaseHelper.addObject(
+                "role:          test role\n" +
+                "nic-hdl:       tr1-test\n" +
+                "abuse-mailbox: tr1-test@ripe.net\n" +
+                "source:        TEST");
+        rebuildIndex();
+
+        final List<Map<String, Object>> response =
+                query(
+                    Lists.newArrayList(AttributeType.ABUSE_MAILBOX),
+                    Lists.newArrayList(ObjectType.ROLE),
+                    Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
+                    "tr1");
+
+        assertThat(response, hasSize(1));
+        assertThat(getValues(response, "key"), contains("tr1-test"));
+    }
+
+    @Test
     public void select_invalid_query_characters() {
         databaseHelper.addObject(
                 "role:          test role\n" +
