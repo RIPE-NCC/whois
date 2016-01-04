@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,10 +64,15 @@ public class AutocompleteSearch {
                 final List<Map<String, Object>> results = Lists.newArrayList();
 
                 final Query query;
-                if (objectTypes != null && !objectTypes.isEmpty()) {
-                    query = combine(constructQuery(queryAttributes, queryString), constructQuery(objectTypes));
-                } else {
-                    query = constructQuery(queryAttributes, queryString);
+                try {
+                    if (objectTypes != null && !objectTypes.isEmpty()) {
+                        query = combine(constructQuery(queryAttributes, queryString), constructQuery(objectTypes));
+                    } else {
+                        query = constructQuery(queryAttributes, queryString);
+                    }
+                } catch (ParseException e) {
+                    LOGGER.warn("Caught {} on {}", e.getMessage(), queryString);
+                    return Collections.emptyList();
                 }
 
                 final TopFieldDocs topDocs = indexSearcher.search(query, MAX_SEARCH_RESULTS, SORT_BY_LOOKUP_KEY);
@@ -95,20 +101,15 @@ public class AutocompleteSearch {
     }
 
     // query by attribute(s)
-    private Query constructQuery(final Set<AttributeType> queryAttributes, final String queryString) {
-        try {
-            final Set<String> queryAttributeNames = queryAttributes.stream().map(attributeType -> attributeType.getName()).collect(Collectors.toSet());
+    private Query constructQuery(final Set<AttributeType> queryAttributes, final String queryString) throws ParseException {
+        final Set<String> queryAttributeNames = queryAttributes.stream().map(attributeType -> attributeType.getName()).collect(Collectors.toSet());
 
-            final MultiFieldQueryParser parser = new MultiFieldQueryParser(
-                                                            queryAttributeNames.toArray(new String[queryAttributeNames.size()]),
-                                                            new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY));
-            parser.setAnalyzer(FreeTextIndex.QUERY_ANALYZER);
-            parser.setDefaultOperator(QueryParser.Operator.AND);
-            return parser.parse(String.format("%s*", queryString.toLowerCase()));
-        } catch (ParseException e) {
-            LOGGER.debug("Unable to parse query", e);
-            throw new IllegalStateException(e.getMessage());
-        }
+        final MultiFieldQueryParser parser = new MultiFieldQueryParser(
+                                                        queryAttributeNames.toArray(new String[queryAttributeNames.size()]),
+                                                        new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY));
+        parser.setAnalyzer(FreeTextIndex.QUERY_ANALYZER);
+        parser.setDefaultOperator(QueryParser.Operator.AND);
+        return parser.parse(String.format("%s*", queryString.toLowerCase()));
     }
 
     // query by object type
