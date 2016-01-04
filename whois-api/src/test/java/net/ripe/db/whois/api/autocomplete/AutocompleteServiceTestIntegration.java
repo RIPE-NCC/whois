@@ -155,7 +155,18 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         // limit is 10 results, so ABC-9 will NOT be returned
         // ABC10 is sorted after ABC1
-        assertThat(getValues(query("ABC", "mntner"), "key"), contains("ABC0-MNT","ABC1-MNT","ABC10-MNT","ABC2-MNT","ABC3-MNT","ABC4-MNT","ABC5-MNT","ABC6-MNT","ABC7-MNT","ABC8-MNT"));
+        assertThat(getValues(query("ABC", "mntner"), "key"),
+            contains(
+                "ABC0-MNT",
+                "ABC1-MNT",
+                "ABC10-MNT",
+                "ABC2-MNT",
+                "ABC3-MNT",
+                "ABC4-MNT",
+                "ABC5-MNT",
+                "ABC6-MNT",
+                "ABC7-MNT",
+                "ABC8-MNT"));
     }
 
     @Test
@@ -300,6 +311,34 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                 "  \"auth\" : [ \"MD5-PW\", \"PGPKEY-XYZ\", \"MD5-PW\", \"SSO\" ]\n" +
                 "} ]"));
     }
+
+    @Test
+    public void key_type_exact_complete_match_returned_first() {
+        databaseHelper.addObject("mntner:  AUTH-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  AUTH2-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  AUTH\nsource:  TEST\n");
+        rebuildIndex();
+
+        final List<String> keys = getValues(query("AUTH", "mnt-by"), "key");
+
+        assertThat(keys.size(), is(3));
+        assertThat(keys.get(0), is("AUTH"));
+    }
+
+    @Test
+    public void key_type_exact_partial_match_returned_first() {
+        databaseHelper.addObject("mntner:  AUTHAA-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  AUTHAB-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  AUTHAAA-MNT\nsource:  TEST\n");
+        databaseHelper.addObject("mntner:  AUTHA-MNT\nsource:  TEST\n");
+        rebuildIndex();
+
+        final List<String> keys = getValues(query("AUTHA", "mnt-by"), "key");
+
+        assertThat(keys, hasSize(4));
+        assertThat(keys.get(0), is("AUTHA-MNT"));
+    }
+
 
     @Test
     public void single_attribute_parameter_not_valid() {
