@@ -59,32 +59,32 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void single_maintainer_found() {
-        assertThat(queryForKeys("AA1-MNT", "mntner"), contains("AA1-MNT"));
+        assertThat(getValues(query("AA1-MNT", "mntner"), "key"), contains("AA1-MNT"));
     }
 
     @Test
     public void match_start_of_word_dash_is_tokenised() {
-        assertThat(queryForKeys("AA1", "mntner"), contains("AA1-MNT"));
+        assertThat(getValues(query("AA1", "mntner"), "key"), contains("AA1-MNT"));
     }
 
     @Test
     public void match_start_of_word_first_syllable_only() {
-        assertThat(queryForKeys("some", "mntner"), contains("something-mnt"));
+        assertThat(getValues(query("some", "mntner"), "key"), contains("something-mnt"));
     }
 
     @Test
     public void match_start_of_word_first_syllable_only_case_insensitive() {
-        assertThat(queryForKeys("SoMe", "mntner"), contains("something-mnt"));
+        assertThat(getValues(query("SoMe", "mntner"), "key"), contains("something-mnt"));
     }
 
     @Test
     public void match_multiple_maintainers() {
-        assertThat(queryForKeys("random", "mntner"), containsInAnyOrder("random1-mnt", "random2-mnt"));
+        assertThat(getValues(query("random", "mntner"), "key"), containsInAnyOrder("random1-mnt", "random2-mnt"));
     }
 
     @Test
     public void no_maintainers_found() {
-        assertThat(queryForKeys("invalid", "mntner"), is(empty()));
+        assertThat(getValues(query("invalid", "mntner"), "key"), is(empty()));
     }
 
     @Test
@@ -132,7 +132,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("mntner: MiXEd-MNT");
         rebuildIndex();
 
-        assertThat(queryForKeys("mIxeD", "mntner"), contains("MiXEd-MNT"));
+        assertThat(getValues(query("mIxeD", "mntner"), "key"), contains("MiXEd-MNT"));
     }
 
     @Test
@@ -151,7 +151,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         rebuildIndex();
 
         // TODO: [ES] search results are NOT sorted
-        assertThat(queryForKeys("ABC", "mntner"), hasSize(10));
+        assertThat(getValues(query("ABC", "mntner"), "key"), hasSize(10));
     }
 
     @Test
@@ -162,7 +162,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        assertThat(queryForKeys("ad1", "admin-c"), contains("AD1-TEST"));
+        assertThat(getValues(query("ad1", "admin-c"), "key"), contains("AD1-TEST"));
     }
 
     @Test
@@ -176,7 +176,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        assertThat(queryForKeys("ww", "admin-c"), containsInAnyOrder("ww1-test", "ww2-test"));
+        assertThat(getValues(query("ww", "admin-c"), "key"), containsInAnyOrder("ww1-test", "ww2-test"));
     }
 
     @Test
@@ -187,7 +187,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        assertThat(queryForKeys("bla", "mntner"), containsInAnyOrder("bla1-mnt", "bla2-mnt", "bLA3-mnt"));
+        assertThat(getValues(query("bla", "mntner"), "key"), containsInAnyOrder("bla1-mnt", "bla2-mnt", "bLA3-mnt"));
     }
 
     @Test
@@ -232,14 +232,14 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                 "created: then");
         rebuildIndex();
 
-        assertThat(queryRaw("ww", "admin-c", "person", "created"),
-            containsString(
-                "[ {\n" +
-                "  \"key\" : \"ww1-test\",\n" +
-                "  \"type\" : \"person\",\n" +
-                "  \"created\" : \"then\",\n" +
-                "  \"person\" : \"person test\"\n" +
-                "} ]"));
+        final List<Map<String, Object>> response = query("ww", "admin-c", "person", "created");
+
+        assertThat(response.size(), is(1));
+        assertThat(response.get(0).size(), is(4));
+        assertThat(getValues(response, "key"), contains("ww1-test"));
+        assertThat(getValues(response, "type"), contains("person"));
+        assertThat(getValues(response, "person"), contains("person test"));
+        assertThat(getValues(response, "created"), contains("then"));
     }
 
     @Test
@@ -247,16 +247,11 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject(
                 "person:  person test\n" +
                 "nic-hdl: ww1-test\n" +
-                "remarks: remarks1");
+                "remarks: remarks1\n" +
+                "source:  TEST");
         rebuildIndex();
 
-        assertThat(queryRaw("ww", "admin-c", "remarks"),
-            containsString(
-                "[ {\n" +
-                "  \"key\" : \"ww1-test\",\n" +
-                "  \"type\" : \"person\",\n" +
-                "  \"remarks\" : [ \"remarks1\" ]\n" +
-                "} ]"));
+        assertThat(getValues(query("ww", "admin-c", "remarks"), "remarks"), contains("[remarks1]"));
     }
 
     @Test
@@ -268,13 +263,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                 "remarks: remarks2");
         rebuildIndex();
 
-        assertThat(queryRaw("ww", "admin-c", "remarks"),
-            containsString(
-                "[ {\n" +
-                "  \"key\" : \"ww1-test\",\n" +
-                "  \"type\" : \"person\",\n" +
-                "  \"remarks\" : [ \"remarks1\", \"remarks2\" ]\n" +
-                "} ]"));
+        assertThat(getValues(query("ww", "admin-c", "remarks"), "remarks"), contains("[remarks1, remarks2]"));
     }
 
     @Test
@@ -325,17 +314,15 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
             .get(new GenericType<List<Map<String, Object>>>(){});
     }
 
-    private List<String> queryForKeys(final String query, final String field, final String... attributes) {
-        final List<Map<String, Object>> response = query(query, field, attributes);
-
-        return response.stream().map(map -> map.get("key").toString()).collect(Collectors.toList());
-    }
-
     private String queryRaw(final String query, final String field, final String... attributes) {
         return RestTest
             .target(getPort(), String.format("whois/autocomplete?&query=%s&field=%s%s", query, field, join("attribute", attributes)))
             .request(MediaType.APPLICATION_JSON_TYPE)
             .get(String.class);
+    }
+
+    private List<String> getValues(final List<Map<String, Object>> map, final String key) {
+        return map.stream().map(entry -> entry.get(key).toString()).collect(Collectors.toList());
     }
 
     private String join(final String queryParam, final String ... values) {
