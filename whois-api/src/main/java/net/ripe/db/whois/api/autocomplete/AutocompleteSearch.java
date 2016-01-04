@@ -72,7 +72,7 @@ public class AutocompleteSearch {
                     }
                 } catch (ParseException e) {
                     LOGGER.warn("Caught {} on {}", e.getMessage(), queryString);
-                    return Collections.emptyList();
+                    return Collections.<Map<String, Object>>emptyList();
                 }
 
                 final TopFieldDocs topDocs = indexSearcher.search(query, MAX_SEARCH_RESULTS, SORT_BY_LOOKUP_KEY);
