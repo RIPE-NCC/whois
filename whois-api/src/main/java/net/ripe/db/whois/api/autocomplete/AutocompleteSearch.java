@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -21,6 +22,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopFieldDocs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,10 +62,13 @@ public class AutocompleteSearch {
             (final IndexReader indexReader, final TaxonomyReader taxonomyReader, final IndexSearcher indexSearcher) -> {
                 final List<Map<String, Object>> results = Lists.newArrayList();
 
-                // query by attribute fields (OR)
-                // TODO: also filter by object type (AND) if applicable, and then combine queries together
+                final Query query;
+                if (objectTypes != null && !objectTypes.isEmpty()) {
+                    query = combine(constructQuery(queryAttributes, queryString), constructQuery(objectTypes));
+                } else {
+                    query = constructQuery(queryAttributes, queryString);
+                }
 
-                final Query query = constructQuery(queryAttributes, queryString);
                 final TopFieldDocs topDocs = indexSearcher.search(query, MAX_SEARCH_RESULTS, SORT_BY_LOOKUP_KEY);
 
                 for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
@@ -89,6 +94,7 @@ public class AutocompleteSearch {
         });
     }
 
+    // query by attribute(s)
     private Query constructQuery(final Set<AttributeType> queryAttributes, final String queryString) {
         try {
             final Set<String> queryAttributeNames = queryAttributes.stream().map(attributeType -> attributeType.getName()).collect(Collectors.toSet());
@@ -105,9 +111,19 @@ public class AutocompleteSearch {
         }
     }
 
-    //  combine multiple queries together
-    //   (attr:value OR attr:value OR attr:value ... ) AND (object-type OR object-type ... )
-    //
+    // query by object type
+    private Query constructQuery(final Set<ObjectType> objectTypes) {
+        final BooleanQuery result = new BooleanQuery();
+
+        for (ObjectType objectType : objectTypes) {
+            result.add(
+                new TermQuery(
+                    new Term(FreeTextIndex.OBJECT_TYPE_FIELD_NAME, objectType.getName())),
+                    BooleanClause.Occur.SHOULD);
+        }
+
+        return result;
+    }
 
     private Query combine(final Query ... queries) {
         final BooleanQuery result = new BooleanQuery();
@@ -118,6 +134,4 @@ public class AutocompleteSearch {
 
         return result;
     }
-
-
 }

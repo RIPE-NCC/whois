@@ -1,9 +1,12 @@
 package net.ripe.db.whois.api.autocomplete;
 
+import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.freetext.FreeTextIndex;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -311,13 +314,72 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     public void select_remarks_from_person() {
         databaseHelper.addObject(
                 "person:  person test\n" +
-                "nic-hdl: ww1-test\n" +
+                "nic-hdl: pt1-test\n" +
                 "remarks: remarks1\n" +
                 "source:  TEST");
         rebuildIndex();
 
-        assertThat(getValues(querySelect("remarks", "person", "nic-hdl", "ww"), "key"), contains("ww1-test"));
+        assertThat(
+            getValues(
+                query(
+                    Lists.newArrayList(AttributeType.REMARKS),
+                    Lists.newArrayList(ObjectType.PERSON),
+                    Lists.newArrayList(AttributeType.NIC_HDL),
+                    "pt"),
+                "key"),
+            contains("pt1-test"));
     }
+
+    @Test
+    public void select_remarks_from_person_and_role() {
+        databaseHelper.addObject(
+                "person:  person test\n" +
+                "nic-hdl: pt1-test\n" +
+                "remarks: remarks1\n" +
+                "source:  TEST");
+        databaseHelper.addObject(
+                "role:    person test\n" +
+                "nic-hdl: pt2-test\n" +
+                "remarks: remarks2\n" +
+                "source:  TEST");
+        rebuildIndex();
+
+        assertThat(
+            getValues(
+                query(
+                    Lists.newArrayList(AttributeType.REMARKS),
+                    Lists.newArrayList(ObjectType.PERSON, ObjectType.ROLE),
+                    Lists.newArrayList(AttributeType.NIC_HDL),
+                    "pt"),
+                "key"),
+            containsInAnyOrder("pt1-test", "pt2-test"));
+    }
+
+    @Test
+    public void select_remarks_from_person_not_role() {
+        databaseHelper.addObject(
+                "person:  person test\n" +
+                "nic-hdl: pt1-test\n" +
+                "remarks: remarks1\n" +
+                "source:  TEST");
+        databaseHelper.addObject(
+                "role:    person test\n" +
+                "nic-hdl: pt2-test\n" +
+                "remarks: remarks2\n" +
+                "source:  TEST");
+        rebuildIndex();
+
+        assertThat(
+            getValues(
+                query(
+                    Lists.newArrayList(AttributeType.REMARKS),
+                    Lists.newArrayList(ObjectType.PERSON),
+                    Lists.newArrayList(AttributeType.NIC_HDL),
+                    "pt"),
+                "key"),
+            contains("pt1-test"));
+    }
+
 
     // helper methods
 
@@ -335,9 +397,14 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
             .get(String.class);
     }
 
-    private List<Map<String, Object>> querySelect(final String select, final String from, final String where, final String like) {
+    private List<Map<String, Object>> query(final List<AttributeType> select, final List<ObjectType> from, final List<AttributeType> where, final String like) {
         return RestTest
-            .target(getPort(), String.format("whois/autocomplete?select=%s&from=%s&where=%s&like=%s", select, from, where, like))
+                .target(getPort(),
+                    "whois/autocomplete?" +
+                            (!select.isEmpty() ? join("select", select.stream().map(attributeType -> attributeType.getName()).collect(Collectors.toList())) : "") +
+                            (!from.isEmpty()   ? join("from", from.stream().map(objectType -> objectType.getName()).collect(Collectors.toList())) : "") +
+                            (!where.isEmpty()  ? join("where", where.stream().map(attributeType -> attributeType.getName()).collect(Collectors.toList())) : "") +
+                            "&like=" + like)
             .request(MediaType.APPLICATION_JSON_TYPE)
             .get(new GenericType<List<Map<String, Object>>>(){});
     }
@@ -347,6 +414,10 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     private String join(final String queryParam, final String ... values) {
+        return join(queryParam, Lists.newArrayList(values));
+    }
+
+    private String join(final String queryParam, final List<String> values) {
         final StringBuilder builder = new StringBuilder();
 
         for (String value : values) {
@@ -355,6 +426,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         return builder.toString();
     }
+
 
     private void rebuildIndex() {
         freeTextIndex.rebuild();
