@@ -22,10 +22,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -82,7 +80,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void match_multiple_maintainers() {
-        assertThat(getValues(query("random", "mntner"), "key"), containsInAnyOrder("random1-mnt", "random2-mnt"));
+        assertThat(getValues(query("random", "mntner"), "key"), contains("random1-mnt", "random2-mnt"));
     }
 
     @Test
@@ -153,8 +151,9 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject("mntner: ABC10-MNT");
         rebuildIndex();
 
-        // TODO: [ES] search results are NOT sorted
-        assertThat(getValues(query("ABC", "mntner"), "key"), hasSize(10));
+        // limit is 10 results, so ABC-9 will NOT be returned
+        // ABC10 is sorted after ABC1
+        assertThat(getValues(query("ABC", "mntner"), "key"), contains("ABC0-MNT","ABC1-MNT","ABC10-MNT","ABC2-MNT","ABC3-MNT","ABC4-MNT","ABC5-MNT","ABC6-MNT","ABC7-MNT","ABC8-MNT"));
     }
 
     @Test
@@ -179,18 +178,18 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         rebuildIndex();
 
-        assertThat(getValues(query("ww", "admin-c"), "key"), containsInAnyOrder("ww1-test", "ww2-test"));
+        assertThat(getValues(query("ww", "admin-c"), "key"), contains("ww1-test", "ww2-test"));
     }
 
     @Test
     public void field_references_mntners_matched() {
-        databaseHelper.addObject("mntner:  bla1-mnt\n");
+        databaseHelper.addObject("mntner:  bLA1-mnt\n");
         databaseHelper.addObject("mntner:  bla2-mnt\n");
-        databaseHelper.addObject("mntner:  bLA3-mnt\n");
+        databaseHelper.addObject("mntner:  bla3-mnt\n");
 
         rebuildIndex();
 
-        assertThat(getValues(query("bla", "mntner"), "key"), containsInAnyOrder("bla1-mnt", "bla2-mnt", "bLA3-mnt"));
+        assertThat(getValues(query("bla", "mntner"), "key"), contains("bLA1-mnt", "bla2-mnt", "bla3-mnt"));
     }
 
     @Test
@@ -352,7 +351,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                     Lists.newArrayList(AttributeType.NIC_HDL),
                     "pt"),
                 "key"),
-            containsInAnyOrder("pt1-test", "pt2-test"));
+            contains("pt1-test", "pt2-test"));
     }
 
     @Test
@@ -390,7 +389,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                 "role:          test role\n" +
                 "nic-hdl:       tr2-test\n" +
                 "abuse-mailbox: tr1@host.org\n" +
-                "source:  TEST");
+                "source:        TEST");
         rebuildIndex();
 
         final List<Map<String, Object>> response =
@@ -400,10 +399,9 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                     Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
                     "tr1");
 
-        assertThat(getValues(response, "key"), containsInAnyOrder("tr1-test", "tr2-test"));
-        assertThat(getValues(response, "abuse-mailbox"), containsInAnyOrder(null, "tr1@host.org"));
+        assertThat(getValues(response, "key"), contains("tr1-test", "tr2-test"));
+        assertThat(getValues(response, "abuse-mailbox"), contains(null, "tr1@host.org"));
     }
-
 
     // helper methods
 
@@ -450,7 +448,6 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         return builder.toString();
     }
-
 
     private void rebuildIndex() {
         freeTextIndex.rebuild();

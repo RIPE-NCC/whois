@@ -73,7 +73,7 @@ public class AutocompleteService {
 
         if (!Strings.isNullOrEmpty(query) && !Strings.isNullOrEmpty(field)) {
 
-            // (simple) field and value lookup
+            // query by field name
 
             if (query.length() < MINIMUM_PREFIX_LENGTH) {
                 return badRequest("query parameter is required, and must be at least " + MINIMUM_PREFIX_LENGTH + " characters long");
@@ -93,7 +93,7 @@ public class AutocompleteService {
 
         } else if (!select.isEmpty() && !where.isEmpty() && !Strings.isNullOrEmpty(like)) {
 
-            // (complex) select query
+            // query by attribute(s)
 
             try {
                 return ok(autocompleteSearch.search(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from)));
@@ -116,7 +116,7 @@ public class AutocompleteService {
     private Set<AttributeType> getLookupAttributes(final String field) {
         final AttributeType attributeType = AttributeType.getByNameOrNull(field);
         if ( attributeType == null ) {
-            throw new IllegalArgumentException("not valid field");  // TODO: map to bad request
+            throw new IllegalArgumentException("not valid field");
         }
 
         final ObjectType objectType = ObjectType.getByNameOrNull(field);
@@ -149,5 +149,4 @@ public class AutocompleteService {
     private Response ok(final Object message) {
         return Response.ok(message).build();
     }
-
 }
