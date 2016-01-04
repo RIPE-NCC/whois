@@ -305,6 +305,20 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         }
     }
 
+    // complex lookups (specify attributes)
+
+    @Test
+    public void select_remarks_from_person() {
+        databaseHelper.addObject(
+                "person:  person test\n" +
+                "nic-hdl: ww1-test\n" +
+                "remarks: remarks1\n" +
+                "source:  TEST");
+        rebuildIndex();
+
+        assertThat(getValues(querySelect("remarks", "person", "nic-hdl", "ww"), "key"), contains("ww1-test"));
+    }
+
     // helper methods
 
     private List<Map<String, Object>> query(final String query, final String field, final String... attributes) {
@@ -316,9 +330,16 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
     private String queryRaw(final String query, final String field, final String... attributes) {
         return RestTest
-            .target(getPort(), String.format("whois/autocomplete?&query=%s&field=%s%s", query, field, join("attribute", attributes)))
+            .target(getPort(), String.format("whois/autocomplete?query=%s&field=%s%s", query, field, join("attribute", attributes)))
             .request(MediaType.APPLICATION_JSON_TYPE)
             .get(String.class);
+    }
+
+    private List<Map<String, Object>> querySelect(final String select, final String from, final String where, final String like) {
+        return RestTest
+            .target(getPort(), String.format("whois/autocomplete?select=%s&from=%s&where=%s&like=%s", select, from, where, like))
+            .request(MediaType.APPLICATION_JSON_TYPE)
+            .get(new GenericType<List<Map<String, Object>>>(){});
     }
 
     private List<String> getValues(final List<Map<String, Object>> map, final String key) {

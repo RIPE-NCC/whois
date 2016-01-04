@@ -16,6 +16,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -65,9 +66,9 @@ public class AutocompleteService {
             @QueryParam("field") final String field,
             @QueryParam("attribute") final List<String> attributes,
             // query by attribute(s)
-            @QueryParam("select") final List<String> select,
-            @QueryParam("from") final String from,
-            @QueryParam("where") final List<String> where,
+            @QueryParam("select") final Set<String> select,
+            @QueryParam("from") final Set<String> from,
+            @QueryParam("where") final Set<String> where,
             @QueryParam("like") final String like) {
 
         if (!Strings.isNullOrEmpty(query) && !Strings.isNullOrEmpty(field)) {
@@ -83,7 +84,7 @@ public class AutocompleteService {
             }
 
             try {
-                return ok(autocompleteSearch.search(query, getLookupAttributes(field), getResponseAttributes(attributes), Collections.emptySet()));
+                return ok(autocompleteSearch.search(query, getLookupAttributes(field), getAttributeTypes(attributes), Collections.emptySet()));
             } catch (IOException e) {
                 return badRequest("Query failed.");
             } catch (IllegalArgumentException e) {
@@ -92,10 +93,15 @@ public class AutocompleteService {
 
         } else if (!select.isEmpty() && !where.isEmpty() && !Strings.isNullOrEmpty(like)) {
 
-            // TODO: select lookup
+            // (complex) select query
 
-            return badRequest("not implemented yet");
-
+            try {
+                return ok(autocompleteSearch.search(like, getAttributeTypes(where), getAttributeTypes(select), getObjectTypes(from)));
+            } catch (IOException e) {
+                return badRequest("Query failed.");
+            } catch (IllegalArgumentException e) {
+                return badRequest(e.getMessage());
+            }
 
         } else {
             return badRequest("invalid arguments");
@@ -124,9 +130,15 @@ public class AutocompleteService {
             .collect(Collectors.toSet());
     }
 
-    private Set<AttributeType> getResponseAttributes(final List<String> attributes) {
+    private Set<AttributeType> getAttributeTypes(final Collection<String> attributes) {
         return attributes.stream()
-                .map(input -> AttributeType.getByName(input))
+                .map(attribute -> AttributeType.getByName(attribute))
+                .collect(Collectors.toSet());
+    }
+
+    private Set<ObjectType> getObjectTypes(final Collection<String> types) {
+        return types.stream()
+                .map(type -> ObjectType.getByName(type))
                 .collect(Collectors.toSet());
     }
 
