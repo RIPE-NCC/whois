@@ -339,6 +339,13 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(keys.get(0), is("AUTHA-MNT"));
     }
 
+    @Test
+    public void key_type_forward_slashes() {
+        databaseHelper.addObject("inet6num: 2001:67c:2e8::/48\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(getValues(query("2001:67c:2e8::/48", "inet6num"), "key"), contains("2001:67c:2e8::/48"));
+    }
 
     @Test
     public void single_attribute_parameter_not_valid() {
@@ -518,6 +525,22 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                 Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
                 "*noreply"),
             hasSize(0));
+    }
+
+    @Test
+    public void select_forward_slashes() {
+        databaseHelper.addObject("inet6num: 2001:67c:2e8::/48\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(
+            getValues(
+                query(
+                    Lists.newArrayList(AttributeType.INET6NUM),
+                    Lists.newArrayList(ObjectType.INET6NUM),
+                    Lists.newArrayList(AttributeType.INET6NUM),
+                    "2001:67c:2e8::/48"),
+                "key"),
+            contains("2001:67c:2e8::/48"));
     }
 
     // helper methods
