@@ -380,6 +380,30 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
             contains("pt1-test"));
     }
 
+    @Test
+    public void select_abuse_mailbox_from_role_where_nic_hdl_or_abuse_mailbox() {
+        databaseHelper.addObject(
+                "role:          test role\n" +
+                "nic-hdl:       tr1-test\n" +
+                "source:        TEST");
+        databaseHelper.addObject(
+                "role:          test role\n" +
+                "nic-hdl:       tr2-test\n" +
+                "abuse-mailbox: tr1@host.org\n" +
+                "source:  TEST");
+        rebuildIndex();
+
+        final List<Map<String, Object>> response =
+                query(
+                    Lists.newArrayList(AttributeType.ABUSE_MAILBOX),
+                    Lists.newArrayList(ObjectType.ROLE),
+                    Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
+                    "tr1");
+
+        assertThat(getValues(response, "key"), containsInAnyOrder("tr1-test", "tr2-test"));
+        assertThat(getValues(response, "abuse-mailbox"), containsInAnyOrder(null, "tr1@host.org"));
+    }
+
 
     // helper methods
 
@@ -410,7 +434,7 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     private List<String> getValues(final List<Map<String, Object>> map, final String key) {
-        return map.stream().map(entry -> entry.get(key).toString()).collect(Collectors.toList());
+        return map.stream().map(entry -> (entry.get(key) != null) ? entry.get(key).toString() : null).collect(Collectors.toList());
     }
 
     private String join(final String queryParam, final String ... values) {
