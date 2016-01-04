@@ -15,6 +15,7 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -237,7 +238,6 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
             hasSize(0));
     }
 
-
     // search by field and value and specify response attribute(s)
 
     @Test
@@ -318,6 +318,32 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
             fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), is("Attribute type invalidAttr1 not found"));
+        }
+    }
+
+    @Test
+    public void plaintext_response_on_errors() throws Exception {
+        try {
+            queryRaw("test", "invalid");
+            fail();
+        } catch (BadRequestException e) {
+            final String response = e.getResponse().readEntity(String.class);
+
+            assertThat(response, is("invalid name for field"));
+            assertThat(e.getResponse().getMediaType(), is(MediaType.TEXT_PLAIN_TYPE));
+        }
+    }
+
+    @Test
+    public void plaintext_request_not_acceptable() throws Exception {
+        try {
+            RestTest
+                .target(getPort(), String.format("whois/autocomplete?query=%s&field=%s", "query", "nic-hdl"))
+                .request(MediaType.TEXT_PLAIN_TYPE)
+                .get(String.class);
+            fail();
+        } catch (NotAcceptableException e) {
+            // expected
         }
     }
 

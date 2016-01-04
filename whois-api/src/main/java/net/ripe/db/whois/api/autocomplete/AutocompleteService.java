@@ -143,7 +143,10 @@ public class AutocompleteService {
     }
 
     private Response badRequest(final String message) {
-        return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
+        return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .type(MediaType.TEXT_PLAIN_TYPE)
+                    .entity(message).build();
     }
 
     private Response ok(final Object message) {
