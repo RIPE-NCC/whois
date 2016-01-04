@@ -40,7 +40,7 @@ public class AutocompleteSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutocompleteSearch.class);
 
-    // TODO: [ES] search results are NOT sorted
+    // results will always be sorted by lookup key (which is case sensitive, and by string value)
     private static final Sort SORT_BY_LOOKUP_KEY = new Sort(new SortField(FreeTextIndex.LOOKUP_KEY_FIELD_NAME, SortField.Type.STRING));
 
     private static final int MAX_SEARCH_RESULTS = 10;
