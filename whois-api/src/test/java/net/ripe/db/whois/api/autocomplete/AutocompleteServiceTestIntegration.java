@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -224,6 +225,19 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                 "} ]"));
     }
 
+    @Test
+    public void key_type_invalid_query_characters() {
+        databaseHelper.addObject(
+                "mntner:        test-mnt\n" +
+                "source:        TEST");
+        rebuildIndex();
+
+        assertThat(
+            query("*test", "mnt-by"),
+            hasSize(0));
+    }
+
+
     // search by field and value and specify response attribute(s)
 
     @Test
@@ -401,6 +415,24 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
 
         assertThat(getValues(response, "key"), contains("tr1-test", "tr2-test"));
         assertThat(getValues(response, "abuse-mailbox"), contains(null, "tr1@host.org"));
+    }
+
+    @Test
+    public void select_invalid_query_characters() {
+        databaseHelper.addObject(
+                "role:          test role\n" +
+                "nic-hdl:       tr1-test\n" +
+                "abuse-mailbox: noreply@ripe.net\n" +
+                "source:        TEST");
+        rebuildIndex();
+
+        assertThat(
+            query(
+                Lists.newArrayList(AttributeType.ABUSE_MAILBOX),
+                Lists.newArrayList(ObjectType.ROLE),
+                Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
+                "*noreply"),
+            hasSize(0));
     }
 
     // helper methods
