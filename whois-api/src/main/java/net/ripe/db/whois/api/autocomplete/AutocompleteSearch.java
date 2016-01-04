@@ -109,7 +109,11 @@ public class AutocompleteSearch {
                                                         new FreeTextAnalyzer(FreeTextAnalyzer.Operation.QUERY));
         parser.setAnalyzer(FreeTextIndex.QUERY_ANALYZER);
         parser.setDefaultOperator(QueryParser.Operator.AND);
-        return parser.parse(String.format("%s*", queryString.toLowerCase()));
+        return parser.parse(String.format("%s*", normalise(queryString)));
+    }
+
+    private String normalise(final String queryString) {
+        return QueryParser.escape(queryString).toLowerCase();
     }
 
     // query by object type
