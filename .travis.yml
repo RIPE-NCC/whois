@@ -1,15 +1,15 @@
 language: java
-
 jdk:
   - oraclejdk8
 
 addons:
   mariadb: '5.5'
 
+services: mariadb
+
 before_install:
  - rm whois-client/src/main/parser/bin/yacc* # in travis yacc needs to be compiled from source
- - sudo apt-get update
- - sudo apt-get install git byacc
+ - sudo apt-get install byacc
 
 before_script:
  - mysql -u root -e "CREATE USER 'dbint'@'localhost' IDENTIFIED BY ''"
