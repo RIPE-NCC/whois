@@ -566,10 +566,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(domain.getPort43(), is("whois.ripe.net"));
 
         assertThat(domain.getNameservers(), hasSize(2));
-        assertThat(domain.getNameservers().get(0).getLdhName(), is("ns1.test.com.au"));
-        assertThat(domain.getNameservers().get(0).getIpAddresses(), equalTo(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null)));
-        assertThat(domain.getNameservers().get(1).getLdhName(), is("ns2.test.com.au"));
-        assertThat(domain.getNameservers().get(1).getIpAddresses(), equalTo(new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
+        assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
+                    containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
+        assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
+                    containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
+        assertThat(Lists.newArrayList(domain.getNameservers().get(0).getIpAddresses(), domain.getNameservers().get(1).getIpAddresses()),
+                    containsInAnyOrder(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null),
+                                        new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
 
         assertThat(domain.getSecureDNS().isDelegationSigned(), is(Boolean.TRUE));
         assertThat(domain.getSecureDNS().getDsData(), hasSize(3));
