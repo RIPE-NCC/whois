@@ -56,10 +56,10 @@ public class GrsImporterTestIntegration extends AbstractSchedulerIntegrationTest
     public void incremental_remove_autnum() throws Exception {
         assertThat(isMaintainedInRirSpace(ObjectType.AUT_NUM, "AS102"), is(true));
 
-        delete("AS102-AS102");
+        delete("AS102");
         authoritativeResourceData.refreshAuthoritativeResourceCacheOnChange();
 
-        assertThat(isMaintainedInRirSpace(ObjectType.AUT_NUM, "AS105"), is(false));
+        assertThat(isMaintainedInRirSpace(ObjectType.AUT_NUM, "AS102"), is(false));
     }
 
     @Test

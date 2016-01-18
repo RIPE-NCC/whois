@@ -302,6 +302,7 @@ public class WhoisFixture {
         List<String> responses = new ArrayList<>();
 
         client.connectAndWait();
+        client.waitForResponseEndsWith(END_OF_HEADER);
 
         for (Iterator<String> it = queries.iterator(); it.hasNext(); ) {
             client.sendLine(it.next());
