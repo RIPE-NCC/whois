@@ -30,6 +30,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.URLConnection;
 import java.util.*;
 
@@ -365,21 +366,19 @@ public class RestClientTarget {
             urlConnection.setReadTimeout(60 * 1000);
 
             return new StreamingRestClient(urlConnection.getInputStream());
+        } catch (ConnectException ce) {
+            LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
+            LOGGER.error("Caught exception while connecting", ce);
+            throw new RestClientException(503, ce);
         } catch (IOException e) {
-            if (urlConnection == null) {
+            try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
+                final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
+                throw new RestClientException(((HttpURLConnection) urlConnection).getResponseCode(),
+                        whoisResources.getErrorMessages());
+            } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
                 LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
-                LOGGER.error("Caught exception while connecting", e);
-                throw new RestClientException(e);
-            } else {
-                try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
-                    final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
-                    throw new RestClientException(((HttpURLConnection) urlConnection).getResponseCode(),
-                            whoisResources.getErrorMessages());
-                } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
-                    LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
-                    LOGGER.error("Caught exception while unmarshalling error", e);
-                    throw new RestClientException(e1.getCause());
-                }
+                LOGGER.error("Caught exception while unmarshalling error", e1);
+                throw new RestClientException(500, e1.getCause());
             }
         }
     }
