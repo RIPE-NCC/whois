@@ -377,8 +377,9 @@ public class RestClientTarget {
                         whoisResources.getErrorMessages());
             } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
                 LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
+                LOGGER.error("Initial IOException: ", e);
                 LOGGER.error("Caught exception while unmarshalling error", e1);
-                throw new RestClientException(500, e1.getCause());
+                throw new RestClientException(500, e1);
             }
         }
     }
