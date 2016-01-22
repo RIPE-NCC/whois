@@ -249,6 +249,16 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
             hasSize(0));
     }
 
+    @Test
+    public void multiple_matches_no_duplicates() {
+        databaseHelper.addObject("mntner:  bla-bla-mnt\n");
+        rebuildIndex();
+
+        assertThat(
+            query("bla", "mntner"),
+            hasSize(1));
+    }
+
     // search by field and value and specify response attribute(s)
 
     @Test
