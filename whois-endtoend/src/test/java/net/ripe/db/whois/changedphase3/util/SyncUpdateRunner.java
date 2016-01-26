@@ -27,7 +27,7 @@ public class SyncUpdateRunner extends AbstractScenarioRunner {
 
             RpslObject objectForScenario = objectForScenario(scenario);
 
-            logEvent("Creating", objectForScenario);
+            logEvent("syncupdate-creating", objectForScenario);
 
             String result = RestTest.target(context.getSyncUpdatePort(), "whois/syncupdates/test")
                     .request()
@@ -36,14 +36,14 @@ public class SyncUpdateRunner extends AbstractScenarioRunner {
                                     MediaType.valueOf("application/x-www-form-urlencoded")),
                             String.class);
 
-            logEvent("Created", result);
+            logEvent("syncupdate-created", result);
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(result, containsString("Create SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, result, Scenario.Result.SUCCESS);
             } else {
                 assertThat(result, containsString("***Error:"));
-                verifyPostCondition(scenario, Scenario.Result.FAILURE);
+                verifyPostCondition(scenario, result, Scenario.Result.FAILURE);
             }
 
         } catch (Exception exc) {
@@ -58,7 +58,7 @@ public class SyncUpdateRunner extends AbstractScenarioRunner {
 
             RpslObject objectForScenario = addRemarks(objectForScenario(scenario));
 
-            logEvent("Modifying", objectForScenario);
+            logEvent("syncupdate-modifying", objectForScenario);
 
             String result = RestTest.target(context.getSyncUpdatePort(), "whois/syncupdates/test")
                     .request()
@@ -67,14 +67,14 @@ public class SyncUpdateRunner extends AbstractScenarioRunner {
                                     MediaType.valueOf("application/x-www-form-urlencoded")),
                             String.class);
 
-            logEvent("Modified", result);
+            logEvent("syncupdate-modified", result);
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(result, containsString("Modify SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, result, Scenario.Result.SUCCESS);
             } else {
                 assertThat(result, containsString("***Error:"));
-                verifyPostCondition(scenario, Scenario.Result.FAILURE);
+                verifyPostCondition(scenario, result, Scenario.Result.FAILURE);
             }
 
         } catch (Exception exc) {
@@ -90,7 +90,7 @@ public class SyncUpdateRunner extends AbstractScenarioRunner {
 
             RpslObject objectForScenario = objectForScenario(scenario);
 
-            logEvent("Deleting", objectForScenario);
+            logEvent("syncupdate-deleting", objectForScenario);
 
             String result = RestTest.target(context.getSyncUpdatePort(), "whois/syncupdates/test")
                     .request()
@@ -101,14 +101,14 @@ public class SyncUpdateRunner extends AbstractScenarioRunner {
                                     MediaType.valueOf("application/x-www-form-urlencoded")),
                             String.class);
 
-            logEvent("Deleted", result);
+            logEvent("syncupdate-deleted", result);
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(result, containsString("Delete SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, result, Scenario.Result.SUCCESS);
             } else {
                 assertThat(result, containsString("***Error:"));
-                verifyPostCondition(scenario, Scenario.Result.FAILURE);
+                verifyPostCondition(scenario, result, Scenario.Result.FAILURE);
             }
 
         } catch (Exception exc) {

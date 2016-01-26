@@ -134,6 +134,22 @@ public abstract class AbstractScenarioRunner implements ScenarioRunner {
         verifyObject(scenario.getPostCond(), fetchObjectViaRestApi());
     }
 
+    protected void verifyPostCondition(final Scenario scenario, final String resp, final Scenario.Result actualResult) {
+        if (scenario.getPostCond() == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
+            assertThat(resp.contains("\nchanged:"), is(true));
+        }
+        verifyPostCondition(scenario, actualResult);
+    }
+
+    protected void verifyPostCondition(final Scenario scenario, final RpslObject resp, final Scenario.Result actualResult) {
+        if (scenario.getPostCond() == Scenario.ObjectStatus.OBJ_EXISTS_WITH_CHANGED) {
+            assertThat(resp.containsAttribute(AttributeType.CHANGED), is(true));
+        } else {
+            assertThat(resp.containsAttribute(AttributeType.CHANGED), is(false));
+        }
+        verifyPostCondition(scenario, actualResult);
+    }
+
     protected void verifyObject(final Scenario.ObjectStatus objectState, final RpslObject result) {
         if (objectState == Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____) {
             assertThat(result, is(nullValue()));
