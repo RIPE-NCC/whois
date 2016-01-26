@@ -45,7 +45,7 @@ import static net.ripe.db.whois.api.freetext.FreeTextIndex.INDEX_ANALYZER;
 import static net.ripe.db.whois.api.freetext.FreeTextIndex.PRIMARY_KEY_FIELD_NAME;
 
 @Component
-class FreeTextSearch {
+public class FreeTextSearch {
     private static final Logger LOGGER = LoggerFactory.getLogger(FreeTextSearch.class);
 
     static final Sort SORT_BY_OBJECT_TYPE = new Sort(new SortField(FreeTextIndex.OBJECT_TYPE_FIELD_NAME, SortField.Type.STRING));

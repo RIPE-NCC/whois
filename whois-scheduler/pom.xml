@@ -34,6 +34,13 @@
         </dependency>
 
         <!-- testing -->
+
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
@@ -52,6 +59,11 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-client</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-api</artifactId>
             <type>test-jar</type>
         </dependency>
     </dependencies>
