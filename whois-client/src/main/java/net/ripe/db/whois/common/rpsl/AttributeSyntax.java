@@ -375,8 +375,6 @@ public interface AttributeSyntax extends Documented {
             "with \"prng-\" are reserved for peering set names. Names\n" +
             "starting with \"irt-\" are reserved for irt names.\n");
 
-    AttributeSyntax REFERRAL_SYNTAX = new AttributeSyntaxParser(new AttributeParser.NameParser());
-
     AttributeSyntax SOURCE_SYNTAX = new AttributeSyntaxRegexp(80,
             Pattern.compile("(?i)^[A-Z][A-Z0-9_-]*[A-Z0-9]$"), "" +
             "Made up of letters, digits, the character underscore \"_\",\n" +
