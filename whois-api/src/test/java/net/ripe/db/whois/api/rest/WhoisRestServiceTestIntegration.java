@@ -1336,6 +1336,40 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+    @Test
+    public void lookup_xml_script_injection_not_possible() {
+        databaseHelper.addObject(
+                "person:         Test Person\n" +
+                "nic-hdl:        TP9-TEST\n" +
+                "remarks:        <script>alert('hello');</script>\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = RestTest.target(getPort(), "whois/test/person/TP9-TEST.xml")
+                    .request(MediaType.APPLICATION_XML_TYPE)
+                    .get(String.class);
+
+        assertThat(response, containsString("&lt;script&gt;alert('hello');&lt;/script&gt;"));
+    }
+
+    @Test
+    public void lookup_json_script_injection_not_possible() {
+        databaseHelper.addObject(
+                "person:         Test Person\n" +
+                "nic-hdl:        TP9-TEST\n" +
+                "remarks:        <script>alert('hello');</script>\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = RestTest.target(getPort(), "whois/test/person/TP9-TEST.xml")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(String.class);
+
+        assertThat(response, containsString("&lt;script&gt;alert('hello');&lt;/script&gt;"));
+    }
+
+
+
     // create
 
     @Test
@@ -1361,6 +1395,29 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Ignore("TODO: [ES] #320 confusing error response")
+    @Test
+    public void create_invalid_object_type_on_first_attribute() {
+        try {
+         RestTest.target(getPort(), "whois/test/domain?password=test")
+            .request()
+            .post(Entity.entity(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" +
+                        "<whois-resources>\n" +
+                        "<objects>\n" +
+                        "<object type=\"domain\">\n" +
+                        "<source id=\"ripe\"/>\n" +
+                        "<attributes>\n" +
+                        "<attribute name=\"descr\" value=\"description\"/>\n" +
+                        "</attributes>\n" +
+                        "</object>\n" +
+                        "</objects>\n" +
+                        "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), not(containsString("Invalid object type: descr")));
+        }
     }
 
     @Ignore("TODO: [ES] response object should be latin1")

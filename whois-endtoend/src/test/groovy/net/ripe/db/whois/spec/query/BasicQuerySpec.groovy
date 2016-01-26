@@ -813,7 +813,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
 
     // filtering
 
-//    @Ignore
     def "query for object, objects not filtered should not have # Filtered flag "() {
       given:
         databaseHelper.addObject(
