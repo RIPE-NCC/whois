@@ -215,7 +215,7 @@ public final class RpslAttribute {
         writer.write('\n');
     }
 
-    /** value as it is written to mysql/port43 client */
+    /** value as it is written to database/port43 client */
     public String getFormattedValue() {
         try {
             final StringWriter writer = new StringWriter();
