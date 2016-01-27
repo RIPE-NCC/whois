@@ -16,7 +16,9 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class FormattedServerAttributeMapper implements AttributeMapper {
+public class FormattedServerAttributeMapper
+        extends SurpressChangedAttributeMapper
+        implements AttributeMapper {
     private final ReferencedTypeResolver referencedTypeResolver;
     private final String baseUrl;
 
@@ -27,12 +29,12 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
     }
 
     @Override
-    public Collection<RpslAttribute> map(final Attribute attribute) {
+    protected Collection<RpslAttribute> mapInternal(final Attribute attribute) {
         return Collections.singleton(new RpslAttribute(attribute.getName(), getAttributeValue(attribute)));
     }
 
     @Override
-    public Collection<Attribute> map(final RpslAttribute rpslAttribute, final String source) {
+    protected Collection<Attribute> mapInternal(final RpslAttribute rpslAttribute, final String source) {
         final List<Attribute> result = new ArrayList(4);
         for (CIString value : rpslAttribute.getCleanValues()) {
             // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad

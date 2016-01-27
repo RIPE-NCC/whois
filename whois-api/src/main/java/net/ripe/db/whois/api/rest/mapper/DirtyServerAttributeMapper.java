@@ -15,7 +15,9 @@ import java.util.Collections;
 import java.util.Set;
 
 @Component
-public class DirtyServerAttributeMapper implements AttributeMapper {
+public class DirtyServerAttributeMapper
+        extends SurpressChangedAttributeMapper
+        implements AttributeMapper {
     private final ReferencedTypeResolver referencedTypeResolver;
     private final String baseUrl;
 
@@ -26,12 +28,12 @@ public class DirtyServerAttributeMapper implements AttributeMapper {
     }
 
     @Override
-    public Collection<RpslAttribute> map(final Attribute attribute) {
+    protected Collection<RpslAttribute> mapInternal(final Attribute attribute) {
         return Collections.singleton(new RpslAttribute(attribute.getName(), getAttributeValue(attribute)));
     }
 
     @Override
-    public Collection<Attribute> map(final RpslAttribute rpslAttribute, final String source) {
+    protected Collection<Attribute> mapInternal(final RpslAttribute rpslAttribute, final String source) {
         final Set<CIString> cleanValues = rpslAttribute.getCleanValues();
 
         if (cleanValues.size() == 1) {
