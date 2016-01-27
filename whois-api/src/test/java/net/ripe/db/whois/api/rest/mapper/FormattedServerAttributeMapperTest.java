@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FormattedServerAttributeMapperTest {
 
-    private static final String BASE_URL = "http://rest-prepdev.db.ripe.net/lookup";
+    private static final String BASE_URL = "http://localhost/lookup";
 
     @Mock private ReferencedTypeResolver referencedTypeResolver;
 
@@ -60,7 +60,7 @@ public class FormattedServerAttributeMapperTest {
 
         final Attribute attribute = attributes.iterator().next();
 
-        assertThat(attribute.getLink().toString(), is("locator: http://rest-prepdev.db.ripe.net/lookup/TEST/role/TP-TEST"));
+        assertThat(attribute.getLink().toString(), is("locator: http://localhost/lookup/TEST/role/TP-TEST"));
         assertThat(attribute.getName(), is("nic-hdl"));
         assertThat(attribute.getValue(), is("TP-TEST"));
     }
