@@ -17,7 +17,7 @@ import java.util.List;
 
 @Component
 public class FormattedServerAttributeMapper
-        extends SurpressChangedAttributeMapper
+        extends SuppressChangedAttributeMapper
         implements AttributeMapper {
     private final ReferencedTypeResolver referencedTypeResolver;
     private final String baseUrl;

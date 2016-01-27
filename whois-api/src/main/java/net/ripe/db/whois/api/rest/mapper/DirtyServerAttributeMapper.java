@@ -16,7 +16,7 @@ import java.util.Set;
 
 @Component
 public class DirtyServerAttributeMapper
-        extends SurpressChangedAttributeMapper
+        extends SuppressChangedAttributeMapper
         implements AttributeMapper {
     private final ReferencedTypeResolver referencedTypeResolver;
     private final String baseUrl;

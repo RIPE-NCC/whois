@@ -9,9 +9,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Component
-public abstract class SurpressChangedAttributeMapper implements AttributeMapper {
+public abstract class SuppressChangedAttributeMapper implements AttributeMapper {
 
-    public SurpressChangedAttributeMapper() {
+    public SuppressChangedAttributeMapper() {
     }
 
     protected abstract Collection<RpslAttribute> mapInternal(final Attribute attribute);
