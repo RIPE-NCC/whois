@@ -22,7 +22,7 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
         assertThat(response, is(""+
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<template-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
-                "    <link xlink:type=\"locator\" xlink:href=\"http://rest-prepdev.db.ripe.net/metadata/templates/peering-set\"/>\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://localhost/metadata/templates/peering-set\"/>\n" +
                 "    <service name=\"getObjectTemplate\"/>\n" +
                 "    <templates>\n" +
                 "        <template type=\"peering-set\">\n" +
@@ -56,7 +56,7 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
         assertThat(response, is("{\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://rest-prepdev.db.ripe.net/metadata/templates/peering-set\"\n" +
+                "    \"href\" : \"http://localhost/metadata/templates/peering-set\"\n" +
                 "  },\n" +
                 "  \"service\" : {\n" +
                 "    \"name\" : \"getObjectTemplate\"\n" +
@@ -163,7 +163,7 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
         assertThat(response, is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
-                "    <link xlink:type=\"locator\" xlink:href=\"http://rest-prepdev.db.ripe.net/metadata/sources\"/>\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://localhost/metadata/sources\"/>\n" +
                 "    <service name=\"getSupportedDataSources\"/>\n" +
                 "    <sources>\n" +
                 "        <source id=\"test\"/>\n" +
@@ -179,7 +179,7 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
                 "{\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://rest-prepdev.db.ripe.net/metadata/sources\"\n" +
+                "    \"href\" : \"http://localhost/metadata/sources\"\n" +
                 "  },\n" +
                 "  \"service\" : {\n" +
                 "    \"name\" : \"getSupportedDataSources\"\n" +
