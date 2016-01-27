@@ -124,7 +124,7 @@ public class Domain {
         return false;
     }
 
-    public static enum Type {
+    public enum Type {
         INADDR("in-addr.arpa"),
         IP6("ip6.arpa"),
         E164("e164.arpa");
