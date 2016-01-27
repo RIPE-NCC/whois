@@ -43,7 +43,6 @@ public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase
         System.clearProperty("feature.toggle.changed.attr.available");
     }
 
-    @Ignore
     @Test
     public void intermediate_mode_rest_test() {
         given(OLD_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, CREATE, WITH_CHANGED).then(SUCCESS, OBJ_EXISTS_NO_CHANGED__).run(context);

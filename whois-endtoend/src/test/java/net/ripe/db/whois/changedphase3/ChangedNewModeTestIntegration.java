@@ -43,7 +43,6 @@ public class ChangedNewModeTestIntegration extends AbstractChangedPhase3Integrat
         System.clearProperty("feature.toggle.changed.attr.available");
     }
 
-    @Ignore
     @Test
     public void new_mode_rest_test() {
         given(NEW_MODE, OBJ_DOES_NOT_EXIST_____).when(REST___, CREATE, WITH_CHANGED).then(FAILURE).run(context);
