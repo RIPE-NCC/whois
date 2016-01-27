@@ -41,17 +41,17 @@ public class RestRunner extends AbstractScenarioRunner {
 
             logEvent("Creating", objectForScenario);
 
-            WhoisResources whoisResourcesResp = RestTest.target(context.getRestPort(),
+            WhoisResources whoisResources = RestTest.target(context.getRestPort(),
                     "whois/test/mntner?password=123")
                     .request()
                     .post(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, objectForScenario),
                                     MediaType.APPLICATION_XML),
                             WhoisResources.class);
 
-            logEvent("Created", whoisResourcesResp);
+            logEvent("Created", whoisResources);
 
-            RpslObject resp = context.getWhoisObjectMapper().map(whoisResourcesResp.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
-            verifyPostCondition(scenario, resp, Scenario.Result.SUCCESS);
+            RpslObject rpslObject = context.getWhoisObjectMapper().map(whoisResources.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
+            verifyPostCondition(scenario, rpslObject, Scenario.Result.SUCCESS);
 
             verifyNotificationEmail(scenario);
 
@@ -73,18 +73,18 @@ public class RestRunner extends AbstractScenarioRunner {
 
             logEvent("Modifying", objectForScenario);
 
-            WhoisResources whoisResourcesResp = RestTest.target(context.getRestPort(),
+            WhoisResources whoisResources = RestTest.target(context.getRestPort(),
                     "whois/test/mntner/TESTING-MNT?password=123")
                     .request()
                     .put(Entity.entity(context.getWhoisObjectMapper().mapRpslObjects(FormattedClientAttributeMapper.class, objectForScenario),
                                     MediaType.APPLICATION_XML),
                             WhoisResources.class);
 
-            logEvent("Modified", whoisResourcesResp);
+            logEvent("Modified", whoisResources);
 
-            RpslObject resp = context.getWhoisObjectMapper().map(whoisResourcesResp.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
+            RpslObject rpslObject = context.getWhoisObjectMapper().map(whoisResources.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
-            verifyPostCondition(scenario, resp, Scenario.Result.SUCCESS);
+            verifyPostCondition(scenario, rpslObject, Scenario.Result.SUCCESS);
 
             verifyNotificationEmail(scenario);
 
@@ -101,16 +101,16 @@ public class RestRunner extends AbstractScenarioRunner {
 
             resetMail();
 
-            WhoisResources whoisResourcesResp = RestTest.target(context.getRestPort(),
+            WhoisResources whoisResources = RestTest.target(context.getRestPort(),
                     "whois/test/mntner/TESTING-MNT?password=123")
                     .request()
                     .delete(WhoisResources.class);
 
-            logEvent("Deleted", whoisResourcesResp);
+            logEvent("Deleted", whoisResources);
 
-            RpslObject resp = context.getWhoisObjectMapper().map(whoisResourcesResp.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
+            RpslObject rpslObject = context.getWhoisObjectMapper().map(whoisResources.getWhoisObjects().get(0), FormattedClientAttributeMapper.class);
 
-            verifyPostCondition(scenario, resp, Scenario.Result.SUCCESS);
+            verifyPostCondition(scenario, rpslObject, Scenario.Result.SUCCESS);
 
             verifyNotificationEmail(scenario);
 
@@ -126,11 +126,11 @@ public class RestRunner extends AbstractScenarioRunner {
         try {
             verifyPreCondition(scenario);
 
-            WhoisResources whoisResourcesResp = RestTest.target(context.getRestPort(),
+            WhoisResources whoisResources = RestTest.target(context.getRestPort(),
                     "whois/test/mntner/TESTING-MNT?unfiltered=true&password=123")
                     .request()
                     .get(WhoisResources.class);
-            List<RpslObject> result = context.getWhoisObjectMapper().mapWhoisObjects(whoisResourcesResp.getWhoisObjects(), FormattedClientAttributeMapper.class);
+            List<RpslObject> result = context.getWhoisObjectMapper().mapWhoisObjects(whoisResources.getWhoisObjects(), FormattedClientAttributeMapper.class);
             assertThat(result, hasSize(1));
 
             logEvent("Got", result.get(0));
