@@ -3,7 +3,6 @@ package net.ripe.db.whois.changedphase3;
 import net.ripe.db.whois.common.IntegrationTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -14,7 +13,6 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Method.GET___;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.META__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.MODIFY;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.SEARCH;
-import static net.ripe.db.whois.changedphase3.util.Scenario.Mode.NEW_MODE;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Mode.OLD_MODE;
 import static net.ripe.db.whois.changedphase3.util.Scenario.ObjectStatus.OBJ_DOES_NOT_EXIST_____;
 import static net.ripe.db.whois.changedphase3.util.Scenario.ObjectStatus.OBJ_EXISTS_NO_CHANGED__;
