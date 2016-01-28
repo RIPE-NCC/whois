@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DirtyServerAttributeMapperTest {
+public class DirtyServerOutgoingAttributeMapperTest {
 
     private static final String BASE_URL = "http://rest-prepdev.db.ripe.net/lookup";
 
@@ -28,11 +28,11 @@ public class DirtyServerAttributeMapperTest {
     @Mock
     private ChangedAttrFeatureToggle changedAttrFeatureToggle;
 
-    private DirtyServerAttributeMapper subject;
+    private DirtyServerOutgoingAttributeMapper subject;
 
     @Before
     public void setup() {
-        subject = new DirtyServerAttributeMapper(changedAttrFeatureToggle, referencedTypeResolver, BASE_URL);
+        subject = new DirtyServerOutgoingAttributeMapper(changedAttrFeatureToggle, referencedTypeResolver, BASE_URL);
     }
 
     @Test

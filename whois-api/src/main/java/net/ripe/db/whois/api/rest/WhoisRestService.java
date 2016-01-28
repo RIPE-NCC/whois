@@ -19,7 +19,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedServerOutgoingAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.Message;
@@ -84,7 +84,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
+import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerIncomingAttributeMapper;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.QueryFlag.ABUSE_CONTACT;
@@ -442,7 +442,7 @@ public class WhoisRestService {
 
         // TODO: [AH] this should use StreamingMarshal to properly handle newlines in errormessages
         final WhoisResources whoisResources = new WhoisResources();
-        final WhoisObject whoisObject = whoisObjectMapper.map(versionWithRpslResponseObject.getRpslObject(), FormattedServerAttributeMapper.class);
+        final WhoisObject whoisObject = whoisObjectMapper.map(versionWithRpslResponseObject.getRpslObject(), FormattedServerOutgoingAttributeMapper.class);
         whoisObject.setVersion(versionWithRpslResponseObject.getVersion());
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         whoisResources.setErrorMessages(whoisService.createErrorMessages(versionsResponseHandler.getErrors()));
@@ -582,7 +582,7 @@ public class WhoisRestService {
                     .build());
         }
 
-        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), getServerAttributeMapper(unformatted));
+        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), getServerIncomingAttributeMapper(unformatted));
     }
 
     private void validateSubmittedUpdateObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
@@ -714,7 +714,7 @@ public class WhoisRestService {
             this.remoteAddress = remoteAddress;
             this.parameters = parameters;
             this.service = service;
-            this.attributeMapper = getServerAttributeMapper(unformatted);
+            this.attributeMapper = getServerIncomingAttributeMapper(unformatted);
         }
 
         @Override

@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FormattedServerAttributeMapperTest {
+public class FormattedServerOutgoingAttributeMapperTest {
 
     private static final String BASE_URL = "http://localhost/lookup";
 
@@ -30,11 +30,11 @@ public class FormattedServerAttributeMapperTest {
     @Mock
     private ChangedAttrFeatureToggle changedAttrFeatureToggle;
 
-    private FormattedServerAttributeMapper subject;
+    private FormattedServerOutgoingAttributeMapper subject;
 
     @Before
     public void setup() {
-        subject = new FormattedServerAttributeMapper(changedAttrFeatureToggle, referencedTypeResolver, BASE_URL);
+        subject = new FormattedServerOutgoingAttributeMapper(changedAttrFeatureToggle, referencedTypeResolver, BASE_URL);
     }
 
     @Test

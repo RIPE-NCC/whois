@@ -15,7 +15,7 @@ import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.FormattedServerOutgoingAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -286,13 +286,13 @@ public class ReferencesService {
     }
 
     private WhoisObject convertToWhoisObject(final RpslObject rpslObject) {
-        return whoisObjectMapper.map(rpslObject, FormattedServerAttributeMapper.class);
+        return whoisObjectMapper.map(rpslObject, FormattedServerOutgoingAttributeMapper.class);
     }
 
     private RpslObject convertToRpslObject(final WhoisResources whoisResources, final ObjectType objectType) {
         for(WhoisObject whoisObject: whoisResources.getWhoisObjects()) {
             if (objectType == ObjectType.getByName(whoisObject.getType())) {
-                return whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
+                return whoisObjectMapper.map(whoisObject, FormattedServerOutgoingAttributeMapper.class);
             }
         }
 
@@ -303,7 +303,7 @@ public class ReferencesService {
         final List<ActionRequest> actionRequests = Lists.newArrayList();
 
         for (WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
-            final RpslObject rpslObject = whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
+            final RpslObject rpslObject = whoisObjectMapper.map(whoisObject, FormattedServerOutgoingAttributeMapper.class);
             final Action action = whoisObject.getAction() != null ? whoisObject.getAction() : Action.MODIFY;
             actionRequests.add(new ActionRequest(rpslObject, action));
         }
@@ -458,7 +458,7 @@ public class ReferencesService {
 
         for (final WhoisObject whoisObject : whoisResources.getWhoisObjects()) {
             if (whoisObject.getType().equalsIgnoreCase(AttributeType.MNTNER.getName())){
-                final RpslObject mntnerWithDummyRole = whoisObjectMapper.map(whoisObject, FormattedServerAttributeMapper.class);
+                final RpslObject mntnerWithDummyRole = whoisObjectMapper.map(whoisObject, FormattedServerOutgoingAttributeMapper.class);
 
                 final RpslObjectBuilder builder = new RpslObjectBuilder(mntnerWithDummyRole);
 
@@ -466,7 +466,7 @@ public class ReferencesService {
                     builder.removeAttribute(entry.getValue())
                             .addAttributeSorted(entry.getKey());
                 }
-                result.put(whoisObject.getPrimaryKey(), whoisObjectMapper.map(builder.get(), FormattedServerAttributeMapper.class));
+                result.put(whoisObject.getPrimaryKey(), whoisObjectMapper.map(builder.get(), FormattedServerOutgoingAttributeMapper.class));
             } else {
                 result.put(whoisObject.getPrimaryKey(), whoisObject);
             }

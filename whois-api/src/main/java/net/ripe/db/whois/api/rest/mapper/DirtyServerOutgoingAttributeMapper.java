@@ -16,16 +16,16 @@ import java.util.Collections;
 import java.util.Set;
 
 @Component
-public class DirtyServerAttributeMapper
+public class DirtyServerOutgoingAttributeMapper
         extends SuppressChangedAttributeMapper
         implements AttributeMapper {
     private final ReferencedTypeResolver referencedTypeResolver;
     private final String baseUrl;
 
     @Autowired
-    public DirtyServerAttributeMapper(final ChangedAttrFeatureToggle changedAttrFeatureToggle,
-                                      final ReferencedTypeResolver referencedTypeResolver,
-                                      @Value("${api.rest.baseurl}") final String baseUrl) {
+    public DirtyServerOutgoingAttributeMapper(final ChangedAttrFeatureToggle changedAttrFeatureToggle,
+                                              final ReferencedTypeResolver referencedTypeResolver,
+                                              @Value("${api.rest.baseurl}") final String baseUrl) {
         super(changedAttrFeatureToggle);
         this.referencedTypeResolver = referencedTypeResolver;
         this.baseUrl = baseUrl;

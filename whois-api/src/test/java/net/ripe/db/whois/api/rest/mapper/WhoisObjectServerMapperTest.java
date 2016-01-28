@@ -54,7 +54,7 @@ public class WhoisObjectServerMapperTest {
     @Before
     public void setup() {
         whoisObjectMapper = new WhoisObjectMapper(BASE_URL, new AttributeMapper[]{
-                new FormattedServerAttributeMapper(changedAttrFeatureToggle, referencedTypeResolver, BASE_URL),
+                new FormattedServerOutgoingAttributeMapper(changedAttrFeatureToggle, referencedTypeResolver, BASE_URL),
                 new FormattedClientAttributeMapper()
         });
         whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper);
@@ -76,7 +76,7 @@ public class WhoisObjectServerMapperTest {
                         "mnt-by:      TST-MNT\n" +
                         "source:      TEST\n");
 
-        final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, FormattedServerAttributeMapper.class);
+        final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, FormattedServerOutgoingAttributeMapper.class);
 
         assertThat(whoisObject.getType(), is("mntner"));
         assertThat(whoisObject.getSource().getId(), is("test"));
@@ -115,7 +115,7 @@ public class WhoisObjectServerMapperTest {
                 "mnt-by:    TS1-MNT\n" +
                 "source:    TEST");
 
-        final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, FormattedServerAttributeMapper.class);
+        final WhoisObject whoisObject = whoisObjectMapper.map(rpslObject, FormattedServerOutgoingAttributeMapper.class);
 
         assertThat(whoisObject.getType(), is("as-set"));
         assertThat(whoisObject.getSource().getId(), is("test"));
@@ -174,7 +174,7 @@ public class WhoisObjectServerMapperTest {
                                 new Tag(ciString("bar"), "bar data"),
                                 new Tag(ciString("barf"), "barf data")
                         )),
-                FormattedServerAttributeMapper.class
+                FormattedServerOutgoingAttributeMapper.class
         ).getTags();
 
         assertThat(tags, hasSize(3));
