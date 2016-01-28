@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +24,10 @@ public class FormattedServerAttributeMapper
     private final String baseUrl;
 
     @Autowired
-    public FormattedServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver, @Value("${api.rest.baseurl}") final String baseUrl) {
+    public FormattedServerAttributeMapper(final ChangedAttrFeatureToggle changedAttrFeatureToggle,
+                                          final ReferencedTypeResolver referencedTypeResolver,
+                                          @Value("${api.rest.baseurl}") final String baseUrl) {
+        super(changedAttrFeatureToggle);
         this.referencedTypeResolver = referencedTypeResolver;
         this.baseUrl = baseUrl;
     }

@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,13 +25,16 @@ public class FormattedServerAttributeMapperTest {
 
     private static final String BASE_URL = "http://localhost/lookup";
 
-    @Mock private ReferencedTypeResolver referencedTypeResolver;
+    @Mock
+    private ReferencedTypeResolver referencedTypeResolver;
+    @Mock
+    private ChangedAttrFeatureToggle changedAttrFeatureToggle;
 
     private FormattedServerAttributeMapper subject;
 
     @Before
-    public void setup(){
-        subject = new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL);
+    public void setup() {
+        subject = new FormattedServerAttributeMapper(changedAttrFeatureToggle, referencedTypeResolver, BASE_URL);
     }
 
     @Test

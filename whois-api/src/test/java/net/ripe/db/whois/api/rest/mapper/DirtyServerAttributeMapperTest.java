@@ -5,6 +5,7 @@ import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,8 +16,6 @@ import java.util.Collection;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -24,13 +23,16 @@ public class DirtyServerAttributeMapperTest {
 
     private static final String BASE_URL = "http://rest-prepdev.db.ripe.net/lookup";
 
-    @Mock private ReferencedTypeResolver referencedTypeResolver;
+    @Mock
+    private ReferencedTypeResolver referencedTypeResolver;
+    @Mock
+    private ChangedAttrFeatureToggle changedAttrFeatureToggle;
 
     private DirtyServerAttributeMapper subject;
 
     @Before
-    public void setup(){
-        subject = new DirtyServerAttributeMapper(referencedTypeResolver, BASE_URL);
+    public void setup() {
+        subject = new DirtyServerAttributeMapper(changedAttrFeatureToggle, referencedTypeResolver, BASE_URL);
     }
 
     @Test
