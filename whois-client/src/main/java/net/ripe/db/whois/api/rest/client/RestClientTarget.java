@@ -456,7 +456,7 @@ public class RestClientTarget {
             return new RestClientException(e.getResponse().getStatus(), entity);
         } catch (ProcessingException | IllegalStateException e1) {
             // stream has already been closed
-            return new RestClientException(e.getResponse().getStatus(), e1.getCause());
+            return new RestClientException(e.getResponse().getStatus(), e1);
         }
     }
 }
