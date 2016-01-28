@@ -11,7 +11,6 @@
                        http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <context:property-placeholder
-            location="classpath:whois-test.properties"
             system-properties-mode="OVERRIDE"/>
 
     <tx:annotation-driven mode="aspectj"/>
