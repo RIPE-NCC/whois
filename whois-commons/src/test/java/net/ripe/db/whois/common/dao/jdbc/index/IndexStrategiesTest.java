@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.Test;
 
@@ -14,9 +15,10 @@ import static org.junit.Assert.assertThat;
 public class IndexStrategiesTest {
     @Test
     public void check_index_strategied_for_lookup_attributes() {
+
         final Set<AttributeType> attibutesWithrequiredIndex = Sets.newHashSet();
         for (final ObjectType objectType : ObjectType.values()) {
-            final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
+            final ObjectTemplate objectTemplate = ObjectTemplateProvider.getTemplate(objectType);
             attibutesWithrequiredIndex.addAll(objectTemplate.getInverseLookupAttributes());
         }
 

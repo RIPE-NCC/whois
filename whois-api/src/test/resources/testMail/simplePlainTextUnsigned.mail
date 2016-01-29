@@ -32,7 +32,6 @@ tech-c: T1-RIPE
 status: ASSIGNED PA
 mnt-by: TEST-MNT
 password: password
-changed: changed@ripe.net 20120528
 source: RIPE
 
 inetnum: 109.69.68.0 - 109.69.68.7
@@ -44,6 +43,5 @@ tech-c: T1-RIPE
 status: ASSIGNED PA
 mnt-by: TEST-MNT
 password: password
-changed: changed@ripe.net 20120528
 source: RIPE
 delete: new subnet size

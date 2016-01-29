@@ -11,6 +11,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.query.QueryFlag;
@@ -482,7 +483,7 @@ public class Query {
             nextObjectType:
             for (Iterator<ObjectType> it = response.iterator(); it.hasNext(); ) {
                 ObjectType objectType = it.next();
-                for (final AttributeType attribute : ObjectTemplate.getTemplate(objectType).getLookupAttributes()) {
+                for (final AttributeType attribute : ObjectTemplateProvider.getTemplate(objectType).getLookupAttributes()) {
                     if (AttributeMatcher.fetchableBy(attribute, this)) {
                         continue nextObjectType;
                     }
@@ -567,7 +568,7 @@ public class Query {
     }
 
     public boolean matchesObjectTypeAndAttribute(final ObjectType objectType, final AttributeType attributeType) {
-        return ObjectTemplate.getTemplate(objectType).getLookupAttributes().contains(attributeType) && AttributeMatcher.fetchableBy(attributeType, this);
+        return ObjectTemplateProvider.getTemplate(objectType).getLookupAttributes().contains(attributeType) && AttributeMatcher.fetchableBy(attributeType, this);
     }
 
     public boolean isMatchPrimaryKeyOnly() {
@@ -579,7 +580,7 @@ public class Query {
         return this;
     }
 
-    public static enum MatchOperation {
+    public enum MatchOperation {
         MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC(),
         MATCH_EXACT(QueryFlag.EXACT),
         MATCH_FIRST_LEVEL_LESS_SPECIFIC(QueryFlag.ONE_LESS),
@@ -589,11 +590,11 @@ public class Query {
 
         private final QueryFlag queryFlag;
 
-        private MatchOperation() {
+        MatchOperation() {
             this(null);
         }
 
-        private MatchOperation(final QueryFlag queryFlag) {
+        MatchOperation(final QueryFlag queryFlag) {
             this.queryFlag = queryFlag;
         }
 
@@ -606,11 +607,11 @@ public class Query {
         }
     }
 
-    public static enum SystemInfoOption {
+    public enum SystemInfoOption {
         VERSION, TYPES, SOURCES
     }
 
-    public static enum Origin {
+    public enum Origin {
         LEGACY, REST, INTERNAL
     }
 }

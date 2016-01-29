@@ -62,7 +62,7 @@ public class UpdateNotifierTest {
     @Test
     public void sendNotifications_single_no_notifications() {
         final Update update = mock(Update.class);
-        final RpslObject rpslObject = RpslObject.parse("" +
+        final RpslObject rpslObject = RpslObject.parse(
                 "mntner: UPD-MNT\n" +
                 "descr: description\n" +
                 "admin-c: TEST-RIPE\n" +
@@ -73,7 +73,6 @@ public class UpdateNotifierTest {
                 "notify: notify2@me.com\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source: TEST\n");
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, null, rpslObject, Action.CREATE);
@@ -91,7 +90,7 @@ public class UpdateNotifierTest {
     @Test
     public void sendNotifications_sanitized_email() {
         final Update update = mock(Update.class);
-        final RpslObject rpslObject = RpslObject.parse("" +
+        final RpslObject rpslObject = RpslObject.parse(
                 "mntner: UPD-MNT\n" +
                 "descr: description\n" +
                 "admin-c: TEST-RIPE\n" +
@@ -101,7 +100,6 @@ public class UpdateNotifierTest {
                 "notify: notifies us <mailto:notify@me.com>\n" +
                 "upd-to: dbtest@ripe.net\n" +
                 "auth:   MD5-PW $1$fU9ZMQN9$QQtm3kRqZXWAuLpeOiLN7. # update\n" +
-                "changed: dbtest@ripe.net 20120707\n" +
                 "source: TEST\n");
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, null, rpslObject, Action.CREATE);
