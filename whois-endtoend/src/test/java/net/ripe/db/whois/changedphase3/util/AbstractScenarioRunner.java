@@ -1,6 +1,8 @@
 package net.ripe.db.whois.changedphase3.util;
 
+import com.google.common.collect.Iterables;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -15,9 +17,9 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-
 import java.util.List;
 
+import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -132,6 +134,21 @@ public abstract class AbstractScenarioRunner implements ScenarioRunner {
     protected void verifyPostCondition(final Scenario scenario, final Scenario.Result actualResult) {
         assertThat(actualResult, is(scenario.getResult()));
         verifyObject(scenario.getPostCond(), fetchObjectViaRestApi());
+    }
+
+    protected void verifyPostCondition(final Scenario scenario, final Scenario.Result actualResult, final WhoisResources whoisResources) {
+        verifyPostCondition(scenario, actualResult);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final Iterable<Attribute> changed = Iterables.filter(whoisResources.getWhoisObjects().get(0).getAttributes(), input -> input.getName().equals("changed"));
+        switch (scenario.getReq()) {
+            case WITH_CHANGED:
+            case NO_CHANGED__:
+                assertThat(changed, emptyIterable());
+                break;
+            case NOT_APPLIC__:
+                break;
+        }
     }
 
     protected void verifyObject(final Scenario.ObjectStatus objectState, final RpslObject result) {
