@@ -8,7 +8,9 @@ import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import org.junit.Ignore
 
+@Ignore
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
     private static final String PERSON_WITHOUT_CHANGED = "PERSON_WITHOUT_CHANGED";
