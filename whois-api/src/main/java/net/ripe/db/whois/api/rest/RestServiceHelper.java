@@ -1,9 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.DirtyServerAttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.*;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,6 +62,11 @@ public class RestServiceHelper {
     public static Class<? extends AttributeMapper> getServerAttributeMapper(String queryString){
         return isQueryParamSet(queryString, "unformatted") ?
                 DirtyServerAttributeMapper.class : FormattedServerAttributeMapper.class;
+    }
+
+    public static Class<? extends AttributeMapper> getRestResponseAttributeMapper(String queryString){
+        return isQueryParamSet(queryString, "unformatted") ?
+                DirtySuppressChangedAttributeMapper.class : RegularSuppressChangedAttributeMapper.class;
     }
 
 }
