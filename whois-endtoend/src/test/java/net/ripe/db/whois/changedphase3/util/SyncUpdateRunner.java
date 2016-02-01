@@ -40,7 +40,7 @@ public class SyncUpdateRunner extends AbstractScenarioRunner {
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(result, containsString("Create SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, Scenario.Result.SUCCESS, result);
             } else {
                 assertThat(result, containsString("***Error:"));
                 verifyPostCondition(scenario, Scenario.Result.FAILURE);
@@ -71,7 +71,7 @@ public class SyncUpdateRunner extends AbstractScenarioRunner {
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(result, containsString("Modify SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, Scenario.Result.SUCCESS, result);
             } else {
                 assertThat(result, containsString("***Error:"));
                 verifyPostCondition(scenario, Scenario.Result.FAILURE);
@@ -105,7 +105,7 @@ public class SyncUpdateRunner extends AbstractScenarioRunner {
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(result, containsString("Delete SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, Scenario.Result.SUCCESS, result);
             } else {
                 assertThat(result, containsString("***Error:"));
                 verifyPostCondition(scenario, Scenario.Result.FAILURE);

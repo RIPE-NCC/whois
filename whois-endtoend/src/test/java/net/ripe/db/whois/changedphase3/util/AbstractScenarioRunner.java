@@ -19,11 +19,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-import static org.hamcrest.Matchers.emptyIterable;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public abstract class AbstractScenarioRunner implements ScenarioRunner {
@@ -137,7 +133,6 @@ public abstract class AbstractScenarioRunner implements ScenarioRunner {
     }
 
     protected void verifyPostCondition(final Scenario scenario, final Scenario.Result actualResult, final WhoisResources whoisResources) {
-        verifyPostCondition(scenario, actualResult);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final Iterable<Attribute> changed = Iterables.filter(whoisResources.getWhoisObjects().get(0).getAttributes(), input -> input.getName().equals("changed"));
@@ -149,6 +144,14 @@ public abstract class AbstractScenarioRunner implements ScenarioRunner {
             case NOT_APPLIC__:
                 break;
         }
+        verifyPostCondition(scenario, actualResult);
+    }
+
+    protected void verifyPostCondition(final Scenario scenario, final Scenario.Result actualResult, final String respText) {
+        if( scenario.getReq() != Scenario.Req.NOT_APPLIC__ ) {
+            assertThat(respText, not(containsString("\nchanged:")));
+        }
+        verifyPostCondition(scenario, actualResult);
     }
 
     protected void verifyObject(final Scenario.ObjectStatus objectState, final RpslObject result) {
