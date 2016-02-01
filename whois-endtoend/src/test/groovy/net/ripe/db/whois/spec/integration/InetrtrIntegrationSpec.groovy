@@ -2,7 +2,9 @@ package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.SyncUpdate
+import org.junit.Ignore
 
+@Ignore
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
 
