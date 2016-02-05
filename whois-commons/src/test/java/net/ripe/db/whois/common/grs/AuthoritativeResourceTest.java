@@ -250,6 +250,17 @@ public class AuthoritativeResourceTest {
     }
 
     @Test
+    public void isMaintainedInRirSpace_ipv4_multiple_allocations_with_uuid_column() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner("" +
+                "ripencc|EE|ipv4|5.45.112.0|2048|20120524|allocated|73af1b2b-4082-4d56-9268-c978321a313f\n" +
+                "ripencc|EE|ipv4|5.45.120.0|2048|20120524|allocated|73af1b2b-4082-4d56-9268-c978321a313f\n"));
+
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("5.45.112.0/20")), is(true));
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("5.45.112.0")), is(true));
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("5.45.127.255")), is(true));
+    }
+
+    @Test
     public void isMaintainedInRirSpace_ipv6() {
         final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner("" +
                 "ripencc|DE|ipv6|2001:608::|32|19990812|allocated\n" +
@@ -272,6 +283,15 @@ public class AuthoritativeResourceTest {
         final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner("" +
                 "ripencc|DE|ipv6|2001:2002:2003:2004::|64|19990812|allocated\n" +
                 "ripencc|DE|ipv6|2001:2002:2003:2005::|64|19990812|allocated\n"));
+
+        assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:2002:2003:2004::/63")), is(true));
+    }
+
+    @Test
+    public void isMaintainedInRirSpace_ipv6_multiple_allocations_with_uuid_column() {
+        final AuthoritativeResource resourceData = AuthoritativeResource.loadFromScanner(logger, "RIPE-GRS", new Scanner("" +
+                "ripencc|DE|ipv6|2001:2002:2003:2004::|64|19990812|allocated|73af1b2b-4082-4d56-9268-c978321a313f\n" +
+                "ripencc|DE|ipv6|2001:2002:2003:2005::|64|19990812|allocated|73af1b2b-4082-4d56-9268-c978321a313f\n"));
 
         assertThat(resourceData.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:2002:2003:2004::/63")), is(true));
     }
