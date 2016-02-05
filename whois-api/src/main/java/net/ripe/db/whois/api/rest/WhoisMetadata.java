@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+// TODO: [ES] replace hardcoded environment-specific URL
 @Component
 @Path("/metadata")
 public class WhoisMetadata {
