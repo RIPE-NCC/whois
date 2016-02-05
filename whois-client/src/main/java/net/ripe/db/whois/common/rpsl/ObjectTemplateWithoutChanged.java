@@ -145,7 +145,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
 
                 new ObjectTemplateWithoutChanged(ObjectType.AS_SET, 9,
                         new AttributeTemplate(AS_SET, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MEMBERS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MBRS_BY_REF, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
@@ -162,7 +162,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
                 new ObjectTemplateWithoutChanged(ObjectType.AUT_NUM, 8,
                         new AttributeTemplate(AUT_NUM, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
                         new AttributeTemplate(AS_NAME, MANDATORY, SINGLE),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MEMBER_OF, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(IMPORT_VIA, OPTIONAL, MULTIPLE, USER_ORDER),
                         new AttributeTemplate(IMPORT, OPTIONAL, MULTIPLE, USER_ORDER),
@@ -188,7 +188,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
 
                 new ObjectTemplateWithoutChanged(ObjectType.DOMAIN, 30,
                         new AttributeTemplate(DOMAIN, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
@@ -204,7 +204,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
 
                 new ObjectTemplateWithoutChanged(ObjectType.FILTER_SET, 21,
                         new AttributeTemplate(FILTER_SET, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(FILTER, OPTIONAL, SINGLE),
                         new AttributeTemplate(MP_FILTER, OPTIONAL, SINGLE),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
@@ -220,7 +220,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
 
                 new ObjectTemplateWithoutChanged(ObjectType.INET_RTR, 15,
                         new AttributeTemplate(INET_RTR, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ALIAS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(LOCAL_AS, MANDATORY, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(IFADDR, MANDATORY, MULTIPLE, INVERSE_KEY),
@@ -241,7 +241,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
                 new ObjectTemplateWithoutChanged(ObjectType.INET6NUM, 6,
                         new AttributeTemplate(INET6NUM, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
                         new AttributeTemplate(NETNAME, MANDATORY, SINGLE, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(COUNTRY, MANDATORY, MULTIPLE),
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
@@ -265,7 +265,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
                 new ObjectTemplateWithoutChanged(ObjectType.INETNUM, 5,
                         new AttributeTemplate(INETNUM, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
                         new AttributeTemplate(NETNAME, MANDATORY, SINGLE, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(COUNTRY, MANDATORY, MULTIPLE),
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
@@ -324,7 +324,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
 
                 new ObjectTemplateWithoutChanged(ObjectType.MNTNER, 40,
                         new AttributeTemplate(MNTNER, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, OPTIONAL, MULTIPLE, INVERSE_KEY),
@@ -366,7 +366,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
 
                 new ObjectTemplateWithoutChanged(ObjectType.PEERING_SET, 22,
                         new AttributeTemplate(PEERING_SET, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(PEERING, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MP_PEERING, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
@@ -440,7 +440,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
 
                 new ObjectTemplateWithoutChanged(ObjectType.ROUTE_SET, 12,
                         new AttributeTemplate(ROUTE_SET, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MEMBERS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MP_MEMBERS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MBRS_BY_REF, OPTIONAL, MULTIPLE, INVERSE_KEY),
@@ -457,7 +457,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
 
                 new ObjectTemplateWithoutChanged(ObjectType.ROUTE, 10,
                         new AttributeTemplate(ROUTE, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORIGIN, MANDATORY, SINGLE, PRIMARY_KEY, INVERSE_KEY),
                         new AttributeTemplate(PINGABLE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(PING_HDL, OPTIONAL, MULTIPLE, INVERSE_KEY),
@@ -480,7 +480,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
 
                 new ObjectTemplateWithoutChanged(ObjectType.ROUTE6, 11,
                         new AttributeTemplate(ROUTE6, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORIGIN, MANDATORY, SINGLE, PRIMARY_KEY, INVERSE_KEY),
                         new AttributeTemplate(PINGABLE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(PING_HDL, OPTIONAL, MULTIPLE, INVERSE_KEY),
@@ -503,7 +503,7 @@ public final class ObjectTemplateWithoutChanged extends ObjectTemplate {
 
                 new ObjectTemplateWithoutChanged(ObjectType.RTR_SET, 23,
                         new AttributeTemplate(RTR_SET, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
-                        new AttributeTemplate(DESCR, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MEMBERS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MP_MEMBERS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(MBRS_BY_REF, OPTIONAL, MULTIPLE, INVERSE_KEY),
