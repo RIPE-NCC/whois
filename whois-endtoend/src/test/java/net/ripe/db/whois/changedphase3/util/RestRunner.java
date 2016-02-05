@@ -50,7 +50,7 @@ public class RestRunner extends AbstractScenarioRunner {
 
             logEvent("Created", whoisResources);
 
-            verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+            verifyPostCondition(scenario, Scenario.Result.SUCCESS, whoisResources);
 
             verifyNotificationEmail(scenario);
 
@@ -81,7 +81,7 @@ public class RestRunner extends AbstractScenarioRunner {
 
             logEvent("Modified", whoisResources);
 
-            verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+            verifyPostCondition(scenario, Scenario.Result.SUCCESS, whoisResources);
 
             verifyNotificationEmail(scenario);
 
@@ -105,7 +105,7 @@ public class RestRunner extends AbstractScenarioRunner {
 
             logEvent("Deleted", whoisResources);
 
-            verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+            verifyPostCondition(scenario, Scenario.Result.SUCCESS, whoisResources);
 
             verifyNotificationEmail(scenario);
 
@@ -125,6 +125,9 @@ public class RestRunner extends AbstractScenarioRunner {
                     "whois/test/mntner/TESTING-MNT?unfiltered=true&password=123")
                     .request()
                     .get(WhoisResources.class);
+
+            verifyPostCondition(scenario, Scenario.Result.SUCCESS, whoisResources);
+
             List<RpslObject> result = context.getWhoisObjectMapper().mapWhoisObjects(whoisResources.getWhoisObjects(), FormattedClientAttributeMapper.class);
             assertThat(result, hasSize(1));
 
@@ -147,6 +150,9 @@ public class RestRunner extends AbstractScenarioRunner {
                     "whois/search?query-string=TESTING-MNT&source=TEST&flags=rB")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
+
+            verifyPostCondition(scenario, Scenario.Result.SUCCESS, whoisResources);
+
             List<RpslObject> searchResults = context.getWhoisObjectMapper().mapWhoisObjects(whoisResources.getWhoisObjects(), FormattedClientAttributeMapper.class);
             assertThat(searchResults, hasSize(1));
 

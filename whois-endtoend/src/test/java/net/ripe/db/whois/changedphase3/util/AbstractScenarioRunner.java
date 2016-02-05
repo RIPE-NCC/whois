@@ -1,6 +1,8 @@
 package net.ripe.db.whois.changedphase3.util;
 
+import com.google.common.collect.Iterables;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -15,11 +17,13 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -132,6 +136,28 @@ public abstract class AbstractScenarioRunner implements ScenarioRunner {
     protected void verifyPostCondition(final Scenario scenario, final Scenario.Result actualResult) {
         assertThat(actualResult, is(scenario.getResult()));
         verifyObject(scenario.getPostCond(), fetchObjectViaRestApi());
+    }
+
+    protected void verifyPostCondition(final Scenario scenario, final Scenario.Result actualResult, final WhoisResources whoisResources) {
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final Iterable<Attribute> changed = Iterables.filter(whoisResources.getWhoisObjects().get(0).getAttributes(), input -> input.getName().equals("changed"));
+        switch (scenario.getReq()) {
+            case WITH_CHANGED:
+            case NO_CHANGED__:
+                assertThat(changed, emptyIterable());
+                break;
+            case NOT_APPLIC__:
+                break;
+        }
+        verifyPostCondition(scenario, actualResult);
+    }
+
+    protected void verifyPostCondition(final Scenario scenario, final Scenario.Result actualResult, final String respText) {
+        if( scenario.getReq() != Scenario.Req.NOT_APPLIC__ ) {
+            assertThat(respText, not(containsString("\nchanged:")));
+        }
+        verifyPostCondition(scenario, actualResult);
     }
 
     protected void verifyObject(final Scenario.ObjectStatus objectState, final RpslObject result) {

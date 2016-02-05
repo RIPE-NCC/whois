@@ -24,12 +24,13 @@ public class FormattedServerAttributeMapperTest {
 
     private static final String BASE_URL = "http://localhost/lookup";
 
-    @Mock private ReferencedTypeResolver referencedTypeResolver;
+    @Mock
+    private ReferencedTypeResolver referencedTypeResolver;
 
     private FormattedServerAttributeMapper subject;
 
     @Before
-    public void setup(){
+    public void setup() {
         subject = new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL);
     }
 

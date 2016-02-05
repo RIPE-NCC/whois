@@ -330,27 +330,22 @@ public class JdbcRpslObjectOperations {
 
             sanityCheck(jdbcTemplate);
 
-            final List<String> tables = jdbcTemplate.queryForList("SHOW TABLES", String.class);
-            for (final String table : tables) {
-                truncateTable(jdbcTemplate, table);
+            try {
+                jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+
+                final List<String> tables = jdbcTemplate.queryForList("SHOW TABLES", String.class);
+
+                for (final String table : tables) {
+                    if (UNTRUNCATABLE_TABLES.contains(table)) {
+                        continue;
+                    }
+
+                    jdbcTemplate.execute("TRUNCATE TABLE " + table);
+                }
+            } finally {
+                jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
             }
         }
-    }
-
-    public static void truncateTable(final JdbcTemplate jdbcTemplate, final String table) {
-        if (jdbcTemplate == null) {
-            return;
-        }
-
-        if (UNTRUNCATABLE_TABLES.contains(table)) {
-            return;
-        }
-
-        // Cannot TRUNCATE MariaDB tables w/ foreign key constraint, so
-        // use DELETE before actually truncating
-        jdbcTemplate.execute("DELETE FROM " + table);
-        // and reset, to prevent that tests that depend on generated ids break
-        jdbcTemplate.execute("ALTER TABLE " + table + " AUTO_INCREMENT = 1");
     }
 
     public static void loadScripts(final JdbcTemplate jdbcTemplate, final String... initSql) {
