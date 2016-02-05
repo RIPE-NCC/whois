@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.Messages;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nullable;
+import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class RestClientException extends RuntimeException {
                 new ErrorMessage(new Message(Messages.Type.ERROR, message != null ? message : "no message")));
     }
 
-    public RestClientException( @Nullable final Throwable cause) {
+    public RestClientException(@Nullable final Throwable cause) {
         super(cause);
         this.errorMessages = Collections.singletonList(
                 new ErrorMessage(new Message(Messages.Type.ERROR, cause != null ? cause.getMessage() : "no cause")));
@@ -35,6 +36,10 @@ public class RestClientException extends RuntimeException {
         this.status = status;
         this.errorMessages = Collections.singletonList(
                 new ErrorMessage(new Message(Messages.Type.ERROR, cause != null ? cause.getMessage() : "no cause")));
+    }
+
+    public RestClientException(final Response.Status status, final Throwable cause) {
+        this(status.getStatusCode(), cause);
     }
 
     @Override
