@@ -108,7 +108,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
         assertThat(result, is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<abuse-resources service=\"abuse-contact\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
-                "    <link xlink:type=\"locator\" xlink:href=\"http://localhost/abuse-contact/193.0.0.0 - 193.0.0.255\"/>\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/193.0.0.0 - 193.0.0.255\"/>\n" +
                 "    <parameters>\n" +
                 "        <primary-key value=\"193.0.0.0 - 193.0.0.255\"/>\n" +
                 "    </parameters>\n" +
@@ -147,7 +147,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  \"service\" : \"abuse-contact\",\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost/abuse-contact/193.0.0.1\"\n" +
+                "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/193.0.0.1\"\n" +
                 "  },\n" +
                 "  \"parameters\" : {\n" +
                 "    \"primary-key\" : {\n" +
@@ -193,7 +193,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  \"service\" : \"abuse-contact\",\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost/abuse-contact/193.0.0.1\"\n" +
+                "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/193.0.0.1\"\n" +
                 "  },\n" +
                 "  \"parameters\" : {\n" +
                 "    \"primary-key\" : {\n" +
@@ -258,7 +258,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  \"service\" : \"abuse-contact\",\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost/abuse-contact/2a00:1f78::/32\"\n" +
+                "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/2a00:1f78::/32\"\n" +
                 "  },\n" +
                 "  \"parameters\" : {\n" +
                 "    \"primary-key\" : {\n" +
@@ -303,7 +303,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
         assertThat(result, is("" +
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<abuse-resources service=\"abuse-contact\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
-                "    <link xlink:type=\"locator\" xlink:href=\"http://localhost/abuse-contact/2a00:1f78::/32\"/>\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/abuse-contact/2a00:1f78::/32\"/>\n" +
                 "    <parameters>\n" +
                 "        <primary-key value=\"2a00:1f78::/32\"/>\n" +
                 "    </parameters>\n" +
@@ -417,7 +417,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  \"service\" : \"abuse-contact\",\n" +
                 "  \"link\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://localhost/abuse-contact/AS333\"\n" +
+                "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/AS333\"\n" +
                 "  },"));
     }
 }
