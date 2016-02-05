@@ -32,7 +32,7 @@ public class MailUpdateRunner extends AbstractScenarioRunner {
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(message.getContent().toString(), containsString("Create SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, Scenario.Result.SUCCESS, message.getContent().toString());
             } else {
                 assertThat(message.getContent().toString(), containsString("***Error:"));
                 verifyPostCondition(scenario, Scenario.Result.FAILURE);
@@ -55,7 +55,7 @@ public class MailUpdateRunner extends AbstractScenarioRunner {
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(message.getContent().toString(), containsString("Modify SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, Scenario.Result.SUCCESS, message.getContent().toString());
             } else {
                 assertThat(message.getContent().toString(), containsString("***Error:"));
                 verifyPostCondition(scenario, Scenario.Result.FAILURE);
@@ -78,7 +78,7 @@ public class MailUpdateRunner extends AbstractScenarioRunner {
 
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(message.getContent().toString(), containsString("Delete SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, Scenario.Result.SUCCESS, message.getContent().toString());
             } else {
                 assertThat(message.getContent().toString(), containsString("***Error:"));
                 verifyPostCondition(scenario, Scenario.Result.FAILURE);
