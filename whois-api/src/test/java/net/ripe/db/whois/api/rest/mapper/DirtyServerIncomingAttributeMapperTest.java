@@ -5,7 +5,6 @@ import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,11 +25,11 @@ public class DirtyServerIncomingAttributeMapperTest {
     @Mock
     private ReferencedTypeResolver referencedTypeResolver;
 
-    private DirtyServerIncomingAttributeMapper subject;
+    private DirtyServerAttributeMapper subject;
 
     @Before
     public void setup() {
-        subject = new DirtyServerIncomingAttributeMapper(referencedTypeResolver, BASE_URL);
+        subject = new DirtyServerAttributeMapper(referencedTypeResolver, BASE_URL);
     }
 
     @Test

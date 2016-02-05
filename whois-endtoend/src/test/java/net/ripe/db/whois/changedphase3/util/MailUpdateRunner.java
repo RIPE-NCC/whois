@@ -30,14 +30,12 @@ public class MailUpdateRunner extends AbstractScenarioRunner {
             final String response = context.getMailUpdatesTestSupport().insert("NEW", objectForScenario.toString() + "\npassword:123");
             final MimeMessage message = context.getMailSenderStub().getMessage(response);
 
-            logEvent("mail-create", message.getContent().toString());
-
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(message.getContent().toString(), containsString("Create SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, message.getContent().toString(), Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, Scenario.Result.SUCCESS, message.getContent().toString());
             } else {
                 assertThat(message.getContent().toString(), containsString("***Error:"));
-                verifyPostCondition(scenario, message.getContent().toString(), Scenario.Result.FAILURE);
+                verifyPostCondition(scenario, Scenario.Result.FAILURE);
             }
 
         } catch (MessagingException | IOException exc) {
@@ -55,14 +53,12 @@ public class MailUpdateRunner extends AbstractScenarioRunner {
             final String response = context.getMailUpdatesTestSupport().insert("MODIFY", objectForScenario.toString() + "password:123");
             final MimeMessage message = context.getMailSenderStub().getMessage(response);
 
-            logEvent("mail-modify", message.getContent().toString());
-
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(message.getContent().toString(), containsString("Modify SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, message.getContent().toString(), Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, Scenario.Result.SUCCESS, message.getContent().toString());
             } else {
                 assertThat(message.getContent().toString(), containsString("***Error:"));
-                verifyPostCondition(scenario, message.getContent().toString(), Scenario.Result.FAILURE);
+                verifyPostCondition(scenario, Scenario.Result.FAILURE);
             }
 
         } catch (MessagingException | IOException exc) {
@@ -80,14 +76,12 @@ public class MailUpdateRunner extends AbstractScenarioRunner {
             final String response = context.getMailUpdatesTestSupport().insert("DELETE", objectForScenario.toString() + "delete: testing\npassword:123");
             final MimeMessage message = context.getMailSenderStub().getMessage(response);
 
-            logEvent("mail-delete", message.getContent().toString());
-
             if (scenario.getResult() == Scenario.Result.SUCCESS) {
                 assertThat(message.getContent().toString(), containsString("Delete SUCCEEDED: [mntner] TESTING-MNT"));
-                verifyPostCondition(scenario, message.getContent().toString(), Scenario.Result.SUCCESS);
+                verifyPostCondition(scenario, Scenario.Result.SUCCESS, message.getContent().toString());
             } else {
                 assertThat(message.getContent().toString(), containsString("***Error:"));
-                verifyPostCondition(scenario, message.getContent().toString(), Scenario.Result.FAILURE);
+                verifyPostCondition(scenario, Scenario.Result.FAILURE);
             }
 
         } catch (MessagingException | IOException exc) {

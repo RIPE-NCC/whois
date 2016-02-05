@@ -17,13 +17,13 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class FormattedServerIncomingAttributeMapper
+public class FormattedServerAttributeMapper
         implements AttributeMapper {
     private final ReferencedTypeResolver referencedTypeResolver;
     private final String baseUrl;
 
     @Autowired
-    public FormattedServerIncomingAttributeMapper(final ReferencedTypeResolver referencedTypeResolver,
+    public FormattedServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver,
                                                   @Value("${api.rest.baseurl}") final String baseUrl) {
         this.referencedTypeResolver = referencedTypeResolver;
         this.baseUrl = baseUrl;

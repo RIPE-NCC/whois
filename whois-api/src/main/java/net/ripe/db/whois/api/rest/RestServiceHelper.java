@@ -1,11 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.DirtyServerIncomingAttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.DirtyServerOutgoingAttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.FormattedServerIncomingAttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.FormattedServerOutgoingAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.*;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,14 +39,6 @@ public class RestServiceHelper {
         return builder.toString();
     }
 
-    public static Class<? extends AttributeMapper> getServerIncomingAttributeMapper(final boolean unformatted) {
-        return unformatted ? DirtyServerIncomingAttributeMapper.class : FormattedServerIncomingAttributeMapper.class;
-    }
-
-    public static Class<? extends AttributeMapper> getServerOutgoingAttributeMapper(final boolean unformatted) {
-        return unformatted ? DirtyServerOutgoingAttributeMapper.class : FormattedServerOutgoingAttributeMapper.class;
-    }
-
     public static boolean isQueryParamSet(final String queryString, final String key) {
         if (queryString == null) {
             return false;
@@ -76,5 +64,14 @@ public class RestServiceHelper {
 
     public static boolean isQueryParamSet(final String queryParam) {
         return (queryParam != null) && (queryParam.isEmpty() || queryParam.equalsIgnoreCase("true"));
+    }
+
+    public static Class<? extends AttributeMapper> getServerAttributeMapper(final boolean unformatted) {
+        return unformatted ? DirtyServerAttributeMapper.class : FormattedServerAttributeMapper.class;
+    }
+
+    public static Class<? extends AttributeMapper> getRestResponseAttributeMapper(String queryString){
+        return isQueryParamSet(queryString, "unformatted") ?
+                DirtySuppressChangedAttributeMapper.class : RegularSuppressChangedAttributeMapper.class;
     }
 }

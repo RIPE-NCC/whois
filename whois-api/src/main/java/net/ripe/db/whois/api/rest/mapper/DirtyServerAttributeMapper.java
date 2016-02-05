@@ -5,7 +5,6 @@ import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,13 +15,13 @@ import java.util.Collections;
 import java.util.Set;
 
 @Component
-public class DirtyServerIncomingAttributeMapper
+public class DirtyServerAttributeMapper
         implements AttributeMapper {
     private final ReferencedTypeResolver referencedTypeResolver;
     private final String baseUrl;
 
     @Autowired
-    public DirtyServerIncomingAttributeMapper(final ReferencedTypeResolver referencedTypeResolver,
+    public DirtyServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver,
                                               @Value("${api.rest.baseurl}") final String baseUrl) {
         this.referencedTypeResolver = referencedTypeResolver;
         this.baseUrl = baseUrl;
