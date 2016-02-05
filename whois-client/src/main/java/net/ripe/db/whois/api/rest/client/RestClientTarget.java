@@ -28,6 +28,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
@@ -369,7 +370,7 @@ public class RestClientTarget {
         } catch (ConnectException ce) {
             LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
             LOGGER.error("Caught exception while connecting", ce);
-            throw new RestClientException(503, ce);
+            throw new RestClientException(Response.Status.SERVICE_UNAVAILABLE, ce);
         } catch (IOException e) {
             try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
                 final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
@@ -379,7 +380,7 @@ public class RestClientTarget {
                 LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
                 LOGGER.error("Initial IOException: ", e);
                 LOGGER.error("Caught exception while unmarshalling error", e1);
-                throw new RestClientException(500, e1);
+                throw new RestClientException(Response.Status.INTERNAL_SERVER_ERROR, e1);
             }
         }
     }
@@ -441,7 +442,7 @@ public class RestClientTarget {
             if (whoisResources == null) {
                 return createExceptionFromMessage(e);
             }
-            return new RestClientException( e.getResponse().getStatus(), whoisResources.getErrorMessages());
+            return new RestClientException(e.getResponse().getStatus(), whoisResources.getErrorMessages());
         } catch (ProcessingException | IllegalStateException e1) {
             return createExceptionFromMessage(e);
         }
