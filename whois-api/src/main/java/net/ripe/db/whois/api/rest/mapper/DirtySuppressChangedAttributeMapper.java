@@ -1,11 +1,8 @@
 package net.ripe.db.whois.api.rest.mapper;
 
-import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
 import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
