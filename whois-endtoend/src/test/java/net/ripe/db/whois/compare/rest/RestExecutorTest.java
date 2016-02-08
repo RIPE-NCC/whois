@@ -29,7 +29,7 @@ public class RestExecutorTest {
                 "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
                 "  <objects>\n" +
                 "    <object xmlns=\"\" type=\"mntner\">\t \t \t \n" +
-                "      <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/ripe/mntner/RIPE-DBM-STARTUP-MNT\"></link>\n" +
+                "      <link xlink:type=\"locator\" xlink:href=\"http://localhost/ripe/mntner/RIPE-DBM-STARTUP-MNT\"></link>\n" +
                 "      <source id=\"ripe\"></source>\n" +
                 "      <primary-key>\n" +
                 "        <attribute name=\"mntner\" value=\"RIPE-DBM-STARTUP-MNT\"></attribute>\n" +
@@ -38,20 +38,20 @@ public class RestExecutorTest {
                 "        <attribute name=\"mntner\" value=\"RIPE-DBM-STARTUP-MNT\"></attribute>\n" +
                 "        <attribute name=\"descr\" value=\"Mntner for creating new person objects.\"></attribute>\n" +
                 "        <attribute name=\"admin-c\" value=\"DW-RIPE\" referenced-type=\"person\">\n" +
-                "          <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/ripe/person/DW-RIPE\"></link>\n" +
+                "          <link xlink:type=\"locator\" xlink:href=\"http://localhost/ripe/person/DW-RIPE\"></link>\n" +
                 "        </attribute>\n" +
                 "        <attribute name=\"tech-c\" value=\"RD132-RIPE\" referenced-type=\"role\">\n" +
-                "          <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/ripe/role/RD132-RIPE\"></link>\n" +
+                "          <link xlink:type=\"locator\" xlink:href=\"http://localhost/ripe/role/RD132-RIPE\"></link>\n" +
                 "        </attribute>\n" +
                 "        <attribute name=\"org\" value=\"ORG-NCC1-RIPE\" referenced-type=\"organisation\">\n" +
-                "          <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/ripe/organisation/ORG-NCC1-RIPE\"></link>\n" +
+                "          <link xlink:type=\"locator\" xlink:href=\"http://localhost/ripe/organisation/ORG-NCC1-RIPE\"></link>\n" +
                 "        </attribute>\n" +
                 "        <attribute name=\"auth\" value=\"MD5-PW\" comment=\"Filtered\"></attribute>\n" +
                 "        <attribute name=\"auth\" value=\"PGPKEY-1290F9D2\" referenced-type=\"key-cert\">\n" +
-                "          <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/ripe/key-cert/PGPKEY-1290F9D2\"></link>\n" +
+                "          <link xlink:type=\"locator\" xlink:href=\"http://localhost/ripe/key-cert/PGPKEY-1290F9D2\"></link>\n" +
                 "        </attribute>\n" +
                 "        <attribute name=\"mnt-by\" value=\"RIPE-DBM-STARTUP-MNT\" referenced-type=\"mntner\">\n" +
-                "          <link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/ripe/mntner/RIPE-DBM-STARTUP-MNT\"></link>\n" +
+                "          <link xlink:type=\"locator\" xlink:href=\"http://localhost/ripe/mntner/RIPE-DBM-STARTUP-MNT\"></link>\n" +
                 "        </attribute>\n" +
                 "        <attribute name=\"source\" value=\"RIPE\" comment=\"Filtered\"></attribute>\n" +
                 "      </attributes>\n" +
