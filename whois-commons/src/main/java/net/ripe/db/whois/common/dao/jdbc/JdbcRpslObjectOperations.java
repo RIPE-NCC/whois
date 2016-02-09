@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
@@ -330,21 +331,12 @@ public class JdbcRpslObjectOperations {
 
             sanityCheck(jdbcTemplate);
 
-            try {
-                jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+            final List<String> statements = Lists.newArrayList();
+            statements.add("SET FOREIGN_KEY_CHECKS = 0");
+            statements.addAll(Lists.transform(jdbcTemplate.queryForList("SHOW TABLES", String.class), table -> String.format("TRUNCATE TABLE %s", table)));
+            statements.add("SET FOREIGN_KEY_CHECKS = 1");
 
-                final List<String> tables = jdbcTemplate.queryForList("SHOW TABLES", String.class);
-
-                for (final String table : tables) {
-                    if (UNTRUNCATABLE_TABLES.contains(table)) {
-                        continue;
-                    }
-
-                    jdbcTemplate.execute("TRUNCATE TABLE " + table);
-                }
-            } finally {
-                jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
-            }
+            jdbcTemplate.batchUpdate(statements.toArray(new String[statements.size()]));
         }
     }
 
