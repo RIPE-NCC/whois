@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -233,8 +233,8 @@ public class SingleUpdateHandler {
         } else {
             final ObjectMessages messages = updateContext.getMessages(update);
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
-            ObjectTemplateProvider.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
-            ObjectTemplateProvider.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
+            ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
+            ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
         }
 
         return updatedObject;

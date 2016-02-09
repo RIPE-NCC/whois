@@ -8,7 +8,7 @@ import net.ripe.db.whois.api.rest.domain.Source;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +91,7 @@ public class WhoisObjectMapper {
         final AttributeMapper attributeMapper = objectMapperFunctions.get(mapFunction);
 
         final List<Attribute> primaryKeyAttributes = new ArrayList<>();
-        for (RpslAttribute keyAttribute : rpslObject.findAttributes(ObjectTemplateProvider.getTemplate(rpslObject.getType()).getKeyAttributes())) {
+        for (RpslAttribute keyAttribute : rpslObject.findAttributes(ObjectTemplate.getTemplate(rpslObject.getType()).getKeyAttributes())) {
             primaryKeyAttributes.addAll(primaryKeyAttributeMapper.map(keyAttribute, source));
         }
 
