@@ -187,7 +187,6 @@ public class GrsSourceImporterTest {
                 "admin-c:        Not available\n" +
                 "tech-c:         See MAINT-AS1263\n" +
                 "mnt-by:         MAINT-AS1263\n" +
-                "changed:        DB-admin@merit.edu 19950201\n" +
                 "source:         APNIC-GRS"));
 
         verify(sanitizer).sanitize(any(RpslObject.class), any(ObjectMessages.class));
