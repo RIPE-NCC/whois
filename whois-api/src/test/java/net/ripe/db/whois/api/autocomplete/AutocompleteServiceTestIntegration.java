@@ -500,17 +500,17 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
-    public void select_abuse_mailbox_from_role_where_exact_match_abuse_mailbox() {
-        databaseHelper.addObject(
+    public void select_abuse_mailbox_from_role_where_partial_match_abuse_mailbox() {
+        databaseHelper.addObject(""+
                 "role:          test role\n" +
-                        "nic-hdl:       tr1-test\n" +
-                        "abuse-mailbox: tr1@host.com\n" +
-                        "source:        TEST");
-        databaseHelper.addObject(
+                "nic-hdl:       tr1-test\n" +
+                "abuse-mailbox: tr1user@host.com\n" +
+                "source:        TEST");
+        databaseHelper.addObject(""+
                 "role:          test role\n" +
-                        "nic-hdl:       tr2-test\n" +
-                        "abuse-mailbox: tr1@host.org\n" +
-                        "source:        TEST");
+                "nic-hdl:       tr2-test\n" +
+                "abuse-mailbox: tr1user@host.org\n" +
+                "source:        TEST");
         rebuildIndex();
 
         final List<Map<String, Object>> response =
@@ -518,11 +518,37 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
                         Lists.newArrayList(AttributeType.ABUSE_MAILBOX),
                         Lists.newArrayList(ObjectType.ROLE),
                         Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
-                        "tr1@host.org");
+                        "tr1user");
+
+        assertThat(response, hasSize(2));
+        assertThat(getValues(response, "key"), contains( "tr1-test", "tr2-test"));
+        assertThat(getValues(response, "abuse-mailbox"), contains( "tr1user@host.com", "tr1user@host.org"));
+    }
+
+    @Test
+    public void select_abuse_mailbox_from_role_where_exact_match_abuse_mailbox() {
+        databaseHelper.addObject(""+
+                "role:          test role\n" +
+                "nic-hdl:       tr1-test\n" +
+                "abuse-mailbox: truser@host.com\n" +
+                "source:        TEST");
+        databaseHelper.addObject(""+
+                "role:          test role\n" +
+                "nic-hdl:       tr2-test\n" +
+                "abuse-mailbox: truser@host.org\n" +
+                "source:        TEST");
+        rebuildIndex();
+
+        final List<Map<String, Object>> response =
+                query(
+                        Lists.newArrayList(AttributeType.ABUSE_MAILBOX),
+                        Lists.newArrayList(ObjectType.ROLE),
+                        Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
+                        "truser@host.org");
 
         assertThat(response, hasSize(1));
         assertThat(getValues(response, "key"), contains( "tr2-test"));
-        assertThat(getValues(response, "abuse-mailbox"), contains( "tr1@host.org"));
+        assertThat(getValues(response, "abuse-mailbox"), contains( "truser@host.org"));
     }
 
     @Test
