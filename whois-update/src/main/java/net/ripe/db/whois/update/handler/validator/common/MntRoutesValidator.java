@@ -27,7 +27,7 @@ public class MntRoutesValidator implements BusinessRuleValidator {
         final List<ObjectType> types = Lists.newArrayList();
 
         for (final ObjectType objectType : ObjectType.values()) {
-            if (ObjectTemplateProvider.getTemplate(objectType).hasAttribute(AttributeType.MNT_ROUTES)) {
+            if (ObjectTemplate.getTemplate(objectType).hasAttribute(AttributeType.MNT_ROUTES)) {
                 types.add(objectType);
             }
         }

@@ -45,7 +45,7 @@ public class AutoKeyResolver {
     }
 
     private void claimOrGenerateAutoKeys(final Update update, final RpslObject object, final UpdateContext updateContext, final Map<RpslAttribute, RpslAttribute> attributesToReplace) {
-        final Set<AttributeType> keyAttributeTypes = ObjectTemplateProvider.getTemplate(object.getType()).getKeyAttributes();
+        final Set<AttributeType> keyAttributeTypes = ObjectTemplate.getTemplate(object.getType()).getKeyAttributes();
         if (keyAttributeTypes.size() != 1) {
             return;
         }
@@ -120,7 +120,7 @@ public class AutoKeyResolver {
 
         final Set<ObjectType> references = attributeType.getReferences();
         for (final ObjectType referenceObjectTypes : references) {
-            final ObjectTemplate referenceObjectSpecs = ObjectTemplateProvider.getTemplate(referenceObjectTypes);
+            final ObjectTemplate referenceObjectSpecs = ObjectTemplate.getTemplate(referenceObjectTypes);
 
             for (final AttributeType referenceObjectKeyAttributes : referenceObjectSpecs.getKeyAttributes()) {
                 final AutoKeyFactory autoKeyFactory = factoryByKeyMap.get(referenceObjectKeyAttributes);
