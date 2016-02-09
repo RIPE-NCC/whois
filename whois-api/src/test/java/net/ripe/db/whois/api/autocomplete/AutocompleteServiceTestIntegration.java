@@ -7,10 +7,7 @@ import net.ripe.db.whois.api.freetext.FreeTextIndex;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -18,6 +15,8 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,6 +27,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
@@ -500,6 +500,32 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
+    public void select_abuse_mailbox_from_role_where_exact_match_abuse_mailbox() {
+        databaseHelper.addObject(
+                "role:          test role\n" +
+                        "nic-hdl:       tr1-test\n" +
+                        "abuse-mailbox: tr1@host.com\n" +
+                        "source:        TEST");
+        databaseHelper.addObject(
+                "role:          test role\n" +
+                        "nic-hdl:       tr2-test\n" +
+                        "abuse-mailbox: tr1@host.org\n" +
+                        "source:        TEST");
+        rebuildIndex();
+
+        final List<Map<String, Object>> response =
+                query(
+                        Lists.newArrayList(AttributeType.ABUSE_MAILBOX),
+                        Lists.newArrayList(ObjectType.ROLE),
+                        Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
+                        "tr1@host.org");
+
+        assertThat(response, hasSize(1));
+        assertThat(getValues(response, "key"), contains( "tr2-test"));
+        assertThat(getValues(response, "abuse-mailbox"), contains( "tr1@host.org"));
+    }
+
+    @Test
     public void select_from_role_no_duplicates() {
         databaseHelper.addObject(
                 "role:          test role\n" +
@@ -553,6 +579,21 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
             contains("2001:67c:2e8::/48"));
     }
 
+    @Test
+    public void select_inetnum_with_dash() {
+        databaseHelper.addObject("inetnum: 193.0.0.0 - 193.255.255.255\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(
+                getValues(
+                        query(  Lists.newArrayList(AttributeType.INETNUM),
+                            Lists.newArrayList(ObjectType.INETNUM),
+                            Lists.newArrayList(AttributeType.INETNUM),
+                            "193.0.0.0 - 193.255.255.255"),
+                            "key"),
+                contains("193.0.0.0 - 193.255.255.255"));
+    }
+
     // helper methods
 
     private List<Map<String, Object>> query(final String query, final String field, final String... attributes) {
@@ -570,15 +611,20 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     private List<Map<String, Object>> query(final List<AttributeType> select, final List<ObjectType> from, final List<AttributeType> where, final String like) {
-        return RestTest
+        try {
+            return RestTest
                 .target(getPort(),
                     "whois/autocomplete?" +
                             (!select.isEmpty() ? join("select", select.stream().map(attributeType -> attributeType.getName()).collect(Collectors.toList())) : "") +
                             (!from.isEmpty()   ? join("from", from.stream().map(objectType -> objectType.getName()).collect(Collectors.toList())) : "") +
                             (!where.isEmpty()  ? join("where", where.stream().map(attributeType -> attributeType.getName()).collect(Collectors.toList())) : "") +
-                            "&like=" + like)
-            .request(MediaType.APPLICATION_JSON_TYPE)
-            .get(new GenericType<List<Map<String, Object>>>(){});
+                            "&like=" + URLEncoder.encode(like, "UTF-8"))
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(new GenericType<List<Map<String, Object>>>(){});
+        } catch( UnsupportedEncodingException exc) {
+            Assert.fail();
+            return null;
+        }
     }
 
     private List<String> getValues(final List<Map<String, Object>> map, final String key) {
