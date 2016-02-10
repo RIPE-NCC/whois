@@ -6,6 +6,7 @@ import org.joda.time.LocalDateTime;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,5 +49,9 @@ public class PendingUpdate {
 
     public LocalDateTime getStoredDate() {
         return storedDate;
+    }
+
+    public Date getDate() {
+        return storedDate.withTime(0, 0, 0, 0).toDate();
     }
 }
