@@ -349,7 +349,7 @@ public class WhoisRestService {
                     .build());
         }
 
-        QueryBuilder queryBuilder = new QueryBuilder().
+        final QueryBuilder queryBuilder = new QueryBuilder().
                 addFlag(QueryFlag.EXACT).
                 addFlag(QueryFlag.NO_GROUPING).
                 addFlag(QueryFlag.NO_REFERENCED).
@@ -380,7 +380,7 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        QueryBuilder queryBuilder = new QueryBuilder()
+        final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addFlag(QueryFlag.LIST_VERSIONS);
 
@@ -422,7 +422,7 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        QueryBuilder queryBuilder = new QueryBuilder()
+        final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addCommaList(QueryFlag.SHOW_VERSION, String.valueOf(version));
 
