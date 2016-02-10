@@ -131,7 +131,7 @@ public class ObjectTemplateWithChangedTest {
         assertThat(template, is("" +
                 "inetnum:        [mandatory]  [single]     [primary/lookup key]\n" +
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
@@ -164,7 +164,7 @@ public class ObjectTemplateWithChangedTest {
                 "\n" +
                 "inetnum:        [mandatory]  [single]     [primary/lookup key]\n" +
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
