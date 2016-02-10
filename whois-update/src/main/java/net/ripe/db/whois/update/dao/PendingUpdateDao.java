@@ -30,7 +30,6 @@ public class PendingUpdateDao {
     @Autowired
     public PendingUpdateDao(@Qualifier("internalsDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.setIgnoreWarnings(false);  // TODO: remove
     }
 
     public List<PendingUpdate> findByTypeAndKey(final ObjectType type, final String key) {
