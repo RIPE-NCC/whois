@@ -784,9 +784,6 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
             if (attributeType != null) {
                 final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
                 if (attributeTemplate == null) {
-                    if (attributeType.equals(AttributeType.CHANGED)) {
-                        objectMessages.addMessage(ValidationMessages.changedAttributeRemoved());
-                    }
                     continue;
                 }
 

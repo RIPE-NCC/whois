@@ -12,6 +12,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.ValidationMessages;
+import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.autokey.AutoKeyResolver;
 import net.ripe.db.whois.update.domain.Action;
@@ -52,6 +54,7 @@ public class SingleUpdateHandler {
     private final IpTreeUpdater ipTreeUpdater;
     private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
+    private final ChangedAttrFeatureToggle changedAttrFeatureToggle;
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
@@ -66,7 +69,8 @@ public class SingleUpdateHandler {
                                final RpslObjectDao rpslObjectDao,
                                final IpTreeUpdater ipTreeUpdater,
                                final PendingUpdateHandler pendingUpdateHandler,
-                               final SsoTranslator ssoTranslator) {
+                               final SsoTranslator ssoTranslator,
+                               final ChangedAttrFeatureToggle changedAttrFeatureToggle) {
         this.autoKeyResolver = autoKeyResolver;
         this.attributeGenerators = attributeGenerators;
         this.attributeSanitizer = attributeSanitizer;
@@ -77,6 +81,7 @@ public class SingleUpdateHandler {
         this.ipTreeUpdater = ipTreeUpdater;
         this.pendingUpdateHandler = pendingUpdateHandler;
         this.ssoTranslator = ssoTranslator;
+        this.changedAttrFeatureToggle = changedAttrFeatureToggle;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
@@ -235,10 +240,26 @@ public class SingleUpdateHandler {
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
+            validateChanged(updatedObject, messages);
         }
 
         return updatedObject;
     }
+
+    private void validateChanged(final RpslObject updatedObject, final ObjectMessages objectMessages) {
+        if (!updatedObject.containsAttribute(AttributeType.CHANGED)) {
+            return;
+        }
+
+        if (changedAttrFeatureToggle.isChangedAttrAvailable()) {
+            objectMessages.addMessage(ValidationMessages.changedAttributeRemoved());
+        } else {
+            for (RpslAttribute changed : updatedObject.findAttributes(AttributeType.CHANGED)) {
+                objectMessages.addMessage(changed, ValidationMessages.unknownAttribute(changed.getKey()));
+            }
+        }
+    }
+
 
     private Action getAction(@Nullable final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final Keyword keyword) {
         if (Operation.DELETE.equals(update.getOperation())) {
