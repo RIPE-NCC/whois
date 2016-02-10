@@ -46,7 +46,7 @@ public class PendingUpdateHandlerTest {
     public void found_completing_pendingUpdate() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         RpslObject objectBase = RpslObject.parse("route: 193.0/16\norigin: AS12345");
-        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), objectBase, dateTimeProvider.getCurrentDateTime());
+        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), objectBase, dateTimeProvider.getCurrentDate());
 
         when(updateContext.getPendingUpdate(preparedUpdate)).thenReturn(pendingUpdate);
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);
@@ -62,7 +62,7 @@ public class PendingUpdateHandlerTest {
     public void found_pendingUpdate_with_same_authenticator() {
         RpslObject object = RpslObject.parse("route: 193.0/16\norigin: AS12345");
         RpslObject objectBase = RpslObject.parse("route: 193.0/16\norigin: AS12345");
-        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), objectBase, dateTimeProvider.getCurrentDateTime());
+        final PendingUpdate pendingUpdate = new PendingUpdate(Sets.newHashSet("RouteAutnumAuthentication"), objectBase, dateTimeProvider.getCurrentDate());
 
         when(updateContext.getPendingUpdate(preparedUpdate)).thenReturn(pendingUpdate);
         when(preparedUpdate.getUpdatedObject()).thenReturn(object);
