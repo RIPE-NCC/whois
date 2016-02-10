@@ -764,7 +764,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "abuse-mailbox:  [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]")
