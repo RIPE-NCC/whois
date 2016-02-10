@@ -759,6 +759,9 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
             if (attributeType == null) {
                 objectMessages.addMessage(attribute, ValidationMessages.unknownAttribute(attribute.getKey()));
             } else {
+                if (AttributeType.CHANGED.equals(attributeType)) {
+                    continue;
+                }
                 final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
                 if (attributeTemplate == null) {
                     objectMessages.addMessage(attribute, ValidationMessages.invalidAttributeForObject(attributeType));
@@ -780,16 +783,25 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
             if (attributeType != null) {
                 final AttributeTemplate attributeTemplate = attributeTemplateMap.get(attributeType);
-                if (attributeTemplate != null) {
-                    if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) continue;
-                    attribute.validateSyntax(rpslObjectType, objectMessages);
-                    attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
+                if (attributeTemplate == null) {
+                    if (attributeType.equals(AttributeType.CHANGED)) {
+                        objectMessages.addMessage(ValidationMessages.changedAttributeRemoved());
+                    }
+                    continue;
                 }
+
+                if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) {
+                    continue;
+                }
+                attribute.validateSyntax(rpslObjectType, objectMessages);
+                attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
             }
         }
 
         for (final AttributeTemplate attributeTemplate : attributeTemplates) {
-            if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) continue;
+            if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) {
+                continue;
+            }
 
             final AttributeType attributeType = attributeTemplate.getAttributeType();
             final int attributeTypeCount = attributeCount.get(attributeType);
