@@ -39,7 +39,6 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
                 "                <attribute name=\"notify\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>\n" +
                 "                <attribute name=\"mnt-by\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>\n" +
                 "                <attribute name=\"mnt-lower\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>\n" +
-                "                <attribute name=\"changed\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
                 "                <attribute name=\"created\" requirement=\"GENERATED\" cardinality=\"SINGLE\" keys=\"\"/>\n" +
                 "                <attribute name=\"last-modified\" requirement=\"GENERATED\" cardinality=\"SINGLE\" keys=\"\"/>\n" +
                 "                <attribute name=\"source\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"\"/>\n" +
@@ -119,10 +118,6 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
                 "          \"requirement\" : \"OPTIONAL\",\n" +
                 "          \"cardinality\" : \"MULTIPLE\",\n" +
                 "          \"keys\" : [ \"INVERSE_KEY\" ]\n" +
-                "        }, {\n" +
-                "          \"name\" : \"changed\",\n" +
-                "          \"requirement\" : \"OPTIONAL\",\n" +
-                "          \"cardinality\" : \"MULTIPLE\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"created\",\n" +
                 "          \"requirement\" : \"GENERATED\",\n" +
