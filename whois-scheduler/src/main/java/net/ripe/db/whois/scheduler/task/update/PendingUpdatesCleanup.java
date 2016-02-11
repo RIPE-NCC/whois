@@ -14,12 +14,22 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.update.dao.PendingUpdateDao;
-import net.ripe.db.whois.update.domain.*;
+import net.ripe.db.whois.update.domain.Action;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Operation;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.Paragraph;
+import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.ResponseMessage;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateRequest;
+import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.log.UpdateLog;
 import net.ripe.db.whois.update.mail.MailGateway;
-import org.joda.time.LocalDateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +72,7 @@ public class PendingUpdatesCleanup implements DailyScheduledTask {
 
     @Override
     public void run() {
-        final LocalDateTime before = dateTimeProvider.getCurrentDateTime().minusDays(CLEANUP_THRESHOLD_DAYS);
+        final LocalDate before = dateTimeProvider.getCurrentDate().minusDays(CLEANUP_THRESHOLD_DAYS);
         LOGGER.debug("Removing pending updates before {}", before);
 
         for (PendingUpdate pendingUpdate : pendingUpdateDao.findBeforeDate(before)) {

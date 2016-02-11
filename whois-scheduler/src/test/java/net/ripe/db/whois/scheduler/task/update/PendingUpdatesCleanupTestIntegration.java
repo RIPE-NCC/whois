@@ -12,7 +12,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.log.UpdateLog;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.joda.time.LocalDateTime;
+import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -58,7 +58,7 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
                 "mnt-by: OWNER-MNT\n" +
                 "source: TEST");
 
-        pendingUpdateDao.store(new PendingUpdate(Sets.newHashSet("RouteAuthentication"), route, LocalDateTime.now().minusDays(8)));
+        pendingUpdateDao.store(new PendingUpdate(Sets.newHashSet("RouteAuthentication"), route, LocalDate.now().minusDays(8)));
         assertThat(getPendingUpdateCount(), is(1));
 
         subject.run();
@@ -78,7 +78,7 @@ public class PendingUpdatesCleanupTestIntegration extends AbstractSchedulerInteg
                 "notify: noreply@ripe.net\n" +
                 "mnt-by: OWNER-MNT\n" +
                 "source: TEST");
-        pendingUpdateDao.store(new PendingUpdate(Sets.newHashSet("RouteAuthentication"), route, LocalDateTime.now().minusDays(6)));
+        pendingUpdateDao.store(new PendingUpdate(Sets.newHashSet("RouteAuthentication"), route, LocalDate.now().minusDays(6)));
         assertThat(getPendingUpdateCount(), is(1));
 
         subject.run();
