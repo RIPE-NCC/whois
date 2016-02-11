@@ -552,6 +552,26 @@ public class AutocompleteServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
+    public void select_abuse_mailbox_from_role_where_exact_match_role_name() {
+        databaseHelper.addObject(""+
+                "role:          test role\n" +
+                "nic-hdl:       tr1-test\n" +
+                "abuse-mailbox: truser@host.com\n" +
+                "source:        TEST");
+        rebuildIndex();
+
+        final List<Map<String, Object>> response =
+                query(
+                        Lists.newArrayList(AttributeType.ROLE),
+                        Lists.newArrayList(ObjectType.ROLE),
+                        Lists.newArrayList(AttributeType.ROLE),
+                        "test role");
+
+        assertThat(response, hasSize(1));
+        assertThat(getValues(response, "key"), contains( "tr1-test"));
+    }
+
+    @Test
     public void select_from_role_no_duplicates() {
         databaseHelper.addObject(
                 "role:          test role\n" +
