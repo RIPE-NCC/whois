@@ -36,7 +36,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
                 "\n" +
                 "route:          [mandatory]  [single]     [primary/lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "origin:         [mandatory]  [single]     [primary/inverse key]\n" +
                 "pingable:       [optional]   [multiple]   [ ]\n" +
                 "ping-hdl:       [optional]   [multiple]   [inverse key]\n" +
@@ -80,7 +80,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "      that originates the route into the interAS routing system.\n" +
                 "\n" +
                 "route6:         [mandatory]  [single]     [primary/lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "origin:         [mandatory]  [single]     [primary/inverse key]\n" +
                 "pingable:       [optional]   [multiple]   [ ]\n" +
                 "ping-hdl:       [optional]   [multiple]   [inverse key]\n" +
@@ -128,7 +128,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "inetnum:        [mandatory]  [single]     [primary/lookup key]\n" +
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
@@ -415,7 +415,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "aut-num:        [mandatory]  [single]     [primary/lookup key]\n" +
                 "as-name:        [mandatory]  [single]     [ ]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]  [multiple]   [ ]\n" +
                 "member-of:      [optional]   [multiple]   [inverse key]\n" +
                 "import-via:     [optional]   [multiple]   [ ]\n" +
                 "import:         [optional]   [multiple]   [ ]\n" +
