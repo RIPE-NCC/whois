@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -84,7 +83,7 @@ public class ReferencedTypeResolver {
                     }
                 } else {
                     for (ObjectType objectType : references) {
-                        for (AttributeType lookupAttribute : ObjectTemplateProvider.getTemplate(objectType).getLookupAttributes()) {
+                        for (AttributeType lookupAttribute : ObjectTemplate.getTemplate(objectType).getLookupAttributes()) {
                             if (lookupAttribute.isValidValue(objectType, value)) {
                                 return objectType.getName();
                             }

@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.rpsl.AttributeSanitizer;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -162,7 +161,7 @@ class GrsSourceImporter {
                     }
 
                     private RpslObject filterObject(final RpslObject rpslObject) {
-                        final ObjectTemplate objectTemplate = ObjectTemplateProvider.getTemplate(rpslObject.getType());
+                        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
 
                         final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
 
