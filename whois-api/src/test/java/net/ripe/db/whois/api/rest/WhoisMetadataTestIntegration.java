@@ -29,7 +29,7 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
                 "            <source id=\"ripe\"/>\n" +
                 "            <attributes>\n" +
                 "                <attribute name=\"peering-set\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"PRIMARY_KEY LOOKUP_KEY\"/>\n" +
-                "                <attribute name=\"descr\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
+                "                <attribute name=\"descr\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
                 "                <attribute name=\"peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
                 "                <attribute name=\"mp-peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
                 "                <attribute name=\"remarks\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
@@ -74,7 +74,7 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
                 "          \"keys\" : [ \"PRIMARY_KEY\", \"LOOKUP_KEY\" ]\n" +
                 "        }, {\n" +
                 "          \"name\" : \"descr\",\n" +
-                "          \"requirement\" : \"MANDATORY\",\n" +
+                "          \"requirement\" : \"OPTIONAL\",\n" +
                 "          \"cardinality\" : \"MULTIPLE\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"peering\",\n" +
