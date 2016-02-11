@@ -6,7 +6,6 @@ import net.ripe.db.whois.api.freetext.FreeTextAnalyzer;
 import net.ripe.db.whois.api.freetext.FreeTextIndex;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
@@ -84,7 +83,8 @@ public class AutocompleteSearch {
                     result.put("type", doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME));
 
                     for (final AttributeType attribute : responseAttributes) {
-                        final ObjectTemplate template = ObjectTemplateProvider.getTemplate(ObjectType.getByName(doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME)));
+                        final ObjectTemplate template = ObjectTemplate.getTemplate(
+                                ObjectType.getByName(doc.get(FreeTextIndex.OBJECT_TYPE_FIELD_NAME)));
 
                         if (template.getMultipleAttributes().contains(attribute)) {
                             result.put(attribute.getName(), Lists.newArrayList(doc.getValues(attribute.getName())));

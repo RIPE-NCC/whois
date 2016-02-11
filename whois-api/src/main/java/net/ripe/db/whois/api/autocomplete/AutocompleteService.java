@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.autocomplete;
 
 import com.google.common.base.Strings;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,12 +121,12 @@ public class AutocompleteService {
 
         final ObjectType objectType = ObjectType.getByNameOrNull(field);
         if (objectType != null) {
-            return Collections.singleton(ObjectTemplateProvider.getTemplate(objectType).getKeyLookupAttribute());
+            return Collections.singleton(ObjectTemplate.getTemplate(objectType).getKeyLookupAttribute());
         }
 
         return attributeType.getReferences()
             .stream()
-            .map(input -> ObjectTemplateProvider.getTemplate(input).getKeyLookupAttribute())
+            .map(input -> ObjectTemplate.getTemplate(input).getKeyLookupAttribute())
             .collect(Collectors.toSet());
     }
 

@@ -11,7 +11,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.query.QueryFlag;
@@ -483,7 +482,7 @@ public class Query {
             nextObjectType:
             for (Iterator<ObjectType> it = response.iterator(); it.hasNext(); ) {
                 ObjectType objectType = it.next();
-                for (final AttributeType attribute : ObjectTemplateProvider.getTemplate(objectType).getLookupAttributes()) {
+                for (final AttributeType attribute : ObjectTemplate.getTemplate(objectType).getLookupAttributes()) {
                     if (AttributeMatcher.fetchableBy(attribute, this)) {
                         continue nextObjectType;
                     }
@@ -568,7 +567,7 @@ public class Query {
     }
 
     public boolean matchesObjectTypeAndAttribute(final ObjectType objectType, final AttributeType attributeType) {
-        return ObjectTemplateProvider.getTemplate(objectType).getLookupAttributes().contains(attributeType) && AttributeMatcher.fetchableBy(attributeType, this);
+        return ObjectTemplate.getTemplate(objectType).getLookupAttributes().contains(attributeType) && AttributeMatcher.fetchableBy(attributeType, this);
     }
 
     public boolean isMatchPrimaryKeyOnly() {

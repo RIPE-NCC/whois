@@ -96,7 +96,7 @@ public enum ObjectType {
     public static final Comparator<ObjectType> COMPARATOR = new Comparator<ObjectType>() {
         @Override
         public int compare(final ObjectType o1, final ObjectType o2) {
-            return ObjectTemplateProvider.getTemplate(o1).compareTo(ObjectTemplateProvider.getTemplate(o2));
+            return ObjectTemplate.getTemplate(o1).compareTo(ObjectTemplate.getTemplate(o2));
         }
     };
 }

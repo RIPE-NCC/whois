@@ -53,7 +53,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -97,7 +96,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -144,7 +142,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -367,15 +364,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     with \"irt-\", and the last character of a name must be a\n" +
                 "     letter or a digit.\n" +
                 "\n" +
-                "changed\n" +
-                "\n" +
-                "   Specifies who submitted the update, and when the object was updated.\n" +
-                "   This attribute is filtered from the default whois output.\n" +
-                "   This attribute is deprecated and will be removed in a next release.\n"+
-                "\n" +
-                "     An e-mail address as defined in RFC 2822, followed by a date\n" +
-                "     in the format YYYYMMDD.\n" +
-                "\n" +
                 "created\n" +
                 "\n" +
                 "   This attributes reflects when the object was created in\n" +
@@ -435,7 +423,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +
@@ -720,15 +707,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "     \"fltr-\" are reserved for filter set names. Names starting\n" +
                 "     with \"prng-\" are reserved for peering set names. Names\n" +
                 "     starting with \"irt-\" are reserved for irt names.\n" +
-                "\n" +
-                "changed\n" +
-                "\n" +
-                "   Specifies who submitted the update, and when the object was updated.\n" +
-                "   This attribute is filtered from the default whois output.\n" +
-                "   This attribute is deprecated and will be removed in a next release.\n" +
-                "\n" +
-                "     An e-mail address as defined in RFC 2822, followed by a date\n" +
-                "     in the format YYYYMMDD.\n" +
                 "\n" +
                 "created\n" +
                 "\n" +
