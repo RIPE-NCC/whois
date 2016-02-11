@@ -415,7 +415,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "aut-num:        [mandatory]  [single]     [primary/lookup key]\n" +
                 "as-name:        [mandatory]  [single]     [ ]\n" +
-                "descr:          [optional]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "member-of:      [optional]   [multiple]   [inverse key]\n" +
                 "import-via:     [optional]   [multiple]   [ ]\n" +
                 "import:         [optional]   [multiple]   [ ]\n" +
