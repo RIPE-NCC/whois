@@ -10,8 +10,6 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.Callable;
-
 @Component
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "Bootstrap", description = "Whois database bootstrap")
 public class BootstrapJmx extends JmxBase {
@@ -32,12 +30,7 @@ public class BootstrapJmx extends JmxBase {
             @ManagedOperationParameter(name = "filenames", description = "Comma separated list of paths to the dump files")
     })
     public String loadDump(final String comment, final String filenames) {
-        return invokeOperation("Load dump", comment, new Callable<String>() {
-            @Override
-            public String call() {
-                return bootstrap.loadTextDumpSafe(filenames.split(","));
-            }
-        });
+        return invokeOperation("Load dump", comment, () -> bootstrap.loadTextDumpSafe(filenames.split(",")));
     }
 
     @ManagedOperation(description = "Load text dump into main database (only adds new objects), \n" +
@@ -47,12 +40,7 @@ public class BootstrapJmx extends JmxBase {
             @ManagedOperationParameter(name = "filenames", description = "Comma separated list of paths to the dump files")
     })
     public String loadDumpRisky(final String comment, final String filenames) {
-        return invokeOperation("Load dump", comment, new Callable<String>() {
-            @Override
-            public String call() {
-                return bootstrap.loadTextDumpRisky(filenames.split(","));
-            }
-        });
+        return invokeOperation("Load dump", comment, () -> bootstrap.loadTextDumpRisky(filenames.split(",")));
     }
 
     @ManagedOperation(description = "Run nightly bootstrap (destructive, deletes database before load)  (DOES NOT use global update lock!)")
@@ -60,12 +48,7 @@ public class BootstrapJmx extends JmxBase {
             @ManagedOperationParameter(name = "comment", description = "Optional comment for invoking the operation")
     })
     public String resetTestDatabase(final String comment) {
-        return invokeOperation("Reset test database", comment, new Callable<String>() {
-            @Override
-            public String call() {
-                return bootstrap.bootstrap();
-            }
-        });
+        return invokeOperation("Reset test database", comment, () -> bootstrap.bootstrap());
     }
 
 }

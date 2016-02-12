@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.net.InetSocketAddress;
@@ -230,6 +231,19 @@ public class NrtmQueryHandlerTest {
         verify(channelMock, times(1)).write("%START Version: 3 RIPE 1-2\n\n");
         verify(channelMock, atMost(1)).write(any(String.class));
         verify(mySchedulerMock, times(1)).scheduleAtFixedRate(any(Runnable.class), anyLong());
+    }
+
+    @Test
+    public void retryForAnnotation() {
+        when(serialDaoMock.getByIdForNrtm(any(Integer.class))).thenThrow(CannotGetJdbcConnectionException.class);
+        when(messageEventMock.getMessage()).thenReturn("-g RIPE:3:1-LAST");
+
+        try {
+            subject.messageReceived(contextMock, messageEventMock);
+            fail();
+        } catch (CannotGetJdbcConnectionException e) {
+            verify(serialDaoMock, times(10)).getByIdForNrtm(1);
+        }
     }
 
     private void setPending(final Channel channelMock) {

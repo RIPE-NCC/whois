@@ -5,7 +5,6 @@ import com.google.common.base.Function;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
@@ -36,7 +35,7 @@ class SyntaxFilterFunction implements Function<ResponseObject, Iterable<? extend
     }
 
     private boolean validSyntax(final RpslObject object) {
-        final ObjectMessages objectMessages = ObjectTemplateProvider.getTemplate(object.getType()).validate(object);
+        final ObjectMessages objectMessages = ObjectTemplate.getTemplate(object.getType()).validate(object);
         return objectMessages.getErrorCount() == 0;
     }
 }

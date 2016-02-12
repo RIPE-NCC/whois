@@ -47,14 +47,11 @@ public abstract class RebuildableIndex {
         try {
             updateLock.acquireUninterruptibly();
             logger.info("Rebuilding index {}", indexDir);
+
             final Stopwatch stopwatch = Stopwatch.createStarted();
-            index.write(new IndexTemplate.WriteCallback() {
-                @Override
-                public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                    rebuild(indexWriter, taxonomyWriter);
-                }
-            });
+            index.write(this::rebuild);
             logger.info("Rebuilt index {} in {}", indexDir, stopwatch.stop());
+
         } catch (IOException e) {
             logger.error("Rebuilding index: {}", indexDir, e);
         } finally {
@@ -63,12 +60,7 @@ public abstract class RebuildableIndex {
     }
 
     public final void update() {
-        update(new IndexTemplate.WriteCallback() {
-                    @Override
-                    public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                        update(indexWriter, taxonomyWriter);
-                    }
-        });
+        update(this::update);
     }
 
     public final void update(IndexTemplate.WriteCallback writeCallback) {
@@ -93,12 +85,7 @@ public abstract class RebuildableIndex {
         }
 
         try {
-            index.write(new IndexTemplate.WriteCallback() {
-                @Override
-                public void write(final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) throws IOException {
-                    indexWriter.deleteDocuments(query);
-                }
-            });
+            index.write((final IndexWriter indexWriter, final TaxonomyWriter taxonomyWriter) -> indexWriter.deleteDocuments(query));
         } catch (IOException e) {
             logger.error("Updating index: {}", indexDir, e);
         } finally {

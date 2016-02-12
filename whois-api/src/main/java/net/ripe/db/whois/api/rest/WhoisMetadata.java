@@ -12,7 +12,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+// TODO: [ES] replace hardcoded environment-specific URL
 @Component
 @Path("/metadata")
 public class WhoisMetadata {
@@ -55,7 +55,7 @@ public class WhoisMetadata {
 
         ATTRIBUTE_TEMPLATES = Maps.newHashMap();
         for (ObjectType objectType : ObjectType.values()) {
-            final ObjectTemplate objectTemplate = ObjectTemplateProvider.getTemplate(objectType);
+            final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
             final List<TemplateAttribute> templateAttributes = Lists.newArrayList();
 
             for (AttributeTemplate attributeTemplate : objectTemplate.getAttributeTemplates()) {

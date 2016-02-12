@@ -21,7 +21,8 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
     private final String baseUrl;
 
     @Autowired
-    public FormattedServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver, @Value("${api.rest.baseurl}") final String baseUrl) {
+    public FormattedServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver,
+                                        @Value("${api.rest.baseurl}") final String baseUrl) {
         this.referencedTypeResolver = referencedTypeResolver;
         this.baseUrl = baseUrl;
     }

@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.domain.PendingUpdate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.joda.time.LocalDateTime;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.RecoverableDataAccessException;
@@ -64,7 +64,7 @@ public class PendingUpdateDao {
         jdbcTemplate.update("DELETE FROM pending_updates WHERE pkey = ?", pendingUpdate.getObject().getKey().toString());
     }
 
-    public List<PendingUpdate> findBeforeDate(final LocalDateTime date) {
+    public List<PendingUpdate> findBeforeDate(final LocalDate date) {
         return jdbcTemplate.query("" +
                 "SELECT id, passed_authentications, object, stored_date " +
                 "FROM pending_updates " +
@@ -80,7 +80,7 @@ public class PendingUpdateDao {
                     rs.getInt("id"),
                     Sets.newHashSet(COMMA_SPLITTER.split(rs.getString("passed_authentications"))),
                     RpslObject.parse(rs.getString("object")),
-                    new LocalDateTime(rs.getDate("stored_date"))
+                    LocalDate.fromDateFields(rs.getDate("stored_date"))
             );
         }
     }

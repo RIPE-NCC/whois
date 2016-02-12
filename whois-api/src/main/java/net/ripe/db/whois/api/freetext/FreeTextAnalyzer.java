@@ -13,7 +13,7 @@ import java.io.Reader;
 import java.util.List;
 
 public class FreeTextAnalyzer extends Analyzer {
-    public static enum Operation {QUERY, INDEX}
+    public enum Operation {QUERY, INDEX}
 
     private static final List<String> STOP_WORDS = Lists.newArrayList(
             "a", "an", "and", "are", "as", "at",

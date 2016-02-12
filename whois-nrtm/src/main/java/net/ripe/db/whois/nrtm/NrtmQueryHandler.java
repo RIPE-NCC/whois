@@ -2,6 +2,7 @@ package net.ripe.db.whois.nrtm;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import joptsimple.OptionException;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
@@ -19,6 +20,7 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.scheduling.TaskScheduler;
 
 import java.util.concurrent.ScheduledFuture;
@@ -176,7 +178,8 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
                 continue;
             }
 
-            final SerialEntry serialEntry = serialDao.getByIdForNrtm(serial);
+            final SerialEntry serialEntry = readSerial(serial);
+
             if (serialEntry != null) {
                 if (dummifier.isAllowed(version, serialEntry.getRpslObject())) {
                     final String operation = serialEntry.getOperation().toString();
@@ -196,6 +199,11 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
         }
 
         return serial;
+    }
+
+    @RetryFor(attempts = 10, value = CannotGetJdbcConnectionException.class)
+    private SerialEntry readSerial(final int serial) {
+        return serialDao.getByIdForNrtm(serial);
     }
 
     private boolean isRequestedSerialInRange(final Query query, final SerialRange range) {

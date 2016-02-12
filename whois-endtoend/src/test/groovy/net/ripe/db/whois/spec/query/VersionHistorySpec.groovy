@@ -1396,6 +1396,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         queryLineMatches("-m --list-versions 2001::/20", "^%ERROR:109: invalid combination of flags passed")
     }
 
+    // TODO: [ES] failing test
     def "query --list-versions, with persistent connection, 2 versions"() {
       given:
         syncUpdate(getTransient("RIR-ALLOC-20") + "override: denis,override1")
@@ -1433,8 +1434,8 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
 
-        def responses = queryPersistent(["-k --show-version 1 2001::/20",
-                                     "-k --show-version 2 2001::/20"])
+      then:
+        def responses = queryPersistent(["-k --show-version 1 2001::/20", "-k --show-version 2 2001::/20"])
 
         responseMatches(responses.get(0),"^% Version 1 of object \"2001::/20\"")
         !responseMatches(responses.get(0),"^% Version 2 \\(current version\\) of object \"2001::/20\"")

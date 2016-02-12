@@ -12,12 +12,10 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Set;
 
 @Component
@@ -51,7 +49,7 @@ class PendingUpdateHandler {
 
         if (pendingUpdate == null) {
             loggerContext.log(new Message(Messages.Type.INFO, "No pending updates found; storing in DB"));
-            pendingUpdateDao.store(new PendingUpdate(passedAuthentications, rpslObject, dateTimeProvider.getCurrentDateTime()));
+            pendingUpdateDao.store(new PendingUpdate(passedAuthentications, rpslObject, dateTimeProvider.getCurrentDate()));
             updateContext.addMessage(preparedUpdate, UpdateMessages.updatePendingAuthentication());
             updateContext.addMessage(preparedUpdate, UpdateMessages.updatePendingAuthenticationSaved(preparedUpdate.getUpdatedObject()));
         } else {

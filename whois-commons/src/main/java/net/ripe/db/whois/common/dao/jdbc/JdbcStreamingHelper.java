@@ -22,7 +22,7 @@ public class JdbcStreamingHelper {
 
                 try {
                     // [AK] Creating a statement with criteria below is currently the only way to
-                    // get MySQL streaming results rather than preloading the entire resultset in memory.
+                    // get database streaming results rather than preloading the entire resultset in memory.
                     ps = con.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
                     ps.setFetchSize(Integer.MIN_VALUE);
 

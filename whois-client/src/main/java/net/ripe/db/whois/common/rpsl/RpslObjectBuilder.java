@@ -161,7 +161,7 @@ public class RpslObjectBuilder {
      * This sort is guaranteed to be <i>stable</i>:  equal elements will not be reordered as a result of the sort.*/
     public RpslObjectBuilder sort() {
         final ObjectType objectType = getType();
-        Collections.sort(attributes, ObjectTemplateProvider.getTemplate(objectType).getAttributeTypeComparator());
+        Collections.sort(attributes, ObjectTemplate.getTemplate(objectType).getAttributeTypeComparator());
         return this;
     }
 
@@ -222,7 +222,7 @@ public class RpslObjectBuilder {
     /** determine type by first type attribute present in object, then add attribute according to attribute order in template. */
     public RpslObjectBuilder addAttributeSorted(final RpslAttribute newAttribute) {
         final ObjectType objectType = getType();
-        final ObjectTemplate objectTemplate = ObjectTemplateProvider.getTemplate(objectType);
+        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
         final EnumSet<AttributeType> attributesAfter = getAttributeTypesAfter(objectTemplate, newAttribute.getType());
 
         for (int i = 0; i < attributes.size(); i++) {
