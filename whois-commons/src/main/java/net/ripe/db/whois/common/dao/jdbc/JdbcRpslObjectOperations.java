@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
@@ -16,7 +17,6 @@ import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.AttributeTemplate;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -57,7 +57,7 @@ public class JdbcRpslObjectOperations {
 
     public static Set<CIString> insertIntoTablesIgnoreMissing(final JdbcTemplate jdbcTemplate, final RpslObjectInfo rpslObjectInfo, final RpslObject rpslObject) {
         final Set<CIString> missingReferences = Sets.newHashSet();
-        final ObjectTemplate objectTemplate = ObjectTemplateProvider.getTemplate(rpslObject.getType());
+        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
 
         final Set<AttributeType> keyAttributes = objectTemplate.getKeyAttributes();
         for (final AttributeType keyAttributeType : keyAttributes) {
@@ -129,7 +129,7 @@ public class JdbcRpslObjectOperations {
     }
 
     public static void deleteFromTables(final JdbcTemplate jdbcTemplate, final RpslObjectInfo rpslObjectInfo) {
-        final ObjectTemplate objectTemplate = ObjectTemplateProvider.getTemplate(rpslObjectInfo.getObjectType());
+        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObjectInfo.getObjectType());
 
         for (AttributeTemplate attributeTemplate : objectTemplate.getAttributeTemplates()) {
             IndexStrategies.get(attributeTemplate.getAttributeType()).removeFromIndex(jdbcTemplate, rpslObjectInfo);
@@ -330,15 +330,12 @@ public class JdbcRpslObjectOperations {
 
             sanityCheck(jdbcTemplate);
 
-            final List<String> tables = jdbcTemplate.queryForList("SHOW TABLES", String.class);
+            final List<String> statements = Lists.newArrayList();
+            statements.add("SET FOREIGN_KEY_CHECKS = 0");
+            statements.addAll(Lists.transform(jdbcTemplate.queryForList("SHOW TABLES", String.class), table -> String.format("TRUNCATE TABLE %s", table)));
+            statements.add("SET FOREIGN_KEY_CHECKS = 1");
 
-            for (final String table : tables) {
-                if (UNTRUNCATABLE_TABLES.contains(table)) {
-                    continue;
-                }
-
-                jdbcTemplate.execute("TRUNCATE TABLE " + table);
-            }
+            jdbcTemplate.batchUpdate(statements.toArray(new String[statements.size()]));
         }
     }
 

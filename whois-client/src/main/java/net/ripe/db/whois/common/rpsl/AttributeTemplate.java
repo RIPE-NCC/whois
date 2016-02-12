@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class AttributeTemplate {
-    public static enum Requirement {
+    public enum Requirement {
         MANDATORY("mandatory"),
         OPTIONAL("optional"),
         GENERATED("generated"),
@@ -15,7 +15,7 @@ public class AttributeTemplate {
 
         private final String externalName;
 
-        private Requirement(final String externalName) {
+        Requirement(final String externalName) {
             this.externalName = externalName;
         }
 
@@ -24,13 +24,13 @@ public class AttributeTemplate {
         }
     }
 
-    public static enum Cardinality {
+    public enum Cardinality {
         SINGLE("single"),
         MULTIPLE("multiple");
 
         private final String name;
 
-        private Cardinality(final String name) {
+        Cardinality(final String name) {
             this.name = name;
         }
 
@@ -39,14 +39,14 @@ public class AttributeTemplate {
         }
     }
 
-    public static enum Key {
+    public enum Key {
         PRIMARY_KEY("primary"),
         LOOKUP_KEY("lookup"),
         INVERSE_KEY("inverse");
 
         private final String name;
 
-        private Key(final String name) {
+        Key(final String name) {
             this.name = name;
         }
 
@@ -61,7 +61,7 @@ public class AttributeTemplate {
     }
 
     /** signifies if an attribute order matters or not */
-    public static enum Order {
+    public enum Order {
         TEMPLATE_ORDER, USER_ORDER;
     }
 

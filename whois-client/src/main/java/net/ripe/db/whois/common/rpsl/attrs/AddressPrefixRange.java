@@ -109,7 +109,7 @@ public final class AddressPrefixRange {
         }
     }
 
-    public static enum BoundaryCheckResult {
+    public enum BoundaryCheckResult {
         SUCCESS,
         IPV4_EXPECTED,
         IPV6_EXPECTED,

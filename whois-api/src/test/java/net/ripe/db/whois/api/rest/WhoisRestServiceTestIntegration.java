@@ -90,6 +90,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
@@ -605,6 +606,26 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void lookup_person_head() throws Exception {
+        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .head();
+
+        assertThat(response.getStatus(), is(200));
+        assertThat(response.readEntity(String.class), isEmptyString());
+    }
+
+    @Test
+    public void lookup_person_head_not_found() throws Exception {
+        final Response response = RestTest.target(getPort(), "whois/test/person/NONEXISTANT")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .head();
+
+        assertThat(response.getStatus(), is(404));
+        assertThat(response.readEntity(String.class), isEmptyString());
     }
 
     @Test

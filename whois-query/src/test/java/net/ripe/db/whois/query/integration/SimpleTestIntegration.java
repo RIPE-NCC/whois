@@ -444,7 +444,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "% Information related to 'AS760-MNT'\n" +
                 "\n" +
                 "mntner:         AS760-MNT\n" +
-                "descr:          Description\n" +
                 "admin-c:        DUMY-RIPE\n" +
                 "auth:           MD5-PW # Filtered\n" +
                 "source:         TEST-GRS # Filtered\n" +

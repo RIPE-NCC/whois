@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.rpsl;
 
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -9,14 +8,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class ObjectTemplateWithoutChangedTest {
+public class ObjectTemplateTest {
     private static final String MAINTAINER_OBJECT_STRING = "" +
             "mntner:          DEV-MNT\n" +
             "descr:           DEV maintainer\n" +
@@ -32,16 +28,15 @@ public class ObjectTemplateWithoutChangedTest {
             "source:          DEV";
 
     private ObjectTemplate subject;
-    private ObjectTemplateProvider objectTemplateProvider = new ObjectTemplateProvider(new ChangedAttrFeatureToggle(Boolean.FALSE));
 
     @Before
     public void setUp() throws Exception {
-        subject = objectTemplateProvider.getTemplate(ObjectType.MNTNER);
+        subject = ObjectTemplate.getTemplate(ObjectType.MNTNER);
     }
 
     @Test(expected = IllegalStateException.class)
     public void getObjectSpec_null() {
-        objectTemplateProvider.getTemplate(null);
+        ObjectTemplate.getTemplate(null);
     }
 
     @Test
@@ -58,7 +53,7 @@ public class ObjectTemplateWithoutChangedTest {
 
     @Test
     public void getMultipleAttributes(){
-        final ObjectTemplate template = objectTemplateProvider.getTemplate(ObjectType.AS_BLOCK);
+        final ObjectTemplate template = ObjectTemplate.getTemplate(ObjectType.AS_BLOCK);
         Set<AttributeType> multipleAttributes = template.getMultipleAttributes();
         assertThat(multipleAttributes.size(), is(6));
     }
@@ -120,7 +115,7 @@ public class ObjectTemplateWithoutChangedTest {
     @Test
     public void isSet() {
         for (ObjectType objectType : ObjectType.values()) {
-            assertThat(objectType.getName().toLowerCase().contains("set"), is(objectTemplateProvider.getTemplate(objectType).isSet()));
+            assertThat(objectType.getName().toLowerCase().contains("set"), is(ObjectTemplate.getTemplate(objectType).isSet()));
         }
     }
 
@@ -132,11 +127,11 @@ public class ObjectTemplateWithoutChangedTest {
 
     @Test
     public void stringTemplate() {
-        final String template = objectTemplateProvider.getTemplate(ObjectType.INETNUM).toString();
+        final String template = ObjectTemplate.getTemplate(ObjectType.INETNUM).toString();
         assertThat(template, is("" +
                 "inetnum:        [mandatory]  [single]     [primary/lookup key]\n" +
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
@@ -159,7 +154,7 @@ public class ObjectTemplateWithoutChangedTest {
 
     @Test
     public void verboseStringTemplate() {
-        final String template = objectTemplateProvider.getTemplate(ObjectType.INETNUM).toVerboseString();
+        final String template = ObjectTemplate.getTemplate(ObjectType.INETNUM).toVerboseString();
         assertThat(template, containsString("" +
                 "The inetnum class:\n" +
                 "\n" +
@@ -168,7 +163,7 @@ public class ObjectTemplateWithoutChangedTest {
                 "\n" +
                 "inetnum:        [mandatory]  [single]     [primary/lookup key]\n" +
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
@@ -195,14 +190,14 @@ public class ObjectTemplateWithoutChangedTest {
     @Test
     public void allObjectTypesSupported() {
         for (final ObjectType objectType : ObjectType.values()) {
-            objectTemplateProvider.getTemplate(objectType);
+            ObjectTemplate.getTemplate(objectType);
         }
     }
 
     @Test
     public void allAttributesSupported() {
         for (final ObjectType objectType : ObjectType.values()) {
-            final ObjectTemplate objectTemplate = ObjectTemplateProvider.getTemplate(objectType);
+            final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
 
             for (final AttributeTemplate attributeTemplate : objectTemplate.getAttributeTemplates()) {
                 final AttributeType attributeType = attributeTemplate.getAttributeType();
@@ -216,7 +211,7 @@ public class ObjectTemplateWithoutChangedTest {
     @Test
     public void type_or_keys_occur_only_once() {
         for (final ObjectType objectType : ObjectType.values()) {
-            final ObjectTemplate objectTemplate = objectTemplateProvider.getTemplate(objectType);
+            final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
 
             boolean first = true;
             for (final AttributeTemplate attributeTemplate : objectTemplate.getAttributeTemplates()) {
@@ -247,10 +242,10 @@ public class ObjectTemplateWithoutChangedTest {
 
     @Test
     public void name_transformations() {
-        assertThat(objectTemplateProvider.getTemplate(ObjectType.MNTNER).getNameToFirstLower(), is("mntner") );
-        assertThat(objectTemplateProvider.getTemplate(ObjectType.INETNUM).getNameToFirstUpper(), is("Inetnum"));
+        assertThat(ObjectTemplate.getTemplate(ObjectType.MNTNER).getNameToFirstLower(), is("mntner") );
+        assertThat(ObjectTemplate.getTemplate(ObjectType.INETNUM).getNameToFirstUpper(), is("Inetnum"));
 
-        assertThat(objectTemplateProvider.getTemplate(ObjectType.KEY_CERT).getNameToFirstLower(), is("keyCert") );
-        assertThat(objectTemplateProvider.getTemplate(ObjectType.KEY_CERT).getNameToFirstUpper(), is("KeyCert") );
+        assertThat(ObjectTemplate.getTemplate(ObjectType.KEY_CERT).getNameToFirstLower(), is("keyCert") );
+        assertThat(ObjectTemplate.getTemplate(ObjectType.KEY_CERT).getNameToFirstUpper(), is("KeyCert") );
     }
 }

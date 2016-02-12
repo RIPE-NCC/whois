@@ -229,6 +229,7 @@ class RebuildIndexIntegrationSpec extends BaseWhoisSourceSpec {
         queryObject("-i mnt-lower TST-MNT2", "as-block", "AS222 - AS333")
     }
 
+    // TODO: [ES] failing test
     def "rebuild with autnum"() {
         databaseHelper.addObject("" +
                 "aut-num:        AS101\n" +

@@ -42,11 +42,21 @@ public class IndexWithInet6numTest extends IndexTestBase {
     }
 
     @Test
-    public void mysqlBotchesOn64bitSignedInteger() {
+    public void find_msb_index_inet6num_matches() {
         databaseHelper.addObject("inet6num: 2001:db8:60::/48\nnetname: testnet");
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, "2001:db8:60::/48");
 
         assertThat(found.size(), is(1));
+    }
+
+    @Test
+    public void find_msb_index_inet6num_must_not_match() {
+        databaseHelper.addObject("inet6num: 2001:600:0:100::/56\nnetname: testnet");
+
+        final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, "2001:600::/56");
+
+        assertThat(found.size(), is(0));
+
     }
 
     @Test
@@ -72,4 +82,13 @@ public class IndexWithInet6numTest extends IndexTestBase {
     private void checkRows(int expectedCount) {
         assertThat(whoisTemplate.queryForObject("SELECT COUNT(*) FROM inet6num", Integer.class), is(expectedCount));
     }
+
+    private Ipv6Resource parseIpv6Resource(final String s) {
+        try {
+            return Ipv6Resource.parse(s);
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
 }

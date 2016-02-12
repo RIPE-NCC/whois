@@ -4,11 +4,9 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.solr.client.solrj.impl.XMLResponseParser;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.util.NamedList;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -17,10 +15,10 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
+import static net.ripe.db.whois.api.freetext.FreeTextSolrUtils.parseResponse;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
@@ -571,6 +569,40 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(query("q=test.com"), containsString("numFound=\"1\""));
     }
 
+    @Test
+    public void search_full_match_email_address() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                "org-name:     ORG-TOS1-TEST\n" +
+                "org-type:     OTHER\n" +
+                "descr:        ORG-TOS1-TEST\n" +
+                "address:      street 1\n" +
+                "e-mail:       org1@test.com\n" +
+                "mnt-ref:      OWNER-MNT\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       RIPE\n"));
+        freeTextIndex.rebuild();
+
+        assertThat(query("q=org1@test.com"), containsString("numFound=\"1\""));
+    }
+
+    @Test
+    public void search_full_match_person_name() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person: John McDonald\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "source: RIPE"));
+        freeTextIndex.rebuild();
+
+        final QueryResponse queryResponse = parseResponse(query("q=john%20mcdonald"));
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
     // helper methods
 
     private String query(final String queryString) {
@@ -579,10 +611,5 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
                 .get(String.class);
     }
 
-    private QueryResponse parseResponse(final String response) {
-        final NamedList<Object> namedList = new XMLResponseParser().processResponse(new StringReader(response));
-        final QueryResponse queryResponse = new QueryResponse();
-        queryResponse.setResponse(namedList);
-        return queryResponse;
-    }
 }
+
