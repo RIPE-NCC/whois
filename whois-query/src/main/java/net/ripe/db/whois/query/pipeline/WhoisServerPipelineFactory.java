@@ -29,12 +29,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
 
     private static final ChannelBuffer LINE_DELIMITER = ChannelBuffers.wrappedBuffer(new byte[]{'\n'});
+    private static final ChannelBuffer INTERRUPT_DELIMITER = ChannelBuffers.wrappedBuffer(new byte[]{(byte)0xff, (byte)0xf4, (byte)0xff, (byte)0xfd, (byte)0x6});
+
     private static final Timer TIMER = new HashedWheelTimer();
     private static final int TIMEOUT_SECONDS = 180;
     private static final int POOL_SIZE = 64;
     private static final int MEMORY_SIZE_UNLIMITED = 0;
 
-    @Value("${application.version}") private String version;
+    @Value("${application.version}")
+    private String version;
 
     private final ReadTimeoutHandler readTimeoutHandler = new ReadTimeoutHandler(TIMER, TIMEOUT_SECONDS, TimeUnit.SECONDS);
     private final WriteTimeoutHandler writeTimeoutHandler = new WriteTimeoutHandler(TIMER, TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -94,7 +97,8 @@ public class WhoisServerPipelineFactory implements ChannelPipelineFactory {
 
         pipeline.addLast("terms-conditions", termsAndConditionsHandler);
 
-        pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(1024, true, LINE_DELIMITER));
+        pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(1024, LINE_DELIMITER, INTERRUPT_DELIMITER));
+
         pipeline.addLast("string-decoder", stringDecoder);
         pipeline.addLast("whois-encoder", whoisEncoder);
 
