@@ -5,6 +5,10 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.query.QueryFlag;
 
 public class RestMessages {
+    public static Message pkeyMismatch(final CharSequence key, final CharSequence newKey) {
+        return new Message(Messages.Type.ERROR, "Primary key cannot be modified.", key, newKey);
+    }
+
     public static Message uriMismatch(final CharSequence objectType, final CharSequence key) {
         return new Message(Messages.Type.ERROR, "Object type and key specified in URI (%s: %s) do not match the WhoisResources contents", objectType, key);
     }
