@@ -3279,7 +3279,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .put(Entity.entity(map(person), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("Primary key cannot be modified"));
+            assertThat(e.getResponse().readEntity(String.class), containsString("Primary key (%s) cannot be modified"));
         }
     }
 
