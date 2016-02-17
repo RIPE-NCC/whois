@@ -586,15 +586,15 @@ public class WhoisRestService {
     }
 
     private void validateSubmittedUpdateObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
-        if (!object.getKey().equals(key)) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(whoisService.createErrorEntity(request, RestMessages.pkeyMismatch(key, object.getKey())))
-                    .build());
-        }
-
         if (!object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
                     .entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType, key)))
+                    .build());
+        }
+
+        if (!object.getKey().equals(key)) {
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.pkeyMismatch(key)))
                     .build());
         }
     }
