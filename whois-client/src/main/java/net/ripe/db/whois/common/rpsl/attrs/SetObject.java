@@ -56,7 +56,7 @@ public class SetObject {
     }
 
     public static SetObject parse(final Type type, final String value) {
-        if (value.length() > 254) {
+        if (value.length() > 80) {
             throw new AttributeParseException("Too long", value);
         }
 

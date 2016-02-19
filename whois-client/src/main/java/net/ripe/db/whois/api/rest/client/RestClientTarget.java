@@ -28,8 +28,10 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.URLConnection;
 import java.util.*;
 
@@ -365,21 +367,20 @@ public class RestClientTarget {
             urlConnection.setReadTimeout(60 * 1000);
 
             return new StreamingRestClient(urlConnection.getInputStream());
+        } catch (ConnectException ce) {
+            LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
+            LOGGER.error("Caught exception while connecting", ce);
+            throw new RestClientException(Response.Status.SERVICE_UNAVAILABLE, ce);
         } catch (IOException e) {
-            if (urlConnection == null) {
+            try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
+                final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
+                throw new RestClientException(((HttpURLConnection) urlConnection).getResponseCode(),
+                        whoisResources.getErrorMessages());
+            } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
                 LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
-                LOGGER.error("Caught exception while connecting", e);
-                throw new RestClientException(e);
-            } else {
-                try (InputStream errorStream = ((HttpURLConnection) urlConnection).getErrorStream()) {
-                    final WhoisResources whoisResources = StreamingRestClient.unMarshalError(errorStream);
-                    throw new RestClientException(((HttpURLConnection) urlConnection).getResponseCode(),
-                            whoisResources.getErrorMessages());
-                } catch (IllegalArgumentException | StreamingException | IOException | NullPointerException e1) {
-                    LOGGER.info("search failed: {}/search?{}", baseUrl, printParams());
-                    LOGGER.error("Caught exception while unmarshalling error", e);
-                    throw new RestClientException(e1.getCause());
-                }
+                LOGGER.error("Initial IOException: ", e);
+                LOGGER.error("Caught exception while unmarshalling error", e1);
+                throw new RestClientException(Response.Status.INTERNAL_SERVER_ERROR, e1);
             }
         }
     }
@@ -441,7 +442,7 @@ public class RestClientTarget {
             if (whoisResources == null) {
                 return createExceptionFromMessage(e);
             }
-            return new RestClientException( e.getResponse().getStatus(), whoisResources.getErrorMessages());
+            return new RestClientException(e.getResponse().getStatus(), whoisResources.getErrorMessages());
         } catch (ProcessingException | IllegalStateException e1) {
             return createExceptionFromMessage(e);
         }
@@ -456,7 +457,7 @@ public class RestClientTarget {
             return new RestClientException(e.getResponse().getStatus(), entity);
         } catch (ProcessingException | IllegalStateException e1) {
             // stream has already been closed
-            return new RestClientException(e.getResponse().getStatus(), e1.getCause());
+            return new RestClientException(e.getResponse().getStatus(), e1);
         }
     }
 }

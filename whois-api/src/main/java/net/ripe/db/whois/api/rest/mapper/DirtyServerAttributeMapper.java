@@ -20,7 +20,8 @@ public class DirtyServerAttributeMapper implements AttributeMapper {
     private final String baseUrl;
 
     @Autowired
-    public DirtyServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver, @Value("${api.rest.baseurl}") final String baseUrl) {
+    public DirtyServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver,
+                                    @Value("${api.rest.baseurl}") final String baseUrl) {
         this.referencedTypeResolver = referencedTypeResolver;
         this.baseUrl = baseUrl;
     }

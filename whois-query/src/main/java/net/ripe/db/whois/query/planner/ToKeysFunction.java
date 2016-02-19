@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
@@ -25,7 +24,7 @@ class ToKeysFunction implements Function<ResponseObject, ResponseObject> {
         final List<RpslAttribute> attributes = rpslObject.getAttributes();
         final List<RpslAttribute> newAttributes = new ArrayList<>(attributes.size());
 
-        final ObjectTemplate template = ObjectTemplateProvider.getTemplate(rpslObject.getType());
+        final ObjectTemplate template = ObjectTemplate.getTemplate(rpslObject.getType());
         final RpslAttribute typeAttribute = rpslObject.getTypeAttribute();
         final Set<AttributeType> keyAttributes = template.getKeyAttributes();
         if (keyAttributes.size() == 1 && keyAttributes.contains(typeAttribute.getType()) && !template.isSet()) {

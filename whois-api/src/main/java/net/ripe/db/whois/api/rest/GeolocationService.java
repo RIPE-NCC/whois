@@ -41,6 +41,7 @@ public class GeolocationService {
 
     private static final String SERVICE_NAME = "geolocation-finder";
 
+    // TODO: [ES] don't hard-code environment specific URL
     private static final String LOOKUP_URL = "http://rest.db.ripe.net/lookup";
 
     private static final Set<InetnumStatus> STOP_AT_STATUS_IPV4 = Sets.immutableEnumSet(

@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -81,7 +80,7 @@ class IndexWithMemberOf extends IndexWithReference {
         final Set<IndexStrategy> referenceStrategies = Sets.newLinkedHashSet();
 
         for (final ObjectType objectType : attributeType.getReferences()) {
-            for (final AttributeType keyAttribute : ObjectTemplateProvider.getTemplate(objectType).getKeyAttributes()) {
+            for (final AttributeType keyAttribute : ObjectTemplate.getTemplate(objectType).getKeyAttributes()) {
                 if (keyAttribute.isValidValue(objectType, value)) {
                     referenceStrategies.add(IndexStrategies.get(keyAttribute));
                 }

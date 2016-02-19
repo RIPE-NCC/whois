@@ -13,6 +13,7 @@ import net.ripe.db.whois.scheduler.task.export.DatabaseTextExport;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -20,6 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 @Category(IntegrationTest.class)
 @ContextConfiguration(locations = {"classpath:applicationContext-endtoend-test.xml"})
 public abstract class AbstractChangedPhase3IntegrationTest extends AbstractIntegrationTest {
+
     protected static final RpslObject TEST_PERSON = RpslObject.parse("" +
             "person:    Test Person\n" +
             "address:   Singel 258\n" +
@@ -36,6 +38,7 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
             "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
             "mnt-by:        OWNER-MNT\n" +
             "source:        TEST");
+
     @Autowired protected AccessControlList accessControlList;
     protected Context context;
     @Autowired private MaintenanceMode maintenanceMode;
@@ -45,6 +48,15 @@ public abstract class AbstractChangedPhase3IntegrationTest extends AbstractInteg
     @Autowired private NrtmServer nrtmServer;
     @Autowired private DatabaseTextExport databaseTextExport;
 
+    @BeforeClass
+    public static void beforeClass() {
+        System.setProperty("nrtm.enabled", "true");
+    }
+
+    @BeforeClass
+    public static void afterClass() {
+        System.clearProperty("nrtm.enabled");
+    }
 
     @Before
     public void setup() {
