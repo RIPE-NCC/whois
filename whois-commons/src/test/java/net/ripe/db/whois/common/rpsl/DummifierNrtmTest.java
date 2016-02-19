@@ -184,7 +184,6 @@ public class DummifierNrtmTest {
                 "abuse-c:        FOO\n" +
                 "admin-c:        DUMY-RIPE\n" +
                 "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
-                "descr:          FOO\n" +
                 "mnt-by:         FOO\n" +
                 "source:         FOO\n" +
                 "upd-to:         unread@ripe.net\n"));

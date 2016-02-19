@@ -17,7 +17,7 @@ import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.log.UpdateLog;
 import net.ripe.db.whois.update.mail.MailGateway;
-import org.joda.time.LocalDateTime;
+import org.joda.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,10 +49,10 @@ public class PendingUpdatesCleanupTest {
 
     @Test
     public void cleanup_pending_update() {
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDate now = LocalDate.now();
         final PendingUpdate pendingUpdate = new PendingUpdate(Sets.<String>newHashSet("AUTH"), RpslObject.parse("route: 10.0.0.0/8\norigin: AS123\nmnt-by: OWNER-MNT\nsource: TEST"), now);
-        when(dateTimeProvider.getCurrentDateTime()).thenReturn(now);
-        when(pendingUpdateDao.findBeforeDate(any(LocalDateTime.class))).thenReturn(Lists.<PendingUpdate>newArrayList(pendingUpdate));
+        when(dateTimeProvider.getCurrentDate()).thenReturn(now);
+        when(pendingUpdateDao.findBeforeDate(any(LocalDate.class))).thenReturn(Lists.<PendingUpdate>newArrayList(pendingUpdate));
         when(rpslObjectDao.getByKeys(any(ObjectType.class), any(List.class))).thenReturn(Lists.newArrayList(RpslObject.parse("mntner: OWNER-MNT\nupd-to: test@ripe.net")));
 
         subject.run();

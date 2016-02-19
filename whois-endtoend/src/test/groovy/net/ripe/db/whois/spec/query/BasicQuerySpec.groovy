@@ -753,7 +753,7 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
       expect:
         query("--template mntner").contains("" +
                 "mntner:         [mandatory]  [single]     [primary/lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "org:            [optional]   [multiple]   [inverse key]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [optional]   [multiple]   [inverse key]\n" +
@@ -764,7 +764,6 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "notify:         [optional]   [multiple]   [inverse key]\n" +
                 "abuse-mailbox:  [optional]   [multiple]   [inverse key]\n" +
                 "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]")

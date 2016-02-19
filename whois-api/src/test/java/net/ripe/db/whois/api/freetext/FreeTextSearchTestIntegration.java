@@ -569,6 +569,40 @@ public class FreeTextSearchTestIntegration extends AbstractIntegrationTest {
         assertThat(query("q=test.com"), containsString("numFound=\"1\""));
     }
 
+    @Test
+    public void search_full_match_email_address() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                "org-name:     ORG-TOS1-TEST\n" +
+                "org-type:     OTHER\n" +
+                "descr:        ORG-TOS1-TEST\n" +
+                "address:      street 1\n" +
+                "e-mail:       org1@test.com\n" +
+                "mnt-ref:      OWNER-MNT\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       RIPE\n"));
+        freeTextIndex.rebuild();
+
+        assertThat(query("q=org1@test.com"), containsString("numFound=\"1\""));
+    }
+
+    @Test
+    public void search_full_match_person_name() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "person: John McDonald\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "source: RIPE"));
+        freeTextIndex.rebuild();
+
+        final QueryResponse queryResponse = parseResponse(query("q=john%20mcdonald"));
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(1L));
+    }
+
     // helper methods
 
     private String query(final String queryString) {

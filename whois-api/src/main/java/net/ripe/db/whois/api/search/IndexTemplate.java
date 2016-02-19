@@ -143,12 +143,9 @@ public class IndexTemplate implements Closeable {
     }
 
     public <T> T search(final SearchCallback<T> searchCallback) throws IOException {
-        return read(new ReadCallback<T>() {
-            @Override
-            public T read(final IndexReader indexReader, final TaxonomyReader taxonomyReader) throws IOException {
-                final IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-                return searchCallback.search(indexReader, taxonomyReader, indexSearcher);
-            }
+        return read((final IndexReader indexReader, final TaxonomyReader taxonomyReader) -> {
+            final IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+            return searchCallback.search(indexReader, taxonomyReader, indexSearcher);
         });
     }
 

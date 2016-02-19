@@ -16,7 +16,6 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -288,7 +287,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     }
 
     private List<RpslObjectInfo> findByKeyInIndex(final ObjectType type, final String key) {
-        final AttributeType keyLookupAttribute = ObjectTemplateProvider.getTemplate(type).getKeyLookupAttribute();
+        final AttributeType keyLookupAttribute = ObjectTemplate.getTemplate(type).getKeyLookupAttribute();
         final IndexStrategy indexStrategy = IndexStrategies.get(keyLookupAttribute);
         return indexStrategy.findInIndex(jdbcTemplate, key, type);
     }
@@ -301,7 +300,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
     @Override
     public List<RpslObjectInfo> findMemberOfByObjectTypeWithoutMbrsByRef(final ObjectType objectType, final String attributeValue) {
-        final ObjectTemplate objectTemplate = ObjectTemplateProvider.getTemplate(objectType);
+        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(objectType);
         final Set<AttributeType> keyAttributes = objectTemplate.getKeyAttributes();
         Validate.isTrue(keyAttributes.size() == 1);
 
