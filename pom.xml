@@ -30,7 +30,7 @@
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.11</jersey.version>
         <lucene.version>4.10.4</lucene.version>
-        <jetty.version>8.1.17.v20150415</jetty.version>
+        <jetty.version>8.1.18.v20150929</jetty.version>
         <whois.main>OVERRIDE</whois.main>
         <sonar.jdbc.url>jdbc:mariadb://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
         <sonar.jdbc.driver>org.mariadb.jdbc.Driver</sonar.jdbc.driver>
