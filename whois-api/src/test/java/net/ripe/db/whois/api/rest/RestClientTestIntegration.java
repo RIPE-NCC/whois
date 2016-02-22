@@ -23,6 +23,13 @@ import javax.ws.rs.core.Cookie;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static net.ripe.db.whois.api.RpslObjectFixtures.ABUSE_CONTACT_INETNUM;
+import static net.ripe.db.whois.api.RpslObjectFixtures.ABUSE_CONTACT_ORGANISATION;
+import static net.ripe.db.whois.api.RpslObjectFixtures.ABUSE_CONTACT_ROLE;
+import static net.ripe.db.whois.api.RpslObjectFixtures.INET_NUM;
+import static net.ripe.db.whois.api.RpslObjectFixtures.OWNER_MNT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.SECOND_MNT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_PERSON;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
@@ -37,32 +44,6 @@ import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class RestClientTestIntegration extends AbstractIntegrationTest {
-
-    private static final RpslObject OWNER_MNT = RpslObject.parse("" +
-            "mntner:        OWNER-MNT\n" +
-            "descr:         Owner Maintainer\n" +
-            "admin-c:       TP1-TEST\n" +
-            "upd-to:        noreply@ripe.net\n" +
-            "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-            "mnt-by:        OWNER-MNT\n" +
-            "source:        TEST");
-
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
-            "person:        Test Person\n" +
-            "address:       Singel 258\n" +
-            "phone:         +31 6 12345678\n" +
-            "nic-hdl:       TP1-TEST\n" +
-            "mnt-by:        OWNER-MNT\n" +
-            "source:        TEST\n");
-
-    private static final RpslObject SECOND_MNT = RpslObject.parse("" +
-            "mntner:        SECOND-MNT\n" +
-            "descr:         Owner Maintainer\n" +
-            "admin-c:       TP1-TEST\n" +
-            "upd-to:        noreply@ripe.net\n" +
-            "auth:          MD5-PW $1$1ZnhrEYU$h8QUAsDPLZYOYVjm3uGQr1 #secondmnt\n" +
-            "mnt-by:        OWNER-MNT\n" +
-            "source:        TEST");
 
     @Autowired
     RestClient restClient;
@@ -278,36 +259,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_abuse_contact() {
-        final RpslObject ABUSE_CONTACT_ROLE = RpslObject.parse("" +
-                "role:          Abuse Contact\n" +
-                "nic-hdl:       AC1-TEST\n" +
-                "abuse-mailbox: abuse@test.net\n" +
-                "source:        TEST");
-
-        final RpslObject ABUSE_CONTACT_ORGANISATION = RpslObject.parse("" +
-                "organisation:  ORG-RN1-TEST\n" +
-                "org-name:      Ripe NCC\n" +
-                "org-type:      OTHER\n" +
-                "address:       Amsterdam\n" +
-                "abuse-c:       AC1-TEST\n" +
-                "e-mail:        some@email.net\n" +
-                "mnt-ref:       OWNER-MNT\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
-
-        final RpslObject ABUSE_CONTACT_INETNUM = RpslObject.parse("" +
-                "inetnum:       193.0.0.0 - 193.0.0.255\n" +
-                "netname:       RIPE-NCC\n" +
-                "descr:         some description\n" +
-                "org:           ORG-RN1-TEST\n" +
-                "country:       NL\n" +
-                "admin-c:       TP1-TEST\n" +
-                "tech-c:        TP1-TEST\n" +
-                "status:        SUB-ALLOCATED PA\n" +
-                "mnt-by:        OWNER-MNT\n" +
-                "source:        TEST");
-
-
         databaseHelper.addObjects(ABUSE_CONTACT_ROLE, ABUSE_CONTACT_ORGANISATION, ABUSE_CONTACT_INETNUM);
         resetIpTrees();
 
@@ -431,17 +382,6 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
             // expected
         }
     }
-
-    private static final RpslObject INET_NUM = RpslObject.parse("" +
-            "inetnum:         193.0.0.0 - 193.0.0.255\n"+
-            "netname:         RIPE-NCC\n"+
-            "descr:           description\n"+
-            "country:         DK\n"+
-            "admin-c:         TP1-TEST\n"+
-            "tech-c:          TP1-TEST\n"+
-            "status:          SUB-ALLOCATED PA\n"+
-            "mnt-by:          OWNER-MNT\n"+
-            "source:          TEST\n" );
 
     @Test
     public void create_domain_with_insane_key()  {

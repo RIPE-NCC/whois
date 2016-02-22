@@ -79,6 +79,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_PERSON;
+import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_IRT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_ROLE;
+import static net.ripe.db.whois.api.RpslObjectFixtures.PASSWORD_ONLY_MNT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.OWNER_MNT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.SSO_ONLY_MNT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.SSO_AND_PASSWORD_MNT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.PAULETH_PALTHEN;
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.Matchers.contains;
@@ -102,82 +110,6 @@ import static org.junit.Assert.fail;
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String VERSION_DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}";
-
-    private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
-            "person:    Pauleth Palthen\n" +
-            "address:   Singel 258\n" +
-            "phone:     +31-1234567890\n" +
-            "e-mail:    noreply@ripe.net\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "nic-hdl:   PP1-TEST\n" +
-            "remarks:   remark\n" +
-            "source:    TEST\n");
-
-    private static final RpslObject OWNER_MNT = RpslObject.parse("" +
-            "mntner:      OWNER-MNT\n" +
-            "descr:       Owner Maintainer\n" +
-            "admin-c:     TP1-TEST\n" +
-            "upd-to:      noreply@ripe.net\n" +
-            "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-            "auth:        SSO person@net.net\n" +
-            "mnt-by:      OWNER-MNT\n" +
-            "source:      TEST");
-
-    private static final RpslObject PASSWORD_ONLY_MNT = RpslObject.parse("" +
-            "mntner:      PASSWORD-ONLY-MNT\n" +
-            "descr:       Maintainer\n" +
-            "admin-c:     TP1-TEST\n" +
-            "upd-to:      noreply@ripe.net\n" +
-            "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-            "mnt-by:      PASSWORD-ONLY-MNT\n" +
-            "source:      TEST");
-
-    private static final RpslObject SSO_ONLY_MNT = RpslObject.parse("" +
-            "mntner:         SSO-ONLY-MNT\n" +
-            "descr:          Maintainer\n" +
-            "admin-c:        TP1-TEST\n" +
-            "auth:           SSO person@net.net\n" +
-            "mnt-by:         SSO-ONLY-MNT\n" +
-            "upd-to:         noreply@ripe.net\n" +
-            "source:         TEST");
-
-    private static final RpslObject SSO_AND_PASSWORD_MNT = RpslObject.parse("" +
-            "mntner:         SSO-PASSWORD-MNT\n" +
-            "descr:          Maintainer\n" +
-            "admin-c:        TP1-TEST\n" +
-            "auth:           SSO person@net.net\n" +
-            "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-            "mnt-by:         SSO-PASSWORD-MNT\n" +
-            "upd-to:         noreply@ripe.net\n" +
-            "source:         TEST");
-
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
-            "person:    Test Person\n" +
-            "address:   Singel 258\n" +
-            "phone:     +31 6 12345678\n" +
-            "nic-hdl:   TP1-TEST\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
-
-    private static final RpslObject TEST_ROLE = RpslObject.parse("" +
-            "role:      Test Role\n" +
-            "address:   Singel 258\n" +
-            "phone:     +31 6 12345678\n" +
-            "nic-hdl:   TR1-TEST\n" +
-            "admin-c:   TR1-TEST\n" +
-            "abuse-mailbox: abuse@test.net\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
-
-    private static final RpslObject TEST_IRT = RpslObject.parse("" +
-            "irt:          irt-test\n" +
-            "address:      RIPE NCC\n" +
-            "e-mail:       noreply@ripe.net\n" +
-            "admin-c:      TP1-TEST\n" +
-            "tech-c:       TP1-TEST\n" +
-            "auth:         MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-            "mnt-by:       OWNER-MNT\n" +
-            "source:       TEST\n");
 
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private MaintenanceMode maintenanceMode;

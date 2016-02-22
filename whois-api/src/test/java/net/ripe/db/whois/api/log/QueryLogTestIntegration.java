@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import static net.ripe.db.whois.api.RpslObjectFixtures.OWNER_MNT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_PERSON;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -29,23 +31,6 @@ import static org.junit.Assert.fail;
 
 @Category(IntegrationTest.class)
 public class QueryLogTestIntegration extends AbstractIntegrationTest {
-
-    private static final RpslObject OWNER_MNT = RpslObject.parse("" +
-            "mntner:        OWNER-MNT\n" +
-            "descr:         Owner Maintainer\n" +
-            "admin-c:       TP1-TEST\n" +
-            "upd-to:        noreply@ripe.net\n" +
-            "auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-            "mnt-by:        OWNER-MNT\n" +
-            "source:        TEST");
-
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
-            "person:        Test Person\n" +
-            "address:       Singel 258\n" +
-            "phone:         +31 6 12345678\n" +
-            "nic-hdl:       TP1-TEST\n" +
-            "mnt-by:        OWNER-MNT\n" +
-            "source:        TEST\n");
 
     @Autowired private TestWhoisLog queryLog;
     @Autowired private RestClient restClient;

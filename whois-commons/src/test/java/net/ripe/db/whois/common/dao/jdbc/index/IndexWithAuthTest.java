@@ -9,6 +9,9 @@ import org.junit.Test;
 
 import java.util.Map;
 
+import static net.ripe.db.whois.common.RpslObjectFixtures.OWNER_MNT;
+import static net.ripe.db.whois.common.RpslObjectFixtures.PAULETH_PALTHEN;
+import static net.ripe.db.whois.common.RpslObjectFixtures.TEST_PERSON;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -16,33 +19,13 @@ import static org.junit.Assert.assertThat;
 
 public class IndexWithAuthTest extends IndexTestBase {
 
-    private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
-            "person:    Pauleth Palthen\n" +
-            "address:   Singel 258\n" +
-            "phone:     +31-1234567890\n" +
-            "e-mail:    noreply@ripe.net\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "nic-hdl:   PP1-TEST\n" +
-            "remarks:   remark\n" +
-            "source:    TEST\n");
-
-    private static final RpslObject OWNER_MNT = RpslObject.parse("" +
-            "mntner:      OWNER-MNT\n" +
-            "descr:       Owner Maintainer\n" +
-            "admin-c:     PP1-TEST\n" +
-            "upd-to:      noreply@ripe.net\n" +
-            "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-            "auth:        SSO person@net.net\n" +
-            "mnt-by:      OWNER-MNT\n" +
-            "source:      TEST");
-
     Map<RpslObject,RpslObjectUpdateInfo> objectUpdateInfoMap;
     IndexWithAuth subject;
 
     @Before
     public void startupWhoisServer() throws Exception {
         subject = new IndexWithAuth(AttributeType.AUTH, "auth", "auth");
-        objectUpdateInfoMap = databaseHelper.addObjects(PAULETH_PALTHEN, OWNER_MNT);
+        objectUpdateInfoMap = databaseHelper.addObjects(TEST_PERSON, PAULETH_PALTHEN, OWNER_MNT);
     }
 
     @Test

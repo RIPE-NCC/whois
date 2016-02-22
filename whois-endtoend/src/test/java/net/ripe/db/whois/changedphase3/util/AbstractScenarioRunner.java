@@ -19,6 +19,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
+import static net.ripe.db.whois.RpslObjectFixtures.TEST_OBJECT;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.hasSize;
@@ -29,17 +30,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public abstract class AbstractScenarioRunner implements ScenarioRunner {
-    protected static final RpslObject TEST_OBJECT = RpslObject.parse("" +
-            "mntner:        TESTING-MNT\n" +
-            "descr:         Test maintainer\n" +
-            "admin-c:       TP1-TEST\n" +
-            "upd-to:        upd-to@ripe.net\n" +
-            "mnt-nfy:       mnt-nfy@ripe.net\n" +
-            "auth:          MD5-PW $1$EmukTVYX$Z6fWZT8EAzHoOJTQI6jFJ1  # 123\n" +
-            "mnt-by:        OWNER-MNT\n" +
-            "mnt-by:        TESTING-MNT\n" +
-            "created:       2010-11-12T13:14:15Z\n" +
-            "source:        TEST\n");
+
     protected static String CHANGED_VALUE = "test@ripe.net 20121016";
     protected Context context;
 
