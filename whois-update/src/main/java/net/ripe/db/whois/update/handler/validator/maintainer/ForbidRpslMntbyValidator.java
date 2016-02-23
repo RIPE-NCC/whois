@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.maintainer;
 
 import com.google.common.collect.Lists;
-
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -19,6 +18,8 @@ import java.util.List;
 @Component
 public class ForbidRpslMntbyValidator implements BusinessRuleValidator {
 
+    private static final String RIPE_NCC_RPSL_MNT = "RIPE-NCC-RPSL-MNT";
+
     @Override
     public List<Action> getActions() {
         return Lists.newArrayList(Action.CREATE, Action.MODIFY);
@@ -31,7 +32,6 @@ public class ForbidRpslMntbyValidator implements BusinessRuleValidator {
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-
         if (containsRpslMntner(update.getUpdatedObject())) {
             updateContext.addMessage(update, UpdateMessages.rpslMntbyForbidden());
         }
@@ -43,9 +43,8 @@ public class ForbidRpslMntbyValidator implements BusinessRuleValidator {
         }
 
         for (RpslAttribute mntBy : rpslObject.findAttributes(AttributeType.MNT_BY)) {
-
-            for(CIString mntByStr : mntBy.getCleanValues()) {
-                if (mntByStr.equals("RIPE-NCC-RPSL-MNT")) {
+            for (CIString mntByStr : mntBy.getCleanValues()) {
+                if (mntByStr.equals(RIPE_NCC_RPSL_MNT)) {
                     return true;
                 }
             }
