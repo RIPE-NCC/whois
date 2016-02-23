@@ -3338,6 +3338,30 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void update_person_fails_when_pkey_changes() throws Exception {
+
+        final RpslObject person = RpslObject.parse(
+                "person:        Pauleth Palthen\n" +
+                        "address:       Singel 258\n" +
+                        "phone:         +31-1234567890\n" +
+                        "e-mail:        noreply@ripe.net\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "nic-hdl:       PP2-TEST\n" +
+                        "remarks:       remarks\n" +
+                        "source:        TEST\n"
+        );
+
+        try {
+            RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                    .request()
+                    .put(Entity.entity(map(person), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("Primary key (%s) cannot be modified"));
+        }
+    }
+
+    @Test
     public void update_person_fails_no_notification_on_syntax_error() throws Exception {
         final RpslObject mntner = RpslObject.parse(
                 "mntner:        TEST-MNT\n" +

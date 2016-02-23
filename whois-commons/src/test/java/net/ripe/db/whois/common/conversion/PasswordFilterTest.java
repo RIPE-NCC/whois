@@ -132,13 +132,13 @@ public class PasswordFilterTest {
                 is("/some/path?override=admin,FILTERED,reason&param=other"));
 
         assertThat(PasswordFilter.filterPasswordsInUrl(uriWithParams(new Pair("DATA", "person:  Test+Person\nsource:  TEST\n\noverride:admin,password"), new Pair("NEW", "yes"))),
-                is("/some/path?DATA=person:++Test%2BPerson%0Asource:++TEST%0A%0Aoverride:admin,FILTERED&NEW=yes"));
+                is("/some/path?DATA=person%3A++Test%2BPerson%0Asource%3A++TEST%0A%0Aoverride%3Aadmin,FILTERED&NEW=yes"));
 
         assertThat(PasswordFilter.filterPasswordsInUrl(uriWithParams(new Pair("DATA", "person:  Test+Person\nsource:  TEST\n\noverride:admin,password,reason"), new Pair("NEW", "yes"))),
-                is("/some/path?DATA=person:++Test%2BPerson%0Asource:++TEST%0A%0Aoverride:admin,FILTERED,reason&NEW=yes"));
+                is("/some/path?DATA=person%3A++Test%2BPerson%0Asource%3A++TEST%0A%0Aoverride%3Aadmin,FILTERED,reason&NEW=yes"));
 
         assertThat( PasswordFilter.filterPasswordsInUrl(uriWithParams(new Pair("DATA", "person:  TestP\n\noverride:personadmin,team-red1234"), new Pair("NEW","yes"))),
-                is("/some/path?DATA=person:++TestP%0A%0Aoverride:personadmin,FILTERED&NEW=yes"));
+                is("/some/path?DATA=person%3A++TestP%0A%0Aoverride%3Apersonadmin,FILTERED&NEW=yes"));
 
         assertThat( PasswordFilter.filterPasswordsInUrl("/some/path?DATA=person:++TestP%0A%0Aoverride%3Apersonadmin,team-red1234&NEW=yes"),
                 is("/some/path?DATA=person:++TestP%0A%0Aoverride%3Apersonadmin,FILTERED&NEW=yes"));

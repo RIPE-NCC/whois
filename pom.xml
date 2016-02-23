@@ -27,10 +27,9 @@
         <spring.version>4.2.3.RELEASE</spring.version>
         <aspectj.version>1.8.7</aspectj.version>
         <java.version>1.8</java.version>
-        <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
-        <jersey.version>2.11</jersey.version>
+        <jersey.version>2.22.2</jersey.version>
         <lucene.version>4.10.4</lucene.version>
-        <jetty.version>8.1.17.v20150415</jetty.version>
+        <jetty.version>8.1.18.v20150929</jetty.version>
         <whois.main>OVERRIDE</whois.main>
         <sonar.jdbc.url>jdbc:mariadb://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
         <sonar.jdbc.driver>org.mariadb.jdbc.Driver</sonar.jdbc.driver>
@@ -212,11 +211,6 @@
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
-                <artifactId>aspectjrt</artifactId>
-                <version>${aspectj.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
                 <version>${aspectj.version}</version>
             </dependency>
@@ -246,6 +240,7 @@
                 <version>1.2.17</version>
             </dependency>
             <dependency>
+                <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
                 <groupId>log4j</groupId>
                 <artifactId>apache-log4j-extras</artifactId>
                 <version>1.2.17</version>
@@ -377,6 +372,13 @@
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
                 <version>${jersey.version}</version>
+                <exclusions>
+                    <!-- aopalliance included by spring-aop dependency -->
+                    <exclusion>
+                        <groupId>org.glassfish.hk2.external</groupId>
+                        <artifactId>aopalliance-repackaged</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
@@ -763,7 +765,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.aspectj</groupId>
-                        <artifactId>aspectjrt</artifactId>
+                        <artifactId>aspectjweaver</artifactId>
                         <version>${aspectj.version}</version>
                     </dependency>
                     <dependency>
