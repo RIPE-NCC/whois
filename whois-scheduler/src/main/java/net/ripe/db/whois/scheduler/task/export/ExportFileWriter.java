@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
-class ExportFileWriter {
+public class ExportFileWriter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExportFileWriter.class);
 
     private final File baseDir;
@@ -28,7 +28,7 @@ class ExportFileWriter {
     private final DecorationStrategy decorationStrategy;
     private final Map<String, Writer> writerMap = Maps.newHashMap();
 
-    protected ExportFileWriter(final File baseDir, final FilenameStrategy filenameStrategy, final DecorationStrategy decorationStrategy) {
+    public ExportFileWriter(final File baseDir, final FilenameStrategy filenameStrategy, final DecorationStrategy decorationStrategy) {
         this.baseDir = baseDir;
         this.filenameStrategy = filenameStrategy;
         this.decorationStrategy = decorationStrategy;
@@ -43,7 +43,7 @@ class ExportFileWriter {
         }
     }
 
-    void write(final RpslObject object, final List<Tag> tags) throws IOException {
+    public void write(final RpslObject object, final List<Tag> tags) throws IOException {
         final String filename = filenameStrategy.getFilename(object.getType());
         final Writer writer = getWriter(filename);
 
@@ -59,7 +59,7 @@ class ExportFileWriter {
         }
     }
 
-    void close() {
+    public void close() {
         for (final Map.Entry<String, Writer> entry : writerMap.entrySet()) {
             final Writer writer = entry.getValue();
             try {
