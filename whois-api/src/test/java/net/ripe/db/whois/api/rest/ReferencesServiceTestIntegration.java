@@ -749,14 +749,14 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisObject person = getWhoisObject(responseDeletePair, "person");
         assertThat(person.getAttributes(), hasItems(
                 new Attribute("nic-hdl", "SP1-TEST"),
-                new Attribute("mnt-by", "SSO-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/SSO-MNT"))));
+                new Attribute("mnt-by", "SSO-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/SSO-MNT"))));
 
         final WhoisObject mntner = getWhoisObject(responseDeletePair, "mntner");
         assertThat(mntner.getAttributes(), hasItems(
                 new Attribute("mntner", "SSO-MNT"),
                 new Attribute("admin-c", "SP1-TEST"),
                 new Attribute("auth", "SSO person@net.net"),
-                new Attribute("mnt-by", "SSO-MNT", null, "mntner", new Link("locator", "http://rest-test.db.ripe.net/test/mntner/SSO-MNT"))));
+                new Attribute("mnt-by", "SSO-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/SSO-MNT"))));
     }
 
     @Test
