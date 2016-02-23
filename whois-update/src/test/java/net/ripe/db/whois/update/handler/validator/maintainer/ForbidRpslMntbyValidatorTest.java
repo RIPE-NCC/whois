@@ -35,8 +35,25 @@ public class ForbidRpslMntbyValidatorTest {
     }
 
     @Test
-    public void test_forbid_rpsl() {
-        final RpslObject updatedObject = RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST\nmnt-by: OWNER-MNT, RIPE-NCC-RPSL-MNT\nsource: TEST");
+    public void test_forbid_rpsl_multiple_mnt_by() {
+        final RpslObject updatedObject = RpslObject.parse("person: Test Person\n" +
+                "nic-hdl: TP1-TEST\n" +
+                "mnt-by: OWNER-MNT, RIPE-NCC-RPSL-MNT\n" +
+                "source: TEST");
+        when(preparedUpdate.getUpdatedObject()).thenReturn(updatedObject);
+
+        subject.validate(preparedUpdate, updateContext);
+
+        verify(updateContext).addMessage(preparedUpdate, UpdateMessages.rpslMntbyForbidden());
+    }
+
+    @Test
+    public void test_forbid_rpsl_multiline_mnt_by() {
+        final RpslObject updatedObject = RpslObject.parse("person: Test Person\n" +
+                "nic-hdl: TP1-TEST\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "mnt-by: RIPE-NCC-RPSL-MNT\n" +
+                "source: TEST");
         when(preparedUpdate.getUpdatedObject()).thenReturn(updatedObject);
 
         subject.validate(preparedUpdate, updateContext);
@@ -46,12 +63,14 @@ public class ForbidRpslMntbyValidatorTest {
 
     @Test
     public void test_multiple_mnts_in_mntby() {
-        final RpslObject updatedObject = RpslObject.parse("person: Test Person\nnic-hdl: TP1-TEST\nmnt-by: OWNER-MNT, TEST-MNT\nsource: TEST");
+        final RpslObject updatedObject = RpslObject.parse("person: Test Person\n" +
+                "nic-hdl: TP1-TEST\n" +
+                "mnt-by: OWNER-MNT, TEST-MNT\n" +
+                "source: TEST");
         when(preparedUpdate.getUpdatedObject()).thenReturn(updatedObject);
 
         subject.validate(preparedUpdate, updateContext);
 
         verifyZeroInteractions(updateContext);
     }
-
 }
