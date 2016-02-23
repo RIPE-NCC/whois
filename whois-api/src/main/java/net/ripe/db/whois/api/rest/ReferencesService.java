@@ -43,6 +43,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -226,8 +229,10 @@ public class ReferencesService {
 
     /**
      * Update multiple objects in the database. Rollback if any update fails.
+     * Must be public for Transaction-annotation to have effect
      */
-    private WhoisResources performUpdates(
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+    public WhoisResources performUpdates(
             final HttpServletRequest request,
             final List<ActionRequest> actionRequests,
             final List<String> passwords,
