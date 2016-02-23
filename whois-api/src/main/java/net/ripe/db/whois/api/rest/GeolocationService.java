@@ -170,7 +170,7 @@ public class GeolocationService {
             return null;
         }
         final String value = rpslObject.getValueForAttribute(AttributeType.GEOLOC).toString();
-        final Link link = getLink(rpslObject);
+        final Link link = Link.create(LOOKUP_URL, rpslObject);
         return new Location(value, link);
     }
 
@@ -180,20 +180,12 @@ public class GeolocationService {
             return null;
         }
         final List<Language> languages = Lists.newArrayList();
-        final Link link = getLink(rpslObject);
+        final Link link = Link.create(LOOKUP_URL, rpslObject);
         for (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.LANGUAGE)) {
             final String value = rpslAttribute.getCleanValue().toString();
             languages.add(new Language(value, link));
         }
         return languages;
-    }
-
-    private Link getLink(final RpslObject rpslObject) {
-        final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
-        final String type = rpslObject.getType().getName();
-        final String key = rpslObject.getKey().toString();
-        final String href = String.format("%s/%s/%s/%s", LOOKUP_URL, source, type, key);
-        return new Link("locator", href);
     }
 
     private boolean isStopStatus(final RpslObject rpslObject) {
