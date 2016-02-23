@@ -113,6 +113,16 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "remarks:   remark\n" +
             "source:    TEST\n");
 
+    private static final RpslObject RPSL_MNT_PERSON = RpslObject.parse("" +
+            "person:    Pauleth Palthen \n" +
+            "address:   Singel 258\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "mnt-by:    RIPE-NCC-RPSL-MNT\n" +
+            "nic-hdl:   PP2-TEST\n" +
+            "remarks:   remark\n" +
+            "source:    TEST\n");
+
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
@@ -207,43 +217,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_object_mntby_rpsl_test() throws Exception {
-        final RpslObject RPSL_MNT_PERSON = RpslObject.parse("" +
-                "person:    Pauleth Palthen\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31-1234567890\n" +
-                "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    RIPE-NCC-RPSL-MNT\n" +
-                "nic-hdl:   PP2-TEST\n" +
-                "remarks:   remark\n" +
-                "source:    TEST\n");
         databaseHelper.addObject(RPSL_MNT);
         try {
             final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, RPSL_MNT_PERSON), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
-        }
-        catch(BadRequestException ex) {
+        } catch (BadRequestException ex) {
             final WhoisResources whoisResources = ex.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorCount(whoisResources, 1);
             RestTest.assertErrorMessage(whoisResources, 0, "Error", "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
             assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
         }
-
     }
 
 
     @Test // check to see if we can change an attributed on an object that has RIPE-NCC-RPSL-MNT as mnt-by. should fail and tell them to fix
     public void existing_mntby_ncc_rpsl_test() throws Exception {
-        final RpslObject RPSL_MNT_PERSON = RpslObject.parse("" +
-                "person:    Pauleth Palthen\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31-1234567890\n" +
-                "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    RIPE-NCC-RPSL-MNT\n" +
-                "nic-hdl:   PP2-TEST\n" +
-                "remarks:   remark\n" +
-                "source:    TEST\n");
         databaseHelper.addObject(RPSL_MNT);
         databaseHelper.addObject(RPSL_MNT_PERSON);
 
@@ -254,8 +244,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request(MediaType.APPLICATION_XML)
                     .put(Entity.entity(updatedPerson, MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
-        }
-        catch(BadRequestException ex) {
+        } catch (BadRequestException ex) {
             final WhoisResources whoisResources = ex.getResponse().readEntity(WhoisResources.class);
             RestTest.assertErrorCount(whoisResources, 1);
             RestTest.assertErrorMessage(whoisResources, 0, "Error", "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
@@ -278,14 +267,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     .request(MediaType.APPLICATION_XML)
                     .put(Entity.entity(updatedPerson, MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
-        }
-       catch(BadRequestException ex) {
-           final WhoisResources whoisResources = ex.getResponse().readEntity(WhoisResources.class);
-           RestTest.assertErrorCount(whoisResources, 1);
-           RestTest.assertErrorMessage(whoisResources, 0, "Error", "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
-           assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+        } catch (BadRequestException ex) {
+            final WhoisResources whoisResources = ex.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(whoisResources, 1);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error", "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
+            assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
 
-       }
+        }
     }
 
     @Test
@@ -1474,12 +1462,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "source:         TEST\n");
 
         final String response = RestTest.target(getPort(), "whois/test/person/TP9-TEST.xml")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(String.class);
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(String.class);
 
         assertThat(response, containsString("&lt;script&gt;alert('hello');&lt;/script&gt;"));
     }
-
 
 
     // create
