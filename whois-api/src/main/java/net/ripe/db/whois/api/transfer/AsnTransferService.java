@@ -67,8 +67,8 @@ public class AsnTransferService extends AbstractTransferService {
             LOGGER.info("ClientErrorException: {}", exc.getMessage());
             return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
         } catch (TransferFailedException exc) {
-            LOGGER.info("TransferFailedException {}", exc.getWhoisResources().getErrorMessages());
-            return createResponse(request, exc.getWhoisResources(), exc.getStatus());
+            LOGGER.info("TransferFailedException {}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), exc.getStatus());
         } catch (Exception exc) {
             LOGGER.info("Exception: {}", exc.getMessage());
             return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
