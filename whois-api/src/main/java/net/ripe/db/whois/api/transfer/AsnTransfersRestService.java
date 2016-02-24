@@ -29,7 +29,6 @@ public class AsnTransfersRestService {
                                @QueryParam("override") final String override) {
 
         LOGGER.info("transfer-in: aut-num: {}", autnum);
-        LOGGER.info("transfer-in: override: {}", override);
 
         return asnTransfersRestServ.transferIn(request, autnum, override);
     }
@@ -41,7 +40,6 @@ public class AsnTransfersRestService {
                                 @QueryParam("override") final String override) {
 
         LOGGER.info("transfer-out: aut-num: {}", autnum);
-        LOGGER.info("transfer-out: override: {}", override);
 
         return asnTransfersRestServ.transferOut(request, autnum, override);
     }

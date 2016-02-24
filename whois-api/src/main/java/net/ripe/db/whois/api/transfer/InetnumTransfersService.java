@@ -87,8 +87,8 @@ public class InetnumTransfersService extends AbstractTransferService {
             LOGGER.warn("ClientErrorException:{}", exc.getMessage());
             return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
         } catch (TransferFailedException exc) {
-            LOGGER.warn("TransferFailedException: {}", exc.getWhoisResources().getErrorMessages());
-            return createResponse(request, exc.getWhoisResources(), exc.getStatus());
+            LOGGER.warn("TransferFailedException: {}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), exc.getStatus());
         } catch (Exception exc) {
             LOGGER.warn("Exception:{}", exc.getMessage());
             exc.printStackTrace();
@@ -134,8 +134,8 @@ public class InetnumTransfersService extends AbstractTransferService {
             LOGGER.warn("ClientErrorException:{}", exc.getMessage());
             return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
         } catch (TransferFailedException exc) {
-            LOGGER.warn("TransferFailedException:{}", exc.getWhoisResources().getErrorMessages());
-            return createResponse(request, exc.getWhoisResources(), exc.getStatus());
+            LOGGER.warn("TransferFailedException:{}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), exc.getStatus());
         } catch (Exception exc) {
             LOGGER.warn("Exception:{}", exc.getMessage());
             return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);

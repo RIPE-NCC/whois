@@ -72,17 +72,19 @@ public abstract class AbstractTransferService {
                 if (status == UpdateStatus.SUCCESS) {
                     // continue
                 } else {
-                    LOGGER.info("Error performing " + update.getOperation() + " on " +
-                            update.getSubmittedObject().getFormattedKey() +
-                            ", status: " + status);
+                   final String msg = String.format("Error performing %s on %s: status: %s",
+                           update.getOperation(),
+                           update.getSubmittedObject().getFormattedKey(),
+                           status);
+                    LOGGER.info(msg);
                     if (status == UpdateStatus.FAILED_AUTHENTICATION) {
-                        throw new TransferFailedException(Response.Status.UNAUTHORIZED, whoisResources);
+                        throw new TransferFailedException(Response.Status.UNAUTHORIZED, msg);
                     } else if (status == UpdateStatus.EXCEPTION) {
-                        throw new TransferFailedException(Response.Status.INTERNAL_SERVER_ERROR, whoisResources);
+                        throw new TransferFailedException(Response.Status.INTERNAL_SERVER_ERROR, msg);
                     } else if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
-                        throw new TransferFailedException(Response.Status.CONFLICT, whoisResources);
+                        throw new TransferFailedException(Response.Status.CONFLICT, msg);
                     } else {
-                        throw new TransferFailedException(Response.Status.BAD_REQUEST, whoisResources);
+                        throw new TransferFailedException(Response.Status.BAD_REQUEST, msg);
                     }
                 }
             }

@@ -30,7 +30,6 @@ public class InetnumTransfersRestService {
                                 @QueryParam("override") final String override) {
 
         LOGGER.info("transfer-out: inetnum: {}", inetnum);
-        LOGGER.info("transfer-out: inetnum override: {}", override);
 
         return inetnumTransfersService.transferOut(request, inetnum, override);
     }
@@ -42,7 +41,6 @@ public class InetnumTransfersRestService {
                                @QueryParam("override") final String override) {
 
         LOGGER.info("transfer-in: inetnum: {}", inetnum);
-        LOGGER.info("transfer-in: inetnum override: {}", override);
 
         return inetnumTransfersService.transferIn(request, inetnum, override);
     }
