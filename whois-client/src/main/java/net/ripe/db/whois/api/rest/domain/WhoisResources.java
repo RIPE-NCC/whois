@@ -126,7 +126,7 @@ public class WhoisResources {
     }
 
     public WhoisResources includeTermsAndConditions() {
-        this.termsAndConditions = new Link("locator", TERMS_AND_CONDITIONS);
+        this.termsAndConditions = Link.create(TERMS_AND_CONDITIONS);
         return this;
     }
 }

@@ -26,10 +26,10 @@ public class AbuseContactMapper {
 
         return new AbuseResources(
                 "abuse-contact",
-                new Link("locator", String.format("http://rest.db.ripe.net/abuse-contact/%s", key)),
+                Link.create(String.format("http://rest.db.ripe.net/abuse-contact/%s", key)),
                 parameters,
                 new AbuseContact(abuseEmail),
-                new Link("locator", WhoisResources.TERMS_AND_CONDITIONS)
+                Link.create(WhoisResources.TERMS_AND_CONDITIONS)
         );
     }
 

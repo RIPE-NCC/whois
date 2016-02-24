@@ -39,7 +39,11 @@ public class Link {
     }
 
     public static Link create(final String baseUrl, final String source, final String type, final String key) {
-        return new Link("locator", String.format("%s/%s/%s/%s", baseUrl, source, type, key));
+        return create(String.format("%s/%s/%s/%s", baseUrl, source, type, key));
+    }
+
+    public static Link create(String href) {
+        return new Link("locator", href);
     }
 
     // getters
