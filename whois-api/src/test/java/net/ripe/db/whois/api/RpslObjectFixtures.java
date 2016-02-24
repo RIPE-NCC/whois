@@ -14,12 +14,32 @@ public class RpslObjectFixtures {
             "remarks:   remark\n" +
             "source:    TEST\n");
 
+    public static final RpslObject RPSL_MNT_PERSON = RpslObject.parse("" +
+            "person:    Pauleth Palthen \n" +
+            "address:   Singel 258\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "mnt-by:    RIPE-NCC-RPSL-MNT\n" +
+            "nic-hdl:   PP2-TEST\n" +
+            "remarks:   remark\n" +
+            "source:    TEST\n");
+
     public static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
             "admin-c:     TP1-TEST\n" +
             "upd-to:      noreply@ripe.net\n" +
             "mnt-nfy:     mnt-nfy@ripe.net\n" +
+            "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+            "auth:        SSO person@net.net\n" +
+            "mnt-by:      OWNER-MNT\n" +
+            "source:      TEST");
+
+    public static final RpslObject RPSL_MNT = RpslObject.parse("" +
+            "mntner:      RIPE-NCC-RPSL-MNT\n" +
+            "descr:       Owner Maintainer\n" +
+            "admin-c:     TP1-TEST\n" +
+            "upd-to:      noreply@ripe.net\n" +
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
