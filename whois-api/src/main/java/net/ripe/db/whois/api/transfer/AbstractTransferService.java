@@ -8,11 +8,11 @@ import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.transfer.lock.TransferUpdateLockDao;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.api.transfer.lock.TransferUpdateLockDao;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.domain.*;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
@@ -27,18 +27,18 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 
-public class TransferService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransferService.class);
+public abstract class AbstractTransferService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTransferService.class);
 
+    protected final SourceContext sourceContext;
     protected final LoggerContext loggerContext;
     protected final InternalUpdatePerformer updatePerformer;
     protected final TransferUpdateLockDao transferUpdateLockDao;
-    protected final IpTreeUpdater ipTreeUpdater;
 
-    public TransferService(final InternalUpdatePerformer updatePerformer, IpTreeUpdater ipTreeUpdater, final TransferUpdateLockDao updateLockDao,
-                           final LoggerContext loggerContext) {
+    public AbstractTransferService(final SourceContext sourceContext, final InternalUpdatePerformer updatePerformer,
+                                   final TransferUpdateLockDao updateLockDao, final LoggerContext loggerContext) {
+        this.sourceContext = sourceContext;
         this.updatePerformer = updatePerformer;
-        this.ipTreeUpdater = ipTreeUpdater;
         this.transferUpdateLockDao = updateLockDao;
         this.loggerContext = loggerContext;
     }

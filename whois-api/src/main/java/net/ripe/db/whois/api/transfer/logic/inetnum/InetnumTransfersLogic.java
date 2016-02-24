@@ -4,22 +4,24 @@ package net.ripe.db.whois.api.transfer.logic.inetnum;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.net.InetAddresses;
 import net.ripe.commons.ip.Ipv4;
 import net.ripe.commons.ip.Ipv4Range;
-import net.ripe.db.whois.api.rest.domain.ActionRequest;
-import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.api.QueryBuilder;
-import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.domain.ResponseHandler;
-import net.ripe.db.whois.query.handler.QueryHandler;
-import net.ripe.db.whois.query.query.Query;
+import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.api.transfer.logic.TransferStage;
 import net.ripe.db.whois.api.transfer.logic.inetnum.stages.CreatePlaceholderForInetnumStage;
 import net.ripe.db.whois.api.transfer.logic.inetnum.stages.CreatePlaceholderForWhatIsLeftStage;
 import net.ripe.db.whois.api.transfer.logic.inetnum.stages.DeleteOriginalInetnumStage;
+import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.domain.ResponseHandler;
+import net.ripe.db.whois.query.executor.SearchQueryExecutor;
+import net.ripe.db.whois.query.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,16 +37,16 @@ import java.util.List;
 @Service
 public class InetnumTransfersLogic {
     private static final Logger LOGGER = LoggerFactory.getLogger(InetnumTransfersLogic.class);
-    private final QueryHandler queryHandler;
+    private final String source;
+    private final SearchQueryExecutor searchQueryExecutor;
     private final TransferStage transferInPipeline;
     private final TransferStage transferOutPipeline;
-    private final String source;
 
     @Autowired
-    public InetnumTransfersLogic(final QueryHandler queryHandler,
-                                 final @Value("${whois.source}") String source) {
-        this.queryHandler = queryHandler;
+    public InetnumTransfersLogic( final @Value("${whois.source}") String source,
+                                 final SearchQueryExecutor searchQueryExecutor ) {
         this.source = source;
+        this.searchQueryExecutor = searchQueryExecutor;
 
         this.transferInPipeline = new DeleteOriginalInetnumStage(this.source)
                 .next(new CreatePlaceholderForWhatIsLeftStage(this.source));
@@ -82,10 +84,7 @@ public class InetnumTransfersLogic {
             requests.addAll(transferOutPipeline.doTransfer(transfer, preceding, matchingObject, following));
         }
 
-        for (ActionRequest req : requests) {
-            System.err.println("action: " + req.getAction() + " " + req.getRpslObject().getFormattedKey() +
-                    " -> " + req.getRpslObject().getValueForAttribute(AttributeType.NETNAME));
-        }
+        logSteps(requests);
 
         return requests;
     }
@@ -161,12 +160,16 @@ public class InetnumTransfersLogic {
             }
         }
 
-        for (ActionRequest req : requests) {
-            System.err.println("action: " + req.getAction() + " " + req.getRpslObject().getFormattedKey() +
-                    " -> " + req.getRpslObject().getValueForAttribute(AttributeType.NETNAME));
-        }
+        logSteps(requests);
 
         return requests;
+    }
+
+    private void logSteps(final List<ActionRequest> requests) {
+        LOGGER.info("Asn-transfer-in tasks:{}", requests.size());
+        for (ActionRequest req : requests) {
+            LOGGER.info("action:{} {}", req.getAction(), req.getRpslObject().getFormattedKey());
+        }
     }
 
     private Collection<RpslObject> searchInetnumObject(final String inetnum, final QueryFlag level) {
@@ -181,10 +184,9 @@ public class InetnumTransfersLogic {
                 .addFlag(QueryFlag.NO_REFERENCED).build(inetnum);
 
         final Query query = Query.parse(queryString, Query.Origin.REST, true);
-        System.err.println("Query: " + query);
+        LOGGER.debug("Query: {}" + query);
         final List<RpslObject> inetnums = Lists.newArrayList();
-        final int contextId = System.identityHashCode(Thread.currentThread());
-        queryHandler.streamResults(query, InetAddresses.forString("127.0.0.1"), contextId, new ResponseHandler() {
+        searchQueryExecutor.execute(query, new ResponseHandler() {
             @Override
             public String getApi() {
                 return "API";
@@ -199,7 +201,6 @@ public class InetnumTransfersLogic {
                 }
             }
         });
-
 
         return inetnums;
     }

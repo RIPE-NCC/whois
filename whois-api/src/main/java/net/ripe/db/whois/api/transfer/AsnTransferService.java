@@ -3,9 +3,9 @@ package net.ripe.db.whois.api.transfer;
 import net.ripe.db.whois.api.rest.InternalUpdatePerformer;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.common.iptree.IpTreeUpdater;
-import net.ripe.db.whois.api.transfer.logic.asn.AsnTransferLogic;
 import net.ripe.db.whois.api.transfer.lock.TransferUpdateLockDao;
+import net.ripe.db.whois.api.transfer.logic.asn.AsnTransferLogic;
+import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,17 +21,17 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Component
-public class AsnTransferService extends TransferService {
+public class AsnTransferService extends AbstractTransferService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AsnTransfersRestService.class);
     private AsnTransferLogic asnTransfersHandler;
 
     @Autowired
-    public AsnTransferService(final LoggerContext loggerContext,
+    public AsnTransferService(final SourceContext sourceContext,
                               final TransferUpdateLockDao updateLockDao,
+                              final LoggerContext loggerContext,
                               final InternalUpdatePerformer updatePerformer,
-                              final IpTreeUpdater ipTreeUpdater,
                               final AsnTransferLogic asnTransfersHandler) {
-        super(updatePerformer, ipTreeUpdater, updateLockDao, loggerContext);
+        super(sourceContext, updatePerformer, updateLockDao, loggerContext);
         this.asnTransfersHandler = asnTransfersHandler;
     }
 
@@ -41,6 +41,12 @@ public class AsnTransferService extends TransferService {
                                final String override) {
 
         try {
+
+            // use master database for search
+            sourceContext.setCurrentSourceToWhoisMaster();
+
+            // No synchronisation of in memory-tree needed for aut-nums
+
             // Acquire lock to guarantee sequential processing of transfers
             transferUpdateLockDao.acquireUpdateLock();
 
@@ -53,22 +59,21 @@ public class AsnTransferService extends TransferService {
             // batch update
             final WhoisResources whoisResources = performUpdates(request, requests, override);
 
-
             this.asnTransfersHandler.updateAuthoritativeResources(requests);
-
-            ipTreeUpdater.updateTransactional();
 
             return createResponse(request, whoisResources, Response.Status.OK);
 
         } catch (ClientErrorException exc) {
-            System.err.println("ClientErrorException:" + exc.getMessage());
+            LOGGER.info("ClientErrorException: {}", exc.getMessage());
             return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
         } catch (TransferFailedException exc) {
-            System.err.println("TransferFailedException:" + exc.getWhoisResources().getErrorMessages());
+            LOGGER.info("TransferFailedException {}", exc.getWhoisResources().getErrorMessages());
             return createResponse(request, exc.getWhoisResources(), exc.getStatus());
         } catch (Exception exc) {
-            System.err.println("Exception:" + exc.getMessage());
+            LOGGER.info("Exception: {}", exc.getMessage());
             return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            sourceContext.removeCurrentSource();
         }
     }
 
@@ -77,6 +82,11 @@ public class AsnTransferService extends TransferService {
                                 final String stringAutNum,
                                 final String override) {
         try {
+            // use master database also for search
+            sourceContext.setCurrentSourceToWhoisMaster();
+
+            // No synchronisation of in memory-tree needed for aut-nums
+
             // Acquire lock to guarantee sequential processing of transfers
             transferUpdateLockDao.acquireUpdateLock();
 
@@ -90,19 +100,19 @@ public class AsnTransferService extends TransferService {
             final WhoisResources whoisResources = performUpdates(request, requests, override);
             this.asnTransfersHandler.updateAuthoritativeResources(requests);
 
-            ipTreeUpdater.updateTransactional();
-
             return createResponse(request, whoisResources, Response.Status.OK);
 
         } catch (ClientErrorException exc) {
-            System.err.println("ClientErrorException:" + exc.getMessage());
+            LOGGER.info("ClientErrorException:{}",exc.getMessage());
             return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
         } catch (TransferFailedException exc) {
-            System.err.println("TransferFailedException:" + exc.getMessage());
+            LOGGER.info("TransferFailedException:{}",exc.getMessage());
             return createResponse(request, exc.getMessage(), exc.getStatus());
         } catch (Exception exc) {
-            System.err.println("Exception:" + exc.getMessage());
+            LOGGER.info("Exception:{}",exc.getMessage());
             return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            sourceContext.removeCurrentSource();
         }
     }
 
