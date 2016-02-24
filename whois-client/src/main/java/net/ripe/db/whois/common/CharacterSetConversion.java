@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.handler;
+package net.ripe.db.whois.common;
 
 import java.nio.charset.Charset;
 

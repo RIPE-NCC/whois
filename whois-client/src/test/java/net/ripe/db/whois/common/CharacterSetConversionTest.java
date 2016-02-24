@@ -1,6 +1,6 @@
-package net.ripe.db.whois.update.handler;
+package net.ripe.db.whois.common;
 
-import com.google.common.base.Charsets;
+import net.ripe.db.whois.common.CharacterSetConversion;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;

@@ -1,7 +1,9 @@
 package net.ripe.db.whois.common.rpsl;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import org.apache.commons.lang.Validate;
@@ -11,6 +13,7 @@ import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.CharacterCodingException;
 import java.util.Collections;
 import java.util.Set;
 
@@ -38,7 +41,7 @@ public final class RpslAttribute {
         Validate.notNull(attributeType);
         Validate.notNull(value);
         this.key = attributeType.getName();
-        this.value = value;
+        this.value = CharacterSetConversion.convertToLatin1(value);
         this.type = attributeType;
     }
 
@@ -50,7 +53,7 @@ public final class RpslAttribute {
         Validate.notNull(key);
         Validate.notNull(value);
         this.key = key.toLowerCase();
-        this.value = value;
+        this.value = CharacterSetConversion.convertToLatin1(value);
         this.type = AttributeType.getByNameOrNull(this.key);
     }
 

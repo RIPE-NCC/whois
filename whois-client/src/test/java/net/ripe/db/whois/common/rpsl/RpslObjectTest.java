@@ -11,7 +11,12 @@ import org.junit.Test;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -742,9 +747,27 @@ public class RpslObjectTest {
                 "+\n"));
     }
 
+    @Test
+    public void should_convert_character_encoding_utf8__into_latin1() {
+        final RpslObject subject = RpslObject.parse("" +
+                "person:  Person\n" +
+                "e-mail:  noreply@ripe.net\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "nic-hdl: PP1-TEST\n" +
+                "remarks: test \u03A3 and \u00DF characters\n");
+
+        assertThat(convertToString(subject.getValuesForAttribute(AttributeType.REMARKS)), contains("test ? and \u00DF characters"));
+        assertThat(subject.toString(), is("" +
+                "person:         Person\n" +
+                "e-mail:         noreply@ripe.net\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "nic-hdl:        PP1-TEST\n" +
+                "remarks:        test ? and \u00DF characters\n"));
+    }
+
     // helper methods
 
-    private static Iterable<String> convertToString(final Iterable<CIString> c) {
+    protected static Iterable<String> convertToString(final Iterable<CIString> c) {
         return Iterables.transform(c, new Function<CIString, String>() {
             @Nullable
             @Override
