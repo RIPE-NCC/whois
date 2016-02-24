@@ -7,9 +7,9 @@ import net.ripe.commons.ip.Ipv4;
 import net.ripe.commons.ip.Ipv4Range;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.api.transfer.logic.inetnum.InetnumTransfer;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 
 import java.util.List;
 

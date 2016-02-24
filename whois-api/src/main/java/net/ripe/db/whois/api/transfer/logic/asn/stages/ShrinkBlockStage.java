@@ -5,9 +5,9 @@ import com.google.common.collect.Lists;
 import net.ripe.commons.ip.Asn;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
+import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
-import net.ripe.db.whois.api.transfer.logic.Transfer;
 
 import java.util.List;
 

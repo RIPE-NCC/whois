@@ -6,12 +6,12 @@ import net.ripe.commons.ip.Asn;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.api.transfer.logic.AuthoritativeResourceService;
 import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.api.transfer.logic.TransferStage;
 import net.ripe.db.whois.api.transfer.logic.asn.stages.*;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +56,6 @@ public class AsnTransferLogic {
     }
 
     public List<ActionRequest> transferInSteps(final String stringAutNum) {
-
-        System.err.println("AsnTransfersHandler.transferIn: Using source " + source);
 
         validateAutnumInput(stringAutNum);
 
@@ -133,12 +131,16 @@ public class AsnTransferLogic {
         final List<ActionRequest> requests = transferPipeline.doTransfer(
                 transfer, precedingBlock, originalAsBlock, followingBlock);
 
-        System.err.println("Asn-transfer-in tasks:"+requests.size());
-        for (ActionRequest req : requests) {
-            System.err.println("action: " + req.getAction() + " " + req.getRpslObject().getFormattedKey());
-        }
+        logSteps(requests);
 
         return requests;
+    }
+
+    private void logSteps(final List<ActionRequest> requests) {
+        LOGGER.info("Asn-transfer-in tasks:{}", requests.size());
+        for (ActionRequest req : requests) {
+            LOGGER.info("action:{} {}", req.getAction(), req.getRpslObject().getFormattedKey());
+        }
     }
 
     private Optional<RpslObject> getLeftDirectNeighbour(final Transfer<Asn> transfer, final RpslObject originalAsBlock) {

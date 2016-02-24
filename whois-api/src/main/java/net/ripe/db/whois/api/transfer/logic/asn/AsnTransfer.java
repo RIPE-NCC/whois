@@ -2,11 +2,11 @@ package net.ripe.db.whois.api.transfer.logic.asn;
 
 import com.google.common.base.Optional;
 import net.ripe.commons.ip.Asn;
+import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.api.transfer.logic.Transfer;
 
 public class AsnTransfer extends Transfer<Asn> {
 

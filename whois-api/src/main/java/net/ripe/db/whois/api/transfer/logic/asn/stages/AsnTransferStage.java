@@ -4,12 +4,12 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import net.ripe.commons.ip.Asn;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.api.transfer.logic.TransferStage;
 import net.ripe.db.whois.api.transfer.logic.asn.AsnTransfer;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

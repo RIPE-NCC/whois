@@ -1,10 +1,10 @@
 package net.ripe.db.whois.api.transfer.logic.inetnum;
 
 import net.ripe.commons.ip.Ipv4Range;
+import net.ripe.db.whois.api.transfer.logic.Transfer;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.api.transfer.logic.Transfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
