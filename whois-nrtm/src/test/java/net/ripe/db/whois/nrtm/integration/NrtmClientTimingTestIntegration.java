@@ -14,7 +14,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.annotation.DirtiesContext;
 
 @Category(IntegrationTest.class)
@@ -24,7 +23,6 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
     @Autowired
     private NrtmImporter nrtmImporter;
     @Autowired
-    @Qualifier("jdbcSerialDao")
     private SerialDao serialDao;
 
     private static final RpslObject MNTNER = RpslObject.parse("" +
