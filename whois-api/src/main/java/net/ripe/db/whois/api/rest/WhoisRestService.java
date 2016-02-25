@@ -846,7 +846,7 @@ public class WhoisRestService {
                     errors.clear();
                 }
 
-                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                streamingMarshal.write("terms-and-conditions", Link.create(WhoisResources.TERMS_AND_CONDITIONS));
                 streamingMarshal.end("whois-resources");
                 streamingMarshal.close();
                 return errors;
