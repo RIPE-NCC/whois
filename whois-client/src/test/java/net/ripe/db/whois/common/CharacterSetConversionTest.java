@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.handler;
+package net.ripe.db.whois.common;
 
 import com.google.common.base.Charsets;
 import org.junit.Test;
