@@ -86,11 +86,11 @@ public class WhoisObjectServerMapperTest {
         assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("mntner", "TST-MNT", null, null, null),
                 new Attribute("descr", "MNTNER for test", null, null, null),
-                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://localhost/lookup/test/person/TP1-TEST")),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TP1-TEST")),
                 new Attribute("upd-to", "dbtest@ripe.net", null, null, null),
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
-                new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", new Link("locator", "http://localhost/lookup/test/key-cert/PGPKEY-28F6CD6C")),
-                new Attribute("mnt-by", "TST-MNT", null, "mntner", new Link("locator", "http://localhost/lookup/test/mntner/TST-MNT")),
+                new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", Link.create("http://localhost/lookup/test/key-cert/PGPKEY-28F6CD6C")),
+                new Attribute("mnt-by", "TST-MNT", null, "mntner", Link.create("http://localhost/lookup/test/mntner/TST-MNT")),
                 new Attribute("source", "TEST", null, null, null)
         ));
     }
@@ -125,12 +125,12 @@ public class WhoisObjectServerMapperTest {
         assertThat(whoisObject.getAttributes(), containsInAnyOrder(
                 new Attribute("as-set", "AS-set-attendees", null, null, null),
                 new Attribute("descr", "AS-set containing all attendees' ASNs.", null, null, null),
-                new Attribute("tech-c", "TS1-TEST", null, "person", new Link("locator", "http://localhost/lookup/test/person/TS1-TEST")),
-                new Attribute("admin-c", "TS1-TEST", null, "person", new Link("locator", "http://localhost/lookup/test/person/TS1-TEST")),
-                new Attribute("members", "as1", null, "aut-num", new Link("locator", "http://localhost/lookup/test/aut-num/as1")),
-                new Attribute("members", "as2", null, "aut-num", new Link("locator", "http://localhost/lookup/test/aut-num/as2")),
-                new Attribute("members", "as3", null, "aut-num", new Link("locator", "http://localhost/lookup/test/aut-num/as3")),
-                new Attribute("mnt-by", "TS1-MNT", null, "mntner", new Link("locator", "http://localhost/lookup/test/mntner/TS1-MNT")),
+                new Attribute("tech-c", "TS1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TS1-TEST")),
+                new Attribute("admin-c", "TS1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TS1-TEST")),
+                new Attribute("members", "as1", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as1")),
+                new Attribute("members", "as2", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as2")),
+                new Attribute("members", "as3", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as3")),
+                new Attribute("mnt-by", "TS1-MNT", null, "mntner", Link.create("http://localhost/lookup/test/mntner/TS1-MNT")),
                 new Attribute("source", "TEST", null, null, null)
         ));
     }
