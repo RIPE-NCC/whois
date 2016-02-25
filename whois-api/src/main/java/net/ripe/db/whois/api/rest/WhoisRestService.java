@@ -250,9 +250,6 @@ public class WhoisRestService {
             @QueryParam("dry-run") final String dryRun,
             @QueryParam("unformatted") final String unformatted) {
 
-        final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
-        validateSubmittedUpdateObject(request, submittedObject, objectType, key);
-
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
@@ -261,6 +258,9 @@ public class WhoisRestService {
 
             checkForMainSource(request, source);
             setDryRun(updateContext, dryRun);
+
+            final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
+            validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
