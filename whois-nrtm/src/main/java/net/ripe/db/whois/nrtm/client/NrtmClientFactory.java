@@ -17,7 +17,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
@@ -44,7 +43,7 @@ class NrtmClientFactory {
 
     @Autowired
     public NrtmClientFactory(final SourceContext sourceContext,
-                             @Qualifier("jdbcSerialDao") final SerialDao serialDao,
+                             final SerialDao serialDao,
                              final RpslObjectUpdateDao rpslObjectUpdateDao,
                              final NrtmClientDao nrtmClientDao,
                              final MaintenanceMode maintenanceMode) {
