@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.client.StreamingException;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.InverseAttributes;
 import net.ripe.db.whois.api.rest.domain.Link;
@@ -22,12 +23,14 @@ import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryMessages;
@@ -263,15 +266,16 @@ public class WhoisRestService {
             validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
-
+            WhoisResources whoisResources = updatePerformer.performUpdate(
+                    updateContext,
+                    origin,
+                    update,
+                    Keyword.NONE,
+                    request);
+            warnWhenCharsetIsNotLatin1(request.getCharacterEncoding(), whoisResources);
             return updatePerformer.createResponse(
                     updateContext,
-                    updatePerformer.performUpdate(
-                            updateContext,
-                            origin,
-                            update,
-                            Keyword.NONE,
-                            request),
+                    whoisResources,
                     update,
                     request);
         } catch (Exception e) {
@@ -310,15 +314,16 @@ public class WhoisRestService {
             validateSubmittedCreateObject(request, submittedObject, objectType);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
-
+            WhoisResources whoisResources = updatePerformer.performUpdate(
+                    updateContext,
+                    origin,
+                    update,
+                    Keyword.NEW,
+                    request);
+            warnWhenCharsetIsNotLatin1(request.getCharacterEncoding(), whoisResources);
             return updatePerformer.createResponse(
                 updateContext,
-                updatePerformer.performUpdate(
-                        updateContext,
-                        origin,
-                        update,
-                        Keyword.NEW,
-                        request),
+                whoisResources,
                 update,
                 request);
 
@@ -504,6 +509,17 @@ public class WhoisRestService {
                 parameters,
                 new Service(SERVICE_SEARCH),
                 isQueryParamSet(unformatted));
+    }
+
+    private void warnWhenCharsetIsNotLatin1(final String encoding, final WhoisResources whoisResources) {
+        if (!CharacterSetConversion.isEncodingLatin1(encoding)) {
+            ErrorMessage errorMessage = new ErrorMessage(ValidationMessages.nonLatin1Charset(encoding));
+            if (whoisResources.getErrorMessages().size() == 0) {
+                whoisResources.setErrorMessages(Lists.newArrayList(errorMessage));
+            } else {
+                whoisResources.getErrorMessages().add(errorMessage);
+            }
+        }
     }
 
     private void validateSearchKey(final HttpServletRequest request, final String searchKey) {

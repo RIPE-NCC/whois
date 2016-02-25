@@ -2144,6 +2144,40 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void create_with_utf8_non_ascii_characters_converted() {
+        try {
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request(MediaType.APPLICATION_JSON)
+                    .post(Entity.entity("" +
+                            "{ \"objects\": {\n" +
+                            "   \"object\": [ {\n" +
+                            "    \"source\": { \"id\": \"RIPE\" }, \n" +
+                            "    \"attributes\": {\n" +
+                            "       \"attribute\": [\n" +
+                            "        { \"name\": \"person\", \"value\": \"Pauleth Palthen\" },\n" +
+                            "        { \"name\": \"address\", \"value\": \"Flughafenstraße 109/Σ\" },\n" +
+                            "        { \"name\": \"phone\", \"value\": \"+31-2-1234567\" },\n" +
+                            "        { \"name\": \"e-mail\", \"value\": \"noreply@ripe.net\" },\n" +
+                            "        { \"name\": \"mnt-by\", \"value\": \"OWNER-MNT\" },\n" +
+                            "        { \"name\": \"nic-hdl\", \"value\": \"PP1-TEST\" },\n" +
+                            "        { \"name\": \"remarks\", \"value\": \"created\" },\n" +
+                            "        { \"name\": \"source\", \"value\": \"TEST\" }\n" +
+                            "        ] }\n" +
+                            "    }] \n" +
+                            "}}", new MediaType("application", "json", Charsets.UTF_8.displayName())), WhoisResources.class);
+
+            final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+            assertThat(messages, hasSize(1));
+            assertThat(messages.get(0).getText(), is("Received a non ISO-8859-1 (Latin-1) character set '%s'; some values might have been converted"));
+            assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+            final WhoisObject responseObject = whoisResources.getWhoisObjects().get(0);
+            assertThat(responseObject.getAttributes().get(1).getValue(), is("Flughafenstraße 109/?"));
+        } catch (BadRequestException ex) {
+            fail();
+        }
+    }
+
+    @Test
     public void create_dryRun() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&dry-run=true")
                 .request()
