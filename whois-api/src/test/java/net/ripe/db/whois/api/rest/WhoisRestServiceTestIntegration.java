@@ -79,16 +79,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_PERSON;
-import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_IRT;
-import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_ROLE;
-import static net.ripe.db.whois.api.RpslObjectFixtures.PASSWORD_ONLY_MNT;
 import static net.ripe.db.whois.api.RpslObjectFixtures.OWNER_MNT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.PASSWORD_ONLY_MNT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.PAULETH_PALTHEN;
 import static net.ripe.db.whois.api.RpslObjectFixtures.RPSL_MNT;
 import static net.ripe.db.whois.api.RpslObjectFixtures.RPSL_MNT_PERSON;
-import static net.ripe.db.whois.api.RpslObjectFixtures.SSO_ONLY_MNT;
 import static net.ripe.db.whois.api.RpslObjectFixtures.SSO_AND_PASSWORD_MNT;
-import static net.ripe.db.whois.api.RpslObjectFixtures.PAULETH_PALTHEN;
+import static net.ripe.db.whois.api.RpslObjectFixtures.SSO_ONLY_MNT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_IRT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_PERSON;
+import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_ROLE;
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.Matchers.contains;
@@ -1950,28 +1950,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "}", getPort())));
     }
 
-    // TODO: [ES] no warning on conversion of \u03A3 to ? in latin-1 charset
-    @Test
-    public void create_utf8_character_encoding() {
-        final RpslObject person = RpslObject.parse("" +
-                "person:    Pauleth Palthen\n" +
-                "address:   test \u03A3 and \u00DF characters\n" +
-                "phone:     +31-1234567890\n" +
-                "e-mail:    noreply@ripe.net\n" +
-                "mnt-by:    OWNER-MNT\n" +
-                "nic-hdl:   PP1-TEST\n" +
-                "remarks:   remark\n" +
-                "source:    TEST\n");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .post(Entity.entity(map(person), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        // UTF-8 characters are mapped to latin1. Characters outside the latin1 charset are substituted by '?'
-        final WhoisObject responseObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(responseObject.getAttributes().get(1).getValue(), is("test ? and \u00DF characters"));
-    }
-
     @Test
     public void create_self_referencing_maintainer_password_auth_only() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner?password=test")
@@ -2045,6 +2023,44 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (BadRequestException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "No RIPE NCC Access Account found for %s", "in@valid.net");
         }
+    }
+
+    @Test
+    public void create_utf8_character_encoding_with_parse() {
+        // NOTE: the RpslObject is already converted in latin1
+        final RpslObject person = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   test \u03A3 stra\u00DFe\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(person), MediaType.APPLICATION_XML), WhoisResources.class);
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(0));
+        final WhoisObject responseObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(responseObject.getAttributes().get(1).getValue(), is("test ? stra\u00DFe"));
+    }
+
+    @Test
+    public void create_utf8_character_encoding_with_builder() {
+        // NOTE: the RpslObject is already converted in latin1
+        final RpslObject person = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .removeAttributeType(AttributeType.ADDRESS)
+                .prepend(new RpslAttribute(AttributeType.ADDRESS, "test \u03A3 stra\u00DFe\n"))
+                .sort().get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(person), MediaType.APPLICATION_XML), WhoisResources.class);
+        final List<ErrorMessage> messages = whoisResources.getErrorMessages();
+        assertThat(messages, hasSize(0));
+        final WhoisObject responseObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(responseObject.getAttributes().get(1).getValue(), is("test ? stra\u00DFe"));
     }
 
     @Test
