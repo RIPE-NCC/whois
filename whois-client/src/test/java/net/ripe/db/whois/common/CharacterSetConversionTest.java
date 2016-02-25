@@ -1,12 +1,13 @@
 package net.ripe.db.whois.common;
 
-import net.ripe.db.whois.common.CharacterSetConversion;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CharacterSetConversionTest {
@@ -51,4 +52,15 @@ public class CharacterSetConversionTest {
         assertThat(CharacterSetConversion.convertToLatin1("مرحبا"), is("?????"));
     }
 
+    @Test
+    public void should_compare_charsets_for_latin1() {
+        assertTrue(CharacterSetConversion.isEncodingLatin1("ISO-8859-1"));
+        assertTrue(CharacterSetConversion.isEncodingLatin1("latin1"));
+
+        assertFalse(CharacterSetConversion.isEncodingLatin1("US-ASCII"));
+        assertFalse(CharacterSetConversion.isEncodingLatin1("UTF-8"));
+        assertFalse(CharacterSetConversion.isEncodingLatin1("UTF-16BE"));
+        assertFalse(CharacterSetConversion.isEncodingLatin1("UTF-16LE"));
+        assertFalse(CharacterSetConversion.isEncodingLatin1("UTF-16"));
+    }
 }
