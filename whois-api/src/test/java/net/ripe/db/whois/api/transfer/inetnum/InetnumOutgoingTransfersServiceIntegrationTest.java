@@ -406,10 +406,7 @@ public class InetnumOutgoingTransfersServiceIntegrationTest extends AbstractInet
             printErrorMessage(exc.getResponse().readEntity(WhoisResources.class));
             throw exc;
         } catch (WebApplicationException e) {
-            System.out.println("-------------------------");
-            System.out.println(e.getResponse().readEntity(String.class));
-            System.out.println("-------------------------");
-
+            fail(e.getResponse().readEntity(String.class));
             throw e;
         } catch (UnsupportedEncodingException e) {
             fail(e.getMessage());
