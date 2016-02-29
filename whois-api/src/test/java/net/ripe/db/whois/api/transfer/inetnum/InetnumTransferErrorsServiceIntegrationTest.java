@@ -298,7 +298,6 @@ public class InetnumTransferErrorsServiceIntegrationTest extends AbstractInetnum
         given:
         databaseHelper.addObject(createResource("NON-RIPE", "193.0.0.0 - 193.255.255.255"));
         ipTreeUpdater.rebuild();
-        databaseHelper.dumpSchema(sourceAwareDataSource);
 
         when:
         then:

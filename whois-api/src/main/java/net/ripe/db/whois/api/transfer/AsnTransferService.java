@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.transfer;
 
 import net.ripe.db.whois.api.rest.InternalUpdatePerformer;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.transfer.lock.TransferUpdateLockDao;
 import net.ripe.db.whois.api.transfer.logic.asn.AsnTransferLogic;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -16,8 +15,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Component
@@ -36,9 +33,9 @@ public class AsnTransferService extends AbstractTransferService {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
-    public Response transferIn(final HttpServletRequest request,
-                               final String stringAutNum,
-                               final String override) {
+    public String transferIn(final HttpServletRequest request,
+                             final String stringAutNum,
+                             final String override) {
 
         try {
 
@@ -50,37 +47,28 @@ public class AsnTransferService extends AbstractTransferService {
             // Acquire lock to guarantee sequential processing of transfers
             transferUpdateLockDao.acquireUpdateLock();
 
-            // Determine all steps for transfer
+            // Determine all individual steps needed to perform transfer
             List<ActionRequest> requests = this.asnTransfersHandler.transferInSteps(stringAutNum);
             if (requests.size() == 0) {
-                return createResponse(request, String.format("Resource %s is already RIPE", stringAutNum), Response.Status.OK);
+                return String.format("Resource %s is already RIPE", stringAutNum);
             }
 
             // batch update
-            final WhoisResources whoisResources = performUpdates(request, requests, override);
+            performUpdates(request, requests, override);
 
             this.asnTransfersHandler.updateAuthoritativeResources(requests);
 
-            return createResponse(request, whoisResources, Response.Status.OK);
+            return String.format("Successfully transferred in aut-num %s", stringAutNum);
 
-        } catch (ClientErrorException exc) {
-            LOGGER.info("ClientErrorException: {}", exc.getMessage());
-            return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
-        } catch (TransferFailedException exc) {
-            LOGGER.info("TransferFailedException {}", exc.getMessage());
-            return createResponse(request, exc.getMessage(), exc.getStatus());
-        } catch (Exception exc) {
-            LOGGER.info("Exception: {}", exc.getMessage());
-            return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             sourceContext.removeCurrentSource();
         }
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
-    public Response transferOut(HttpServletRequest request,
-                                final String stringAutNum,
-                                final String override) {
+    public String transferOut(HttpServletRequest request,
+                              final String stringAutNum,
+                              final String override) {
         try {
             // use master database also for search
             sourceContext.setCurrentSourceToWhoisMaster();
@@ -90,27 +78,18 @@ public class AsnTransferService extends AbstractTransferService {
             // Acquire lock to guarantee sequential processing of transfers
             transferUpdateLockDao.acquireUpdateLock();
 
-            // Determine all steps for transfer
+            // Determine all individual steps needed to perform transfer
             List<ActionRequest> requests = this.asnTransfersHandler.getTransferOutSteps(stringAutNum);
             if (requests.size() == 0) {
-                return createResponse(request, String.format("Resource %s is already non-RIPE", stringAutNum), Response.Status.OK);
+                return String.format("Resource %s is already non-RIPE", stringAutNum);
             }
 
             // batch update
-            final WhoisResources whoisResources = performUpdates(request, requests, override);
+            performUpdates(request, requests, override);
             this.asnTransfersHandler.updateAuthoritativeResources(requests);
 
-            return createResponse(request, whoisResources, Response.Status.OK);
+            return String.format("Successfully transferred out aut-num %s", stringAutNum);
 
-        } catch (ClientErrorException exc) {
-            LOGGER.info("ClientErrorException:{}",exc.getMessage());
-            return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
-        } catch (TransferFailedException exc) {
-            LOGGER.info("TransferFailedException:{}",exc.getMessage());
-            return createResponse(request, exc.getMessage(), exc.getStatus());
-        } catch (Exception exc) {
-            LOGGER.info("Exception:{}",exc.getMessage());
-            return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             sourceContext.removeCurrentSource();
         }

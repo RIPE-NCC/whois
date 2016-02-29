@@ -13,11 +13,13 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
@@ -380,10 +382,22 @@ public class InetnumOutgoingTransfersServiceIntegrationTest extends AbstractInet
         assertThat(inetnumWithNetnameExists("191.0.0.0-191.255.255.254", InetnumTransfer.NON_RIPE_NETNAME), is(true));
     }
 
-    private void transferOut(String inetnum) {
+    @Test
+    public void it_should_report_authentication_error() {
+        description:  // should report error thrown deeply from within transaction correctly
+
+        try {
+            transferOut("194.0.0.0/32", "nonExistingUser,dummyPassword,noreason");
+            fail();
+        } catch(NotAuthorizedException exc) {
+            assertThat(exc.getResponse().readEntity(String.class), containsString("FAILED_AUTHENTICATION") );
+        }
+    }
+
+    private void transferOut(String inetnum, final String overrideLine) {
         try {
             WhoisResources resp = RestTest.target(getPort(), "whois/transfer/inetnum/",
-                    "override=" + SyncUpdateUtils.encode(OVERRIDE_LINE), null)
+                    "override=" + SyncUpdateUtils.encode(overrideLine), null)
                     .path(URLEncoder.encode(inetnum, "UTF-8"))
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .delete(WhoisResources.class);
@@ -400,6 +414,9 @@ public class InetnumOutgoingTransfersServiceIntegrationTest extends AbstractInet
         } catch (UnsupportedEncodingException e) {
             fail(e.getMessage());
         }
+    }
+    private void transferOut(String inetnum) {
+        transferOut(inetnum, OVERRIDE_LINE);
     }
 
 }

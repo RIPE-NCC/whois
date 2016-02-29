@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class InetnumTransfersService extends AbstractTransferService {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
-    public Response transferOut(final HttpServletRequest request,
+    public String transferOut(final HttpServletRequest request,
                                 final String inetnum,
                                 final String override) {
         try {
@@ -70,7 +69,7 @@ public class InetnumTransfersService extends AbstractTransferService {
             // collect the individual steps that make a transfer
             final List<ActionRequest> requests = inetnumTransfersLogic.getTransferOutActions(inetnum);
             if (requests.size() == 0) {
-                return createResponse(request, "Inetnum " + inetnum + " is already non-RIPE.", OK);
+                return String.format("Inetnum %s is already non-RIPE.", inetnum);
             }
 
             // perform the actual batch update
@@ -78,28 +77,15 @@ public class InetnumTransfersService extends AbstractTransferService {
 
             authoritativeResourceService.transferOutIpv4Block(inetnum);
 
-            return createResponse(request, "Successfully transferred out inetnum " + inetnum, OK);
+            return String.format( "Successfully transferred out inetnum %s", inetnum);
 
-        } catch (IllegalArgumentException exc) {
-            LOGGER.warn("IllegalArgumentException:{}", exc.getMessage());
-            return createResponse(request, exc.getMessage(), Response.Status.BAD_REQUEST);
-        } catch (ClientErrorException exc) {
-            LOGGER.warn("ClientErrorException:{}", exc.getMessage());
-            return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
-        } catch (TransferFailedException exc) {
-            LOGGER.warn("TransferFailedException: {}", exc.getMessage());
-            return createResponse(request, exc.getMessage(), exc.getStatus());
-        } catch (Exception exc) {
-            LOGGER.warn("Exception:{}", exc.getMessage());
-            exc.printStackTrace();
-            return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             sourceContext.removeCurrentSource();
         }
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
-    public Response transferIn(final HttpServletRequest request,
+    public String transferIn(final HttpServletRequest request,
                                final String inetnum,
                                final String override) {
         try {
@@ -117,7 +103,7 @@ public class InetnumTransfersService extends AbstractTransferService {
             // collect the individual steps that make a transfer
             final List<ActionRequest> requests = inetnumTransfersLogic.getTransferInActions(inetnum);
             if (requests.size() == 0) {
-                return createResponse(request, "Inetnum " + inetnum + " is already RIPE.", OK);
+                return String.format( "Inetnum %s is already RIPE.", inetnum);
             }
 
             // perform the actual batch update
@@ -125,20 +111,8 @@ public class InetnumTransfersService extends AbstractTransferService {
 
             authoritativeResourceService.transferInIpv4Block(inetnum);
 
-            return createResponse(request, "Successfully transferred in inetnum " + inetnum, OK);
+            return String.format( "Successfully transferred in inetnum %s", inetnum);
 
-        } catch (IllegalArgumentException exc) {
-            LOGGER.warn("IllegalArgumentException:{}", exc.getMessage());
-            return createResponse(request, exc.getMessage(), Response.Status.BAD_REQUEST);
-        } catch (ClientErrorException exc) {
-            LOGGER.warn("ClientErrorException:{}", exc.getMessage());
-            return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
-        } catch (TransferFailedException exc) {
-            LOGGER.warn("TransferFailedException:{}", exc.getMessage());
-            return createResponse(request, exc.getMessage(), exc.getStatus());
-        } catch (Exception exc) {
-            LOGGER.warn("Exception:{}", exc.getMessage());
-            return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
         } finally {
             sourceContext.removeCurrentSource();
         }
