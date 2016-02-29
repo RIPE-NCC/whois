@@ -42,6 +42,14 @@ public class InetnumTransfersRestService {
 
         LOGGER.info("transfer-in: inetnum: {}", inetnum);
 
-        return inetnumTransfersService.transferIn(request, inetnum, override);
+        try {
+            return inetnumTransfersService.transferIn(request, inetnum, override);
+        } catch(org.springframework.transaction.UnexpectedRollbackException exc ) {
+            exc.printStackTrace();
+            LOGGER.info("case:" + exc.getMessage() );
+            LOGGER.info("root-cause:" + exc.getRootCause().getMessage());
+            LOGGER.info("most-specific-cause:"+ exc.getMostSpecificCause());
+            return null;
+        }
     }
 }
