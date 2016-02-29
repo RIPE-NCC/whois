@@ -522,7 +522,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
-        assertThat(response, containsString("address:    Flughafenstraße 109/a"));
+        assertThat(response, containsString("address:        Flughafenstraße 109/a"));
     }
 
     @Test
@@ -544,7 +544,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
-        assertThat(response, containsString("address:    Flughafenstraße 109/a"));
+        assertThat(response, containsString("address:        Flughafenstraße 109/a"));
     }
 
     @Test
@@ -564,7 +564,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ???????? ?????,??????"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        ???????? ?????,??????"));
     }
 
     @Test
@@ -586,7 +587,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ???????? ?????,??????"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        ???????? ?????,??????"));
     }
 
     @Test
@@ -608,7 +610,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("ÅçÅç"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        ÅçÅç"));
     }
 
     @Test
@@ -631,7 +634,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(multipart, new MediaType("multipart", "form-data", Charsets.ISO_8859_1.displayName())), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ÅçÅç"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        ÅçÅç"));
     }
 
     @Test
