@@ -565,8 +565,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ???????? ?????,??????"));
-
-        assertThat(response, containsString("Attribute \"address\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set"));
     }
 
     @Test
