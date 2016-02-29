@@ -112,7 +112,6 @@ public abstract class AbstractTransferTest extends AbstractIntegrationTest {
         } catch (EmptyResultDataAccessException e) {
             status = false;
         }
-        System.err.println("\nDoes " + objectType + ":" + primaryKey + " exist? " + status);
         return status;
     }
 

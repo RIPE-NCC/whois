@@ -42,10 +42,8 @@ public abstract class AbstractInetnumTransferInternalTest extends AbstractTransf
 
         try {
             RpslObject found = lookup(ObjectType.INETNUM, primaryKey);
-            System.err.println("Inetnum " + primaryKey + " exists" + found.getFormattedKey());
             return found != null;
         } catch (EmptyResultDataAccessException exc) {
-            System.err.println("Inetnum " + primaryKey + " does NOT exists");
             return false;
         }
     }
