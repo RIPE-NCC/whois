@@ -16,8 +16,6 @@ public interface SourceContext extends BasicSourceContext {
 
     void setCurrent(Source source);
 
-    Source getCurrent();
-
     void removeCurrentSource();
 
     void destroyDataSources();

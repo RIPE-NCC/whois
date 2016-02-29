@@ -213,10 +213,6 @@ public class DefaultSourceContext implements SourceContext {
         setCurrent(mainMasterSource);
     }
 
-    public Source getCurrent() {
-        return current.get().getSource();
-    }
-
     public void setCurrent(final Source source) {
         final SourceConfiguration sourceConfiguration = sourceConfigurations.get(source);
         if (sourceConfiguration == null) {
