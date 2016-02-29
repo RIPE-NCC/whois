@@ -105,28 +105,4 @@ public abstract class AbstractTransferService {
         loggerContext.log(new HttpRequestMessage(request));
     }
 
-    protected Response createResponse(final HttpServletRequest request, final WhoisResources whoisResources, final Response.Status status) {
-        final Response.ResponseBuilder responseBuilder = Response.status(status);
-        return responseBuilder.entity(new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                StreamingHelper.getStreamingMarshal(request, output).singleton(whoisResources);
-            }
-        }).build();
-    }
-
-    protected Response createResponse(final HttpServletRequest request, final String errorMessage, final Response.Status status) {
-        WhoisResources whoisResources = new WhoisResources();
-        Messages.Type severity = status == Response.Status.OK ? Messages.Type.INFO : Messages.Type.ERROR;
-        whoisResources.setErrorMessages(Lists.newArrayList(new ErrorMessage(
-                new Message(severity, errorMessage, Collections.emptyList())
-        )));
-        final Response.ResponseBuilder responseBuilder = Response.status(status);
-        return responseBuilder.entity(new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                StreamingHelper.getStreamingMarshal(request, output).singleton(whoisResources);
-            }
-        }).build();
-    }
 }

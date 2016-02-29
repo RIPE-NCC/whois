@@ -11,15 +11,17 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static net.ripe.db.whois.api.transfer.ResponseHandling.createResponse;
+
 @Service
 @Path("/transfer/aut-num/{autNum}")
 public class AsnTransfersRestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AsnTransfersRestService.class);
-    private AsnTransferService asnTransfersRestServ;
+    private AsnTransferService asnTransferService;
 
     @Autowired
-    public AsnTransfersRestService(final AsnTransferService asnTransfersRestServ) {
-        this.asnTransfersRestServ = asnTransfersRestServ;
+    public AsnTransfersRestService(final AsnTransferService asnTransferService) {
+        this.asnTransferService = asnTransferService;
     }
 
     @POST
@@ -30,7 +32,19 @@ public class AsnTransfersRestService {
 
         LOGGER.info("transfer-in: aut-num: {}", autnum);
 
-        return asnTransfersRestServ.transferIn(request, autnum, override);
+        try {
+            final String responseMsg = asnTransferService.transferIn(request, autnum, override);
+            return createResponse(request, responseMsg, Response.Status.OK);
+        } catch (ClientErrorException exc) {
+            LOGGER.info("ClientErrorException:{}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
+        } catch (TransferFailedException exc) {
+            LOGGER.info("TransferFailedException:{}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), exc.getStatus());
+        } catch (Exception exc) {
+            LOGGER.info("Exception:{}", exc.getMessage());
+            return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DELETE
@@ -41,7 +55,19 @@ public class AsnTransfersRestService {
 
         LOGGER.info("transfer-out: aut-num: {}", autnum);
 
-        return asnTransfersRestServ.transferOut(request, autnum, override);
+        try {
+            final String responseMsg = asnTransferService.transferOut(request, autnum, override);
+            return createResponse(request, responseMsg, Response.Status.OK);
+        } catch (ClientErrorException exc) {
+            LOGGER.info("ClientErrorException: {}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
+        } catch (TransferFailedException exc) {
+            LOGGER.info("TransferFailedException {}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), exc.getStatus());
+        } catch (Exception exc) {
+            LOGGER.info("Exception: {}", exc.getMessage());
+            return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

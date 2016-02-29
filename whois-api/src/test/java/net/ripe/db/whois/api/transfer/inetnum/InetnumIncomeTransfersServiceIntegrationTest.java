@@ -13,12 +13,14 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -260,6 +262,7 @@ public class InetnumIncomeTransfersServiceIntegrationTest extends AbstractInetnu
         ipTreeUpdater.rebuild();
     }
 
+
     @Test
     public void it_should_delete_placeholder_if_it_is_an_exact_match() {
         description:
@@ -292,11 +295,6 @@ public class InetnumIncomeTransfersServiceIntegrationTest extends AbstractInetnu
         transferIn("200.0.0.0/9");
 
         then:
-        databaseHelper.dumpSchema(sourceAwareDataSource);
-        try {
-            Thread.sleep(1000L);
-        } catch (Exception e) {
-        }
         assertThat(inetNumExists("200.0.0.0-200.255.255.255"), is(false));
         assertThat(inetnumWithNetnameExists("200.128.0.0/9", InetnumTransfer.NON_RIPE_NETNAME), is(true));
         assertThat(isMaintainedInRirSpace("200.0.0.0-200.255.255.255"), is(false));
@@ -392,107 +390,79 @@ public class InetnumIncomeTransfersServiceIntegrationTest extends AbstractInetnu
         assertThat(inetNumExists("201.0.0.0/24"), is(true));
     }
 
+
+    @Test
+    public void it_should_report_authentication_error() {
+        description:  // should report error thrown deeply from with transaction correctly
+
+        try {
+            transferIn("200.0.0.0/8", "nonExistingUser,dummyPassword,noreason");
+            fail();
+        } catch(NotAuthorizedException exc) {
+            assertThat(exc.getResponse().readEntity(String.class), containsString("FAILED_AUTHENTICATION") );
+        }
+    }
+
     @Test
     public void it_should_modify_placeholders_in_sequence() throws InterruptedException {
 
         asynchronousTransfer("202.116.0.0/14");
         ipTreeUpdater.updateTransactional();
         asynchronousTransfer("202.120.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("202.140.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("202.168.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("202.172.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("202.176.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("202.180.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("202.240.0.0/14");
 
         asynchronousTransfer("203.116.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("203.120.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("203.140.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("203.168.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("203.172.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("203.176.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("203.180.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("203.240.0.0/14");
 
 
         asynchronousTransfer("204.116.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("204.120.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("204.140.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("204.168.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("204.172.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("204.176.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("204.180.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("204.240.0.0/14");
 
 
         asynchronousTransfer("205.116.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("205.120.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("205.140.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("205.168.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("205.172.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("205.176.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("205.180.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("205.240.0.0/14");
 
 
         asynchronousTransfer("206.116.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("206.120.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("206.140.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("206.168.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("206.172.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("206.176.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("206.180.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("206.240.0.0/14");
 
 
         asynchronousTransfer("207.116.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("207.120.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("207.140.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("207.168.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("207.172.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("207.176.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("207.180.0.0/14");
-//        ipTreeUpdater.updateTransactional();
         asynchronousTransfer("207.240.0.0/14");
     }
 
@@ -500,10 +470,10 @@ public class InetnumIncomeTransfersServiceIntegrationTest extends AbstractInetnu
         ((Runnable) () -> transferIn(range)).run();
     }
 
-    private void transferIn(String inetnum) {
+    private void transferIn(String inetnum, final String overrideLine ) {
         try {
             WhoisResources resp = RestTest.target(getPort(), "whois/transfer/inetnum/",
-                    "override=" + SyncUpdateUtils.encode(OVERRIDE_LINE), null)
+                    "override=" + SyncUpdateUtils.encode(overrideLine), null)
                     .path(URLEncoder.encode(inetnum, "UTF-8"))
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .post(Entity.text(null), WhoisResources.class);
@@ -516,5 +486,8 @@ public class InetnumIncomeTransfersServiceIntegrationTest extends AbstractInetnu
         }
     }
 
+    private void transferIn(String inetnum) {
+        transferIn(inetnum, OVERRIDE_LINE);
+    }
 
 }

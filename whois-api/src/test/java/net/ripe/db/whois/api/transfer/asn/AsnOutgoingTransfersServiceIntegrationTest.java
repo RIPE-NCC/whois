@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.transfer.asn;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
+import net.ripe.db.whois.api.transfer.AbstractTransferTest;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.api.transfer.logic.AuthoritativeResourceDao;
@@ -13,6 +14,7 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -392,6 +394,15 @@ public class AsnOutgoingTransfersServiceIntegrationTest extends AbstractAsnTrans
         assertThat(isRipeAsBlock("AS50 - AS58"), is(true));
     }
 
+    @Test
+    public void transfer_in_authentication_error() {
+        try {
+            transferOut(AS59____far_last_of_ripe_block, "nonExistingUser.wrongPassword,dummy topic");
+        } catch(NotAuthorizedException exc) {
+            assertThat(exc.getResponse().readEntity(String.class), containsString("FAILED_AUTHENTICATION") );
+        }
+    }
+
     // far-last section: end
 
     @Test
@@ -517,19 +528,22 @@ public class AsnOutgoingTransfersServiceIntegrationTest extends AbstractAsnTrans
 
     // helper methods
 
-    private String transferOut(String asNum) {
-        WhoisResources whoisResources = null;
+    private String transferOut(final String asNum) {
+        return transferOut(asNum, AbstractTransferTest.OVERRIDE_LINE);
+    }
+
+    private String transferOut(final String asNum, final String overrideLine) {
         try {
-            whoisResources = RestTest.target(getPort(), "whois/transfer/aut-num/",
-                    "override=" + SyncUpdateUtils.encode(OVERRIDE_LINE), null)
+            final WhoisResources whoisResources = RestTest.target(getPort(), "whois/transfer/aut-num/",
+                    "override=" + SyncUpdateUtils.encode(overrideLine), null)
                     .path(URLEncoder.encode(asNum, "UTF-8"))
                     .request()
                     .delete(WhoisResources.class);
             return whoisResources.getErrorMessages().toString();
         } catch (UnsupportedEncodingException e) {
             fail(e.getMessage());
+            return null;
         }
-        return null;
     }
 
 }

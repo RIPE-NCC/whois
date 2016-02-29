@@ -12,6 +12,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static net.ripe.db.whois.api.transfer.ResponseHandling.createResponse;
+
 @Service
 @Path("/transfer/inetnum/{inetnum:.*}")
 public class InetnumTransfersRestService {
@@ -31,7 +33,22 @@ public class InetnumTransfersRestService {
 
         LOGGER.info("transfer-out: inetnum: {}", inetnum);
 
-        return inetnumTransfersService.transferOut(request, inetnum, override);
+        try {
+            final String responseMsg = inetnumTransfersService.transferOut(request, inetnum, override);
+            return createResponse(request, responseMsg, Response.Status.OK);
+        } catch (IllegalArgumentException exc) {
+            LOGGER.warn("IllegalArgumentException:{}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), Response.Status.BAD_REQUEST);
+        } catch (ClientErrorException exc) {
+            LOGGER.warn("ClientErrorException:{}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
+        } catch (TransferFailedException exc) {
+            LOGGER.warn("TransferFailedException:{}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), exc.getStatus());
+        } catch (Exception exc) {
+            LOGGER.warn("Exception:{}", exc.getMessage());
+            return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @POST
@@ -43,13 +60,21 @@ public class InetnumTransfersRestService {
         LOGGER.info("transfer-in: inetnum: {}", inetnum);
 
         try {
-            return inetnumTransfersService.transferIn(request, inetnum, override);
-        } catch(org.springframework.transaction.UnexpectedRollbackException exc ) {
-            exc.printStackTrace();
-            LOGGER.info("case:" + exc.getMessage() );
-            LOGGER.info("root-cause:" + exc.getRootCause().getMessage());
-            LOGGER.info("most-specific-cause:"+ exc.getMostSpecificCause());
-            return null;
+            final String responseMsg = inetnumTransfersService.transferIn(request, inetnum, override);
+            return createResponse(request, responseMsg, Response.Status.OK);
+        } catch (IllegalArgumentException exc) {
+            LOGGER.warn("IllegalArgumentException:{}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), Response.Status.BAD_REQUEST);
+        } catch (ClientErrorException exc) {
+            LOGGER.warn("ClientErrorException:{}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), Response.Status.fromStatusCode(exc.getResponse().getStatus()));
+        } catch (TransferFailedException exc) {
+            LOGGER.warn("TransferFailedException:{}", exc.getMessage());
+            return createResponse(request, exc.getMessage(), exc.getStatus());
+        } catch (Exception exc) {
+            LOGGER.warn("Exception:{}", exc.getMessage());
+            return createResponse(request, "", Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

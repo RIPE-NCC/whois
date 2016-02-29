@@ -14,6 +14,7 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Entity;
 import java.io.UnsupportedEncodingException;
@@ -76,8 +77,6 @@ public class AsnIncomingTransfersServiceIntegrationTest extends AbstractAsnTrans
         authoritativeResourceDao.create("test", "AS11-AS20");
         authoritativeResourceDao.create("arin", "AS21-AS30");
         authoritativeResourceDao.create("arin", "AS41-AS50");
-
-        //databaseHelper.dumpSchema(sourceAwareDataSource);
     }
 
     // start of far begin
@@ -386,6 +385,15 @@ public class AsnIncomingTransfersServiceIntegrationTest extends AbstractAsnTrans
         assertThat(isRipeAsBlock("AS41 - AS49"), is(false));
     }
 
+    @Test
+    public void transfer_in_authentication_error() {
+        try {
+            transferIn(AS50___far_last_of_nonripe_block, "nonExistingUser.wrongPassword,dummy topic");
+        } catch(NotAuthorizedException exc) {
+            assertThat(exc.getResponse().readEntity(String.class), containsString("FAILED_AUTHENTICATION") );
+        }
+    }
+
     // end of far last
 
     @Test
@@ -531,12 +539,17 @@ public class AsnIncomingTransfersServiceIntegrationTest extends AbstractAsnTrans
 
     // helper methods
 
-    private String transferIn(String asNum) {
+    private String transferIn(final String asNum) {
+        return transferIn(asNum, AbstractTransferTest.OVERRIDE_LINE);
+    }
+
+    private String transferIn(final String asNum, final String overrideLine) {
+
         ipTreeUpdater.updateTransactional();
 
         try {
             return RestTest.target(getPort(), "whois/transfer/aut-num/",
-                    "override=" + SyncUpdateUtils.encode(AbstractTransferTest.OVERRIDE_LINE), null)
+                    "override=" + SyncUpdateUtils.encode(overrideLine), null)
                     .path(URLEncoder.encode(asNum, "UTF-8"))
                     .request()
                     .post(Entity.text(null), String.class);
