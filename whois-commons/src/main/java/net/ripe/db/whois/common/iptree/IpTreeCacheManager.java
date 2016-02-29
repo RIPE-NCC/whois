@@ -244,6 +244,8 @@ public class IpTreeCacheManager {
                 //
             }
         } else {
+            LOGGER.info("Local database is ahead of IpTree; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
+
             final List<IpTreeUpdate> ipTreeUpdates = jdbcTemplate.query("" +
                             "SELECT last.object_type, last.pkey, last.object_id, serials.operation " +
                             "FROM serials " +
