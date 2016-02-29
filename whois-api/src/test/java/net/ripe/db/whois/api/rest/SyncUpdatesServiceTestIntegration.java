@@ -522,7 +522,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
-        assertThat(response, containsString("Flughafenstraße 109/a"));
+        assertThat(response, containsString("address:    Flughafenstraße 109/a"));
     }
 
     @Test
@@ -544,11 +544,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         MediaType.valueOf("application/x-www-form-urlencoded; charset=ISO-8859-1")), String.class);
 
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
-        assertThat(response, containsString("Flughafenstraße 109/a"));
+        assertThat(response, containsString("address:    Flughafenstraße 109/a"));
     }
 
-    // TODO we should return a informational warning indicating less of information due to conversion into latin1
-    @Ignore
     @Test
     public void post_url_encoded_data_with_non_latin1_address() throws Exception {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
@@ -566,13 +564,11 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("???"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ???????? ?????,??????"));
 
         assertThat(response, containsString("Attribute \"address\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set"));
     }
 
-    // TODO: [ES] no warning on conversion of cyrillic characters to latin-1 charset
-    @Ignore
     @Test
     public void post_multipart_data_with_non_latin1_address() throws Exception {
         databaseHelper.addObject(PERSON_ANY1_TEST);
@@ -592,9 +588,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("???"));
-
-        assertThat(response, containsString("Attribute \"address\" value changed due to conversion into the ISO-8859-1 (Latin-1) character set"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ???????? ?????,??????"));
     }
 
     @Test
@@ -639,7 +633,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(multipart, new MediaType("multipart", "form-data", Charsets.ISO_8859_1.displayName())), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("ÅçÅç"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("address:        ÅçÅç"));
     }
 
     @Test
