@@ -91,6 +91,30 @@ public class RpslObjectTest {
         assertThat(subject.toString(), containsString("Düsseldorf"));
     }
 
+    @Test
+    public void checkThatUtf8CharactersGetThroughAndConverted() {
+        parseAndAssign("person:  New Test Person\n" +
+                "address: Flughafenstraße 120/Σ\n" +
+                "address: D - 40474 Düsseldorf\n" +
+                "nic-hdl: ABC-RIPE\n");
+
+        List<RpslAttribute> addresses = subject.findAttributes(AttributeType.ADDRESS);
+        assertThat(addresses, hasSize(2));
+        assertThat(addresses.get(0).getValue(), containsString("Flughafenstraße 120/?"));
+        assertThat(addresses.get(1).getValue(), containsString("Düsseldorf"));
+    }
+
+    @Test
+    public void checkThatUtf8CharactersGetConverted() {
+        parseAndAssign("person:  New Test Person\n" +
+                "address: Тверская улица,москва\n" +
+                "nic-hdl: ABC-RIPE\n");
+
+        List<RpslAttribute> addresses = subject.findAttributes(AttributeType.ADDRESS);
+        assertThat(addresses, hasSize(1));
+        assertThat(addresses.get(0).getValue(), containsString("???????? ?????,??????"));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void parseInValidMultiKeyObject() {
         parseAndAssign("k:\nk");
