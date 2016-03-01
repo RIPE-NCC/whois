@@ -14,6 +14,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class RpslObjectTest {
@@ -126,7 +127,7 @@ public class RpslObjectTest {
 
         assertThat(subject, is(not(nullValue())));
         assertThat(subject.getType(), is(ObjectType.MNTNER));
-        Assert.assertTrue(subject.containsAttribute(AttributeType.MNTNER));
+        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
         assertThat(subject.getValueForAttribute(AttributeType.MNTNER).toString(), is("DEV-MNT"));
     }
 
@@ -136,7 +137,7 @@ public class RpslObjectTest {
         String value = ":#!@#$%^&*()_+~![]{};':<>,./?\\";
         parseAndAssign(key + ":" + value);
 
-        Assert.assertTrue(subject.containsAttribute(AttributeType.MNTNER));
+        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
         assertThat(subject.findAttributes(AttributeType.MNTNER), hasSize(1));
         assertThat(subject.findAttributes(AttributeType.MNTNER).get(0).getValue(), is(value));
     }
@@ -148,7 +149,7 @@ public class RpslObjectTest {
 
         parseAndAssign(key + ":" + value);
 
-        Assert.assertTrue(subject.containsAttribute(AttributeType.MNTNER));
+        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
         assertThat(subject.findAttributes(AttributeType.MNTNER), hasSize(1));
         assertThat(subject.findAttributes(AttributeType.MNTNER).get(0).getValue(), is(value));
     }
@@ -160,8 +161,8 @@ public class RpslObjectTest {
 
         parseAndAssign("mntner: DEV-MNT\n" + key + ":" + value + "\n" + key + ":" + value);
 
-        Assert.assertTrue(subject.containsAttribute(AttributeType.MNTNER));
-        Assert.assertTrue(subject.containsAttribute(AttributeType.DESCR));
+        assertTrue(subject.containsAttribute(AttributeType.MNTNER));
+        assertTrue(subject.containsAttribute(AttributeType.DESCR));
         assertThat(subject.findAttributes(AttributeType.MNTNER), hasSize(1));
         assertThat(subject.findAttributes(AttributeType.DESCR), hasSize(2));
         assertThat(subject.findAttributes(AttributeType.DESCR).get(0).getValue(), is(value));
