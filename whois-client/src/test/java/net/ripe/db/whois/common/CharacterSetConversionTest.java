@@ -30,6 +30,7 @@ public class CharacterSetConversionTest {
 
     @Test
     public void should_not_convert_other_charsets() {
+        assertThat(CharacterSetConversion.isConvertableIntoLatin1("ΣΔ"), is(false) );
         assertThat(CharacterSetConversion.isConvertableIntoLatin1("привет"), is(false) );
         assertThat(CharacterSetConversion.isConvertableIntoLatin1("مرحبا"), is(false) );
         assertThat(CharacterSetConversion.isConvertableIntoLatin1("你好ا"), is(false) );
