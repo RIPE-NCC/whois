@@ -23,14 +23,39 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!-- [ES] recommended Spring 4 w/Java 8 -->
-        <spring.version>4.2.3.RELEASE</spring.version>
-        <aspectj.version>1.8.7</aspectj.version>
-        <java.version>1.8</java.version>
+
+        <jaxb.version>2.2.11</jaxb.version>
+        <jflex.version>1.6.1</jflex.version>
+        <jodatime.version>2.9.2</jodatime.version>
+        <diffutils.version>1.3.0</diffutils.version>
+        <gson.version>2.6.2</gson.version>
+        <guava.version>19.0</guava.version>
+        <jsoup.version>1.8.3</jsoup.version>
+        <bouncycastle.version>1.54</bouncycastle.version>
+        <httpclient.version>4.5.2</httpclient.version>
+        <commons-compress.version>1.10</commons-compress.version>
+        <commons-validator>1.5.0</commons-validator>
+        <commons-net.version>3.4</commons-net.version>
+        <commons-io.version>2.4</commons-io.version>
+        <commons-codec.version>1.10</commons-codec.version>
+        <commons-lang.version>2.6</commons-lang.version>
+        <commons-validator.version>1.4.1</commons-validator.version>
+        <commons-ip-math.version>1.23</commons-ip-math.version>
+        <velocity.version>1.7</velocity.version>
+
+        <slf4j.version>1.7.18</slf4j.version>
+        <log4j.version>1.2.17</log4j.version>
+        <spring.version>4.2.5.RELEASE</spring.version> <!-- [ES] recommended Spring 4 w/Java 8 -->
+        <aspectj.version>1.8.8</aspectj.version>
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.11</jersey.version>
+        <jackson.version>2.7.2</jackson.version>
         <lucene.version>4.10.4</lucene.version>
         <jetty.version>8.1.18.v20150929</jetty.version>
+
+        <java.version>1.8</java.version>
+        <jetbrains.version>15.0</jetbrains.version>
+
         <whois.main>OVERRIDE</whois.main>
         <sonar.jdbc.url>jdbc:mariadb://localhost:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true</sonar.jdbc.url>
         <sonar.jdbc.driver>org.mariadb.jdbc.Driver</sonar.jdbc.driver>
@@ -167,12 +192,12 @@
             <dependency>
                 <groupId>net.ripe.commons</groupId>
                 <artifactId>commons-ip-math</artifactId>
-                <version>1.22</version>
+                <version>${commons-ip-math.version}</version>
             </dependency>
             <dependency>
                 <groupId>de.jflex</groupId>
                 <artifactId>jflex</artifactId>
-                <version>1.6.0</version>
+                <version>${jflex.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
@@ -223,33 +248,33 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.7</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.7.7</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
-                <version>1.7.7</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
-                <version>1.2.17</version>
+                <version>${log4j.version}</version>
             </dependency>
             <dependency>
                 <!-- TODO: [ES] apache-log4j-extras 1.2.17 duplicates classes from log4, causing warnings from surefire -->
                 <groupId>log4j</groupId>
                 <artifactId>apache-log4j-extras</artifactId>
-                <version>1.2.17</version>
+                <version>${log4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>18.0</version>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mariadb.jdbc</groupId>
@@ -281,74 +306,74 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.7</version>
+                <version>${jodatime.version}</version>
             </dependency>
 
             <!-- bouncy castle -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpg-jdk15on</artifactId>
-                <version>1.52</version>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcmail-jdk15on</artifactId>
-                <version>1.52</version>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.52</version>
+                <version>${bouncycastle.version}</version>
             </dependency>
 
             <!-- apache commons -->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.4</version>
+                <version>${commons-io.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.10</version>
+                <version>${commons-codec.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.9</version>
+                <version>${commons-compress.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
-                <version>3.3</version>
+                <version>${commons-net.version}</version>
             </dependency>
             <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
-                <version>2.6</version>
+                <version>${commons-lang.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
-                <version>1.4.1</version>
+                <version>${commons-validator}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
-                <version>1.7</version>
+                <version>${velocity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.4</version>
+                <version>${httpclient.version}</version>
             </dependency>
 
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
-                <version>1.8.1</version>
+                <version>${jsoup.version}</version>
             </dependency>
 
             <!-- Jetty as an embedded server -->
@@ -391,12 +416,12 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-base</artifactId>
-                <version>2.4.4</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>2.4.4</version>
+                <version>${jackson.version}</version>
             </dependency>
 
             <!-- StaxUtils for the XMLWriterUtils -->
@@ -415,12 +440,12 @@
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb.version}</version>
             </dependency>
 
             <!-- lucene for fulltext search -->
@@ -459,7 +484,7 @@
             <dependency>
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
-                <version>13.0</version>
+                <version>${jetbrains.version}</version>
                 <scope>compile</scope>
             </dependency>
 
@@ -467,7 +492,7 @@
             <dependency>
                 <groupId>com.googlecode.java-diff-utils</groupId>
                 <artifactId>diffutils</artifactId>
-                <version>1.2.1</version>
+                <version>${diffutils.version}</version>
             </dependency>
 
             <!-- Solr -->
@@ -483,7 +508,7 @@
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>2.2.4</version>
+                <version>${gson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
