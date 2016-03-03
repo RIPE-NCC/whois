@@ -11,4 +11,4 @@ CREATE TABLE `transfer_update_lock` (
 INSERT INTO transfer_update_lock VALUES (0);
 
 TRUNCATE version;
-INSERT INTO version VALUES ('whois-1.80');
+INSERT INTO version VALUES ('whois-1.86');
