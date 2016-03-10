@@ -150,9 +150,14 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/193.0.0.1\"\n" +
                 "  },\n" +
                 "  \"parameters\" : {\n" +
+                "    \"inverse-lookup\" : null,\n" +
+                "    \"type-filters\" : null,\n" +
+                "    \"flags\" : null,\n" +
+                "    \"query-strings\" : null,\n" +
                 "    \"primary-key\" : {\n" +
                 "      \"value\" : \"193.0.0.0 - 193.0.0.255\"\n" +
-                "    }\n" +
+                "    },\n" +
+                "    \"sources\" : null\n" +
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
                 "    \"email\" : \"abuse@test.net\"\n" +
@@ -196,9 +201,14 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/193.0.0.1\"\n" +
                 "  },\n" +
                 "  \"parameters\" : {\n" +
+                "    \"inverse-lookup\" : null,\n" +
+                "    \"type-filters\" : null,\n" +
+                "    \"flags\" : null,\n" +
+                "    \"query-strings\" : null,\n" +
                 "    \"primary-key\" : {\n" +
                 "      \"value\" : \"193.0.0.0 - 193.0.0.255\"\n" +
-                "    }\n" +
+                "    },\n" +
+                "    \"sources\" : null\n" +
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
                 "    \"email\" : \"\"\n" +
@@ -261,9 +271,14 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "    \"href\" : \"http://rest.db.ripe.net/abuse-contact/2a00:1f78::/32\"\n" +
                 "  },\n" +
                 "  \"parameters\" : {\n" +
+                "    \"inverse-lookup\" : null,\n" +
+                "    \"type-filters\" : null,\n" +
+                "    \"flags\" : null,\n" +
+                "    \"query-strings\" : null,\n" +
                 "    \"primary-key\" : {\n" +
                 "      \"value\" : \"2a00:1f78::/32\"\n" +
-                "    }\n" +
+                "    },\n" +
+                "    \"sources\" : null\n" +
                 "  },\n" +
                 "  \"abuse-contacts\" : {\n" +
                 "    \"email\" : \"abuse@test.net\"\n" +
