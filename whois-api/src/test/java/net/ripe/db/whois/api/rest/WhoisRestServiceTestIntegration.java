@@ -1429,8 +1429,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "  \"errormessages\" : {\n" +
                     "    \"errormessage\" : [ {\n" +
                     "      \"severity\" : \"Error\",\n" +
-                    "      \"text\" : \"ERROR:115: invalid search key\\n\\nSearch key entered is not valid for the specified object type(s)\\n\",\n" +
-                    "      \"args\" : [ ]\n" +
+                    "      \"text\" : \"ERROR:115: invalid search key\\n\\nSearch key entered is not valid for the specified object type(s)\\n\"\n" +
                     "    } ]\n" +
                     "  },"));
         }
@@ -1722,8 +1721,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "  \"errormessages\" : {\n" +
                     "    \"errormessage\" : [ {\n" +
                     "      \"severity\" : \"Error\",\n" +
-                    "      \"text\" : \"The validated collection is empty\",\n" +
-                    "      \"args\" : [ ]\n" +
+                    "      \"text\" : \"The validated collection is empty\"\n" +
                     "    } ]\n" +
                     "  },\n" +
                     "  \"terms-and-conditions\" : {\n" +
@@ -3992,6 +3990,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "      \"value\" : \"OWNER-MNT\"\n" +
                 "    } ]\n" +
                 "  },\n" +
+                "  \"primary-key\" : null,\n" +
                 "  \"sources\" : {\n" +
                 "    \"source\" : [ {\n" +
                 "      \"id\" : \"TEST\"\n" +
@@ -4767,6 +4766,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "      \"value\" : \"AS102\"\n" +
                 "    } ]\n" +
                 "  },\n" +
+                "  \"primary-key\" : null,\n" +
                 "  \"sources\" : {\n" +
                 "    \"source\" : [ {\n" +
                 "      \"id\" : \"TEST\"\n" +
