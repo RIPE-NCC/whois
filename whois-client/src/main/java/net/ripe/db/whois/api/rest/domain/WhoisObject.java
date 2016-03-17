@@ -51,6 +51,24 @@ public class WhoisObject {
     @XmlAttribute(name = "version")
     private Integer version;
 
+    // factory
+
+    public static WhoisObject create(final Source source,
+                                     final String type,
+                                     final List<Attribute> attributes,
+                                     final List<Attribute> primaryKey,
+                                     final Link link) {
+        final WhoisObject whoisObject = new WhoisObject();
+        whoisObject.setSource(source);
+        whoisObject.setType(type);
+        whoisObject.setLink(link);
+        whoisObject.setAttributes(attributes);
+        whoisObject.setPrimaryKey(primaryKey);
+        return whoisObject;
+    }
+
+    // getters & setters
+
     public Link getLink() {
         return link;
     }

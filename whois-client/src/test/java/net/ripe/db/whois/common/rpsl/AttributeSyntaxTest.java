@@ -50,6 +50,7 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.AS_SET, AttributeType.AS_SET, "AS-SET-TEST,AS5320:AS-AUTH-PLOT-TEST-FROM-AS4724");
         verifyFailure(ObjectType.AS_SET, AttributeType.AS_SET, "AS40696:AS51358");
         verifyFailure(ObjectType.AS_SET, AttributeType.AS_SET, "AS4034");
+        verifyFailure(ObjectType.AS_SET, AttributeType.AS_SET, "AS-456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_1234567890");
 
         verifySuccess(ObjectType.AS_SET, AttributeType.AS_SET, "AS-TESTNET");
         verifySuccess(ObjectType.AS_SET, AttributeType.AS_SET, "as-test-software");
@@ -323,6 +324,7 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER_SET, "fltr HEPNET");
         verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER_SET, "AS20773:");
         verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER_SET, ":FLTR-AUTH-PLOT-TEST-FROM-RS4724");
+        verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER_SET, "FLTR-RIPE:FLTR-TEST:FLTR-IPV6:FLTR-RIPE:FLTR-TEST:FLTR-IPV6FLTR-RIPE:FLTR-TEST:FLTR-IPV6FLTR-RIPE:FLTR-TEST:FLTR-IPV6FLTR-RIPE:FLTR-TEST:FLTR-IPV6FLTR-RIPE:FLTR-TEST:FLTR-IPV6");
 
         verifySuccess(ObjectType.FILTER_SET, AttributeType.FILTER_SET, "fltr-HEPNET");
         verifySuccess(ObjectType.FILTER_SET, AttributeType.FILTER_SET, "FLTR-HEPNET");
@@ -1056,6 +1058,7 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.PEERING_SET, AttributeType.PEERING_SET, "prng TESTNET");
         verifyFailure(ObjectType.PEERING_SET, AttributeType.PEERING_SET, "AS20773:");
         verifyFailure(ObjectType.PEERING_SET, AttributeType.PEERING_SET, ":PRNG-AUTH-PLOT-BOGUS-FROM-RS3724");
+        verifyFailure(ObjectType.PEERING_SET, AttributeType.PEERING_SET, "PRNG-RIPE:PRNG-ALLOCBNDR:PRNG-IPV6:PRNG-RIPE:PRNG-ALLOCBNDR:PRNG-IPV6:PRNG-RIPE:PRNG-ALLOCBNDR:PRNG-IPV6:PRNG-RIPE:PRNG-ALLOCBNDR:PRNG-IPV6:PRNG-RIPE:PRNG-ALLOCBNDR:PRNG-IPV6");
     }
 
     @Test
@@ -1164,6 +1167,7 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.ROUTE_SET, AttributeType.ROUTE_SET, "RTRS-CH");
         verifyFailure(ObjectType.ROUTE_SET, AttributeType.ROUTE_SET, "RS1093");
         verifyFailure(ObjectType.ROUTE_SET, AttributeType.ROUTE_SET, "As58119");
+        verifyFailure(ObjectType.ROUTE_SET, AttributeType.ROUTE_SET, "rs-routes-AS12731-AS50343-AS12731-AS50343-AS12731-AS50343-AS12731-AS50343-AS12731-AS50343-AS12731-AS50343-AS12731-AS50343-AS12731-AS50343");
     }
 
     @Test
@@ -1173,6 +1177,7 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.RTR_SET, AttributeType.RTR_SET, "rtrs TESTNET");
         verifyFailure(ObjectType.RTR_SET, AttributeType.RTR_SET, "AS20773:");
         verifyFailure(ObjectType.RTR_SET, AttributeType.RTR_SET, ":RTRS-AUTH-PLOT-BOGUS-FROM-RS3724");
+        verifyFailure(ObjectType.RTR_SET, AttributeType.RTR_SET, "RTRS-RIPE:RTRS-ALLOCBNDR:RTRS-IPV6:RTRS-RIPE:RTRS-ALLOCBNDR:RTRS-IPV6:RTRS-RIPE:RTRS-ALLOCBNDR:RTRS-IPV6:RTRS-RIPE:RTRS-ALLOCBNDR:RTRS-IPV6:RTRS-RIPE:RTRS-ALLOCBNDR:RTRS-IPV6");
 
         verifySuccess(ObjectType.RTR_SET, AttributeType.RTR_SET, "rtrs-TESTNET");
         verifySuccess(ObjectType.RTR_SET, AttributeType.RTR_SET, "RTRS-TESTNET");

@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.is;
 @RunWith(MockitoJUnitRunner.class)
 public class WhoisObjectMapperTest {
 
-    private static final String BASE_URL = "http://rest.db.ripe.net/lookup";
+    private static final String BASE_URL = "http://localhost/lookup";
 
     private WhoisObjectMapper mapper;
 
@@ -43,7 +43,7 @@ public class WhoisObjectMapperTest {
         assertThat(whoisObject.getType(), is("mntner"));
         assertThat(whoisObject.getSource().getId(), is("test"));
         assertThat(whoisObject.getLink().getType(), is("locator"));
-        assertThat(whoisObject.getLink().getHref(), is("http://rest.db.ripe.net/lookup/test/mntner/TST-MNT"));
+        assertThat(whoisObject.getLink().getHref(), is("http://localhost/lookup/test/mntner/TST-MNT"));
         assertThat(whoisObject.getPrimaryKey(), hasSize(1));
         final Attribute primaryKeyAttribute = whoisObject.getPrimaryKey().get(0);
         assertThat(primaryKeyAttribute.getName(), is("mntner"));
@@ -77,7 +77,7 @@ public class WhoisObjectMapperTest {
         assertThat(whoisObject.getType(), is("as-set"));
         assertThat(whoisObject.getSource().getId(), is("test"));
         assertThat(whoisObject.getLink().getType(), is("locator"));
-        assertThat(whoisObject.getLink().getHref(), is("http://rest.db.ripe.net/lookup/test/as-set/AS-set-attendees"));
+        assertThat(whoisObject.getLink().getHref(), is("http://localhost/lookup/test/as-set/AS-set-attendees"));
         assertThat(whoisObject.getPrimaryKey(), hasSize(1));
         final Attribute primaryKeyAttribute = whoisObject.getPrimaryKey().get(0);
         assertThat(primaryKeyAttribute.getName(), is("as-set"));

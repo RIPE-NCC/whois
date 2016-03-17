@@ -4,13 +4,13 @@
     <parent>
         <groupId>net.ripe.db</groupId>
         <artifactId>whois</artifactId>
-        <version>1.86-RDAP-SNAPSHOT</version>
+        <version>1.87-RDAP-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.ripe.db</groupId>
     <artifactId>whois-commons</artifactId>
-    <version>1.86-RDAP-SNAPSHOT</version>
+    <version>1.87-RDAP-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -37,10 +37,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>

@@ -1,5 +1,8 @@
 package net.ripe.db.whois.api.rest.domain;
 
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -25,6 +28,25 @@ public class Link {
     public Link() {
         // required no-arg constructor
     }
+
+    // factory
+
+    public static Link create(final String baseUrl, final RpslObject rpslObject) {
+        final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
+        final String type = rpslObject.getType().getName();
+        final String key = rpslObject.getKey().toString();
+        return create(baseUrl, source, type, key);
+    }
+
+    public static Link create(final String baseUrl, final String source, final String type, final String key) {
+        return create(String.format("%s/%s/%s/%s", baseUrl, source, type, key));
+    }
+
+    public static Link create(String href) {
+        return new Link("locator", href);
+    }
+
+    // getters
 
     public String getType() {
         return type;

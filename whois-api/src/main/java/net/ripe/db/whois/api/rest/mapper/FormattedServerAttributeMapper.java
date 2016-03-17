@@ -21,7 +21,8 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
     private final String baseUrl;
 
     @Autowired
-    public FormattedServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver, @Value("${api.rest.baseurl}") final String baseUrl) {
+    public FormattedServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver,
+                                        @Value("${api.rest.baseurl}") final String baseUrl) {
         this.referencedTypeResolver = referencedTypeResolver;
         this.baseUrl = baseUrl;
     }
@@ -37,14 +38,10 @@ public class FormattedServerAttributeMapper implements AttributeMapper {
         for (CIString value : rpslAttribute.getCleanValues()) {
             // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
             final String referencedType = (rpslAttribute.getType() != null) ? referencedTypeResolver.getReferencedType(rpslAttribute.getType(), value) : null;
-            final Link link = (referencedType != null) ? createLink(source, referencedType, value.toString()) : null;
+            final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, value.toString()) : null;
             result.add(new Attribute(rpslAttribute.getKey(), value.toString(), rpslAttribute.getCleanComment(), referencedType, link));
         }
         return result;
-    }
-
-    protected Link createLink(final String source, final String type, final String key) {
-        return new Link("locator", String.format("%s/%s/%s/%s", baseUrl, source, type, key));
     }
 
     // TODO: duplicate method

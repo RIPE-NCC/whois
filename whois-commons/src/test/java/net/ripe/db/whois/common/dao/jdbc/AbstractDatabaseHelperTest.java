@@ -4,8 +4,6 @@ import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -31,6 +29,7 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     @Autowired protected List<Stub> stubs;
 
     protected JdbcTemplate whoisTemplate;
+    protected JdbcTemplate internalsTemplate;
     protected DatabaseHelper databaseHelper;
 
     private static byte[] propertyStore = null;
@@ -77,5 +76,6 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     public void setDatabaseHelper(final DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
         this.whoisTemplate = databaseHelper.getWhoisTemplate();
+        this.internalsTemplate = databaseHelper.getInternalsTemplate();
     }
 }

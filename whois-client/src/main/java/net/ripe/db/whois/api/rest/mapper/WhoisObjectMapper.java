@@ -8,7 +8,7 @@ import net.ripe.db.whois.api.rest.domain.Source;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplateProvider;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +91,7 @@ public class WhoisObjectMapper {
         final AttributeMapper attributeMapper = objectMapperFunctions.get(mapFunction);
 
         final List<Attribute> primaryKeyAttributes = new ArrayList<>();
-        for (RpslAttribute keyAttribute : rpslObject.findAttributes(ObjectTemplateProvider.getTemplate(rpslObject.getType()).getKeyAttributes())) {
+        for (RpslAttribute keyAttribute : rpslObject.findAttributes(ObjectTemplate.getTemplate(rpslObject.getType()).getKeyAttributes())) {
             primaryKeyAttributes.addAll(primaryKeyAttributeMapper.map(keyAttribute, source));
         }
 
@@ -100,33 +100,11 @@ public class WhoisObjectMapper {
             attributes.addAll(attributeMapper.map(rpslAttribute, source));
         }
 
-        return createWhoisObject(
+        return WhoisObject.create(
                 new Source(source),
                 type,
                 attributes,
                 primaryKeyAttributes,
-                createLink(rpslObject));
-    }
-
-    protected Link createLink(final RpslObject rpslObject) {
-        final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
-        final String type = rpslObject.getType().getName();
-        final String key = rpslObject.getKey().toString();
-        return createLink(source, type, key);
-    }
-
-    // TODO: duplicate method
-    protected Link createLink(final String source, final String type, final String key) {
-        return new Link("locator", String.format("%s/%s/%s/%s", baseUrl, source, type, key));
-    }
-
-    protected WhoisObject createWhoisObject(final Source source, final String type, final List<Attribute> attributes, final List<Attribute> primaryKey, final Link link) {
-        final WhoisObject whoisObject = new WhoisObject();
-        whoisObject.setSource(source);
-        whoisObject.setType(type);
-        whoisObject.setLink(link);
-        whoisObject.setAttributes(attributes);
-        whoisObject.setPrimaryKey(primaryKey);
-        return whoisObject;
+                Link.create(baseUrl, rpslObject));
     }
 }

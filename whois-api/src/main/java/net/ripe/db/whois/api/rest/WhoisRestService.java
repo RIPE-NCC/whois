@@ -250,9 +250,6 @@ public class WhoisRestService {
             @QueryParam("dry-run") final String dryRun,
             @QueryParam("unformatted") final String unformatted) {
 
-        final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
-        validateSubmittedUpdateObject(request, submittedObject, objectType, key);
-
         try {
             final Origin origin = updatePerformer.createOrigin(request);
             final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey);
@@ -261,6 +258,9 @@ public class WhoisRestService {
 
             checkForMainSource(request, source);
             setDryRun(updateContext, dryRun);
+
+            final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
+            validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
@@ -349,7 +349,7 @@ public class WhoisRestService {
                     .build());
         }
 
-        QueryBuilder queryBuilder = new QueryBuilder().
+        final QueryBuilder queryBuilder = new QueryBuilder().
                 addFlag(QueryFlag.EXACT).
                 addFlag(QueryFlag.NO_GROUPING).
                 addFlag(QueryFlag.NO_REFERENCED).
@@ -380,7 +380,7 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        QueryBuilder queryBuilder = new QueryBuilder()
+        final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addFlag(QueryFlag.LIST_VERSIONS);
 
@@ -422,7 +422,7 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        QueryBuilder queryBuilder = new QueryBuilder()
+        final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addCommaList(QueryFlag.SHOW_VERSION, String.valueOf(version));
 
@@ -586,9 +586,15 @@ public class WhoisRestService {
     }
 
     private void validateSubmittedUpdateObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
-        if (!object.getKey().equals(key) || !object.getType().getName().equalsIgnoreCase(objectType)) {
+        if (!object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
                     .entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType, key)))
+                    .build());
+        }
+
+        if (!object.getKey().equals(key)) {
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.pkeyMismatch(key)))
                     .build());
         }
     }
@@ -824,7 +830,7 @@ public class WhoisRestService {
                     errors.clear();
                 }
 
-                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                streamingMarshal.write("terms-and-conditions", Link.create(WhoisResources.TERMS_AND_CONDITIONS));
                 streamingMarshal.end("whois-resources");
                 streamingMarshal.close();
                 return errors;
