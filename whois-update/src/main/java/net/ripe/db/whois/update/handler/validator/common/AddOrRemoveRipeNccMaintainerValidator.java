@@ -1,12 +1,12 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
-import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -21,21 +21,15 @@ import java.util.Set;
 
 @Component
 public class AddOrRemoveRipeNccMaintainerValidator implements BusinessRuleValidator {
+
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.copyOf(ObjectType.values());
+
     private final Maintainers maintainers;
 
     @Autowired
     public AddOrRemoveRipeNccMaintainerValidator(final Maintainers maintainers) {
         this.maintainers = maintainers;
-    }
-
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.CREATE, Action.MODIFY);
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.values());
     }
 
     @Override
@@ -65,5 +59,15 @@ public class AddOrRemoveRipeNccMaintainerValidator implements BusinessRuleValida
         if (!Sets.intersection(differentMaintainers, specialMaintainers).isEmpty()) {
             updateContext.addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
         }
+    }
+
+    @Override
+    public List<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public List<ObjectType> getTypes() {
+        return TYPES;
     }
 }

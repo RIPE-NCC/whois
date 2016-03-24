@@ -47,6 +47,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(CREATE, MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(INETNUM, INET6NUM, AUT_NUM);
+
     private static final Set<? extends InetStatus> ALLOWED_STATUSES =
         ImmutableSet.of(
             InetnumStatus.ASSIGNED_PI,
@@ -62,16 +63,6 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     public SponsoringOrgValidator(final RpslObjectDao objectDao, final Maintainers maintainers) {
         this.objectDao = objectDao;
         this.maintainers = maintainers;
-    }
-
-    @Override
-    public List<Action> getActions() {
-        return ACTIONS;
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return TYPES;
     }
 
     @Override
@@ -189,5 +180,15 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     private boolean hasEndUserMntner(final RpslObject object) {
         final Set<CIString> mntBy = object.getValuesForAttribute(AttributeType.MNT_BY);
         return !Sets.intersection(maintainers.getEnduserMaintainers(), mntBy).isEmpty();
+    }
+
+    @Override
+    public List<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public List<ObjectType> getTypes() {
+        return TYPES;
     }
 }

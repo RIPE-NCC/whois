@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -22,21 +22,15 @@ import java.util.Set;
 
 @Component
 public class ReferencedObjectsExistValidator implements BusinessRuleValidator {
+
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.copyOf(ObjectType.values());
+
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
 
     @Autowired
     public ReferencedObjectsExistValidator(final RpslObjectUpdateDao rpslObjectUpdateDao) {
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
-    }
-
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.CREATE, Action.MODIFY);
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.values());
     }
 
     @Override
@@ -51,5 +45,15 @@ public class ReferencedObjectsExistValidator implements BusinessRuleValidator {
                 updateContext.addMessage(update, attribute, UpdateMessages.unknownObjectReferenced(StringUtils.join(invalidReferenceEntry.getValue(), ',')));
             }
         }
+    }
+
+    @Override
+    public List<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public List<ObjectType> getTypes() {
+        return TYPES;
     }
 }

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
@@ -36,6 +37,10 @@ import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelpe
 
 @Component
 public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Redesign status validator using subtrees: parent or child intervals should not have different validation logic, the tree must be valid as a whole
+
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY, Action.DELETE);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM);
+
     private final RpslObjectDao objectDao;
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
@@ -52,16 +57,6 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.maintainers = maintainers;
-    }
-
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.CREATE, Action.MODIFY, Action.DELETE);
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.INETNUM, ObjectType.INET6NUM);
     }
 
     @Override
@@ -317,5 +312,15 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
                 updateContext.addMessage(update, UpdateMessages.inetnumStatusLegacy());
             }
         }
+    }
+
+    @Override
+    public List<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public List<ObjectType> getTypes() {
+        return TYPES;
     }
 }

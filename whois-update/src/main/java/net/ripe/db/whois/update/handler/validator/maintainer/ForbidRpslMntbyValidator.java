@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.maintainer;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -18,17 +18,10 @@ import java.util.List;
 @Component
 public class ForbidRpslMntbyValidator implements BusinessRuleValidator {
 
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.copyOf(ObjectType.values());
+
     private static final String RIPE_NCC_RPSL_MNT = "RIPE-NCC-RPSL-MNT";
-
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.CREATE, Action.MODIFY);
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.values());
-    }
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -50,5 +43,15 @@ public class ForbidRpslMntbyValidator implements BusinessRuleValidator {
             }
         }
         return false;
+    }
+
+    @Override
+    public List<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public List<ObjectType> getTypes() {
+        return TYPES;
     }
 }
