@@ -1,10 +1,10 @@
 package net.ripe.db.whois.update.handler.validator.domain;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
@@ -18,15 +18,9 @@ import java.util.List;
 
 @Component
 public class EnumDomainAuthorisationValidator implements BusinessRuleValidator {
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.CREATE);
-    }
 
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.DOMAIN);
-    }
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.DOMAIN);
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -44,5 +38,15 @@ public class EnumDomainAuthorisationValidator implements BusinessRuleValidator {
                 updateContext.addMessage(update, UpdateMessages.authorisationRequiredForEnumDomain());
             }
         }
+    }
+
+    @Override
+    public List<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public List<ObjectType> getTypes() {
+        return TYPES;
     }
 }
