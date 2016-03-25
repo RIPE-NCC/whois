@@ -28,6 +28,8 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
+import static net.ripe.db.whois.api.RpslObjectFixtures.OWNER_MNT;
+import static net.ripe.db.whois.api.RpslObjectFixtures.TEST_PERSON;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
@@ -40,24 +42,6 @@ import static org.junit.Assert.fail;
 public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MasterDatabaseDownTestIntegration.class);
-
-    private static final RpslObject OWNER_MNT = RpslObject.parse(
-            "mntner:      OWNER-MNT\n" +
-            "descr:       Owner Maintainer\n" +
-            "admin-c:     TP1-TEST\n" +
-            "upd-to:      noreply@ripe.net\n" +
-            "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
-            "auth:        SSO person@net.net\n" +
-            "mnt-by:      OWNER-MNT\n" +
-            "source:      TEST");
-
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
-            "person:    Test Person\n" +
-            "address:   Singel 258\n" +
-            "phone:     +31 6 12345678\n" +
-            "nic-hdl:   TP1-TEST\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;

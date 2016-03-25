@@ -3,7 +3,6 @@ package net.ripe.db.whois.nrtm.integration;
 import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
@@ -16,33 +15,17 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
+import static net.ripe.db.whois.nrtm.RpslObjectFixtures.MNTNER;
+import static net.ripe.db.whois.nrtm.RpslObjectFixtures.MNTNER_UPDATED;
+import static net.ripe.db.whois.nrtm.RpslObjectFixtures.TEST1_MNT;
+import static net.ripe.db.whois.nrtm.RpslObjectFixtures.TEST2_MNT;
+
 @Category(IntegrationTest.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Autowired private NrtmImporter nrtmImporter;
     @Autowired private SerialDao serialDao;
-
-    private static final RpslObject MNTNER = RpslObject.parse("" +
-            "mntner: OWNER-MNT\n" +
-            "description: creation\n" +
-            "source: TEST");
-
-    private static final RpslObject MNTNER_UPDATED = RpslObject.parse("" +
-            "mntner: OWNER-MNT\n" +
-            "description: modification\n" +
-            "source: TEST");
-
-
-    private static final RpslObject TEST1_MNT = RpslObject.parse("" +
-            "mntner: TEST1-MNT\n" +
-            "description: first\n" +
-            "source: TEST");
-
-    private static final RpslObject TEST2_MNT = RpslObject.parse("" +
-            "mntner: TEST2-MNT\n" +
-            "description: second\n" +
-            "source: TEST");
 
     @BeforeClass
     public static void beforeClass() {

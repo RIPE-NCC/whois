@@ -43,6 +43,10 @@ public final class ValidationMessages {
         return new Message(Messages.Type.INFO, "Value %s converted to %s", original, converted);
     }
 
+    public static Message nonLatin1Charset(String charset) {
+        return new Message(Messages.Type.WARNING, "Received a non ISO-8859-1 (Latin-1) character set '%s'; some values might have been converted", charset);
+    }
+
     public static Message continuationLinesRemoved() {
         return new Message(Messages.Type.INFO, "Continuation lines are not allowed here and have been removed");
     }
