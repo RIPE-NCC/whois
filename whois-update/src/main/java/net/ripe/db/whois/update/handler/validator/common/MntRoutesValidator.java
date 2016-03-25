@@ -24,13 +24,15 @@ import java.util.Map;
 public class MntRoutesValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
-    private static final List<ObjectType> TYPES = Lists.newArrayList();
+    private static final ImmutableList<ObjectType> TYPES;
     static {
+        List<ObjectType> types = Lists.newArrayList();
         for (final ObjectType objectType : ObjectType.values()) {
             if (ObjectTemplate.getTemplate(objectType).hasAttribute(AttributeType.MNT_ROUTES)) {
-                TYPES.add(objectType);
+                types.add(objectType);
             }
         }
+        TYPES = ImmutableList.copyOf(types);
     }
 
     @Override
