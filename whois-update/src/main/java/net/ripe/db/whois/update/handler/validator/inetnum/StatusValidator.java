@@ -315,12 +315,12 @@ public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Red
     }
 
     @Override
-    public List<Action> getActions() {
+    public ImmutableList<Action> getActions() {
         return ACTIONS;
     }
 
     @Override
-    public List<ObjectType> getTypes() {
+    public ImmutableList<ObjectType> getTypes() {
         return TYPES;
     }
 }

@@ -24,7 +24,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.collect.CollectionHelper.uniqueResult;
@@ -116,12 +115,12 @@ public class AbuseValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<Action> getActions() {
+    public ImmutableList<Action> getActions() {
         return ACTIONS;
     }
 
     @Override
-    public List<ObjectType> getTypes() {
+    public ImmutableList<ObjectType> getTypes() {
         return TYPES;
     }
 }

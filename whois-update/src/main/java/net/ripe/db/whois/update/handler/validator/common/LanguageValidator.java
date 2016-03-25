@@ -15,7 +15,6 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Set;
 
 @Component
@@ -47,12 +46,12 @@ public class LanguageValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<Action> getActions() {
+    public ImmutableList<Action> getActions() {
         return ACTIONS;
     }
 
     @Override
-    public List<ObjectType> getTypes() {
+    public ImmutableList<ObjectType> getTypes() {
         return TYPES;
     }
 }

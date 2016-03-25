@@ -11,7 +11,6 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
@@ -39,12 +38,12 @@ public class MaintainerNameValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<Action> getActions() {
+    public ImmutableList<Action> getActions() {
         return ACTIONS;
     }
 
     @Override
-    public List<ObjectType> getTypes() {
+    public ImmutableList<ObjectType> getTypes() {
         return TYPES;
     }
 }
