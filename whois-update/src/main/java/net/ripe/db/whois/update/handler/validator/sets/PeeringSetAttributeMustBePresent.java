@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.sets;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -18,6 +19,10 @@ import java.util.Map;
 
 @Component
 public class PeeringSetAttributeMustBePresent implements BusinessRuleValidator {
+
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.PEERING_SET, ObjectType.FILTER_SET);
+
     private Map<ObjectType, List<AttributeType>> attributeMap;
 
 
@@ -25,16 +30,6 @@ public class PeeringSetAttributeMustBePresent implements BusinessRuleValidator {
         attributeMap = new HashMap<>();
         attributeMap.put(ObjectType.PEERING_SET, Lists.newArrayList(AttributeType.PEERING, AttributeType.MP_PEERING));
         attributeMap.put(ObjectType.FILTER_SET, Lists.newArrayList(AttributeType.FILTER, AttributeType.MP_FILTER));
-    }
-
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.CREATE, Action.MODIFY);
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.PEERING_SET, ObjectType.FILTER_SET);
     }
 
     @Override
@@ -55,5 +50,15 @@ public class PeeringSetAttributeMustBePresent implements BusinessRuleValidator {
         if (!simpleAttributes.isEmpty() && !extendedAttributes.isEmpty()) {
             updateContext.addMessage(update, UpdateMessages.eitherSimpleOrComplex(objectType, simpleAttribute.getName(), complexAttribute.getName()));
         }
+    }
+
+    @Override
+    public ImmutableList<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
     }
 }

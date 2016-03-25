@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.personrole;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -15,11 +15,13 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Set;
 
 @Component
 public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleValidator {
+
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.DELETE, Action.MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ROLE);
 
     private final RpslObjectUpdateDao updateObjectDao;
     private final RpslObjectDao objectDao;
@@ -28,16 +30,6 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
     public MustKeepAbuseMailboxIfReferencedValidator(final RpslObjectUpdateDao updateObjectDao, final RpslObjectDao objectDao) {
         this.updateObjectDao = updateObjectDao;
         this.objectDao = objectDao;
-    }
-
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.DELETE, Action.MODIFY);
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.ROLE);
     }
 
     @Override
@@ -58,5 +50,15 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
                 }
             }
         }
+    }
+
+    @Override
+    public ImmutableList<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
     }
 }
