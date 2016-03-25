@@ -75,12 +75,12 @@ public class MaintainedReferencedMaintainerPersonRolesValidator extends Abstract
         return true;
     }
     @Override
-    public List<Action> getActions() {
+    public ImmutableList<Action> getActions() {
         return ACTIONS;
     }
 
     @Override
-    public List<ObjectType> getTypes() {
+    public ImmutableList<ObjectType> getTypes() {
         return TYPES;
     }
 }
