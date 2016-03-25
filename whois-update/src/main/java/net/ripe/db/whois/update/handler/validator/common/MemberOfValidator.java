@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -18,45 +18,40 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Component
 public class MemberOfValidator implements BusinessRuleValidator {
-    private final RpslObjectDao objectDao;
-    private final Map<ObjectType, ObjectType> objectTypeMap;
+
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.AUT_NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.INET_RTR);
+
+    private static final Map<ObjectType, ObjectType> objectTypeMap;
     private static final CIString ANY = CIString.ciString("ANY");
-
-    @Autowired
-    public MemberOfValidator(final RpslObjectDao objectDao) {
-        this.objectDao = objectDao;
-
-        this.objectTypeMap = Maps.newHashMapWithExpectedSize(3);
+    static {
+        objectTypeMap = Maps.newHashMapWithExpectedSize(3);
         objectTypeMap.put(ObjectType.AUT_NUM, ObjectType.AS_SET);
         objectTypeMap.put(ObjectType.ROUTE, ObjectType.ROUTE_SET);
         objectTypeMap.put(ObjectType.ROUTE6, ObjectType.ROUTE_SET);
         objectTypeMap.put(ObjectType.INET_RTR, ObjectType.RTR_SET);
     }
 
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.CREATE, Action.MODIFY);
-    }
+    private final RpslObjectDao objectDao;
 
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.AUT_NUM, ObjectType.ROUTE, ObjectType.ROUTE6, ObjectType.INET_RTR);
+    @Autowired
+    public MemberOfValidator(final RpslObjectDao objectDao) {
+        this.objectDao = objectDao;
     }
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final Collection<CIString> memberOfs = update.getUpdatedObject().getValuesForAttribute((AttributeType.MEMBER_OF));
-        final Set<CIString> updatedObjectMaintainers = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
         if (memberOfs.isEmpty()) {
             return;
         }
 
+        final Set<CIString> updatedObjectMaintainers = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
         final ObjectType referencedObjectType = objectTypeMap.get(update.getType());
         final Set<CIString> unsupportedSets = findUnsupportedMembers(memberOfs, updatedObjectMaintainers, referencedObjectType);
         if (!unsupportedSets.isEmpty()) {
@@ -85,5 +80,15 @@ public class MemberOfValidator implements BusinessRuleValidator {
         }
         Sets.SetView<CIString> difference = Sets.difference(originalObjectMaintainers, referencedMaintainers);
         return difference.size() >= originalObjectMaintainers.size();
+    }
+
+    @Override
+    public ImmutableList<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
     }
 }
