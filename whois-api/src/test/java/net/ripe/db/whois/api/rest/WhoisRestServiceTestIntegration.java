@@ -1758,13 +1758,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             "}", MediaType.APPLICATION_JSON), String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("" +
-                            "{\n" +
-                            "  \"errormessages\" : {\n" +
-                            "    \"errormessage\" : [ {\n" +
-                            "      \"severity\" : \"Error\",\n" +
-                            "      \"text\" : \"Unexpected character ('}' (code 125)): was expecting a colon to separate field name and value\\n "
-            ));
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(),
+                is("JSON processing exception: Unexpected character ('}' (code 125)): was expecting a colon to separate field name and value"));
         }
     }
 
@@ -2294,10 +2291,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        ] }\n" +
                         "    }] \n" +
                         "}}", new MediaType("application", "json", Charsets.ISO_8859_1.displayName())), String.class);
-
+            fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().iterator().next().getText(),
-                    containsString("Invalid UTF-8 middle byte"));
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), is("JSON processing exception: Invalid UTF-8 middle byte 0x65"));
         }
     }
 
