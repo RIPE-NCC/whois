@@ -1,8 +1,10 @@
 package net.ripe.db.whois.api.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.query.QueryFlag;
+import org.xml.sax.SAXParseException;
 
 public class RestMessages {
     public static Message pkeyMismatch(final CharSequence key) {
@@ -51,5 +53,23 @@ public class RestMessages {
 
     public static Message invalidRequestIp() {
         return new Message(Messages.Type.ERROR, "This request is only allowed from within the RIPE NCC network");
+    }
+
+    public static Message jsonProcessingError(final JsonProcessingException e) {
+        final String trimmed = e.getMessage()
+                                    .replaceAll("(?m) \\(.*\\)$", "")
+                                    .replaceAll("(?m)^ at .*$", "")
+                                    .replaceAll("\n*", "");
+        if (e.getLocation() != null) {
+            return new Message(Messages.Type.ERROR, "JSON processing exception: %s (line: %s, column: %s)", trimmed, e.getLocation().getLineNr(), e.getLocation().getColumnNr());
+        }
+        return new Message(Messages.Type.ERROR, "JSON processing exception: %s", trimmed);
+    }
+
+    public static Message xmlProcessingError(final SAXParseException e) {
+        if (e.getLineNumber() != -1 && e.getColumnNumber() != -1) {
+            return new Message(Messages.Type.ERROR, "XML processing exception: %s (line: %s, column: %s)", e.getMessage(), e.getLineNumber(), e.getColumnNumber());
+        }
+        return new Message(Messages.Type.ERROR, "XML processing exception: %s", e.getMessage());
     }
 }
