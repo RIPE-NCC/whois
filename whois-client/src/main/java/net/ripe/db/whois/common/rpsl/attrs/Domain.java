@@ -24,7 +24,7 @@ public class Domain {
     private final Type type;
     private final boolean isDashNotation;
 
-    public Domain(final CIString value, final IpInterval<?> reverseIp, final Type type, final boolean dashNotation) {
+    private Domain(final CIString value, final IpInterval<?> reverseIp, final Type type, final boolean dashNotation) {
         this.value = value;
         this.reverseIp = reverseIp;
         this.type = type;
@@ -75,16 +75,11 @@ public class Domain {
         if (value.length() > DOMAIN_COLUMN_WIDTH) {
             throw new AttributeParseException("Too long", value);
         }
-        final int lastDot = value.lastIndexOf('.');
-        final int secondLastDot = value.lastIndexOf('.', lastDot - 1);
-        final String suffix = value.substring(secondLastDot + 1);
-        final Type type = Type.getType(suffix);
-        if (type == null) {
-            throw new AttributeParseException(String.format("Unknown suffix '%s'", suffix), value);
-        }
 
         IpInterval<?> reverseIp = null;
         boolean dashNotation = false;
+
+        final Type type = Type.getType(value);
         try {
             switch (type) {
                 case INADDR:
@@ -147,9 +142,22 @@ public class Domain {
             return suffix;
         }
 
-        @CheckForNull
-        public static Type getType(final String suffix) {
-            return nameToType.get(suffix.toLowerCase());
+        public static Type getType(final String value) {
+            final int lastDot = value.lastIndexOf('.');
+            final int secondLastDot = value.lastIndexOf('.', lastDot - 1);
+
+            final String suffix;
+            if (secondLastDot > -1) {
+                suffix = value.substring(secondLastDot + 1);
+            } else {
+                suffix = value;
+            }
+
+            final Type type = nameToType.get(suffix.toLowerCase());
+            if (type == null) {
+                throw new AttributeParseException(String.format("Unknown suffix '%s'", suffix), value);
+            }
+            return type;
         }
     }
 }
