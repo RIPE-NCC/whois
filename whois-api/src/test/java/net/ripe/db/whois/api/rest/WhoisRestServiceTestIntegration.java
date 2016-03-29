@@ -1496,6 +1496,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
+
     @Ignore("TODO: [ES] #320 confusing error response")
     @Test
     public void create_invalid_object_type_on_first_attribute() {
@@ -1514,6 +1515,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "</object>\n" +
                         "</objects>\n" +
                         "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+            fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), not(containsString("Invalid object type: descr")));
         }
@@ -1695,7 +1697,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_invalid_format_no_attributes() {
+    public void create_invalid_json_format_no_attributes() {
         try {
             RestTest.target(getPort(), "whois/test/person.json?password=test")
                     .request()
@@ -1816,6 +1818,92 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity("", MediaType.APPLICATION_XML), String.class);
+    }
+
+    @Test
+    public void create_bad_input_no_closing_element() {
+        try {
+             RestTest.target(getPort(), "whois/test/domain?password=test")
+                .request()
+                .post(Entity.entity(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" +
+                    "<whois-resources>\n", MediaType.APPLICATION_XML), String.class);       // no closing element
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(),
+                is("XML processing exception: XML document structures must start and end within the same entity. (line: 3, column: 1)"));
+        }
+    }
+
+    @Test
+    public void create_invalid_xml_missing_space() {
+        try {
+             RestTest.target(getPort(), "whois/test/domain?password=test")
+                .request()
+                .post(Entity.entity(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" +
+                    "<whois-resources>\n" +
+                    "<objects>\n" +
+                    "<object type=\"domain\">\n" +
+                    "<source id=\"ripe\"/>\n" +
+                    "<attributes>\n" +
+                    "<attribute name=\"descr\"value=\"description\"/>\n" +      // no space between name and value
+                    "</attributes>\n" +
+                    "</object>\n" +
+                    "</objects>\n" +
+                    "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(),
+                is("XML processing exception: Element type \"attribute\" must be followed by either attribute specifications, \">\" or \"/>\". (line: 7, column: 24)"));
+        }
+    }
+
+    @Test
+    public void create_invalid_json_missing_closing_brace() {
+        try {
+             RestTest.target(getPort(), "whois/test/domain?password=test")
+                .request()
+                .post(Entity.entity(
+                    "{", MediaType.APPLICATION_JSON), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(),
+                is("JSON processing exception: Unexpected end-of-input: expected close marker for OBJECT (line: 1, column: 3)"));
+        }
+    }
+
+    @Test
+    public void create_invalid_json_missing_closing_array_bracket() {
+        try {
+            RestTest.target(getPort(), "whois/test/person.json?password=test")
+                    .request()
+                    .post(Entity.entity("{\n" +
+                            "  \"objects\" : {\n" +
+                            "    \"object\" : [ {\n" +
+                            "      \"type\" : \"inetnum\",\n" +
+                            "      \"source\" : {\n" +
+                            "        \"id\" : \"test\"\n" +
+                            "      },\n" +
+                            "      \"primary-key\" : {\n" +
+                            "        \"attribute\" : [\n" +        // missing closing array bracket
+                            "      }\n" +
+                            "    } ]\n" +
+                            "  }\n" +
+                            "}", MediaType.APPLICATION_JSON), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(),
+                is("JSON processing exception: Unexpected close marker '}': expected ']'"));
+        }
     }
 
     @Test
