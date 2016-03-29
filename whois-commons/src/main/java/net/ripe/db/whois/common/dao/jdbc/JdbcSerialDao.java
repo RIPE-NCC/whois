@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +14,7 @@ import javax.annotation.CheckForNull;
 import javax.sql.DataSource;
 
 @Repository
+@Primary
 public class JdbcSerialDao implements SerialDao {
     private final JdbcTemplate jdbcTemplate;
     private final DateTimeProvider dateTimeProvider;

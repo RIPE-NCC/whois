@@ -20,8 +20,10 @@ import org.springframework.test.annotation.DirtiesContext;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase {
 
-    @Autowired private NrtmImporter nrtmImporter;
-    @Autowired private SerialDao serialDao;
+    @Autowired
+    private NrtmImporter nrtmImporter;
+    @Autowired
+    private SerialDao serialDao;
 
     private static final RpslObject MNTNER = RpslObject.parse("" +
             "mntner: OWNER-MNT\n" +
