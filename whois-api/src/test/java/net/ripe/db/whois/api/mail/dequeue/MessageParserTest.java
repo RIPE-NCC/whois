@@ -496,6 +496,92 @@ public class MessageParserTest {
     }
 
     @Test
+    public void parse_multipart_mixed_signed_part() throws Exception {
+        final MimeMessage message = getMessage(
+                "To: auto-dbm@ripe.net\n" +
+                "From: No Reply <noreply@ripe.net>\n" +
+                "Subject: NEW\n" +
+                "Message-ID: <56FCE84F.2010807@ripe.net>\n" +
+                "Date: Thu, 31 Mar 2016 11:05:19 +0200\n" +
+                "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:38.0) Gecko/20100101\n" +
+                " Thunderbird/38.5.1\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Type: multipart/signed; micalg=pgp-sha1;\n" +
+                " protocol=\"application/pgp-signature\";\n" +
+                " boundary=\"JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\"\n" +
+                "\n" +
+                "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\n" +
+                "Content-Type: multipart/mixed; boundary=\"SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\"\n" +
+                "From: No Reply <noreply@ripe.net>\n" +
+                "To: auto-dbm@ripe.net\n" +
+                "Message-ID: <56FCE84F.2010807@ripe.net>\n" +
+                "Subject: NEW\n" +
+                "\n" +
+                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\n" +
+                "Content-Type: text/plain; charset=utf-8\n" +
+                "Content-Transfer-Encoding: quoted-printable\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "\n" +
+                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh--\n" +
+                "\n" +
+                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\n" +
+                "Content-Type: application/pgp-signature; name=\"signature.asc\"\n" +
+                "Content-Description: OpenPGP digital signature\n" +
+                "Content-Disposition: attachment; filename=\"signature.asc\"\n" +
+                "\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iQEcBAEBCAAGBQJW/UFbAAoJELvMuy1XY5UN8sIH/jknae8l8dK4pJnf1CK4fXLq\n" +
+                "YedvGzo10gpLKlSu0UnBRapE6aZcPNmYLMJReP/JhbPfRAr7XQCRJKVwOngntmwi\n" +
+                "b4p9C+GYOUEUScLbBYe4FS70xPQZBEqDEB+pPEQI7DSRMQs/aF3fSXGHygJA2EGp\n" +
+                "QE5e2i0OwL1usnkRb87IXxFoL/LAalHogaU7m+vwJADD5ERqF1jNfiw4B8LQRF8x\n" +
+                "Yq5BtICOBOj7sL/JCKL17KrGlcQFWL3StLGf6IghltSSnAVQesKY4k2SzyyCulKL\n" +
+                "v3REE7AAtRIih8l+VP4dL09AD1/mWT38D24gjOC+HOHcdGbl7YmE9cHr3xwetgY=\n" +
+                "=GA9B\n" +
+                "-----END PGP SIGNATURE-----\n" +
+                "\n" +
+                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg--");
+
+        final MailMessage mailMessage = subject.parse(message, updateContext);
+
+        assertThat(mailMessage.getContentWithCredentials(), hasSize(1));
+        final ContentWithCredentials contentWithCredentials = mailMessage.getContentWithCredentials().get(0);
+        assertThat(contentWithCredentials.getCredentials(), hasSize(1));
+        assertThat(contentWithCredentials.getCredentials().get(0), is(instanceOf(PgpCredential.class)));
+        assertThat(contentWithCredentials.getContent(), is(
+                "Content-Type: multipart/mixed; boundary=\"SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\"\n" +
+                "From: No Reply <noreply@ripe.net>\n" +
+                "To: auto-dbm@ripe.net\n" +
+                "Message-ID: <56FCE84F.2010807@ripe.net>\n" +
+                "Subject: NEW\n" +
+                "\n" +
+                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\n" +
+                "Content-Type: text/plain; charset=utf-8\n" +
+                "Content-Transfer-Encoding: quoted-printable\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "\n" +
+                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh--\n"));
+    }
+
+    @Test
     public void parse_smime_multipart_text_plain() throws Exception {
         final MimeMessage message = getMessage("" +
                 "From: <Registration.Ripe@company.com>\n" +
