@@ -3293,8 +3293,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
 
-  @Ignore("TODO: [ES] invalid signature results in unexpected error occurred, need to return better error message")
-  def "inline pgp signed mailupdate, newline error in signature"() {
+  def "pgp signed message with invalid signature"() {
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -3314,108 +3313,21 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                source:  TEST
-                -----BEGIN PGP SIGNATURE-----
-
-                Version: GnuPG v1.4.12 (Darwin)
-
-                iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+
-                fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx
-                cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR
-                71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux
-                4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D
-                2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=
-                =it26
-                -----END PGP SIGNATURE-----
-                """.stripIndent())
-    then:
-      def ack = ackFor message
-
-      ack.success
-  }
-
-  @Ignore("TODO [ES]")
-  def "invalid signature results in internal server error (another example)"() {
-    when:
-      syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
-                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
-                      + "password: owner")
-    then:
-      def message = send new Message(
-              subject: "",
-              body: """\
-                -----BEGIN PGP SIGNED MESSAGE-----
-                Hash: SHA1
-
-                person:  First Person
-                address: St James Street
-                address: Burnley
-                address: UK
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                source:  TEST
-
-                -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.2.6 (GNU/Linux)
-
-                iD8DBQFVWbBwNQCxxDkDxUMRAsc AJwIxzuKiPIkt/f2OSJ1Cc4JjPgHbACgucBI
-                3 6v0na2EwLKdZPgbAwM0hU=
-                =Z3KR
-                -----END PGP SIGNATURE-----
-                """.stripIndent())
-    then:
-      def ack = ackFor message
-
-      ack.success
-  }
-
-  @Ignore("[ES] TODO")
-  def "pgp compressed data results in internal server error"() {
-    when:
-      syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
-                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
-                      + "password: owner")
-    then:
-      def message = send new Message(
-              subject: "",
-              body: """\
-                -----BEGIN PGP SIGNED MESSAGE-----
-                Hash: SHA1
-
-                person:  First Person
-                address: St James Street
-                address: Burnley
-                address: UK
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
                 Version: GnuPG v2
 
-                owGbwMvMwMF4JoN/Y3WR1DzG0wfWJjGEzmtqzsxLLckrzbVSgAFzSz1LCz1DM3M9
-                AwVdJJ6hkTkvF0hxYm4qQnWot26YZ1CIoa6zf5CrrpOPtxkvV0pqcXIRQomCQlhm
-                UUlpYo6hgq+7b4hCYl6KgnN+UapCSmpZZnJqMS9Xcn5pXklRJUKLuxMvV2JKbmae
-                bjJCMMzfz1U3yDPAlZerJDU5A1kKWa64JLGktBhJzjE42NPdz9VFIcCRlys3r0Q3
-                CckmBV+/ELAPQh19DIEuyUjMS09NQcgXZSZn6CWmJOY6lEE9oZecnwu0Jb+0KBkp
-                HBQglhel5iYWZSPZ7unnFuSo6xjeySjDwsDIwcDGygQKdQYuTgFYXIT4cjAsPrWU
-                q/bTv9ZIt7B9vucd5m6NDoo2vpSRdL/+37yNtx/sLlfriN3RtrHg4qK7O99u561/
-                95HdLd1nG6uvV9Fi2bMZt5wLvZ7vTGzZo6Pgoyl9XOhyn7+wQhG3p174uZQZOyTl
-                7VwYZh34rrhm8RzLqf+9PoTGx22/7Dr74fdCZufsi5Pq7jJtkPu4nPea5c45mbzr
-                HabaXQg5VHT1PfN5AcUZX/q2MtY2TxZhPbNh/uW+V+/Ohcjp7/2konZthX7ztnsF
-                FYcW5Zv5+vOfKxOIOaS8gEn7lrTS1nPN11xqXhRv25ySWFF/xXLaPZesPNkGi9h4
-                +4khnD7roiqWV8RIMr6M4GeMmfikXWHajwUA
-                =DFkw
+                nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
     then:
       def ack = ackFor message
 
-      ack.success
+      ack.contents.contains("Create FAILED: [person] FP1-TEST   First Person")
+      ack.contents.contains(
+              "***Error:   Authorisation for [person] FP1-TEST failed\n" +
+              "            using \"mnt-by:\"\n" +
+              "            not authenticated by: OWNER-MNT")
   }
 
   def "pgp signed multipart/mixed nested part"() {
