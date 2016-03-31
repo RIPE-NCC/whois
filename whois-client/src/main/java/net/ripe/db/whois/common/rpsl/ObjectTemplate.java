@@ -788,6 +788,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                 }
 
                 if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) {
+                    attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
                     continue;
                 }
                 attribute.validateSyntax(rpslObjectType, objectMessages);
@@ -796,9 +797,6 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
         }
 
         for (final AttributeTemplate attributeTemplate : attributeTemplates) {
-            if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) {
-                continue;
-            }
 
             final AttributeType attributeType = attributeTemplate.getAttributeType();
             final int attributeTypeCount = attributeCount.get(attributeType);

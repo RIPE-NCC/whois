@@ -684,7 +684,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void fail_gracefully_when_rpsl_has_double_created_attribute() throws Exception {
+    public void fail_gracefully_when_rpsl_has_double_generated_attribute() throws Exception {
 
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject(MNTNER_TEST_MNTNER);
