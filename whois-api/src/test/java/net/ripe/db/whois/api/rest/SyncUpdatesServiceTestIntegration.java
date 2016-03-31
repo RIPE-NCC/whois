@@ -683,6 +683,34 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("End of line comments not allowed on \"source:\" attribute"));
     }
 
+    @Test
+    public void fail_gracefully_when_rpsl_has_double_created_attribute() throws Exception {
+
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final FormDataMultiPart multipart = new FormDataMultiPart()
+                .field("DATA",
+                        "person:         Test Person\n" +
+                        "address:        ÅçÅç\n" +
+                        "phone:          +31 6 12345678\n" +
+                        "nic-hdl:        TP2-TEST\n" +
+                        "mnt-by:         mntner\n" +
+                        "source:         TEST\n" +
+                        "created:       2016-03-31T09:10:52Z\n" +
+                        "created:       2016-03-31T09:10:52Z\n" +
+                        "last-modified: 2016-03-31T09:10:52Z\n" +
+                        "password: emptypassword")
+                .field("NEW", "yes");
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", Charsets.ISO_8859_1.displayName())), String.class);
+
+        System.out.println(response);
+        assertThat(response, not(containsString("***Error:   Unexpected error occurred")));
+        assertThat(response, containsString("***Error:   Attribute \"created\" appears more than once"));
+    }
 
     // helper methods
 
