@@ -787,12 +787,13 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                     continue;
                 }
 
-                if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) {
-                    attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
-                    continue;
-                }
-                attribute.validateSyntax(rpslObjectType, objectMessages);
                 attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
+
+                if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) {
+                    continue;
+                } else {
+                    attribute.validateSyntax(rpslObjectType, objectMessages);
+                }
             }
         }
 
