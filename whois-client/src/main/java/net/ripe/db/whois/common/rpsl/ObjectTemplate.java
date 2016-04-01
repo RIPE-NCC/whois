@@ -787,18 +787,17 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                     continue;
                 }
 
+                attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
+
                 if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) {
                     continue;
+                } else {
+                    attribute.validateSyntax(rpslObjectType, objectMessages);
                 }
-                attribute.validateSyntax(rpslObjectType, objectMessages);
-                attributeCount.put(attributeType, attributeCount.get(attributeType) + 1);
             }
         }
 
         for (final AttributeTemplate attributeTemplate : attributeTemplates) {
-            if (skipGenerated && attributeTemplate.getRequirement() == GENERATED) {
-                continue;
-            }
 
             final AttributeType attributeType = attributeTemplate.getAttributeType();
             final int attributeTypeCount = attributeCount.get(attributeType);

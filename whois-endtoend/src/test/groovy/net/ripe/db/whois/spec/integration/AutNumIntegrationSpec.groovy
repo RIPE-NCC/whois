@@ -920,9 +920,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
 
     }
 
-    def "create aut-num object, user maintainer, duplicate status"() {
+    def "fail to create aut-num object, user maintainer, duplicate status"() {
         when:
-        def currentDateTime = getTimeUtcString()
         def response = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS100
                         as-name:        End-User
@@ -937,22 +936,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         """.stripIndent())
 
         then:
-        response =~ /SUCCESS/
-
-        then:
-        def autnum = databaseHelper.lookupObject(ObjectType.AUT_NUM, "AS100")
-        autnum.equals(RpslObject.parse(String.format(
-                        "aut-num:        AS100\n" +
-                        "as-name:        End-User\n" +
-                        "remarks:        For information on \"status:\" attribute read https://www.ripe.net/data-tools/db/faq/faq-status-values-legacy-resources\n" +
-                        "status:         OTHER\n" +
-                        "descr:          description\n" +
-                        "admin-c:        AP1-TEST\n" +
-                        "tech-c:         AP1-TEST\n" +
-                        "mnt-by:         UPD-MNT\n" +
-                        "created:        %s\n" +
-                        "last-modified:  %s\n" +
-                        "source:         TEST", currentDateTime, currentDateTime)))
+        response =~ /Create FAILED: \[aut-num\] AS100/
+        response =~ /Error:   Attribute "status" appears more than once/
 
     }
 
