@@ -91,10 +91,23 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
 
         if (generatedAttribute != null) {
             if (updatedObject.containsAttribute(attributeType)){
-                builder.removeAttributeType(attributeType);
+                if(updatedObject.findAttributes(attributeType).size() == 1) {
+                    builder.replaceAttribute(updatedObject.findAttribute(attributeType), generatedAttribute);
+                } else {
+                    builder.removeAttributeType(attributeType);
+                    builder.addAttributeSorted(generatedAttribute);
+                }
+            } else {
+                builder.addAttributeSorted(generatedAttribute);
             }
-            builder.addAttributeSorted(generatedAttribute);
         }
+
+//        if (generatedAttribute != null) {
+//            if (updatedObject.containsAttribute(attributeType)){
+//                builder.removeAttributeType(attributeType);
+//            }
+//            builder.addAttributeSorted(generatedAttribute);
+//        }
 
         if (addWarningsFlag && updatedObject.containsAttribute(attributeType)) {
             for (RpslAttribute inputAttribute : updatedObject.findAttributes(attributeType)) {
