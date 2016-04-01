@@ -102,13 +102,6 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
             }
         }
 
-//        if (generatedAttribute != null) {
-//            if (updatedObject.containsAttribute(attributeType)){
-//                builder.removeAttributeType(attributeType);
-//            }
-//            builder.addAttributeSorted(generatedAttribute);
-//        }
-
         if (addWarningsFlag && updatedObject.containsAttribute(attributeType)) {
             for (RpslAttribute inputAttribute : updatedObject.findAttributes(attributeType)) {
                 if (!inputAttribute.equals(generatedAttribute)) {
