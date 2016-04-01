@@ -28,7 +28,8 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
             AttributeType.ADDRESS,
             AttributeType.PHONE,
             AttributeType.FAX_NO,
-            AttributeType.E_MAIL);
+            AttributeType.E_MAIL,
+            AttributeType.ORG_NAME);
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -43,11 +44,11 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
-        for (AttributeType attributeType : ATTRIBUTES) {
+        ATTRIBUTES.forEach(attributeType -> {
             if (orgAttributeChanged(originalObject, updatedObject, attributeType)) {
                 updateContext.addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(attributeType));
             }
-        }
+        });
     }
 
     private boolean orgAttributeChanged(final RpslObject originalObject,
