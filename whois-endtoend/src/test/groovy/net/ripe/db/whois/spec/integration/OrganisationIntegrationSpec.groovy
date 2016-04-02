@@ -762,9 +762,12 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
       given:
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Org" +
-                "mnt-by: TST-MNT\n" +
-                "source: TEST")
+                "org-name:     Test Org\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
       when:
         def response = syncUpdate new SyncUpdate(data: """\
                 organisation: ORG-TO1-TEST
@@ -786,13 +789,16 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
       given:
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Org" +
-                "mnt-by: TST-MNT\n" +
-                "source: TEST")
+                "org-name:     Test Org\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
 
         databaseHelper.addObject("" +
                 "mntner: REF-MNT\n" +
-                "org: ORG-TO1-TEST\n" +
+                "org:    ORG-TO1-TEST\n" +
                 "mnt-by: REF-MNT\n" +
                 "source: TEST")
 
@@ -817,15 +823,18 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
       given:
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Org" +
-                "mnt-by: TST-MNT\n" +
-                "source: TEST")
+                "org-name:     Test Org\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       TST-MNT\n" +
+                "mnt-ref:      TST-MNT\n" +
+                "source:       TEST")
 
         databaseHelper.addObject("" +
                 "aut-num: AS1234\n" +
-                "org: ORG-TO1-TEST\n" +
-                "mnt-by: TST-MNT\n" +
-                "source: TEST")
+                "org:     ORG-TO1-TEST\n" +
+                "mnt-by:  TST-MNT\n" +
+                "source:  TEST")
 
       when:
         def response = syncUpdate new SyncUpdate(data: """\
@@ -833,7 +842,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 org-name:     Updated Org
                 org-type:     OTHER
                 address:      Singel 258
-                e-mail:        bitbucket@ripe.net
+                e-mail:       bitbucket@ripe.net
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
@@ -854,9 +863,12 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Org" +
-                "mnt-by: RIPE-NCC-END-MNT\n" +
-                "source: TEST")
+                "org-name:     Test Org\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       RIPE-NCC-END-MNT\n" +
+                "mnt-ref:      RIPE-NCC-END-MNT\n" +
+                "source:       TEST")
 
         databaseHelper.addObject("" +
                 "aut-num: AS1234\n" +
@@ -870,11 +882,11 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 org-name:     Updated Org
                 org-type:     OTHER
                 address:      Singel 258
-                e-mail:        bitbucket@ripe.net
+                e-mail:       bitbucket@ripe.net
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
-                password: end
+                password:     end
                 """.stripIndent())
 
       then:
@@ -884,9 +896,12 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
     def "org-name changed organisation ref by resource with RSmntner auth by override"() {
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
-                "org-name: Test Org" +
-                "mnt-by: RIPE-NCC-HM-MNT\n" +
-                "source: TEST")
+                "org-name:     Test Org\n" +
+                "address:      Singel 258\n" +
+                "e-mail:       bitbucket@ripe.net\n" +
+                "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                "mnt-ref:      RIPE-NCC-HM-MNT\n" +
+                "source:       TEST")
 
         databaseHelper.addObject("" +
                 "aut-num: AS1234\n" +
@@ -900,7 +915,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 org-name:     Updated Org
                 org-type:     OTHER
                 address:      Singel 258
-                e-mail:        bitbucket@ripe.net
+                e-mail:       bitbucket@ripe.net
                 mnt-by:       TST-MNT
                 mnt-ref:      TST-MNT
                 source:       TEST
