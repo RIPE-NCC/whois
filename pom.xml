@@ -750,6 +750,13 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <excludes>
+                        <exclude>**/generated/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/rpsl/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/domain/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/io/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/ip/**</exclude>
+                    </excludes>
                     <complianceLevel>${java.version}</complianceLevel>
                     <Xlint>warning</Xlint>
                     <verbose>true</verbose>
