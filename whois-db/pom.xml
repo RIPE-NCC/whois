@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
-            <artifactId>whois-client</artifactId>
+            <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>

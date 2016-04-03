@@ -50,6 +50,7 @@
     </distributionManagement>
 
     <modules>
+        <module>whois-rpsl</module>
         <module>whois-client</module>
         <module>whois-commons</module>
         <module>whois-query</module>
@@ -64,6 +65,18 @@
     <dependencyManagement>
         <dependencies>
             <!-- whois modules' artifacts -->
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-rpsl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-rpsl</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>net.ripe.db</groupId>
                 <artifactId>whois-client</artifactId>
@@ -744,6 +757,7 @@
                     <showWeaveInfo>true</showWeaveInfo>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <warn>none</warn>
+
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>org.springframework</groupId>
@@ -873,7 +887,7 @@
                                 <goals>
                                     <goal>jmeter</goal>
                                 </goals>
-                           </execution>
+                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
