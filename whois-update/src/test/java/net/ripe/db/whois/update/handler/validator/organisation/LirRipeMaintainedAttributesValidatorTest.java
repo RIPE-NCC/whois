@@ -162,7 +162,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
         verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.ADDRESS));
+        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ADDRESS));
         verifyNoMoreInteractions(update);
     }
 
@@ -177,7 +177,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
         verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.PHONE));
+        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.PHONE));
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -192,7 +192,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
         verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.FAX_NO));
+        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.FAX_NO));
         verifyNoMoreInteractions(updateContext);
     }
 
@@ -206,7 +206,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
         verify(updateContext).getSubject(update);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.E_MAIL));
+        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.E_MAIL));
         verifyNoMoreInteractions(updateContext);
     }
     @Test
