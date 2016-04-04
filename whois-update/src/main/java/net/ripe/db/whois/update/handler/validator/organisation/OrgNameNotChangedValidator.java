@@ -49,7 +49,7 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
         final RpslObject originalObject = update.getReferenceObject();
         final RpslObject updatedObject = update.getUpdatedObject();
 
-        if (!LIR.equals(originalObject.getValueForAttribute(AttributeType.ORG_TYPE))) {
+        if (LIR.equals(originalObject.getValueForAttribute(AttributeType.ORG_TYPE))) {
             // See: LirRipeMaintainedAttributesValidator
             return;
         }
