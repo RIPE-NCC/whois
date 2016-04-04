@@ -101,6 +101,31 @@ public class TimestampAttributeGeneratorTest {
     }
 
     @Test
+    public void create_input_has_double_timestamps() {
+
+        testDateTimeProvider.setTime(actionTime());
+        when(updateContext.getAction(update)).thenReturn(Action.CREATE);
+        when(overrideOptions.isSkipLastModified()).thenReturn(false);
+
+        final RpslObject input = new RpslObjectBuilder(TEMPLATE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .addAttributeSorted(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_STRING_PAST))
+                .get();
+
+        final RpslObject updatedObject = subject.generateAttributes(null, input, update, updateContext);
+
+        assertThat(updatedObject.findAttribute(AttributeType.CREATED).getValue(), is(TIMESTAMP_STRING_ACTION));
+        assertThat(updatedObject.findAttribute(AttributeType.LAST_MODIFIED).getValue(), is(TIMESTAMP_STRING_ACTION));
+
+        testHelper.assertAttributeMessage(updatedObject.findAttribute(AttributeType.CREATED),
+                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.CREATED), 2);
+        testHelper.assertAttributeMessage(updatedObject.findAttribute(AttributeType.LAST_MODIFIED),
+                ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(AttributeType.LAST_MODIFIED), 2);
+    }
+
+    @Test
     public void create_input_has_right_timestamps() {
 
         testDateTimeProvider.setTime(actionTime());

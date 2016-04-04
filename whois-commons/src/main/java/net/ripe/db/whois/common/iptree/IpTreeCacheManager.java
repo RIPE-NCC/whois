@@ -15,7 +15,6 @@ import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.Domain;
-import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
@@ -231,7 +230,7 @@ public class IpTreeCacheManager {
                 // For the test source, we reload the database every night, so in this case we do need a full rebuild of the ipTree.
                 rebuild(jdbcTemplate, cacheEntry);
             } else {
-                LOGGER.info("IpTree is ahead of local database; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
+                LOGGER.debug("IpTree is ahead of local database; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
                 //
                 // Situation typically appears when:
                 // - a batch-update (=multiple updates in single transaction) is performed and
@@ -244,7 +243,7 @@ public class IpTreeCacheManager {
                 //
             }
         } else {
-            LOGGER.info("Local database is ahead of IpTree; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
+            LOGGER.debug("Local database is ahead of IpTree; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
 
             final List<IpTreeUpdate> ipTreeUpdates = jdbcTemplate.query("" +
                             "SELECT last.object_type, last.pkey, last.object_id, serials.operation " +
