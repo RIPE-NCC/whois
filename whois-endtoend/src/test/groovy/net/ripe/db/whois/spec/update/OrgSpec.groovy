@@ -2038,9 +2038,13 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
+                ["Organisation \"org-name:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",]
+
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "My Registry")
     }
@@ -2075,13 +2079,14 @@ class OrgSpec extends BaseQueryUpdateSpec {
         then:
         def ack = new AckResponse("", message)
 
+        System.out.println(ack)
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
 
-        query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "My Registry")
+        query_object_not_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "My Registry")
     }
 
     def "modify organisation, org-type:OTHER, change org-name with user password"() {
