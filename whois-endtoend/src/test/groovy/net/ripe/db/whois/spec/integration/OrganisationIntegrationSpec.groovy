@@ -763,6 +763,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
                 "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
                 "address:      Singel 258\n" +
                 "e-mail:       bitbucket@ripe.net\n" +
                 "mnt-by:       TST-MNT\n" +
@@ -790,6 +791,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
                 "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
                 "address:      Singel 258\n" +
                 "e-mail:       bitbucket@ripe.net\n" +
                 "mnt-by:       TST-MNT\n" +
@@ -824,6 +826,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
                 "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
                 "address:      Singel 258\n" +
                 "e-mail:       bitbucket@ripe.net\n" +
                 "mnt-by:       TST-MNT\n" +
@@ -864,6 +867,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
                 "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
                 "address:      Singel 258\n" +
                 "e-mail:       bitbucket@ripe.net\n" +
                 "mnt-by:       RIPE-NCC-END-MNT\n" +
@@ -897,6 +901,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         databaseHelper.addObject("" +
                 "organisation: ORG-TO1-TEST\n" +
                 "org-name:     Test Org\n" +
+                "org-type:     OTHER\n" +
                 "address:      Singel 258\n" +
                 "e-mail:       bitbucket@ripe.net\n" +
                 "mnt-by:       RIPE-NCC-HM-MNT\n" +
