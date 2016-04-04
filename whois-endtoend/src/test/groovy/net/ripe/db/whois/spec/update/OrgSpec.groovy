@@ -1963,8 +1963,8 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
-                ["Organisation name can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change the name.",
-                 "Authorisation for [organisation] ORG-LIR2-TEST failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",]
+                ["Authorisation for [organisation] ORG-LIR2-TEST failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",
+                "Organisation \"org-name:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",]
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
     }
