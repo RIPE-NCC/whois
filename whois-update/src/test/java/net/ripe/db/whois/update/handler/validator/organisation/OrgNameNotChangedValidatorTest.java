@@ -75,6 +75,16 @@ public class OrgNameNotChangedValidatorTest {
             "mnt-by: RIPE-NCC-LEGACY-MNT\n" +
             "org: ORG-TEST1\n" +
             "source: TEST");
+    public static final RpslObject ORIGINAL_LIR = RpslObject.parse(70, "" +
+            "organisation: ORG-TEST2\n" +
+            "org-name: Test Organisation\n" +
+            "org-type: LIR\n" +
+            "mnt-by: TEST-MNT");
+    public static final RpslObject UPDATED_LIR = RpslObject.parse(70, "" +
+            "organisation: ORG-TEST2\n" +
+            "org-name: Test Organisation\n" +
+            "org-type: LIR\n" +
+            "mnt-by: TEST-MNT");
 
     @Before
     public void setup() {
@@ -110,6 +120,22 @@ public class OrgNameNotChangedValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
 
         when(updateDao.getReferences(ORIGINAL_ORG)).thenReturn(Collections.EMPTY_SET);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+    }
+
+    @Test
+    public void orgname_changed_for_lir() {
+        // See: LirRipeMaintainedAttributesValidator
+        presetOverrideAuthentication();
+
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_LIR);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_LIR);
+
+        presetReferrers(REFERRER_MNT_BY_RS, REFERRER_MNT_BY_LEGACY);
 
         subject.validate(update, updateContext);
 
