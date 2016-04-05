@@ -2074,7 +2074,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
         then:
         def ack = new AckResponse("", message)
 
-        System.out.println(ack)
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
