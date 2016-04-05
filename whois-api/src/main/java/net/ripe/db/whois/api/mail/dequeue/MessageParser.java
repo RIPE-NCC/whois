@@ -268,20 +268,10 @@ public class MessageParser {
     }
 
     String getRawContent(final Part part) throws MessagingException {
-        //part.setDataHandler(part.getDataHandler()); // Prevent base64 decoding
-        InputStream inputStream = null;
-        try {
-            inputStream = ((MimeBodyPart) part).getRawInputStream();
+        try (final InputStream inputStream = ((MimeBodyPart) part).getRawInputStream()) {
             return new String(ByteStreams.toByteArray(inputStream), getCharset(new ContentType(part.getContentType())));
         } catch (IOException e) {
             throw new MessagingException("Unable to read body part", e);
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException ignored) {
-                }
-            }
         }
     }
 
