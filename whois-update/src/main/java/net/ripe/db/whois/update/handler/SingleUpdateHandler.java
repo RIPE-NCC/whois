@@ -28,6 +28,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.generator.AttributeGenerator;
+import net.ripe.db.whois.update.handler.transformpipeline.TransformPipeline;
 import net.ripe.db.whois.update.sso.SsoTranslator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +57,7 @@ public class SingleUpdateHandler {
     private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
     private final ChangedAttrFeatureToggle changedAttrFeatureToggle;
+    private final TransformPipeline transformerPipeline;
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
     private CIString source;
@@ -71,7 +73,8 @@ public class SingleUpdateHandler {
                                final IpTreeUpdater ipTreeUpdater,
                                final PendingUpdateHandler pendingUpdateHandler,
                                final SsoTranslator ssoTranslator,
-                               final ChangedAttrFeatureToggle changedAttrFeatureToggle) {
+                               final ChangedAttrFeatureToggle changedAttrFeatureToggle,
+                               final TransformPipeline transformerPipeline) {
         this.autoKeyResolver = autoKeyResolver;
         this.attributeGenerators = attributeGenerators;
         this.attributeSanitizer = attributeSanitizer;
@@ -83,6 +86,7 @@ public class SingleUpdateHandler {
         this.pendingUpdateHandler = pendingUpdateHandler;
         this.ssoTranslator = ssoTranslator;
         this.changedAttrFeatureToggle = changedAttrFeatureToggle;
+        this.transformerPipeline = transformerPipeline;
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
@@ -136,12 +140,10 @@ public class SingleUpdateHandler {
             updatedObjectWithAutoKeys = originalObject;
         }
 
-        // re-generate preparedUpdate
-        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
+        final Update transformedUpdated = transformerPipeline.transform(update, updateContext);
 
-        // Currently the database uses the latin-1 characterset. Non convertable characters are stored as ?.
-        // We warn about information loss.
-        warnForNotLatinAttributeValues(update, updateContext);
+        // re-generate preparedUpdate
+        preparedUpdate = new PreparedUpdate(transformedUpdated, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
