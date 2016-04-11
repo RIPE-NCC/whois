@@ -18,10 +18,11 @@ public class TransformPipeline {
         // do we need sorting???
     }
 
-    public RpslObject transform(final Update update,
+    public RpslObject transform(final RpslObject updatedObject,
+                                final Update update,
                             final UpdateContext updateContext,
                             final Action action) {
-        RpslObject transformedObject = update.getSubmittedObject();
+        RpslObject transformedObject = updatedObject;
         for (PipelineTransformer transformer : transformers) {
             transformedObject = transformer.transform(transformedObject, update, updateContext, action);
         }

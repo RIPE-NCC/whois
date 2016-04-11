@@ -46,7 +46,6 @@ import javax.annotation.Nullable;
 
 @Component
 public class SingleUpdateHandler {
-    private final AutoKeyResolver autoKeyResolver;
     private final AttributeSanitizer attributeSanitizer;
     private final AttributeGenerator[] attributeGenerators;
     private final RpslObjectDao rpslObjectDao;
@@ -63,8 +62,7 @@ public class SingleUpdateHandler {
     private CIString source;
 
     @Autowired
-    public SingleUpdateHandler(final AutoKeyResolver autoKeyResolver,
-                               final AttributeGenerator[] attributeGenerators,
+    public SingleUpdateHandler(final AttributeGenerator[] attributeGenerators,
                                final AttributeSanitizer attributeSanitizer,
                                final UpdateLockDao updateLockDao,
                                final Authenticator authenticator,
@@ -75,7 +73,6 @@ public class SingleUpdateHandler {
                                final SsoTranslator ssoTranslator,
                                final ChangedAttrFeatureToggle changedAttrFeatureToggle,
                                final TransformPipeline transformerPipeline) {
-        this.autoKeyResolver = autoKeyResolver;
         this.attributeGenerators = attributeGenerators;
         this.attributeSanitizer = attributeSanitizer;
         this.rpslObjectDao = rpslObjectDao;
@@ -121,8 +118,7 @@ public class SingleUpdateHandler {
             throw new UpdateFailedException();
         }
 
-        // resolve AUTO- keys
-        RpslObject updatedObjectWithAutoKeys = autoKeyResolver.resolveAutoKeys(updatedObject, update, updateContext, action);
+        RpslObject updatedObjectWithAutoKeys = transformerPipeline.transform(updatedObject, update, updateContext, action);
         preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
         // add authentication to context
@@ -139,8 +135,6 @@ public class SingleUpdateHandler {
         if (action == Action.NOOP) {
             updatedObjectWithAutoKeys = originalObject;
         }
-
-        updatedObjectWithAutoKeys = transformerPipeline.transform(update, updateContext, action);
 
         // re-generate preparedUpdate
         preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);

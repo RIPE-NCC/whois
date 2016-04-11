@@ -56,10 +56,9 @@ public class TransformPipelineTest {
                 .get();
         when(update.getSubmittedObject()).thenReturn(person);
 
-        RpslObject transformedPerson = subject.transform(update, updateContext, Action.NOOP);
+        RpslObject transformedPerson = subject.transform(person, update, updateContext, Action.NOOP);
 
-        // Verify_interation
-        verify(update).getSubmittedObject();
+        // Verify_integration
         verify(updateContext).addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion("address"));
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
@@ -85,10 +84,9 @@ public class TransformPipelineTest {
         when(dummyTransformer.transform(organisation, update, updateContext, Action.NOOP)).thenReturn(organisation);
 
         TransformPipeline subject = new TransformPipeline(new PipelineTransformer[]{dummyTransformer, dummyTransformer, dummyTransformer});
-        subject.transform(update, updateContext, Action.NOOP);
+        subject.transform(organisation, update, updateContext, Action.NOOP);
 
         verify(dummyTransformer, times(3)).transform(organisation, update, updateContext, Action.NOOP);
-        verify(update).getSubmittedObject();
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
 
