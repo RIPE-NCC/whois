@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -12,7 +13,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class LatinTransformer implements PipelineTransformer {
 
-    public RpslObject transform(final RpslObject rpslObject, final Update update, final UpdateContext updateContext) {
+    public RpslObject transform(final RpslObject rpslObject,
+                                final Update update,
+                                final UpdateContext updateContext,
+                                final Action action) {
         final RpslObjectBuilder updatedRpslObject = new RpslObjectBuilder();
         for (RpslAttribute attribute : rpslObject.getAttributes()) {
             if (CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue())) {

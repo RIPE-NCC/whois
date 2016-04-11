@@ -1,10 +1,10 @@
 package net.ripe.db.whois.update.handler.transformpipeline;
 
-import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
@@ -56,20 +56,15 @@ public class TransformPipelineTest {
                 .get();
         when(update.getSubmittedObject()).thenReturn(person);
 
-        Update transformedUpdate = subject.transform(update, updateContext);
+        RpslObject transformedPerson = subject.transform(update, updateContext, Action.NOOP);
 
         // Verify_interation
-        verify(update).getParagraph();
-        verify(update).getOperation();
         verify(update).getSubmittedObject();
-        verify(update).getDeleteReasons();
         verify(updateContext).addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion("address"));
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
 
         // Validate result
-        assertNotNull(transformedUpdate);
-        RpslObject transformedPerson = transformedUpdate.getSubmittedObject();
         assertNotNull(transformedPerson);
         assertThat(transformedPerson.getAttributes().size(), is(7));
         assertThat(transformedPerson.getValueForAttribute(AttributeType.ADDRESS), is("???????? ?????,??????"));
@@ -87,16 +82,13 @@ public class TransformPipelineTest {
         when(update.getSubmittedObject()).thenReturn(organisation);
 
         DummyTransformer dummyTransformer = mock(DummyTransformer.class);
-        when(dummyTransformer.transform(organisation, update, updateContext)).thenReturn(organisation);
+        when(dummyTransformer.transform(organisation, update, updateContext, Action.NOOP)).thenReturn(organisation);
 
-        TransformPipeline subject = new TransformPipeline(new  PipelineTransformer[]{dummyTransformer, dummyTransformer, dummyTransformer});
-        subject.transform(update, updateContext);
+        TransformPipeline subject = new TransformPipeline(new PipelineTransformer[]{dummyTransformer, dummyTransformer, dummyTransformer});
+        subject.transform(update, updateContext, Action.NOOP);
 
-        verify(dummyTransformer, times(3)).transform(organisation, update, updateContext);
-        verify(update).getParagraph();
-        verify(update).getOperation();
+        verify(dummyTransformer, times(3)).transform(organisation, update, updateContext, Action.NOOP);
         verify(update).getSubmittedObject();
-        verify(update).getDeleteReasons();
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
 

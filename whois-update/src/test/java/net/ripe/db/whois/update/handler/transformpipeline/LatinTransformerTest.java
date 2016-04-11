@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -47,8 +48,7 @@ public class LatinTransformerTest {
                 "mnt-by:     UPD-MNT\n" +
                 "source:     TEST\n");
         when(update.getSubmittedObject()).thenReturn(person);
-
-        RpslObject transformedPerson = subject.transform(person, update, updateContext);
+        RpslObject transformedPerson = subject.transform(person, update, updateContext, Action.NOOP);
 
         assertNotNull(transformedPerson);
         verifyNoMoreInteractions(update);
@@ -69,7 +69,7 @@ public class LatinTransformerTest {
                 .get();
         when(update.getSubmittedObject()).thenReturn(person);
 
-        RpslObject transformedPerson = subject.transform(person, update, updateContext);
+        RpslObject transformedPerson = subject.transform(person, update, updateContext, Action.NOOP);
 
         assertNotNull(transformedPerson);
         assertThat(transformedPerson.getAttributes().size(), is(7));

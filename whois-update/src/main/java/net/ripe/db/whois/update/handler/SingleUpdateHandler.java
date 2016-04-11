@@ -140,10 +140,10 @@ public class SingleUpdateHandler {
             updatedObjectWithAutoKeys = originalObject;
         }
 
-        final Update transformedUpdated = transformerPipeline.transform(update, updateContext);
+        updatedObjectWithAutoKeys = transformerPipeline.transform(update, updateContext, action);
 
         // re-generate preparedUpdate
-        preparedUpdate = new PreparedUpdate(transformedUpdated, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
+        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
