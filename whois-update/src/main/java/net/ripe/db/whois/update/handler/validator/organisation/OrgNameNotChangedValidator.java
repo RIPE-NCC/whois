@@ -30,6 +30,7 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
+    private static final CIString LIR = CIString.ciString("LIR");
     private static final Set<ObjectType> RESOURCE_OBJECT_TYPES = Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM);
 
     private final RpslObjectUpdateDao objectUpdateDao;
@@ -47,6 +48,12 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject originalObject = update.getReferenceObject();
         final RpslObject updatedObject = update.getUpdatedObject();
+
+        if (LIR.equals(originalObject.getValueForAttribute(AttributeType.ORG_TYPE))) {
+            // See: LirRipeMaintainedAttributesValidator
+            return;
+        }
+
         if (orgNameDidntChange(originalObject, updatedObject)) {
             return;
         }
