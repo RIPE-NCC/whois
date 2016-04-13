@@ -590,4 +590,9 @@ public final class UpdateMessages {
     public static Message rpslMntbyForbidden() {
         return new Message(Type.ERROR, "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
     }
+
+
+    public static Message declineMaintainerChangesForLir(String mntnerName) {
+        return new Message(Type.ERROR, "You cannot change the maintainer '%s' of your LIR organisation", mntnerName);
+    }
 }
