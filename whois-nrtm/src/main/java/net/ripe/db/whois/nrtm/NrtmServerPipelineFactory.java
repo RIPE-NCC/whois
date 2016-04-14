@@ -16,7 +16,7 @@ public class NrtmServerPipelineFactory extends BaseNrtmServerPipelineFactory {
     public NrtmServerPipelineFactory(final NrtmChannelsRegistry nrtmChannelsRegistry,
                                      final NrtmExceptionHandler exceptionHandler,
                                      final AccessControlHandler aclHandler,
-                                     final SerialDao serialDao,
+                                     @Qualifier("jdbcSlaveSerialDao") final SerialDao serialDao,
                                      final MaintenanceHandler maintenanceHandler,
                                      final NrtmLog nrtmLog,
                                      @Qualifier("dummifierNrtm") final Dummifier dummifier,

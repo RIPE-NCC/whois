@@ -38,6 +38,7 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.client.ClientProperties;
@@ -419,12 +420,15 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
-        assertThat(whoisObject.getAttributes().get(2).getValue(), is("          +31\n" +
+        assertThat(whoisObject.getAttributes().get(2).getValue(), is(
+                "          +31\n" +
                 "                1234567890"));
-        assertThat(whoisObject.getAttributes().get(6).getValue(), is("        remark1 # comment1\n" +
+        assertThat(whoisObject.getAttributes().get(6).getValue(), is(
+                "        remark1 # comment1\n" +
                 "                remark2 # comment2\n" +
                 "                remark3 # comment3"));
-        assertThat(whoisObject.getAttributes().get(7).getValue(), is("           fail1 # comment1\n" +
+        assertThat(whoisObject.getAttributes().get(7).getValue(), is(
+                "           fail1 # comment1\n" +
                 "                fail2 # comment2\n" +
                 "                # comment3"));
     }
@@ -1496,6 +1500,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
+
     @Ignore("TODO: [ES] #320 confusing error response")
     @Test
     public void create_invalid_object_type_on_first_attribute() {
@@ -1514,6 +1519,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "</object>\n" +
                         "</objects>\n" +
                         "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+            fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), not(containsString("Invalid object type: descr")));
         }
@@ -1695,7 +1701,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_invalid_format_no_attributes() {
+    public void create_invalid_json_format_no_attributes() {
         try {
             RestTest.target(getPort(), "whois/test/person.json?password=test")
                     .request()
@@ -1756,13 +1762,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             "}", MediaType.APPLICATION_JSON), String.class);
             fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(String.class), containsString("" +
-                            "{\n" +
-                            "  \"errormessages\" : {\n" +
-                            "    \"errormessage\" : [ {\n" +
-                            "      \"severity\" : \"Error\",\n" +
-                            "      \"text\" : \"Unexpected character ('}' (code 125)): was expecting a colon to separate field name and value\\n "
-            ));
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(),
+                is("JSON processing exception: Unexpected character ('}' (code 125)): was expecting a colon to separate field name and value"));
         }
     }
 
@@ -1816,6 +1819,92 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity("", MediaType.APPLICATION_XML), String.class);
+    }
+
+    @Test
+    public void create_bad_input_no_closing_element() {
+        try {
+             RestTest.target(getPort(), "whois/test/domain?password=test")
+                .request()
+                .post(Entity.entity(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" +
+                    "<whois-resources>\n", MediaType.APPLICATION_XML), String.class);       // no closing element
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(),
+                is("XML processing exception: XML document structures must start and end within the same entity. (line: 3, column: 1)"));
+        }
+    }
+
+    @Test
+    public void create_invalid_xml_missing_space() {
+        try {
+             RestTest.target(getPort(), "whois/test/domain?password=test")
+                .request()
+                .post(Entity.entity(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n" +
+                    "<whois-resources>\n" +
+                    "<objects>\n" +
+                    "<object type=\"domain\">\n" +
+                    "<source id=\"ripe\"/>\n" +
+                    "<attributes>\n" +
+                    "<attribute name=\"descr\"value=\"description\"/>\n" +      // no space between name and value
+                    "</attributes>\n" +
+                    "</object>\n" +
+                    "</objects>\n" +
+                    "</whois-resources>", MediaType.APPLICATION_XML), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(),
+                is("XML processing exception: Element type \"attribute\" must be followed by either attribute specifications, \">\" or \"/>\". (line: 7, column: 24)"));
+        }
+    }
+
+    @Test
+    public void create_invalid_json_missing_closing_brace() {
+        try {
+             RestTest.target(getPort(), "whois/test/domain?password=test")
+                .request()
+                .post(Entity.entity(
+                    "{", MediaType.APPLICATION_JSON), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(),
+                is("JSON processing exception: Unexpected end-of-input: expected close marker for OBJECT (line: 1, column: 3)"));
+        }
+    }
+
+    @Test
+    public void create_invalid_json_missing_closing_array_bracket() {
+        try {
+            RestTest.target(getPort(), "whois/test/person.json?password=test")
+                    .request()
+                    .post(Entity.entity("{\n" +
+                            "  \"objects\" : {\n" +
+                            "    \"object\" : [ {\n" +
+                            "      \"type\" : \"inetnum\",\n" +
+                            "      \"source\" : {\n" +
+                            "        \"id\" : \"test\"\n" +
+                            "      },\n" +
+                            "      \"primary-key\" : {\n" +
+                            "        \"attribute\" : [\n" +        // missing closing array bracket
+                            "      }\n" +
+                            "    } ]\n" +
+                            "  }\n" +
+                            "}", MediaType.APPLICATION_JSON), String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(),
+                is("JSON processing exception: Unexpected close marker '}': expected ']'"));
+        }
     }
 
     @Test
@@ -2206,10 +2295,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "        ] }\n" +
                         "    }] \n" +
                         "}}", new MediaType("application", "json", Charsets.ISO_8859_1.displayName())), String.class);
-
+            fail();
         } catch (BadRequestException e) {
-            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().iterator().next().getText(),
-                    containsString("Invalid UTF-8 middle byte"));
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages(), hasSize(1));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), is("JSON processing exception: Invalid UTF-8 middle byte 0x65"));
         }
     }
 
@@ -2438,9 +2528,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "e-mail:  noreply@ripe.net\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "nic-hdl: PP1-TEST\n" +
-                "remarks:  remark1 # comment1\n" +
-                "          remark2 # comment2\n" +
-                "          remark3 # comment3\n" +
+                "remarks: +----------+  #  +-----------+\n" +
+                "         |  remark  |  #  |  comment  |\n" +
+                "         +----------+  #  +-----------+\n" +
                 "source:  TEST\n");
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test&unformatted")
@@ -2452,12 +2542,27 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person?unformatted", getPort())));
 
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getAttributes().get(2).getValue(), is(
+                "          " +
+                "+31\n" +
+                "                " +
+                "1234567890"));
+        assertThat(whoisObject.getAttributes().get(6).getValue(), is(
+                "        " +
+                "+----------+  #  +-----------+\n" +
+                "                " +
+                "|  remark  |  #  |  comment  |\n" +
+                "                " +
+                "+----------+  #  +-----------+"));
 
-        assertThat(whoisObject.getAttributes().get(2).getValue(), is("          +31\n" +
-                "                1234567890"));
-        assertThat(whoisObject.getAttributes().get(6).getValue(), is("        remark1 # comment1\n" +
-                "                remark2 # comment2\n" +
-                "                remark3 # comment3"));
+        final String queryResponse = queryTelnet("-r PP1-TEST");
+        assertThat(queryResponse, containsString(
+                "phone:          +31\n" +
+                "                1234567890\n"));
+        assertThat(queryResponse, containsString(
+                "remarks:        +----------+  #  +-----------+\n" +
+                "                |  remark  |  #  |  comment  |\n" +
+                "                +----------+  #  +-----------+"));
     }
 
     @Test
@@ -3480,9 +3585,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "e-mail:  noreply@ripe.net\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "nic-hdl: PP1-TEST\n" +
-                "remarks:  remark1 # comment1\n" +
-                "          remark2 # comment2\n" +
-                "          remark3 # comment3\n" +
+                "remarks: +----------+  #  +-----------+\n" +
+                "         |  remark  |  #  |  comment  |\n" +
+                "         +----------+  #  +-----------+\n" +
                 "source:  TEST\n");
 
         databaseHelper.addObject(rpslObject);
@@ -3493,7 +3598,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .put(Entity.entity(mapDirty(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
-
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person/PP1-TEST?unformatted", getPort())));
@@ -3501,14 +3605,28 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
 
         assertThat(whoisObject.getAttributes().get(2).getValue(), is(
-                "          +31\n" +
+                "          " +
+                "+31\n" +
                 "                1234567890"));
         assertThat(whoisObject.getAttributes().get(6).getValue(), is(
-                "        remark1 # comment1\n" +
-                "                remark2 # comment2\n" +
-                "                remark3 # comment3"));
+                "        " +
+                "+----------+  #  +-----------+\n" +
+                "                " +
+                "|  remark  |  #  |  comment  |\n" +
+                "                " +
+                "+----------+  #  +-----------+"));
         assertThat(whoisObject.getAttributes().get(9).getValue(), is(
-                "         +30 123"));
+                "         " +
+                "+30 123"));
+
+        final String queryResponse = queryTelnet("-r PP1-TEST");
+        assertThat(queryResponse, containsString(
+                "phone:          +31\n" +
+                "                1234567890\n"));
+        assertThat(queryResponse, containsString(
+                "remarks:        +----------+  #  +-----------+\n" +
+                "                |  remark  |  #  |  comment  |\n" +
+                "                +----------+  #  +-----------+\n"));
     }
 
     @Test
@@ -5163,5 +5281,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     private RpslObject map(final WhoisObject whoisObject) {
         return whoisObjectMapper.map(whoisObject, FormattedClientAttributeMapper.class);
+    }
+
+    private String queryTelnet(final String query) {
+        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
     }
 }

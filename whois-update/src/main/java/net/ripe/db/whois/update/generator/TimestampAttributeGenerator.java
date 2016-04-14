@@ -91,19 +91,25 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
 
         if (generatedAttribute != null) {
             if (updatedObject.containsAttribute(attributeType)){
-                builder.replaceAttribute(updatedObject.findAttribute(attributeType), generatedAttribute);
+                if(updatedObject.findAttributes(attributeType).size() == 1) {
+                    builder.replaceAttribute(updatedObject.findAttribute(attributeType), generatedAttribute);
+                } else {
+                    builder.removeAttributeType(attributeType);
+                    builder.addAttributeSorted(generatedAttribute);
+                }
             } else {
                 builder.addAttributeSorted(generatedAttribute);
             }
         }
 
-        if (addWarningsFlag) {
-            final RpslAttribute inputAttribute = updatedObject.containsAttribute(attributeType) ? updatedObject.findAttribute(attributeType) : null;
-            if (inputAttribute != null && !inputAttribute.equals(generatedAttribute)) {
-                if (generatedAttribute != null) {
-                    updateContext.addMessage(update, generatedAttribute, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(attributeType));
-                } else {
-                    updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(attributeType));
+        if (addWarningsFlag && updatedObject.containsAttribute(attributeType)) {
+            for (RpslAttribute inputAttribute : updatedObject.findAttributes(attributeType)) {
+                if (!inputAttribute.equals(generatedAttribute)) {
+                    if (generatedAttribute != null) {
+                        updateContext.addMessage(update, generatedAttribute, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(attributeType));
+                    } else {
+                        updateContext.addMessage(update, ValidationMessages.suppliedAttributeReplacedWithGeneratedValue(attributeType));
+                    }
                 }
             }
         }

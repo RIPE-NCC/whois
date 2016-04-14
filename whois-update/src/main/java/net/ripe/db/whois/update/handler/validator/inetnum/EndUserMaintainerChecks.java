@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -15,25 +15,17 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class EndUserMaintainerChecks implements BusinessRuleValidator {
+
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM);
+
     private final Maintainers maintainers;
 
     @Autowired
     public EndUserMaintainerChecks(final Maintainers maintainers) {
         this.maintainers = maintainers;
-    }
-
-    @Override
-    public List<Action> getActions() {
-        return Lists.newArrayList(Action.MODIFY);
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return Lists.newArrayList(ObjectType.INETNUM, ObjectType.INET6NUM);
     }
 
     @Override
@@ -53,5 +45,15 @@ public class EndUserMaintainerChecks implements BusinessRuleValidator {
                 updateContext.addMessage(update, UpdateMessages.adminMaintainerRemoved());
             }
         }
+    }
+
+    @Override
+    public ImmutableList<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
     }
 }

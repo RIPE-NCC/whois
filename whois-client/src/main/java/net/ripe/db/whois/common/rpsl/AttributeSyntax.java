@@ -857,6 +857,7 @@ public interface AttributeSyntax extends Documented {
                     "Each word consists of letters, digits or the following symbols:\n" +
                     ".`'_-\n" +
                     "The first word should begin with a letter.\n" +
+                    "At least one other word should also begin with a letter.\n" +
                     "Max 64 characters can be used in each word.";
         }
     }
