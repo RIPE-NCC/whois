@@ -25,9 +25,7 @@ public class DsRdata {
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
    |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-          */
-    // padded regex matcher group 4 out a little (max should be 96 for type 4) in case of errant whitespaces in digest
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
 
     private final int keytag;
     private final int algorithm;
@@ -36,9 +34,9 @@ public class DsRdata {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(DsRdata.class);
 
-        private static final Pattern RDATA_PATTERN = Pattern.compile("^(\\d+)\\s*(\\d+)\\s*(\\d+)\\s*\\(?([ 0-9a-fA-F]+)\\)?$");
+    private static final Pattern RDATA_PATTERN = Pattern.compile("^(\\d+)\\s*(\\d+)\\s*(\\d+)\\s*\\(?([ 0-9a-fA-F]+)\\)?$");
 
-      public DsRdata(final int keytag, final int algorithm, final int digestType, final String digestHexString) {
+    public DsRdata(final int keytag, final int algorithm, final int digestType, final String digestHexString) {
         this.keytag = keytag;
         this.algorithm = algorithm;
         this.digestType = digestType;
