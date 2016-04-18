@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
 import org.junit.Test;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -8,7 +9,7 @@ import static org.junit.Assert.fail;
 public class DsRdataTest {
 
     @Test
-    public void validDataTests() {
+    public void validData() {
         assertThat(DsRdata.parse("7096 5 2 4A369FE834DE194579B94C92CBAFE7C4B5EF7F73CD7399854C8FF598 45D019BA").toString(),
                 is("7096 5 2 4A369FE834DE194579B94C92CBAFE7C4B5EF7F73CD7399854C8FF59845D019BA"));
 
@@ -39,10 +40,13 @@ public class DsRdataTest {
     }
 
     @Test
-    public void badDataTests() {
+    public void invalidData() {
         //total junk input
         verifyFailure("12534534 234 243 23409sdlfkjh skdjhf34uhfsd lshjdf92483hf jshdfkjshdf 02 ljksdhflkjhg0 jkgh93h749gh",
                 "Invalid syntax (12534534 234 243 23409sdlfkjh skdjhf34uhfsd lshjdf92483hf jshdfkjshdf 02 ljksdhflkjhg0 jkgh93h749gh)");
+
+        verifyFailure("asasa asd jhdfg kjdlhfglkjshlgkfdghj",
+                "Invalid syntax (asasa asd jhdfg kjdlhfglkjshlgkfdghj)");
 
         // wrong digest length for type
         verifyFailure("52314 5 1 93B5837D4E5C063A37",
@@ -71,6 +75,9 @@ public class DsRdataTest {
         //wildly inaccurate digest type
         verifyFailure("17729 5 444 6FA0EF598C528C860630AE82676B9CCF66161284960E81622E68C2F69ADBAA6215970F92214CCED9357B20714A36BDF6",
                 "Invalid digest type: 444 (17729 5 444 6FA0EF598C528C860630AE82676B9CCF66161284960E81622E68C2F69ADBAA6215970F92214CCED9357B20714A36BDF6)");
+
+        verifyFailure("523145 1 93B5837D4E5C063A37",
+                "Invalid syntax (523145 1 93B5837D4E5C063A37)");
 
     }
 
