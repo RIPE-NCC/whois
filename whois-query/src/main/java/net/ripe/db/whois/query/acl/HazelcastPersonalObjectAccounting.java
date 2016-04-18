@@ -59,6 +59,8 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
             count = counterMap.get(remoteAddress);
         } catch (OperationTimeoutException e) {
             // prevents user from seeing "internal server error"
+        } catch (IllegalStateException e) {
+            // hazelcast instance is not active
         }
 
         if (count == null) {
@@ -83,6 +85,8 @@ public class HazelcastPersonalObjectAccounting implements PersonalObjectAccounti
             return count;
         } catch (TimeoutException e) {
             LOGGER.info("Unable to account personal object, allowed by default");
+        } catch (IllegalStateException e) {
+            // hazelcast instance is not active
         }
 
         return 0;
