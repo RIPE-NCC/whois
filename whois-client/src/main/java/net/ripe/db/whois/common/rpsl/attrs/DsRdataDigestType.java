@@ -43,7 +43,4 @@ public enum DsRdataDigestType {
                 return false; // should never get here
         }
     }
-
-
-
 }
