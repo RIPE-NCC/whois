@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
-
 import java.util.regex.Pattern;
 
 public enum DsRdataDigestType {
@@ -12,24 +11,12 @@ public enum DsRdataDigestType {
     private final int digestType;
     private final String validationPattern;
 
-    DsRdataDigestType(int digestType, String validationPattern) {
+    DsRdataDigestType(final int digestType, final String validationPattern) {
         this.digestType = digestType;
         this.validationPattern = validationPattern;
     }
 
-    public static boolean typeSupported(int digestType) {
-        switch (digestType) {
-            case 1: // SHA-1
-            case 2: // SHA-256
-            case 3: // GOST R 34.11-94
-            case 4: // SHA-384
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    public static boolean validateLength(int digestType, String digest) {
+    public static boolean validateLength(final int digestType, final String digest) {
         switch(digestType) {
             case 1: // SHA-1
                 return Pattern.matches(SHA1.validationPattern, digest);
@@ -40,7 +27,7 @@ public enum DsRdataDigestType {
             case 4: // SHA-384
                 return Pattern.matches(SHA384.validationPattern, digest);
             default:
-                return false; // should never get here
+                throw new IllegalArgumentException("Unknown digest type");
         }
     }
 }
