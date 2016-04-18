@@ -10,8 +10,6 @@ import java.util.regex.Pattern;
 
 public class DsRdata {
 
-
-
     private final int keytag;
     private final int algorithm;
     private final int digestType;
@@ -93,7 +91,6 @@ public class DsRdata {
             throw new AttributeParseException("Invalid digest type: " + digestType, value);
         }
 
-        //strictly validate digest length for known type
         try {
             if (!DsRdataDigestType.validateLength(digestType, digestAsHex)) {
                 throw new AttributeParseException("Digest format is invalid for digest type " + digestType + ": ", digestAsHex);
@@ -108,6 +105,4 @@ public class DsRdata {
 
         return new DsRdata(keytag, algorithm, digestType, digestAsHex);
     }
-
-
 }
