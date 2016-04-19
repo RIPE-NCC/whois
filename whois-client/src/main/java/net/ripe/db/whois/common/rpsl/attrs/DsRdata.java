@@ -91,16 +91,8 @@ public class DsRdata {
             throw new AttributeParseException("Invalid digest type: " + digestType, value);
         }
 
-        try {
-            if (!DsRdataDigestType.validateLength(digestType, digestAsHex)) {
-                throw new AttributeParseException("Digest format is invalid for digest type " + digestType + ": ", digestAsHex);
-            }
-        } catch (AttributeParseException e) {
-            // catch and throw previous AttributeParseException otherwise we'd catch it as an IllegalArgumentException below
-            throw e;
-        } catch (IllegalArgumentException e) {
-            // unknown type, let it through (could be a new type we do not know about yet)
-            return new DsRdata(keytag, algorithm, digestType, digestAsHex);
+        if(!DsRdataDigestType.validateLengthForKnownTypes(digestType, digestAsHex)) {
+            throw new AttributeParseException("Digest format is invalid for digest type " + digestType + ": ", digestAsHex);
         }
 
         return new DsRdata(keytag, algorithm, digestType, digestAsHex);
