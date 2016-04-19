@@ -169,15 +169,6 @@ public class SingleUpdateHandler {
                 UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
     }
 
-    private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext) {
-        final RpslObject submittedObject = update.getSubmittedObject();
-        for (RpslAttribute attribute: submittedObject.getAttributes()) {
-            if (!CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue())) {
-                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()));
-            }
-        }
-    }
-
     @CheckForNull
     private RpslObject getOriginalObject(final Update update, final UpdateContext updateContext, final OverrideOptions overrideOptions) {
         RpslObject originalObject;
