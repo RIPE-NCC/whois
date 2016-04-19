@@ -112,17 +112,17 @@ public class SingleUpdateHandler {
         }
 
         // up to this point, updatedObject could have structural+syntax errors (unknown attributes, etc...), bail out if so
-        PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
+        final PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, action, overrideOptions);
         updateContext.setPreparedUpdate(preparedUpdate);
         if (updateContext.hasErrors(update)) {
             throw new UpdateFailedException();
         }
 
-        RpslObject updatedObjectWithAutoKeys = transformerPipeline.transform(updatedObject, update, updateContext, action);
-        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
-
         // add authentication to context
         authenticator.authenticate(origin, preparedUpdate, updateContext);
+
+        // apply object transformation
+        RpslObject updatedObjectWithAutoKeys = transformerPipeline.transform(updatedObject, update, updateContext, action);
 
         // attributegenerators rely on authentication info
         for (AttributeGenerator attributeGenerator : attributeGenerators) {
@@ -137,11 +137,11 @@ public class SingleUpdateHandler {
         }
 
         // re-generate preparedUpdate
-        preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
+        final PreparedUpdate regeneratedPreparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
         // run business validation & pending updates hack
-        final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
-        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION == updateContext.getStatus(preparedUpdate);
+        final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(regeneratedPreparedUpdate, updateContext);
+        final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION == updateContext.getStatus(regeneratedPreparedUpdate);
 
         if ((pendingAuthentication && !businessRulesOk) || (!pendingAuthentication && updateContext.hasErrors(update))) {
             throw new UpdateFailedException();
@@ -149,16 +149,16 @@ public class SingleUpdateHandler {
 
         // defer setting prepared update so that on failure, we report back with the object without resolved auto keys
         // FIXME: [AH] per-attribute error messages generated up to this point will not get reported in ACK if they have been changed (by attributeGenerator or AUTO-key generator), as the report goes for the pre-auto-key-generated version of the object, in which the newly generated attributes are not present
-        updateContext.setPreparedUpdate(preparedUpdate);
+        updateContext.setPreparedUpdate(regeneratedPreparedUpdate);
 
         if (updateContext.isDryRun()) {
             throw new UpdateAbortedException();
         } else if (pendingAuthentication) {
-            pendingUpdateHandler.handle(preparedUpdate, updateContext);
+            pendingUpdateHandler.handle(regeneratedPreparedUpdate, updateContext);
         } else {
-            updateObjectHandler.execute(preparedUpdate, updateContext);
-            if (eligibleForPendingUpdateCleanup(preparedUpdate, updateContext)) {
-                pendingUpdateHandler.cleanup(preparedUpdate.getUpdatedObject());
+            updateObjectHandler.execute(regeneratedPreparedUpdate, updateContext);
+            if (eligibleForPendingUpdateCleanup(regeneratedPreparedUpdate, updateContext)) {
+                pendingUpdateHandler.cleanup(regeneratedPreparedUpdate.getUpdatedObject());
             }
         }
     }
