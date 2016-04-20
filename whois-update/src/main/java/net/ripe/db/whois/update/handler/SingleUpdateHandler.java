@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler;
 
+import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;

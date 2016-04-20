@@ -72,7 +72,12 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential> {
             return true;
         }
 
-        log(update, String.format("Failed to validate %s with keyId %s", update.getFormattedKey(), offeredCredential.getKeyId()));
+        try {
+            log(update, String.format("Failed to validate %s with keyId %s", update.getFormattedKey(), offeredCredential.getKeyId()));
+        } catch (IllegalArgumentException e) {
+            log(update, String.format("Failed to validate %s due to exception: %s", update.getFormattedKey(), e.getMessage()));
+        }
+
         return false;
     }
 

@@ -10,7 +10,7 @@ import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import javax.annotation.CheckForNull;
 import java.util.Set;
 
-interface DecorationStrategy {
+public interface DecorationStrategy {
     class None implements DecorationStrategy {
         @Override
         public RpslObject decorate( final RpslObject object) {
