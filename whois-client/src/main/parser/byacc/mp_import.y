@@ -23,10 +23,12 @@ import java.io.StringReader;
 %token KEYW_ANY KEYW_PEERAS
 %token ASPATH_POSTFIX
 %token TKN_FLTRNAME TKN_ASNO TKN_ASRANGE TKN_RSNAME TKN_ASNAME TKN_PRFXV4 TKN_PRFXV4RNG
-%token TKN_IPV4 TKN_DNS TKN_RTRSNAME TKN_PRNGNAME
+%token TKN_IPV4 TKN_RTRSNAME TKN_PRNGNAME
 %token TKN_IPV6 TKN_IPV6DC TKN_PRFXV6 TKN_PRFXV6DC TKN_PRFXV6RNG TKN_PRFXV6DCRNG
 %token KEYW_ACTION KEYW_EXCEPT
-%token KEYW_AFI KEYW_AFI_VALUE_V4 KEYW_AFI_VALUE_V6 KEYW_AFI_VALUE_ANY
+%token KEYW_AFI
+%token KEYW_IPV4_TXT KEYW_IPV6_TXT KEYW_ANY_TXT
+%token KEYW_UNICAST KEYW_MULTICAST
 %token TKN_PREF TKN_MED TKN_DPA TKN_ASPATH TKN_COMMUNITY TKN_NEXT_HOP TKN_COST
 %token TKN_COMM_NO
 %token KEYW_IGP_COST KEYW_SELF KEYW_PREPEND
@@ -34,7 +36,7 @@ import java.io.StringReader;
 %token KEYW_INTERNET KEYW_NO_EXPORT KEYW_NO_ADVERTISE
 %token KEYW_PROTOCOL TKN_PROTOCOL
 %token KEYW_INTO KEYW_REFINE KEYW_ACCEPT KEYW_FROM
-%token <sval> TKN_INT TKN_DNS
+%token <sval> TKN_INT TKN_DNAME
 %type <sval> domain_name
 
 
@@ -62,14 +64,26 @@ import_expr: import_term
 | import_term KEYW_EXCEPT afi_import_expr
 ;
 
-afi_list: afi_list ',' KEYW_AFI_VALUE_V4
-| afi_list ',' KEYW_AFI_VALUE_V6
-| afi_list ',' KEYW_AFI_VALUE_ANY
-| afi_list ',' KEYW_ANY
-| KEYW_AFI_VALUE_V4
-| KEYW_AFI_VALUE_V6
-| KEYW_AFI_VALUE_ANY
-| KEYW_ANY
+afi_list: afi_list ',' afi_value_v4
+| afi_list ',' afi_value_v6
+| afi_list ',' afi_value_any
+| afi_value_v4
+| afi_value_v6
+| afi_value_any
+;
+
+afi_value_v4: KEYW_IPV4_TXT
+| KEYW_IPV4_TXT '.' KEYW_MULTICAST
+|  KEYW_IPV4_TXT '.' KEYW_UNICAST
+;
+
+afi_value_v6: KEYW_IPV6_TXT
+| KEYW_IPV6_TXT '.' KEYW_MULTICAST
+|  KEYW_IPV6_TXT '.' KEYW_UNICAST
+;
+
+afi_value_any: KEYW_ANY_TXT '.' KEYW_MULTICAST
+|  KEYW_ANY_TXT '.' KEYW_UNICAST
 ;
 
 import_term: import_factor ';'
@@ -146,8 +160,8 @@ router_expr_operand: TKN_IPV4
 | TKN_RTRSNAME
 ;
 
-domain_name: TKN_DNS
-| domain_name '.' TKN_DNS
+domain_name: TKN_DNAME
+| domain_name '.' TKN_DNAME
 ;
 
 action: rp_attribute ';'

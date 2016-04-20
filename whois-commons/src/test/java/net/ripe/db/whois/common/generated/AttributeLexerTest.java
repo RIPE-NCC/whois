@@ -97,8 +97,13 @@ public class AttributeLexerTest {
     public void mpimport() throws Exception {
         MpImportLexer subject =new MpImportLexer(new StringReader("afi ipv6.unicastfrom AS39790 action pref=150; accept AS39790"), new MpImportParser());
         assertThat(subject.yylex(), is((int)MpImportParser.KEYW_AFI));
-        assertThat(subject.yylex(), is((int)MpImportParser.KEYW_AFI_VALUE_V6));     // TODO: [ES] no space between tokens
-        assertThat(subject.yylex(), is((int)MpImportParser.KEYW_FROM));
+        assertThat(subject.yylex(), is((int)MpImportParser.KEYW_IPV6_TXT));
+        assertThat(subject.yylex(), is((int)'.'));
+        // One would have hoped for
+        // assertThat(subject.yylex(), is((int)MpImportParser.KEYW_UNICAST));
+        // assertThat(subject.yylex(), is((int)MpImportParser.KEYW_FROM));
+        // but got
+        assertThat(subject.yylex(), is((int)MpImportParser.TKN_DNAME));
         assertThat(subject.yylex(), is((int)MpImportParser.TKN_ASNO));
         assertThat(subject.yylex(), is((int)MpImportParser.KEYW_ACTION));
         assertThat(subject.yylex(), is((int)MpImportParser.TKN_PREF));
@@ -109,5 +114,4 @@ public class AttributeLexerTest {
         assertThat(subject.yylex(), is((int)MpImportParser.TKN_ASNO));
         assertThat(subject.yylex(), is(0));
     }
-
 }
