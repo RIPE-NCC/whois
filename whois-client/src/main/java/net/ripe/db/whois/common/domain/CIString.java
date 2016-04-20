@@ -3,7 +3,6 @@ package net.ripe.db.whois.common.domain;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
-import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,7 +15,7 @@ public final class CIString implements Comparable<CIString>, CharSequence {
     private final String value;
     private final String lcValue;
 
-    @Nullable @Contract("null -> null;!null -> !null")
+    @Nullable
     public static CIString ciString(final String value) {
         if (value == null) {
             return null;
