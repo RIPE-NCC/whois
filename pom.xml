@@ -66,7 +66,6 @@
         <jsoup.version>1.8.1</jsoup.version>
         <junit.version>4.12</junit.version>
         <jetty.version>8.1.18.v20150929</jetty.version>
-        <jetbrains.version>13.0</jetbrains.version>
 
         <!-- TODO: [ES] update Jersey to 2.16 (creates unmarshalling problems with crowd) -->
         <jersey.version>2.11</jersey.version>
@@ -511,15 +510,6 @@
                 <artifactId>lucene-facet</artifactId>
                 <version>${lucene.version}</version>
             </dependency>
-
-            <!-- contract annotations, see http://blog.jetbrains.com/idea/2013/10/better-control-flow-analysis-with-contract-annotations-and-intellij-idea-13/ -->
-            <dependency>
-                <groupId>org.jetbrains</groupId>
-                <artifactId>annotations</artifactId>
-                <version>${jetbrains.version}</version>
-                <scope>compile</scope>
-            </dependency>
-
             <!-- diffutils -->
             <dependency>
                 <groupId>com.googlecode.java-diff-utils</groupId>
