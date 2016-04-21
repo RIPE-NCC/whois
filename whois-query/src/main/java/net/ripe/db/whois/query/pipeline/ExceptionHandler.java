@@ -10,6 +10,7 @@ import org.jboss.netty.handler.codec.frame.TooLongFrameException;
 import org.jboss.netty.handler.timeout.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -43,6 +44,14 @@ public class ExceptionHandler extends SimpleChannelUpstreamHandler {
             handleException(channel, Collections.singletonList(QueryMessages.inputTooLong()), QueryCompletionInfo.EXCEPTION);
         } else if (cause instanceof IOException) {
             handleException(channel, Collections.<Message>emptyList(), QueryCompletionInfo.EXCEPTION);
+        } else if (cause instanceof DataAccessException) {
+            LOGGER.error("Caught exception on channel id = {}, from = {} for query = {}\n{}",
+                    channel.getId(),
+                    ChannelUtil.getRemoteAddress(channel),
+                    query,
+                    cause.toString());
+
+            handleException(channel, Collections.singletonList(QueryMessages.internalErroroccurred()), QueryCompletionInfo.EXCEPTION);
         } else {
             LOGGER.error("Caught exception on channel id = {}, from = {} for query = {}",
                     channel.getId(),
