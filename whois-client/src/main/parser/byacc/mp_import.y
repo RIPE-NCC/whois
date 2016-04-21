@@ -317,7 +317,6 @@ filter_aspath_range:
 | filter_aspath_range TKN_ASNO
 | filter_aspath_range KEYW_PEERAS
 | filter_aspath_range '.'
-| filter_aspath_range TKN_ASNO '-' TKN_ASNO
 | filter_aspath_range TKN_ASRANGE
 | filter_aspath_range TKN_ASNAME
 ;
