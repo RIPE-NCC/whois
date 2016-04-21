@@ -43,8 +43,12 @@ import java.io.StringReader;
 %%
 
 mp_import_attribute: opt_protocol_from opt_protocol_into afi_import_expr
-| opt_protocol_from opt_protocol_into afi_import_factor
-| opt_protocol_from opt_protocol_into afi_import_factor ';'
+| opt_protocol_from opt_protocol_into import_factor option_semicolon
+| opt_protocol_from opt_protocol_into KEYW_AFI afi_list import_factor option_semicolon
+;
+
+option_semicolon: /* empty */
+| ';'
 ;
 
 opt_protocol_from:
@@ -88,10 +92,6 @@ afi_value_any: KEYW_ANY_TXT '.' KEYW_MULTICAST
 
 import_term: import_factor ';'
 | '{' import_factor_list '}'
-;
-
-afi_import_factor: import_factor
-| KEYW_AFI afi_list import_factor
 ;
 
 import_factor_list: import_factor ';'
