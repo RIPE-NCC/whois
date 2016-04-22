@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.handler;
 
-import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -10,13 +9,9 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
-import net.ripe.db.whois.common.rpsl.ValidationMessages;
-import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import net.ripe.db.whois.update.authentication.Authenticator;
-import net.ripe.db.whois.update.autokey.AutoKeyResolver;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Operation;
@@ -55,7 +50,6 @@ public class SingleUpdateHandler {
     private final IpTreeUpdater ipTreeUpdater;
     private final PendingUpdateHandler pendingUpdateHandler;
     private final SsoTranslator ssoTranslator;
-    private final ChangedAttrFeatureToggle changedAttrFeatureToggle;
     private final TransformPipeline transformerPipeline;
 
     @Value("#{T(net.ripe.db.whois.common.domain.CIString).ciString('${whois.source}')}")
@@ -71,7 +65,6 @@ public class SingleUpdateHandler {
                                final IpTreeUpdater ipTreeUpdater,
                                final PendingUpdateHandler pendingUpdateHandler,
                                final SsoTranslator ssoTranslator,
-                               final ChangedAttrFeatureToggle changedAttrFeatureToggle,
                                final TransformPipeline transformerPipeline) {
         this.attributeGenerators = attributeGenerators;
         this.attributeSanitizer = attributeSanitizer;
@@ -82,7 +75,6 @@ public class SingleUpdateHandler {
         this.ipTreeUpdater = ipTreeUpdater;
         this.pendingUpdateHandler = pendingUpdateHandler;
         this.ssoTranslator = ssoTranslator;
-        this.changedAttrFeatureToggle = changedAttrFeatureToggle;
         this.transformerPipeline = transformerPipeline;
     }
 
@@ -228,24 +220,9 @@ public class SingleUpdateHandler {
             updatedObject = attributeSanitizer.sanitize(updatedObject, messages);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateStructure(updatedObject, messages);
             ObjectTemplate.getTemplate(updatedObject.getType()).validateSyntax(updatedObject, messages, true);
-            validateChanged(updatedObject, messages);
         }
 
         return updatedObject;
-    }
-
-    private void validateChanged(final RpslObject updatedObject, final ObjectMessages objectMessages) {
-        if (!updatedObject.containsAttribute(AttributeType.CHANGED)) {
-            return;
-        }
-
-        if (changedAttrFeatureToggle.isChangedAttrAvailable()) {
-            objectMessages.addMessage(ValidationMessages.changedAttributeRemoved());
-        } else {
-            for (RpslAttribute changed : updatedObject.findAttributes(AttributeType.CHANGED)) {
-                objectMessages.addMessage(changed, ValidationMessages.unknownAttribute(changed.getKey()));
-            }
-        }
     }
 
 
