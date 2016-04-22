@@ -118,11 +118,11 @@ public class SingleUpdateHandler {
             throw new UpdateFailedException();
         }
 
-        // add authentication to context
-        authenticator.authenticate(origin, preparedUpdate, updateContext);
-
         // apply object transformation
         RpslObject updatedObjectWithAutoKeys = transformerPipeline.transform(updatedObject, update, updateContext, action);
+
+        // add authentication to context
+        authenticator.authenticate(origin, preparedUpdate, updateContext);
 
         // attributegenerators rely on authentication info
         for (AttributeGenerator attributeGenerator : attributeGenerators) {
