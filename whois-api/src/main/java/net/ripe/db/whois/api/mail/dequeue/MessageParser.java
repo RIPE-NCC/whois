@@ -158,7 +158,7 @@ public class MessageParser {
         final Charset charset = getCharset(contentType);
 
         if (isPlainText(contentType)) {
-            String text;
+            final String text;
             if (content instanceof String) {
                 text = (String) content;
             } else if (content instanceof InputStream) {
@@ -174,7 +174,10 @@ public class MessageParser {
                 final Part bodyPart = multipart.getBodyPart(count);
                 final ContentType bodyPartContentType = new ContentType(bodyPart.getContentType());
 
-                if (bodyPartContentType.getBaseType().equals("application/pgp-signature")) {
+                if (bodyPartContentType.getBaseType().equals("multipart/mixed") && contentType.getBaseType().equals("multipart/signed")) {
+                    // nested multipart signed message
+                    messageParts.add(new MessagePart(getHeaders(bodyPart) + getRawContent(bodyPart), bodyPart));
+                } else if (bodyPartContentType.getBaseType().equals("application/pgp-signature")) {
                     final MessagePart last = messageParts.getLast();
                     final String signedData = getHeaders(last.part) + getRawContent(last.part);
 
@@ -185,7 +188,8 @@ public class MessageParser {
                         final String signature = getRawContent(bodyPart);
                         last.addCredential(PgpCredential.createOfferedCredential(signedData, signature, charset));
                     }
-                } else if (bodyPartContentType.getBaseType().equals("application/pkcs7-signature") || bodyPartContentType.getBaseType().equals("application/x-pkcs7-signature")) {
+                } else if (bodyPartContentType.getBaseType().equals("application/pkcs7-signature") ||
+                            bodyPartContentType.getBaseType().equals("application/x-pkcs7-signature")) {
                     final MessagePart last = messageParts.getLast();
                     final String signedData = (getHeaders(last.part).replaceAll("\\r\\n", "\n") + getRawContent(last.part)).replaceAll("\\n", "\r\n");
                     final String signature = getRawContent(bodyPart);
@@ -264,20 +268,10 @@ public class MessageParser {
     }
 
     String getRawContent(final Part part) throws MessagingException {
-        part.setDataHandler(part.getDataHandler()); // Prevent base64 decoding
-        InputStream inputStream = null;
-        try {
-            inputStream = ((MimeBodyPart) part).getRawInputStream();
+        try (final InputStream inputStream = ((MimeBodyPart) part).getRawInputStream()) {
             return new String(ByteStreams.toByteArray(inputStream), getCharset(new ContentType(part.getContentType())));
         } catch (IOException e) {
             throw new MessagingException("Unable to read body part", e);
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException ignored) {
-                }
-            }
         }
     }
 
