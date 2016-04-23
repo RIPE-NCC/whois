@@ -53,10 +53,6 @@
             <groupId>com.googlecode.java-diff-utils</groupId>
             <artifactId>diffutils</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-        </dependency>
         <!--<dependency>-->
             <!--<groupId>de.jflex</groupId>-->
             <!--<artifactId>jflex</artifactId>-->
