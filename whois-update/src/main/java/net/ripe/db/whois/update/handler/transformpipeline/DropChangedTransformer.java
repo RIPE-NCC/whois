@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.rpsl.attrs.toggles.ChangedAttrFeatureToggle;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +27,8 @@ public class DropChangedTransformer implements PipelineTransformer {
                                 final Update update,
                                 final UpdateContext updateContext,
                                 final Action action) {
-        if (rpslObject.containsAttribute(AttributeType.CHANGED)) {
+        if (!Action.DELETE.equals(action) &&
+                rpslObject.containsAttribute(AttributeType.CHANGED)) {
             if (changedAttrFeatureToggle.isChangedAttrAvailable()) {
                 updateContext.addMessage(update, ValidationMessages.changedAttributeRemoved());
             }
