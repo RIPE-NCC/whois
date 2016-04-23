@@ -251,10 +251,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response =~ """
-            \\*\\*\\*Error:   Authorisation for \\[organisation\\] ORG-RNO1-TEST failed
-                        using "mnt-by:"
-                        not authenticated by: TST-MNT
-            """.stripIndent()
+            \\*\\*\\*Error:   Value 'LIR' can only be set by the RIPE NCC for this organisation.""".stripIndent()
     }
 
     def "create organisation with non-existent org attribute"() {
