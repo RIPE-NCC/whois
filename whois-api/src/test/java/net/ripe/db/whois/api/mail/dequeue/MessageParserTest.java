@@ -204,7 +204,6 @@ public class MessageParserTest {
                 "status: ASSIGNED PA\n" +
                 "mnt-by: TEST-MNT\n" +
                 "password: password\n" +
-                "changed: changed@ripe.net 20120528\n" +
                 "source: RIPE\n" +
                 "\n" +
                 "inetnum: 109.69.68.0 - 109.69.68.7\n" +
@@ -216,7 +215,6 @@ public class MessageParserTest {
                 "status: ASSIGNED PA\n" +
                 "mnt-by: TEST-MNT\n" +
                 "password: password\n" +
-                "changed: changed@ripe.net 20120528\n" +
                 "source: RIPE\n" +
                 "delete: new subnet size\n";
 
@@ -262,7 +260,6 @@ public class MessageParserTest {
                 "country:US\n" +
                 "country:BY\n" +
                 "country:RU\n" +
-                "changed:test@foo.com 20120824\n" +
                 "source:TEST";
         assertThat(message.getUpdateMessage(), is(expectedValue));
 
@@ -279,26 +276,27 @@ public class MessageParserTest {
         assertThat(message.getId(), is("<ABC593474ADCF6EC3E43BC80@XXX[10.41.147.77]>"));
         assertThat(message.getReplyTo(), is("John Doe <bitbucket@ripe.net>"));
         assertThat(message.getKeyword(), is(Keyword.NONE));
-        final String expectedValue = "" +
+        final String expectedValue =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
                 "\n" +
-                "route:        194.39.132.0/24\n" +
-                "descr:        Description\n" +
-                "origin:       AS12510\n" +
-                "notify:       foo@bar.com\n" +
-                "mnt-by:       BOGUS-MNT\n" +
-                "mnt-by:       T8-MNT\n" +
-                "changed:      nm@bogus.com 20120504\n" +
-                "changed:      nm@bogus.com 20120529\n" +
-                "source:       RIPE\n" +
-                "delete:       no longer required for AS12510\n" +
+                "route:          99.13.0.0/16\n" +
+                "descr:          Route\n" +
+                "origin:         AS3333\n" +
+                "mnt-by:         TEST-DBM-MNT\n" +
+                "source:         TEST\n" +
+                "delete:         no longer required\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: GnuPG v1.4.9 (SunOS)\n" +
+                "Version: GnuPG v1\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
                 "\n" +
-                "iEYEARECAAYFAk/FbSMACgkQsAWoDcAb7KJmJgCfe2PjxUFIeHycZ85jteosU1ez\n" +
-                "kL0An3ypg8F75jlPyTYIUuiCQEcP/9sz\n" +
-                "=j7tD\n" +
+                "iQEcBAEBAgAGBQJWTIkmAAoJELvMuy1XY5UN2yAH/jrxCDpjg0rPZQJQaF33eyNS\n" +
+                "rWXaIcfNO1pOMTIBLsDLHG2b0gEwRMYNsN+/J50Wb2VaXYI/kjRQEZPgJOTZomFX\n" +
+                "kt+aWDXSWTE+fsclfoB+vcSraGJFgFTtJM66MHDvKSJ80tWf2VK64Y8MgKmOv6vW\n" +
+                "hqxmZePeIr4p4L3w3q3n9GrOkpaPscJtEMTPqqFhft6hsiKTBfUuq/8Inski0LZt\n" +
+                "85cWPo4wZP4L2z5OfGsEXnrFAF69AzyXaSwL5B9FsEmQEK/cS09n7mU+fqsKNCAB\n" +
+                "npzCZ/Wa9t0alM7BtUZFS7Q2z4BWmSkc75R9U+cv7rafDv8Z2thlvEcHf9fqG0s=\n" +
+                "=zw+b\n" +
                 "-----END PGP SIGNATURE-----";
 
         assertThat(message.getUpdateMessage(), is(expectedValue));
@@ -326,7 +324,6 @@ public class MessageParserTest {
                 "certif:          -----END CERTIFICATE-----\n" +
                 "mnt-by:          TEST-DBM-MNT\n" +
                 "remarks:         remark\n" +
-                "changed:         noreply@ripe.net 20121001\n" +
                 "source:          TEST";
 
         assertThat(message.getUpdateMessage(), is(expectedValue));
@@ -349,7 +346,6 @@ public class MessageParserTest {
                 "admin-c:     P1-RIPE\n" +
                 "mnt-by:      TEST-MNT\n" +
                 "mnt-by:      TEST-MNT\n" +
-                "changed:     test@bogus.fr 20120531\n" +
                 "source:      RIPE\n\n\n" +
                 "as-set:      AS1:AS-FOO-BOGUS\n" +
                 "descr:       Description\n" +
@@ -357,7 +353,6 @@ public class MessageParserTest {
                 "admin-c:     P1-RIPE\n" +
                 "mnt-by:      TEST-MNT\n" +
                 "mnt-by:      TEST-MNT\n" +
-                "changed:     test@bogus.fr 20120531\n" +
                 "source:      RIPE\n";
 
         assertThat(message.getUpdateMessage(), is(expectedValue));
@@ -375,25 +370,26 @@ public class MessageParserTest {
     public void parse_multipart_alternative_inline_pgp_signature() throws Exception {
         final MailMessage message = subject.parse(MimeMessageProvider.getMessageMultipartAlternativePgpSigned(), updateContext);
 
-        final String expectedValue = "" +
+        final String expectedValue =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
+                "Hash: SHA1\n" +
                 "\n" +
                 "route:          165.251.168.0/22\n" +
                 "descr:          Description\n" +
                 "origin:         AS1\n" +
                 "notify:         ripe-admin@foo.net\n" +
                 "mnt-by:         TEST-MNT\n" +
-                "changed:        john@doe.net 20120530\n" +
                 "source:         RIPE\n" +
-                "\n" +
                 "-----BEGIN PGP SIGNATURE-----\n" +
-                "Version: PGP 6.5.8\n" +
+                "Version: GnuPG v1\n" +
                 "\n" +
-                "iQCVAwUBT8amRPVKpQwG/7ZlAQFM0gP+N3d2N2IivRzte0o6bvU3nqN84yGC4l3r\n" +
-                "zeZKi7dvU3R2betF8IElvL4x/bpBPAHXQWO+QaYMg3Yz6HCBKLJwMFgyWbmcJtD0\n" +
-                "zL1HUOJmGyNv/eFjNSMgfpeZEsPZ3R+Pz9gSjEAW5aAj1wLdpXvVK9rYOQPc3TVc\n" +
-                "z2xhfX4BqpQ=\n" +
-                "=ODtr\n" +
+                "iQEcBAEBAgAGBQJWTI+jAAoJELvMuy1XY5UNLksH/184MpXD2xGRlEXHaGfvZ3X4\n" +
+                "5m9LrlowItjCiSM3a9rdsVAlijxpCnz7IgkdqbU7hIk8HfiUotKUAk0vgxDWTQnG\n" +
+                "1wQFvdgi0pjt6y+1kSxCUeVwuiub9St9SyCam1yz7RROFjzdQ654Z5X3vNQnxwog\n" +
+                "aO1VT/cRfXoi2GvFHHzMdXVRhtu11OdwdvFxXY+1HXLxc8+OCAYymaRxLGBU9sPA\n" +
+                "7A1aKgMxgFOvPrDuRM52KkwxFueqcVU/yi+LH/c2BTuNoQBmunPlu3Lqqq7+R4Wo\n" +
+                "8F8NV8aCvn1Jtb6apKhrDUMA/MTOuaD36FKl5KwL0/Ty1OlZCFlw47JwZL31e4I=\n" +
+                "=oiZ5\n" +
                 "-----END PGP SIGNATURE-----";
 
         assertThat(message.getUpdateMessage(), is(expectedValue));
@@ -440,7 +436,6 @@ public class MessageParserTest {
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST\n" +
                 "\n" +
                 "\n" +
@@ -449,7 +444,16 @@ public class MessageParserTest {
                 "Content-Type: text/html;\n" +
                 "\tcharset=us-ascii\n" +
                 "\n" +
-                "<html><head></head><body style=\"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space; \"><div style=\"font-size: 13px; \"><b>person: &nbsp;First Person</b></div><div style=\"font-size: 13px; \"><b>address: St James Street</b></div><div style=\"font-size: 13px; \"><b>address: Burnley</b></div><div style=\"font-size: 13px; \"><b>address: UK</b></div><div style=\"font-size: 13px; \"><b>phone: &nbsp; +44 282 420469</b></div><div style=\"font-size: 13px; \"><b>nic-hdl: FP1-TEST</b></div><div style=\"font-size: 13px; \"><b>mnt-by: &nbsp;OWNER-MNT</b></div><div style=\"font-size: 13px; \"><b>changed: <a href=\"mailto:denis@ripe.net\">denis@ripe.net</a> 20121016</b></div><div style=\"font-size: 13px; \"><b>source: &nbsp;TEST</b></div><div><br></div></body></html>\n" +
+                "<html><head></head><body style=\"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space; \">" +
+                "<div style=\"font-size: 13px; \"><b>person: &nbsp;First Person</b></div>" +
+                "<div style=\"font-size: 13px; \"><b>address: St James Street</b></div>" +
+                "<div style=\"font-size: 13px; \"><b>address: Burnley</b></div>" +
+                "<div style=\"font-size: 13px; \"><b>address: UK</b></div>" +
+                "<div style=\"font-size: 13px; \"><b>phone: &nbsp; +44 282 420469</b></div>" +
+                "<div style=\"font-size: 13px; \"><b>nic-hdl: FP1-TEST</b></div>" +
+                "<div style=\"font-size: 13px; \"><b>mnt-by: &nbsp;OWNER-MNT</b></div>" +
+                "<div style=\"font-size: 13px; \"><b>source: &nbsp;TEST</b></div>" +
+                "<div><br></div></body></html>\n" +
                 "--Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA--\n" +
                 "\n" +
                 "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205\n" +
@@ -488,8 +492,93 @@ public class MessageParserTest {
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
-                "changed: denis@ripe.net 20121016\n" +
                 "source:  TEST\n\n"));
+    }
+
+    @Test
+    public void parse_multipart_mixed_signed_part() throws Exception {
+        final MimeMessage message = getMessage(
+                "To: auto-dbm@ripe.net\n" +
+                "From: No Reply <noreply@ripe.net>\n" +
+                "Subject: NEW\n" +
+                "Message-ID: <56FCE84F.2010807@ripe.net>\n" +
+                "Date: Thu, 31 Mar 2016 11:05:19 +0200\n" +
+                "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:38.0) Gecko/20100101\n" +
+                " Thunderbird/38.5.1\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Type: multipart/signed; micalg=pgp-sha1;\n" +
+                " protocol=\"application/pgp-signature\";\n" +
+                " boundary=\"JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\"\n" +
+                "\n" +
+                "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\n" +
+                "Content-Type: multipart/mixed; boundary=\"SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\"\n" +
+                "From: No Reply <noreply@ripe.net>\n" +
+                "To: auto-dbm@ripe.net\n" +
+                "Message-ID: <56FCE84F.2010807@ripe.net>\n" +
+                "Subject: NEW\n" +
+                "\n" +
+                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\n" +
+                "Content-Type: text/plain; charset=utf-8\n" +
+                "Content-Transfer-Encoding: quoted-printable\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "\n" +
+                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh--\n" +
+                "\n" +
+                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\n" +
+                "Content-Type: application/pgp-signature; name=\"signature.asc\"\n" +
+                "Content-Description: OpenPGP digital signature\n" +
+                "Content-Disposition: attachment; filename=\"signature.asc\"\n" +
+                "\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iQEcBAEBCAAGBQJW/UFbAAoJELvMuy1XY5UN8sIH/jknae8l8dK4pJnf1CK4fXLq\n" +
+                "YedvGzo10gpLKlSu0UnBRapE6aZcPNmYLMJReP/JhbPfRAr7XQCRJKVwOngntmwi\n" +
+                "b4p9C+GYOUEUScLbBYe4FS70xPQZBEqDEB+pPEQI7DSRMQs/aF3fSXGHygJA2EGp\n" +
+                "QE5e2i0OwL1usnkRb87IXxFoL/LAalHogaU7m+vwJADD5ERqF1jNfiw4B8LQRF8x\n" +
+                "Yq5BtICOBOj7sL/JCKL17KrGlcQFWL3StLGf6IghltSSnAVQesKY4k2SzyyCulKL\n" +
+                "v3REE7AAtRIih8l+VP4dL09AD1/mWT38D24gjOC+HOHcdGbl7YmE9cHr3xwetgY=\n" +
+                "=GA9B\n" +
+                "-----END PGP SIGNATURE-----\n" +
+                "\n" +
+                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg--");
+
+        final MailMessage mailMessage = subject.parse(message, updateContext);
+
+        assertThat(mailMessage.getContentWithCredentials(), hasSize(1));
+        final ContentWithCredentials contentWithCredentials = mailMessage.getContentWithCredentials().get(0);
+        assertThat(contentWithCredentials.getCredentials(), hasSize(1));
+        assertThat(contentWithCredentials.getCredentials().get(0), is(instanceOf(PgpCredential.class)));
+        assertThat(contentWithCredentials.getContent(), is(
+                "Content-Type: multipart/mixed; boundary=\"SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\"\n" +
+                "From: No Reply <noreply@ripe.net>\n" +
+                "To: auto-dbm@ripe.net\n" +
+                "Message-ID: <56FCE84F.2010807@ripe.net>\n" +
+                "Subject: NEW\n" +
+                "\n" +
+                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\n" +
+                "Content-Type: text/plain; charset=utf-8\n" +
+                "Content-Transfer-Encoding: quoted-printable\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "\n" +
+                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh--\n"));
     }
 
     @Test
@@ -520,10 +609,9 @@ public class MessageParserTest {
                 "tech-c:         TEST-RIPE\n" +
                 "status:         ASSIGNED PA\n" +
                 "mnt-by:         TEST-MNT\n" +
-                "changed:        email@foobar.net 20120312\n" +
                 "source:         RIPE\n" +
                 "\n" +
-                "changed: email@foobar.net\n" +
+                "mntner: TEST-MNT\n" +
                 "\n" +
                 "\n" +
                 "\n" +
@@ -535,97 +623,6 @@ public class MessageParserTest {
                 "Content-Description: S/MIME Cryptographic Signature\n" +
                 "\n" +
                 "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIQ/TCCBVkw\n" +
-                "ggNBoAMCAQICECYdlHUPbJ2C1O/M47kPYTowDQYJKoZIhvcNAQEFBQAwZDELMAkGA1UEBhMCY2gx\n" +
-                "ETAPBgNVBAoTCFN3aXNzY29tMSUwIwYDVQQLExxEaWdpdGFsIENlcnRpZmljYXRlIFNlcnZpY2Vz\n" +
-                "MRswGQYDVQQDExJTd2lzc2NvbSBSb290IENBIDEwHhcNMDYwMjIzMDk1MzEyWhcNMTYwMjIzMDk1\n" +
-                "MzEyWjBlMQswCQYDVQQGEwJjaDERMA8GA1UEChMIU3dpc3Njb20xJTAjBgNVBAsTHERpZ2l0YWwg\n" +
-                "Q2VydGlmaWNhdGUgU2VydmljZXMxHDAaBgNVBAMTE1N3aXNzY29tIFJ1YmluIENBIDEwggEiMA0G\n" +
-                "CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDGWTjNZ38DiwRxLNBue9D2Bn85oUpE1lIpRjp2qm3P\n" +
-                "BE+K9/smk2OvKBJ9PlLsROK4t3Hsc7De+BkG/f3eyyR9+4Acvx36nv4/74rS3+GNTGIFBIhcpjyY\n" +
-                "s7w+TJNHAG7Pdok7hLUst6PwCU16YNcRdUIbDBWknzVs6hqsyYJRlzzYGEs9UuwvpQJUXE/gCxc0\n" +
-                "x5zUyCFtZZjuQ32v+8ID7KWNvdp8HlOv8EEC/XrR/NoFq4CX5fHaJQf7YwMbkeM3/55za0cD8rDt\n" +
-                "S4fRekIfeRJM5W+5vCEXzjJ1e+UoBrLzYxjZlgwEA/UXut1ulQHlKB88qDTJ+lLVg1JuAUGTAgMB\n" +
-                "AAGjggEEMIIBADBABggrBgEFBQcBAQQ0MDIwMAYIKwYBBQUHMAKGJGh0dHA6Ly93d3cuc3dpc3Nk\n" +
-                "aWdpY2VydC5jaC9kb3dubG9hZDASBgNVHRMBAf8ECDAGAQH/AgEAMBMGA1UdIAQMMAowCAYGYIV0\n" +
-                "AVMEMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly93d3cuc3dpc3NkaWdpY2VydC5jaC9kb3dubG9h\n" +
-                "ZC9zZGNzLXJvb3QuY3JsMA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQULcKno2M+P4NHq0gzNoGF\n" +
-                "99TprMAwHwYDVR0jBBgwFoAUAyUv3m+CATpcLNwroWm1Z9SM0/0wDQYJKoZIhvcNAQEFBQADggIB\n" +
-                "ALXafISxFtQcm29o2r5cMUTRoUroEcdITEFjKa8ZQZf63JpHZYWQrziklNcvJOt5TmWtUsUc9KQK\n" +
-                "y8AQN6m4AJR+Ol/7U8+3IFaqyRt9Bp38iaPv3AZSHU4Uf83UhW6zI/SlvXZxuKMkFP+l08eJCIFo\n" +
-                "HHdHVUi1fzN9B15s3qFnSlCsNHWB3A5j81P8bKc7QdpIj4pUte6QTZd4ESchKEiUNzzqawVfVCW8\n" +
-                "Btmq5xMv2r1cn34pBAjBGF/p3AE30DH5he4Yqn3xhnvBMOhHGbkoeaR5XXQKpvMmFSYo9eH2Yj6h\n" +
-                "mQ/1R27eqdjaR9eGjbqJCz5HU2kiSgceI2YZgafoFjhlrPuq/7V4ZVKJbf7/eKqRWVuUh7/6wUsJ\n" +
-                "lqiXtEIjM0R7hD0kjQzvOCAthV3byvB/V5VIzEViKRp0DQbNRGhog9nGP13xE4FF6xTMxFP7urip\n" +
-                "elCDWc9Yc/pp50Vi7f0isynOC3BRjM0WXrHJumu83zDxzxNYUV12XIg6CL/SasRJpEheTsc9LcBU\n" +
-                "3pxcsVQfxAl4SQG6nbdLUc8EwpCZs0fGxnRSstJ6394tIk8VqI1Dr/B8/a709t2rOptea4MgpEo7\n" +
-                "BikJvbyRP8DPobdmQu4R66QOFdhlfZUWvxTZJvv0wXaKycYyNO8e3lpAnU2gQ4WJjnG9I9zynDLr\n" +
-                "MIIFvzCCBKegAwIBAgIQGm9r2E0WLw04jBcdooo7hTANBgkqhkiG9w0BAQUFADBlMQswCQYDVQQG\n" +
-                "EwJjaDERMA8GA1UEChMIU3dpc3Njb20xJTAjBgNVBAsTHERpZ2l0YWwgQ2VydGlmaWNhdGUgU2Vy\n" +
-                "dmljZXMxHDAaBgNVBAMTE1N3aXNzY29tIFJ1YmluIENBIDEwHhcNMTEwODEyMTI1NDUyWhcNMTQw\n" +
-                "ODEyMTI1NDUyWjCBpTENMAsGA1UEBwwEQmVybjELMAkGA1UECAwCQkUxDTALBgNVBAsMBFNDSVMx\n" +
-                "IDAeBgNVBAoMF1N3aXNzY29tIElUIFNlcnZpY2VzIEFHMQswCQYDVQQGEwJDSDEaMBgGA1UEAwwR\n" +
-                "UmVnaXN0cmF0aW9uIFJpcGUxLTArBgkqhkiG9w0BCQEWHnJlZ2lzdHJhdGlvbi5yaXBlQHN3aXNz\n" +
-                "Y29tLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAID/R0iVboEhBcA9loz1DW2z\n" +
-                "2ZAb2mlDoKGSW6wXK/Eu77AvRYWwjwqUBaRA1bLcoLiHt/q6f6b1jOc5YZqdMJ+s09gVcmYmvjMr\n" +
-                "G6FCW/hM+/JjgovowwZbZcmQONJDYjAGL8YU23IFFy1mK0B0ZyYA2LeFGkHmqX1dhXk4zm34/XXs\n" +
-                "9GZylRBAOH4qa2KviV+2VdufVl12u14aD6KaogCZhkAPCW8MTdZ2ZGNOu984KQMie4yHeFBM05/S\n" +
-                "vMNs7ND9mPx67r1iJM4samc7KJx3VYa75427Hfr4Y9F6q9MRAB5wMirx1a3TS880NpWF5UoZpCNJ\n" +
-                "Gr1L3Y/shbEGRJ8CAwEAAaOCAigwggIkMH8GCCsGAQUFBwEBBHMwcTAuBggrBgEFBQcwAYYiaHR0\n" +
-                "cDovL29jc3Auc3dpc3NkaWdpY2VydC5jaC9ydWJpbjA/BggrBgEFBQcwAoYzaHR0cDovL3d3dy5z\n" +
-                "d2lzc2RpZ2ljZXJ0LmNoL2Rvd25sb2FkL3NkY3MtcnViaW4uY3J0MB8GA1UdIwQYMBaAFC3Cp6Nj\n" +
-                "Pj+DR6tIMzaBhffU6azAMEgGA1UdIARBMD8wPQYGYIV0AVMEMDMwMQYIKwYBBQUHAgEWJWh0dHA6\n" +
-                "Ly93d3cuc3dpc3NkaWdpY2VydC5jaC9kb2N1bWVudHMwgbwGA1UdHwSBtDCBsTB0oHKgcIZubGRh\n" +
-                "cDovL2xkYXAuc3dpc3NkaWdpY2VydC5jaC9DTj1Td2lzc2NvbSBSdWJpbiBDQSAxLGRjPXJ1Ymlu\n" +
-                "LGRjPXN3aXNzZGlnaWNlcnQsZGM9Y2g/Y2VydGlmaWNhdGVSZXZvY2F0aW9uTGlzdD8wOaA3oDWG\n" +
-                "M2h0dHA6Ly93d3cuc3dpc3NkaWdpY2VydC5jaC9kb3dubG9hZC9zZGNzLXJ1YmluLmNybDAdBgNV\n" +
-                "HSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwDgYDVR0PAQH/BAQDAgSwMCkGA1UdEQQiMCCBHnJl\n" +
-                "Z2lzdHJhdGlvbi5yaXBlQHN3aXNzY29tLmNvbTAdBgNVHQ4EFgQUI/zu8XKWjoVtr4oMzM1hkaP/\n" +
-                "BCswDQYJKoZIhvcNAQEFBQADggEBAHaM6iCWIZJDYTBy+3k2ER4RhXTk1ksPIEg6a6Sp0UBNXDyI\n" +
-                "Z3CfeDOheNuHC95psPryyuvFQUhzki/LYIYxYobwqsaO3CwbO07iABWmCOcEpuJSA8FdZ/BwnEGS\n" +
-                "EIv3/a/ve/nRC4dXz1WL9r7Y/UBFD0+m2LSDme1Awmsk0ri0RQYlEXkTb3zAklPHKclb1yXRzmmN\n" +
-                "i122nPl0Ax3GhfqFJY9gUmsb28QVDvLHnax/C+IsxQhIAi9zmgrTixGKOEUSECYKN9v1ug60yeqi\n" +
-                "SFIKTXI2iZp6WY74HGQRGk5NRmnVFx5/69yFW27gk3vkuxHOsEJlDVOr8vAwgb5CYXowggXZMIID\n" +
-                "waADAgECAhBcC4VcC+dZQd9XzD9/nag2MA0GCSqGSIb3DQEBBQUAMGQxCzAJBgNVBAYTAmNoMREw\n" +
-                "DwYDVQQKEwhTd2lzc2NvbTElMCMGA1UECxMcRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTZXJ2aWNlczEb\n" +
-                "MBkGA1UEAxMSU3dpc3Njb20gUm9vdCBDQSAxMB4XDTA1MDgxODEyMDYyMFoXDTI1MDgxODIyMDYy\n" +
-                "MFowZDELMAkGA1UEBhMCY2gxETAPBgNVBAoTCFN3aXNzY29tMSUwIwYDVQQLExxEaWdpdGFsIENl\n" +
-                "cnRpZmljYXRlIFNlcnZpY2VzMRswGQYDVQQDExJTd2lzc2NvbSBSb290IENBIDEwggIiMA0GCSqG\n" +
-                "SIb3DQEBAQUAA4ICDwAwggIKAoICAQDQubCoDNm7PyH4G9Uzk4AWZSB1sj2bYG1GyIwxbxfD+pps\n" +
-                "Vu08xZFXw82rlkmQKhlLHqNtV93xK2IodUVeqtZb+gsl2KEW+RzELuaVKmfM0CluPIU0OGFJsQCf\n" +
-                "1jpxX01tzl+5qeSJf2pS+sqb8typ+Z2ZRz9OKV+0po1dewuZEQMD/ufb26P/HaXNkB4BHzWwfwDb\n" +
-                "kG/GfnvR7np6p6oMV2+kbcUTO7Cl2e0yHLReZ4tU3HOH5dMXfGZQcl3UGljB2c/YiQJvp0m0Nl3Q\n" +
-                "pN4HLLZ1tyiR1pe+KPWYHupbJsm9sJdz2q6RJutowfk5FdZnSwptT8vPsORCcYxTeefu4dsdoG4d\n" +
-                "jBp3NVwWHitTHzSL0Wz88mcHevWt7daaq6GxS+HMN1/9f81NrrgfnEP5KlhVQ0W8ls1wDvzJ42a6\n" +
-                "To07gcsVZHu5lOhdM1KFcS5PjqIGEVHJ48uhbjEIZAzC0jz1NujX0A54IyCRySQqZSlbIvchzoNe\n" +
-                "pPPeS9Noj0Z1XIMJbilrxHCM9Z3XIC//RtIrOMIvdRw9ftql7x5ghWlC08z4Y/4eQzmFprZjQRCz\n" +
-                "cx680/rKfRZH4qfV0KOKCgiWYlZuNNvZArkwdeME0uePwrARQAqs1XECYosxvt3GI1gxQkMtdPnG\n" +
-                "nqaKD+n+v4PmQ1ckuu9GNKrXEgE47QIDAQABo4GGMIGDMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSEE\n" +
-                "FjAUMBIGB2CFdAFTAAEGB2CFdAFTAAEwEgYDVR0TAQH/BAgwBgEB/wIBBzAfBgNVHSMEGDAWgBQD\n" +
-                "JS/eb4IBOlws3CuhabVn1IzT/TAdBgNVHQ4EFgQUAyUv3m+CATpcLNwroWm1Z9SM0/0wDQYJKoZI\n" +
-                "hvcNAQEFBQADggIBADUQy+ymBA0ND83A26uo8oiXDN+TL018QFYxeuukD2DNevO+wyeOAz6k3RLv\n" +
-                "fh50Bjw/MfIce5ExIbTw0GyX1OmXsiRWHlbDNb2IBQ9bEBpk4ceCMPkyrZ5QLOd4BdAxsVqYinVO\n" +
-                "kFxqFCrgUkeCYOYe2oGx+xQLWvGf0pW6PtAb1hUdo76G1dsPwElkuy5QGUvSJPjdHgdW0DiglXAg\n" +
-                "dozX3R7en3HEI++DE1yjJBVNKUA8asSp2LemRKUN9OCddx5AcCb82tk25HnktT+8m2W+uxGWz9vG\n" +
-                "KDk6CM5HW1NaxZn+Xand70zUxqWtAuaMBxIebwPRb6Cj8ym9EsdQorB/iKmZd5qxwKU5Llx8aeIs\n" +
-                "sOo3aqThWuH1UOWD76W7KojnjNv9bV6XGah+ZnVrceq/scdvoPSOpOw0UVuMJgNwoXfVARJXADXb\n" +
-                "I94OiiiZ/bEQb0v/OC1gTiyc62e1rUnuSx+sr/sNkFpmYHBdqs141CTuyEGgkwGSnGqe/LkkxbMV\n" +
-                "gn6+rpUr67HA2uMBYAteaayEVmG+cRf+HRMP/saHRen+MqAaDROklFVxpRaLusqJsLLH/I/YVLWT\n" +
-                "Yp3Oz1n7PRjOKss1FYJd/1QiW3FS+7fJ/mCbAEFk8Koq7LZCQ86JZoHIi585VAMl0xY1joTQX/ow\n" +
-                "GvWabPQOU/k6W9EcMYIDTzCCA0sCAQEweTBlMQswCQYDVQQGEwJjaDERMA8GA1UEChMIU3dpc3Nj\n" +
-                "b20xJTAjBgNVBAsTHERpZ2l0YWwgQ2VydGlmaWNhdGUgU2VydmljZXMxHDAaBgNVBAMTE1N3aXNz\n" +
-                "Y29tIFJ1YmluIENBIDECEBpva9hNFi8NOIwXHaKKO4UwCQYFKw4DAhoFAKCCAaswGAYJKoZIhvcN\n" +
-                "AQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMTIwODIwMTA1MjM1WjAjBgkqhkiG9w0B\n" +
-                "CQQxFgQUZIBQXsg/8X8GMBoZ1TakgRgWyz4wNAYJKoZIhvcNAQkPMScwJTAKBggqhkiG9w0DBzAO\n" +
-                "BggqhkiG9w0DAgICAIAwBwYFKw4DAgcwgYgGCSsGAQQBgjcQBDF7MHkwZTELMAkGA1UEBhMCY2gx\n" +
-                "ETAPBgNVBAoTCFN3aXNzY29tMSUwIwYDVQQLExxEaWdpdGFsIENlcnRpZmljYXRlIFNlcnZpY2Vz\n" +
-                "MRwwGgYDVQQDExNTd2lzc2NvbSBSdWJpbiBDQSAxAhAab2vYTRYvDTiMFx2iijuFMIGKBgsqhkiG\n" +
-                "9w0BCRACCzF7MHkwZTELMAkGA1UEBhMCY2gxETAPBgNVBAoTCFN3aXNzY29tMSUwIwYDVQQLExxE\n" +
-                "aWdpdGFsIENlcnRpZmljYXRlIFNlcnZpY2VzMRwwGgYDVQQDExNTd2lzc2NvbSBSdWJpbiBDQSAx\n" +
-                "AhAab2vYTRYvDTiMFx2iijuFMA0GCSqGSIb3DQEBAQUABIIBAC13K/ZrP6tmTtSLshOjv0txup1u\n" +
-                "VFpHvP5i1nU2ly/SR9BkB8MnN0bpMAvb/QM5VydRST9IFT9m4pdHRFpbfx+N8LGm7TBt9T2e3/mL\n" +
-                "cj5lZrZUoNOlOeoMODR3HSoPl9NYPvCUKirP4H0jgFb9fxZSWIBvIg6CMbAyF2rE9aRMHKa13xte\n" +
-                "WqgO1Ml0AIDQ0BnVPyLMF1BPtu4e4VCXWDbnwf714TBkS+Qx/8YkmzTEd5hkVA3A11b5JChrcRex\n" +
-                "E362Cd8e5dhRKLV9FrbGZ3UPpnFcmuuQPjYCRP/eqDJzIfyoeJwEY4WrmZqGrTQNWz27t7Ov6214\n" +
                 "rJme/XmWwocAAAAAAAA=\n" +
                 "------=_Part_113918_874669.1345459955655--");
 
@@ -647,9 +644,8 @@ public class MessageParserTest {
                 "tech-c:         TEST-RIPE\n" +
                 "status:         ASSIGNED PA\n" +
                 "mnt-by:         TEST-MNT\n" +
-                "changed:        email@foobar.net 20120312\n" +
                 "source:         RIPE\n\n" +
-                "changed: email@foobar.net\n\n\n\n"));
+                "mntner: TEST-MNT\n\n\n\n"));
         assertThat(contentWithCredentialsList.get(0).getCredentials(), hasSize(1));
         assertThat(contentWithCredentialsList.get(0).getCredentials().get(0), is(instanceOf(X509Credential.class)));
     }
@@ -702,7 +698,6 @@ public class MessageParserTest {
                 "tech-c: TEST-RIPE\n" +
                 "status: ASSIGNED PA\n" +
                 "mnt-by: TEST-MNT\n" +
-                "changed: email@foobar.net\n" +
                 "source: RIPE\n" +
                 "\n" +
                 "\n" +
@@ -730,7 +725,6 @@ public class MessageParserTest {
                 "<div>tech-c: TEST-RIPE</div>\n" +
                 "<div>status: ASSIGNED PA</div>\n" +
                 "<div>mnt-by: TEST-MNT</div>\n" +
-                "<div>changed: email@foobar.net</div>\n" +
                 "<div>source: RIPE</div>\n" +
                 "<div><font face=3D\"Calibri\" size=3D\"2\"><span style=3D\"font-size:11pt;\">&nbs=\n" +
                 "p;</span></font></div>\n" +
@@ -764,7 +758,6 @@ public class MessageParserTest {
                 "tech-c: TEST-RIPE\n" +
                 "status: ASSIGNED PA\n" +
                 "mnt-by: TEST-MNT\n" +
-                "changed: email@foobar.net\n" +
                 "source: RIPE\n\n"));
         assertThat(contentWithCredentialsList.get(0).getCredentials(), hasSize(1));
         assertThat(contentWithCredentialsList.get(0).getCredentials().get(0), is(instanceOf(X509Credential.class)));

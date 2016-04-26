@@ -151,7 +151,6 @@ public class DummifierNrtmTest {
                         "last-modified:  2001-02-04T17:00:00Z\n" +
                         "abuse-c:        FOO\n" +
                         "address:        Dummy address for FOO\n" +
-                        "changed:        unread@ripe.net 20000101\n" +
                         "e-mail:         unread@ripe.net\n" +
                         "mnt-by:         FOO\n" +
                         "mnt-ref:        FOO\n" +
@@ -185,24 +184,21 @@ public class DummifierNrtmTest {
                 "abuse-c:        FOO\n" +
                 "admin-c:        DUMY-RIPE\n" +
                 "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
-                "changed:        unread@ripe.net 20000101\n" +
-                "descr:          FOO\n" +
                 "mnt-by:         FOO\n" +
                 "source:         FOO\n" +
-                "upd-to:         unread@ripe.net\n"));      // TODO: [ES] upd-to added at end of object?
+                "upd-to:         unread@ripe.net\n"));
     }
 
     @Test
     public void strip_optional_from_mntner_and_make_replacements() {
-        final RpslObject mntner = RpslObject.parse("mntner:         FOO\n" +
+        final RpslObject mntner = RpslObject.parse(
+                "mntner:         FOO\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "address:        REPLACEME\n" +
                 "address:        REPLACEME\n" +
                 "auth:           REPLACEME\n" +
                 "auth:           REPLACEME\n" +
-                "changed:        REPLACEME\n" +
-                "changed:        REPLACEME\n" +
                 "e-mail:         REPLACEME\n" +
                 "e-mail:         REPLACEME\n" +
                 "fax-no:         REPLACEME\n" +
@@ -220,7 +216,6 @@ public class DummifierNrtmTest {
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
-                "changed:        unread@ripe.net 20000101\n" +
                 "upd-to:         unread@ripe.net\n" +
                 "source:         TEST\n" +
                 "remarks:        ****************************\n" +
@@ -242,8 +237,6 @@ public class DummifierNrtmTest {
                 "address:        REPLACEME\n" +
                 "auth:           REPLACEME\n" +
                 "auth:           REPLACEME\n" +
-                "changed:        REPLACEME\n" +
-                "changed:        REPLACEME\n" +
                 "e-mail:         REPLACEME\n" +
                 "e-mail:         REPLACEME\n" +
                 "fax-no:         REPLACEME\n" +
@@ -261,7 +254,6 @@ public class DummifierNrtmTest {
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "address:        Dummy address for FOO\n" +
-                "changed:        unread@ripe.net 20000101\n" +
                 "e-mail:         unread@ripe.net\n" +
                 "source:         TEST\n" +
                 "remarks:        ****************************\n" +
@@ -328,7 +320,6 @@ public class DummifierNrtmTest {
                 "auth: SSO 1234-5678-9abc-dead-beef\n" +
                 "notify: guy@ripe.net\n" +
                 "mnt-by: AARDVARK-MNT\n" +
-                "changed: guy@ripe.net 20120510\n" +
                 "created: 2001-02-04T17:00:00Z\n" +
                 "last-modified: 2001-02-04T17:00:00Z\n" +
                 "source: RIPE # Filtered");

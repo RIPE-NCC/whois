@@ -32,7 +32,6 @@ public class DummifierNrtm implements Dummifier {
 
     static final List<AttributeType> ATTRIBUTES_TO_KEEP = Lists.newArrayList(
             AttributeType.ABUSE_C,
-            AttributeType.CHANGED,
             AttributeType.LAST_MODIFIED,
             AttributeType.CREATED);
 
@@ -240,7 +239,6 @@ public class DummifierNrtm implements Dummifier {
                         "remarks:        * Database at:\n" +
                         "remarks:        * http://www.ripe.net/whois\n" +
                         "remarks:        **********************************************************\n" +
-                        "changed:        ripe-dbm@ripe.net 20090724\n" +
                         "created:        2009-07-24T17:00:00Z\n" +
                         "last-modified:  2009-07-24T17:00:00Z\n" +
                         "source:         RIPE"
@@ -266,7 +264,6 @@ public class DummifierNrtm implements Dummifier {
                         "remarks:        * Database at:\n" +
                         "remarks:        * http://www.ripe.net/whois\n" +
                         "remarks:        **********************************************************\n" +
-                        "changed:        ripe-dbm@ripe.net 20090724\n" +
                         "created:        2009-07-24T17:00:00Z\n" +
                         "last-modified:  2009-07-24T17:00:00Z\n" +
                         "source:         RIPE"

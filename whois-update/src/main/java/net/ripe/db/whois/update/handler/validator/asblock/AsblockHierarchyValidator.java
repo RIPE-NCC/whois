@@ -2,9 +2,9 @@ package net.ripe.db.whois.update.handler.validator.asblock;
 
 import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -18,18 +18,18 @@ import java.util.List;
 @Component
 public class AsblockHierarchyValidator implements BusinessRuleValidator {
 
-    private static final ImmutableList<Action> actions = ImmutableList.of(Action.CREATE);
-    private static final ImmutableList<ObjectType> types = ImmutableList.of(ObjectType.AS_BLOCK);
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.AS_BLOCK);
     private final RpslObjectDao rpslObjectDao;
 
     @Override
-    public List<Action> getActions() {
-        return actions;
+    public ImmutableList<Action> getActions() {
+        return ACTIONS;
     }
 
     @Override
-    public List<ObjectType> getTypes() {
-        return types;
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
     }
 
     @Autowired

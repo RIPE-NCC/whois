@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
+import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
@@ -18,7 +19,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 
 public final class Notification {
 
-    public static enum Type {
+    public enum Type {
         SUCCESS, SUCCESS_REFERENCE, FAILED_AUTHENTICATION, PENDING_UPDATE
     }
 
@@ -55,6 +56,7 @@ public final class Notification {
     public static class Update {
         private static final Map<Action, String> RESULT_MAP = Maps.newEnumMap(Action.class);
         private static final FilterAuthFunction filterAuthFunction = new FilterAuthFunction();
+        private static final FilterChangedFunction filterChangedFunction = new FilterChangedFunction();
 
         static {
             RESULT_MAP.put(Action.CREATE, "CREATED");
@@ -72,8 +74,8 @@ public final class Notification {
         private final int versionId;
 
         public Update(final PreparedUpdate update, final UpdateContext updateContext) {
-            this.referenceObject = filterAuthFunction.apply(update.getReferenceObject());
-            this.updatedObject = filterAuthFunction.apply(update.getUpdatedObject());
+            this.referenceObject = filterChangedFunction.apply(filterAuthFunction.apply(update.getReferenceObject()));
+            this.updatedObject = filterChangedFunction.apply(filterAuthFunction.apply(update.getUpdatedObject()));
             this.action = update.getAction().name();
             this.result = RESULT_MAP.get(update.getAction());
             this.update = update;

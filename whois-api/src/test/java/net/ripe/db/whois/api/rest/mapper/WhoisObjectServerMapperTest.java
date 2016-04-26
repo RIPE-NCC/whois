@@ -2,7 +2,11 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.ReferencedTypeResolver;
-import net.ripe.db.whois.api.rest.domain.*;
+import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.Link;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
+import net.ripe.db.whois.api.rest.domain.WhoisTag;
+import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.domain.serials.Operation;
@@ -24,14 +28,19 @@ import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WhoisObjectServerMapperTest {
-    private static final String BASE_URL = "http://rest.db.ripe.net/lookup";
+    private static final String BASE_URL = "http://localhost/lookup";
 
     @Mock
     private ReferencedTypeResolver referencedTypeResolver;
@@ -41,7 +50,7 @@ public class WhoisObjectServerMapperTest {
 
     @Before
     public void setup() {
-        whoisObjectMapper = new WhoisObjectMapper(BASE_URL, new AttributeMapper [] {
+        whoisObjectMapper = new WhoisObjectMapper(BASE_URL, new AttributeMapper[]{
                 new FormattedServerAttributeMapper(referencedTypeResolver, BASE_URL),
                 new FormattedClientAttributeMapper()
         });
@@ -69,7 +78,7 @@ public class WhoisObjectServerMapperTest {
         assertThat(whoisObject.getType(), is("mntner"));
         assertThat(whoisObject.getSource().getId(), is("test"));
         assertThat(whoisObject.getLink().getType(), is("locator"));
-        assertThat(whoisObject.getLink().getHref(), is("http://rest.db.ripe.net/lookup/test/mntner/TST-MNT"));
+        assertThat(whoisObject.getLink().getHref(), is("http://localhost/lookup/test/mntner/TST-MNT"));
         assertThat(whoisObject.getPrimaryKey(), hasSize(1));
         final Attribute primaryKeyAttribute = whoisObject.getPrimaryKey().get(0);
         assertThat(primaryKeyAttribute.getName(), is("mntner"));
@@ -77,11 +86,11 @@ public class WhoisObjectServerMapperTest {
         assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("mntner", "TST-MNT", null, null, null),
                 new Attribute("descr", "MNTNER for test", null, null, null),
-                new Attribute("admin-c", "TP1-TEST", null, "person", new Link("locator", "http://rest.db.ripe.net/lookup/test/person/TP1-TEST")),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TP1-TEST")),
                 new Attribute("upd-to", "dbtest@ripe.net", null, null, null),
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null),
-                new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", new Link("locator", "http://rest.db.ripe.net/lookup/test/key-cert/PGPKEY-28F6CD6C")),
-                new Attribute("mnt-by", "TST-MNT", null, "mntner", new Link("locator", "http://rest.db.ripe.net/lookup/test/mntner/TST-MNT")),
+                new Attribute("auth", "PGPKEY-28F6CD6C", null, "key-cert", Link.create("http://localhost/lookup/test/key-cert/PGPKEY-28F6CD6C")),
+                new Attribute("mnt-by", "TST-MNT", null, "mntner", Link.create("http://localhost/lookup/test/mntner/TST-MNT")),
                 new Attribute("source", "TEST", null, null, null)
         ));
     }
@@ -108,7 +117,7 @@ public class WhoisObjectServerMapperTest {
         assertThat(whoisObject.getType(), is("as-set"));
         assertThat(whoisObject.getSource().getId(), is("test"));
         assertThat(whoisObject.getLink().getType(), is("locator"));
-        assertThat(whoisObject.getLink().getHref(), is("http://rest.db.ripe.net/lookup/test/as-set/AS-set-attendees"));
+        assertThat(whoisObject.getLink().getHref(), is("http://localhost/lookup/test/as-set/AS-set-attendees"));
         assertThat(whoisObject.getPrimaryKey(), hasSize(1));
         final Attribute primaryKeyAttribute = whoisObject.getPrimaryKey().get(0);
         assertThat(primaryKeyAttribute.getName(), is("as-set"));
@@ -116,12 +125,12 @@ public class WhoisObjectServerMapperTest {
         assertThat(whoisObject.getAttributes(), containsInAnyOrder(
                 new Attribute("as-set", "AS-set-attendees", null, null, null),
                 new Attribute("descr", "AS-set containing all attendees' ASNs.", null, null, null),
-                new Attribute("tech-c", "TS1-TEST", null, "person", new Link("locator", "http://rest.db.ripe.net/lookup/test/person/TS1-TEST")),
-                new Attribute("admin-c", "TS1-TEST", null, "person", new Link("locator", "http://rest.db.ripe.net/lookup/test/person/TS1-TEST")),
-                new Attribute("members", "as1", null, "aut-num", new Link("locator", "http://rest.db.ripe.net/lookup/test/aut-num/as1")),
-                new Attribute("members", "as2", null, "aut-num", new Link("locator", "http://rest.db.ripe.net/lookup/test/aut-num/as2")),
-                new Attribute("members", "as3", null, "aut-num", new Link("locator", "http://rest.db.ripe.net/lookup/test/aut-num/as3")),
-                new Attribute("mnt-by", "TS1-MNT", null, "mntner", new Link("locator", "http://rest.db.ripe.net/lookup/test/mntner/TS1-MNT")),
+                new Attribute("tech-c", "TS1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TS1-TEST")),
+                new Attribute("admin-c", "TS1-TEST", null, "person", Link.create("http://localhost/lookup/test/person/TS1-TEST")),
+                new Attribute("members", "as1", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as1")),
+                new Attribute("members", "as2", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as2")),
+                new Attribute("members", "as3", null, "aut-num", Link.create("http://localhost/lookup/test/aut-num/as3")),
+                new Attribute("mnt-by", "TS1-MNT", null, "mntner", Link.create("http://localhost/lookup/test/mntner/TS1-MNT")),
                 new Attribute("source", "TEST", null, null, null)
         ));
     }
@@ -163,7 +172,7 @@ public class WhoisObjectServerMapperTest {
                                 new Tag(ciString("barf"), "barf data")
                         )),
                         FormattedServerAttributeMapper.class
-                ).getTags();
+        ).getTags();
 
         assertThat(tags, hasSize(3));
         final WhoisTag tag1 = tags.get(0);

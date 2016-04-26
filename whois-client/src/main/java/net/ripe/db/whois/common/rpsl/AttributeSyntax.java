@@ -71,7 +71,7 @@ public interface AttributeSyntax extends Documented {
             "colons \":\".  At least one component of such a name must be\n" +
             "an actual set name (i.e. start with \"as-\").  All the set\n" +
             "name components of a hierarchical as-name have to be as-set\n" +
-            "names.\n");
+            "names. The total length should not exceed 80 characters (octets).\n");
 
     AttributeSyntax AGGR_BNDRY_SYNTAX = new AttributeSyntaxParser(new AggrBndryParser(), "" +
             "[<as-expression>]\n");
@@ -180,7 +180,7 @@ public interface AttributeSyntax extends Documented {
             "by colons \":\".  At least one component of such a name must\n" +
             "be an actual set name (i.e. start with \"fltr-\").  All the\n" +
             "set name components of a hierarchical filter-name have to be\n" +
-            "filter-set names.\n");
+            "filter-set names. The total length should not exceed 80 characters (octets).\n");
 
     AttributeSyntax FREE_FORM_SYNTAX = new AttributeSyntaxRegexp(Pattern.compile("(?s)^.*$"), "" +
             "A sequence of ASCII characters.\n");
@@ -375,8 +375,6 @@ public interface AttributeSyntax extends Documented {
             "with \"prng-\" are reserved for peering set names. Names\n" +
             "starting with \"irt-\" are reserved for irt names.\n");
 
-    AttributeSyntax REFERRAL_SYNTAX = new AttributeSyntaxParser(new AttributeParser.NameParser());
-
     AttributeSyntax SOURCE_SYNTAX = new AttributeSyntaxRegexp(80,
             Pattern.compile("(?i)^[A-Z][A-Z0-9_-]*[A-Z0-9]$"), "" +
             "Made up of letters, digits, the character underscore \"_\",\n" +
@@ -457,7 +455,7 @@ public interface AttributeSyntax extends Documented {
             "by colons \":\".  At least one component of such a name must\n" +
             "be an actual set name (i.e. start with \"rs-\").  All the set\n" +
             "name components of a hierarchical route-name have to be\n" +
-            "route-set names.\n");
+            "route-set names. The total length should not exceed 80 characters (octets).\n");
 
     AttributeSyntax RTR_SET_SYNTAX = new AttributeSyntaxParser(new AttributeParser.RtrSetParser(), "" +
             "A router-set name is made up of letters, digits, the\n" +
@@ -470,7 +468,7 @@ public interface AttributeSyntax extends Documented {
             "by colons \":\".  At least one component of such a name must\n" +
             "be an actual set name (i.e. start with \"rtrs-\").  All the\n" +
             "set name components of a hierarchical router-set name have\n" +
-            "to be router-set names.\n");
+            "to be router-set names. The total length should not exceed 80 characters (octets).\n");
 
     AttributeSyntax PEERING_SET_SYNTAX = new AttributeSyntaxParser(new AttributeParser.PeeringSetParser(), "" +
             "A peering-set name is made up of letters, digits, the\n" +
@@ -483,7 +481,7 @@ public interface AttributeSyntax extends Documented {
             "by colons \":\".  At least one component of such a name must\n" +
             "be an actual set name (i.e. start with \"prng-\").  All the\n" +
             "set name components of a hierarchical peering-set name have\n" +
-            "to be peering-set names.\n");
+            "to be peering-set names. The total length should not exceed 80 characters (octets).\n");
 
     AttributeSyntax ROUTE_SYNTAX = new AttributeSyntaxParser(new AttributeParser.RouteResourceParser(), "" +
             "An address prefix is represented as an IPv4 address followed\n" +
@@ -859,6 +857,7 @@ public interface AttributeSyntax extends Documented {
                     "Each word consists of letters, digits or the following symbols:\n" +
                     ".`'_-\n" +
                     "The first word should begin with a letter.\n" +
+                    "At least one other word should also begin with a letter.\n" +
                     "Max 64 characters can be used in each word.";
         }
     }

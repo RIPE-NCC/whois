@@ -579,7 +579,7 @@ public class Query {
         return this;
     }
 
-    public static enum MatchOperation {
+    public enum MatchOperation {
         MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC(),
         MATCH_EXACT(QueryFlag.EXACT),
         MATCH_FIRST_LEVEL_LESS_SPECIFIC(QueryFlag.ONE_LESS),
@@ -589,11 +589,11 @@ public class Query {
 
         private final QueryFlag queryFlag;
 
-        private MatchOperation() {
+        MatchOperation() {
             this(null);
         }
 
-        private MatchOperation(final QueryFlag queryFlag) {
+        MatchOperation(final QueryFlag queryFlag) {
             this.queryFlag = queryFlag;
         }
 
@@ -606,11 +606,11 @@ public class Query {
         }
     }
 
-    public static enum SystemInfoOption {
+    public enum SystemInfoOption {
         VERSION, TYPES, SOURCES
     }
 
-    public static enum Origin {
+    public enum Origin {
         LEGACY, REST, INTERNAL
     }
 }

@@ -1,9 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.api.rest.mapper.AttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.DirtyServerAttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.*;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,10 +48,13 @@ public class RestServiceHelper {
             final Iterator<String> iterator = EQUALS_SPLITTER.split(next).iterator();
             if (iterator.hasNext()) {
                 if (iterator.next().equals(key)) {
-                    if (!iterator.hasNext()) return true;
+                    if (!iterator.hasNext()) {
+                        return true;
+                    }
 
-                    String value = iterator.next();
-                    if (StringUtils.isEmpty(value) || value.equalsIgnoreCase("true")) return true;
+                    if (isQueryParamSet(iterator.next())) {
+                        return true;
+                    }
                 }
             }
         }
@@ -61,9 +62,16 @@ public class RestServiceHelper {
         return false;
     }
 
-    public static Class<? extends AttributeMapper> getServerAttributeMapper(String queryString){
-        return isQueryParamSet(queryString, "unformatted") ?
-                DirtyServerAttributeMapper.class : FormattedServerAttributeMapper.class;
+    public static boolean isQueryParamSet(final String queryParam) {
+        return (queryParam != null) && (queryParam.isEmpty() || queryParam.equalsIgnoreCase("true"));
     }
 
+    public static Class<? extends AttributeMapper> getServerAttributeMapper(final boolean unformatted) {
+        return unformatted ? DirtyServerAttributeMapper.class : FormattedServerAttributeMapper.class;
+    }
+
+    public static Class<? extends AttributeMapper> getRestResponseAttributeMapper(String queryString){
+        return isQueryParamSet(queryString, "unformatted") ?
+                DirtySuppressChangedAttributeMapper.class : RegularSuppressChangedAttributeMapper.class;
+    }
 }

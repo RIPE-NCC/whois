@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
@@ -327,17 +328,19 @@ public class JdbcRpslObjectOperations {
                 continue;
             }
 
-            sanityCheck(jdbcTemplate);
-
-            final List<String> tables = jdbcTemplate.queryForList("SHOW TABLES", String.class);
-
-            for (final String table : tables) {
-                if (UNTRUNCATABLE_TABLES.contains(table)) {
-                    continue;
-                }
-
-                jdbcTemplate.execute("TRUNCATE TABLE " + table);
+            try {
+                sanityCheck(jdbcTemplate);
+            } catch (IllegalStateException e) {
+                LOGGER.warn("sanityCheck failed due to {}", e.getMessage());
+                return;
             }
+
+            final List<String> statements = Lists.newArrayList();
+            statements.add("SET FOREIGN_KEY_CHECKS = 0");
+            statements.addAll(Lists.transform(jdbcTemplate.queryForList("SHOW TABLES", String.class), table -> String.format("TRUNCATE TABLE %s", table)));
+            statements.add("SET FOREIGN_KEY_CHECKS = 1");
+
+            jdbcTemplate.batchUpdate(statements.toArray(new String[statements.size()]));
         }
     }
 
@@ -355,15 +358,20 @@ public class JdbcRpslObjectOperations {
     }
 
     public static void sanityCheck(final JdbcTemplate jdbcTemplate) {
-        final String dbName = jdbcTemplate.queryForObject("SELECT database()", String.class);
-        if (!dbName.matches("(?i).*_mirror_.+_grs.*") && !dbName.matches("(?i).*test.*")) {
-            throw new IllegalStateException(String.format("%s has no 'test' or 'grs' in the name, exiting", dbName));
-        }
-
-        if (jdbcTemplate.queryForList("SHOW TABLES", String.class).contains("serials")) {
-            if (jdbcTemplate.queryForObject("SELECT count(*) FROM serials", Integer.class) > 20000000) {
-                throw new IllegalStateException(String.format("%s has more than 20M serials, exiting", dbName));
+        try {
+            final String dbName = jdbcTemplate.queryForObject("SELECT database()", String.class);
+            if (!dbName.matches("(?i).*_mirror_.+_grs.*") && !dbName.matches("(?i).*test.*")) {
+                throw new IllegalStateException(String.format("%s has no 'test' or 'grs' in the name, exiting", dbName));
             }
+
+            if (jdbcTemplate.queryForList("SHOW TABLES", String.class).contains("serials")) {
+                if (jdbcTemplate.queryForObject("SELECT count(*) FROM serials", Integer.class) > 20000000) {
+                    throw new IllegalStateException(String.format("%s has more than 20M serials, exiting", dbName));
+                }
+            }
+        } catch (DataAccessException e) {
+            // TODO: possibly "unknown database" error
+            throw new IllegalStateException(e);
         }
     }
 

@@ -55,7 +55,7 @@ public class ObjectTemplateTest {
     public void getMultipleAttributes(){
         final ObjectTemplate template = ObjectTemplate.getTemplate(ObjectType.AS_BLOCK);
         Set<AttributeType> multipleAttributes = template.getMultipleAttributes();
-        assertThat(multipleAttributes.size(), is(7));
+        assertThat(multipleAttributes.size(), is(6));
     }
 
   @Test
@@ -131,7 +131,7 @@ public class ObjectTemplateTest {
         assertThat(template, is("" +
                 "inetnum:        [mandatory]  [single]     [primary/lookup key]\n" +
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
@@ -147,7 +147,6 @@ public class ObjectTemplateTest {
                 "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n"));
@@ -164,7 +163,7 @@ public class ObjectTemplateTest {
                 "\n" +
                 "inetnum:        [mandatory]  [single]     [primary/lookup key]\n" +
                 "netname:        [mandatory]  [single]     [lookup key]\n" +
-                "descr:          [mandatory]  [multiple]   [ ]\n" +
+                "descr:          [optional]   [multiple]   [ ]\n" +
                 "country:        [mandatory]  [multiple]   [ ]\n" +
                 "geoloc:         [optional]   [single]     [ ]\n" +
                 "language:       [optional]   [multiple]   [ ]\n" +
@@ -180,7 +179,6 @@ public class ObjectTemplateTest {
                 "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
                 "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
                 "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "changed:        [optional]   [multiple]   [ ]\n" +
                 "created:        [generated]  [single]     [ ]\n" +
                 "last-modified:  [generated]  [single]     [ ]\n" +
                 "source:         [mandatory]  [single]     [ ]\n" +

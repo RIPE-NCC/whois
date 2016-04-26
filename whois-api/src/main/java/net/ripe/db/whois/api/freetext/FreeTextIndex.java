@@ -56,8 +56,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class FreeTextIndex extends RebuildableIndex {
     private static final Logger LOGGER = getLogger(FreeTextIndex.class);
 
-    private static final int INDEX_UPDATE_INTERVAL_IN_SECONDS = 60;
-
     public static final String OBJECT_TYPE_FIELD_NAME = "object-type";
     public static final String PRIMARY_KEY_FIELD_NAME = "primary-key";
     public static final String LOOKUP_KEY_FIELD_NAME = "lookup-key";
@@ -84,18 +82,21 @@ public class FreeTextIndex extends RebuildableIndex {
 
         FIELD_NAMES = names.toArray(new String[names.size()]);
 
+        // field can be used for searching (including partial matches) but NOT sorting
         INDEXED_AND_TOKENIZED = new FieldType();
         INDEXED_AND_TOKENIZED.setIndexed(true);
         INDEXED_AND_TOKENIZED.setStored(true);
         INDEXED_AND_TOKENIZED.setTokenized(true);
         INDEXED_AND_TOKENIZED.freeze();
 
+        // field can be used for sorting, and searching (but no partial matches)
         INDEXED_NOT_TOKENIZED = new FieldType();
         INDEXED_NOT_TOKENIZED.setIndexed(true);
         INDEXED_NOT_TOKENIZED.setStored(true);
         INDEXED_NOT_TOKENIZED.setTokenized(false);
         INDEXED_NOT_TOKENIZED.freeze();
 
+        // field can be used for sorting, but not for searching
         NOT_INDEXED_NOT_TOKENIZED = new FieldType();
         NOT_INDEXED_NOT_TOKENIZED.setIndexed(false);
         NOT_INDEXED_NOT_TOKENIZED.setStored(true);
@@ -203,7 +204,7 @@ public class FreeTextIndex extends RebuildableIndex {
         updateMetadata(indexWriter, source, maxSerial);
     }
 
-    @Scheduled(fixedDelay = INDEX_UPDATE_INTERVAL_IN_SECONDS * 1000)
+    @Scheduled(fixedDelayString = "${freetext.index.update.interval.msecs:60000}" )
     public void scheduledUpdate() {
         if (StringUtils.isBlank(indexDir)) {
             return;
@@ -233,6 +234,7 @@ public class FreeTextIndex extends RebuildableIndex {
                     // suboptimal;there could be big gaps in serial entries.
                     continue;
                 }
+
                 final RpslObject rpslObject = serialEntry.getRpslObject();
 
                 switch (serialEntry.getOperation()) {
@@ -263,7 +265,7 @@ public class FreeTextIndex extends RebuildableIndex {
         final Document document = new Document();
         document.add(new Field(PRIMARY_KEY_FIELD_NAME, Integer.toString(rpslObject.getObjectId()), INDEXED_NOT_TOKENIZED));
         document.add(new Field(OBJECT_TYPE_FIELD_NAME, rpslObject.getType().getName(), INDEXED_AND_TOKENIZED));
-        document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_AND_TOKENIZED));
+        document.add(new Field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString(), INDEXED_NOT_TOKENIZED));
 
         for (final RpslAttribute attribute : rpslObject.getAttributes()) {
             if (FILTERED_ATTRIBUTES.contains(attribute.getType())){

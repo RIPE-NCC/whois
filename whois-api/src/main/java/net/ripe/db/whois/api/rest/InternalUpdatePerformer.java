@@ -50,6 +50,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
+
 @Component
 public class InternalUpdatePerformer {
 
@@ -146,12 +148,11 @@ public class InternalUpdatePerformer {
             //Be careful here, we do not want unsuccessful DELETE operations to return the mntner objects from the DB!!!
             if (preparedUpdate == null
                     || (preparedUpdate.getAction() == Action.DELETE
-                            && updateContext.getStatus(update) != UpdateStatus.SUCCESS)) {
+                    && updateContext.getStatus(update) != UpdateStatus.SUCCESS)) {
                 continue;
             }
 
-            whoisObjects.add(whoisObjectMapper.map(preparedUpdate.getUpdatedObject(), RestServiceHelper.getServerAttributeMapper(request.getQueryString())));
-
+            whoisObjects.add(whoisObjectMapper.map(preparedUpdate.getUpdatedObject(), RestServiceHelper.getRestResponseAttributeMapper(request.getQueryString())));
         }
 
         if (!whoisObjects.isEmpty()) {
@@ -162,7 +163,7 @@ public class InternalUpdatePerformer {
             whoisResources.setErrorMessages(errorMessages);
         }
 
-        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
+        whoisResources.setLink(Link.create(RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;
     }
@@ -257,4 +258,6 @@ public class InternalUpdatePerformer {
             return whoisResources;
         }
     }
+
+
 }

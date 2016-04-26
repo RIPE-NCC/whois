@@ -42,7 +42,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: dbtest@ripe.net 20120101
                 source:  TEST
                 """,
             "ROOT4"               : """\
@@ -55,7 +54,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: TP1-TEST
                 status: ALLOCATED UNSPECIFIED
                 mnt-by: RIPE-NCC-HM-MNT
-                changed: ripe@test.net 20120505
                 source: TEST
                 """,
             "ORGHR"               : """\
@@ -67,7 +65,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 ref-nfy:         dbtest-org@ripe.net
                 mnt-ref:         RIPE-NCC-HM-MNT
                 mnt-by:          RIPE-NCC-HM-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 """,
             "RIPE-NCC-HM-MNT"     : """\
@@ -79,7 +76,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 notify:      notify_hm@ripe.net
                 auth:        MD5-PW \$1\$mV2gSZtj\$1oVwjZr0ecFZQHsNbw2Ss.  #hm
                 mnt-by:      RIPE-NCC-HM-MNT
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "OWNER-MNT"           : """\
@@ -89,7 +85,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
                 mnt-by:      OWNER-MNT
                 upd-to:      dbtest@ripe.net
-                changed:     dbtest@ripe.net
                 source:      TEST
                 """,
             "INVALID-PGP-KEYCERT" : """\
@@ -99,7 +94,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 """,
             "INVALID-X509-KEYCERT": """\
@@ -108,7 +102,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----BEGIN CERTIFICATE-----
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 """,
             "PGPKEY-5763950D": """\
@@ -149,7 +142,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 """,
             "PGPKEY-28F6CD6C": """\
@@ -201,7 +193,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         =Aova
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 """
     ]
@@ -247,7 +238,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -270,19 +260,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+
-                fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx
-                cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR
-                71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux
-                4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D
-                2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=
-                =it26
+                iQEcBAEBAgAGBQJWTJbeAAoJELvMuy1XY5UNz4kH/1u8udH8GzJItsFxuwrJgSHO
+                J86uYoIUReXj075zwPJOiGQcXgF1hSUno1KkE/LjHrAADLhTwOi58hvdmnWSHqb4
+                nZslzwNc527BDqxroygwVZNzOoB8QFwfLqujr+F1CmbFSd5RX6vVF8xGmf5QYYdd
+                tPhj9kGJpt8TvamQI5mSPqWpmeeaZqHLHSHDWrmmo10suhyrcWz6/hCUReuxJmFx
+                3/Af/WhlINZ7LILo7Ni23BhltZTWfXQZuDOsSRRRU47e4au+Err9ubBRPYZaZvwj
+                kichVGo7GB7vQjpdBmQUpK6O0Rpjejsq7qkEsyFuHZulpL5rcnGtPsQUO/FXU1k=
+                =jZ51
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
     then:
@@ -293,10 +282,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 2, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
                 "Message was signed more than one week ago"]
   }
 
@@ -325,7 +313,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -348,15 +335,14 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.13 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iEYEAREDAAYFAlFkCfQACgkQRGzTveXxNXCijACfQcSUBdd4HKlFVRYrc3FHkPzV
-                MigAn0sCe9WPMEn2CXzPPpcv9jI1xBVN
-                =xdK1
+                iEYEAREDAAYFAlZMohoACgkQRGzTveXxNXA7bACfdQfGg8GDPNj9mJL6lRCj9fLU
+                tmkAoIkbaEShTyG3wS/uCqQpzKFsOROt
+                =q0GT
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
     then:
@@ -386,7 +372,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
                 Version: GnuPG v1.4.12 (Darwin)
@@ -454,7 +439,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -475,19 +459,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+
-                fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx
-                cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR
-                71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux
-                4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D
-                2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=
-                =it26
+                iQEcBAEBAgAGBQJWTKNrAAoJELvMuy1XY5UNXowH/A5w/goXTy/t4tgYR8uFEznD
+                dZz3tTT1LOTPA4HBSrbeIWVSBH9gWaOQz775B9DVjks2+YjORXD+UbnYZja0xioy
+                0oKAC/X5If6Ock5NBlUNz8eOWO+G9BMleJwD/tkBbEw7MgqRzK5/I2wbVjnmmN/z
+                g4gs1QX5LE5GApiYzzRhEfST2ugti3yAqwW6ohz+T85iHZYamo00ft0CEOGD9mkt
+                bv8IVqGN7tghLvLsjwua1J+yVWm6iLQ32I0xkBANX+6qCh7HAUX2FTJt0iTfdKnz
+                f30WkWsIMzmKAvIe0kGqQ2DVWiYqxektx1MgElhz6+fZWjLNcJQ3HycG9PF+oYs=
+                =EeZC
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
     then:
@@ -513,19 +496,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+
-                fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx
-                cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR
-                71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux
-                4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D
-                2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=
-                =it26
+                iQEcBAEBAgAGBQJWTKQvAAoJELvMuy1XY5UNnfAH/3MJ88FLgBB5vQXEXnALMrke
+                Q7wtsogCR1Uh4hOpG5Zw3CzKVz7cFBEnerlrh+uUIAJCRqW2GM2UuPGZ2qiCSG1A
+                j6J9w+67409yuztBdfB/Mr7dKqn/y9dDzXu4h/UEfK9Shvpziv2nBrJGuIg05NCj
+                3JBW4NW6uktQedJsrp6pTFp2bUFvCZ4IYdJpyTNT8lSjFsDUPaEE60Kk4QqEkPrn
+                XWMLzp+pr/aXEmf73DxnKwrBtjzq9rN0etSPWg2CanRsewJlIZK3ze2qpJw88Fgx
+                Aud70JClL28GkoykbGqv9tf8mw78YuazTxhhNK4lw5YTDNNWahA/r9rDj21XiY8=
+                =KrRX
                 -----END PGP SIGNATURE-----
             """.stripIndent().replaceAll("\n\n", "\n  \t  \n"))
     then:
@@ -555,23 +537,23 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                     phone:   +44 282 420469
                     nic-hdl: FP1-TEST
                     mnt-by:  OWNER-MNT
-                    changed: denis@ripe.net 20121016
                     source:  TEST
 
 
 
 
+
                     -----BEGIN PGP SIGNATURE-----
-                    Version: GnuPG v1.4.12 (Darwin)
+                    Version: GnuPG v1
                     Comment: GPGTools - http://gpgtools.org
 
-                    iQEcBAEBAgAGBQJQ7tNDAAoJELvMuy1XY5UNTgoIAKM8MSjCpLuyqY3QDhLk92BD
-                    C/Wd139S7opE7sXkuFBBnkBwjl8+1jG7RpweBQERWKw37bgdX1eb8PtKY9ly57Au
-                    6OItCldZiKyGX/EkDwoqYNvGoFrfUhKk0CGc5WUjUuPuKaP3MvsB9i9BYOLM6axV
-                    Bz8WRAKfFvAdL5ZeW8Exl/VKjfbC6ICi8sKd5G2U2LM/gMmbTAZLvXSREf02mZzv
-                    JSKd6znSjThhTkzrBuaqWYgKF4MelcBy3CZNkY8m6+bCoR9/iU/mb58/CafN2yte
-                    utBOSd3ln/g2UYgi02e2jWX5b7UgytMIT6HLcDqZIzRXpQBwSD0te+93VjNuDgg=
-                    =b6oY
+                    iQEcBAEBAgAGBQJWTKRtAAoJELvMuy1XY5UNx94IAInpIGqdsz8Di4cY5Sdt1zL2
+                    m54vg2bgEWY8mZ1RNTA0MgIFf5MD4hm+MZsW8DzKcqorfwDaxNgx8STgJt1xjuEi
+                    ho+t8e39bFDYQBnNIz/hai4yCraBixs4FjKavL9wviJRV2InPMlvHbFwIptw3oC7
+                    kloPtdhg+ALtwwuHgY2D+GBgIrTEAnTP32pBe4YCTn+9n2AmljKNACSr6U1z++qB
+                    XYkKHQacwYOvo8LgVjEjNOfXe7OO3bIUv5KK2D7Rip90ypq3+pPl/KVe8XVggtB/
+                    i+UXPIrHzJ3HUw0w+gLEPMJOoGLhClFua/MFoROLG3Ka9RKve0ayDFWRjeVQt5k=
+                    =kiEz
                     -----END PGP SIGNATURE-----
                     """.stripIndent())
     then:
@@ -582,10 +564,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 2, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
                 "Message was signed more than one week ago"]
   }
 
@@ -609,19 +590,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+
-                fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx
-                cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR
-                71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux
-                4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D
-                2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=
-                =it26
+                iQEcBAEBAgAGBQJWTKUKAAoJELvMuy1XY5UNyZYH/RvVPXa8FX+Xhe600HvTM2JQ
+                4tUSqJJpvL5lJL2y1Jr4NZso+V9Vr7VpURsakFbNzsgNeJfhdF/w4YhekVyXZ+V1
+                ad+VhVmfGjVGh47jyI+Dak0RKz06IBkWsl6ZFD4VhnGuTelj4VumhqNflciDBg70
+                WlKjVcbdL9bEIFK67NSBNhGqIVb4eg/0mnGUqL70MKpuRHZpANgBLSguXMduWyir
+                yFMJ6ELTJ9VC18lKbNMvtBH0osaow5A3Sa3NAOJmjIekuB+qdghZtoXwTE3gY2GR
+                38ZFNyJmTcoQ4nV3X6glwAg/lfWPhG0EByV/uhzmilv1Midetv2626/Cecn+tS0=
+                =0+bz
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
     then:
@@ -645,30 +625,29 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                       + "password: owner")
     then:
       def ack = syncUpdate new SyncUpdate(data: """\
-                -----BEGIN PGP SIGNED MESSAGE-----
-                Hash: SHA512
+            -----BEGIN PGP SIGNED MESSAGE-----
+            Hash: SHA512
 
-                person:  First Person
-                address: St James Street
-                address: Burnley
-                address: UK
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
-                source:  TEST
-                -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
-                Comment: GPGTools - http://gpgtools.org
+            person:  First Person
+            address: St James Street
+            address: Burnley
+            address: UK
+            phone:   +44 282 420469
+            nic-hdl: FP1-TEST
+            mnt-by:  OWNER-MNT
+            source:  TEST
+            -----BEGIN PGP SIGNATURE-----
+            Version: GnuPG v1
+            Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBCgAGBQJQ6qN+AAoJELvMuy1XY5UNTQoH/0cAji/pOu6kcZEZ7+huhpYk
-                YfFZrLIYXYUqXTzVT+Wua0KgTmVd2r5LzY3yUFPWXCHlCacSJ6zAwQQ3K2hfGm65
-                Nua9gmmi0cKzj/94PgpiaN+gX+g0JZDPisDEvIDCQk+yLUIj/o1Wo6OqCHX0l5At
-                qKo/IhZY9Gi7JQM2NYkr6FxedLgZPKWmA37xXl6OyEJLxBOP7waCgUwaUaalzbSB
-                PMbmFeLsvmwiSLztnN/alPOKNQoHT/H3/JV0u88/dfbKu7E6utAWZFuCqEGzuVUF
-                kiwJzUmjxSHihZz2Z8uU3yT04z1kxg1Y13vbpERfA20gbUvF5TrAQBX47l2oQb0=
-                =wUOr
-                -----END PGP SIGNATURE-----
+            iQEcBAEBCgAGBQJWTKeuAAoJELvMuy1XY5UNQGUH/1uTFrSPwgktyJ9LLYhjEHuQ
+            oQRIxwpI6dNR1zhOHZppkUYyG3L3yl/qHSbs/Or/roEwUjUEKeeQ9ROS+XrgFIAL
+            EVNQViS8y4lCoZE/Cp2emMKWmX5eZPIH81nH66Vhd0vDn6p5dytUxWMKJyrRSH4s
+            akQKe3fGyYrbZJ35csTFHYJcc0KdbyrlC/c4jQhwvRGBwVdM5+5L20MALZTQ6UWC
+            eKHeOkkezteFpBoDJJIHdroFnqKgEs97rkEle6cLhyH7lXk6csQy6UdV9kwyelCj
+            PZk4tkptHQHJKRRBBTnoTWO0DWpspaFoXf2pdPnluL8XB7IKCi9FQrm4Atc13o4=
+            =VzjZ
+            -----END PGP SIGNATURE-----
             """.stripIndent())
     then:
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
@@ -736,7 +715,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -747,36 +725,35 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                       + "password: owner")
     then:
       def ack = syncUpdate new SyncUpdate(data: """\
-                -----BEGIN PGP SIGNED MESSAGE-----
-                Hash: SHA1
+            -----BEGIN PGP SIGNED MESSAGE-----
+            Hash: SHA1
 
-                person:  First Person
-                address: St James Street
-                address: Burnley
-                address: UK
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
-                source:  TEST
-                -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
-                Comment: GPGTools - http://gpgtools.org
+            person:  First Person
+            address: St James Street
+            address: Burnley
+            address: UK
+            phone:   +44 282 420469
+            nic-hdl: FP1-TEST
+            mnt-by:  OWNER-MNT
+            source:  TEST
+            -----BEGIN PGP SIGNATURE-----
+            Version: GnuPG v1
+            Comment: GPGTools - http://gpgtools.org
 
-                iQIcBAEBAgAGBQJQ69onAAoJEGn+M5bnIg0KsFkQAMjlp/AcU2EZiOeiW+2jeF3y
-                K6sN/AQWFs9NClxGN8OBBTbTprCwQs1UxjmDZfGZUKPE2JSOnDrr89/+EhJsJFoY
-                yIGSMIIbgj8TSxUYV5/AZMcpDBr0MqRZtb+eabYTNypoCQTJSAUoG4cIdOKK5Rev
-                AEG/0NoEQ4W+nU5EpK+48Fbvu0WS7D2IFQun4R1ILcm4jDEcVsnxiuE0e4ETuXTv
-                sRpiets324h1lIFD8hLpVA9GoUe05U48Az0webVUQkeEnf7HDtU6FxU2Ol5aKna6
-                CmRw8MZ+j6iSmhPpjSiznP5RU2beji11t9JQO65HwBmW1+G15k7/OGEyp5nSTQ4T
-                ahOy4EDKrbxAa6ZU6fsxOWPRJew4WJKufB5EQepb+0M8J9CSIzVTT8FR29qjlXRc
-                rDHydxKdQjt3WFAi+PHARQv9Xu6m5anjaN4H+DeNKC92doKFRStVLjWfaK4lU2I6
-                YiCmhamP8/zX1j2ZMC723FQikMbidIkIR2FxJ7n6J5Yg/qYDpQnGQUXjTQawUoWv
-                J5GWiQ7NREFv1bH7EJzoeii78olmjHTBxvDHyIfPcieQ6L00B0rgdtkZ4Y+E8zQd
-                d+tAOc2+LovggxO1UjDvbRmQENVhu6lyU1y0g5VMS9mek8jPF87AYSjq17kMbgAZ
-                tX0+CZq5y/XPeh4vdhc4
-                =aWZF
-                -----END PGP SIGNATURE-----
+            iQIcBAEBAgAGBQJWTKfuAAoJEGn+M5bnIg0KL/0QALvdeDkq9/ZHuDL72pAr0BP9
+            jhDOtN3ghS5m21r7yg4AzX2ayq/VYuZ8VgL5AYEHdPiSp9SVb+PcKXeMc8aO3sj5
+            9W424gp5Wiz+dstfZnA3aN1vaAgiOdLfk66gP2eOapwxPlBUZuV/DfhN9RtXvH1l
+            nAPUtRoQc8gqxE64F7S3ZkVEQHCzK2GM6KQOd98VX0X90GXEl54nBE/oCuKffBcb
+            +Soqa9/upADC6Z/RrQrzmz/VEf1toq424YvyiO+KyzPhuOsEfR1H9AEUgKZo6f1D
+            uVzDEalplhyBq7wj+MH5YGXnCVzTwPrFtWsNJ11UPJXkg6yeX+kOSVu9bZIcvRhM
+            C6cJ/6ADP+qRZo4Eaq4XBhbE9cmlwSYXZmokmdln25MJhhYoGdDxWdiu9bxOwqFw
+            m8j0RXSuOC4Z5H5DibFLXMggkDy+B0r0xMG6Y815Cnu0tTMuXw4UfggiCUWzpstb
+            YJsxjGyA4As1KivN8REL9uB6lHT/OF0fJh6exYBTu71x9WIHURSdpmgrDZQXZ8/w
+            nz9vVtebGLpT2G2AVfDfOGBX9iR7uR/kcZCxny/MCdC4+qZBqWQCNeSyu5zyEJ10
+            BFeBwH1dJ/r7H+uNbVJVGnu7U5et9B/xiKRSm6MkBIMxbDK+8oSfHMWHY4NTSsjW
+            GrQn43LxX0fhr4sadDvs
+            =/OHS
+            -----END PGP SIGNATURE-----
             """.stripIndent())
     then:
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
@@ -848,7 +825,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         =GpqF
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -871,15 +847,14 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iF4EAREIAAYFAlEr/aUACgkQVt3x5YAnQzBhKQD/eD2FgfpRoOD3bZjvlRgl6rn6
-                875Iv17ORvu6dw8EX/oA/R9F0+19UsNkOYAK1nFo8JAj9wR4mrS8sGn6t24Nr25j
-                =k+x0
+                iF4EAREIAAYFAlZMqE0ACgkQVt3x5YAnQzALlQD/bMJWRsyFc7rbqoShzd5Rfky5
+                8HgTc4f3Dl9H3tvvOnUA/3YAkKqJGFdzkienbsX66RvSwdRP36gPyWCw6rQnkyaR
+                =espv
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
     then:
@@ -908,19 +883,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+
-                fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx
-                cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR
-                71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux
-                4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D
-                2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=
-                =it26
+                iQEcBAEBAgAGBQJWTKjPAAoJELvMuy1XY5UNB+sH/3EgO1BjfyIPYmu40bTYiZha
+                DPFA/8/wtQoutWg9aO8+LlaDbs4xNqQuiZz4Gsj7Kta597UqkIxNyr+FiP5qRBJn
+                nTFYI/5Euw+JqfVD/we/e56rfmL8tb4ZwdP5KIpBO58tgJwqeQ0x7vdvt1/vZ9Yx
+                uVaxcUrMzKZFT+7yJaEUCpF+alN2oC4DY6bxRGddrKDUhHTZbMEsLTdIE7rJCY+G
+                wclNvPKW42t8lT4ajloQCT6dK+aZ3YUFRRzPobxXHvrUqPJsIuPN1V2V1YdNg2Iz
+                ucVz+7OCUmT+dI15jXlZSLWwaMZ6KHafgPio5ZuACE5GeqjC0m/vG5QWXOTiHYw=
+                =OMjb
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
     then:
@@ -966,7 +940,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -989,19 +962,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+
-                fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx
-                cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR
-                71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux
-                4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D
-                2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=
-                =it26
+                iQEcBAEBAgAGBQJWTKlBAAoJELvMuy1XY5UNzFIH/2djgHjZqE+K2aC3R9UzIxtn
+                0IdBrKedFAFVNsULEWuHUj054FRcjO4KpRgG21lVEaWWEAPqhVC/Mq+CFs+7AbKf
+                A9HLYTbV857aWkuTSvb0wEZ4jCIqxAtgScnVTsDS8v95Qk1qJD+GbsvrQkdCoLXB
+                QoegvM4UeKe64bKgBxRgFELuOUgSyd0hJ7SILQoMGx+oIp1Yn47SJrbIu8IP7WrM
+                zhRTqCWoRmbhXHSJwOSxtT7pBCowIS+/RqQ5aqrMZEgtOEshcx+neFp4WKiDOPtk
+                iQa32gXdGvAA0RcELaA1kH5ZJvWaZwY1I9mnrFNgkqbANmUqbmogOpku/8d7fu0=
+                =OlpN
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
     then:
@@ -1027,19 +999,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+
-                fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx
-                cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR
-                71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux
-                4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D
-                2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=
-                =it26
+                iQEcBAEBAgAGBQJWTKmMAAoJELvMuy1XY5UNQNcIAJBXmEK8fo60um1SbCPZEk48
+                OizfjkPqD7X1WtUKd3xUbkYbWDxQxK2lWTgzuXXavVja4zXPgp0HpmBbSvJfY8cH
+                eyaKH+RXldPjI3huFmXiEVwEfRpoo33/WKgRGg72dnbw8V4yfoqdRIvZRsawwHkU
+                +mZcqPVABigHn6p4YcVhM5A9MQEq9Ifh8+gR1TgYlYiQvQDQp+xF+6dq35dWEQ+J
+                CpDsQzmjf+ow+KVq9uR082QdXvs8I9e+lXT3s9P8YWqaL33qhW8YeuI9kZaTBVq/
+                KY69NNAejyQ16FDY4pQdDxhJsCmDcq+h72SZlLd3LKboMuGmbl2cgeIe65LSc0E=
+                =UB8z
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
     then:
@@ -1075,19 +1046,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "phone:   +44 282 420469\n" +
               "nic-hdl: FP1-TEST\n" +
               "mnt-by:  OWNER-MNT\n" +
-              "changed: denis@ripe.net 20121016\n" +
               "source:  TEST\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
-              "Version: GnuPG v1.4.12 (Darwin)\n" +
-              "Comment: GPGTools - http://gpgtools.org\n" +   // no empty line after headers
-              "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+\n" +
-              "fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx\n" +
-              "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
-              "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux\n" +
-              "4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
-              "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
-              "=it26\n" +
+              "Version: GnuPG v1\n" +               // no empty line after headers
+              "iQEcBAEBAgAGBQJWTKmMAAoJELvMuy1XY5UNQNcIAJBXmEK8fo60um1SbCPZEk48\n" +
+              "OizfjkPqD7X1WtUKd3xUbkYbWDxQxK2lWTgzuXXavVja4zXPgp0HpmBbSvJfY8cH\n" +
+              "eyaKH+RXldPjI3huFmXiEVwEfRpoo33/WKgRGg72dnbw8V4yfoqdRIvZRsawwHkU\n" +
+              "+mZcqPVABigHn6p4YcVhM5A9MQEq9Ifh8+gR1TgYlYiQvQDQp+xF+6dq35dWEQ+J\n" +
+              "CpDsQzmjf+ow+KVq9uR082QdXvs8I9e+lXT3s9P8YWqaL33qhW8YeuI9kZaTBVq/\n" +
+              "KY69NNAejyQ16FDY4pQdDxhJsCmDcq+h72SZlLd3LKboMuGmbl2cgeIe65LSc0E=\n" +
+              "=UB8z\n" +
               "-----END PGP SIGNATURE-----"
+
     then:
       def ack = ackFor message
 
@@ -1108,18 +1078,16 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "phone:   \\+44 282 420469\n" +
               "nic-hdl: FP1-TEST\n" +
               "mnt-by:  OWNER-MNT\n" +
-              "changed: denis@ripe.net 20121016\n" +
               "source:  TEST\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
-              "Version: GnuPG v1.4.12 \\(Darwin\\)\n" +
-              "Comment: GPGTools \\- http://gpgtools.org\n" +
-              "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK\\+\n" +
-              "fVpmdXnI6IfzGiRrbOJWCpiu\\+vFT0QzKU22nH/JY7zDH77pjBlOQ5\\+WLG5/R2XYx\n" +
-              "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
-              "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1\\+LHs4kfqyvJux\n" +
-              "4xsP\\+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
-              "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
-              "=it26\n" +
+              "Version: GnuPG v1\n" +
+              "iQEcBAEBAgAGBQJWTKmMAAoJELvMuy1XY5UNQNcIAJBXmEK8fo60um1SbCPZEk48\n" +
+              "OizfjkPqD7X1WtUKd3xUbkYbWDxQxK2lWTgzuXXavVja4zXPgp0HpmBbSvJfY8cH\n" +
+              "eyaKH\\+RXldPjI3huFmXiEVwEfRpoo33/WKgRGg72dnbw8V4yfoqdRIvZRsawwHkU\n" +
+              "\\+mZcqPVABigHn6p4YcVhM5A9MQEq9Ifh8\\+gR1TgYlYiQvQDQp\\+xF\\+6dq35dWEQ\\+J\n" +
+              "CpDsQzmjf\\+ow\\+KVq9uR082QdXvs8I9e\\+lXT3s9P8YWqaL33qhW8YeuI9kZaTBVq/\n" +
+              "KY69NNAejyQ16FDY4pQdDxhJsCmDcq\\+h72SZlLd3LKboMuGmbl2cgeIe65LSc0E=\n" +
+              "=UB8z\n" +
               "-----END PGP SIGNATURE-----" +
               "\n\n.+?~+~~~~\n"
   }
@@ -1164,7 +1132,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
                 """.stripIndent())
@@ -1208,7 +1175,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         noreply@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
                 """.stripIndent())
@@ -1230,19 +1196,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJQ0zASAAoJEHbKke+BzPl9cM4H/2eZhNSz/knOdw2NXAkg7rbA
-                9ptyXdYG8gJJTPyWiCMUAQy0p9cOHffKV2dwZw/KNwIpXGmT5/wrWNrOZBzMAOKj
-                6qzPKPatSyAQGRfdUMaE0NZjG4MrIfDTc4RqZo3I3zBHJDKviaUzGCfQDmZSPdHV
-                Q3OvsuP6WPwpyfhTA2+Aye2O8VZqvDqoTmZkovqkfTr+Vwu2W2MjTT9aFJjXR4AI
-                hJUeJyBjsY60FmaACZVdCWXAPOiT51bmBW1q2KKnhHCjczhkXb1Tgyz2SDBUR9zS
-                L1wE3pMK0DlSZdQhGGItO+t5gK+1MRg2sMEqLmeZ9vAU927JS84xUJYDG7dnHVg=
-                =cxl7
+                iQEcBAEBAgAGBQJWTKs8AAoJEHbKke+BzPl93YwH/3Aid3KhprTZ2Z/ejlRZ6nFW
+                P944UdsFxNLZBKMe3Kyt0h16bKejMsuh2AOIMiSmP0cfCylKybRA1OwuKH7rY8ZP
+                +5LPubbwXTcDFP01aQrzrIkKEy4RIPAqeydvcVGIPx7MePPH9fjvgsAvuMwKXEMT
+                IYXhw8UDv2kFt4WsVKI6T+TidAsqTaSADhpK+OaILtfycDjNXp8a60kHM3C0hiP0
+                BtMzMYU6IwQ8+umXAOXQAFXdJZEYAvHyi8OPTTyWXivR8dzhbzHkzAiPY6pX9iPf
+                RhzeD+qm1Vt8Zl9Xgo2++SoD4Xxw6wfujhl9NLBUt92KtgjEPjrkqnYhwVPyEqE=
+                =TfFa
                 -----END PGP SIGNATURE-----
                 """.stripIndent()
       )
@@ -1255,10 +1220,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 2, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
                 "Message was signed more than one week ago"]
   }
 
@@ -1302,7 +1266,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 notify:         unread@ripe.net
                 mnt-by:         OWNER-MNT
-                changed:        unread@ripe.net 20010101
                 source:         TEST
                 password:       owner
                 """.stripIndent())
@@ -1327,31 +1290,30 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 - -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJQ3bhkAAoJELvMuy1XY5UN6QIH/iQqvy3wKdZ2xjxRy6pziBDo
-                HIKUm+C1KYDcBU0MniLA9X8dwRZu43jM1UtIZuvdEP5S2P03TFphaeUuHJnX1HyO
-                BoiH3ZIgRRVVUhLSdcemPYp0G9wJJagorXhTP3bB/+fyxFsV88SmHu8YCOFhFw6i
-                mkAarV9QcwYIS8DW/pYUf2zhXpVvRnDxpAlE/tQWF4wtmPN/P1r9qPHfim8rRJ45
-                qW5bm9dWe8tKFG4hFSU24Hr53tvDHzIfNM3omrskMCplHxU9BqE3k3mxHKt1mrdM
-                8HNlS5+jfnBuqDAH3vpIQWJaud2511hB8RFeYVLEhCIPyyh6ateHvaTKIZZUKTM=
-                =lcDe
+                iQEcBAEBAgAGBQJWTKxZAAoJELvMuy1XY5UNC4YH/0s93Ow7fvH8zaycT/iQplCG
+                L/vIELulL4DwoqSfCSv0V8teDW+AGftbdjGHDS38UIkdI1XB6b9KcPhcg7uuwMLR
+                8YUum+/HWXw4JHXnlJ9Z35DlXuUssTYFU8QdUBg8fNM2Aad0gRSZhkIRugq0a4Il
+                OW+vfHRtuIc9hT57Gwh3UQ5593B3D/H30vPDHuAbiMVtYl2yb31tbKds8elPBGRp
+                1G5xJm6Tyv9L0vhWKshf2+Po2WqO/kf49EEc+fGiXUYh8fJkL86NR9o8KiAm1Zot
+                mIUHA/ODZ6WISI5VeQ3nZV2L+FueuCyC19be17huyuLKZJljH1ZHEqXtOSLi1w8=
+                =7+/2
                 - -----END PGP SIGNATURE-----
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.4.12 (Darwin)
+                Version: GnuPG v1
                 Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJQ3bhwAAoJEHbKke+BzPl9KjcIALqyb3vYy6zkQCFh3SmBpJDw
-                eVugCy7qBm/lSukbh/+2+InJu7l0SIuxEH9LIErbFR8gHQOcsRiy81oYOmtZckeD
-                tjNGx2DvLmScu/C9Hc30Z73NezZBlyncx9v9EsjHeR/mudmbcuBr0mLlEXIkrTZh
-                QdJiIYxbF+4sYGRMTYUnuiIDiYfEvvGdI8YoKb3xQxwn1XurrPuvEIMUZ8yWQG3q
-                dkq3+v1CzBxP6tbptKqqKaPVpOzQhGvdiCVVipXGcwoIpv7wcdQxQ/k0i6kKfEgl
-                U2NzB4p3aJgywBAC8noAmRxbOnJNgyAGoQ1zWe8TIudkJM1C4M/sVyh0QIKXCCA=
-                =OBVH
+                iQEcBAEBAgAGBQJWTKxoAAoJEHbKke+BzPl9EMQH/jwS55/t7NwyTp2IkcIzs0ar
+                e/lxx6YqqedPzhsDwUx3zJVNPkzYVHmrMaHvJBU4ETkMfvHSjnRebjrmtzqZIfas
+                c8lDhe9G9AiQEMp6hhZdl0taUkd1OuQs3Fwl2oyEEfQhXtzsyGTOi9+HGT7i5GEz
+                NFZT6tBjdPkyTVQeObU5EPNhRur/AW9Lo/c5gJTeR0F/Fqr/mdM0VzLzI78I45a4
+                6WVOvh1xmYyjAqtkeRBs7K3t1/axgLqipYacBAO7ojn2pTwlxfGNe6P4aPeqPp5R
+                L0feEtd9bj9AVsizm9TSI2lPM+AMuqDykwmn/FJTw0LUpohSTy0EEvpuU2qriKU=
+                =k2zm
                 -----END PGP SIGNATURE-----
                 """.stripIndent()
       )
@@ -1364,14 +1326,14 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 2, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
                 "Message was signed more than one week ago"]
   }
 
-  def "mutipart  pgp signed message with crlf stripped from content"() {
+  @Ignore("TODO")
+  def "multipart pgp signed message with crlf stripped from content"() {
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -1391,13 +1353,13 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "Content-Type: text/plain; charset=\"UTF-8\"\n" +
               "Content-Transfer-Encoding: quoted-printable\n" +
               "\n" +
-              "person:  First Person\n" +
+              "person: First Person\n" +
               "address: St James Street\n" +
               "address: Burnley\n" +
               "address: UK\n" +
-              "phone:   +44 282 420469\n" +
+              "phone: +44 282 420469\n" +
               "nic-hdl: FP1-TEST\n" +
-              "mnt-by:  OWNER-MNT\n" +
+              "mnt-by: OWNER-MNT\n" +
               "changed: denis@ripe.net 20121016\n" +
               "source: TEST\n" +
               "--=-8YSQO2TBX+Ao8EuQQc6k\n" +
@@ -1576,7 +1538,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Deprecated attribute \"changed\". This attribute has been removed.",
                 "Message was signed more than one week ago"]
   }
 
@@ -1647,8 +1609,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
-                "Message was signed more than one week ago"]
+        "Deprecated attribute \"changed\". This attribute has been removed.",
+        "Message was signed more than one week ago"]
   }
 
   def "multipart plaintext pgp signed message with unknown encoding"() {
@@ -1869,7 +1831,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -1977,7 +1938,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Deprecated attribute \"changed\". This attribute has been removed.",
                 "Message was signed more than one week ago"]
   }
 
@@ -2011,7 +1972,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -2102,7 +2062,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.countErrorWarnInfo(0, 2, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
+                "Deprecated attribute \"changed\". This attribute has been removed.",
                 "Message was signed more than one week ago"]
   }
 
@@ -2307,7 +2267,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:       w0L5DyjKGe0dbjMKtaDdgQhxj8aBHNnQVbS9Oqhvmc65XgNi
                 certif:       -----END CERTIFICATE-----
                 mnt-by:       OWNER-MNT
-                changed:      noreply@ripe.net 20010101
                 source:       TEST
                 password:     owner
              """.stripIndent())
@@ -2516,7 +2475,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -2623,7 +2581,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:       +o7S6hzwbNsUve3+zPyhSf50
                 certif:       -----END CERTIFICATE-----
                 mnt-by:       OWNER-MNT
-                changed:      noreply@ripe.net 20010101
                 source:       TEST
                 password:     owner
              """.stripIndent())
@@ -2707,7 +2664,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:       SSZdF8vYxaL77qAvHUqerGo2H3K660GF
                 certif:       -----END CERTIFICATE-----
                 mnt-by:       OWNER-MNT
-                changed:      noreply@ripe.net 20010101
                 source:       TEST
                 password:     owner
              """.stripIndent())
@@ -2803,7 +2759,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         mlPZDYRpwo6Jz9TAdeFWisLWBspnl83R1tQepKTXObjVVCmhsA==
                 certif:         -----END CERTIFICATE-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -3003,7 +2958,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:         =p8dm
                 certif:         -----END PGP PUBLIC KEY BLOCK-----
                 mnt-by:         OWNER-MNT
-                changed:        noreply@ripe.net 20010101
                 source:         TEST
                 password:       owner
              """.stripIndent())
@@ -3063,7 +3017,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       clearPowerMaintainers();
 
     then:
-      def message = send "From: inetnum@ripe.net\n" +
+          def message = send  "From: inetnum@ripe.net\n" +
               "Content-Type: multipart/signed; boundary=\"Apple-Mail=_02EDC824-733F-459F-93D6-8E066E37EFC8\"; " +
               "protocol=\"application/pgp-signature\"; micalg=pgp-sha1\n" +
               "Subject: NEW\n" +
@@ -3162,18 +3116,18 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "phone:   +44 282 420469\n" +
               "nic-hdl: FP1-TEST\n" +
               "mnt-by:  OWNER-MNT\n" +
-              "changed: denis@ripe.net 20121016\n" +
               "source:  TEST\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
-              "Version: GnuPG v1.4.12 (Darwin)\n" +
-              "Comment: GPGTools - http://gpgtools.org\n\n" +
-              "iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+\n" +
-              "fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx\n" +
-              "cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR\n" +
-              "71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux\n" +
-              "4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D\n" +
-              "2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=\n" +
-              "=it26\n" +
+              "Version: GnuPG v1\n" +
+              "Comment: GPGTools - http://gpgtools.org\n" +
+              "\n" +
+              "iQEcBAEBAgAGBQJWTyycAAoJELvMuy1XY5UNgIMH/RnFAmwKu8rs6eqzWlWIGgZ+\n" +
+              "QkCxy/cdWn8LOyUw77JtJ+gXGsjcZjy1rRCtHlYGnM97I/oiAwDCaiPGnCzD6bjI\n" +
+              "A0zGc21K/cZjBZmjB2+fOouNbLnn2PE/XQi6JR/tX4VIN7FOXQqjk1i7Rpwy/yug\n" +
+              "aHepJIlIyrgGKEyhunojctk1VUdNwOlp0yaS0sPWjJLldEFxq2HbDnSRcgRtfB5z\n" +
+              "ep2YNgDgCuVZLkF6GCIQ0cXSelIYhkwfpcgxIcEmwI2frPYAm+uTxTe5J2sjJNDz\n" +
+              "a52BaUJYffxrAAXSo1NWX4XQCDL632NRAJ6aLU79+MBrETkPxyebd4DyG0lyHBE=\n" +
+              "=xrVg\n" +
               "-----END PGP SIGNATURE-----"
 
     then:
@@ -3184,10 +3138,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
 
-      ack.countErrorWarnInfo(0, 2, 0)
+      ack.countErrorWarnInfo(0, 1, 0)
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
       ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute will be removed in the future.",
                 "Message was signed more than one week ago"]
   }
 
@@ -3226,7 +3179,6 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "phone:   +44 282 420469\n" +
               "nic-hdl: FP1-TEST\n" +
               "mnt-by:  OWNER-MNT\n" +
-              "changed: denis@ripe.net 20121016\n" +
               "source:  TEST\n" +
               "\n" +
               "\n" +
@@ -3323,27 +3275,25 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "phone:   +49 123456\n" +
               "nic-hdl: FP1-TEST\n" +
               "mnt-by:  OWNER-MNT\n" +
-              "changed: noreply@ripe.net 20121016\n" +
               "source:  TEST\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
               "Version: GnuPG v1\n" +
               "Comment: GPGTools - http://gpgtools.org\n" +
               "\n" +
-              "iQEcBAEBAgAGBQJTsUDjAAoJELvMuy1XY5UNW28H/isQgDeFQbnZY3UtI5UoObCc\n" +
-              "VOWFud24PhB+KanBG29qw8cRzkrhfwm+3H2sOcwJHXPKY/svQi8dx+7FfA+awuFK\n" +
-              "/2mtXboVL37W8GimZGt3Yx7Ecdgt4y9S+uKqb2s5MvPkAxKFCO6cUiXeO6dsHPvn\n" +
-              "AXn6dcV0dOhNDrPuQLJQdcUw8JtJLhVbNNnceccEUhtLLCa8kItfNq71RYCgJDep\n" +
-              "IZxiaQr0udN/ktQ+a1HmkXx+2TaGAShXb1TcxMbxs/8Sq/RrVU/d+b82831Ov/iC\n" +
-              "4WqKdU+Vx704cq3VzfK0SjC2xYwaPg+5GrqNm+2xmynyDw4tA1RDTc8v5ZZAfy8\n" +
-              "=3D=3DlGM8\n" +
+              "iQEcBAEBAgAGBQJWTyqkAAoJELvMuy1XY5UNZ+gIAJGoZDmvkcXxsqfn3FFxcfXB\n" +
+              "Wmg6mzvazbTvqB96whPXQGU5rj3cK/4bhiXYBi8rlZSjm4M33aAsvBuQ47YXy6HD\n" +
+              "BGvoMf2n5SdCFYU+u8QhVB1S++N1clkmwD/dljtUn6TdjjupjiHSLIAJ+ON4qSiB\n" +
+              "iQr8v0VL87F2WhjTsrv5v0x8LryYFn7E4mz26EdcP+1JbVoiXpiGnsy4OFnAIA/P\n" +
+              "yaNIoFaMuBSBxsIScnMmwH1arUeN/0VzAFARaEfi/H4S7jh88Rsz37rEzbZngkHX\n" +
+              "T2ihLvi1VtGexAF4PbxVpTSY09WCXDInvxvsiVcCOqhDX06XqbwcBrKMUYPo+dg\n" +
+              "=3D=3DqzbX\n" +
               "-----END PGP SIGNATURE-----"
     then:
       def ack = ackFor message
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
 
-  @Ignore("TODO: [ES] invalid signature results in unexpected error occurred, need to return better error message")
-  def "inline pgp signed mailupdate, newline error in signature"() {
+  def "pgp signed message with invalid signature"() {
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent().
@@ -3363,110 +3313,87 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 phone:   +44 282 420469
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
-                source:  TEST
-                -----BEGIN PGP SIGNATURE-----
-
-                Version: GnuPG v1.4.12 (Darwin)
-
-                iQEcBAEBAgAGBQJQwIPwAAoJELvMuy1XY5UNmTgH/3dPZOV5DhEP7qYS9PvgFnK+
-                fVpmdXnI6IfzGiRrbOJWCpiu+vFT0QzKU22nH/JY7zDH77pjBlOQ5+WLG5/R2XYx
-                cy35J7HwKwChUg3COEV5XAnmiNxom8FnfimKTPdwNVLBZ6UmVSP5u2ua4uheTclR
-                71wej5okzHGtOyLVLH6YV1/p4/TNJOG6nDnABrowzsZqIMQ43N1+LHs4kfqyvJux
-                4xsP+PH9Tqiw1L8wVn/4XefLraawiPMLB1hLgPz6bTcoHXMEY0/BaKBOIkI3d49D
-                2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=
-                =it26
-                -----END PGP SIGNATURE-----
-                """.stripIndent())
-    then:
-      def ack = ackFor message
-
-      ack.success
-  }
-
-  @Ignore("TODO [ES]")
-  def "invalid signature results in internal server error (another example)"() {
-    when:
-      syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
-                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
-                      + "password: owner")
-    then:
-      def message = send new Message(
-              subject: "",
-              body: """\
-                -----BEGIN PGP SIGNED MESSAGE-----
-                Hash: SHA1
-
-                person:  First Person
-                address: St James Street
-                address: Burnley
-                address: UK
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
-                source:  TEST
-
-                -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1.2.6 (GNU/Linux)
-
-                iD8DBQFVWbBwNQCxxDkDxUMRAsc AJwIxzuKiPIkt/f2OSJ1Cc4JjPgHbACgucBI
-                3 6v0na2EwLKdZPgbAwM0hU=
-                =Z3KR
-                -----END PGP SIGNATURE-----
-                """.stripIndent())
-    then:
-      def ack = ackFor message
-
-      ack.success
-  }
-
-  @Ignore("[ES] TODO")
-  def "pgp compressed data results in internal server error"() {
-    when:
-      syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
-                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
-                      + "password: owner")
-    then:
-      def message = send new Message(
-              subject: "",
-              body: """\
-                -----BEGIN PGP SIGNED MESSAGE-----
-                Hash: SHA1
-
-                person:  First Person
-                address: St James Street
-                address: Burnley
-                address: UK
-                phone:   +44 282 420469
-                nic-hdl: FP1-TEST
-                mnt-by:  OWNER-MNT
-                changed: denis@ripe.net 20121016
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
                 Version: GnuPG v2
 
-                owGbwMvMwMF4JoN/Y3WR1DzG0wfWJjGEzmtqzsxLLckrzbVSgAFzSz1LCz1DM3M9
-                AwVdJJ6hkTkvF0hxYm4qQnWot26YZ1CIoa6zf5CrrpOPtxkvV0pqcXIRQomCQlhm
-                UUlpYo6hgq+7b4hCYl6KgnN+UapCSmpZZnJqMS9Xcn5pXklRJUKLuxMvV2JKbmae
-                bjJCMMzfz1U3yDPAlZerJDU5A1kKWa64JLGktBhJzjE42NPdz9VFIcCRlys3r0Q3
-                CckmBV+/ELAPQh19DIEuyUjMS09NQcgXZSZn6CWmJOY6lEE9oZecnwu0Jb+0KBkp
-                HBQglhel5iYWZSPZ7unnFuSo6xjeySjDwsDIwcDGygQKdQYuTgFYXIT4cjAsPrWU
-                q/bTv9ZIt7B9vucd5m6NDoo2vpSRdL/+37yNtx/sLlfriN3RtrHg4qK7O99u561/
-                95HdLd1nG6uvV9Fi2bMZt5wLvZ7vTGzZo6Pgoyl9XOhyn7+wQhG3p174uZQZOyTl
-                7VwYZh34rrhm8RzLqf+9PoTGx22/7Dr74fdCZufsi5Pq7jJtkPu4nPea5c45mbzr
-                HabaXQg5VHT1PfN5AcUZX/q2MtY2TxZhPbNh/uW+V+/Ohcjp7/2konZthX7ztnsF
-                FYcW5Zv5+vOfKxOIOaS8gEn7lrTS1nPN11xqXhRv25ySWFF/xXLaPZesPNkGi9h4
-                +4khnD7roiqWV8RIMr6M4GeMmfikXWHajwUA
-                =DFkw
+                nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
                 -----END PGP SIGNATURE-----
                 """.stripIndent())
     then:
       def ack = ackFor message
 
-      ack.success
+      ack.contents.contains("Create FAILED: [person] FP1-TEST   First Person")
+      ack.contents.contains(
+              "***Error:   Authorisation for [person] FP1-TEST failed\n" +
+              "            using \"mnt-by:\"\n" +
+              "            not authenticated by: OWNER-MNT")
+  }
+
+  def "pgp signed multipart/mixed nested part"() {
+    when:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent().
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
+                      + "password: owner")
+    then:
+      def message = send "" +
+                "To: auto-dbm@ripe.net\n" +
+                "From: No Reply <noreply@ripe.net>\n" +
+                "Subject: NEW\n" +
+                "Message-ID: <56FCE84F.2010807@ripe.net>\n" +
+                "Date: Thu, 31 Mar 2016 11:05:19 +0200\n" +
+                "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:38.0) Gecko/20100101\n" +
+                " Thunderbird/38.5.1\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Type: multipart/signed; micalg=pgp-sha1;\n" +
+                " protocol=\"application/pgp-signature\";\n" +
+                " boundary=\"JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\"\n" +
+                "\n" +
+                "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\n" +
+                "Content-Type: multipart/mixed; boundary=\"SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\"\n" +
+                "From: No Reply <noreply@ripe.net>\n" +
+                "To: auto-dbm@ripe.net\n" +
+                "Message-ID: <56FCE84F.2010807@ripe.net>\n" +
+                "Subject: NEW\n" +
+                "\n" +
+                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\n" +
+                "Content-Type: text/plain; charset=utf-8\n" +
+                "Content-Transfer-Encoding: quoted-printable\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: St James Street\n" +
+                "address: Burnley\n" +
+                "address: UK\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "\n" +
+                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh--\n" +
+                "\n" +
+                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\n" +
+                "Content-Type: application/pgp-signature; name=\"signature.asc\"\n" +
+                "Content-Description: OpenPGP digital signature\n" +
+                "Content-Disposition: attachment; filename=\"signature.asc\"\n" +
+                "\n" +
+                "-----BEGIN PGP SIGNATURE-----\n" +
+                "Comment: GPGTools - http://gpgtools.org\n" +
+                "\n" +
+                "iQEcBAEBCAAGBQJW/UFbAAoJELvMuy1XY5UN8sIH/jknae8l8dK4pJnf1CK4fXLq\n" +
+                "YedvGzo10gpLKlSu0UnBRapE6aZcPNmYLMJReP/JhbPfRAr7XQCRJKVwOngntmwi\n" +
+                "b4p9C+GYOUEUScLbBYe4FS70xPQZBEqDEB+pPEQI7DSRMQs/aF3fSXGHygJA2EGp\n" +
+                "QE5e2i0OwL1usnkRb87IXxFoL/LAalHogaU7m+vwJADD5ERqF1jNfiw4B8LQRF8x\n" +
+                "Yq5BtICOBOj7sL/JCKL17KrGlcQFWL3StLGf6IghltSSnAVQesKY4k2SzyyCulKL\n" +
+                "v3REE7AAtRIih8l+VP4dL09AD1/mWT38D24gjOC+HOHcdGbl7YmE9cHr3xwetgY=\n" +
+                "=GA9B\n" +
+                "-----END PGP SIGNATURE-----\n" +
+                "\n" +
+                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg--"
+    then:
+      def ack = ackFor message
+      ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
 
 

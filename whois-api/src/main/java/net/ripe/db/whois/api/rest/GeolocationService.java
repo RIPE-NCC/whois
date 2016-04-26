@@ -41,6 +41,7 @@ public class GeolocationService {
 
     private static final String SERVICE_NAME = "geolocation-finder";
 
+    // TODO: [ES] don't hard-code environment specific URL
     private static final String LOOKUP_URL = "http://rest.db.ripe.net/lookup";
 
     private static final Set<InetnumStatus> STOP_AT_STATUS_IPV4 = Sets.immutableEnumSet(
@@ -135,7 +136,7 @@ public class GeolocationService {
         final WhoisResources whoisResources = new WhoisResources();
         whoisResources.setService(new Service(SERVICE_NAME));
         whoisResources.setGeolocationAttributes(new GeolocationAttributes(location, languages));
-        whoisResources.setLink(new Link("locator", RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
+        whoisResources.setLink(Link.create(RestServiceHelper.getRequestURL(request).replaceFirst("/whois", "")));
         whoisResources.includeTermsAndConditions();
         return whoisResources;
     }
@@ -169,7 +170,7 @@ public class GeolocationService {
             return null;
         }
         final String value = rpslObject.getValueForAttribute(AttributeType.GEOLOC).toString();
-        final Link link = getLink(rpslObject);
+        final Link link = Link.create(LOOKUP_URL, rpslObject);
         return new Location(value, link);
     }
 
@@ -179,20 +180,12 @@ public class GeolocationService {
             return null;
         }
         final List<Language> languages = Lists.newArrayList();
-        final Link link = getLink(rpslObject);
+        final Link link = Link.create(LOOKUP_URL, rpslObject);
         for (RpslAttribute rpslAttribute : rpslObject.findAttributes(AttributeType.LANGUAGE)) {
             final String value = rpslAttribute.getCleanValue().toString();
             languages.add(new Language(value, link));
         }
         return languages;
-    }
-
-    private Link getLink(final RpslObject rpslObject) {
-        final String source = rpslObject.getValueForAttribute(AttributeType.SOURCE).toString().toLowerCase();
-        final String type = rpslObject.getType().getName();
-        final String key = rpslObject.getKey().toString();
-        final String href = String.format("%s/%s/%s/%s", LOOKUP_URL, source, type, key);
-        return new Link("locator", href);
     }
 
     private boolean isStopStatus(final RpslObject rpslObject) {

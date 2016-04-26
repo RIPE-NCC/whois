@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+// TODO: [ES] replace hardcoded environment-specific URL
 @Component
 @Path("/metadata")
 public class WhoisMetadata {
@@ -85,7 +86,7 @@ public class WhoisMetadata {
     public Response sources(@Context final HttpServletRequest request) {
         final WhoisResources result = new WhoisResources()
             .setService(new Service("getSupportedDataSources"))
-            .setLink(new Link("locator", "http://rest.db.ripe.net/metadata/sources"))
+            .setLink(Link.create("http://rest.db.ripe.net/metadata/sources"))
             .setSources(SOURCES);
 
         return Response.ok(new StreamingOutput() {
@@ -112,7 +113,7 @@ public class WhoisMetadata {
 
         final TemplateResources result = new TemplateResources()
                 .setService(new Service("getObjectTemplate"))
-                .setLink(new Link("locator", "http://rest.db.ripe.net/metadata/templates/"+objectType))
+                .setLink(Link.create("http://rest.db.ripe.net/metadata/templates/"+objectType))
                 .setTemplates(Collections.singletonList(template));
 
         return Response.ok(new StreamingOutput() {

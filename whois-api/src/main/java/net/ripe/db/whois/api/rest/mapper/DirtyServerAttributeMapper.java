@@ -20,7 +20,8 @@ public class DirtyServerAttributeMapper implements AttributeMapper {
     private final String baseUrl;
 
     @Autowired
-    public DirtyServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver, @Value("${api.rest.baseurl}") final String baseUrl) {
+    public DirtyServerAttributeMapper(final ReferencedTypeResolver referencedTypeResolver,
+                                    @Value("${api.rest.baseurl}") final String baseUrl) {
         this.referencedTypeResolver = referencedTypeResolver;
         this.baseUrl = baseUrl;
     }
@@ -38,16 +39,13 @@ public class DirtyServerAttributeMapper implements AttributeMapper {
             // TODO: [AH] for each person or role reference returned, we make an sql lookup - baaad
             final CIString cleanValue = cleanValues.iterator().next();
             final String referencedType = (rpslAttribute.getType() != null) ? referencedTypeResolver.getReferencedType(rpslAttribute.getType(), cleanValue) : null;
-            final Link link = (referencedType != null) ? createLink(source, referencedType, cleanValue.toString()) : null;
+            final Link link = (referencedType != null) ? Link.create(baseUrl, source, referencedType, cleanValue.toString()) : null;
             return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, referencedType, link));
         } else {
             return Collections.singleton(new Attribute(rpslAttribute.getKey(), rpslAttribute.getFormattedValue(), null, null, null));
         }
     }
 
-    protected Link createLink(final String source, final String type, final String key) {
-        return new Link("locator", String.format("%s/%s/%s/%s", baseUrl, source, type, key));
-    }
 
     // TODO: duplicate method
     private static String getAttributeValue(final Attribute attribute) {

@@ -247,10 +247,8 @@ public class WhoisRestService {
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override,
-            @QueryParam("dry-run") final String dryRun) {
-
-        final RpslObject submittedObject = getSubmittedObject(request, resource);
-        validateSubmittedUpdateObject(request, submittedObject, objectType, key);
+            @QueryParam("dry-run") final String dryRun,
+            @QueryParam("unformatted") final String unformatted) {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
@@ -260,6 +258,9 @@ public class WhoisRestService {
 
             checkForMainSource(request, source);
             setDryRun(updateContext, dryRun);
+
+            final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
+            validateSubmittedUpdateObject(request, submittedObject, objectType, key);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
 
@@ -293,7 +294,8 @@ public class WhoisRestService {
             @QueryParam("password") final List<String> passwords,
             @CookieParam("crowd.token_key") final String crowdTokenKey,
             @QueryParam("override") final String override,
-            @QueryParam("dry-run") final String dryRun) {
+            @QueryParam("dry-run") final String dryRun,
+            @QueryParam("unformatted") final String unformatted) {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
@@ -304,7 +306,7 @@ public class WhoisRestService {
             checkForMainSource(request, source);
             setDryRun(updateContext, dryRun);
 
-            final RpslObject submittedObject = getSubmittedObject(request, resource);
+            final RpslObject submittedObject = getSubmittedObject(request, resource, isQueryParamSet(unformatted));
             validateSubmittedCreateObject(request, submittedObject, objectType);
 
             final Update update = updatePerformer.createUpdate(updateContext, submittedObject, passwords, null, override);
@@ -337,7 +339,9 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
-            @CookieParam("crowd.token_key") final String crowdTokenKey) {
+            @CookieParam("crowd.token_key") final String crowdTokenKey,
+            @QueryParam("unformatted") final String unformatted,
+            @QueryParam("unfiltered") final String unfiltered) {
 
         if (!sourceContext.getAllSourceNames().contains(ciString(source))) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
@@ -345,7 +349,7 @@ public class WhoisRestService {
                     .build());
         }
 
-        QueryBuilder queryBuilder = new QueryBuilder().
+        final QueryBuilder queryBuilder = new QueryBuilder().
                 addFlag(QueryFlag.EXACT).
                 addFlag(QueryFlag.NO_GROUPING).
                 addFlag(QueryFlag.NO_REFERENCED).
@@ -353,13 +357,13 @@ public class WhoisRestService {
                 addCommaList(QueryFlag.SOURCES, source).
                 addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName());
 
-        if (isQueryParamSet(request.getQueryString(), "unfiltered")) {
+        if (isQueryParamSet(unfiltered)) {
             queryBuilder.addFlag(QueryFlag.NO_FILTERING);
         }
 
         try {
             final Query query = Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request)).setMatchPrimaryKeyOnly(true);
-            return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null);
+            return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), null, null, isQueryParamSet(unformatted));
         } catch (QueryException e) {
             throw getWebApplicationException(e, request, Lists.<Message>newArrayList());
         }
@@ -376,7 +380,7 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        QueryBuilder queryBuilder = new QueryBuilder()
+        final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addFlag(QueryFlag.LIST_VERSIONS);
 
@@ -418,7 +422,7 @@ public class WhoisRestService {
 
         checkForMainSource(request, source);
 
-        QueryBuilder queryBuilder = new QueryBuilder()
+        final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addCommaList(QueryFlag.SHOW_VERSION, String.valueOf(version));
 
@@ -462,7 +466,8 @@ public class WhoisRestService {
             @QueryParam("include-tag") final Set<String> includeTags,
             @QueryParam("exclude-tag") final Set<String> excludeTags,
             @QueryParam("type-filter") final Set<String> types,
-            @QueryParam("flags") final Set<String> flags) {
+            @QueryParam("flags") final Set<String> flags,
+            @QueryParam("unformatted") final String unformatted) {
 
         validateSources(request, sources);
         validateSearchKey(request, searchKey);
@@ -492,9 +497,13 @@ public class WhoisRestService {
                 new Sources(sources),
                 null);
 
-        final Service service = new Service(SERVICE_SEARCH);
-
-        return handleQueryAndStreamResponse(query, request, InetAddresses.forString(request.getRemoteAddr()), parameters, service);
+        return handleQueryAndStreamResponse(
+                query,
+                request,
+                InetAddresses.forString(request.getRemoteAddr()),
+                parameters,
+                new Service(SERVICE_SEARCH),
+                isQueryParamSet(unformatted));
     }
 
     private void validateSearchKey(final HttpServletRequest request, final String searchKey) {
@@ -565,7 +574,7 @@ public class WhoisRestService {
         }
     }
 
-    private RpslObject getSubmittedObject(final HttpServletRequest request, final WhoisResources whoisResources) {
+    private RpslObject getSubmittedObject(final HttpServletRequest request, final WhoisResources whoisResources, final boolean unformatted) {
         final int size = (whoisResources == null || CollectionUtils.isEmpty(whoisResources.getWhoisObjects())) ? 0 : whoisResources.getWhoisObjects().size();
         if (size != 1) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
@@ -573,13 +582,19 @@ public class WhoisRestService {
                     .build());
         }
 
-        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), getServerAttributeMapper(request.getQueryString()));
+        return whoisObjectMapper.map(whoisResources.getWhoisObjects().get(0), getServerAttributeMapper(unformatted));
     }
 
     private void validateSubmittedUpdateObject(final HttpServletRequest request, final RpslObject object, final String objectType, final String key) {
-        if (!object.getKey().equals(key) || !object.getType().getName().equalsIgnoreCase(objectType)) {
+        if (!object.getType().getName().equalsIgnoreCase(objectType)) {
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
                     .entity(whoisService.createErrorEntity(request, RestMessages.uriMismatch(objectType, key)))
+                    .build());
+        }
+
+        if (!object.getKey().equals(key)) {
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .entity(whoisService.createErrorEntity(request, RestMessages.pkeyMismatch(key)))
                     .build());
         }
     }
@@ -639,9 +654,10 @@ public class WhoisRestService {
                                                   final HttpServletRequest request,
                                                   final InetAddress remoteAddress,
                                                   @Nullable final Parameters parameters,
-                                                  @Nullable final Service service) {
+                                                  @Nullable final Service service,
+                                                  final boolean unformatted) {
 
-        return Response.ok(new RpslObjectStreamer(request, query, remoteAddress, parameters, service)).build();
+        return Response.ok(new RpslObjectStreamer(request, query, remoteAddress, parameters, service, unformatted)).build();
     }
 
     private WebApplicationException getWebApplicationException(final RuntimeException exception, final HttpServletRequest request, final List<Message> messages) {
@@ -678,7 +694,7 @@ public class WhoisRestService {
     }
 
     void setDryRun(final UpdateContext updateContext, final String dryRun) {
-        if (dryRun != null && (dryRun.isEmpty() || dryRun.equalsIgnoreCase("true"))) {
+        if (isQueryParamSet(dryRun)) {
             updateContext.dryRun();
         }
     }
@@ -692,13 +708,19 @@ public class WhoisRestService {
         private StreamingMarshal streamingMarshal;
         private Class<? extends AttributeMapper> attributeMapper;
 
-        public RpslObjectStreamer(final HttpServletRequest request, final Query query, final InetAddress remoteAddress, final Parameters parameters, final Service service) {
+        public RpslObjectStreamer(
+                final HttpServletRequest request,
+                final Query query,
+                final InetAddress remoteAddress,
+                final Parameters parameters,
+                final Service service,
+                final boolean unformatted) {
             this.request = request;
             this.query = query;
             this.remoteAddress = remoteAddress;
             this.parameters = parameters;
             this.service = service;
-            this.attributeMapper = RestServiceHelper.getServerAttributeMapper(request.getQueryString());
+            this.attributeMapper = getServerAttributeMapper(unformatted);
         }
 
         @Override
@@ -808,7 +830,7 @@ public class WhoisRestService {
                     errors.clear();
                 }
 
-                streamingMarshal.write("terms-and-conditions", new Link("locator", WhoisResources.TERMS_AND_CONDITIONS));
+                streamingMarshal.write("terms-and-conditions", Link.create(WhoisResources.TERMS_AND_CONDITIONS));
                 streamingMarshal.end("whois-resources");
                 streamingMarshal.close();
                 return errors;

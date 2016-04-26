@@ -77,7 +77,8 @@ public class WhoisRestServiceTest {
                         Collections.EMPTY_SET,
                         Collections.EMPTY_SET,
                         Collections.EMPTY_SET,
-                        Sets.newHashSet(disallowedFlag));
+                        Sets.newHashSet(disallowedFlag),
+                        null);
                 fail("Disallowed option " + disallowedFlag + " did not throw error");
             } catch (WebApplicationException e) {
                 assertThat(((WhoisResources)e.getResponse().getEntity()).getErrorMessages().get(0).getText(), is("Disallowed search flag '%s'"));

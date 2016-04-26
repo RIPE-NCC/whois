@@ -225,9 +225,26 @@ public class IpTreeCacheManager {
         if (fromExclusive == toInclusive) {
             LOGGER.debug("No update of IpTree needed (serial {} unchanged)", fromExclusive);
         } else if (fromExclusive > toInclusive) {
-            LOGGER.warn("Database went away; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
-            rebuild(jdbcTemplate, cacheEntry);
+            if( cacheEntry.sourceConfiguration.getSource().isTest()) {
+                LOGGER.warn("Database went away; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
+                // For the test source, we reload the database every night, so in this case we do need a full rebuild of the ipTree.
+                rebuild(jdbcTemplate, cacheEntry);
+            } else {
+                LOGGER.debug("IpTree is ahead of local database; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
+                //
+                // Situation typically appears when:
+                // - a batch-update (=multiple updates in single transaction) is performed and
+                // - the "IpTreeUpdater"-scheduled-task kicks in on that node before replication from master to local database has completed.
+                //
+                // In this particular situation the in-memory tree is ahead of the local database.
+                // Regular replication events will eventually solve this situation.
+                // We do not consider this situation an error: So there is no nned to rebuild the ipTree.
+                //        Especially since the full-tree-rebuild takes long and makes consequent updates fail.
+                //
+            }
         } else {
+            LOGGER.debug("Local database is ahead of IpTree; serial in trees: {}; serial in DB: {}", fromExclusive, toInclusive);
+
             final List<IpTreeUpdate> ipTreeUpdates = jdbcTemplate.query("" +
                             "SELECT last.object_type, last.pkey, last.object_id, serials.operation " +
                             "FROM serials " +
@@ -341,7 +358,6 @@ public class IpTreeCacheManager {
                 new RowMapper<IpTreeUpdate>() {
                     @Override
                     public IpTreeUpdate mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-
                         return new IpTreeUpdate(ROUTE6,
                                 new Ipv6Entry(Ipv6Resource.parseFromStrings(rs.getString(1), rs.getString(2), rs.getInt(3)), rs.getInt(4)).getKey() + rs.getString(5),
                                 rs.getInt(4),
@@ -370,11 +386,6 @@ public class IpTreeCacheManager {
     }
 
     private long getLastSerial(final JdbcTemplate jdbcTemplate) {
-        return jdbcTemplate.queryForObject("SELECT MAX(serial_id) FROM serials", new RowMapper<Long>() {
-            @Override
-            public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return rs.getLong(1);
-            }
-        });
+        return jdbcTemplate.queryForObject("SELECT IFNULL(MAX(serial_id),0) FROM serials", Long.class);
     }
 }

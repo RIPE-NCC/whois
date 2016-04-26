@@ -29,6 +29,7 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     @Autowired protected List<Stub> stubs;
 
     protected JdbcTemplate whoisTemplate;
+    protected JdbcTemplate internalsTemplate;
     protected DatabaseHelper databaseHelper;
 
     private static byte[] propertyStore = null;
@@ -75,5 +76,6 @@ public abstract class AbstractDatabaseHelperTest extends AbstractJUnit4SpringCon
     public void setDatabaseHelper(final DatabaseHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
         this.whoisTemplate = databaseHelper.getWhoisTemplate();
+        this.internalsTemplate = databaseHelper.getInternalsTemplate();
     }
 }

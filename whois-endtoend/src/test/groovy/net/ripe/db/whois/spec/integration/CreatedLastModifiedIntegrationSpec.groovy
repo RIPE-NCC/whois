@@ -1,8 +1,8 @@
 package net.ripe.db.whois.spec.integration
+
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.joda.time.LocalDateTime
-import spock.lang.Ignore
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
 class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
@@ -29,6 +29,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             """];
     }
 
+    // CREATE
+
     def "create object with created and last-modified generates new values"() {
         given:
         def currentDateTime = getTimeUtcString()
@@ -50,10 +52,8 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         response =~ /Create SUCCEEDED: \[person\] TP3-TEST   Test Person/
-        response !=~ /Warning: Supplied attribute 'created' has been replaced with a generated
-            value/
-        response !=~ /Warning: Supplied attribute 'last-modified' has been replaced with a
-            generated value/
+        response !=~ /Warning: Supplied attribute 'created' has been replaced with a generated\n\s+value/
+        response !=~ /Warning: Supplied attribute 'last-modified' has been replaced with a\n\s+generated value/
 
         when:
         def created = query("TP3-TEST")
@@ -83,6 +83,30 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         queryLineMatches("TP1-TEST", "created:\\s*\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\dZ");
         queryLineMatches("TP1-TEST", "last-modified:\\s*\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\dZ");
     }
+
+    def "create object with multiple last-modified attributes"() {
+      given:
+        def update = new SyncUpdate(data: """\
+        person:        Test Person
+        address:       Singel 258
+        phone:         +3112346
+        nic-hdl:       TP3-TEST
+        mnt-by:        TST-MNT
+        created:       2012-05-03T11:23:66Z
+        last-modified: 2012-05-03T11:23:66Z
+        last-modified: 2012-05-03T11:23:66Z
+        source:        TEST
+        password: update
+        """.stripIndent())
+      when:
+        def response = syncUpdate update
+      then:
+        response =~ /Create SUCCEEDED: \[person\] TP3-TEST   Test Person/
+        response =~ /Warning: Supplied attribute 'created' has been replaced with a generated\n\s+value/
+        response =~ /Warning: Supplied attribute 'last-modified' has been replaced with a\n\s+generated value/
+    }
+
+    // MODIFY
 
     def "modify object created attribute stays the same"() {
         given:
@@ -267,6 +291,152 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         updatedToday =~ /last-modified:  ${currentDateTime}/
     }
 
+    def "modify should retain the correct order of the timestamp attributes"() {
+      given:
+        setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
+      when:
+        def createAck = syncUpdate new SyncUpdate(data: """
+                person:  New Person
+                address: St James Street
+                phone:   +44 282 420469
+                nic-hdl: NP1-TEST
+                mnt-by:  TST-MNT
+                source:  TEST
+                password: update
+             """.stripIndent())
+      then:
+        createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
+
+      when:
+        setTime(LocalDateTime.parse("2013-06-26T09:00:00"))
+      then:
+        def updateAck = syncUpdate new SyncUpdate(data: """
+                person:  New Person
+                address: St James Street
+                phone:   +44 282 420469
+                nic-hdl: NP1-TEST
+                created: 2013-06-25T09:00:00Z
+                mnt-by:  TST-MNT
+                last-modified: 2013-06-25T09:00:00Z
+                remarks: testing
+                source:  TEST
+                password: update
+             """.stripIndent())
+      then:
+        updateAck.contains("Modify SUCCEEDED: [person] NP1-TEST   New Person")
+      then:
+        query("-rBG NP1-TEST").contains(
+                "person:         New Person\n" +
+                "address:        St James Street\n" +
+                "phone:          +44 282 420469\n" +
+                "nic-hdl:        NP1-TEST\n" +
+                "created:        2013-06-25T09:00:00Z\n" +
+                "mnt-by:         TST-MNT\n" +
+                "last-modified:  2013-06-26T09:00:00Z\n" +
+                "remarks:        testing\n" +
+                "source:         TEST\n")
+    }
+
+    def "modify object with created and last-modified generates new values"() {
+      given:
+        setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
+      when:
+        def createAck = syncUpdate new SyncUpdate(data: """
+                person:  New Person
+                address: St James Street
+                phone:   +44 282 420469
+                nic-hdl: NP1-TEST
+                mnt-by:  TST-MNT
+                source:  TEST
+                password: update
+             """.stripIndent())
+      then:
+        createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
+      when:
+        setTime(LocalDateTime.parse("2013-06-26T09:00:00"))
+      then:
+        def updateAck = syncUpdate new SyncUpdate(data: """
+                person:  New Person
+                address: St James Street
+                phone:   +44 282 420469
+                nic-hdl: NP1-TEST
+                mnt-by:  TST-MNT
+                remarks: testing
+                created: 2001-01-01T09:00:00Z
+                last-modified: 2001-01-01T09:00:00Z
+                source:  TEST
+                password: update
+             """.stripIndent())
+      then:
+        updateAck =~ /Modify SUCCEEDED: \[person\] NP1-TEST   New Person/
+        updateAck =~ /Warning: Supplied attribute 'created' has been replaced with a generated\n\s+value/
+        updateAck =~ /Warning: Supplied attribute 'last-modified' has been replaced with a\n\s+generated value/
+      then:
+        query("-rBG NP1-TEST").contains(
+                "person:         New Person\n" +
+                "address:        St James Street\n" +
+                "phone:          +44 282 420469\n" +
+                "nic-hdl:        NP1-TEST\n" +
+                "mnt-by:         TST-MNT\n" +
+                "remarks:        testing\n" +
+                "created:        2013-06-25T09:00:00Z\n" +
+                "last-modified:  2013-06-26T09:00:00Z\n" +
+                "source:         TEST\n")
+    }
+
+    def "modify object with multiple created and last-modified attributes"() {
+      given:
+        setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
+      when:
+        def createAck = syncUpdate new SyncUpdate(data: """
+                person:  New Person
+                address: St James Street
+                phone:   +44 282 420469
+                nic-hdl: NP1-TEST
+                mnt-by:  TST-MNT
+                source:  TEST
+                password: update
+             """.stripIndent())
+      then:
+        createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
+      when:
+        setTime(LocalDateTime.parse("2013-06-26T09:00:00"))
+      then:
+        def updateAck = syncUpdate new SyncUpdate(data: """
+                person:  New Person
+                address: St James Street
+                phone:   +44 282 420469
+                nic-hdl: NP1-TEST
+                mnt-by:  TST-MNT
+                remarks: testing
+                created: 2001-01-01T09:00:00Z
+                last-modified: 2001-01-01T09:00:00Z
+                created: 2001-01-01T09:00:00Z
+                last-modified: 2001-01-01T09:00:00Z
+                last-modified: 2001-01-01T09:00:00Z
+                source:  TEST
+                password: update
+             """.stripIndent())
+      then:
+        updateAck =~ /Modify SUCCEEDED: \[person\] NP1-TEST   New Person/
+        updateAck =~ /Warning: Supplied attribute 'created' has been replaced with a generated\n\s+value/
+        updateAck =~ /Warning: Supplied attribute 'last-modified' has been replaced with a\n\s+generated value/
+      then:
+        query("-rBG NP1-TEST").contains(
+                "person:         New Person\n" +
+                "address:        St James Street\n" +
+                "phone:          +44 282 420469\n" +
+                "nic-hdl:        NP1-TEST\n" +
+                "mnt-by:         TST-MNT\n" +
+                "remarks:        testing\n" +
+                "created:        2013-06-25T09:00:00Z\n" +
+                "last-modified:  2013-06-26T09:00:00Z\n" +
+                "source:         TEST\n")
+    }
+
+
+    // DELETE
+
     def "delete object with incorrect created or last-modified succeeds"() {
 
         given:
@@ -378,52 +548,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         delete =~ /SUCCESS/
     }
 
-    def "modify should retain the correct order of the timestamp attributes"() {
-      given:
-        setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
-      when:
-        def createAck = syncUpdate new SyncUpdate(data: """
-                person:  New Person
-                address: St James Street
-                phone:   +44 282 420469
-                nic-hdl: NP1-TEST
-                mnt-by:  TST-MNT
-                source:  TEST
-                password: update
-             """.stripIndent())
-      then:
-        createAck.contains("Create SUCCEEDED: [person] NP1-TEST   New Person")
-
-      when:
-        setTime(LocalDateTime.parse("2013-06-26T09:00:00"))
-      then:
-        def updateAck = syncUpdate new SyncUpdate(data: """
-                person:  New Person
-                address: St James Street
-                phone:   +44 282 420469
-                nic-hdl: NP1-TEST
-                created: 2013-06-25T09:00:00Z
-                mnt-by:  TST-MNT
-                last-modified: 2013-06-25T09:00:00Z
-                remarks: testing
-                source:  TEST
-                password: update
-             """.stripIndent())
-      then:
-        updateAck.contains("Modify SUCCEEDED: [person] NP1-TEST   New Person")
-      then:
-        query("-rBG NP1-TEST").contains(
-                "person:         New Person\n" +
-                "address:        St James Street\n" +
-                "phone:          +44 282 420469\n" +
-                "nic-hdl:        NP1-TEST\n" +
-                "created:        2013-06-25T09:00:00Z\n" +
-                "mnt-by:         TST-MNT\n" +
-                "last-modified:  2013-06-26T09:00:00Z\n" +
-                "remarks:        testing\n" +
-                "source:         TEST\n")
-    }
-
     def "delete should not fail if created and last-modified attributes are separated"() {
       given:
         setTime(LocalDateTime.parse("2013-06-25T09:00:00"))
@@ -434,7 +558,6 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                     phone:   +44 282 420469
                     nic-hdl: NP1-TEST
                     mnt-by:  TST-MNT
-                    changed: dbtest@ripe.net 20120101
                     source:  TEST
                     password: update
                  """.stripIndent())
@@ -489,26 +612,4 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         deleteAck.contains("Delete SUCCEEDED: [person] NP1-TEST   New Person")
     }
-
-    @Ignore("[ES] TODO Unexpected error occurred")
-    def "create object with multiple last-modified attributes"() {
-      given:
-        def update = new SyncUpdate(data: """\
-        person:        Test Person
-        address:       Singel 258
-        phone:         +3112346
-        nic-hdl:       TP3-TEST
-        mnt-by:        TST-MNT
-        created:       2012-05-03T11:23:66Z
-        last-modified: 2012-05-03T11:23:66Z
-        last-modified: 2012-05-03T11:23:66Z
-        source:        TEST
-        password: update
-        """.stripIndent())
-      when:
-        def response = syncUpdate update
-      then:
-        response =~ /Create SUCCEEDED: \[person\] TP3-TEST   Test Person/
-    }
-
 }

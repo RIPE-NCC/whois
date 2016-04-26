@@ -127,6 +127,7 @@ public class RpslObjectFilter {
         private static final List<AttributeType> PURELY_GENERATED_ATTRIBUTES =
                 Lists.newArrayList(
                         AttributeType.CREATED,
+                        AttributeType.CHANGED,
                         AttributeType.LAST_MODIFIED,
                         AttributeType.FINGERPR,
                         AttributeType.OWNER,
