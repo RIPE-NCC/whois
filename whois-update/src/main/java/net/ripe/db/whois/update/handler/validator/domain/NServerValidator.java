@@ -31,13 +31,19 @@ public class NServerValidator implements BusinessRuleValidator {
 
             switch (domain.getType()) {
                 case E164:
-                    if (nServer.getIpInterval() != null) {
+                {
+                    final boolean endsWithDomain = domain.endsWithDomain(nServer.getHostname());
+
+                    if (endsWithDomain && nServer.getIpInterval() == null) {
+                        updateContext.addMessage(update, nServerAttribute, UpdateMessages.glueRecordMandatory(domain.getValue()));
+                    } else if (!endsWithDomain && nServer.getIpInterval() != null) {
                         updateContext.addMessage(update, nServerAttribute, UpdateMessages.invalidGlueForEnumDomain(nServer.getIpInterval().toString()));
                     }
                     break;
-
+                }
                 case INADDR:
                 case IP6:
+                {
                     final boolean endsWithDomain = domain.endsWithDomain(nServer.getHostname());
 
                     if (endsWithDomain && nServer.getIpInterval() == null) {
@@ -46,6 +52,7 @@ public class NServerValidator implements BusinessRuleValidator {
                         updateContext.addMessage(update, nServerAttribute, UpdateMessages.hostNameMustEndWith(domain.getValue()));
                     }
                     break;
+                }
             }
         }
     }
