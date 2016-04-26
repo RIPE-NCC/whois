@@ -15,7 +15,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NServerValidatorTest {
@@ -35,14 +37,61 @@ public class NServerValidatorTest {
     }
 
     @Test
-    public void validate_enum_success() {
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
-                "domain:      2.1.2.1.5.5.5.2.0.2.1.e164.arpa\n" +
-                "nserver:     a.ns.2.1.2.1.5.5.5.2.0.2.1.e164.arpa\n"));
+    public void enum_domain_mandatory_nserver_glue_present() {
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse(
+                "domain: 8.8.8.e164.arpa\n" +
+                "nserver: ns1.8.8.8.e164.arpa 192.0.2.1"));
 
         subject.validate(update, updateContext);
 
         verifyZeroInteractions(updateContext);
+    }
+
+    @Test
+    public void enum_domain_mandatory_nserver_glue_not_present() {
+        final RpslObject rpslObject = RpslObject.parse(
+                "domain: 8.8.8.e164.arpa\n" +
+                "nserver: ns1.8.8.8.e164.arpa");
+        when(update.getUpdatedObject()).thenReturn(rpslObject);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory("8.8.8.e164.arpa"));
+    }
+
+    @Test
+    public void enum_domain_nserver_glue_not_mandatory_not_present() {
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse(
+                "domain: 8.8.8.e164.arpa\n" +
+                "nserver: ns1.example.net"));
+
+        subject.validate(update, updateContext);
+
+        verifyZeroInteractions(updateContext);
+    }
+
+    @Test
+    public void enum_domain_nserver_glue_is_present() {
+        final RpslObject rpslObject = RpslObject.parse(
+                "domain: 8.8.8.e164.arpa\n" +
+                "nserver: ns1.example.net 192.0.2.1");
+        when(update.getUpdatedObject()).thenReturn(rpslObject);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.invalidGlueForEnumDomain("192.0.2.1/32"));
+    }
+
+    @Test
+    public void validate_enum_missing_glue() {
+        final RpslObject rpslObject = RpslObject.parse(
+                "domain:      2.1.2.1.5.5.5.2.0.2.1.e164.arpa\n" +
+                "nserver:     a.ns.2.1.2.1.5.5.5.2.0.2.1.e164.arpa\n");
+        when(update.getUpdatedObject()).thenReturn(rpslObject);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
     }
 
     @Test
@@ -66,7 +115,7 @@ public class NServerValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.invalidGlueForEnumDomain("193.46.210.1/32"));
+        verifyZeroInteractions(updateContext);
     }
 
     @Test
