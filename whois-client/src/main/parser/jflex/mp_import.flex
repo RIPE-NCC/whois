@@ -70,7 +70,6 @@ PROTOCOL_NAME  = BGP4|MPBGP|OSPF|RIP|IGRP|IS-IS|STATIC|RIPng|DVMRP|PIM-DM|PIM-SM
 AFI            = AFI
 IPV4_TXT       = IPV4
 IPV6_TXT       = IPV6
-ANY_TXT        = ANY
 UNICAST        = UNICAST
 MULTICAST      = MULTICAST
 DNAME          = [a-zA-Z]([0-9a-zA-Z-]*[0-9a-zA-Z])?
@@ -130,7 +129,6 @@ EXCEPT      { return MpImportParser.KEYW_EXCEPT; }
 
 {IPV4_TXT}  { return MpImportParser.KEYW_IPV4_TXT; }
 {IPV6_TXT}  { return MpImportParser.KEYW_IPV6_TXT; }
-{ANY_TXT}   { return MpImportParser.KEYW_ANY_TXT; }
 {UNICAST}   { return MpImportParser.KEYW_UNICAST; }
 {MULTICAST} { return MpImportParser.KEYW_MULTICAST; }
 
