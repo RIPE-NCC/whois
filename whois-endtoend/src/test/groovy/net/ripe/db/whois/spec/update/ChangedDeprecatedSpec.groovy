@@ -341,7 +341,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         syncUpdateVerifyNoopSuccess(PERSON_WITH_CHANGED,response)
-        syncUpdateVerifyHasDeprecatedWarning(response)
+        syncUpdateVerifyHasIdenticalWarning(response)
         verifyExistsAndEquals(PERSON_WITH_CHANGED)
     }
 
@@ -357,7 +357,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyNoopSuccess(PERSON_WITH_CHANGED,response)
-        mailVerifyHasDeprecatedWarning(response)
+        mailVerifyHasIdenticalWarning(response)
         verifyExistsAndEquals(PERSON_WITH_CHANGED)
     }
 
@@ -372,7 +372,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def errorsAndWarnings = restModify(PERSON_WITH_CHANGED)
 
         then:
-        restVerifyHasDeprecatedWarning(errorsAndWarnings)
+        restVerifyHasIdenticalWarning(errorsAndWarnings)
         verifyExistsAndEquals(PERSON_WITH_CHANGED)
     }
 
@@ -451,7 +451,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyDeleteSuccess(PERSON_WITH_CHANGED,response)
-        mailVerifyHasNoWarnings(response)
+        mailVerifyHasDeprecatedWarning(response)
         doesNotExist(PERSON_WITH_CHANGED)
     }
 
@@ -466,7 +466,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = restDelete(PERSON_WITH_CHANGED)
 
         then:
-        restVerifyHasNoWarnings(response)
+        restVerifyHasDeprecatedWarning(response)
         doesNotExist(PERSON_WITH_CHANGED)
     }
 
@@ -511,7 +511,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = restDelete(PERSON_WITHOUT_CHANGED)
 
         then:
-        restVerifyHasNoWarnings(response)
+        restVerifyHasDeprecatedWarning(response)
         doesNotExist(PERSON_WITH_CHANGED)
     }
 

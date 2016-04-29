@@ -224,17 +224,13 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             dry-run:
             """.stripIndent())
 
-      then:
-        response =~ """
-            \\*\\*\\*Error:   Authorisation for \\[organisation\\] ORG-RNO1-TEST failed
-                        using "mnt-by:"
-                        not authenticated by: TST-MNT
-            """.stripIndent()
+        then:
+          response =~ /\*\*\*Error:   Value 'LIR' can only be set by the RIPE NCC for this organisation./
+          response =~ /\*\*\*Error:   Authorisation for \[organisation\] AUTO-1 failed/
+          response =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
+ }
 
-        response =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
-    }
-
-    def "dry run delete organisation"() {
+ def "dry run delete organisation"() {
       when:
         def response = syncUpdate new SyncUpdate(data: """\
             organisation: AUTO-1
