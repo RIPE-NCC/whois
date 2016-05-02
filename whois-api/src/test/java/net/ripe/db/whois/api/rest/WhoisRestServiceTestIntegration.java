@@ -4109,7 +4109,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "      \"value\" : \"OWNER-MNT\"\n" +
                 "    } ]\n" +
                 "  },\n" +
-                "  \"primary-key\" : null,\n" +
                 "  \"sources\" : {\n" +
                 "    \"source\" : [ {\n" +
                 "      \"id\" : \"TEST\"\n" +
@@ -4885,7 +4884,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "      \"value\" : \"AS102\"\n" +
                 "    } ]\n" +
                 "  },\n" +
-                "  \"primary-key\" : null,\n" +
                 "  \"sources\" : {\n" +
                 "    \"source\" : [ {\n" +
                 "      \"id\" : \"TEST\"\n" +
