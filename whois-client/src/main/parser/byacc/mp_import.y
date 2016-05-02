@@ -23,10 +23,12 @@ import java.io.StringReader;
 %token KEYW_ANY KEYW_PEERAS
 %token ASPATH_POSTFIX
 %token TKN_FLTRNAME TKN_ASNO TKN_ASRANGE TKN_RSNAME TKN_ASNAME TKN_PRFXV4 TKN_PRFXV4RNG
-%token TKN_IPV4 TKN_DNS TKN_RTRSNAME TKN_PRNGNAME
+%token TKN_IPV4 TKN_RTRSNAME TKN_PRNGNAME
 %token TKN_IPV6 TKN_IPV6DC TKN_PRFXV6 TKN_PRFXV6DC TKN_PRFXV6RNG TKN_PRFXV6DCRNG
 %token KEYW_ACTION KEYW_EXCEPT
-%token KEYW_AFI KEYW_AFI_VALUE_V4 KEYW_AFI_VALUE_V6 KEYW_AFI_VALUE_ANY
+%token KEYW_AFI
+%token KEYW_IPV4_TXT KEYW_IPV6_TXT
+%token KEYW_UNICAST KEYW_MULTICAST
 %token TKN_PREF TKN_MED TKN_DPA TKN_ASPATH TKN_COMMUNITY TKN_NEXT_HOP TKN_COST
 %token TKN_COMM_NO
 %token KEYW_IGP_COST KEYW_SELF KEYW_PREPEND
@@ -34,15 +36,19 @@ import java.io.StringReader;
 %token KEYW_INTERNET KEYW_NO_EXPORT KEYW_NO_ADVERTISE
 %token KEYW_PROTOCOL TKN_PROTOCOL
 %token KEYW_INTO KEYW_REFINE KEYW_ACCEPT KEYW_FROM
-%token <sval> TKN_INT TKN_DNS
+%token <sval> TKN_INT TKN_DNAME
 %type <sval> domain_name
 
 
 %%
 
 mp_import_attribute: opt_protocol_from opt_protocol_into afi_import_expr
-| opt_protocol_from opt_protocol_into afi_import_factor
-| opt_protocol_from opt_protocol_into afi_import_factor ';'
+| opt_protocol_from opt_protocol_into import_factor option_semicolon
+| opt_protocol_from opt_protocol_into KEYW_AFI afi_list import_factor option_semicolon
+;
+
+option_semicolon: /* empty */
+| ';'
 ;
 
 opt_protocol_from:
@@ -62,22 +68,31 @@ import_expr: import_term
 | import_term KEYW_EXCEPT afi_import_expr
 ;
 
-afi_list: afi_list ',' KEYW_AFI_VALUE_V4
-| afi_list ',' KEYW_AFI_VALUE_V6
-| afi_list ',' KEYW_AFI_VALUE_ANY
-| afi_list ',' KEYW_ANY
-| KEYW_AFI_VALUE_V4
-| KEYW_AFI_VALUE_V6
-| KEYW_AFI_VALUE_ANY
-| KEYW_ANY
+afi_list: afi_list ',' afi_value_v4
+| afi_list ',' afi_value_v6
+| afi_list ',' afi_value_any
+| afi_value_v4
+| afi_value_v6
+| afi_value_any
+;
+
+afi_value_v4: KEYW_IPV4_TXT
+| KEYW_IPV4_TXT '.' KEYW_MULTICAST
+|  KEYW_IPV4_TXT '.' KEYW_UNICAST
+;
+
+afi_value_v6: KEYW_IPV6_TXT
+| KEYW_IPV6_TXT '.' KEYW_MULTICAST
+|  KEYW_IPV6_TXT '.' KEYW_UNICAST
+;
+
+afi_value_any: KEYW_ANY
+| KEYW_ANY '.' KEYW_MULTICAST
+|  KEYW_ANY '.' KEYW_UNICAST
 ;
 
 import_term: import_factor ';'
 | '{' import_factor_list '}'
-;
-
-afi_import_factor: import_factor
-| KEYW_AFI afi_list import_factor
 ;
 
 import_factor_list: import_factor ';'
@@ -146,8 +161,8 @@ router_expr_operand: TKN_IPV4
 | TKN_RTRSNAME
 ;
 
-domain_name: TKN_DNS
-| domain_name '.' TKN_DNS
+domain_name: TKN_DNAME
+| domain_name '.' TKN_DNAME
 ;
 
 action: rp_attribute ';'
@@ -303,7 +318,6 @@ filter_aspath_range:
 | filter_aspath_range TKN_ASNO
 | filter_aspath_range KEYW_PEERAS
 | filter_aspath_range '.'
-| filter_aspath_range TKN_ASNO '-' TKN_ASNO
 | filter_aspath_range TKN_ASRANGE
 | filter_aspath_range TKN_ASNAME
 ;
@@ -315,14 +329,13 @@ protected final Logger LOGGER = LoggerFactory.getLogger(MpImportParser.class);
 private MpImportLexer lexer;
 
 private int yylex () {
-	int yyl_return = -1;
 	try {
-		yyl_return = lexer.yylex();
+		return lexer.yylex();
 	}
 	catch (IOException e) {
 		LOGGER.error(e.getMessage(), e);
+		return -1;
 	}
-	return yyl_return;
 }
 
 public void yyerror (final String error) {
