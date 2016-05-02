@@ -92,22 +92,4 @@ public class AttributeLexerTest {
         assertThat(subject.yylex(), is((int)'9'));
         assertThat(subject.yylex(), is(0));
     }
-
-    @Test
-    public void mpimport() throws Exception {
-        MpImportLexer subject =new MpImportLexer(new StringReader("afi ipv6.unicastfrom AS39790 action pref=150; accept AS39790"), new MpImportParser());
-        assertThat(subject.yylex(), is((int)MpImportParser.KEYW_AFI));
-        assertThat(subject.yylex(), is((int)MpImportParser.KEYW_AFI_VALUE_V6));     // TODO: [ES] no space between tokens
-        assertThat(subject.yylex(), is((int)MpImportParser.KEYW_FROM));
-        assertThat(subject.yylex(), is((int)MpImportParser.TKN_ASNO));
-        assertThat(subject.yylex(), is((int)MpImportParser.KEYW_ACTION));
-        assertThat(subject.yylex(), is((int)MpImportParser.TKN_PREF));
-        assertThat(subject.yylex(), is((int)MpImportParser.OP_EQUAL));
-        assertThat(subject.yylex(), is((int)MpImportParser.TKN_INT));
-        assertThat(subject.yylex(), is((int)';'));
-        assertThat(subject.yylex(), is((int)MpImportParser.KEYW_ACCEPT));
-        assertThat(subject.yylex(), is((int)MpImportParser.TKN_ASNO));
-        assertThat(subject.yylex(), is(0));
-    }
-
 }

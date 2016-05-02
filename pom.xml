@@ -60,7 +60,7 @@
         <httpclient.version>4.4</httpclient.version>
 
         <jaxb.version>2.2.11</jaxb.version>
-        <jflex.version>1.6.0</jflex.version>
+        <jflex.version>1.6.1</jflex.version>
         <jodatime.version>2.7</jodatime.version>
         <jopt-simple.version>4.8</jopt-simple.version>
         <jsoup.version>1.8.1</jsoup.version>
