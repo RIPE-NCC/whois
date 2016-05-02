@@ -41,7 +41,7 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, change org with RS mntner"() {
+    def "modify inetnum, change org with RS mntner is possible"() {
         given:
         syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
 
@@ -78,11 +78,46 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
-        queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    }
+
+    def "modify inetnum, change org with override is possible"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR2-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                override: denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
     }
 
-    def "modify inetnum, change org with lir mnt"() {
+    def "modify inetnum, change org with lir mnt is not possible"() {
         given:
         syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
 
@@ -124,9 +159,9 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
             "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference."]
     }
 
-    def "modify inetnum, change sponsoring-org with RS mntner"() {
+    def "modify inetnum, change sponsoring-org with RS mntner is possible"() {
         given:
-        syncUpdate(getTransient("ASSIGN-PI") + "override: denis,override1")
+        syncUpdate(getTransient("ASSIGN-PI") + "password: hm\npassword: lir\npassword: owner3")
 
         expect:
         queryObject("-GBr -T inetnum  192.168.255.0 - 192.168.255.255", "inetnum", " 192.168.255.0 - 192.168.255.255")
@@ -161,11 +196,47 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
 
-        queryObject("-rGBT inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255")
+    }
+
+    def "modify inetnum, change sponsoring-org with override is possible"() {
+        given:
+        syncUpdate(getTransient("ASSIGN-PI") + "password: hm\npassword: lir\npassword: owner3")
+
+        expect:
+        queryObject("-GBr -T inetnum  192.168.255.0 - 192.168.255.255", "inetnum", " 192.168.255.0 - 192.168.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.255.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                sponsoring-org: ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                override: denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
 
     }
 
-    def "modify inetnum, change sponsoring-org with lir mntner"() {
+    def "modify inetnum, change sponsoring-org with lir mntner is not possible"() {
         given:
         syncUpdate(getTransient("ASSIGN-PI") + "password: hm\npassword: lir\npassword: owner3")
 
@@ -206,7 +277,7 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
                 "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
     }
 
-    def "modify unlocked attributes with lir mntner"() {
+    def "modify unlocked attributes with lir mntner is possible"() {
         given:
         syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
 
@@ -242,10 +313,9 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
-        queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
     }
 
-    def "modify inetnum, change status with RS mntner and lir mnt authed"() {
+    def "modify inetnum, change status with RS mntner and lir mnt authed is not possible"() {
         given:
         syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
 
@@ -283,6 +353,43 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
 
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
                 "status value cannot be changed, you must delete and re-create the object"]
+    }
+
+    def "modify inetnum, change status with override is possible"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                override: denis,override1
+                """.stripIndent()
+        )
+
+        then:
+
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
 }
