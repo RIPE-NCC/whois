@@ -68,9 +68,10 @@ PRFXV6DCRNG    = {PRFXV6DC}("^+"|"^-"|"^"{INT}|"^"{INT}-{INT})
 COMM_NO        = {INT}:{INT}
 PROTOCOL_NAME  = BGP4|MPBGP|OSPF|RIP|IGRP|IS-IS|STATIC|RIPng|DVMRP|PIM-DM|PIM-SM|CBT|MOSPF
 AFI            = AFI
-AFIVALUE_V4    = IPV4|IPV4\.UNICAST|IPV4\.MULTICAST
-AFIVALUE_V6    = IPV6|IPV6\.UNICAST|IPV6\.MULTICAST
-AFIVALUE_ANY   = ANY\.UNICAST|ANY\.MULTICAST
+IPV4_TXT       = IPV4
+IPV6_TXT       = IPV6
+UNICAST        = UNICAST
+MULTICAST      = MULTICAST
 DNAME          = [a-zA-Z]([0-9a-zA-Z-]*[0-9a-zA-Z])?
 ASNO           = AS([0-9]|[1-9][0-9]{1,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]|429496729[0-5])
 
@@ -126,9 +127,10 @@ EXCEPT      { return MpImportParser.KEYW_EXCEPT; }
 
 {AFI}       { return MpImportParser.KEYW_AFI; }
 
-{AFIVALUE_V4}  { return MpImportParser.KEYW_AFI_VALUE_V4; }
-{AFIVALUE_V6}  { return MpImportParser.KEYW_AFI_VALUE_V6; }
-{AFIVALUE_ANY} { return MpImportParser.KEYW_AFI_VALUE_ANY; }
+{IPV4_TXT}  { return MpImportParser.KEYW_IPV4_TXT; }
+{IPV6_TXT}  { return MpImportParser.KEYW_IPV6_TXT; }
+{UNICAST}   { return MpImportParser.KEYW_UNICAST; }
+{MULTICAST} { return MpImportParser.KEYW_MULTICAST; }
 
 PREF        { return MpImportParser.TKN_PREF; }
 MED         { return MpImportParser.TKN_MED; }
@@ -228,7 +230,7 @@ COST        { return MpImportParser.TKN_COST; }
 {DNAME} {
     ParserHelper.validateDomainNameLabel(yytext());
     storeTokenValue();
-    return MpImportParser.TKN_DNS;
+    return MpImportParser.TKN_DNAME;
 }
 
 . {
