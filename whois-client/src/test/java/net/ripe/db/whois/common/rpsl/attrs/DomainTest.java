@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -15,6 +14,11 @@ public class DomainTest {
     @Test(expected = AttributeParseException.class)
     public void empty() {
         Domain.parse("");
+    }
+
+    @Test(expected = AttributeParseException.class)
+    public void hostname() {
+        Domain.parse("hostname");
     }
 
     @Test
