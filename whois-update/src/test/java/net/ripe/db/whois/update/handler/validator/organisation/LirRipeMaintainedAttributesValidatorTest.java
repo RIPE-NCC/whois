@@ -166,6 +166,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
     public void update_of_non_lir() {
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(NON_LIR_ORG_CHANGED);
 
         subject.validate(update, updateContext);
@@ -178,6 +179,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
     public void update_of_address() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ADDRESS);
 
         subject.validate(update, updateContext);
@@ -193,6 +195,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
     public void update_of_phone() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_PHONE);
 
         subject.validate(update, updateContext);
@@ -208,6 +211,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
     public void update_of_fax() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_FAX);
 
         subject.validate(update, updateContext);
@@ -222,6 +226,8 @@ public class LirRipeMaintainedAttributesValidatorTest {
     @Test
     public void update_of_email() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_EMAIL);
 
         subject.validate(update, updateContext);
@@ -232,6 +238,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.E_MAIL));
         verifyNoMoreInteractions(updateContext);
     }
+
 
     @Test
     public void update_of_mntby() {
@@ -265,6 +272,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
     public void update_of_address_with_override() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_ADDRESS);
 
         subject.validate(update, updateContext);
@@ -277,6 +285,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
     public void update_of_phone_with_override() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_PHONE);
 
         subject.validate(update, updateContext);
@@ -289,6 +298,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
     public void update_of_fax_with_override() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_FAX);
 
         subject.validate(update, updateContext);
@@ -301,6 +311,59 @@ public class LirRipeMaintainedAttributesValidatorTest {
     public void update_of_email_with_override() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
+        when(update.getUpdatedObject()).thenReturn(LIR_ORG_EMAIL);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).getSubject(update);
+        verifyNoMoreInteractions(updateContext);
+    }
+
+    @Test
+    public void update_of_address_with_powermntner() {
+        when(update.getReferenceObject()).thenReturn(LIR_ORG);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(true);
+        when(update.getUpdatedObject()).thenReturn(LIR_ORG_ADDRESS);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).getSubject(update);
+        verifyNoMoreInteractions(updateContext);
+    }
+
+    @Test
+    public void update_of_phone_with_powermntner() {
+        when(update.getReferenceObject()).thenReturn(LIR_ORG);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(true);
+        when(update.getUpdatedObject()).thenReturn(LIR_ORG_PHONE);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).getSubject(update);
+        verifyNoMoreInteractions(updateContext);
+    }
+
+    @Test
+    public void update_of_fax_with_powermntner() {
+        when(update.getReferenceObject()).thenReturn(LIR_ORG);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(true);
+        when(update.getUpdatedObject()).thenReturn(LIR_ORG_FAX);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).getSubject(update);
+        verifyNoMoreInteractions(updateContext);
+    }
+
+    @Test
+    public void update_of_email_with_powermntner() {
+        when(update.getReferenceObject()).thenReturn(LIR_ORG);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(true);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_EMAIL);
 
         subject.validate(update, updateContext);
