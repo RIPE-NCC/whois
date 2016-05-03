@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 // Validates that RIPE NCC maintained attributes are not changed for an LIR
+// Possible ways to change it are by override or power mntner.
 public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
@@ -33,7 +34,7 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
+        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
             return;
         }
 
