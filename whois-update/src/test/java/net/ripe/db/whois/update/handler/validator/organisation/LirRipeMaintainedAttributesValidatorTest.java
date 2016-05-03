@@ -41,7 +41,7 @@ public class LirRipeMaintainedAttributesValidatorTest {
     @InjectMocks
     LirRipeMaintainedAttributesValidator subject;
 
-    private static final RpslObject RIR_ORG = RpslObject.parse("" +
+    private static final RpslObject NON_LIR_ORG = RpslObject.parse("" +
             "organisation: ORG-NCC1-RIPE\n" +
             "org-name:     RIPE Network Coordination Centre\n" +
             "org-type:     RIR\n" +
@@ -121,6 +121,18 @@ public class LirRipeMaintainedAttributesValidatorTest {
             "fax-no:       +31 000 0000001\n" +
             "e-mail:       different@test.com\n");
 
+    private static final RpslObject LIR_ORG_MNT_BY = RpslObject.parse("" +
+            "organisation: LIR-ORG-TST\n" +
+            "org-name:     Test Organisation Ltd\n" +
+            "org-type:     LIR\n" +
+            "address:      street and number\n" +
+            "address:      city \n" +
+            "address:      country\n" +
+            "phone:        +31 000 0000000\n" +
+            "fax-no:       +31 000 0000001\n" +
+            "mnt-by:       TEST-MNT\n" +
+            "e-mail:       org1@test.com\n");
+
     @Before
     public void setup() {
         when(maintainers.getPowerMaintainers()).thenReturn(ciSet("POWER-MNT"));
@@ -140,8 +152,8 @@ public class LirRipeMaintainedAttributesValidatorTest {
     }
 
     @Test
-    public void update_of_rir() {
-        when(update.getReferenceObject()).thenReturn(RIR_ORG);
+    public void update_of_non_lir() {
+        when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(RIR_ORG_CHANGED);
 
@@ -209,6 +221,21 @@ public class LirRipeMaintainedAttributesValidatorTest {
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.E_MAIL));
         verifyNoMoreInteractions(updateContext);
     }
+
+    @Test
+    public void update_of_mntby() {
+        when(update.getReferenceObject()).thenReturn(LIR_ORG);
+        when(update.getUpdatedObject()).thenReturn(LIR_ORG_MNT_BY);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).getSubject(update);
+        verify(update).getReferenceObject();
+        verify(update).getUpdatedObject();
+        verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
+        verifyNoMoreInteractions(updateContext);
+    }
+
     @Test
     public void update_of_address_with_override() {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
@@ -256,4 +283,17 @@ public class LirRipeMaintainedAttributesValidatorTest {
         verify(updateContext).getSubject(update);
         verifyNoMoreInteractions(updateContext);
     }
+
+    @Test
+    public void update_of_mntby_with_override() {
+        when(update.getReferenceObject()).thenReturn(LIR_ORG);
+        when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(update.getUpdatedObject()).thenReturn(LIR_ORG_MNT_BY);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).getSubject(update);
+        verifyNoMoreInteractions(updateContext);
+    }
+
 }
