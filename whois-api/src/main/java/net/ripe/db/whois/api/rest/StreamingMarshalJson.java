@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +20,8 @@ class StreamingMarshalJson implements StreamingMarshal {
     static {
         final ObjectMapper objectMapper = new ObjectMapper()
                 .configure(SerializationFeature.INDENT_OUTPUT, true)
-                .configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
+                .configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         objectMapper.setAnnotationIntrospector(new AnnotationIntrospectorPair(
                 new JacksonAnnotationIntrospector(),
