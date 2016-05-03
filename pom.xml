@@ -83,7 +83,6 @@
         <persistence.version>1.0.2</persistence.version>
 
         <slf4j.version>1.7.18</slf4j.version>
-        <!-- [ES] recommended Spring 4 w/Java 8 -->
         <spring.version>4.2.5.RELEASE</spring.version>
         <springockito.version>1.0.5</springockito.version>
         <solrj.version>1.4.1</solrj.version>
