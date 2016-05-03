@@ -10,21 +10,16 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {
         ["LIR-ORG": """\
-            organisation:   ORG-RIEN1-RIPE
+            organisation:   AUTO-1
             org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)
             org-type:       LIR
             descr:          RIPE NCC Operations
             address:        P.O. Box 10096
-            address:        1016 EB
-            address:        Amsterdam
-            address:        NETHERLANDS
             phone:          +31205354444
             fax-no:         +31205354445
             e-mail:         ncc@ripe.net
-            admin-c:        TP1-RIPE
-            admin-c:        TP1-RIPE
-            abuse-c:        TP1-RIPE
-            mnt-ref:        RIPE-NCC-MNT
+            admin-c:        TP1-TEST
+            abuse-c:        AH1-TEST
             mnt-ref:        RIPE-NCC-HM-MNT
             mnt-by:         RIPE-NCC-HM-MNT
             mnt-by:         LIR-MNT
@@ -36,28 +31,24 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify lir attributes with lir password should not be possible"() {
         given:
-        syncUpdate(getTransient("LIR-ORG") + "password: hm\npassword: lir")
+        def ack1 = syncUpdate(getTransient("LIR-ORG") + "override: denis,override1")
+        ack1.toString()
 
         expect:
-        queryObject("-GBr -T organisation ORG-RIEN1-RIPE", "organisation", "ORG-RIEN1-RIPE")
+        queryObject("-GBr -T organisation ORG-RIEN1-TEST", "organisation", "ORG-RIEN1-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
-            organisation:   ORG-RIEN1-RIPE
+            organisation:   ORG-RIEN1-TEST
             org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)
             org-type:       LIR
             descr:          RIPE NCC Operations
-            address:        P.O. Box 10096
-            address:        1016 EB
-            address:        Amsterdam
-            address:        NETHERLANDS
+            address:        Different P.O. Box 10096
             phone:          +31205354444
             fax-no:         +31205354445
             e-mail:         ncc@ripe.net
-            admin-c:        TP1-RIPE
-            admin-c:        TP1-RIPE
-            abuse-c:        TP1-RIPE
-            mnt-ref:        RIPE-NCC-MNT
+            admin-c:        TP1-TEST
+            abuse-c:        AH1-TEST
             mnt-ref:        RIPE-NCC-HM-MNT
             mnt-by:         RIPE-NCC-HM-MNT
             mnt-by:         LIR-MNT
@@ -74,15 +65,11 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-RIPE" }
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
-        ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-RIPE") == [
-                "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference."]
-
+        ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
+                "Organisation \"address:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it."]
 
     }
-
-
-
 }
 
