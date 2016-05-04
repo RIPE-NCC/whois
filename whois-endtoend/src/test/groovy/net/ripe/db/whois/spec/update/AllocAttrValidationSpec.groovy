@@ -338,6 +338,7 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
+                password: lir
                 """.stripIndent()
         )
 
