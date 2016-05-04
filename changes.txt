@@ -1,5 +1,10 @@
 ## next
 
+# 1.87.1
+[update] Do not allow LIR edits to the netname attribute on top-level allocations
+[update] Do not allow LIR edits to the organisation object mnt-by attribute(s)
+[update] Allow RS maintainer to update LIR organisation user attributes with a password
+
 # 1.87
 [api] Restrict LIR edits to the organisation object
 [api] 'mp-import:' attribute parsing (github bug: #305)
