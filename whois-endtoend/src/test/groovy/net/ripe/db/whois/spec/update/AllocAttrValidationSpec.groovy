@@ -37,7 +37,21 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
+                """,
+                "NON-TOPLEVEL-ASSIGN-PI"      : """\
+                inetnum:      193.168.255.0 - 193.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
                 """
+
         ]
     }
 
@@ -287,8 +301,8 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
         when:
         def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME2
-                descr:        TEST modifies
+                netname:      TEST-NET-NAME
+                descr:        Some different descr
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP2-TEST
@@ -338,6 +352,7 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
+                password: lir
                 """.stripIndent()
         )
 
@@ -390,6 +405,162 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+    }
+
+    def "modify inetnum, change netname with RS mntner is possible"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      DIFFERENT-TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+
+    }
+
+    def "modify inetnum, change netname with override is possible"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      DIFFERENT-TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                override: denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+
+    }
+
+    def "modify inetnum, change netname with lir mnt is not possible"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      DIFFERENT-TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+
+        ack.errors
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Referenced netname can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference."]
+    }
+
+    def "modify inetnum, change netname with lir mnt is possible for non-toplevel allocations"() {
+        given:
+        syncUpdate(getTransient("NON-TOPLEVEL-ASSIGN-PI") + "password: lir\npassword: owner3\npassword: hm")
+
+
+        expect:
+        queryObject("-GBr -T inetnum 193.168.255.0 - 193.168.255.255", "inetnum", "193.168.255.0 - 193.168.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      193.168.255.0 - 193.168.255.255
+                netname:      DIFFERENT-TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 193.168.255.0 - 193.168.255.255" }
     }
 
 }

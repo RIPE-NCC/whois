@@ -28,6 +28,7 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
             AttributeType.PHONE,
             AttributeType.FAX_NO,
             AttributeType.E_MAIL,
+            AttributeType.MNT_BY,
             AttributeType.ORG_NAME);
 
     @Override
