@@ -596,4 +596,8 @@ public final class UpdateMessages {
     public static Message rpslMntbyForbidden() {
         return new Message(Type.ERROR, "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
     }
+
+    public static Message netnameCannotBeChanged() {
+        return new Message(Type.ERROR, "The \"netname\" attribute can only be changed by the RIPE NCC");
+    }
 }
