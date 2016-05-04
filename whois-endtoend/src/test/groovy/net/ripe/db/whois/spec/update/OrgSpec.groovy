@@ -2158,7 +2158,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 1)
-        ack.errors.size() == 0
+
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "My Registry")
     }
 
