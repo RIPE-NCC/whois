@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
@@ -20,13 +21,16 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 @Component
 public class OrgNameNotChangedValidator implements BusinessRuleValidator {
+
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
+
+    private static final CIString LIR = CIString.ciString("LIR");
     private static final Set<ObjectType> RESOURCE_OBJECT_TYPES = Sets.newHashSet(ObjectType.AUT_NUM, ObjectType.INETNUM, ObjectType.INET6NUM);
 
     private final RpslObjectUpdateDao objectUpdateDao;
@@ -41,19 +45,15 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public List<Action> getActions() {
-        return Collections.singletonList(Action.MODIFY);
-    }
-
-    @Override
-    public List<ObjectType> getTypes() {
-        return Collections.singletonList(ObjectType.ORGANISATION);
-    }
-
-    @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject originalObject = update.getReferenceObject();
         final RpslObject updatedObject = update.getUpdatedObject();
+
+        if (LIR.equals(originalObject.getValueForAttribute(AttributeType.ORG_TYPE))) {
+            // See: LirRipeMaintainedAttributesValidator
+            return;
+        }
+
         if (orgNameDidntChange(originalObject, updatedObject)) {
             return;
         }
@@ -95,5 +95,15 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
     private boolean isMaintainedByRs(final RpslObject rpslObject) {
         final Set<CIString> objectMaintainers = rpslObject.getValuesForAttribute(AttributeType.MNT_BY);
         return !Sets.intersection(this.maintainers.getRsMaintainers(), objectMaintainers).isEmpty();
+    }
+
+    @Override
+    public ImmutableList<Action> getActions() {
+        return ACTIONS;
+    }
+
+    @Override
+    public ImmutableList<ObjectType> getTypes() {
+        return TYPES;
     }
 }

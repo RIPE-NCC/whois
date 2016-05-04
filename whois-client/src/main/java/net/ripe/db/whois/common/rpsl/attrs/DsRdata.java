@@ -2,18 +2,38 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.domain.CIString;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DsRdata {
-    private static final Pattern RDATA_PATTERN = Pattern.compile("^(\\d+) (\\d+) (\\d+) \\(?([ 0-9a-fA-F]{1,128})\\)?$");
-    private static final int DS_RDATA_COLUMN_WIDTH = 128;
 
     private final int keytag;
     private final int algorithm;
     private final int digestType;
     private final String digestHexString;
+
+    protected static final Logger LOGGER = LoggerFactory.getLogger(DsRdata.class);
+
+    /* structure of ds-rdata attribute from rfc3658
+                        1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |           key tag             |  algorithm    |  Digest type  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                digest  (length depends on type)               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                (SHA-1 digest is 20 bytes)                     |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
+    |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
+    |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+    private static final Pattern RDATA_PATTERN = Pattern.compile("^(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+\\(?([ 0-9a-fA-F]+)\\)?$");
 
     public DsRdata(final int keytag, final int algorithm, final int digestType, final String digestHexString) {
         this.keytag = keytag;
@@ -48,9 +68,6 @@ public class DsRdata {
     }
 
     public static DsRdata parse(final String value) {
-        if (value.length() > DS_RDATA_COLUMN_WIDTH) {
-            throw new AttributeParseException("Too long", value);
-        }
 
         final Matcher matcher = RDATA_PATTERN.matcher(value);
         if (!matcher.matches()) {
@@ -72,6 +89,10 @@ public class DsRdata {
 
         if (digestType < 0 || digestType > 255) {
             throw new AttributeParseException("Invalid digest type: " + digestType, value);
+        }
+
+        if(!DsRdataDigestType.validateLengthForKnownTypes(digestType, digestAsHex)) {
+            throw new AttributeParseException("Digest format is invalid for digest type " + digestType + ": ", digestAsHex);
         }
 
         return new DsRdata(keytag, algorithm, digestType, digestAsHex);
