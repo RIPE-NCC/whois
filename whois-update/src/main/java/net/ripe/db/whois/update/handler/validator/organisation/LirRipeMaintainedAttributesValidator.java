@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -45,18 +44,15 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
 
         final RpslObject updatedObject = update.getUpdatedObject();
         ATTRIBUTES.forEach(attributeType -> {
-            if (orgAttributeChanged(originalObject, updatedObject, attributeType)) {
+            if (haveAttributesChanged(originalObject, updatedObject, attributeType)) {
                 updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(attributeType));
             }
         });
     }
 
-    private boolean orgAttributeChanged(final RpslObject originalObject,
-                                        final RpslObject updatedObject,
-                                        final AttributeType attributeType) {
-        return !Iterables.elementsEqual(
-                Iterables.filter(originalObject.getValuesForAttribute(attributeType), CIString.class),
-                Iterables.filter(updatedObject.getValuesForAttribute(attributeType), CIString.class));
+    private boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType) {
+        return !originalObject.getValuesForAttribute(attributeType)
+                    .equals(updatedObject.getValuesForAttribute(attributeType));
     }
 
     @Override
