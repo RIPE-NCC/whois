@@ -45,33 +45,46 @@ public class OrgNameNotChangedValidatorTest {
     @Mock private Maintainers maintainers;
     @InjectMocks private OrgNameNotChangedValidator subject;
 
-    public static final RpslObject ORIGINAL_ORG = RpslObject.parse(10,
+    public static final RpslObject ORIGINAL_ORG = RpslObject.parse(10, "" +
             "organisation: ORG-TEST1\n" +
             "org-name: Test Organisation\n" +
+            "org-type: OTHER\n" +
             "mnt-by: TEST-MNT");
-    public static final RpslObject UPDATED_ORG_SAME_NAME = RpslObject.parse(20,
+    public static final RpslObject UPDATED_ORG_SAME_NAME = RpslObject.parse(20, "" +
             "organisation: ORG-TEST1\n" +
             "org-name: Test Organisation\n" +
+            "org-type: OTHER\n" +
             "mnt-by: TEST-MNT");
-    public static final RpslObject UPDATED_ORG_NEW_NAME = RpslObject.parse(30,
+    public static final RpslObject UPDATED_ORG_NEW_NAME = RpslObject.parse(30, "" +
             "organisation: ORG-TEST1\n" +
             "org-name: Updated Organisation\n" +
+            "org-type: OTHER\n" +
             "mnt-by: TEST-MNT");
-    public static final RpslObject REFERRER_MNT_BY_USER = RpslObject.parse(40,
+    public static final RpslObject REFERRER_MNT_BY_USER = RpslObject.parse(40, "" +
             "aut-num: AS3434\n" +
             "mnt-by: TEST-MNT\n" +
             "org: ORG-TEST1\n" +
             "source: TEST");
-    public static final RpslObject REFERRER_MNT_BY_RS = RpslObject.parse(50,
+    public static final RpslObject REFERRER_MNT_BY_RS = RpslObject.parse(50, "" +
             "aut-num: AS3434\n" +
             "mnt-by: RIPE-NCC-HM-MNT\n" +
             "org: ORG-TEST1\n" +
             "source: TEST");
-    public static final RpslObject REFERRER_MNT_BY_LEGACY = RpslObject.parse(60,
+    public static final RpslObject REFERRER_MNT_BY_LEGACY = RpslObject.parse(60, "" +
             "aut-num: AS3434\n" +
             "mnt-by: RIPE-NCC-LEGACY-MNT\n" +
             "org: ORG-TEST1\n" +
             "source: TEST");
+    public static final RpslObject ORIGINAL_LIR = RpslObject.parse(70, "" +
+            "organisation: ORG-TEST2\n" +
+            "org-name: Test Organisation\n" +
+            "org-type: LIR\n" +
+            "mnt-by: TEST-MNT");
+    public static final RpslObject UPDATED_LIR = RpslObject.parse(70, "" +
+            "organisation: ORG-TEST2\n" +
+            "org-name: Test Organisation\n" +
+            "org-type: LIR\n" +
+            "mnt-by: TEST-MNT");
 
     @Before
     public void setup() {
@@ -107,6 +120,22 @@ public class OrgNameNotChangedValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
 
         when(updateDao.getReferences(ORIGINAL_ORG)).thenReturn(Collections.EMPTY_SET);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+    }
+
+    @Test
+    public void orgname_changed_for_lir() {
+        // See: LirRipeMaintainedAttributesValidator
+        presetOverrideAuthentication();
+
+        when(update.getReferenceObject()).thenReturn(ORIGINAL_LIR);
+        when(update.getUpdatedObject()).thenReturn(UPDATED_LIR);
+
+        presetReferrers(REFERRER_MNT_BY_RS, REFERRER_MNT_BY_LEGACY);
 
         subject.validate(update, updateContext);
 
