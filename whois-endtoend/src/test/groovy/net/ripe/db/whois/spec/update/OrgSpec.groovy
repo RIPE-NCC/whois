@@ -1969,6 +1969,124 @@ class OrgSpec extends BaseQueryUpdateSpec {
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "Local Internet Registry")
     }
 
+    def "modify organisation, org-type:LIR, change address, e-mail, phone, and fax-no as normal user"() {
+
+        expect:
+        queryObject("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIR2-TEST
+                org-type:     LIR
+                org-name:     new name
+                address:      new address
+                e-mail:       new-email@ripe.net
+                phone:        +31 123456789
+                fax-no:       +31 123456789
+                admin-c:      SR1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       RIPE-NCC-HM-MNT
+                source:       TEST
+
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(6, 0, 0)
+
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
+                ["Authorisation for [organisation] ORG-LIR2-TEST failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT",
+                 "Organisation \"address:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
+                 "Organisation \"phone:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
+                 "Organisation \"fax-no:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
+                 "Organisation \"e-mail:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
+                 "Organisation \"org-name:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it."]
+
+        query_object_matches("-r -GBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "LIR")
+    }
+
+    def "modify organisation, org-type:LIR, change address, e-mail, phone, and fax-no as power user"() {
+
+        expect:
+        queryObject("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIR2-TEST
+                org-type:     LIR
+                org-name:     new name
+                address:      new address
+                e-mail:       new-email@ripe.net
+                phone:        +31 123456789
+                fax-no:       +31 123456789
+                admin-c:      SR1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                source:       TEST
+
+                password: hm
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+
+        query_object_matches("-r -GBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "LIR")
+    }
+
+    def "modify organisation, org-type:LIR, change address, e-mail, phone, and fax-no with override"() {
+
+        expect:
+        queryObject("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST")
+
+        when:
+        def message = syncUpdate("""
+                organisation: ORG-LIR2-TEST
+                org-type:     LIR
+                org-name:     new name
+                address:      new address
+                e-mail:       new-email@ripe.net
+                phone:        +31 123456789
+                fax-no:       +31 123456789
+                admin-c:      SR1-TEST
+                tech-c:       TP1-TEST
+                ref-nfy:      dbtest-org@ripe.net
+                mnt-ref:      owner3-mnt
+                mnt-by:       ripe-ncc-hm-mnt
+                source:       TEST
+                override:   denis,override1
+                """.stripIndent()
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 1)
+
+        query_object_matches("-r -GBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "LIR")
+    }
+
     def "modify organisation, remove org-name attribute"() {
         given:
         dbfixture(getTransient("ORG-NAME"))
