@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
+class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -38,6 +38,21 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
+                "IRT"           :"""\
+                irt:          irt-test
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                signature:    PGPKEY-D83C3FBD
+                encryption:   PGPKEY-D83C3FBD
+                auth:         PGPKEY-D83C3FBD
+                auth:         MD5-PW \$1\$qxm985sj\$3OOxndKKw/fgUeQO7baeF/  #irt
+                irt-nfy:      dbtest@ripe.net
+                notify:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """,
                 "NON-TOPLEVEL-ASSIGN-PI"      : """\
                 inetnum:      193.168.255.0 - 193.168.255.255
                 netname:      TEST-NET-NAME
@@ -51,7 +66,6 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """
-
         ]
     }
 
@@ -294,9 +308,11 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
     def "modify unlocked attributes with lir mntner is possible"() {
         given:
         syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("IRT") + "password: owner")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -310,10 +326,14 @@ class AllocAttrValidationSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
+                mnt-lower:    LIR2-MNT
+                mnt-domains:  LIR2-MNT
+                mnt-routes:   LIR2-MNT
+                mnt-irt:      IRT-TEST
                 source:       TEST
 
                 password: lir
+                password: irt
                 """.stripIndent()
         )
 
