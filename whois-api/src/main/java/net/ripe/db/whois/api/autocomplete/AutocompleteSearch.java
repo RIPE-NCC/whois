@@ -70,7 +70,8 @@ public class AutocompleteSearch {
                         query = constructQuery(queryAttributes, queryString);
                     }
                 } catch (ParseException e) {
-                    LOGGER.warn("Caught {} on {}", e.getMessage(), queryString);
+                    // TODO: [ES] fix parsing of asterisk (wildcard) as first character
+                    LOGGER.info("Caught {} on {}", e.getMessage(), queryString);
                     return Collections.<Map<String, Object>>emptyList();
                 }
 
