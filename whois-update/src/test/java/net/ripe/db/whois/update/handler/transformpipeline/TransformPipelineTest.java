@@ -1,16 +1,11 @@
 package net.ripe.db.whois.update.handler.transformpipeline;
 
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -40,7 +35,7 @@ public class TransformPipelineTest {
         DummyTransformer dummyTransformer = mock(DummyTransformer.class);
         when(dummyTransformer.transform(organisation, update, updateContext, Action.NOOP)).thenReturn(organisation);
 
-        TransformPipeline subject = new TransformPipeline(new PipelineTransformer[]{dummyTransformer, dummyTransformer, dummyTransformer});
+        TransformPipeline subject = new TransformPipeline(new Transformer[]{dummyTransformer, dummyTransformer, dummyTransformer});
         subject.transform(organisation, update, updateContext, Action.NOOP);
 
         verify(dummyTransformer, times(3)).transform(organisation, update, updateContext, Action.NOOP);

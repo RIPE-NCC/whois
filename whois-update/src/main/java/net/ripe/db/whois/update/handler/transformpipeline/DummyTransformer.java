@@ -5,7 +5,7 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 
-public class DummyTransformer implements PipelineTransformer {
+public class DummyTransformer implements Transformer {
 
     @Override
     public RpslObject transform(final RpslObject rpslObject,

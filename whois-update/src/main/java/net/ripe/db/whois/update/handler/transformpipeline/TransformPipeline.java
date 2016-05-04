@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransformPipeline {
 
-    private final PipelineTransformer[] transformers;
+    private final Transformer[] transformers;
 
     @Autowired
-    public TransformPipeline(final PipelineTransformer[] transformers) {
+    public TransformPipeline(final Transformer[] transformers) {
         this.transformers = transformers;
         // do we need sorting???
     }
@@ -23,7 +23,7 @@ public class TransformPipeline {
                             final UpdateContext updateContext,
                             final Action action) {
         RpslObject transformedObject = updatedObject;
-        for (PipelineTransformer transformer : transformers) {
+        for (Transformer transformer : transformers) {
             transformedObject = transformer.transform(transformedObject, update, updateContext, action);
         }
         return transformedObject;

@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AutoNumberTransformer implements PipelineTransformer {
+public class AutoKeyTransformer implements Transformer {
     private final AutoKeyResolver autoKeyResolver;
 
     @Autowired
-    public AutoNumberTransformer(final AutoKeyResolver autoKeyResolver) {
+    public AutoKeyTransformer(final AutoKeyResolver autoKeyResolver) {
         this.autoKeyResolver = autoKeyResolver;
     }
 
