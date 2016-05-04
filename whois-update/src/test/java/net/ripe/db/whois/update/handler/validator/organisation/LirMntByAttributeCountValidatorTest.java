@@ -119,8 +119,6 @@ public class LirMntByAttributeCountValidatorTest {
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_MULTIPLE_USER_MNTNER);
 
-        reset(maintainers);
-
         subject.validate(update, updateContext);
 
         verify(maintainers).isRsMaintainer(ciString("MNT1-LIR"));
