@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -65,5 +66,13 @@ public class Maintainers {
 
     public Set<CIString> getDbmMaintainers() {
         return dbmMaintainers;
+    }
+
+    public boolean isRsMaintainer(CIString mntner) {
+        return isRsMaintainer(Sets.newHashSet(mntner));
+    }
+
+    public boolean isRsMaintainer(Set<CIString> mntner) {
+        return !Sets.intersection(rsMaintainers, mntner).isEmpty();
     }
 }
