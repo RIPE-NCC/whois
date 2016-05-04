@@ -1,14 +1,11 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.authentication.Principal;
-import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -16,9 +13,6 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 // Validates that their is at most 1 single user mntner for an LIR
@@ -44,7 +38,7 @@ public class LirMntByAttributeCountValidator implements BusinessRuleValidator {
         }
 
         final RpslObject updatedObject = update.getUpdatedObject();
-        Object[] userMntner =filterUserMntner(updatedObject);
+        Object[] userMntner = filterUserMntner(updatedObject);
         if (1 < userMntner.length) {
             updateContext.addMessage(update, UpdateMessages.multipleUserMntBy(userMntner));
         }
