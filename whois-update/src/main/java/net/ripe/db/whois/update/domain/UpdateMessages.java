@@ -596,4 +596,9 @@ public final class UpdateMessages {
     public static Message rpslMntbyForbidden() {
         return new Message(Type.ERROR, "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
     }
+
+    public static Message multipleUserMntBy(Object[] userMntners) {
+        return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
+    }
+
 }
