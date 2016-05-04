@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 
 public class LirAttributeValidatorFixtures {
 
-    protected static final RpslObject NOT_LIR_ORG = RpslObject.parse("" +
+    protected static final RpslObject NON_LIR_ORG = RpslObject.parse("" +
             "organisation: ORG-NCC1-RIPE\n" +
             "org-name:     RIPE Network Coordination Centre\n" +
             "org-type:     RIR\n" +
@@ -15,7 +15,7 @@ public class LirAttributeValidatorFixtures {
             "fax-no:       +31 000 0000001\n" +
             "e-mail:       org1@test.com\n");
 
-    protected static final RpslObject NOT_LIR_ORG_CHANGED = RpslObject.parse("" +
+    protected static final RpslObject NON_LIR_ORG_CHANGED = RpslObject.parse("" +
             "organisation: ORG-NCC1-RIPE\n" +
             "org-name:     RIPE Network Coordination Centre\n" +
             "org-type:     RIR\n" +
@@ -26,7 +26,7 @@ public class LirAttributeValidatorFixtures {
             "fax-no:       +31 111 1111112\n" +
             "e-mail:       different@test.com\n");
 
-    protected static final RpslObject NOT_LIR_ORG_SINGLE_USER_MNTNER = RpslObject.parse("" +
+    protected static final RpslObject NON_LIR_ORG_SINGLE_USER_MNTNER = RpslObject.parse("" +
             "organisation: ORG-NCC1-RIPE\n" +
             "org-name:     RIPE Network Coordination Centre\n" +
             "org-type:     RIR\n" +
@@ -38,7 +38,7 @@ public class LirAttributeValidatorFixtures {
             "e-mail:       org1@test.com\n" +
             "mnt-by:       MNT1-NOT-LIR\n");
 
-    protected static final RpslObject NOT_LIR_ORG_MULTIPLE_USER_MNTNER = RpslObject.parse("" +
+    protected static final RpslObject NON_LIR_ORG_MULTIPLE_USER_MNTNER = RpslObject.parse("" +
             "organisation: ORG-NCC1-RIPE\n" +
             "org-name:     RIPE Network Coordination Centre\n" +
             "org-type:     RIR\n" +
@@ -130,4 +130,27 @@ public class LirAttributeValidatorFixtures {
             "phone:        +31 000 0000000\n" +
             "fax-no:       +31 000 0000001\n" +
             "e-mail:       different@test.com\n");
+
+    protected static final RpslObject LIR_ORG_ORG_NAME = RpslObject.parse("" +
+            "organisation: LIR-ORG-TST\n" +
+            "org-name:     Test Organisation Ltd modified\n" +
+            "org-type:     LIR\n" +
+            "address:      street and number\n" +
+            "address:      city \n" +
+            "address:      country\n" +
+            "phone:        +31 000 0000000\n" +
+            "fax-no:       +31 000 0000001\n" +
+            "e-mail:       org1@test.com\n");
+
+    protected static final RpslObject LIR_ORG_MNT_BY = RpslObject.parse("" +
+            "organisation: LIR-ORG-TST\n" +
+            "org-name:     Test Organisation Ltd\n" +
+            "org-type:     LIR\n" +
+            "address:      street and number\n" +
+            "address:      city \n" +
+            "address:      country\n" +
+            "phone:        +31 000 0000000\n" +
+            "fax-no:       +31 000 0000001\n" +
+            "mnt-by:       TEST-MNT\n" +
+            "e-mail:       org1@test.com\n");
 }
