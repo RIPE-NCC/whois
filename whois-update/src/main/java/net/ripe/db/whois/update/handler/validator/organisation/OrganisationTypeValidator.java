@@ -51,7 +51,7 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
             }
 
             if (LIR.equals(originalOrgType) && orgTypeHasChanged(update, updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
-                updateContext.addMessage(update, UpdateMessages.orgTypeCannotBeChangedForOrg());
+                updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_TYPE));
             }
         }
 

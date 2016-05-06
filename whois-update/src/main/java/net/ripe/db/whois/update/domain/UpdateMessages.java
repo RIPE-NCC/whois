@@ -601,10 +601,6 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "The \"netname\" attribute can only be changed by the RIPE NCC");
     }
 
-    public static Message orgTypeCannotBeChangedForOrg() {
-        return new Message(Type.ERROR, "The \"org-type\" attribute can only be changed by the RIPE NCC for this organisation");
-    }
-
     public static Message multipleUserMntBy(Object[] userMntners) {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
     }

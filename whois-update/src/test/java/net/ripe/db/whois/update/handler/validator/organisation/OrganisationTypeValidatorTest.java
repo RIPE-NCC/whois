@@ -105,7 +105,7 @@ public class OrganisationTypeValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
-        verify(updateContext).addMessage(update,  UpdateMessages.orgTypeCannotBeChangedForOrg());
+        verify(updateContext).addMessage(update,  UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_TYPE));
     }
 
     @Test
@@ -132,6 +132,6 @@ public class OrganisationTypeValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update,  UpdateMessages.orgTypeCannotBeChangedForOrg());
+        verify(updateContext).addMessage(update,  UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_TYPE));
     }
 }
