@@ -75,7 +75,6 @@ public class OrganisationTypeValidatorTest {
     public void status_other() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: other"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
-
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
@@ -105,8 +104,8 @@ public class OrganisationTypeValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.ORG_TYPE), UpdateMessages.invalidMaintainerForOrganisationType("RIR"));
+        verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(updateContext).addMessage(update,  UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_TYPE));
     }
 
     @Test
@@ -121,5 +120,18 @@ public class OrganisationTypeValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+    }
+
+    @Test
+    public void orgtype_cannot_be_downgraded_by_lir() {
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: OTHER"));
+        when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: LIR"));
+        when(update.getAction()).thenReturn(Action.MODIFY);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update,  UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_TYPE));
     }
 }
