@@ -122,4 +122,17 @@ public class OrganisationTypeValidatorTest {
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
     }
+
+    @Test
+    public void orgtype_cannot_be_changed_by_lir() {
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: OTHER"));
+        when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: LIR"));
+        when(update.getAction()).thenReturn(Action.MODIFY);
+        when(authenticationSubject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(false);
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update,  UpdateMessages.orgTypeCannotBeChangedForOrg());
+    }
 }

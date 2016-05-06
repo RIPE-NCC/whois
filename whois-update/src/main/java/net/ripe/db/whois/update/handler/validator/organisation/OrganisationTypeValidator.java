@@ -24,20 +24,26 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
     private static final CIString OTHER = ciString("OTHER");
+    private static final CIString LIR = ciString("LIR");
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
 
+        final RpslAttribute attribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
+        final CIString updatedOrgType = attribute.getCleanValue();
+        final CIString originalOrgType = update.getReferenceObject().getValueForAttribute(AttributeType.ORG_TYPE);
+
         if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
             return;
         }
 
-        final RpslAttribute attribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
-        final CIString orgType = attribute.getCleanValue();
+        if (!OTHER.equals(updatedOrgType) && orgTypeHasChanged(update, updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
+            updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(updatedOrgType));
+        }
 
-        if (!OTHER.equals(orgType) && orgTypeHasChanged(update, orgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
-            updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(orgType));
+        if (LIR.equals(originalOrgType) && orgTypeHasChanged(update, updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
+            updateContext.addMessage(update, UpdateMessages.orgTypeCannotBeChangedForOrg());
         }
     }
 
