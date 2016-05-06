@@ -30,21 +30,33 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
 
-        final RpslAttribute attribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
-        final CIString updatedOrgType = attribute.getCleanValue();
-        final CIString originalOrgType = update.getReferenceObject().getValueForAttribute(AttributeType.ORG_TYPE);
-
         if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
             return;
         }
 
-        if (!OTHER.equals(updatedOrgType) && orgTypeHasChanged(update, updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
-            updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(updatedOrgType));
+        final RpslAttribute attribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
+        final CIString updatedOrgType = attribute.getCleanValue();
+
+        if(update.getAction() == Action.CREATE) {
+            if (!OTHER.equals(updatedOrgType) && orgTypeHasChanged(update, updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
+                updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(updatedOrgType));
+            }
+
+        }
+        else if(update.getAction() == Action.MODIFY) {
+            final CIString originalOrgType = update.getReferenceObject().getValueForAttribute(AttributeType.ORG_TYPE);
+
+            if (!OTHER.equals(updatedOrgType) && !LIR.equals(originalOrgType) && orgTypeHasChanged(update, updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
+                updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(updatedOrgType));
+            }
+
+            if (LIR.equals(originalOrgType) && orgTypeHasChanged(update, updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
+                updateContext.addMessage(update, UpdateMessages.orgTypeCannotBeChangedForOrg());
+            }
         }
 
-        if (LIR.equals(originalOrgType) && orgTypeHasChanged(update, updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
-            updateContext.addMessage(update, UpdateMessages.orgTypeCannotBeChangedForOrg());
-        }
+
+
     }
 
     private boolean orgTypeHasChanged(final PreparedUpdate update, final CIString orgTypeUpdatedObject) {
