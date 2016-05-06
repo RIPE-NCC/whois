@@ -155,12 +155,13 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(3, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
                 "Organisation \"org-name:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
                 "Organisation \"org-type:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
+                "Organisation \"org:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it."
         ]
     }
 
