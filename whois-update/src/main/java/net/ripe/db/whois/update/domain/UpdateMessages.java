@@ -608,4 +608,5 @@ public final class UpdateMessages {
     public static Message multipleUserMntBy(Object[] userMntners) {
         return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
     }
+
 }

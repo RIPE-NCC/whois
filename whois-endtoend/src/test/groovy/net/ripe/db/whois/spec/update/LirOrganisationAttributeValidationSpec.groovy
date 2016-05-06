@@ -46,7 +46,6 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
     }
 
 
-
     def "modify lir attributes with lir password should not be possible"() {
         given:
         def ack1 = syncUpdate(getTransient("LIR-ORG") + "override: denis,override1")
