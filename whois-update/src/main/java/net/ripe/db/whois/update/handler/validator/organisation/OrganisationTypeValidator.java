@@ -38,7 +38,7 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
         final CIString updatedOrgType = attribute.getCleanValue();
 
         if(update.getAction() == Action.CREATE) {
-            if (!OTHER.equals(updatedOrgType) && orgTypeHasChanged(update, updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
+            if (!OTHER.equals(updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
                 updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(updatedOrgType));
             }
 
@@ -60,10 +60,6 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
     }
 
     private boolean orgTypeHasChanged(final PreparedUpdate update, final CIString orgTypeUpdatedObject) {
-        if (update.getAction() == Action.CREATE) {
-            return true;
-        }
-
         return !update.getReferenceObject().getValueForAttribute(AttributeType.ORG_TYPE).equals(orgTypeUpdatedObject);
     }
 
