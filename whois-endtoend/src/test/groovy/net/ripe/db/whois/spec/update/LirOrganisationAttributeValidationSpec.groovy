@@ -116,7 +116,6 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
     }
 
-    //TODO: RM: abuse-mailbox and org should not be editable with lir mnt
     def "modify other lir-locked attributes with lir password should not be possible"() {
         given:
         def ack1 = syncUpdate(getTransient("LIR-ORG") + "override: denis,override1")
@@ -155,13 +154,14 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(4, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
                 "Organisation \"org-name:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
+                "Organisation \"org:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
                 "Organisation \"org-type:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
-                "Organisation \"org:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it."
+                "Organisation \"abuse-mailbox:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it."
         ]
     }
 

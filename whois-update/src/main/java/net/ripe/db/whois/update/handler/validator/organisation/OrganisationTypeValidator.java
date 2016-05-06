@@ -24,7 +24,6 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
     private static final CIString OTHER = ciString("OTHER");
-    private static final CIString LIR = ciString("LIR");
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
@@ -35,31 +34,18 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
         }
 
         final RpslAttribute attribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
-        final CIString updatedOrgType = attribute.getCleanValue();
+        final CIString orgType = attribute.getCleanValue();
 
-        if(update.getAction() == Action.CREATE) {
-            if (!OTHER.equals(updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
-                updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(updatedOrgType));
-            }
-
+        if (!OTHER.equals(orgType) && orgTypeHasChanged(update, orgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
+            updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(orgType));
         }
-        else if(update.getAction() == Action.MODIFY) {
-            final CIString originalOrgType = update.getReferenceObject().getValueForAttribute(AttributeType.ORG_TYPE);
-
-            if (!OTHER.equals(updatedOrgType) && !LIR.equals(originalOrgType) && orgTypeHasChanged(update, updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
-                updateContext.addMessage(update, attribute, UpdateMessages.invalidMaintainerForOrganisationType(updatedOrgType));
-            }
-
-            if (LIR.equals(originalOrgType) && orgTypeHasChanged(update, updatedOrgType) && !subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
-                updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_TYPE));
-            }
-        }
-
-
-
     }
 
     private boolean orgTypeHasChanged(final PreparedUpdate update, final CIString orgTypeUpdatedObject) {
+        if (update.getAction() == Action.CREATE) {
+            return true;
+        }
+
         return !update.getReferenceObject().getValueForAttribute(AttributeType.ORG_TYPE).equals(orgTypeUpdatedObject);
     }
 

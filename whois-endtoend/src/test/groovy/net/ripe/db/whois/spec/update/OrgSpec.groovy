@@ -1882,12 +1882,15 @@ class OrgSpec extends BaseQueryUpdateSpec {
         def ack = ackFor message
 
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-LIR1-TEST") == [
+                "Organisation \"org-type:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it."]
 
-        query_object_matches("-r -GBT organisation ORG-LIR1-TEST", "organisation", "ORG-LIR1-TEST", "OTHER")
+        query_object_matches("-r -GBT organisation ORG-LIR1-TEST", "organisation", "ORG-LIR1-TEST", "LIR")
     }
 
     def "modify organisation, change org-type OTHER to LIR"() {

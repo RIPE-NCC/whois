@@ -665,7 +665,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "Referenced netname can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference."]
+                "The \"netname\" attribute can only be changed by the RIPE NCC"]
     }
 
     def "modify inetnum, change netname with lir mnt is possible for non-toplevel allocations"() {
