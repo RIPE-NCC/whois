@@ -68,11 +68,11 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
-                "Organisation \"address:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
-                "Organisation \"phone:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
-                "Organisation \"fax-no:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
-                "Organisation \"e-mail:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
-                "Organisation \"mnt-by:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it."
+                "Attribute \"address:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"phone:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"fax-no:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"e-mail:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."
         ]
     }
 
@@ -158,10 +158,10 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
-                "Organisation \"org-name:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
-                "Organisation \"org:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
-                "Organisation \"org-type:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it.",
-                "Organisation \"abuse-mailbox:\" can only be changed by the RIPE NCC for this organisation. Please contact \"ncc@ripe.net\" to change it."
+                "Attribute \"org-name:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"org:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"org-type:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "Attribute \"abuse-mailbox:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."
         ]
     }
 
