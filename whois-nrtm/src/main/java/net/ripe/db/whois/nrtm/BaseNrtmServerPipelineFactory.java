@@ -21,7 +21,9 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
 
     private static final ChannelBuffer LINE_DELIMITER = ChannelBuffers.wrappedBuffer(new byte[]{'\n'});
 
+    // TODO: implement ObjectSizeEstimator or remove memory limits altogether (Executor blocking incoming requests waiting on an increase)
     private static final long EXECUTOR_TOTAL_MEMORY_LIMIT = 32 * 1024 * 1024;
+
     private static final long EXECUTOR_PER_CHANNEL_MEMORY_LIMIT = 1024 * 1024;
     private static final int POOL_SIZE = 32;
 
