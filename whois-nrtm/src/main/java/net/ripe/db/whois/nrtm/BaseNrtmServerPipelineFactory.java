@@ -21,9 +21,9 @@ abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
 
     private static final ChannelBuffer LINE_DELIMITER = ChannelBuffers.wrappedBuffer(new byte[]{'\n'});
 
-    private static final long EXECUTOR_TOTAL_MEMORY_LIMIT = 16 * 1024 * 1024;
+    private static final long EXECUTOR_TOTAL_MEMORY_LIMIT = 32 * 1024 * 1024;
     private static final long EXECUTOR_PER_CHANNEL_MEMORY_LIMIT = 1024 * 1024;
-    private static final int POOL_SIZE = 8;
+    private static final int POOL_SIZE = 32;
 
     private final StringDecoder stringDecoder = new StringDecoder(Charsets.UTF_8);
     private final StringEncoder stringEncoder = new StringEncoder(Charsets.UTF_8);
