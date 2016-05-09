@@ -195,12 +195,13 @@ public class LirMntByValidatorTest {
                 "inetnum:      192.168.0.0 - 192.169.255.255\n" +
                 "status:       ALLOCATED PA\n" +
                 "mnt-by:       RIPE-NCC-HM-MNT\n" +
-                "mnt-by:       TEST-MNT");
+                "mnt-by:       TEST-MNT\n" +
+                "mnt-by:       TEST2-MNT");
         final RpslObject rpslUpdatedlObject = RpslObject.parse("" +
                 "inetnum:      192.168.0.0 - 192.169.255.255\n" +
                 "status:       ALLOCATED PA\n" +
-                "mnt-by:       TEST-MNT\n" +
-                "mnt-by:       TEST2-MNT");
+                "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                "mnt-by:       TEST4-MNT");
         when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
         when(update.getReferenceObject()).thenReturn(rpslOriginalObject);

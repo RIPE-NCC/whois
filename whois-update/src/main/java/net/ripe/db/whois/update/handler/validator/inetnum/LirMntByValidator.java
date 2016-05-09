@@ -54,10 +54,8 @@ public class LirMntByValidator implements BusinessRuleValidator {
     }
 
     private boolean mntByChanged(final RpslObject originalObject, final RpslObject updatedObject) {
-        final List<RpslAttribute> originalMntBys = originalObject.findAttributes(AttributeType.MNT_BY);
-        final List<RpslAttribute> updatedMntBys = updatedObject.findAttributes(AttributeType.MNT_BY);
-
-        return !(originalMntBys.size() == updatedMntBys.size() && originalMntBys.containsAll(updatedMntBys));
+        return !originalObject.getValuesForAttribute(AttributeType.MNT_BY)
+                .equals(updatedObject.getValuesForAttribute(AttributeType.MNT_BY));
     }
 
     private boolean isAllocation(final RpslObject originalObject) {
