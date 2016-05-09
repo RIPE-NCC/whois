@@ -32,7 +32,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmConcurrencyTestIntegration.class);
 
-    private static final int NUM_THREADS = 20;
+    private static final int NUM_THREADS = 100;
     private static final int MIN_RANGE = 21486000;
     private static final int MID_RANGE = 21486049;  // 21486050 is a person in nrtm_sample.sql
     private static final int MAX_RANGE = 21486100;
