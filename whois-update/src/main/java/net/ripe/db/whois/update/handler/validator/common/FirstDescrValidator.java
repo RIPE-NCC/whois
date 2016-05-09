@@ -14,7 +14,9 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class FirstDescrValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
@@ -45,28 +47,31 @@ public class FirstDescrValidator implements BusinessRuleValidator {
             return;
         }
 
-        if (!hasRsMaintainer(update.getReferenceObject())) {
+        if (!mntbyRsMaintainer(update.getReferenceObject())) {
             return;
         }
 
         if (update.getReferenceObject().containsAttribute(AttributeType.DESCR)) {
             if (!update.getUpdatedObject().containsAttribute(AttributeType.DESCR)) {
-                updateContext.addMessage(update, UpdateMessages.descrCannotBeChanged());
+                updateContext.addMessage(update, UpdateMessages.descrCannotBeRemoved());
             } else {
-                if (!getFirstDescr(update.getReferenceObject()).equals(
-                        getFirstDescr(update.getUpdatedObject()))) {
+                if (!getFirstDescr(update.getReferenceObject()).equals(getFirstDescr(update.getUpdatedObject()))) {
                     updateContext.addMessage(update, UpdateMessages.descrCannotBeChanged());
                 }
+            }
+        } else {
+            if (update.getUpdatedObject().containsAttribute(AttributeType.DESCR)) {
+                    updateContext.addMessage(update, UpdateMessages.descrCannotBeAdded());
             }
         }
     }
 
-    private boolean hasRsMaintainer(final RpslObject rpslObject) {
+    private boolean mntbyRsMaintainer(final RpslObject rpslObject) {
         return maintainers.isRsMaintainer(rpslObject.getValuesForAttribute(AttributeType.MNT_BY));
     }
 
     private CIString getFirstDescr(final RpslObject rpslObject) {
-        if (rpslObject.containsAttribute(AttributeType.DESCR)) {
+        if (!rpslObject.containsAttribute(AttributeType.DESCR)) {
             throw new IllegalArgumentException("no descr");
         }
 

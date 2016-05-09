@@ -601,8 +601,16 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "The \"netname\" attribute can only be changed by the RIPE NCC");
     }
 
+    public static Message descrCannotBeAdded() {
+        return new Message(Type.ERROR, "The first \"descr\" attribute can only be added by the RIPE NCC");
+    }
+
     public static Message descrCannotBeChanged() {
         return new Message(Type.ERROR, "The first \"descr\" attribute can only be changed by the RIPE NCC");
+    }
+
+    public static Message descrCannotBeRemoved() {
+        return new Message(Type.ERROR, "The first \"descr\" attribute can only be removed by the RIPE NCC");
     }
 
     public static Message multipleUserMntBy(Object[] userMntners) {
