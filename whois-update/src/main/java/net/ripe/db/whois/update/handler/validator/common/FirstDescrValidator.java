@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class FirstDescrValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
-    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM);
 
     private final Maintainers maintainers;
 
@@ -43,11 +44,11 @@ public class FirstDescrValidator implements BusinessRuleValidator {
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
 
         final Subject subject = updateContext.getSubject(update);
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER)) {
+        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.POWER_MAINTAINER)) {
             return;
         }
 
-        if (!mntbyRsMaintainer(update.getReferenceObject())) {
+        if (!mntbyPowerMaintainer(update.getReferenceObject())) {
             return;
         }
 
@@ -66,8 +67,8 @@ public class FirstDescrValidator implements BusinessRuleValidator {
         }
     }
 
-    private boolean mntbyRsMaintainer(final RpslObject rpslObject) {
-        return maintainers.isRsMaintainer(rpslObject.getValuesForAttribute(AttributeType.MNT_BY));
+    private boolean mntbyPowerMaintainer(final RpslObject rpslObject) {
+        return !Sets.intersection(maintainers.getPowerMaintainers(), rpslObject.getValuesForAttribute(AttributeType.MNT_BY)).isEmpty();
     }
 
     private CIString getFirstDescr(final RpslObject rpslObject) {

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
@@ -14,9 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Set;
+import java.util.Collections;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -34,7 +34,7 @@ public class FirstDescrValidatorTest {
     @Before
     public void setup() {
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
-        when(maintainers.isRsMaintainer(any(Set.class))).thenReturn(Boolean.TRUE);
+        when(maintainers.getPowerMaintainers()).thenReturn(Collections.singleton(CIString.ciString("RIPE-NCC-HM-MNT")));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class FirstDescrValidatorTest {
 
     @Test
     public void skip_when_rs_maintainer() {
-        when(subjectObject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
+        when(subjectObject.hasPrincipal(Principal.POWER_MAINTAINER)).thenReturn(true);
 
         subject.validate(update, updateContext);
 
@@ -57,9 +57,18 @@ public class FirstDescrValidatorTest {
     }
 
     @Test
-    public void added_first() {
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("inetnum: 193.0/32"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 193.0/32\ndescr: added"));
+    public void added_first_descr() {
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse(
+            "inetnum: 193.0/32\n" +
+            "mnt-by:  RIPE-NCC-HM-MNT\n" +
+            "mnt-by:  USER-MNT\n" +
+            "source:  TEST"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse(
+            "inetnum: 193.0/32\n" +
+            "descr:   added\n" +
+            "mnt-by:  RIPE-NCC-HM-MNT\n" +
+            "mnt-by:  USER-MNT\n" +
+            "source:  TEST"));
 
         subject.validate(update, updateContext);
 
@@ -67,9 +76,20 @@ public class FirstDescrValidatorTest {
     }
 
     @Test
-    public void added_second() {
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("inetnum: 193.0/32\ndescr: first"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 193.0/32\ndescr: first\ndescr: second"));
+    public void added_second_descr() {
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse(
+            "inetnum: 193.0/32\n" +
+            "descr:   first\n" +
+            "mnt-by:  RIPE-NCC-HM-MNT\n" +
+            "mnt-by:  USER-MNT\n" +
+            "source:  TEST"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse(
+            "inetnum: 193.0/32\n" +
+            "descr:   first\n" +
+            "descr:   second\n" +
+            "mnt-by:  RIPE-NCC-HM-MNT\n" +
+            "mnt-by:  USER-MNT\n" +
+            "source:  TEST"));
 
         subject.validate(update, updateContext);
 
@@ -77,9 +97,19 @@ public class FirstDescrValidatorTest {
     }
 
     @Test
-    public void changed_first() {
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("inetnum: 193.0/32\ndescr: original"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 193.0/32\ndescr: changed"));
+    public void changed_first_descr() {
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse(
+            "inetnum: 193.0/32\n" +
+            "descr:   original\n" +
+            "mnt-by:  RIPE-NCC-HM-MNT\n" +
+            "mnt-by:  USER-MNT\n" +
+            "source:  TEST"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse(
+            "inetnum: 193.0/32\n" +
+            "descr:   changed\n" +
+            "mnt-by:  RIPE-NCC-HM-MNT\n" +
+            "mnt-by:  USER-MNT\n" +
+            "source:  TEST"));
 
         subject.validate(update, updateContext);
 
@@ -87,9 +117,18 @@ public class FirstDescrValidatorTest {
     }
 
     @Test
-    public void removed_first() {
-        when(update.getReferenceObject()).thenReturn(RpslObject.parse("inetnum: 193.0/32\ndescr: original"));
-        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 193.0/32"));
+    public void removed_first_descr() {
+        when(update.getReferenceObject()).thenReturn(RpslObject.parse(
+            "inetnum: 193.0/32\n" +
+            "descr:   original\n" +
+            "mnt-by:  RIPE-NCC-HM-MNT\n" +
+            "mnt-by:  USER-MNT\n" +
+            "source:  TEST"));
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse(
+            "inetnum: 193.0/32\n" +
+            "mnt-by:  RIPE-NCC-HM-MNT\n" +
+            "mnt-by:  USER-MNT\n" +
+            "source:  TEST"));
 
         subject.validate(update, updateContext);
 
