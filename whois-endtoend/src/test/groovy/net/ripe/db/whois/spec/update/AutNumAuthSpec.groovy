@@ -3909,7 +3909,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS250
                 as-name:        End-User-1
-                descr:          description
+                descr:          new description
                 status:         LEGACY
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
@@ -3957,7 +3957,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 body: """\
                 aut-num:        AS250
                 as-name:        End-User-1
-                descr:          description
+                descr:          new description
                 status:         OTHER
                 import:         from AS1 accept ANY
                 export:         to AS1 announce AS2
