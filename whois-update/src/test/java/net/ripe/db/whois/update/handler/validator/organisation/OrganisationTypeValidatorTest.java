@@ -75,7 +75,6 @@ public class OrganisationTypeValidatorTest {
     public void status_other() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: other"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
-
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());

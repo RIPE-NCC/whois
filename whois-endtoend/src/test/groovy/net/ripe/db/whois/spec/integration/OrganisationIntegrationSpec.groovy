@@ -954,8 +954,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Organisation \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Organisation \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
     }
 
     def "lir org-name and address changed organisation ref by mntner"() {
@@ -990,8 +990,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Organisation \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Organisation \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
     }
 
     def "lir org-name and address changed organisation ref by resource without RSmntner not auth by RS mntner"() {
@@ -1026,8 +1026,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Organisation \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Organisation \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
     }
 
     def "lir org-name and address changed organisation ref by resource with RSmntner auth by RS mntner"() {
@@ -1068,8 +1068,8 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent())
 
         then:
-        response =~ /\\*\\*\\*Error:   Organisation \"address:\" can only be changed by the RIPE NCC for this/
-        response =~ /\\*\\*\\*Error:   Organisation \"org-name:\" can only be changed by the RIPE NCC for/
+        response =~ /\\*\\*\\*Error:   Attribute \"address:\" can only be changed by the RIPE NCC for this/
+        response =~ /\\*\\*\\*Error:   Attribute \"org-name:\" can only be changed by the RIPE NCC for/
     }
 
     def "lir org-name and address changed organisation ref by resource with RSmntner auth by override"() {

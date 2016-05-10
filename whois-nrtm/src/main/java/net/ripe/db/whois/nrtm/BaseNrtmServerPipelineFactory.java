@@ -16,18 +16,33 @@ import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.springframework.scheduling.TaskScheduler;
 
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
 
     private static final ChannelBuffer LINE_DELIMITER = ChannelBuffers.wrappedBuffer(new byte[]{'\n'});
 
-    private static final long EXECUTOR_TOTAL_MEMORY_LIMIT = 16 * 1024 * 1024;
-    private static final long EXECUTOR_PER_CHANNEL_MEMORY_LIMIT = 1024 * 1024;
-    private static final int POOL_SIZE = 8;
+    private static final long MEMORY_SIZE_UNLIMITED = 0;
+    private static final long TIMEOUT_SECONDS = 60L;
+    private static final int POOL_SIZE = 32;
 
     private final StringDecoder stringDecoder = new StringDecoder(Charsets.UTF_8);
     private final StringEncoder stringEncoder = new StringEncoder(Charsets.UTF_8);
-    private final ExecutionHandler executionHandler = new ExecutionHandler(new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, EXECUTOR_PER_CHANNEL_MEMORY_LIMIT, EXECUTOR_TOTAL_MEMORY_LIMIT));
+
+    protected final ExecutionHandler executionHandler = new ExecutionHandler(
+        new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, MEMORY_SIZE_UNLIMITED, MEMORY_SIZE_UNLIMITED, TIMEOUT_SECONDS, TimeUnit.SECONDS, new ThreadFactory() {
+        private final ThreadGroup threadGroup = new ThreadGroup("nrtm-executor-pool");
+        private final AtomicInteger threadNumber = new AtomicInteger();
+
+        @Override
+        public Thread newThread(final Runnable r) {
+            return new Thread(threadGroup, r, "nrtm-executor-thread-" + threadNumber.incrementAndGet());
+        }
+    }));
+
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmExceptionHandler exceptionHandler;
     private final AccessControlHandler aclHandler;

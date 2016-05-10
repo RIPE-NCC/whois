@@ -134,7 +134,6 @@ public class OrgAttributeNotChangedValidatorTest {
                 "netname:      TEST-NET-NAME\n" +
                 "descr:        TEST network\n" +
                 "country:      NL\n" +
-                "org:          ORG-LIR1-TEST\n" +
                 "admin-c:      TP1-TEST\n" +
                 "tech-c:       TP1-TEST\n" +
                 "status:       ALLOCATED PA\n" +
@@ -216,7 +215,7 @@ public class OrgAttributeNotChangedValidatorTest {
                 "netname:      TEST-NET-NAME\n" +
                 "descr:        TEST network\n" +
                 "country:      NL\n" +
-                "org:          ORG-LIR1-TEST\n" +
+                "org:          ORG-LIR2-TEST\n" +
                 "admin-c:      TP1-TEST\n" +
                 "tech-c:       TP1-TEST\n" +
                 "status:       ALLOCATED PA\n" +
@@ -241,9 +240,11 @@ public class OrgAttributeNotChangedValidatorTest {
                 "netname:      TEST-NET-NAME\n" +
                 "descr:        TEST network\n" +
                 "country:      NL\n" +
+                "org:          ORG-LIR1-TEST\n" +
                 "admin-c:      TP1-TEST\n" +
                 "tech-c:       TP1-TEST\n" +
-                "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                "status:       ALLOCATED PA\n" +
+                "mnt-by:       OTHER-MNT\n" +
                 "mnt-lower:    LIR-MNT\n" +
                 "source:       TEST");
         when(update.getReferenceObject()).thenReturn(original);
@@ -253,10 +254,11 @@ public class OrgAttributeNotChangedValidatorTest {
                 "netname:      TEST-NET-NAME\n" +
                 "descr:        TEST network\n" +
                 "country:      NL\n" +
+                "org:          ORG-LIR2-TEST\n" +
                 "admin-c:      TP1-TEST\n" +
                 "tech-c:       TP1-TEST\n" +
                 "status:       ALLOCATED PA\n" +
-                "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                "mnt-by:       OTHER-MNT\n" +
                 "mnt-lower:    LIR-MNT\n" +
                 "source:       TEST");
         when(update.getUpdatedObject()).thenReturn(updated);
