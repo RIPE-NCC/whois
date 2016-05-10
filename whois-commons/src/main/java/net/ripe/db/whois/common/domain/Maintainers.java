@@ -68,6 +68,10 @@ public class Maintainers {
         return dbmMaintainers;
     }
 
+    public boolean isEnduserMaintainer(Set<CIString> mntner) {
+        return !Sets.intersection(enduserMaintainers, mntner).isEmpty();
+    }
+
     public boolean isRsMaintainer(CIString mntner) {
         return isRsMaintainer(Sets.newHashSet(mntner));
     }
