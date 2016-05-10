@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
+
 @Component
 public class NrtmServerPipelineFactory extends BaseNrtmServerPipelineFactory {
 
@@ -26,5 +28,10 @@ public class NrtmServerPipelineFactory extends BaseNrtmServerPipelineFactory {
                                      @Value("${nrtm.update.interval:60}") final long updateInterval) {
 
         super(nrtmChannelsRegistry, exceptionHandler, aclHandler, serialDao, nrtmLog, dummifier, clientSynchronisationScheduler, maintenanceHandler, version, source, updateInterval);
+    }
+
+    @PreDestroy
+    private void destroyExecutionHandler() {
+        executionHandler.releaseExternalResources();
     }
 }
