@@ -82,7 +82,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
-                descr:        Some different descr
+                descr:        TEST network
                 country:      GB
                 geoloc:       20 20
                 language:     NL
