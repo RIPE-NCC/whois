@@ -5626,9 +5626,10 @@ class InetnumSpec extends BaseQueryUpdateSpec {
           modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
     }
 
-    def "modify assignment, user mnt-by, first description cannot be added"() {
+    def "modify allocation, user mnt-by, cannot add first description"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-USER-MNTBY").replaceAll("(?m)descr:.*\n", "") + "password: owner3\npassword: hm")
+      expect:
         query_object_not_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "descr")
 
       when:
@@ -5663,12 +5664,11 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 ["The first \"descr\" attribute can only be added by the RIPE NCC"]
     }
 
-    def "modify assignment, user mnt-by, first description cannot be changed"() {
+    def "modify allocation, user mnt-by, cannot change first description"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-USER-MNTBY") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-
       expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       when:
@@ -5703,12 +5703,11 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 ["The first \"descr\" attribute can only be changed by the RIPE NCC"]
     }
 
-    def "modify assignment, user mnt-by, first description cannot be removed"() {
+    def "modify allocation, user mnt-by, cannot remove first description"() {
       given:
         syncUpdate(getTransient("ALLOC-PA-USER-MNTBY") + "password: owner3\npassword: hm")
-        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-
       expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
 
       when:
