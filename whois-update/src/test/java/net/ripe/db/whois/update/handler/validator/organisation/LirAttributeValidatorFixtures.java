@@ -153,4 +153,39 @@ public class LirAttributeValidatorFixtures {
             "fax-no:       +31 000 0000001\n" +
             "mnt-by:       TEST-MNT\n" +
             "e-mail:       org1@test.com\n");
+
+    protected static final RpslObject LIR_ORG_ORG = RpslObject.parse("" +
+            "organisation: LIR-ORG-TST\n" +
+            "org-name:     Test Organisation Ltd\n" +
+            "org-type:     LIR\n" +
+            "org:          LIR-ORG-TST\n" +
+            "address:      street and number\n" +
+            "address:      city \n" +
+            "address:      country\n" +
+            "phone:        +31 000 0000000\n" +
+            "fax-no:       +31 000 0000001\n" +
+            "e-mail:       org1@test.com\n");
+
+    protected static final RpslObject LIR_ORG_ORG_TYPE = RpslObject.parse("" +
+            "organisation: LIR-ORG-TST\n" +
+            "org-name:     Test Organisation Ltd\n" +
+            "org-type:     OTHER\n" +
+            "address:      street and number\n" +
+            "address:      city \n" +
+            "address:      country\n" +
+            "phone:        +31 000 0000000\n" +
+            "fax-no:       +31 000 0000001\n" +
+            "e-mail:       org1@test.com\n");
+
+    protected static final RpslObject LIR_ORG_ABUSE_MAILBOX = RpslObject.parse("" +
+            "organisation: LIR-ORG-TST\n" +
+            "org-name:     Test Organisation Ltd\n" +
+            "org-type:     LIR\n" +
+            "abuse-mailbox: abuse@test.com\n" +
+            "address:      street and number\n" +
+            "address:      city \n" +
+            "address:      country\n" +
+            "phone:        +31 000 0000000\n" +
+            "fax-no:       +31 000 0000001\n" +
+            "e-mail:       org1@test.com\n");
 }
