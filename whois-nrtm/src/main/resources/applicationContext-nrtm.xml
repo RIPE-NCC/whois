@@ -13,6 +13,6 @@
 
     <context:component-scan base-package="net.ripe.db.whois.nrtm"/>
 
-    <task:scheduler id="clientSynchronisationScheduler" pool-size="10"/>
+    <task:scheduler id="clientSynchronisationScheduler" pool-size="32"/>
 
 </beans>
