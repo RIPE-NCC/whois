@@ -72,7 +72,7 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
         when:
         def ack = syncUpdateWithResponse("""
             organisation:   ORG-RIEN1-TEST
-            org-name:       Reseaux IP Europeens Network Coordination Centre
+            org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)
             org-type:       LIR
             descr:          RIPE NCC Operations
             address:        P.O. Box 10096 modified
