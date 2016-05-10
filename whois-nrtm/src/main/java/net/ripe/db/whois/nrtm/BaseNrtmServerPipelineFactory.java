@@ -16,20 +16,21 @@ import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.springframework.scheduling.TaskScheduler;
 
+import java.util.concurrent.TimeUnit;
+
 
 abstract class BaseNrtmServerPipelineFactory implements ChannelPipelineFactory {
 
     private static final ChannelBuffer LINE_DELIMITER = ChannelBuffers.wrappedBuffer(new byte[]{'\n'});
 
-    // TODO: implement ObjectSizeEstimator or remove memory limits altogether (Executor blocking incoming requests waiting on an increase)
-    private static final long EXECUTOR_TOTAL_MEMORY_LIMIT = 32 * 1024 * 1024;
-
-    private static final long EXECUTOR_PER_CHANNEL_MEMORY_LIMIT = 1024 * 1024;
+    private static final long MEMORY_SIZE_UNLIMITED = 0;
+    private static final long TIMEOUT_SECONDS = 60L;
     private static final int POOL_SIZE = 32;
 
     private final StringDecoder stringDecoder = new StringDecoder(Charsets.UTF_8);
     private final StringEncoder stringEncoder = new StringEncoder(Charsets.UTF_8);
-    private final ExecutionHandler executionHandler = new ExecutionHandler(new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, EXECUTOR_PER_CHANNEL_MEMORY_LIMIT, EXECUTOR_TOTAL_MEMORY_LIMIT));
+    private final ExecutionHandler executionHandler = new ExecutionHandler(
+        new OrderedMemoryAwareThreadPoolExecutor(POOL_SIZE, MEMORY_SIZE_UNLIMITED, MEMORY_SIZE_UNLIMITED, TIMEOUT_SECONDS, TimeUnit.SECONDS));
     private final NrtmChannelsRegistry nrtmChannelsRegistry;
     private final NrtmExceptionHandler exceptionHandler;
     private final AccessControlHandler aclHandler;
