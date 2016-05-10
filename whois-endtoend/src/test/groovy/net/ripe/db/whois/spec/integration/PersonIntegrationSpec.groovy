@@ -771,7 +771,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             def org = syncUpdate(new SyncUpdate(data: """\
             organisation: ORG-NCC2-RIPE
             org-name:     Ripe NCC organisation
-            org-type:     OTHER
+            org-type:     LIR
             address:      Singel 258
             e-mail:        bitbucket@ripe.net
             abuse-c:      AB-TEST

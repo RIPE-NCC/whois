@@ -29,7 +29,10 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
             AttributeType.FAX_NO,
             AttributeType.E_MAIL,
             AttributeType.MNT_BY,
-            AttributeType.ORG_NAME);
+            AttributeType.ORG_NAME,
+            AttributeType.ORG,
+            AttributeType.ORG_TYPE,
+            AttributeType.ABUSE_MAILBOX);
 
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
