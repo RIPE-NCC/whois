@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
@@ -73,7 +74,7 @@ public class Maintainers {
     }
 
     public boolean isRsMaintainer(CIString mntner) {
-        return isRsMaintainer(Sets.newHashSet(mntner));
+        return isRsMaintainer(Collections.singleton(mntner));
     }
 
     public boolean isRsMaintainer(Set<CIString> mntner) {
