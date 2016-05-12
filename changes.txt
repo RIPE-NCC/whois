@@ -1,5 +1,12 @@
 ## next
 
+# 1.87.2
+[update] Restrict changing mnt-by,org,org-type,abuse-mailbox attributes by user maintainer
+[update] Restrict adding, changing, removing first descr: attribute on allocations
+[update] Added tests
+[nrtm] Increased thread pool size for NRTM server
+
+
 # 1.87.1
 [update] Do not allow LIR edits to the netname attribute on top-level allocations
 [update] Do not allow LIR edits to the organisation object mnt-by attribute(s)

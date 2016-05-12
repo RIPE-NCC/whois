@@ -114,6 +114,19 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
+                "ALLOC-PA-USER-MNTBY": """\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                """,
                 "P-NO-LOW": """\
                 inetnum:      192.168.128.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
@@ -5612,4 +5625,120 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         then:
           modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
     }
+
+    def "modify allocation, user mnt-by, cannot add first description"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA-USER-MNTBY").replaceAll("(?m)descr:.*\n", "") + "password: owner3\npassword: hm")
+      expect:
+        query_object_not_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "descr")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password: lir
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
+                ["The first \"descr\" attribute can only be added by the RIPE NCC"]
+    }
+
+    def "modify allocation, user mnt-by, cannot change first description"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA-USER-MNTBY") + "password: owner3\npassword: hm")
+      expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        Updated TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password: lir
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
+                ["The first \"descr\" attribute can only be changed by the RIPE NCC"]
+    }
+
+    def "modify allocation, user mnt-by, cannot remove first description"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA-USER-MNTBY") + "password: owner3\npassword: hm")
+      expect:
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObjectNotFound("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password: lir
+                """.stripIndent()
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
+                ["The first \"descr\" attribute can only be removed by the RIPE NCC"]
+    }
+
 }
