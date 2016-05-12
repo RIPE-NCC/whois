@@ -65,7 +65,21 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
-                """
+                """,
+                "V6ALLOC-RIR": """\
+                inet6num:     2001::/20
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+                """,
         ]
     }
 
@@ -114,6 +128,54 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+
+    }
+
+    def "modify inet6num, change lir-unlocked attributes with lir password should be possible"() {
+        given:
+        syncUpdate(getTransient("V6ALLOC-RIR") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "password: owner")
+
+        expect:
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001::/20
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                geoloc:       20 20
+                language:     NL
+                remarks:      some new remarks
+                notify:       notify@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                mnt-domains:  LIR2-MNT
+                mnt-routes:   LIR2-MNT
+                mnt-irt:      IRT-TEST
+                status:       ALLOCATED-BY-RIR
+                source:       TEST
+
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
 
     }
 
