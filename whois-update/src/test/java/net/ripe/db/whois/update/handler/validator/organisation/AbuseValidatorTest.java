@@ -21,6 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 
+import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyCollection;
@@ -68,6 +69,7 @@ public class AbuseValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseMailboxRequired(role.getKey()));
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -78,6 +80,7 @@ public class AbuseValidatorTest {
         subject.validate(update, updateContext);
 
         verifyZeroInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -90,6 +93,7 @@ public class AbuseValidatorTest {
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseCPersonReference());
         verify(updateContext, never()).addMessage(update, UpdateMessages.abuseMailboxRequired("nic-hdl: AB-NIC"));
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -101,6 +105,7 @@ public class AbuseValidatorTest {
         subject.validate(update, updateContext);
 
         verifyZeroInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -112,6 +117,7 @@ public class AbuseValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseContactNotRemovable());
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -125,6 +131,7 @@ public class AbuseValidatorTest {
         subject.validate(update, updateContext);
 
         verifyZeroInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
 
@@ -146,11 +153,11 @@ public class AbuseValidatorTest {
         when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
         when(updateDao.getReferences(update.getReferenceObject())).thenReturn(Sets.newHashSet(info));
         when(objectDao.getById(1)).thenReturn(referencingPerson);
-        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-DBM-MNT")));
 
         subject.validate(update, updateContext);
 
         verifyZeroInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -164,12 +171,13 @@ public class AbuseValidatorTest {
         when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
         when(updateDao.getReferences(update.getReferenceObject())).thenReturn(Sets.newHashSet(info));
         when(objectDao.getById(1)).thenReturn(resource);
-        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")));
+        when(maintainers.isRsMaintainer(ciSet("A_NON_RS_MAINTAINER"))).thenReturn(false);
 
         subject.validate(update, updateContext);
 
         verifyZeroInteractions(updateContext);
-
+        verify(maintainers).isRsMaintainer(ciSet("A_NON_RS_MAINTAINER"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -184,11 +192,13 @@ public class AbuseValidatorTest {
         when(objectDao.getByKeys(eq(ObjectType.ROLE), anyCollection())).thenReturn(Lists.newArrayList(RpslObject.parse("role: Role Test\nnic-hdl: AB-NIC\nabuse-mailbox: abuse@test.net")));
         when(updateDao.getReferences(update.getReferenceObject())).thenReturn(Sets.newHashSet(info));
         when(objectDao.getById(1)).thenReturn(resource);
-        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")));
+        when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("AN_RS_MAINTAINER")))).thenReturn(true);
 
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.abuseContactNotRemovable());
+        verify(maintainers).isRsMaintainer(ciSet("AN_RS_MAINTAINER"));
+        verifyNoMoreInteractions(maintainers);
     }
 
 }

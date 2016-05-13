@@ -35,7 +35,8 @@ public class DeleteRsMaintainedObjectValidatorTest {
 
     @Before
     public void setUp() throws Exception {
-        when(maintainers.getRsMaintainers()).thenReturn(ciSet("RS-MNT"));
+        when(maintainers.isRsMaintainer(ciSet("DEV-MNT"))).thenReturn(false);
+        when(maintainers.isRsMaintainer(ciSet("RS-MNT", "DEV-MNT"))).thenReturn(true);
         when(updateContext.getSubject(update)).thenReturn(authSubject);
     }
 
@@ -60,6 +61,8 @@ public class DeleteRsMaintainedObjectValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verify(maintainers).isRsMaintainer(ciSet("DEV-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -74,6 +77,8 @@ public class DeleteRsMaintainedObjectValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForDeleteRsMaintainedObject());
+        verify(maintainers).isRsMaintainer(ciSet("DEV-MNT", "RS-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -89,6 +94,7 @@ public class DeleteRsMaintainedObjectValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -103,5 +109,6 @@ public class DeleteRsMaintainedObjectValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verifyZeroInteractions(maintainers);
     }
 }
