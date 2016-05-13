@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
@@ -48,12 +47,12 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(INETNUM, INET6NUM, AUT_NUM);
 
     private static final Set<? extends InetStatus> ALLOWED_STATUSES =
-        ImmutableSet.of(
-            InetnumStatus.ASSIGNED_PI,
-            InetnumStatus.ASSIGNED_ANYCAST,
-            InetnumStatus.LEGACY,
-            Inet6numStatus.ASSIGNED_PI,
-            Inet6numStatus.ASSIGNED_ANYCAST);
+            ImmutableSet.of(
+                    InetnumStatus.ASSIGNED_PI,
+                    InetnumStatus.ASSIGNED_ANYCAST,
+                    InetnumStatus.LEGACY,
+                    Inet6numStatus.ASSIGNED_PI,
+                    Inet6numStatus.ASSIGNED_ANYCAST);
 
     private final RpslObjectDao objectDao;
     private final Maintainers maintainers;
@@ -84,7 +83,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
             return;
         }
 
-        if(updatedObject.findAttributes(AttributeType.SPONSORING_ORG).size() > 1) {
+        if (updatedObject.findAttributes(AttributeType.SPONSORING_ORG).size() > 1) {
             updateContext.addMessage(update, ValidationMessages.tooManyAttributesOfType(AttributeType.SPONSORING_ORG));
             return;
         }
@@ -178,7 +177,7 @@ public class SponsoringOrgValidator implements BusinessRuleValidator {
 
     private boolean hasEndUserMntner(final RpslObject object) {
         final Set<CIString> mntBy = object.getValuesForAttribute(AttributeType.MNT_BY);
-        return !Sets.intersection(maintainers.getEnduserMaintainers(), mntBy).isEmpty();
+        return maintainers.isEnduserMaintainer(mntBy);
     }
 
     @Override
