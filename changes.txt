@@ -1,11 +1,14 @@
 ## next
 
+# 1.87.3
+[update] Allow first description line to be editable in inet(6)num and aut-num objects
+[update] bugfix allow ASSIGNED-PIs to updated netname attribute for inet(6)num and aut-num
+
 # 1.87.2
 [update] Restrict changing mnt-by,org,org-type,abuse-mailbox attributes by user maintainer
 [update] Restrict adding, changing, removing first descr: attribute on allocations
 [update] Added tests
 [nrtm] Increased thread pool size for NRTM server
-
 
 # 1.87.1
 [update] Do not allow LIR edits to the netname attribute on top-level allocations
