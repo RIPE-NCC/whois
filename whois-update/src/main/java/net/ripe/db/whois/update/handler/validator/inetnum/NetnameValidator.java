@@ -54,10 +54,10 @@ public class NetnameValidator implements BusinessRuleValidator {
         final CIString refNetname = referenceObject.getValueOrNullForAttribute(NETNAME);
         final CIString updNetname = updatedObject.getValueOrNullForAttribute(NETNAME);
 
-        final boolean rsMaintained = maintainers.isRsMaintainer(referenceObject.getValuesForAttribute(AttributeType.MNT_BY));
+        final boolean enduserMaintainer = maintainers.isEnduserMaintainer(referenceObject.getValuesForAttribute(AttributeType.MNT_BY));
         final Action action = update.getAction();
 
-        if (rsMaintained && hasChanged(refNetname, updNetname, action)) {
+        if (!enduserMaintainer && hasChanged(refNetname, updNetname, action)) {
             updateContext.addMessage(update, UpdateMessages.netnameCannotBeChanged());
         }
     }

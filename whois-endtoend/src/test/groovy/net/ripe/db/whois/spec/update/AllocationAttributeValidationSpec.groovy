@@ -62,6 +62,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
@@ -749,6 +750,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
