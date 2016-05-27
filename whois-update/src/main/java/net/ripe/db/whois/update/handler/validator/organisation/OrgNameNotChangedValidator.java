@@ -94,7 +94,7 @@ public class OrgNameNotChangedValidator implements BusinessRuleValidator {
 
     private boolean isMaintainedByRs(final RpslObject rpslObject) {
         final Set<CIString> objectMaintainers = rpslObject.getValuesForAttribute(AttributeType.MNT_BY);
-        return maintainers.isRsMaintainer(objectMaintainers);
+        return !Sets.intersection(this.maintainers.getRsMaintainers(), objectMaintainers).isEmpty();
     }
 
     @Override

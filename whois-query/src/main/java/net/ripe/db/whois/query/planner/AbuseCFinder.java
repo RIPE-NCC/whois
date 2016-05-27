@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.planner;
 
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.Maintainers;
@@ -92,7 +93,7 @@ public class AbuseCFinder {
     }
 
     private boolean isMaintainedByRs(final RpslObject inetObject) {
-        return maintainers.isRsMaintainer(inetObject.getValuesForAttribute(AttributeType.MNT_BY, AttributeType.MNT_LOWER));
+        return !Sets.intersection(this.maintainers.getRsMaintainers(), inetObject.getValuesForAttribute(AttributeType.MNT_BY, AttributeType.MNT_LOWER)).isEmpty();
     }
 
     @Nullable

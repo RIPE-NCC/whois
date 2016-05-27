@@ -28,7 +28,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -48,9 +47,7 @@ public class LirMntByValidatorTest {
     @Before
     public void setup() {
         when(updateContext.getSubject(any(UpdateContainer.class))).thenReturn(authenticationSubject);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"))).thenReturn(true);
-        when(maintainers.isRsMaintainer(ciSet("TEST-MNT"))).thenReturn(false);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT", "TEST2-MNT"))).thenReturn(true);
+        when(maintainers.getRsMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT"));
     }
 
     @Test
@@ -83,8 +80,6 @@ public class LirMntByValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -107,8 +102,6 @@ public class LirMntByValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -131,8 +124,6 @@ public class LirMntByValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -155,8 +146,6 @@ public class LirMntByValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -178,8 +167,6 @@ public class LirMntByValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -200,8 +187,6 @@ public class LirMntByValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -225,8 +210,6 @@ public class LirMntByValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT", "TEST2-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -248,8 +231,6 @@ public class LirMntByValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -271,8 +252,6 @@ public class LirMntByValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -294,8 +273,6 @@ public class LirMntByValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -317,7 +294,5 @@ public class LirMntByValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 }

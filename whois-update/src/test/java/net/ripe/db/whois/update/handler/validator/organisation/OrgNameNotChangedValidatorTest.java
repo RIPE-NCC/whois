@@ -29,14 +29,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 import java.util.HashSet;
 
-import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -92,10 +88,8 @@ public class OrgNameNotChangedValidatorTest {
 
     @Before
     public void setup() {
+        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT"), CIString.ciString("RIPE-NCC-END-MNT"), CIString.ciString("RIPE-NCC-LEGACY-MNT")));
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-LEGACY-MNT"))).thenReturn(true);
-        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
-        when(maintainers.isRsMaintainer(ciSet("TEST-MNT"))).thenReturn(false);
     }
 
     @Test
@@ -117,7 +111,6 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
-        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -132,7 +125,6 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
-        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -149,7 +141,6 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
-        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -163,7 +154,6 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
-        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -177,15 +167,12 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
-        verify(maintainers).isRsMaintainer(ciSet("TEST-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
     public void orgname_changed_referenced_by_resource_with_RSmntner__no_RSmntner_auth() {
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-        when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT")))).thenReturn(true);
 
         presetReferrers(REFERRER_MNT_BY_RS);
 
@@ -193,15 +180,13 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
     public void orgname_changed_referenced_by_resource_with_LEGACY_mntner__no_LEGACY_mntner_auth() {
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
+
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
-        when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("RIPE-NCC-LEGACY-MNT")))).thenReturn(true);
 
         presetReferrers(REFERRER_MNT_BY_LEGACY);
 
@@ -209,8 +194,6 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
-        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-LEGACY-MNT"));
-        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -229,7 +212,6 @@ public class OrgNameNotChangedValidatorTest {
         // confirmed by David 2014-10-06
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.cantChangeOrgName());
-        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -245,7 +227,6 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
-        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -261,7 +242,6 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
-        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -277,7 +257,6 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
-        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -293,7 +272,6 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
-        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -309,7 +287,6 @@ public class OrgNameNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
-        verifyZeroInteractions(maintainers);
     }
 
     private void presetRsAuthentication() {
