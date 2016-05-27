@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler;
 
+import net.ripe.db.whois.common.CharacterSetConversion;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.UpdateLockDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -138,6 +139,10 @@ public class SingleUpdateHandler {
         // re-generate preparedUpdate
         preparedUpdate = new PreparedUpdate(update, originalObject, updatedObjectWithAutoKeys, action, overrideOptions);
 
+        // Currently the database uses the latin-1 characterset. Non convertable characters are stored as ?.
+        // We warn about information loss.
+        warnForNotLatinAttributeValues(update, updateContext);
+
         // run business validation & pending updates hack
         final boolean businessRulesOk = updateObjectHandler.validateBusinessRules(preparedUpdate, updateContext);
         final boolean pendingAuthentication = UpdateStatus.PENDING_AUTHENTICATION == updateContext.getStatus(preparedUpdate);
@@ -166,6 +171,15 @@ public class SingleUpdateHandler {
         return authenticator.supportsPendingAuthentication(preparedUpdate.getUpdatedObject().getType()) &&
                 Action.CREATE == preparedUpdate.getAction() &&
                 UpdateStatus.SUCCESS == updateContext.getStatus(preparedUpdate);
+    }
+
+    private void warnForNotLatinAttributeValues(final Update update, final UpdateContext updateContext) {
+        final RpslObject submittedObject = update.getSubmittedObject();
+        for (RpslAttribute attribute: submittedObject.getAttributes()) {
+            if (!CharacterSetConversion.isConvertableIntoLatin1(attribute.getValue())) {
+                updateContext.addMessage(update, UpdateMessages.valueChangedDueToLatin1Conversion(attribute.getKey()));
+            }
+        }
     }
 
     @CheckForNull
