@@ -50,6 +50,7 @@ public class AddOrRemoveRipeNccMaintainerValidator implements BusinessRuleValida
         differentMaintainers.addAll(update.getDifferences(AttributeType.MNT_BY));
         differentMaintainers.addAll(update.getDifferences(AttributeType.MNT_DOMAINS));
         differentMaintainers.addAll(update.getDifferences(AttributeType.MNT_LOWER));
+        differentMaintainers.addAll(update.getDifferences(AttributeType.MNT_REF));
 
         for (final CIString mntRouteString : update.getDifferences(AttributeType.MNT_ROUTES)) {
             differentMaintainers.add(MntRoutes.parse(mntRouteString).getMaintainer());
