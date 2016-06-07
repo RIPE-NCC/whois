@@ -125,7 +125,7 @@ public class StatusValidator implements BusinessRuleValidator {
             }
 
             final Set<CIString> updateMntBy = updatedObject.getValuesForAttribute(AttributeType.MNT_BY);
-            final boolean hasRsMaintainer = !Sets.intersection(maintainers.getRsMaintainers(), updateMntBy).isEmpty();
+            final boolean hasRsMaintainer = maintainers.isRsMaintainer(updateMntBy);
 
             if (currentStatus.equals(InetnumStatus.ASSIGNED_PA) && parentStatus.equals(InetnumStatus.ASSIGNED_PA)) {
                 checkAuthorizationForStatusInHierarchy(update, updateContext, ipTree, ipInterval, UpdateMessages.incorrectParentStatus(updatedObject.getType(), parentStatus.toString()));
@@ -136,7 +136,7 @@ public class StatusValidator implements BusinessRuleValidator {
             if (currentStatus.equals(InetnumStatus.ASSIGNED_PI)) {
                 if (parentStatus.equals(InetnumStatus.ASSIGNED_PI)) {
                     final Set<CIString> parentMntBy = parentObject.getValuesForAttribute(AttributeType.MNT_BY);
-                    final boolean parentHasRsMaintainer = !Sets.intersection(maintainers.getRsMaintainers(), parentMntBy).isEmpty();
+                    final boolean parentHasRsMaintainer = maintainers.isRsMaintainer(parentMntBy);
                     if (parentHasRsMaintainer) {
                         updateContext.addMessage(update, UpdateMessages.incorrectParentStatus(updatedObject.getType(), parentStatus.toString()));
                     }
@@ -168,7 +168,7 @@ public class StatusValidator implements BusinessRuleValidator {
                 updateContext.addMessage(update, UpdateMessages.objectHasInvalidStatus("Parent", parentInHierarchyMaintainedByRs.getKey(), parentStatusValue));
             } else {
                 final Set<CIString> mntLower = parentInHierarchyMaintainedByRs.getValuesForAttribute(AttributeType.MNT_LOWER);
-                final boolean parentHasRsMntLower = !Sets.intersection(maintainers.getRsMaintainers(), mntLower).isEmpty();
+                final boolean parentHasRsMntLower = maintainers.isRsMaintainer(mntLower);
                 final InetStatus currentStatus = InetStatusHelper.getStatus(update);
 
                 if (!currentStatus.worksWithParentInHierarchy(parentStatus, parentHasRsMntLower)) {
@@ -186,7 +186,7 @@ public class StatusValidator implements BusinessRuleValidator {
             final RpslObject parentObject = objectDao.getById(parent.getObjectId());
             final Set<CIString> mntBy = parentObject.getValuesForAttribute(AttributeType.MNT_BY);
 
-            final boolean missingRsMaintainer = Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty();
+            final boolean missingRsMaintainer = !maintainers.isRsMaintainer(mntBy);
             if (!missingRsMaintainer) {
                 return parentObject;
             }
@@ -211,7 +211,7 @@ public class StatusValidator implements BusinessRuleValidator {
         }
 
         if (currentStatus.requiresRsMaintainer()) {
-            final boolean missingRsMaintainer = Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty();
+            final boolean missingRsMaintainer = !maintainers.isRsMaintainer(mntBy);
             if (missingRsMaintainer) {
                 updateContext.addMessage(update, UpdateMessages.statusRequiresAuthorization(updatedObject.getValueForAttribute(AttributeType.STATUS).toString()));
                 return;
@@ -243,7 +243,7 @@ public class StatusValidator implements BusinessRuleValidator {
                 return false;
             }
             final Set<CIString> childMntBy = childObject.getValuesForAttribute(AttributeType.MNT_BY);
-            final boolean hasRsMaintainer = !Sets.intersection(maintainers.getRsMaintainers(), childMntBy).isEmpty();
+            final boolean hasRsMaintainer = maintainers.isRsMaintainer(childMntBy);
 
             if (!childStatus.worksWithParentStatus(updatedStatus, hasRsMaintainer)) {
                 updateContext.addMessage(update, UpdateMessages.incorrectChildStatus(updateStatusAttribute.getCleanValue(), childStatusValue, childObject.getKey()));
@@ -290,7 +290,7 @@ public class StatusValidator implements BusinessRuleValidator {
 
         if (status.requiresRsMaintainer()) {
             final Set<CIString> mntBy = update.getReferenceObject().getValuesForAttribute(AttributeType.MNT_BY);
-            if (Sets.intersection(maintainers.getRsMaintainers(), mntBy).isEmpty()) {
+            if (!maintainers.isRsMaintainer(mntBy)) {
                 updateContext.addMessage(update, UpdateMessages.deleteWithStatusRequiresAuthorization(status.toString()));
             }
         }

@@ -1,7 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -22,11 +21,14 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,7 +41,11 @@ public class OrgAttributeNotChangedValidatorTest {
 
     @Before
     public void setup() {
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT", "RIPE-NCC-END-MNT"));
+        when(maintainers.isRsMaintainer(ciSet("OTHER-MNT"))).thenReturn(false);
+        when(maintainers.isRsMaintainer(ciSet("TEST-MNT"))).thenReturn(false);
+        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-END-MNT"))).thenReturn(true);
+        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
+        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"))).thenReturn(true);
     }
 
     @Test
@@ -65,6 +71,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -88,6 +95,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -111,6 +119,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -125,6 +134,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -147,6 +157,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -169,6 +180,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -192,6 +204,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("TEST-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -231,6 +245,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("TEST-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -270,6 +286,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("OTHER-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -293,6 +311,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext).addMessage(update, updated.findAttribute(AttributeType.ORG), UpdateMessages.cantChangeOrgAttribute());
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -334,6 +354,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext).addMessage(update, updated.findAttribute(AttributeType.ORG), UpdateMessages.cantChangeOrgAttribute());
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -375,6 +397,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext).addMessage(update, updated.findAttribute(AttributeType.ORG), UpdateMessages.cantChangeOrgAttribute());
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -397,6 +421,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext).addMessage(update, UpdateMessages.cantRemoveOrgAttribute());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -437,6 +463,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext).addMessage(update, UpdateMessages.cantRemoveOrgAttribute());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -477,6 +505,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext).addMessage(update, UpdateMessages.cantRemoveOrgAttribute());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -502,6 +532,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -545,6 +577,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -588,6 +622,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT", "TEST-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -613,6 +649,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-END-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -652,6 +690,8 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("TEST-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -693,5 +733,7 @@ public class OrgAttributeNotChangedValidatorTest {
 
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<Message>anyObject());
         verify(updateContext, never()).addMessage(Matchers.<Update>anyObject(), Matchers.<RpslAttribute>anyObject(), Matchers.<Message>anyObject());
+        verify(maintainers).isRsMaintainer(ciSet("TEST-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 }

@@ -1,8 +1,6 @@
 package net.ripe.db.whois.update.generator;
 
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -33,7 +31,6 @@ public class AutnumAttributeGeneratorTest {
 
     @Mock Update update;
     @Mock UpdateContext updateContext;
-    @Mock Maintainers maintainers;
     @Mock AuthoritativeResourceData authoritativeResourceData;
     @Mock AuthoritativeResource authoritativeResource;
     @Mock SourceContext sourceContext;
@@ -42,7 +39,6 @@ public class AutnumAttributeGeneratorTest {
 
     @Before
     public void setup() {
-        when(maintainers.getRsMaintainers()).thenReturn(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT")));
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
         when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
         isMaintainedByRir(false);
