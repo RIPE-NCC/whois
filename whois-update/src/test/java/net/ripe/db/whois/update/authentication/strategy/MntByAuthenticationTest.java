@@ -37,6 +37,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +58,7 @@ public class MntByAuthenticationTest {
 
     @Before
     public void setUp() throws Exception {
-        when(maintainers.getRsMaintainers()).thenReturn(ciSet("RS-MNT"));
+        when(maintainers.isRsMaintainer(ciSet("RS-MNT"))).thenReturn(true);
     }
 
     @Test
@@ -66,6 +68,8 @@ public class MntByAuthenticationTest {
 
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         assertThat(subject.supports(update), is(true));
+
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -84,7 +88,9 @@ public class MntByAuthenticationTest {
 
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(maintainer));
+
         verifyZeroInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
     @Test(expected = AuthenticationFailedException.class)
@@ -100,6 +106,9 @@ public class MntByAuthenticationTest {
         when(credentialValidators.authenticate(update, updateContext, candidates)).thenReturn(Lists.<RpslObject>newArrayList());
 
         subject.authenticate(update, updateContext);
+
+        verify(maintainers).isRsMaintainer(ciSet("RS-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -122,7 +131,9 @@ public class MntByAuthenticationTest {
 
         assertThat(result.size(), is(1));
         assertThat(result.get(0), is(mntner));
+
         verifyZeroInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -144,6 +155,8 @@ public class MntByAuthenticationTest {
 
         final List<RpslObject> authenticate = subject.authenticate(update, updateContext);
         assertThat(authenticate, is(candidates));
+
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -160,6 +173,8 @@ public class MntByAuthenticationTest {
 
         final List<RpslObject> authenticate = subject.authenticate(update, updateContext);
         assertThat(authenticate, hasSize(0));
+
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -186,6 +201,8 @@ public class MntByAuthenticationTest {
         } catch (AuthenticationFailedException e) {
             assertThat(e.getAuthenticationMessages(), contains(UpdateMessages.authenticationFailed(inetnum, AttributeType.MNT_BY, Lists.newArrayList(maintainer))));
         }
+
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -224,6 +241,10 @@ public class MntByAuthenticationTest {
                     UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_LOWER, Lists.<RpslObject>newArrayList()),
                     UpdateMessages.authenticationFailed(ipObject, AttributeType.MNT_BY, parentCandidates)));
         }
+
+        verify(maintainers).isRsMaintainer(ciSet());
+        verify(maintainers).isRsMaintainer(ciSet("RS-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -264,5 +285,9 @@ public class MntByAuthenticationTest {
 
         final List<RpslObject> authenticated = subject.authenticate(update, updateContext);
         assertThat(authenticated, is(parentCandidates));
+
+        verify(maintainers).isRsMaintainer(ciSet("RS-MNT"));
+        verify(maintainers).isRsMaintainer(ciSet());
+        verifyNoMoreInteractions(maintainers);
     }
 }

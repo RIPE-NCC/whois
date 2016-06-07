@@ -17,7 +17,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndUserMaintainerChecksTest {
@@ -31,7 +37,7 @@ public class EndUserMaintainerChecksTest {
     @Before
     public void setup() {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
-        when(maintainers.getEnduserMaintainers()).thenReturn(ciSet("END-MNT"));
+        when(maintainers.isEnduserMaintainer(ciSet("TEST-MNT"))).thenReturn(false);
     }
 
     @Test
@@ -43,6 +49,8 @@ public class EndUserMaintainerChecksTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.adminMaintainerRemoved());
+        verify(maintainers).isEnduserMaintainer(ciSet("TEST-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -54,6 +62,7 @@ public class EndUserMaintainerChecksTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -65,5 +74,6 @@ public class EndUserMaintainerChecksTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verifyZeroInteractions(maintainers);
     }
 }

@@ -39,7 +39,7 @@ public class DeleteRsMaintainedObjectValidator implements BusinessRuleValidator 
         }
 
         final Set<CIString> mntBys = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
-        if (!Sets.intersection(maintainers.getRsMaintainers(), mntBys).isEmpty()) {
+        if (maintainers.isRsMaintainer(mntBys)) {
             updateContext.addMessage(update, UpdateMessages.authorisationRequiredForDeleteRsMaintainedObject());
         }
     }

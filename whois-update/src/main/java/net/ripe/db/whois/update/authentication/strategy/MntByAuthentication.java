@@ -198,7 +198,7 @@ public class MntByAuthentication extends AuthenticationStrategyBase {
     }
 
     private boolean hasRsMaintainer(final RpslObject object, final AttributeType attributeType) {
-        return !Sets.intersection(maintainers.getRsMaintainers(), object.getValuesForAttribute(attributeType)).isEmpty();
+        return maintainers.isRsMaintainer(object.getValuesForAttribute(attributeType));
     }
 
     private List<RpslObject> authenticateAddressSpaceHolder(final PreparedUpdate update, final UpdateContext updateContext, final RpslObject ipObject, final AuthenticationFailedException originalAuthenticationException) {
