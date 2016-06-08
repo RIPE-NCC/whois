@@ -1,6 +1,9 @@
 ## next
 
 # 1.87.3
+[update] bugfix allow updates to netname attribute for inet(6)nums, unless it has the RIPE-NCC-HM-MNT
+
+# 1.87.3
 [update] Allow first description line to be editable in inet(6)num and aut-num objects
 [update] bugfix allow ASSIGNED-PIs to updated netname attribute for inet(6)num and aut-num
 
