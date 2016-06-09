@@ -980,4 +980,52 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
                 "status value cannot be changed, you must delete and re-create the object"]
     }
+
+    def "modify inetnum, delete (all) lir-unlocked attributes"() {
+        given:
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-EXTRA") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+
+        when:
+        //        descr:        other description # deleted
+        //        geoloc:       9.0 9.0           # deleted
+        //        language:     DE                # deleted
+        //        admin-c:      TP2-TEST          # deleted
+        //        tech-c:       TP2-TEST          # deleted
+        //        remarks:      a different remark# deleted
+        //        notify:       other@ripe.net    # deleted
+        //        mnt-lower:    LIR2-MNT          # deleted
+        //        mnt-routes:   OWNER2-MNT        # deleted
+        //        mnt-domains:  DOMAINS-MNT       # deleted
+        //        mnt-irt:      IRT-2-TEST        # deleted
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+    }
+
 }
