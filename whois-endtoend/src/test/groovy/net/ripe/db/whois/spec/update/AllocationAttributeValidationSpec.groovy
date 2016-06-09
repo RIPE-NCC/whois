@@ -1014,7 +1014,6 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                password: irt
                 """.stripIndent()
         )
 
@@ -1026,6 +1025,43 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+    }
+
+    def "modify inetnum, cannot delete (some) lir-unlocked attributes"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        //        country:      NL       # cannot delete
+        //        admin-c:      TP1-TEST # cannot delete
+        //        tech-c:       TP1-TEST # cannot delete
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                org:          ORG-LIR1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(3, 0, 0)
+
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Mandatory attribute \"country\" is missing",
+                "Mandatory attribute \"admin-c\" is missing",
+                "Mandatory attribute \"tech-c\" is missing"]
     }
 
 }
