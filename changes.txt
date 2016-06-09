@@ -1,6 +1,7 @@
 ## next
 
-# 1.87.3
+# 1.87.4
+[update] bugfix allow adding mnt-lower attribute for inet(6)nums
 [update] bugfix allow updates to netname attribute for inet(6)nums, unless it has the RIPE-NCC-HM-MNT
 
 # 1.87.3
