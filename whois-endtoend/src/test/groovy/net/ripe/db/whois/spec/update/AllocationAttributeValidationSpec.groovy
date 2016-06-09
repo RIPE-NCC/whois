@@ -8,35 +8,35 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
-        [
-                // TODO: [ES] remove optional attributes from ALLOC-PA, fix tests, and then replace ALLOC-PA-MANDATORY
-                "ALLOC-PA"       : """\
+        ["ALLOC-PA-MANDATORY"    : """\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                """,
+         "ALLOC-PA-EXTRA"        : """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
+                admin-c:      TP2-TEST
                 tech-c:       TP1-TEST
+                tech-c:       TP2-TEST
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-                "ALLOC-PA-MANDATORY" : """\
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                source:       TEST
-                """,
-                "ASSIGN-PI"      : """\
+         "ASSIGN-PI"             : """\
                 inetnum:      192.168.255.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -51,7 +51,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-                "IRT"           :"""\
+         "IRT"                   : """\
                 irt:          irt-test
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
@@ -66,7 +66,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER-MNT
                 source:       TEST
                 """,
-                "NON-TOPLEVEL-ASSIGN-PI"      : """\
+         "NON-TOPLEVEL-ASSIGN-PI": """\
                 inetnum:      193.168.255.0 - 193.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -80,7 +80,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-                "V6ALLOC-RIR": """\
+         "V6ALLOC-RIR"           : """\
                 inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -103,21 +103,25 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
     def "modify inetnum, add lir-unlocked attributes"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
-        //syncUpdate(getTransient("IRT") + "password: owner")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        //queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
+                descr:        some description  # added
                 country:      NL
+                country:      DE                # added
+                geoloc:       0.0 0.0           # added
+                language:     NL                # added
+                language:     DE                # added
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
@@ -125,8 +129,12 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR2-MNT
+                mnt-routes:   OWNER-MNT         # added
+                mnt-domains:  DOMAINS-MNT       # added
+                mnt-irt:      IRT-TEST          # added
                 source:       TEST
                 password: lir
+                password: irt
                 """.stripIndent()
         )
 
@@ -139,7 +147,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-   }
+    }
 
     def "modify inet6num, add mnt-lower with lir password should be possible"() {
         given:
@@ -182,7 +190,6 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     // TODO: ADD LIR-locked attributes to inetnum and inet6num should *NOT* be possible
 
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  LIR *CHANGE* attributes (inetnum and inet6num)
@@ -192,7 +199,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change lir-unlocked attributes with lir password should be possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "password: owner")
 
         expect:
@@ -288,7 +295,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change lir-locked attributes with lir password should not be possible"() {         // TODO
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
 
 
         expect:
@@ -335,7 +342,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change org with lir mnt is not possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
 
 
         expect:
@@ -372,7 +379,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-            "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference."]
+                "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference."]
     }
 
 
@@ -411,7 +418,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any  { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
 
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.255.0 - 192.168.255.255") == [
                 "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
@@ -458,7 +465,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change netname with lir mnt is not possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
 
 
         expect:
@@ -498,7 +505,6 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 "The \"netname\" attribute can only be changed by the RIPE NCC"]
     }
 
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  LIR *CHANGE* attributes (inetnum and inet6num)  WITH OVERRIDE
@@ -508,7 +514,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change lir-locked attributes with override should be possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -545,7 +551,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change org with override is possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -618,7 +624,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change status with override is possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -655,7 +661,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change netname with override is possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -698,7 +704,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change mnt-by with rs password should be possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -735,7 +741,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change org with RS mntner is possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -812,7 +818,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change netname with RS mntner is possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -852,7 +858,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     def "modify inetnum, change status with RS mntner and lir mnt authed is not possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
