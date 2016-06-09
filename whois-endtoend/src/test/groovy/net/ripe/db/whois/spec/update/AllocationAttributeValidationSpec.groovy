@@ -23,17 +23,22 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
          "ALLOC-PA-EXTRA"        : """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
-                descr:        TEST network
+                descr:        some description  # extra
                 country:      NL
+                geoloc:       0.0 0.0           # extra
+                language:     NL                # extra
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
-                admin-c:      TP2-TEST
                 tech-c:       TP1-TEST
-                tech-c:       TP2-TEST
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
+                remarks:      a new remark      # extra
+                notify:       notify@ripe.net   # extra
+                mnt-lower:    LIR-MNT           # extra
+                mnt-routes:   OWNER-MNT         # extra
+                mnt-domains:  DOMAINS-MNT       # extra
+                mnt-irt:      IRT-TEST          # extra
                 source:       TEST
                 """,
          "ASSIGN-PI"             : """\
@@ -65,6 +70,32 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       OWNER-MNT
                 source:       TEST
+                """,
+         "IRT2"                  : """\
+                irt:          IRT-2-TEST
+                address:      RIPE NCC
+                e-mail:       dbtest@ripe.net
+                signature:    PGPKEY-D83C3FBD
+                encryption:   PGPKEY-D83C3FBD
+                auth:         PGPKEY-D83C3FBD
+                auth:         MD5-PW \$1\$qxm985sj\$3OOxndKKw/fgUeQO7baeF/  #irt
+                irt-nfy:      dbtest@ripe.net
+                notify:       dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """,
+         "DOMAINS2-MNT"           : """\
+                mntner:      DOMAINS2-MNT
+                descr:       used for mnt-domains
+                admin-c:     TP1-TEST
+                upd-to:      updto_domains@ripe.net
+                mnt-nfy:     mntnfy_domains@ripe.net
+                notify:      notify_domains@ripe.net
+                auth:        MD5-PW \$1\$anTWxMgQ\$8aBWq5u5ZFHLA5aeZsSxG0  #domains
+                mnt-by:      DOMAINS2-MNT
+                source:      TEST
                 """,
          "NON-TOPLEVEL-ASSIGN-PI": """\
                 inetnum:      193.168.255.0 - 193.168.255.255
@@ -103,7 +134,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    def "modify inetnum, add lir-unlocked attributes"() {
+    def "modify inetnum, add (all) lir-unlocked attributes"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -121,14 +152,17 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 country:      DE                # added
                 geoloc:       0.0 0.0           # added
                 language:     NL                # added
-                language:     DE                # added
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
+                admin-c:      TP2-TEST          # added
                 tech-c:       TP1-TEST
+                tech-c:       TP2-TEST          # added
+                remarks:      a new remark      # added
+                notify:       notify@ripe.net   # added
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR2-MNT
+                mnt-lower:    LIR2-MNT          # added
                 mnt-routes:   OWNER-MNT         # added
                 mnt-domains:  DOMAINS-MNT       # added
                 mnt-irt:      IRT-TEST          # added
@@ -700,6 +734,56 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
     //  LIR *CHANGE* attributes (inetnum and inet6num)  WITH RS PASSWORD
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    def "modify inetnum, updated (all) lir-unlocked attributes"() {
+        given:
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+        syncUpdate(getTransient("IRT2") + "override: denis, override1")
+        syncUpdate(getTransient("DOMAINS2-MNT") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-EXTRA") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T mntner DOMAINS2-MNT", "mntner", "DOMAINS2-MNT")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-2-TEST", "irt", "IRT-2-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        other description # changed
+                country:      DE                # changed
+                geoloc:       9.0 9.0           # changed
+                language:     DE                # changed
+                org:          ORG-LIR1-TEST
+                admin-c:      TP2-TEST          # changed
+                tech-c:       TP2-TEST          # changed
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                remarks:      a different remark# changed
+                notify:       other@ripe.net    # changed
+                mnt-lower:    LIR2-MNT          # changed
+                mnt-routes:   OWNER2-MNT        # changed
+                mnt-domains:  DOMAINS-MNT       # changed
+                mnt-irt:      IRT-2-TEST        # changed
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+    }
 
 
     def "modify inetnum, change mnt-by with rs password should be possible"() {
