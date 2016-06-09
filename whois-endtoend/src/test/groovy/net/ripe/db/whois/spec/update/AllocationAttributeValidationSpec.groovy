@@ -311,7 +311,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PI          # changed
                 mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR2-MNT
+                mnt-by:       LIR2-MNT              # changed
                 source:       TEST
                 password: lir
                 password: owner3
@@ -336,50 +336,6 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 "status value cannot be changed, you must delete and re-create the object"
         ]
     }
-
-
-    def "modify inetnum, change org with lir mnt is not possible"() {
-        given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
-
-
-        expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-
-        when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR2-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                source:       TEST
-
-                password: owner3
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-
-        ack.errors
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference."]
-    }
-
 
     def "modify inetnum, change sponsoring-org with lir mntner is not possible"() {
         given:
