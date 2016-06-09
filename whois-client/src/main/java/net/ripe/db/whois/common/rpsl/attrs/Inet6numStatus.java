@@ -22,8 +22,8 @@ public enum Inet6numStatus implements InetStatus {
     ASSIGNED_ANYCAST("ASSIGNED ANYCAST", LIR, OTHER),
     ASSIGNED_PI("ASSIGNED PI", LIR, OTHER);
 
-    private static final EnumSet<Inet6numStatus> RS_MNTNER_STATUSES = EnumSet.of(ASSIGNED_PI, ASSIGNED_ANYCAST, ALLOCATED_BY_RIR);
-    private static final EnumSet<Inet6numStatus> ALLOC_MNTNER_STATUSES = EnumSet.of(ALLOCATED_BY_RIR);
+    private static final EnumSet<Inet6numStatus> RS_MNTNER_STATUSES = EnumSet.of(ASSIGNED_PI, ASSIGNED_ANYCAST, ALLOCATED_BY_RIR);      // TODO: inet6num ALLOCATED_BY_RIR no longer requires alloc maintainer
+    private static final EnumSet<Inet6numStatus> ALLOC_MNTNER_STATUSES = EnumSet.of(ALLOCATED_BY_RIR);                                  // TODO: also validate if this is needed
     private static final EnumSet<Inet6numStatus> NEEDS_ORG_REFERENCE = EnumSet.of(ASSIGNED_ANYCAST, ALLOCATED_BY_RIR, ASSIGNED_PI);
 
     private static final EnumMap<Inet6numStatus, EnumSet<Inet6numStatus>> PARENT_STATUS;
