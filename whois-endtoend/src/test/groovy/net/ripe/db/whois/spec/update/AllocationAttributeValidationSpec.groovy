@@ -240,62 +240,11 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    // TODO: ADD LIR-locked attributes to inetnum and inet6num should *NOT* be possible
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  LIR *CHANGE* attributes (inetnum and inet6num)
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    def "modify inetnum, change lir-unlocked attributes with lir password should be possible"() {
-        given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
-        syncUpdate(getTransient("IRT") + "password: owner")
-
-        expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
-
-        when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      GB
-                geoloc:       20 20
-                language:     NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP2-TEST
-                tech-c:       TP2-TEST
-                remarks:      some new remarks
-                notify:       notify@ripe.net
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR2-MNT      # change mnt-lower
-                mnt-domains:  LIR2-MNT
-                mnt-routes:   LIR2-MNT
-                mnt-irt:      IRT-TEST
-                source:       TEST
-
-                password: lir
-                password: irt
-                """.stripIndent()
-        )
-
-        then:
-        ack.success
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-
-    }
 
     def "modify inet6num, change lir-unlocked attributes with lir password should be possible"() {      // TODO
         given:
@@ -472,6 +421,44 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.255.0 - 192.168.255.255") == [
                 "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
     }
+
+    def "modify inetnum, change lir-mnt (mnt-by) by lir mntner is not possible"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR2-MNT
+                source:       TEST
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+
+        ack.errors
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
+    }
+
 
     def "modify inetnum, change netname with lir mnt is possible for non-toplevel allocations"() {
         given:
