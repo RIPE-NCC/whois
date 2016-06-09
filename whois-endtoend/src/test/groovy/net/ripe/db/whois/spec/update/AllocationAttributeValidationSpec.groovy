@@ -41,7 +41,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-irt:      IRT-TEST          # extra
                 source:       TEST
                 """,
-         "ALLOC-PA-RIPE-NCC-MNTNER": """\
+         "ALLOC-PA-EXTRA-RIPE-NCC-MNTNER": """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 country:      NL
@@ -51,9 +51,12 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
-                mnt-routes:   RIPE-NCC-HM-MNT
-                mnt-domains:  RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-lower:    LIR-MNT          # extra
+                mnt-routes:   RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-routes:   OWNER-MNT        # extra
+                mnt-domains:  RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-domains:  DOMAINS-MNT      # extra
                 source:       TEST
                 """,
          "ASSIGN-PI"               : """\
@@ -196,135 +199,6 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-    }
-
-    def "modify inetnum, cannot change (mnt-lower) ripe-ncc-hm-mnt by lir"() {
-        given:
-        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
-        syncUpdate(getTransient("IRT") + "override: denis, override1")
-
-        expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
-
-        when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR2-MNT          # changed
-                mnt-routes:   RIPE-NCC-HM-MNT
-                mnt-domains:  RIPE-NCC-HM-MNT
-                source:       TEST
-                password: lir
-                password: irt
-                """.stripIndent()
-        )
-
-        then:
-        ack.errors
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
-        ]
-    }
-
-    def "modify inetnum, cannot change (mnt-routes) ripe-ncc-hm-mnt by lir"() {
-        given:
-        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
-        syncUpdate(getTransient("IRT") + "override: denis, override1")
-
-        expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
-
-        when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
-                mnt-routes:   LIR2-MNT          # changed
-                mnt-domains:  RIPE-NCC-HM-MNT
-                source:       TEST
-                password: lir
-                password: irt
-                """.stripIndent()
-        )
-
-        then:
-        ack.errors
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
-        ]
-    }
-
-    def "modify inetnum, cannot change (mnt-domains) ripe-ncc-hm-mnt by lir"() {
-        given:
-        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
-        syncUpdate(getTransient("IRT") + "override: denis, override1")
-
-        expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
-
-        when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
-                mnt-routes:   RIPE-NCC-HM-MNT
-                mnt-domains:  LIR2-MNT          # changed
-                source:       TEST
-                password: lir
-                password: irt
-                """.stripIndent()
-        )
-
-        then:
-        ack.errors
-
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
-        ]
     }
 
     def "modify inet6num, add mnt-lower with lir password should be possible"() {
@@ -678,6 +552,135 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
                 "The \"netname\" attribute can only be changed by the RIPE NCC"]
+    }
+
+    def "modify inetnum, cannot change (mnt-lower) ripe-ncc-hm-mnt by lir"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR2-MNT          # changed
+                mnt-routes:   RIPE-NCC-HM-MNT
+                mnt-domains:  RIPE-NCC-HM-MNT
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+        ]
+    }
+
+    def "modify inetnum, cannot change (mnt-routes) ripe-ncc-hm-mnt by lir"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                mnt-routes:   LIR2-MNT          # changed
+                mnt-domains:  RIPE-NCC-HM-MNT
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+        ]
+    }
+
+    def "modify inetnum, cannot change (mnt-domains) ripe-ncc-hm-mnt by lir"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                mnt-routes:   RIPE-NCC-HM-MNT
+                mnt-domains:  LIR2-MNT          # changed
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+        ]
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1241,4 +1244,139 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 "Missing required \"org:\" attribute"]
     }
 
+    def "modify inetnum, cannot delete (mnt-lower) ripe-ncc-hm-mnt by lir"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-lower:    LIR-MNT          # extra
+                mnt-routes:   RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-routes:   OWNER-MNT        # extra
+                mnt-domains:  RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-domains:  DOMAINS-MNT      # extra
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+        ]
+    }
+
+    def "modify inetnum, cannot delete (mnt-routes) ripe-ncc-hm-mnt by lir"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-lower:    LIR-MNT          # extra
+                mnt-routes:   OWNER-MNT        # extra
+                mnt-domains:  RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-domains:  DOMAINS-MNT      # extra
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+        ]
+    }
+
+    def "modify inetnum, cannot delete (mnt-domains) ripe-ncc-hm-mnt by lir"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-lower:    LIR-MNT          # extra
+                mnt-routes:   RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-routes:   OWNER-MNT        # extra
+                mnt-domains:  DOMAINS-MNT
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+        ]
+    }
 }
