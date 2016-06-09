@@ -327,10 +327,9 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     }
 
-    def "modify inetnum, change lir-locked attributes with lir password should not be possible"() {         // TODO
+    def "modify inetnum, change lir-locked attributes by lir password should not be possible"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "password: hm\npassword: owner3")
-
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -338,20 +337,17 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         when:
         def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME2
-                descr:        TEST network
+                netname:      TEST-NET-NAME-CHANGED # changed
                 country:      NL
-                org:          ORG-OTO1-TEST
+                org:          ORG-OTO1-TEST         # changed
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ALLOCATED PI          # changed
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR2-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
-
-                password: owner3
                 password: lir
+                password: owner3
                 """.stripIndent()
         )
 
@@ -362,14 +358,15 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(4, 0, 0)
+        ack.countErrorWarnInfo(5, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
                 "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference.",
                 "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
                 "The \"netname\" attribute can only be changed by the RIPE NCC",
-                "Referenced organisation has wrong \"org-type\". Allowed values are [IANA, RIR, LIR]"
+                "Referenced organisation has wrong \"org-type\". Allowed values are [IANA, RIR, LIR]",
+                "status value cannot be changed, you must delete and re-create the object"
         ]
     }
 
