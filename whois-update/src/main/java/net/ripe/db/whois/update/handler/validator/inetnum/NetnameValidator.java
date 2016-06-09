@@ -29,13 +29,11 @@ import static net.ripe.db.whois.update.domain.Action.MODIFY;
 public class NetnameValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(MODIFY);
-    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(INETNUM, INET6NUM, AUT_NUM);
-    private final RpslObjectDao objectDao;
+    private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(INETNUM, INET6NUM);
     private final Maintainers maintainers;
 
     @Autowired
-    public NetnameValidator(final RpslObjectDao objectDao, final Maintainers maintainers) {
-        this.objectDao = objectDao;
+    public NetnameValidator(final Maintainers maintainers) {
         this.maintainers = maintainers;
     }
 
@@ -54,11 +52,11 @@ public class NetnameValidator implements BusinessRuleValidator {
         final CIString refNetname = referenceObject.getValueOrNullForAttribute(NETNAME);
         final CIString updNetname = updatedObject.getValueOrNullForAttribute(NETNAME);
 
-        final boolean enduserMaintainer = maintainers.isEnduserMaintainer(referenceObject.getValuesForAttribute(AttributeType.MNT_BY));
+        final boolean isAllocMaintainer = maintainers.isAllocMaintainer(referenceObject.getValuesForAttribute(AttributeType.MNT_BY));
 
         final Action action = update.getAction();
 
-        if (!enduserMaintainer && hasChanged(refNetname, updNetname, action)) {
+        if (isAllocMaintainer && hasChanged(refNetname, updNetname, action)) {
             updateContext.addMessage(update, UpdateMessages.netnameCannotBeChanged());
         }
     }
