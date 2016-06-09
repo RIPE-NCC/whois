@@ -8,7 +8,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
-        ["ALLOC-PA-MANDATORY"    : """\
+        ["ALLOC-PA-MANDATORY"      : """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 country:      NL
@@ -20,7 +20,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 """,
-         "ALLOC-PA-EXTRA"        : """\
+         "ALLOC-PA-EXTRA"          : """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        some description  # extra
@@ -41,7 +41,22 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-irt:      IRT-TEST          # extra
                 source:       TEST
                 """,
-         "ASSIGN-PI"             : """\
+         "ALLOC-PA-RIPE-NCC-MNTNER": """\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                mnt-routes:   RIPE-NCC-HM-MNT
+                mnt-domains:  RIPE-NCC-HM-MNT
+                source:       TEST
+                """,
+         "ASSIGN-PI"               : """\
                 inetnum:      192.168.255.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -56,7 +71,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-         "IRT"                   : """\
+         "IRT"                     : """\
                 irt:          irt-test
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
@@ -71,7 +86,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER-MNT
                 source:       TEST
                 """,
-         "IRT2"                  : """\
+         "IRT2"                    : """\
                 irt:          IRT-2-TEST
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
@@ -86,7 +101,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER-MNT
                 source:       TEST
                 """,
-         "DOMAINS2-MNT"           : """\
+         "DOMAINS2-MNT"            : """\
                 mntner:      DOMAINS2-MNT
                 descr:       used for mnt-domains
                 admin-c:     TP1-TEST
@@ -97,7 +112,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:      DOMAINS2-MNT
                 source:      TEST
                 """,
-         "NON-TOPLEVEL-ASSIGN-PI": """\
+         "NON-TOPLEVEL-ASSIGN-PI"  : """\
                 inetnum:      193.168.255.0 - 193.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -111,7 +126,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-         "V6ALLOC-RIR"           : """\
+         "V6ALLOC-RIR"             : """\
                 inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -181,6 +196,135 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+    }
+
+    def "modify inetnum, cannot change (mnt-lower) ripe-ncc-hm-mnt by lir"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR2-MNT          # changed
+                mnt-routes:   RIPE-NCC-HM-MNT
+                mnt-domains:  RIPE-NCC-HM-MNT
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+        ]
+    }
+
+    def "modify inetnum, cannot change (mnt-routes) ripe-ncc-hm-mnt by lir"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                mnt-routes:   LIR2-MNT          # changed
+                mnt-domains:  RIPE-NCC-HM-MNT
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+        ]
+    }
+
+    def "modify inetnum, cannot change (mnt-domains) ripe-ncc-hm-mnt by lir"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-r -T irt irt-test", "irt", "irt-test")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                mnt-routes:   RIPE-NCC-HM-MNT
+                mnt-domains:  LIR2-MNT          # changed
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+        ]
     }
 
     def "modify inet6num, add mnt-lower with lir password should be possible"() {
@@ -352,8 +496,8 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         )
 
         then:
-
         ack.errors
+
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
