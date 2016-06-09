@@ -134,7 +134,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
     //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    def "modify inetnum, add (all) lir-unlocked attributes"() {
+    def "modify inetnum, add (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -981,7 +981,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 "status value cannot be changed, you must delete and re-create the object"]
     }
 
-    def "modify inetnum, delete (all) lir-unlocked attributes"() {
+    def "modify inetnum, delete (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
         syncUpdate(getTransient("ALLOC-PA-EXTRA") + "override: denis, override1")
@@ -1027,7 +1027,7 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, cannot delete (some) lir-unlocked attributes"() {
+    def "modify inetnum, cannot delete (some) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -1035,13 +1035,13 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
 
         when:
-        //        country:      NL       # cannot delete
-        //        admin-c:      TP1-TEST # cannot delete
-        //        tech-c:       TP1-TEST # cannot delete
+        //        org:          ORG-LIR1-TEST # cannot delete, but warning is NOT presented!!
+        //        country:      NL            # cannot delete
+        //        admin-c:      TP1-TEST      # cannot delete
+        //        tech-c:       TP1-TEST      # cannot delete
         def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
-                org:          ORG-LIR1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
@@ -1056,12 +1056,48 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(4, 0, 0)
 
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
                 "Mandatory attribute \"country\" is missing",
                 "Mandatory attribute \"admin-c\" is missing",
                 "Mandatory attribute \"tech-c\" is missing"]
+    }
+
+    def "modify inetnum, cannot delete (org) lir-unlocked attributes by lir"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        //        org:          ORG-LIR1-TEST # cannot delete
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Referenced organisation can only be removed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to remove this reference.",
+                "Missing required \"org:\" attribute"]
     }
 
 }
