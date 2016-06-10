@@ -61,8 +61,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.dropTables;
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
+import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.truncateTables;
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.keepKeyAttributesOnly;
 
 @Component
@@ -281,24 +281,20 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     public void setupWhoisDatabase(JdbcTemplate jdbcTemplate) {
-        dropTables(jdbcTemplate);
-        loadScripts(jdbcTemplate, "whois_schema.sql");
+        truncateTables(jdbcTemplate);
         loadScripts(jdbcTemplate, "whois_data.sql");
     }
 
     public void setupAclDatabase() {
-        dropTables(aclTemplate);
-        loadScripts(aclTemplate, "acl_schema.sql");
+        truncateTables(aclTemplate);
     }
 
     public void setupMailupdatesDatabase() {
-        dropTables(mailupdatesTemplate);
-        loadScripts(mailupdatesTemplate, "mailupdates_schema.sql");
+        truncateTables(mailupdatesTemplate);
     }
 
     public void setupInternalsDatabase() {
-        dropTables(internalsTemplate);
-        loadScripts(internalsTemplate, "internals_schema.sql");
+        truncateTables(internalsTemplate);
         loadScripts(internalsTemplate, "internals_data.sql");
     }
 
