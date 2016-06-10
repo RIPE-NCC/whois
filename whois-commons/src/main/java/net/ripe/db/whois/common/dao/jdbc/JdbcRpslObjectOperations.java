@@ -346,21 +346,22 @@ public class JdbcRpslObjectOperations {
                 boolean result = tableStatement.execute("SHOW TABLES");
 
                 if (result) {
-                    final Statement truncateStatement = connection.createStatement();
-//                    truncateStatement.addBatch("SET FOREIGN_KEY_CHECKS = 0");
+                    final Statement truncateStatements = connection.createStatement();
+                    truncateStatements.addBatch("SET FOREIGN_KEY_CHECKS = 0");
 
                     do {
                         try (final ResultSet resultSet = tableStatement.getResultSet()) {
                             while (resultSet.next()) {
                                 final String tableName = resultSet.getString(1);
-                                truncateStatement.addBatch(String.format("DELETE FROM %s", tableName));
-                                truncateStatement.addBatch(String.format("ALTER TABLE %s AUTO_INCREMENT = 1", tableName));
+                                truncateStatements.addBatch(String.format("CREATE TABLE %s_new LIKE %s", tableName));
+                                truncateStatements.addBatch(String.format("RENAME TABLE %s TO %s_old, %s_new TO %s", tableName, tableName, tableName, tableName));
+                                truncateStatements.addBatch(String.format("DROP TABLE %s_old", tableName));
                             }
                         }
                         result = tableStatement.getMoreResults();
                     } while (result);
 
-                    truncateStatement.executeBatch();
+                    truncateStatements.executeBatch();
                     connection.commit();
                 }
 
