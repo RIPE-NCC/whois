@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -33,6 +34,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
@@ -328,6 +331,8 @@ public class JdbcRpslObjectOperations {
                 continue;
             }
 
+            final Stopwatch stopwatch = Stopwatch.createStarted();
+
             try {
                 sanityCheck(jdbcTemplate);
             } catch (IllegalStateException e) {
@@ -341,6 +346,14 @@ public class JdbcRpslObjectOperations {
             statements.add("SET FOREIGN_KEY_CHECKS = 1");
 
             jdbcTemplate.batchUpdate(statements.toArray(new String[statements.size()]));
+
+            try {
+                LOGGER.info("Truncate tables for {} in {}",
+                    JdbcUtils.extractDatabaseMetaData(jdbcTemplate.getDataSource(),  "getURL"),
+                    stopwatch);
+            } catch (MetaDataAccessException e) {
+                LOGGER.warn(e.getMessage());
+            }
         }
     }
 
