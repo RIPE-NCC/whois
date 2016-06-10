@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
@@ -34,13 +33,13 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -340,20 +339,35 @@ public class JdbcRpslObjectOperations {
                 return;
             }
 
-            final List<String> statements = Lists.newArrayList();
-            statements.add("SET FOREIGN_KEY_CHECKS = 0");
-            statements.addAll(Lists.transform(jdbcTemplate.queryForList("SHOW TABLES", String.class), table -> String.format("TRUNCATE TABLE %s", table)));
-            statements.add("SET FOREIGN_KEY_CHECKS = 1");
+            try (final Connection connection = jdbcTemplate.getDataSource().getConnection()) {
+                connection.setAutoCommit(false);
 
-            jdbcTemplate.batchUpdate(statements.toArray(new String[statements.size()]));
+                final Statement tableStatement = connection.createStatement();
+                boolean result = tableStatement.execute("SHOW TABLES");
 
-            try {
-                LOGGER.info("Truncate tables for {} in {}",
-                    JdbcUtils.extractDatabaseMetaData(jdbcTemplate.getDataSource(),  "getURL"),
-                    stopwatch);
-            } catch (MetaDataAccessException e) {
-                LOGGER.warn(e.getMessage());
+                if (result) {
+                    final Statement truncateStatement = connection.createStatement();
+                    truncateStatement.addBatch("SET FOREIGN_KEY_CHECKS = 0");
+
+                    do {
+                        try (final ResultSet resultSet = tableStatement.getResultSet()) {
+                            while (resultSet.next()) {
+                                truncateStatement.addBatch(String.format("TRUNCATE TABLE %s", resultSet.getString(1)));
+                            }
+                        }
+                        result = tableStatement.getMoreResults();
+                    } while (result);
+
+                    truncateStatement.executeBatch();
+                    connection.commit();
+                }
+
+            } catch (SQLException e) {
+                LOGGER.error("Truncate error ", e.getMessage());
+                return;
             }
+
+            LOGGER.info("Truncate tables in {}", stopwatch);
         }
     }
 
