@@ -73,6 +73,10 @@ public class Maintainers {
         return !Sets.intersection(enduserMaintainers, mntner).isEmpty();
     }
 
+    public boolean isAllocMaintainer(Set<CIString> mntner) {
+        return !Sets.intersection(allocMaintainers, mntner).isEmpty();
+    }
+
     public boolean isRsMaintainer(CIString mntner) {
         return isRsMaintainer(Collections.singleton(mntner));
     }
