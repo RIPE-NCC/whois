@@ -347,12 +347,14 @@ public class JdbcRpslObjectOperations {
 
                 if (result) {
                     final Statement truncateStatement = connection.createStatement();
-                    truncateStatement.addBatch("SET FOREIGN_KEY_CHECKS = 0");
+//                    truncateStatement.addBatch("SET FOREIGN_KEY_CHECKS = 0");
 
                     do {
                         try (final ResultSet resultSet = tableStatement.getResultSet()) {
                             while (resultSet.next()) {
-                                truncateStatement.addBatch(String.format("TRUNCATE TABLE %s", resultSet.getString(1)));
+                                final String tableName = resultSet.getString(1);
+                                truncateStatement.addBatch(String.format("DELETE FROM %s", tableName));
+                                truncateStatement.addBatch(String.format("ALTER TABLE %s AUTO_INCREMENT = 1", tableName));
                             }
                         }
                         result = tableStatement.getMoreResults();
