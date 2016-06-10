@@ -346,21 +346,19 @@ public class JdbcRpslObjectOperations {
                 boolean result = tableStatement.execute("SHOW TABLES");
 
                 if (result) {
-                    final Statement truncateStatement = connection.createStatement();
-//                    truncateStatement.addBatch("SET FOREIGN_KEY_CHECKS = 0");
+                    final Statement truncateStatements = connection.createStatement();
+                    truncateStatements.addBatch("SET FOREIGN_KEY_CHECKS = 0");
 
                     do {
                         try (final ResultSet resultSet = tableStatement.getResultSet()) {
                             while (resultSet.next()) {
-                                final String tableName = resultSet.getString(1);
-                                truncateStatement.addBatch(String.format("DELETE FROM %s", tableName));
-                                truncateStatement.addBatch(String.format("ALTER TABLE %s AUTO_INCREMENT = 1", tableName));
+                                truncateStatements.addBatch(String.format("TRUNCATE TABLE %s", resultSet.getString(1)));
                             }
                         }
                         result = tableStatement.getMoreResults();
                     } while (result);
 
-                    truncateStatement.executeBatch();
+                    truncateStatements.executeBatch();
                     connection.commit();
                 }
 
@@ -372,6 +370,54 @@ public class JdbcRpslObjectOperations {
             LOGGER.info("Truncate tables in {}", stopwatch);
         }
     }
+
+    public static void dropTables(final JdbcTemplate... jdbcTemplates) {
+        for (final JdbcTemplate jdbcTemplate : jdbcTemplates) {
+            if (jdbcTemplate == null) {
+                continue;
+            }
+
+            final Stopwatch stopwatch = Stopwatch.createStarted();
+
+            try {
+                sanityCheck(jdbcTemplate);
+            } catch (IllegalStateException e) {
+                LOGGER.warn("sanityCheck failed due to {}", e.getMessage());
+                return;
+            }
+
+            try (final Connection connection = jdbcTemplate.getDataSource().getConnection()) {
+                connection.setAutoCommit(false);
+
+                final Statement tableStatement = connection.createStatement();
+                boolean result = tableStatement.execute("SHOW TABLES");
+
+                if (result) {
+                    final Statement dropStatements = connection.createStatement();
+                    dropStatements.addBatch("SET FOREIGN_KEY_CHECKS = 0");
+
+                    do {
+                        try (final ResultSet resultSet = tableStatement.getResultSet()) {
+                            while (resultSet.next()) {
+                                dropStatements.addBatch(String.format("DROP TABLE %s", resultSet.getString(1)));
+                            }
+                        }
+                        result = tableStatement.getMoreResults();
+                    } while (result);
+
+                    dropStatements.executeBatch();
+                    connection.commit();
+                }
+
+            } catch (SQLException e) {
+                LOGGER.error("Drop error ", e.getMessage());
+                return;
+            }
+
+            LOGGER.info("Drop tables in {}", stopwatch);
+        }
+    }
+
 
     public static void loadScripts(final JdbcTemplate jdbcTemplate, final String... initSql) {
         sanityCheck(jdbcTemplate);
