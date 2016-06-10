@@ -353,7 +353,7 @@ public class JdbcRpslObjectOperations {
                         try (final ResultSet resultSet = tableStatement.getResultSet()) {
                             while (resultSet.next()) {
                                 final String tableName = resultSet.getString(1);
-                                truncateStatements.addBatch(String.format("CREATE TABLE %s_new LIKE %s", tableName));
+                                truncateStatements.addBatch(String.format("CREATE TABLE %s_new LIKE %s", tableName, tableName));
                                 truncateStatements.addBatch(String.format("RENAME TABLE %s TO %s_old, %s_new TO %s", tableName, tableName, tableName, tableName));
                                 truncateStatements.addBatch(String.format("DROP TABLE %s_old", tableName));
                             }
