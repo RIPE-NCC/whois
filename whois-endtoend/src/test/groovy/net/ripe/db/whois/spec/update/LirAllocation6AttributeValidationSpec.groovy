@@ -938,4 +938,83 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
+    def "modify inet6num, add 'single' attributes with rs password"() {
+        given:
+        syncUpdate(getTransient("ALLOCATED-BY-RIR-MANDATORY") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001::/20
+                netname:      TEST-NET-NAME
+                netname:      TEST-NET-NAME-2      # added
+                country:      NL
+                org:          ORG-LIR1-TEST
+                org:          ORG-OTO1-TEST        # added
+                sponsoring-org: ORG-OTO1-TEST      # added
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-BY-LIR
+                status:       ASSIGNED PI          # added
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password: hm
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(3, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
+                "Attribute \"netname\" appears more than once",
+                "Attribute \"org\" appears more than once",
+                "Attribute \"status\" appears more than once"
+        ]
+    }
+
+    def "modify inet6num, add sponsoring attributes with rs password"() {
+        given:
+        syncUpdate(getTransient("ALLOCATED-BY-RIR-MANDATORY") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inet6num:     2001::/20
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                sponsoring-org: ORG-OTO1-TEST      # added
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-BY-LIR
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password: hm
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
+                "The \"sponsoring-org:\" attribute is not allowed with status value \"ALLOCATED-BY-LIR\"",
+                "status value cannot be changed, you must delete and re-create the object"
+        ]
+    }
 }
