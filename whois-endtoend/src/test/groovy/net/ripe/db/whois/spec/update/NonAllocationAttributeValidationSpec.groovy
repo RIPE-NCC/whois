@@ -8,58 +8,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
-        ["ALLOC-PA-MANDATORY"      : """\
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                source:       TEST
-                """,
-         "ALLOC-PA-EXTRA"          : """\
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                descr:        some description  # extra
-                country:      NL
-                geoloc:       0.0 0.0           # extra
-                language:     NL                # extra
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                remarks:      a new remark      # extra
-                notify:       notify@ripe.net   # extra
-                mnt-lower:    LIR-MNT           # extra
-                mnt-routes:   OWNER-MNT         # extra
-                mnt-domains:  DOMAINS-MNT       # extra
-                mnt-irt:      IRT-TEST          # extra
-                source:       TEST
-                """,
-         "ALLOC-PA-EXTRA-RIPE-NCC-MNTNER": """\
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
-                mnt-lower:    LIR-MNT          # extra
-                mnt-routes:   RIPE-NCC-HM-MNT  # hm-mnt
-                mnt-routes:   OWNER-MNT        # extra
-                mnt-domains:  RIPE-NCC-HM-MNT  # hm-mnt
-                mnt-domains:  DOMAINS-MNT      # extra
-                source:       TEST
-                """,
-         "ASSIGN-PI"               : """\
+        ["ASSIGN-PI"               : """\
                 inetnum:      192.168.255.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -74,47 +23,6 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-         "IRT"                     : """\
-                irt:          irt-test
-                address:      RIPE NCC
-                e-mail:       dbtest@ripe.net
-                signature:    PGPKEY-D83C3FBD
-                encryption:   PGPKEY-D83C3FBD
-                auth:         PGPKEY-D83C3FBD
-                auth:         MD5-PW \$1\$qxm985sj\$3OOxndKKw/fgUeQO7baeF/  #irt
-                irt-nfy:      dbtest@ripe.net
-                notify:       dbtest@ripe.net
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                mnt-by:       OWNER-MNT
-                source:       TEST
-                """,
-         "IRT2"                    : """\
-                irt:          IRT-2-TEST
-                address:      RIPE NCC
-                e-mail:       dbtest@ripe.net
-                signature:    PGPKEY-D83C3FBD
-                encryption:   PGPKEY-D83C3FBD
-                auth:         PGPKEY-D83C3FBD
-                auth:         MD5-PW \$1\$qxm985sj\$3OOxndKKw/fgUeQO7baeF/  #irt
-                irt-nfy:      dbtest@ripe.net
-                notify:       dbtest@ripe.net
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                mnt-by:       OWNER-MNT
-                source:       TEST
-                """,
-         "DOMAINS2-MNT"            : """\
-                mntner:      DOMAINS2-MNT
-                descr:       used for mnt-domains
-                admin-c:     TP1-TEST
-                upd-to:      updto_domains@ripe.net
-                mnt-nfy:     mntnfy_domains@ripe.net
-                notify:      notify_domains@ripe.net
-                auth:        MD5-PW \$1\$anTWxMgQ\$8aBWq5u5ZFHLA5aeZsSxG0  #domains
-                mnt-by:      DOMAINS2-MNT
-                source:      TEST
-                """,
          "NON-TOPLEVEL-ASSIGN-PI"  : """\
                 inetnum:      193.168.255.0 - 193.168.255.255
                 netname:      TEST-NET-NAME
@@ -127,20 +35,6 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
-                source:       TEST
-                """,
-         "V6ALLOC-RIR"             : """\
-                inet6num:     2001::/20
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                status:       ALLOCATED-BY-RIR
                 source:       TEST
                 """,
          "ASSIGNMENT-PI"            : """\
