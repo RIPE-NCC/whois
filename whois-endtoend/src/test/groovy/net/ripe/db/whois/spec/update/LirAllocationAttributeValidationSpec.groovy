@@ -265,7 +265,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inet6num, cannot add sponsoring-org"() {
+    def "modify inetnum, cannot add sponsoring-org by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
