@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -329,8 +328,6 @@ public class JdbcRpslObjectOperations {
                 continue;
             }
 
-            final Stopwatch stopwatch = Stopwatch.createStarted();
-
             try {
                 sanityCheck(jdbcTemplate);
             } catch (IllegalStateException e) {
@@ -344,8 +341,6 @@ public class JdbcRpslObjectOperations {
             statements.add("SET FOREIGN_KEY_CHECKS = 1");
 
             jdbcTemplate.batchUpdate(statements.toArray(new String[statements.size()]));
-
-            LOGGER.info("Truncate tables in {}", stopwatch);
         }
     }
 
