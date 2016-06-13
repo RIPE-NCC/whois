@@ -194,6 +194,7 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
             tech-c:         TP1-TEST                 # added
             abuse-c:        AH1-TEST                 # added
             mnt-ref:        LIR-MNT
+            mnt-ref:        LIR2-MNT                 # added
             mnt-by:         RIPE-NCC-HM-MNT
             mnt-by:         LIR-MNT
             notify:         notify@ripe.net          # added
@@ -236,7 +237,7 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
             admin-c:        TP2-TEST                 # modified
             tech-c:         TP2-TEST                 # modified
             abuse-c:        AH1-TEST                 # modified
-            mnt-ref:        LIR-MNT
+            mnt-ref:        LIR2-MNT                 # modified
             mnt-by:         RIPE-NCC-HM-MNT
             mnt-by:         LIR-MNT
             notify:         notify@ripe.net          # modified
@@ -450,7 +451,7 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 "Attribute \"phone:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
                 "Attribute \"fax-no:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
                 "Attribute \"org:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
-               "Attribute \"abuse-mailbox:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."
+                "Attribute \"abuse-mailbox:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."
         ]
     }
 
