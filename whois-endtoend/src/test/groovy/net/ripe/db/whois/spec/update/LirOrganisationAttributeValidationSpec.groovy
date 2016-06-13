@@ -61,20 +61,6 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
             mnt-by:         RIPE-NCC-HM-MNT
             mnt-by:         LIR-MNT
             source:         TEST
-        """,
-        "LIR-ORG-PORTAL-LOCKED-OPTIONAL-ATTRIBUTES-MISSING": """\
-            organisation:   AUTO-1
-            org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)
-            org-type:       LIR
-            descr:          RIPE NCC Operations
-            address:        P.O. Box 10096
-            e-mail:         ncc@ripe.net
-            admin-c:        TP1-TEST
-            abuse-c:        AH1-TEST
-            mnt-ref:        LIR-MNT
-            mnt-by:         RIPE-NCC-HM-MNT
-            mnt-by:         LIR-MNT
-            source:         TEST
         """
         ]
     }
