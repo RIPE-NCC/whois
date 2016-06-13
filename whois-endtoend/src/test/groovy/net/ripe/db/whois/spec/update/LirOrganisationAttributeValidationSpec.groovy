@@ -548,5 +548,160 @@ class  LirOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
     }
+
+    def "add portal and lir editable attributes with rs password should be possible"() {
+        given:
+        def ack1 = syncUpdate(getTransient("LIR-ORG") + "override: denis,override1")
+        ack1.toString()
+
+        expect:
+        queryObject("-GBr -T organisation ORG-RIEN1-TEST", "organisation", "ORG-RIEN1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+            organisation:   ORG-RIEN1-TEST
+            org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)
+            org-type:       LIR
+            descr:          RIPE NCC Operations      # added
+            remarks:        Test organisation        # added
+            address:        P.O. Box 10096
+            address:        Amsterdam, Netherlands   # added
+            phone:          +31000000000
+            phone:          +31000000001             # added
+            fax-no:         +31000000000
+            fax-no:         +31000000002             # added
+            e-mail:         ncc@ripe.net
+            e-mail:         second@ripe.net          # added
+            abuse-c:        AH1-TEST
+            mnt-ref:        LIR-MNT
+            abuse-mailbox:  abuse@ripe.net           # added
+            mnt-by:         RIPE-NCC-HM-MNT
+            mnt-by:         LIR-MNT
+            source:         TEST
+            password:       hm
+        """.stripIndent()
+        )
+
+        then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
+    }
+
+    def "add second lir mnt-by with rs password should not be possible"() {
+        given:
+        def ack1 = syncUpdate(getTransient("LIR-ORG") + "override: denis,override1")
+        ack1.toString()
+
+        expect:
+        queryObject("-GBr -T organisation ORG-RIEN1-TEST", "organisation", "ORG-RIEN1-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+            organisation:   ORG-RIEN1-TEST
+            org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)
+            org-type:       LIR
+            address:        P.O. Box 10096
+            phone:          +31000000000
+            fax-no:         +31000000000
+            e-mail:         ncc@ripe.net
+            abuse-c:        AH1-TEST
+            mnt-ref:        LIR-MNT
+            mnt-by:         RIPE-NCC-HM-MNT
+            mnt-by:         LIR-MNT
+            mnt-by:         LIR2-MNT                 # added
+            source:         TEST
+            password:       hm
+        """.stripIndent()
+        )
+
+        then:
+        ack.errors
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
+                "Multiple user-'mnt-by:' are not allowed, found are: 'LIR-MNT, LIR2-MNT'"
+        ]
+    }
+
+    def "delete all lir mnt-by with rs password should not be possible"() {
+        given:
+        def ack1 = syncUpdate(getTransient("LIR-ORG") + "override: denis,override1")
+        ack1.toString()
+
+        expect:
+        queryObject("-GBr -T organisation ORG-RIEN1-TEST", "organisation", "ORG-RIEN1-TEST")
+
+        when:
+        // mnt-by:         LIR-MNT # deleted
+        def ack = syncUpdateWithResponse("""
+            organisation:   ORG-RIEN1-TEST
+            org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)
+            org-type:       LIR
+            address:        P.O. Box 10096
+            phone:          +31000000000
+            fax-no:         +31000000000
+            e-mail:         ncc@ripe.net
+            abuse-c:        AH1-TEST
+            mnt-ref:        LIR-MNT
+            mnt-by:         RIPE-NCC-HM-MNT
+            source:         TEST
+            password:       hm
+        """.stripIndent()
+        )
+
+        then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
+    }
+
+    def "delete portal and lir editable attributes with rs password should be possible"() {
+        given:
+        def ack1 = syncUpdate(getTransient("LIR-ORG") + "override: denis,override1")
+        ack1.toString()
+
+        expect:
+        queryObject("-GBr -T organisation ORG-RIEN1-TEST", "organisation", "ORG-RIEN1-TEST")
+
+        when:
+        //    org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC) # cannot deleted
+        //    phone:          +31205354444 # deleted
+        //    fax-no:         +31205354445 # deleted
+        //    e-mail:         ncc@ripe.net # cannot deleted
+        //    abuse-c:        AH1-TEST     # cannot deleted
+        def ack = syncUpdateWithResponse("""
+            organisation:   ORG-RIEN1-TEST
+            org-type:       LIR
+            mnt-ref:        LIR-MNT
+            mnt-by:         RIPE-NCC-HM-MNT
+            source:         TEST
+            password:       hm
+        """.stripIndent()
+        )
+
+        then:
+        ack.errors
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(3, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
+        ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
+                "Mandatory attribute \"org-name\" is missing",
+                "Mandatory attribute \"address\" is missing",
+                "Mandatory attribute \"e-mail\" is missing"
+        ]
+    }
+
 }
 
