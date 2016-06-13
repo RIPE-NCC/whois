@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
+class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
@@ -143,6 +143,29 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 status:       ALLOCATED-BY-RIR
                 source:       TEST
                 """,
+         "ASSIGNMENT-PI"            : """\
+                inetnum:      192.170.0.0 - 192.170.255.255
+                netname:      SOME-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                """,
+         "END-USER-ASSIGNMENT"            : """\
+                inetnum:      192.180.0.0 - 192.180.255.255
+                netname:      SOME-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       LIR-MNT
+                source:       TEST
+                """
         ]
     }
 
@@ -264,5 +287,74 @@ class AllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 0, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
     }
+
+    /// Extras
+
+    def "modify assignment inetnum, change netname attribute by lir"() {
+        given:
+        syncUpdate(getTransient("ASSIGNMENT-PI") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.170.0.0 - 192.170.255.255", "inetnum", "192.170.0.0 - 192.170.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.170.0.0 - 192.170.255.255
+                netname:      SOME-OTHER-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.170.0.0 - 192.170.255.255" }
+    }
+
+
+    def "modify inetnum without ripe mnt, change netname attribute by lir"() {
+        given:
+        syncUpdate(getTransient("END-USER-ASSIGNMENT") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum 192.180.0.0 - 192.180.255.255", "inetnum", "192.180.0.0 - 192.180.255.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.180.0.0 - 192.180.255.255
+                netname:      SOME-OTHER-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.180.0.0 - 192.180.255.255" }
+    }
+
 
 }
