@@ -61,7 +61,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         when:
         def ack = syncUpdateWithResponse("""\
                 inetnum:      192.168.1.0 - 192.168.1.255
-                netname:      ASSIGNED-192-168-255
+                netname:      ASSIGNED-192-168-1
                 country:      NL
                 org:          ORG-LIR1-TEST
                 sponsoring-org: ORG-LIR1-TEST  # changed
@@ -99,7 +99,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         when:
         def ack = syncUpdateWithResponse("""\
                 inetnum:      192.168.1.0 - 192.168.1.255
-                netname:      DIFFERENT-192-168-255  # changed
+                netname:      DIFFERENT-192-168-1  # changed
                 country:      NL
                 org:          ORG-LIR1-TEST
                 sponsoring-org: ORG-LIR2-TEST
@@ -142,6 +142,78 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
                 mnt-by:       LIR-MNT
+                source:       TEST
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.2.0 - 192.168.2.255" }
+    }
+
+
+    def "modify inetnum, add mnt-lower by lir mntner"() {
+        given:
+        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-PI-192-168-1") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum  192.168.0.0 - 192.168.255.255", "inetnum", " 192.168.0.0 - 192.168.255.255")
+        queryObject("-GBr -T inetnum  192.168.1.0 - 192.168.1.255", "inetnum", " 192.168.1.0 - 192.168.1.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.1.0 - 192.168.1.255
+                netname:      ASSIGNED-192-168-1
+                country:      NL
+                org:          ORG-LIR1-TEST
+                sponsoring-org: ORG-LIR2-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       RIPE-NCC-END-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                mnt-lower:    LIR2-MNT                     # added
+                source:       TEST
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
+    }
+
+    def "modify inetnum without ripe mnt, add mnt-lower by lir mntner"() {
+        given:
+        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNMENT-END-USER") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T inetnum  192.168.0.0 - 192.168.255.255", "inetnum", " 192.168.0.0 - 192.168.255.255")
+        queryObject("-GBr -T inetnum  192.168.2.0 - 192.168.2.255", "inetnum", " 192.168.2.0 - 192.168.2.255")
+
+        when:
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.2.0 - 192.168.2.255
+                netname:      ASSIGNED-192-168-2
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT        # added
                 source:       TEST
                 password: lir
                 """.stripIndent()
