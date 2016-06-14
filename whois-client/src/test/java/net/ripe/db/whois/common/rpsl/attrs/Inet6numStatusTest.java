@@ -30,7 +30,7 @@ public class Inet6numStatusTest {
     public void requiresRsMaintainer() {
         assertThat(AGGREGATED_BY_LIR.requiresRsMaintainer(), is(false));
         assertThat(ALLOCATED_BY_LIR.requiresRsMaintainer(), is(false));
-        assertThat(ALLOCATED_BY_RIR.requiresRsMaintainer(), is(true));
+        assertThat(ALLOCATED_BY_RIR.requiresRsMaintainer(), is(false));
         assertThat(ASSIGNED.requiresRsMaintainer(), is(false));
 
         assertThat(ASSIGNED_ANYCAST.requiresRsMaintainer(), is(true));

@@ -22,7 +22,7 @@ public enum Inet6numStatus implements InetStatus {
     ASSIGNED_ANYCAST("ASSIGNED ANYCAST", LIR, OTHER),
     ASSIGNED_PI("ASSIGNED PI", LIR, OTHER);
 
-    private static final EnumSet<Inet6numStatus> RS_MNTNER_STATUSES = EnumSet.of(ASSIGNED_PI, ASSIGNED_ANYCAST, ALLOCATED_BY_RIR);
+    private static final EnumSet<Inet6numStatus> RS_MNTNER_STATUSES = EnumSet.of(ASSIGNED_PI, ASSIGNED_ANYCAST);
     private static final EnumSet<Inet6numStatus> ALLOC_MNTNER_STATUSES = EnumSet.of(ALLOCATED_BY_RIR);
     private static final EnumSet<Inet6numStatus> NEEDS_ORG_REFERENCE = EnumSet.of(ASSIGNED_ANYCAST, ALLOCATED_BY_RIR, ASSIGNED_PI);
 
@@ -41,7 +41,7 @@ public enum Inet6numStatus implements InetStatus {
     private final CIString literalStatus;
     private final Set<OrgType> allowedOrgTypes;
 
-    private Inet6numStatus(final String literalStatus, final OrgType... orgType) {
+    Inet6numStatus(final String literalStatus, final OrgType... orgType) {
         this.literalStatus = ciString(literalStatus);
         this.allowedOrgTypes = Sets.immutableEnumSet(Arrays.asList(orgType));
     }
