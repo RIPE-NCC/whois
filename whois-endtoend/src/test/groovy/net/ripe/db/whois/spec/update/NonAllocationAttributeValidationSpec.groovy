@@ -8,10 +8,22 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
-        ["ASSIGN-PI"             : """\
-                inetnum:      192.168.255.0 - 192.168.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
+        ["ALLOCATED-PI-192-168"       : """\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      ALLOCATION-192-168
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PI
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                """,
+         "ASSIGNED-PI-192-168-1"          : """\
+                inetnum:      192.168.1.0 - 192.168.1.255
+                netname:      ASSIGNED-192-168-1
                 country:      NL
                 org:          ORG-LIR1-TEST
                 sponsoring-org: ORG-LIR2-TEST
@@ -23,35 +35,9 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-         "NON-TOPLEVEL-ASSIGN-PI": """\
-                inetnum:      193.168.255.0 - 193.168.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                mnt-by:       RIPE-NCC-END-MNT
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                source:       TEST
-                """,
-         "ASSIGNMENT-PI"         : """\
-                inetnum:      192.170.0.0 - 192.170.255.255
-                netname:      SOME-NET-NAME
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                mnt-by:       RIPE-NCC-END-MNT
-                mnt-by:       LIR-MNT
-                source:       TEST
-                """,
-         "END-USER-ASSIGNMENT"   : """\
-                inetnum:      192.180.0.0 - 192.180.255.255
-                netname:      SOME-NET-NAME
+         "ASSIGNMENT-END-USER": """\
+                inetnum:      192.168.2.0 - 192.168.2.255
+                netname:      ASSIGNED-192-168-2
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
@@ -63,18 +49,19 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, change sponsoring-org with lir mntner is not possible"() {
+    def "modify inetnum, change sponsoring-org by lir mntner is not possible"() {
         given:
-        syncUpdate(getTransient("ASSIGN-PI") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-PI-192-168-1") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum  192.168.255.0 - 192.168.255.255", "inetnum", " 192.168.255.0 - 192.168.255.255")
+        queryObject("-GBr -T inetnum  192.168.0.0 - 192.168.255.255", "inetnum", " 192.168.0.0 - 192.168.255.255")
+        queryObject("-GBr -T inetnum  192.168.1.0 - 192.168.1.255", "inetnum", " 192.168.1.0 - 192.168.1.255")
 
         when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.255.0 - 192.168.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.1.0 - 192.168.1.255
+                netname:      ASSIGNED-192-168-255
                 country:      NL
                 org:          ORG-LIR1-TEST
                 sponsoring-org: ORG-LIR1-TEST  # changed
@@ -95,26 +82,27 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.255.0 - 192.168.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.1.0 - 192.168.1.255") == [
                 "The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
     }
 
-    def "modify inetnum, change netname with lir mnt is possible for non-toplevel allocations"() {
+    def "modify inetnum, change netname (ASSIGNED PI) by lir mntner is possible"() {
         given:
-        syncUpdate(getTransient("NON-TOPLEVEL-ASSIGN-PI") + "override: denis, override1")
-
+        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-PI-192-168-1") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 193.168.255.0 - 193.168.255.255", "inetnum", "193.168.255.0 - 193.168.255.255")
+        queryObject("-GBr -T inetnum  192.168.0.0 - 192.168.255.255", "inetnum", " 192.168.0.0 - 192.168.255.255")
+        queryObject("-GBr -T inetnum  192.168.1.0 - 192.168.1.255", "inetnum", " 192.168.1.0 - 192.168.1.255")
 
         when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      193.168.255.0 - 193.168.255.255
-                netname:      DIFFERENT-TEST-NET-NAME              # changed
-                descr:        TEST network
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.1.0 - 192.168.1.255
+                netname:      DIFFERENT-192-168-255  # changed
                 country:      NL
                 org:          ORG-LIR1-TEST
+                sponsoring-org: ORG-LIR2-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
@@ -132,53 +120,22 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 193.168.255.0 - 193.168.255.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
     }
 
-    def "modify assignment inetnum, change netname attribute by lir"() {
+    def "modify inetnum without ripe mnt, change netname (ASSIGNED PI) by lir mntner is possible"() {
         given:
-        syncUpdate(getTransient("ASSIGNMENT-PI") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNMENT-END-USER") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.170.0.0 - 192.170.255.255", "inetnum", "192.170.0.0 - 192.170.255.255")
+        queryObject("-GBr -T inetnum  192.168.0.0 - 192.168.255.255", "inetnum", " 192.168.0.0 - 192.168.255.255")
+        queryObject("-GBr -T inetnum  192.168.2.0 - 192.168.2.255", "inetnum", " 192.168.2.0 - 192.168.2.255")
 
         when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      192.170.0.0 - 192.170.255.255
-                netname:      SOME-OTHER-NET-NAME
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ASSIGNED PI
-                mnt-by:       RIPE-NCC-END-MNT
-                mnt-by:       LIR-MNT
-                source:       TEST
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-        ack.success
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.170.0.0 - 192.170.255.255" }
-    }
-
-
-    def "modify inetnum without ripe mnt, change netname attribute by lir"() {
-        given:
-        syncUpdate(getTransient("END-USER-ASSIGNMENT") + "override: denis, override1")
-
-        expect:
-        queryObject("-GBr -T inetnum 192.180.0.0 - 192.180.255.255", "inetnum", "192.180.0.0 - 192.180.255.255")
-
-        when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      192.180.0.0 - 192.180.255.255
-                netname:      SOME-OTHER-NET-NAME
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.2.0 - 192.168.2.255
+                netname:      DIFFERENT-192-168-2          # changed
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
@@ -196,7 +153,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.180.0.0 - 192.180.255.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.2.0 - 192.168.2.255" }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,20 +163,22 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     def "modify inetnum, change sponsoring-org with override is possible"() {
+
         given:
-        syncUpdate(getTransient("ASSIGN-PI") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOCATED-PI-192-168") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-PI-192-168-1") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum  192.168.255.0 - 192.168.255.255", "inetnum", " 192.168.255.0 - 192.168.255.255")
+        queryObject("-GBr -T inetnum  192.168.0.0 - 192.168.255.255", "inetnum", " 192.168.0.0 - 192.168.255.255")
+        queryObject("-GBr -T inetnum  192.168.1.0 - 192.168.1.255", "inetnum", " 192.168.1.0 - 192.168.1.255")
 
         when:
-        def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.255.0 - 192.168.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
+        def ack = syncUpdateWithResponse("""\
+                inetnum:      192.168.1.0 - 192.168.1.255
+                netname:      ASSIGNED-192-168-255
                 country:      NL
                 org:          ORG-LIR1-TEST
-                sponsoring-org: ORG-LIR1-TEST
+                sponsoring-org: ORG-LIR1-TEST  # changed
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
@@ -237,14 +196,6 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  MODIFY allocations attributes WITH RS PASSWORD
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // .....
 }
