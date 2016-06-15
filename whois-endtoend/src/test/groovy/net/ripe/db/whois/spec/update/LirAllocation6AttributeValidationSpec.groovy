@@ -223,6 +223,8 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
     }
 
     def "modify inet6num, cannot change lir-locked attributes by lir"() {
+        // NOTE: this cannot really happen in real life.
+        // An LIR mntner should (could) never have the password of owner3
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-MANDATORY") + "override: denis, override1")
 
@@ -265,6 +267,8 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
     }
 
     def "modify inet6num, cannot add sponsoring-org by lir"() {
+        // NOTE: this cannot really happen in real life.
+        // An LIR mntner should (could) never have the password of owner3
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-MANDATORY") + "override: denis, override1")
 
@@ -868,6 +872,8 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     def "modify inet6num, change lir-locked attributes with rs password"() {
+        // NOTE: this cannot really happen in real life.
+        // An RS mntner should (could) never have the password of owner3
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-MANDATORY") + "override: denis, override1")
 
@@ -887,7 +893,6 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR2-MNT              # changed
                 source:       TEST
                 password: hm
-                password: lir
                 password: owner3
                 """.stripIndent()
         )
