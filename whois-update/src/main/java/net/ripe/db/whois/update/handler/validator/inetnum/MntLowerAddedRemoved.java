@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Booleans;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -41,8 +42,10 @@ public class MntLowerAddedRemoved implements BusinessRuleValidator {
             return;
         }
 
-        final Set<CIString> differences = update.getDifferences(AttributeType.MNT_LOWER);
-        if (!differences.isEmpty() && !subject.hasPrincipal(Principal.RS_MAINTAINER)) {
+        final Boolean wasModified  = update.getDifferences(AttributeType.MNT_LOWER).isEmpty();
+        final Boolean isEndUserMaintained = subject.hasPrincipal(Principal.ENDUSER_MAINTAINER);
+        
+        if (wasModified && isEndUserMaintained) {
             updateContext.addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
         }
     }
