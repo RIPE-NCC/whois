@@ -42,9 +42,9 @@ public class MntLowerAddedRemoved implements BusinessRuleValidator {
             return;
         }
 
-        final Boolean wasModified  = update.getDifferences(AttributeType.MNT_LOWER).isEmpty();
+        final Boolean wasModified  = !update.getDifferences(AttributeType.MNT_LOWER).isEmpty();
         final Boolean isEndUserMaintained = subject.hasPrincipal(Principal.ENDUSER_MAINTAINER);
-        
+
         if (wasModified && isEndUserMaintained) {
             updateContext.addMessage(update, UpdateMessages.authorisationRequiredForAttrChange(AttributeType.MNT_LOWER));
         }
