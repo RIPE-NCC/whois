@@ -308,7 +308,7 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inet6num, cannot change (mnt-lower) ripe-ncc maintainers by lir"() {
+    def "modify inet6num, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -351,7 +351,7 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inet6num, cannot add (mnt-lower) ripe-ncc maintainers by lir"() {
+    def "modify inet6num, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -395,7 +395,7 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inet6num, cannot delete (mnt-lower) ripe-ncc maintainers by lir"() {
+    def "modify inet6num, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-EXTRA-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -441,7 +441,7 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inet6num, cannot change (mnt-routes) ripe-ncc maintainers by lir"() {
+    def "modify inet6num, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -484,7 +484,7 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inet6num, cannot add (mnt-routes) ripe-ncc maintainers by lir"() {
+    def "modify inet6num, cannot add ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -528,7 +528,7 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inet6num, cannot delete (mnt-routes) ripe-ncc maintainers by lir"() {
+    def "modify inet6num, cannot delete ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-EXTRA-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -574,7 +574,7 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inet6num, cannot change (mnt-domains) ripe-ncc maintainers by lir"() {
+    def "modify inet6num, cannot change ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -617,7 +617,7 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inet6num, cannot add (mnt-domains) ripe-ncc maintainers by lir"() {
+    def "modify inet6num, cannot add ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -661,7 +661,7 @@ class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inet6num, cannot delete (mnt-domains) ripe-ncc maintainers by lir"() {
+    def "modify inet6num, cannot delete ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ALLOCATED-BY-RIR-EXTRA-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")

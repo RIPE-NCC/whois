@@ -309,7 +309,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot change (mnt-lower) ripe-ncc maintainer by lir"() {
+    def "modify inetnum, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -352,7 +352,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add (mnt-lower) ripe-ncc maintainer by lir"() {
+    def "modify inetnum, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -396,7 +396,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete (mnt-lower) ripe-ncc maintainer by lir"() {
+    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("LEGACY-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -442,7 +442,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot change (mnt-routes) ripe-ncc maintainer by lir"() {
+    def "modify inetnum, cannot change ripe-ncc mntner (mnt-routes)  by lir"() {
         given:
         syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -485,7 +485,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add (mnt-routes) ripe-ncc maintainer by lir"() {
+    def "modify inetnum, cannot add ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -529,7 +529,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete (mnt-routes) ripe-ncc maintainer by lir"() {
+    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("LEGACY-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -575,7 +575,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot change (mnt-domains) ripe-ncc maintainer by lir"() {
+    def "modify inetnum, cannot change ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -618,7 +618,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add (mnt-domains) ripe-ncc maintainer by lir"() {
+    def "modify inetnum, cannot add ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -662,7 +662,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete (mnt-domains) ripe-ncc maintainer by lir"() {
+    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("LEGACY-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
