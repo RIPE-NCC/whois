@@ -118,11 +118,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseQueryUpdate
         ]
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
     //  MODIFY allocations attributes by LIR
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     def "modify inet6num, add (all) lir-unlocked attributes by lir"() {
         given:
@@ -824,11 +820,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseQueryUpdate
                 "Referenced organisation can only be removed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to remove this reference."]
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
     //  MODIFY allocations attributes WITH OVERRIDE
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     def "modify inet6num, change lir-locked attributes with override"() {
         given:
@@ -863,11 +855,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseQueryUpdate
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
     //  MODIFY allocations attributes WITH RS PASSWORD
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     def "modify inet6num, change lir-locked attributes with rs password"() {
         // NOTE: this cannot really happen in real life.

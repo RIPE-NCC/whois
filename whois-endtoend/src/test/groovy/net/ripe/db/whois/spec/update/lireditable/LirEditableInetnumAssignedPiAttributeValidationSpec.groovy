@@ -118,11 +118,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
     //  MODIFY legcay attributes by LIR
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     def "modify inetnum, add (all) lir-unlocked attributes by lir"() {
         given:
@@ -795,11 +791,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
                 "Referenced organisation can only be removed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to remove this reference."]
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
     //  MODIFY allocations attributes WITH OVERRIDE
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     def "modify inetnum, change lir-locked attributes with override"() {
         given:
@@ -833,11 +825,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
     //  MODIFY allocations attributes WITH RS PASSWORD
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     def "modify inetnum, change lir-locked attributes with rs password"() {
         // NOTE: this cannot really happen in real life.
