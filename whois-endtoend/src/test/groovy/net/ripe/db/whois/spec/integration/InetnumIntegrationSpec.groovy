@@ -1190,7 +1190,48 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /SUCCESS/
   }
 
-  def "modify status ASSIGNED PI maintained by enduser maintainer may not change org, 1st descr, mnt-lower"() {
+    def "modify status ASSIGNED ANYCAST auth by enduser maintainer may NOT change mnt-lower"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0 - 192.0.0.255
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ASSIGNED ANYCAST
+                    mnt-by:RIPE-NCC-END-MNT
+                    org:ORG-TOL5-TEST
+                    source: TEST
+                    password: hm
+                    password: nccend
+                    password: update
+                """.stripIndent()))
+        expect:
+        insertResponse =~ /SUCCESS/
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0 - 192.0.0.255
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ASSIGNED ANYCAST
+                    mnt-by:RIPE-NCC-END-MNT
+                    mnt-lower:RIPE-NCC-END-MNT
+                    org:ORG-TOL5-TEST
+                    source: TEST
+                    password: hm
+                    password: update
+                """.stripIndent())
+        then:
+        response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Error:   Changing "mnt-lower:" value requires administrative authorisation/
+    }
+
+
+    def "modify status ASSIGNED PI maintained by enduser maintainer may not change org, 1st descr, mnt-lower"() {
     when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255
