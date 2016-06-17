@@ -35,8 +35,9 @@ import java.util.Set;
 
 import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelper.getStatus;
 
+// TODO [AK] Redesign status validator using subtrees: parent or child intervals should not have different validation logic, the tree must be valid as a whole
 @Component
-public class StatusValidator implements BusinessRuleValidator { // TODO [AK] Redesign status validator using subtrees: parent or child intervals should not have different validation logic, the tree must be valid as a whole
+public class StatusValidator implements BusinessRuleValidator {
 
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY, Action.DELETE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM);

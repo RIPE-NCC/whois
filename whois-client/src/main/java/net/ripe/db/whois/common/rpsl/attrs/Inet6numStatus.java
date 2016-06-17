@@ -41,7 +41,7 @@ public enum Inet6numStatus implements InetStatus {
     private final CIString literalStatus;
     private final Set<OrgType> allowedOrgTypes;
 
-    private Inet6numStatus(final String literalStatus, final OrgType... orgType) {
+    Inet6numStatus(final String literalStatus, final OrgType... orgType) {
         this.literalStatus = ciString(literalStatus);
         this.allowedOrgTypes = Sets.immutableEnumSet(Arrays.asList(orgType));
     }
