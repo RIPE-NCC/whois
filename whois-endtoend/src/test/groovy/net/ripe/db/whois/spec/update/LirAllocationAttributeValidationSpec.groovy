@@ -223,8 +223,6 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
     }
 
     def "modify inetnum, cannot change lir-locked attributes by lir"() {
-        // NOTE: this cannot really happen in real life.
-        // An LIR mntner should (could) never have the password of owner3
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -268,8 +266,6 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
     }
 
     def "modify inetnum, cannot add sponsoring-org by lir"() {
-        // NOTE: this cannot really happen in real life.
-        // An LIR mntner should (could) never have the password of owner3
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -310,7 +306,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify inetnum, cannot change (mnt-lower) ripe-ncc maintainer by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -353,7 +349,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify inetnum, cannot add (mnt-lower) ripe-ncc maintainer by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -397,7 +393,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify inetnum, cannot delete (mnt-lower) ripe-ncc maintainer by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -443,7 +439,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
+    def "modify inetnum, cannot change (mnt-routes) ripe-ncc maintainer by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -486,7 +482,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add ripe-ncc mntner (mnt-routes) by lir"() {
+    def "modify inetnum, cannot add (mnt-routes) ripe-ncc maintainer by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -530,7 +526,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-routes) by lir"() {
+    def "modify inetnum, cannot delete (mnt-routes) ripe-ncc maintainer by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -576,7 +572,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot change ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify inetnum, cannot change (mnt-domains) ripe-ncc maintainer by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -619,7 +615,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify inetnum, cannot add (mnt-domains) ripe-ncc maintainer by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -663,7 +659,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify inetnum, cannot delete (mnt-domains) ripe-ncc maintainer by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -874,8 +870,6 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     def "modify inetnum, change lir-locked attributes with rs password"() {
-        // NOTE: this cannot really happen in real life.
-        // An RS mntner should (could) never have the password of owner3
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -895,6 +889,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR2-MNT              # changed
                 source:       TEST
                 password: hm
+                password: lir
                 password: owner3
                 """.stripIndent()
         )
