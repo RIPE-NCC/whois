@@ -1148,7 +1148,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       modify =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
-  def "modify status ASSIGNED PI | ANYCAST authed by enduser maintainer may change org, desc, mnt-by"() {
+  def "modify status ASSIGNED ANYCAST authed by enduser maintainer may change org, desc, mnt-by"() {
     given:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -1187,7 +1187,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /SUCCESS/
   }
 
-    def "modify status ASSIGNED PI | ANYCAST authed by enduser maintainer may NOT change mnt-lower"() {
+    def "modify status ASSIGNED ANYCAST authed by enduser maintainer may NOT change mnt-lower"() {
         given:
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
