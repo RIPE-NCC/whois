@@ -228,11 +228,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.2.0 - 192.168.2.255" }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
     //  MODIFY allocations attributes WITH OVERRIDE
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     def "modify inetnum, change sponsoring-org with override is possible"() {
 

@@ -1,27 +1,27 @@
-package net.ripe.db.whois.spec.update
+package net.ripe.db.whois.spec.update.lireditable
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
+class LirEditableInet6numAssignedAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
-        ["ALLOC-PA-MANDATORY"            : """\
-                inetnum:      192.168.0.0 - 192.169.255.255
+        ["ASSIGNED-MANDATORY"                   : """\
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
                 """,
-         "ALLOC-PA-EXTRA"                : """\
-                inetnum:      192.168.0.0 - 192.169.255.255
+         "ASSIGNED-EXTRA"                       : """\
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 descr:        some description  # extra
                 country:      NL
@@ -30,7 +30,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 remarks:      a new remark      # extra
@@ -41,14 +41,14 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-irt:      IRT-TEST          # extra
                 source:       TEST
                 """,
-         "ALLOC-PA-RIPE-NCC-MNTNER": """\
-                inetnum:      192.168.0.0 - 192.169.255.255
+         "ASSIGNED-RIPE-NCC-LEGACY-MNTNER"      : """\
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
@@ -56,14 +56,14 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-domains:  RIPE-NCC-HM-MNT  # hm-mnt
                 source:       TEST
                 """,
-         "ALLOC-PA-EXTRA-RIPE-NCC-MNTNER": """\
-                inetnum:      192.168.0.0 - 192.169.255.255
+         "ASSIGNED-EXTRA-RIPE-NCC-LEGACY-MNTNER": """\
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
@@ -74,7 +74,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-domains:  DOMAINS-MNT      # extra
                 source:       TEST
                 """,
-         "IRT"                           : """\
+         "IRT"                                  : """\
                 irt:          irt-test
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
@@ -89,7 +89,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER-MNT
                 source:       TEST
                 """,
-         "IRT2"                          : """\
+         "IRT2"                                 : """\
                 irt:          IRT-2-TEST
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
@@ -104,7 +104,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER-MNT
                 source:       TEST
                 """,
-         "DOMAINS2-MNT"                  : """\
+         "DOMAINS2-MNT"                         : """\
                 mntner:      DOMAINS2-MNT
                 descr:       used for mnt-domains
                 admin-c:     TP1-TEST
@@ -120,18 +120,18 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     //  MODIFY allocations attributes by LIR
 
-    def "modify inetnum, add (all) lir-unlocked attributes by lir"() {
+    def "modify inet6num, add (all) lir-unlocked attributes by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-MANDATORY") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 descr:        some description  # added
                 country:      NL
@@ -145,7 +145,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP2-TEST          # added
                 remarks:      a new remark      # added
                 notify:       notify@ripe.net   # added
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR2-MNT          # added
@@ -166,25 +166,25 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    def "modify inetnum, change (all) lir-unlocked attributes by lir"() {
+    def "modify inet6num, change (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
         syncUpdate(getTransient("IRT2") + "override: denis, override1")
         syncUpdate(getTransient("DOMAINS2-MNT") + "override: denis, override1")
-        syncUpdate(getTransient("ALLOC-PA-EXTRA") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-EXTRA") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T mntner DOMAINS2-MNT", "mntner", "DOMAINS2-MNT")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
         queryObject("-r -T irt IRT-2-TEST", "irt", "IRT-2-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 descr:        other description # changed
                 country:      DE                # changed
@@ -193,7 +193,7 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP2-TEST          # changed
                 tech-c:       TP2-TEST          # changed
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 remarks:      a different remark# changed
@@ -215,27 +215,29 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    def "modify inetnum, cannot change lir-locked attributes by lir"() {
+    def "modify inet6num, cannot change lir-locked attributes by lir"() {
+        // NOTE: this cannot really happen in real life.
+        // An LIR mntner should (could) never have the password of owner3
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-MANDATORY") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME-CHANGED # changed
                 country:      NL
                 org:          ORG-OTO1-TEST         # changed
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PI          # changed
+                status:       ALLOCATED-BY-LIR      # changed
                 mnt-by:       RIPE-NCC-HM-MNT
-                mnt-by:       LIR2-MNT              # changed
+                mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
                 password: owner3
@@ -249,35 +251,34 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(5, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.countErrorWarnInfo(3, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
 
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference.",
-                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
                 "The \"netname\" attribute can only be changed by the RIPE NCC",
-                "Referenced organisation has wrong \"org-type\". Allowed values are [IANA, RIR, LIR]",
                 "status value cannot be changed, you must delete and re-create the object"
         ]
     }
 
-    def "modify inetnum, cannot add sponsoring-org by lir"() {
+    def "modify inet6num, cannot add sponsoring-org by lir"() {
+        // NOTE: this cannot really happen in real life.
+        // An LIR mntner should (could) never have the password of owner3
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-MANDATORY") + "override: denis, override1")
 
         expect:
-
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 sponsoring-org: ORG-OTO1-TEST # added
@@ -295,31 +296,31 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
 
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "The \"sponsoring-org:\" attribute is not allowed with status value \"ALLOCATED PA\""
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
+                "The \"sponsoring-org:\" attribute is not allowed with status value \"ASSIGNED\""
         ]
     }
 
-    def "modify inetnum, cannot change (mnt-lower) ripe-ncc maintainer by lir"() {
+    def "modify inet6num, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR2-MNT          # changed
@@ -339,34 +340,34 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
         ]
     }
 
-    def "modify inetnum, cannot add (mnt-lower) ripe-ncc maintainer by lir"() {
+    def "modify inet6num, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-LEGACY-MNT # added
                 mnt-lower:    RIPE-NCC-HM-MNT
-                mnt-lower:    RIPE-NCC-LEGACY-MNT          # added
                 mnt-routes:   RIPE-NCC-HM-MNT
                 mnt-domains:  RIPE-NCC-HM-MNT
                 source:       TEST
@@ -383,31 +384,31 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
         ]
     }
 
-    def "modify inetnum, cannot delete (mnt-lower) ripe-ncc maintainer by lir"() {
+    def "modify inet6num, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-EXTRA-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         //      mnt-lower:   RIPE-NCC-HM-MNT  # cannot deleted
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT          # extra
@@ -429,30 +430,30 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
         ]
     }
 
-    def "modify inetnum, cannot change (mnt-routes) ripe-ncc maintainer by lir"() {
+    def "modify inet6num, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
@@ -472,30 +473,30 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
         ]
     }
 
-    def "modify inetnum, cannot add (mnt-routes) ripe-ncc maintainer by lir"() {
+    def "modify inet6num, cannot add ripe-ncc mntner (mnt-routes) by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
@@ -516,31 +517,31 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
         ]
     }
 
-    def "modify inetnum, cannot delete (mnt-routes) ripe-ncc maintainer by lir"() {
+    def "modify inet6num, cannot delete ripe-ncc mntner (mnt-routes) by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-EXTRA-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         //      mnt-routes:   RIPE-NCC-HM-MNT  # cannot deleted
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
@@ -562,30 +563,30 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
         ]
     }
 
-    def "modify inetnum, cannot change (mnt-domains) ripe-ncc maintainer by lir"() {
+    def "modify inet6num, cannot change ripe-ncc mntner (mnt-domains) by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
@@ -605,36 +606,36 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
         ]
     }
 
-    def "modify inetnum, cannot add (mnt-domains) ripe-ncc maintainer by lir"() {
+    def "modify inet6num, cannot add ripe-ncc mntner (mnt-domains) by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 mnt-routes:   RIPE-NCC-HM-MNT
                 mnt-domains:  RIPE-NCC-HM-MNT
-                mnt-domains:  RIPE-NCC-LEGACY-MNT          # added
+                mnt-domains:  RIPE-NCC-LEGACY-MNT         # added
                 source:       TEST
                 password: lir
                 password: irt
@@ -649,31 +650,31 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
         ]
     }
 
-    def "modify inetnum, cannot delete (mnt-domains) ripe-ncc maintainer by lir"() {
+    def "modify inet6num, cannot delete ripe-ncc mntner (mnt-domains) by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-EXTRA-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
         //      mnt-domains:   RIPE-NCC-HM-MNT  # cannot deleted
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
@@ -695,19 +696,19 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
         ]
     }
 
-    def "modify inetnum, delete (all) lir-unlocked attributes by lir"() {
+    def "modify inet6num, delete (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
-        syncUpdate(getTransient("ALLOC-PA-EXTRA") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-EXTRA") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         when:
@@ -723,13 +724,13 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         //        mnt-domains:  DOMAINS-MNT       # deleted
         //        mnt-irt:      IRT-2-TEST        # deleted
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
@@ -744,15 +745,15 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    def "modify inetnum, cannot delete (some) mandatory lir-unlocked attributes by lir"() {
+    def "modify inet6num, cannot delete (some) mandatory lir-unlocked attributes by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-MANDATORY") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
 
         when:
         //        org:          ORG-LIR1-TEST # cannot delete, but warning is NOT presented!!
@@ -760,9 +761,9 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         //        admin-c:      TP1-TEST      # cannot delete
         //        tech-c:       TP1-TEST      # cannot delete
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
@@ -778,28 +779,28 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
         ack.countErrorWarnInfo(3, 0, 0)
 
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Mandatory attribute \"country\" is missing",
                 "Mandatory attribute \"admin-c\" is missing",
                 "Mandatory attribute \"tech-c\" is missing"]
     }
 
-    def "modify inetnum, cannot delete (org) lir-unlocked attributes by lir"() {
+    def "modify inet6num, cannot delete (org) lir-unlocked attributes by lir"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-MANDATORY") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
 
         when:
         //        org:          ORG-LIR1-TEST # cannot delete
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
@@ -814,30 +815,29 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "Referenced organisation can only be removed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to remove this reference.",
-                "Missing required \"org:\" attribute"]
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
+                "Referenced organisation can only be removed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to remove this reference."]
     }
 
     //  MODIFY allocations attributes WITH OVERRIDE
 
-    def "modify inetnum, change lir-locked attributes with override"() {
+    def "modify inet6num, change lir-locked attributes with override"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-MANDATORY") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME-CHANGED # changed
                 country:      NL
                 org:          ORG-LIRA-TEST         # changed
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PI          # changed
+                status:       ALLOCATED-BY-LIR      # changed
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR2-MNT              # changed
                 source:       TEST
@@ -852,32 +852,33 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 1)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
     //  MODIFY allocations attributes WITH RS PASSWORD
 
-    def "modify inetnum, change lir-locked attributes with rs password"() {
+    def "modify inet6num, change lir-locked attributes with rs password"() {
+        // NOTE: this cannot really happen in real life.
+        // An RS mntner should (could) never have the password of owner3
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-MANDATORY") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME-CHANGED # changed
                 country:      NL
                 org:          ORG-LIRA-TEST         # changed
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ASSIGNED
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR2-MNT              # changed
                 source:       TEST
                 password: hm
-                password: lir
                 password: owner3
                 """.stripIndent()
         )
@@ -889,25 +890,25 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
         ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    def "modify inetnum, change lir-locked (status) attributes with rs password"() {
+    def "modify inet6num, change lir-locked (status) attributes with rs password"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-MANDATORY") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PI         # changed
+                status:       ALLOCATED-BY-LIR     # changed
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
@@ -922,22 +923,22 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "status value cannot be changed, you must delete and re-create the object"
         ]
     }
 
-    def "modify inetnum, add 'single' attributes with rs password"() {
+    def "modify inet6num, add 'single' attributes with rs password"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-MANDATORY") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 netname:      TEST-NET-NAME-2      # added
                 country:      NL
@@ -946,8 +947,8 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-OTO1-TEST      # added
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                status:       ALLOCATED PI         # added
+                status:       ALLOCATED-BY-LIR
+                status:       ASSIGNED PI          # added
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
@@ -962,31 +963,31 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
         ack.countErrorWarnInfo(3, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
                 "Attribute \"netname\" appears more than once",
                 "Attribute \"org\" appears more than once",
                 "Attribute \"status\" appears more than once"
         ]
     }
 
-    def "modify inetnum, add sponsoring attributes with rs password"() {
+    def "modify inet6num, add sponsoring attributes with rs password"() {
         given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ASSIGNED-MANDATORY") + "override: denis, override1")
 
         expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
 
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                inet6num:     2001::/20
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 sponsoring-org: ORG-OTO1-TEST      # added
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
+                status:       ALLOCATED-BY-LIR
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
@@ -1000,9 +1001,11 @@ class LirAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "The \"sponsoring-org:\" attribute is not allowed with status value \"ALLOCATED PA\""]
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
+        ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
+                "The \"sponsoring-org:\" attribute is not allowed with status value \"ALLOCATED-BY-LIR\"",
+                "status value cannot be changed, you must delete and re-create the object"
+        ]
     }
 }
