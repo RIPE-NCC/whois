@@ -66,6 +66,7 @@ public class MntLowerAddedRemovedTest {
 
     @Test
     public void modify_mntLower_added_inetnum() {
+        when(authenticationSubject.hasPrincipal(Principal.ENDUSER_MAINTAINER)).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("TEST-MNT"));
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST"));
@@ -93,6 +94,7 @@ public class MntLowerAddedRemovedTest {
 
     @Test
     public void modify_mntLower_added_inet6num() {
+        when(authenticationSubject.hasPrincipal(Principal.ENDUSER_MAINTAINER)).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INET6NUM);
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("inet6num: ffff::/48\nstatus: ASSIGNED PI"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffff::/48\nstatus: ASSIGNED PI\nmnt-lower: TEST-MNT"));
@@ -120,6 +122,7 @@ public class MntLowerAddedRemovedTest {
 
     @Test
     public void modify_mntLower_removed_inetnum() {
+        when(authenticationSubject.hasPrincipal(Principal.ENDUSER_MAINTAINER)).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-lower: TEST-MNT"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST"));
@@ -147,6 +150,7 @@ public class MntLowerAddedRemovedTest {
 
     @Test
     public void modify_mntLower_removed_inet6num() {
+        when(authenticationSubject.hasPrincipal(Principal.ENDUSER_MAINTAINER)).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INET6NUM);
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("inet6num: ffff::/48\nstatus: ASSIGNED ANYCAST\nmnt-lower: TEST-MNT"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: ffff::/48\nstatus: ASSIGNED ANYCAST"));
@@ -262,6 +266,7 @@ public class MntLowerAddedRemovedTest {
 
     @Test
     public void modify_fails_assigned_anycast_inetnum() {
+        when(authenticationSubject.hasPrincipal(Principal.ENDUSER_MAINTAINER)).thenReturn(true);
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("OTHER-MNT"));
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED ANYCAST\nmnt-lower: TEST-MNT"));

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
@@ -14,6 +15,7 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelper.getStatus;
@@ -25,6 +27,9 @@ public class MntLowerAddedRemoved implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INETNUM, ObjectType.INET6NUM);
 
+    private static final List<InetnumStatus> VALIDATED_INETNUM_STATUSES = ImmutableList.of(InetnumStatus.ASSIGNED_ANYCAST);
+    private static final List<Inet6numStatus> VALIDATED_INET6NUM_STATUSES = ImmutableList.of(Inet6numStatus.ASSIGNED_PI, Inet6numStatus.ASSIGNED_ANYCAST);
+
     @Override
     public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
@@ -33,11 +38,11 @@ public class MntLowerAddedRemoved implements BusinessRuleValidator {
             return;
         }
 
-        if (ObjectType.INETNUM.equals(update.getType()) && !InetnumStatus.ASSIGNED_ANYCAST.equals(getStatus(update))) {
+        if (ObjectType.INETNUM.equals(update.getType()) && !VALIDATED_INETNUM_STATUSES.contains(getStatus(update))) {
             return;
         }
 
-        if (ObjectType.INET6NUM.equals(update.getType()) && !getStatus(update).requiresRsMaintainer()) {
+        if (ObjectType.INET6NUM.equals(update.getType()) && !VALIDATED_INET6NUM_STATUSES.contains(getStatus(update))) {
             return;
         }
 

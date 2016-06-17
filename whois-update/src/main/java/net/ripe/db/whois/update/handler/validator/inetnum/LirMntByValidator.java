@@ -67,9 +67,9 @@ public class LirMntByValidator implements BusinessRuleValidator {
             status = Inet6numStatus.getStatusFor(originalObject.getValueForAttribute(AttributeType.STATUS));
         }
 
+        // TODO - To make it consistent, we can check for RIPE-NCC-HM-MNT
         return InetnumStatus.ALLOCATED_PA.equals(status) || InetnumStatus.ALLOCATED_PI.equals(status) ||
-                InetnumStatus.ALLOCATED_UNSPECIFIED.equals(status) || Inet6numStatus.ALLOCATED_BY_LIR.equals(status) ||
-                Inet6numStatus.ALLOCATED_BY_RIR.equals(status);
+                InetnumStatus.ALLOCATED_UNSPECIFIED.equals(status) || Inet6numStatus.ALLOCATED_BY_RIR.equals(status);
     }
 
     @Override
