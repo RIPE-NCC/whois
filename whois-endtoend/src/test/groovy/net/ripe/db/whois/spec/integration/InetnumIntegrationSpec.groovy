@@ -1148,46 +1148,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       modify =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
-  def "modify status ASSIGNED PI | ANYCAST authed by enduser maintainer may change org, desc, mnt-by"() {
-    given:
-      def insertResponse = syncUpdate(new SyncUpdate(data: """\
-                    inetnum: 192.0.0.0 - 192.0.0.255
-                    netname: RIPE-NCC
-                    descr: description
-                    country: DK
-                    admin-c: TEST-PN
-                    tech-c: TEST-PN
-                    status: ASSIGNED ANYCAST
-                    mnt-by:RIPE-NCC-END-MNT
-                    org:ORG-TOL5-TEST
-                    source: TEST
-                    password: hm
-                    password: update
-                """.stripIndent()))
-    expect:
-      insertResponse =~ /SUCCESS/
-    when:
-      def response = syncUpdate new SyncUpdate(data: """\
-                    inetnum: 192.0.0.0 - 192.0.0.255
-                    netname: RIPE-NCC
-                    descr: new description
-                    country: DK
-                    admin-c: TEST-PN
-                    tech-c: TEST-PN
-                    status: ASSIGNED ANYCAST
-                    mnt-by: TEST-MNT
-                    mnt-by:RIPE-NCC-HM-MNT
-                    mnt-by:RIPE-NCC-END-MNT
-                    mnt-by: TEST-MNT
-                    org: ORG-TOL2-TEST
-                    source: TEST
-                    password:update
-                """.stripIndent())
-    then:
-      response =~ /SUCCESS/
-  }
-
-    def "modify status ASSIGNED PI | ANYCAST authed by enduser maintainer may NOT change mnt-lower"() {
+    def "modify status ASSIGNED PI | ANYCAST authed by enduser maintainer may change org, desc, mnt-by, mnt-lower"() {
         given:
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -1209,25 +1170,25 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
                     netname: RIPE-NCC
-                    descr: description
+                    descr: new description
                     country: DK
                     admin-c: TEST-PN
                     tech-c: TEST-PN
                     status: ASSIGNED ANYCAST
+                    mnt-by: TEST-MNT
+                    mnt-by:RIPE-NCC-HM-MNT
                     mnt-by:RIPE-NCC-END-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL2-TEST
                     mnt-lower:RIPE-NCC-END-MNT
-                    org:ORG-TOL5-TEST
                     source: TEST
-                    password: hm
-                    password: update
+                    password:update
                 """.stripIndent())
         then:
-        response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-        response =~ /\*\*\*Error:   Changing "mnt-lower:" value requires administrative authorisation/
+        response =~ /SUCCESS/
     }
 
-
-    def "modify status ASSIGNED PI maintained by enduser maintainer may not change org, 1st descr, mnt-lower"() {
+  def "modify status ASSIGNED PI maintained by enduser maintainer may not change org, 1st descr, mnt-lower"() {
     when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255

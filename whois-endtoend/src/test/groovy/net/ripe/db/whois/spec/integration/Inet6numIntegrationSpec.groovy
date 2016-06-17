@@ -431,7 +431,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         update =~ /Error:   "assignment-size:" value cannot be changed/
     }
 
-    def "modify, status ASSIGNED ANYCAST needs endusermntner auth for changing org, and remove mnt-lower"() {
+    def "modify, status ASSIGNED ANYCAST needs endusermntner auth for adding org and mnt-lower"() {
       when:
         def update = syncUpdate(new SyncUpdate(data: """\
                                         inet6num:  2221::/64
