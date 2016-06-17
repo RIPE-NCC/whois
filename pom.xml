@@ -837,7 +837,7 @@
                 <test.groups>net.ripe.db.whois.common.IntegrationTest</test.groups>
                 <test.files.unit>None</test.files.unit>
                 <test.files.integration>**/*Test*.class,**/*Spec*.class</test.files.integration>
-                <test.forkCount.integration>1</test.forkCount.integration>
+                <test.forkCount.integration>3</test.forkCount.integration>
             </properties>
         </profile>
         <profile>
