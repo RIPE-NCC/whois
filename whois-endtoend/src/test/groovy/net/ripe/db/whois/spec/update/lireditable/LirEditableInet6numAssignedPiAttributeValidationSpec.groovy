@@ -148,7 +148,6 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR2-MNT          # added
                 mnt-routes:   OWNER-MNT         # added
                 mnt-domains:  DOMAINS-MNT       # added
                 mnt-irt:      IRT-TEST          # added
@@ -196,7 +195,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
                 mnt-by:       LIR-MNT
                 remarks:      a different remark# changed
                 notify:       other@ripe.net    # changed
-                mnt-lower:    LIR2-MNT          # changed
+                mnt-lower:    LIR-MNT
                 mnt-routes:   OWNER2-MNT        # changed
                 mnt-domains:  DOMAINS-MNT       # changed
                 mnt-irt:      IRT-2-TEST        # changed
@@ -328,10 +327,11 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation",
+                "Changing \"mnt-lower:\" value requires administrative authorisation"
         ]
     }
 
@@ -370,10 +370,11 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation",
+                "Changing \"mnt-lower:\" value requires administrative authorisation"
         ]
     }
 
@@ -414,10 +415,11 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation",
+                "Changing \"mnt-lower:\" value requires administrative authorisation"
         ]
     }
 
@@ -694,7 +696,6 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         //        tech-c:       TP2-TEST          # deleted
         //        remarks:      a different remark# deleted
         //        notify:       other@ripe.net    # deleted
-        //        mnt-lower:    LIR2-MNT          # deleted
         //        mnt-routes:   OWNER2-MNT        # deleted
         //        mnt-domains:  DOMAINS-MNT       # deleted
         //        mnt-irt:      IRT-2-TEST        # deleted
@@ -708,6 +709,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
                 """.stripIndent()
