@@ -46,7 +46,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
-                    auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    auth:    MD5-PW \$1\$bzCpMX7h\$wl3EmBzNXG..8oTMmGVF51 # nccend
                     source:  TEST
                 """,
             "LEGACY-MNT"  : """\
@@ -1163,6 +1163,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: hm
                     password: update
+                    password: nccend
                 """.stripIndent()))
     expect:
       insertResponse =~ /SUCCESS/
@@ -1181,7 +1182,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     org: ORG-TOL2-TEST
                     source: TEST
-                    password:update
+                    password: nccend
+                    password: update
                 """.stripIndent())
     then:
       response =~ /SUCCESS/
@@ -1202,6 +1204,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: hm
                     password: update
+                    password: nccend
                 """.stripIndent()))
         expect:
         insertResponse =~ /SUCCESS/
@@ -1219,6 +1222,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org:ORG-TOL5-TEST
                     source: TEST
                     password: hm
+                    password: nccend
                     password: update
                 """.stripIndent())
         then:
