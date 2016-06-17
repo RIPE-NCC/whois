@@ -46,7 +46,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
-                    auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    auth:    MD5-PW \$1\$bzCpMX7h\$wl3EmBzNXG..8oTMmGVF51 # nccend
                     source:  TEST
                 """,
             "LEGACY-MNT"  : """\
@@ -1148,7 +1148,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       modify =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
   }
 
-  def "modify status ASSIGNED ANYCAST authed by enduser maintainer may change org, desc, mnt-by"() {
+  def "modify status ASSIGNED PI | ANYCAST authed by enduser maintainer may change org, desc, mnt-by, mnt-lower"() {
+
     given:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -1163,6 +1164,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: hm
                     password: update
+                    password: nccend
                 """.stripIndent()))
     expect:
       insertResponse =~ /SUCCESS/
@@ -1181,13 +1183,14 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     org: ORG-TOL2-TEST
                     source: TEST
-                    password:update
+                    password: nccend
+                    password: update
                 """.stripIndent())
     then:
       response =~ /SUCCESS/
   }
 
-    def "modify status ASSIGNED ANYCAST authed by enduser maintainer may NOT change mnt-lower"() {
+    def "modify status ASSIGNED ANYCAST auth by enduser maintainer may NOT change mnt-lower"() {
         given:
         def insertResponse = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -1201,6 +1204,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     org:ORG-TOL5-TEST
                     source: TEST
                     password: hm
+                    password: nccend
                     password: update
                 """.stripIndent()))
         expect:
