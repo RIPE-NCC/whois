@@ -120,7 +120,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
 
     //  MODIFY legcay attributes by LIR
 
-    def "modify inetnum, add (all) lir-unlocked attributes by lir"() {
+    def "modify resource, add (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -168,7 +168,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, change (all) lir-unlocked attributes by lir"() {
+    def "modify resource, change (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
         syncUpdate(getTransient("IRT2") + "override: denis, override1")
@@ -216,7 +216,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, cannot change lir-locked attributes by lir"() {
+    def "modify resource, cannot change lir-locked attributes by lir"() {
         // NOTE: this cannot really happen in real life.
         // An LIR mntner should (could) never have the password of owner3
         given:
@@ -256,7 +256,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, cannot add sponsoring-org by lir"() {
+    def "modify resource, cannot add sponsoring-org by lir"() {
         // NOTE: this cannot really happen in real life.
         // An LIR mntner should (could) never have the password of owner3
         given:
@@ -296,7 +296,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -337,7 +337,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -379,7 +379,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -423,7 +423,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, cannot change ripe-ncc mntner (mnt-routes)  by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -464,7 +464,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, cannot add ripe-ncc mntner (mnt-routes) by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -506,7 +506,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-routes) by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -550,7 +550,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, cannot change ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -591,7 +591,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, cannot add ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -633,7 +633,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -677,7 +677,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, delete (all) lir-unlocked attributes by lir"() {
+    def "modify resource, delete (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
         syncUpdate(getTransient("ASSIGNED-PI-EXTRA") + "override: denis, override1")
@@ -723,7 +723,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, cannot delete (some) mandatory lir-unlocked attributes by lir"() {
+    def "modify resource, cannot delete (some) mandatory lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 
@@ -758,7 +758,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
                 "Mandatory attribute \"tech-c\" is missing"]
     }
 
-    def "modify inetnum, cannot delete (org) lir-unlocked attributes by lir"() {
+    def "modify resource, cannot delete (org) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 
@@ -793,7 +793,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
 
     //  MODIFY allocations attributes WITH OVERRIDE
 
-    def "modify inetnum, change lir-locked attributes with override"() {
+    def "modify resource, change lir-locked attributes with override"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 
@@ -827,7 +827,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
 
     //  MODIFY allocations attributes WITH RS PASSWORD
 
-    def "modify inetnum, change lir-locked attributes with rs password"() {
+    def "modify resource, change lir-locked attributes with rs password"() {
         // NOTE: this cannot really happen in real life.
         // An RS mntner should (could) never have the password of owner3
         given:
@@ -862,7 +862,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, change lir-locked (status) attributes with rs password"() {
+    def "modify resource, change lir-locked (status) attributes with rs password"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 
@@ -897,7 +897,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, add 'single' attributes with rs password"() {
+    def "modify resource, add 'single' attributes with rs password"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 
@@ -938,7 +938,7 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseQueryUpdat
         ]
     }
 
-    def "modify inetnum, add sponsoring attributes with rs password"() {
+    def "modify resource, add sponsoring attributes with rs password"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 
