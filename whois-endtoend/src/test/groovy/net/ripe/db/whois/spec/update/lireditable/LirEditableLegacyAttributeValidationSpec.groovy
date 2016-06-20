@@ -1,4 +1,4 @@
-package net.ripe.db.whois.spec.update
+package net.ripe.db.whois.spec.update.lireditable
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec

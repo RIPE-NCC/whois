@@ -1,10 +1,10 @@
-package net.ripe.db.whois.spec.update
+package net.ripe.db.whois.spec.update.lireditable
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class LirAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
+class LirEditableAllocation6AttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
