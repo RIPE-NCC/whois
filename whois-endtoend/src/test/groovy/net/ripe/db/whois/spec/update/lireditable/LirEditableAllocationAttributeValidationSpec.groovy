@@ -118,7 +118,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    //  MODIFY allocations attributes by LIR
+    //  MODIFY resource attributes by LIR
 
     def "modify resource, add (all) lir-unlocked attributes by lir"() {
         given:
@@ -820,7 +820,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 "Missing required \"org:\" attribute"]
     }
 
-    //  MODIFY allocations attributes WITH OVERRIDE
+    //  MODIFY resource attributes WITH OVERRIDE
 
     def "modify resource, change lir-locked attributes with override"() {
         given:
@@ -855,7 +855,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    //  MODIFY allocations attributes WITH RS PASSWORD
+    //  MODIFY resource attributes WITH RS PASSWORD
 
     def "modify resource, change lir-locked attributes with rs password"() {
         given:

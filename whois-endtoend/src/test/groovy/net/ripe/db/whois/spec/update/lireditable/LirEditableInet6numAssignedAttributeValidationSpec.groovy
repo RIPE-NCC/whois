@@ -118,7 +118,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseQueryUpdate
         ]
     }
 
-    //  MODIFY allocations attributes by LIR
+    //  MODIFY resource attributes by LIR
 
     def "modify resource, add (all) lir-unlocked attributes by lir"() {
         given:
@@ -820,7 +820,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseQueryUpdate
                 "Referenced organisation can only be removed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to remove this reference."]
     }
 
-    //  MODIFY allocations attributes WITH OVERRIDE
+    //  MODIFY resource attributes WITH OVERRIDE
 
     def "modify resource, change lir-locked attributes with override"() {
         given:
@@ -855,7 +855,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseQueryUpdate
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    //  MODIFY allocations attributes WITH RS PASSWORD
+    //  MODIFY resource attributes WITH RS PASSWORD
 
     def "modify resource, change lir-locked attributes with rs password"() {
         // NOTE: this cannot really happen in real life.

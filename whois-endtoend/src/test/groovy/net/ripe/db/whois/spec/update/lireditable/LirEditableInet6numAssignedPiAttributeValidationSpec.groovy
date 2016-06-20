@@ -118,7 +118,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    //  MODIFY allocations attributes by LIR
+    //  MODIFY resource attributes by LIR
 
     def "modify resource, add (all) lir-unlocked attributes by lir"() {
         given:
@@ -795,7 +795,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    //  MODIFY allocations attributes WITH OVERRIDE
+    //  MODIFY resource attributes WITH OVERRIDE
 
     def "modify resource, change lir-locked attributes with override"() {
         given:
@@ -829,7 +829,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    //  MODIFY allocations attributes WITH RS PASSWORD
+    //  MODIFY resource attributes WITH RS PASSWORD
 
     def "modify resource, change lir-locked attributes with rs password"() {
         // NOTE: this cannot really happen in real life.

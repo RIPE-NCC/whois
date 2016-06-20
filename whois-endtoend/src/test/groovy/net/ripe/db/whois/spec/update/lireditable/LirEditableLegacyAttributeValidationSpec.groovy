@@ -118,7 +118,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    //  MODIFY legcay attributes by LIR
+    //  MODIFY resource attributes by LIR
 
     def "modify resource, add (all) lir-unlocked attributes by lir"() {
         given:
@@ -823,7 +823,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 "Referenced organisation can only be removed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to remove this reference."]
     }
 
-    //  MODIFY allocations attributes WITH OVERRIDE
+    //  MODIFY resource attributes WITH OVERRIDE
 
     def "modify resource, change lir-locked attributes with override"() {
         given:
@@ -858,7 +858,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    //  MODIFY allocations attributes WITH RS PASSWORD
+    //  MODIFY resource attributes WITH RS PASSWORD
 
     def "modify resource, change lir-locked attributes with rs password"() {
         // NOTE: this cannot really happen in real life.
