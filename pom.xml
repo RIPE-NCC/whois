@@ -110,6 +110,7 @@
     </distributionManagement>
 
     <modules>
+        <module>whois-rpsl</module>
         <module>whois-client</module>
         <module>whois-commons</module>
         <module>whois-query</module>
@@ -124,6 +125,18 @@
     <dependencyManagement>
         <dependencies>
             <!-- whois modules' artifacts -->
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-rpsl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-rpsl</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>net.ripe.db</groupId>
                 <artifactId>whois-client</artifactId>
@@ -778,6 +791,22 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <!-- TODO [TP]: if spring-aspects lib is removed from whois-rpsl/pom.xml,
+                                    then we need to exclude the paths to that module here.
+
+                                    In any case, we do not have aspects in that module.
+
+                                    (It would be even nicer if we had inclusion paths
+                                    for the modules/packages we actually need aspects)
+
+                    <excludes>
+                        <exclude>**/generated/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/rpsl/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/domain/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/io/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/ip/**</exclude>
+                    </excludes>
+                    -->
                     <complianceLevel>${java.version}</complianceLevel>
                     <Xlint>warning</Xlint>
                     <verbose>true</verbose>

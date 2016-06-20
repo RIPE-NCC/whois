@@ -8,7 +8,7 @@ addons:
 services: mariadb
 
 before_install:
- - rm whois-client/src/main/parser/bin/yacc* # in travis yacc needs to be compiled from source
+ - rm whois-rpsl/src/main/parser/bin/yacc* # in travis yacc needs to be compiled from source
  - sudo apt-get install byacc
 
 before_script:
