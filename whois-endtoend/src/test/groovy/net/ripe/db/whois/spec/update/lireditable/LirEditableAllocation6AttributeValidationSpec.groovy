@@ -3,7 +3,7 @@ package net.ripe.db.whois.spec.update.lireditable
 import net.ripe.db.whois.common.IntegrationTest
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class LirEditableAllocation6AttributeValidationSpec extends AbstractLirEditableInetnumSpec {
+class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttributeValidationSpec {
 
     // data for tests
     def resourceType = "inet6num"
