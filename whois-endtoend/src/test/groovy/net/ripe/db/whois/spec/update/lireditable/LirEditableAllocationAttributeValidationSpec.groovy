@@ -1004,4 +1004,43 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
                 "The \"sponsoring-org:\" attribute is not allowed with status value \"ALLOCATED PA\""]
     }
+
+    // DELETE allocated resource by LIR
+
+    def "delete ALLOCATED-PA resource by user maintainer"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+
+      expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+      when:
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                delete: some reason
+                password: lir
+                """.stripIndent()
+        )
+
+      then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 0, 1)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Deleting this object requires administrative authorisation"]
+    }
 }
