@@ -75,7 +75,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 """,
          "IRT"                           : """\
-                irt:          irt-test
+                irt:          IRT-TEST
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
                 signature:    PGPKEY-D83C3FBD
@@ -118,16 +118,16 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    //  MODIFY allocations attributes by LIR
+    //  MODIFY resource attributes by LIR
 
-    def "modify inetnum, add (all) lir-unlocked attributes by lir"() {
+    def "modify resource, add (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -169,7 +169,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, change (all) lir-unlocked attributes by lir"() {
+    def "modify resource, change (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
         syncUpdate(getTransient("IRT2") + "override: denis, override1")
@@ -179,7 +179,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
         queryObject("-r -T mntner DOMAINS2-MNT", "mntner", "DOMAINS2-MNT")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
         queryObject("-r -T irt IRT-2-TEST", "irt", "IRT-2-TEST")
 
         when:
@@ -218,7 +218,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, cannot change lir-locked attributes by lir"() {
+    def "modify resource, cannot change lir-locked attributes by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -261,7 +261,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add sponsoring-org by lir"() {
+    def "modify resource, cannot add sponsoring-org by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -302,14 +302,14 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot change (mnt-lower) ripe-ncc maintainer by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -345,14 +345,14 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add (mnt-lower) ripe-ncc maintainer by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -389,14 +389,14 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete (mnt-lower) ripe-ncc maintainer by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         //      mnt-lower:   RIPE-NCC-HM-MNT  # cannot deleted
@@ -435,14 +435,14 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot change (mnt-routes) ripe-ncc maintainer by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -478,14 +478,14 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add (mnt-routes) ripe-ncc maintainer by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -522,14 +522,14 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete (mnt-routes) ripe-ncc maintainer by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         //      mnt-routes:   RIPE-NCC-HM-MNT  # cannot deleted
@@ -568,14 +568,14 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot change (mnt-domains) ripe-ncc maintainer by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -611,14 +611,14 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add (mnt-domains) ripe-ncc maintainer by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -655,14 +655,14 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete (mnt-domains) ripe-ncc maintainer by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         //      mnt-domains:   RIPE-NCC-HM-MNT  # cannot deleted
@@ -701,14 +701,14 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, delete (all) lir-unlocked attributes by lir"() {
+    def "modify resource, delete (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
         syncUpdate(getTransient("ALLOC-PA-EXTRA") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         //        descr:        other description # deleted
@@ -747,7 +747,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, cannot delete (some) mandatory lir-unlocked attributes by lir"() {
+    def "modify resource, cannot delete (some) mandatory lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -784,7 +784,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 "Mandatory attribute \"tech-c\" is missing"]
     }
 
-    def "modify inetnum, cannot delete (org) lir-unlocked attributes by lir"() {
+    def "modify resource, cannot delete (org) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -820,9 +820,9 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 "Missing required \"org:\" attribute"]
     }
 
-    //  MODIFY allocations attributes WITH OVERRIDE
+    //  MODIFY resource attributes WITH OVERRIDE
 
-    def "modify inetnum, change lir-locked attributes with override"() {
+    def "modify resource, change lir-locked attributes with override"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -855,9 +855,9 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    //  MODIFY allocations attributes WITH RS PASSWORD
+    //  MODIFY resource attributes WITH RS PASSWORD
 
-    def "modify inetnum, change lir-locked attributes with rs password"() {
+    def "modify resource, change lir-locked attributes with rs password"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -892,7 +892,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, change lir-locked (status) attributes with rs password"() {
+    def "modify resource, change lir-locked (status) attributes with rs password"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -928,7 +928,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, add 'single' attributes with rs password"() {
+    def "modify resource, add 'single' attributes with rs password"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
@@ -970,7 +970,7 @@ class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, add sponsoring attributes with rs password"() {
+    def "modify resource, add sponsoring attributes with rs password"() {
         given:
         syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
