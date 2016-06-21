@@ -230,7 +230,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseQueryUpdat
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 country:      NL
-                org:          ORG-OTO1-TEST         # changed
+                org:          ORG-LIR2-TEST         # changed
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PI          # changed
@@ -247,11 +247,10 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseQueryUpdat
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
                 "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference.",
-                "Referenced organisation has wrong \"org-type\". Allowed values are [IANA, RIR, LIR]",
                 "status value cannot be changed, you must delete and re-create the object"
         ]
     }
@@ -911,7 +910,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseQueryUpdat
                 netname:      TEST-NET-NAME-2      # added
                 country:      NL
                 org:          ORG-LIR1-TEST
-                org:          ORG-OTO1-TEST        # added
+                org:          ORG-LIR2-TEST        # added
                 sponsoring-org: ORG-OTO1-TEST      # added
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST

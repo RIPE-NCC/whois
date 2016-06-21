@@ -232,7 +232,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseQueryUpdate
                 inet6num:     2001::/20
                 netname:      TEST-NET-NAME-CHANGED # changed
                 country:      NL
-                org:          ORG-OTO1-TEST         # changed
+                org:          ORG-LIR2-TEST         # changed
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED-BY-LIR      # changed
@@ -943,7 +943,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseQueryUpdate
                 netname:      TEST-NET-NAME-2      # added
                 country:      NL
                 org:          ORG-LIR1-TEST
-                org:          ORG-OTO1-TEST        # added
+                org:          ORG-LIR2-TEST        # added
                 sponsoring-org: ORG-OTO1-TEST      # added
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
