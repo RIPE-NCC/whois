@@ -324,7 +324,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Ip.class);
             fail();
         } catch (final BadRequestException e) {
-            assertErrorResponse(e, "Invalid syntax.");
+            assertErrorTitle(e, "Invalid syntax.");
         }
     }
 
@@ -336,7 +336,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Ip.class);
             fail();
         } catch (final BadRequestException e) {
-            assertErrorResponse(e, "Invalid syntax.");
+            assertErrorTitle(e, "Invalid syntax.");
         }
 
     }
@@ -480,7 +480,8 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (final NotFoundException e) {
-            // expected
+            final Entity response = e.getResponse().readEntity(Entity.class);
+            assertThat(response.getErrorCode(), is(404));
         }
     }
 
@@ -492,7 +493,9 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            // expected
+            final Entity response = e.getResponse().readEntity(Entity.class);
+            assertThat(response.getErrorCode(), is(400));
+            assertThat(response.getErrorTitle(), is("Invalid syntax."));
         }
     }
 
@@ -619,7 +622,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Domain.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e, "");
+            assertErrorStatus(e, 404);
         }
     }
 
@@ -631,7 +634,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Domain.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e, "RIPE NCC does not support forward domain queries.");
+            assertErrorTitle(e, "RIPE NCC does not support forward domain queries.");
         }
     }
 
@@ -645,7 +648,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Autnum.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e, "");
+            assertErrorStatus(e, 404);
         }
     }
 
@@ -670,7 +673,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Autnum.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e, "Invalid syntax.");
+            assertErrorTitle(e, "Invalid syntax.");
         }
     }
 
@@ -761,7 +764,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Autnum.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e, "");
+            assertErrorTitle(e, "not found");
         }
     }
 
@@ -820,6 +823,19 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     // general
+
+    @Test
+    public void lookup_invalid_type() {
+        try {
+            createResource("unknown/example.com")
+                .request("application/rdap+json")
+                .get(Entity.class);
+            fail();
+        } catch (BadRequestException e) {
+            final Entity response = e.getResponse().readEntity(Entity.class);
+            assertThat(response.getErrorTitle(), is("unknown type"));
+        }
+    }
 
     @Test
     public void multiple_modification_gives_correct_events() throws Exception {
@@ -928,7 +944,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e, "");
+            assertErrorTitle(e, "not found");
         }
     }
 
@@ -940,7 +956,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e, "Invalid syntax.");
+            assertErrorTitle(e, "Invalid syntax.");
         }
     }
 
@@ -1033,7 +1049,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e, "");
+            assertErrorTitle(e, "not found");
         }
     }
 
@@ -1070,7 +1086,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e, "");
+            assertErrorTitle(e, "nameservers not found");
         }
     }
 
@@ -1083,7 +1099,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e, "empty lookup key");
+            assertErrorTitle(e, "empty lookup key");
         }
     }
 
@@ -1175,7 +1191,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e, "");
+            assertErrorTitle(e, "not found");
         }
     }
 
@@ -1199,7 +1215,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (NotFoundException e) {
-            assertErrorResponse(e, "");
+            assertErrorTitle(e, "not found");
         }
     }
 
@@ -1325,7 +1341,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e, "");
+            assertErrorTitle(e, "bad request");
         }
     }
 
@@ -1337,7 +1353,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e, "");
+            assertErrorTitle(e, "not found");
         }
     }
 
@@ -1361,7 +1377,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorResponse(e, "empty search term");
+            assertErrorTitle(e, "empty search term");
         }
     }
 
@@ -1416,29 +1432,13 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
 
     }
 
-    private void assertErrorResponse(final ClientErrorException exception, final String expectedErrorText) {
-        assertThat(exception.getResponse().readEntity(String.class), containsString(String.format("{\n" +
-                "  \"links\" : [ {\n" +
-                "    \"rel\" : \"self\"\n" +
-                "  }, {\n" +
-                "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
-                "    \"rel\" : \"copyright\",\n" +
-                "    \"href\" : \"http://www.ripe.net/data-tools/support/documentation/terms\"\n" +
-                "  } ],\n" +
-                "  \"rdapConformance\" : [ \"rdap_level_0\" ],\n" +
-                "  \"notices\" : [ {\n" +
-                "    \"title\" : \"Terms and Conditions\",\n" +
-                "    \"description\" : [ \"This is the RIPE Database query service. The objects are in RDAP format.\" ],\n" +
-                "    \"links\" : [ {\n" +
-                "      \"rel\" : \"terms-of-service\",\n" +
-                "      \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\",\n" +
-                "      \"type\" : \"application/pdf\"\n" +
-                "    } ]\n" +
-                "  } ],\n" +
-                "  \"port43\" : \"whois.ripe.net\",\n" +
-                "  \"errorCode\" : %d,\n" +
-                "  \"title\" : \"%s\",\n" +
-                "  \"description\" : [ ]\n" +           // TODO: [ES] omit empty arrays
-                "}", exception.getResponse().getStatus(), expectedErrorText)));
+    private void assertErrorTitle(final ClientErrorException exception, final String title) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getErrorTitle(), is(title));
+    }
+
+    private void assertErrorStatus(final ClientErrorException exception, final int status) {
+        final Entity entity = exception.getResponse().readEntity(Entity.class);
+        assertThat(entity.getErrorCode(), is(status));
     }
 }
