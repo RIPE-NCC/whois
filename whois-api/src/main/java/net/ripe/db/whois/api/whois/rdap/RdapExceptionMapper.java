@@ -38,11 +38,11 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
     public Response toResponse(final Exception exception) {
 
         if (exception instanceof IllegalSourceException) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(400, exception.getMessage())).build();
+            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
         }
 
         if (exception instanceof IllegalArgumentException) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(400, exception.getMessage())).build();
+            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
         }
 
         if (exception instanceof WebApplicationException) {
@@ -50,19 +50,23 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         if (exception instanceof JsonProcessingException) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(400, exception.getMessage())).build();
+            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
         }
 
         if (exception instanceof EmptyResultDataAccessException) {
-            return Response.status(HttpServletResponse.SC_NOT_FOUND).entity(createErrorEntity(404, "not found")).build();
+            return Response.status(HttpServletResponse.SC_NOT_FOUND).entity(createErrorEntity(HttpServletResponse.SC_NOT_FOUND, "not found")).build();
         }
 
         if (exception instanceof QueryException) {
-            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(400, exception.getMessage())).build();
+            return Response.status(HttpServletResponse.SC_BAD_REQUEST).entity(createErrorEntity(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage())).build();
+        }
+
+        if (exception instanceof IllegalStateException) {
+            return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).entity(createErrorEntity(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage())).build();
         }
 
         LOGGER.error("Unexpected", exception);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(createErrorEntity(500, exception.getMessage())).build();
+        return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).entity(createErrorEntity(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage())).build();
     }
 
     private RdapObject createErrorEntity(final int errorCode, final String errorTitle, String ... errorTexts) {

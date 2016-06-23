@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -97,7 +98,10 @@ class RdapObjectMapper {
         return mapCommons(searchResult, requestUrl);
     }
 
-    public RdapObject mapError(final Integer errorCode, final String errorTitle, final List<String> errorDescriptions) {
+    public RdapObject mapError(final int errorCode, final String errorTitle, final List<String> errorDescriptions) {
+        if (Strings.isNullOrEmpty(errorTitle)) {
+            throw new IllegalStateException("title is mandatory");
+        }
         final RdapObject rdapObject = mapCommons(new RdapObject(), null);
         rdapObject.setErrorCode(errorCode);
         rdapObject.setErrorTitle(errorTitle);

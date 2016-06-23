@@ -46,7 +46,6 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.util.Version;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -125,45 +126,48 @@ public class WhoisRdapService {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, CONTENT_TYPE_RDAP_JSON})
-    @Path("/{objectType:(autnum|domain|ip|entity|nameserver)}/{key:.*}")
+    @Path("/{objectType}/{key:.*}")
     public Response lookup(@Context final HttpServletRequest request,
                            @PathParam("objectType") final String objectType,
                            @PathParam("key") final String key) {
 
         LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
 
-        final Set<ObjectType> whoisObjectTypes = Sets.newHashSet();
-
         switch (objectType.toLowerCase()) {
-            case "autnum":
+            case "autnum": {
                 String autnumKey = String.format("AS%s", key);
                 validateAutnum(autnumKey);
                 return lookupResource(request, AUT_NUM, autnumKey);
-
-            case "domain":
+            }
+            case "domain": {
                 validateDomain(key);
+                final Set<ObjectType> whoisObjectTypes = Sets.newHashSet();
                 whoisObjectTypes.add(DOMAIN);
                 return lookupObject(request, whoisObjectTypes, key);
-
-            case "ip":
+            }
+            case "ip": {
                 validateIp(request.getRequestURI(), key);
                 return lookupResource(request, key.contains(":") ? INET6NUM : INETNUM, key);
-
-            case "entity":
+            }
+            case "entity": {
                 validateEntity(key);
+
+                final Set<ObjectType> whoisObjectTypes = Sets.newHashSet();
                 if (key.toUpperCase().startsWith("ORG-")) {
                     whoisObjectTypes.add(ORGANISATION);
                 } else {
                     whoisObjectTypes.add(PERSON);
                     whoisObjectTypes.add(ROLE);
                 }
+
                 return lookupObject(request, whoisObjectTypes, key);
-
-            case "nameserver":
-                return createErrorResponse(Response.Status.NOT_FOUND, "");
-
-            default:
-                return createErrorResponse(Response.Status.BAD_REQUEST, "");
+            }
+            case "nameserver": {
+                throw notFound("nameserver not found");
+            }
+            default: {
+                throw badRequest("unknown type");
+            }
         }
     }
 
@@ -185,8 +189,7 @@ public class WhoisRdapService {
             return handleSearch(new String[]{"organisation", "nic-hdl"}, handle, request);
         }
 
-        LOGGER.info("Bad request: {}", request.getRequestURI());
-        return createErrorResponse(Response.Status.BAD_REQUEST, "");
+        throw badRequest("bad request");
     }
 
     @GET
@@ -199,10 +202,10 @@ public class WhoisRdapService {
         LOGGER.info("Request: {}", RestServiceHelper.getRequestURI(request));
 
         if (StringUtils.isEmpty(name)) {
-            throw new IllegalArgumentException("empty lookup key");
+            throw badRequest("empty lookup key");
         }
 
-        return createErrorResponse(Response.Status.NOT_FOUND, "");
+        throw notFound("nameservers not found");
     }
 
     @GET
@@ -221,7 +224,7 @@ public class WhoisRdapService {
         try {
             Domain.parse(key);
         } catch (AttributeParseException e) {
-            throw new WebApplicationException(createErrorResponse(Response.Status.NOT_FOUND, "RIPE NCC does not support forward domain queries."));
+            throw notFound("RIPE NCC does not support forward domain queries.");
         }
     }
 
@@ -229,11 +232,11 @@ public class WhoisRdapService {
         try {
             IpInterval.parse(key);
         } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(createErrorResponse(Response.Status.BAD_REQUEST, "Invalid syntax."));
+            throw badRequest("Invalid syntax.");
         }
 
         if (rawUri.contains("//")) {
-            throw new WebApplicationException(createErrorResponse(Response.Status.BAD_REQUEST, "Invalid syntax."));
+            throw badRequest("Invalid syntax.");
         }
     }
 
@@ -241,20 +244,32 @@ public class WhoisRdapService {
         try {
             AutNum.parse(key);
         } catch (AttributeParseException e) {
-            throw new WebApplicationException(createErrorResponse(Response.Status.BAD_REQUEST, "Invalid syntax."));
+            throw badRequest("Invalid syntax.");
         }
     }
 
     private void validateEntity(final String key) {
         if (key.toUpperCase().startsWith("ORG-")) {
             if (!AttributeType.ORGANISATION.isValidValue(ORGANISATION, key)) {
-                throw new WebApplicationException(createErrorResponse(Response.Status.BAD_REQUEST, "Invalid syntax."));
+                throw badRequest("Invalid syntax.");
             }
         } else {
             if (!AttributeType.NIC_HDL.isValidValue(ObjectType.PERSON, key)) {
-                throw new WebApplicationException(createErrorResponse(Response.Status.BAD_REQUEST, "Invalid syntax."));
+                throw badRequest("Invalid syntax.");
             }
         }
+    }
+
+    private BadRequestException badRequest(final String errorTitle) {
+        return new BadRequestException(createErrorResponse(Response.Status.BAD_REQUEST, errorTitle));
+    }
+
+    private NotFoundException notFound(final String errorTitle) {
+        return new NotFoundException(createErrorResponse(Response.Status.NOT_FOUND, errorTitle));
+    }
+
+    private WebApplicationException tooManyRequests() {
+        return new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
     }
 
     private Response createErrorResponse(final Response.Status status, final String errorTitle) {
@@ -283,7 +298,7 @@ public class WhoisRdapService {
 
     protected Response lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes, final String key) {
         if (StringUtils.isEmpty(key)) {
-            throw new IllegalArgumentException("empty lookup term");
+            throw badRequest("empty lookup term");
         }
 
         final Query query = Query.parse(
@@ -316,7 +331,7 @@ public class WhoisRdapService {
             });
 
             if (result.isEmpty()) {
-                return createErrorResponse(Response.Status.NOT_FOUND, "");
+                throw notFound("not found");
             }
 
             if (result.size() > 1) {
@@ -328,7 +343,7 @@ public class WhoisRdapService {
             if (resultObject.getKey().equals(CIString.ciString("0.0.0.0 - 255.255.255.255")) ||
                     resultObject.getKey().equals(CIString.ciString("::/0"))) {
                 // TODO: handle root object in RIPE space
-                return createErrorResponse(Response.Status.NOT_FOUND, "");
+                throw notFound("not found");
             }
 
             return Response.ok(
@@ -342,10 +357,10 @@ public class WhoisRdapService {
 
         } catch (final QueryException e) {
             if (e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                throw new WebApplicationException(Response.status(STATUS_TOO_MANY_REQUESTS).build());
+                throw tooManyRequests();
             } else {
                 LOGGER.error(e.getMessage(), e);
-                throw e;
+                throw new IllegalStateException("query error");
             }
         }
     }
@@ -356,7 +371,7 @@ public class WhoisRdapService {
         try {
             uri = delegatedStatsService.getUriForRedirect(requestPath, query);
         } catch (WebApplicationException e) {
-            return createErrorResponse(Response.Status.NOT_FOUND, "");
+            throw notFound("not found");
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -398,7 +413,7 @@ public class WhoisRdapService {
         LOGGER.info("Search {} for {}", fields, term);
 
         if (StringUtils.isEmpty(term)) {
-            throw new IllegalArgumentException("empty search term");
+            throw badRequest("empty search term");
         }
 
         try {
@@ -409,7 +424,7 @@ public class WhoisRdapService {
                     final List<RpslObject> results = Lists.newArrayList();
                     final int maxResults = Math.max(SEARCH_MAX_RESULTS, indexReader.numDocs());
                     try {
-                        final QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_44, fields, new RdapAnalyzer());
+                        final QueryParser queryParser = new MultiFieldQueryParser(fields, new RdapAnalyzer());
                         queryParser.setAllowLeadingWildcard(true);
                         queryParser.setDefaultOperator(QueryParser.Operator.AND);
                         final org.apache.lucene.search.Query query = queryParser.parse(term);
@@ -424,13 +439,13 @@ public class WhoisRdapService {
 
                     } catch (ParseException e) {
                         LOGGER.error("handleSearch", e);
-                        throw new IllegalArgumentException("cannot parse query " + term);
+                        throw badRequest("cannot parse query " + term);
                     }
                 }
             });
 
             if (objects.isEmpty()) {
-                return createErrorResponse(Response.Status.NOT_FOUND, "");
+                throw notFound("not found");
             }
 
             final Iterable<LocalDateTime> lastUpdateds = Iterables.transform(objects, new Function<RpslObject, LocalDateTime>() {
@@ -447,13 +462,10 @@ public class WhoisRdapService {
                     lastUpdateds))
                     .header("Content-Type", CONTENT_TYPE_RDAP_JSON)
                     .build();
-
-        } catch (IOException e) {
-            LOGGER.error("Caught IOException", e);
-            throw new IllegalStateException(e);
-        } catch (Exception e) {
-            LOGGER.error("Caught Exception", e);
-            throw e;
+        }
+        catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new IllegalStateException("search failed");
         }
     }
 
@@ -478,12 +490,12 @@ public class WhoisRdapService {
     private class RdapAnalyzer extends Analyzer {
         @Override
         protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
-            final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer(Version.LUCENE_44, reader);
+            final WhitespaceTokenizer tokenizer = new WhitespaceTokenizer(reader);
             TokenStream tok = new WordDelimiterFilter(
                     tokenizer,
                     WordDelimiterFilter.PRESERVE_ORIGINAL,
                     CharArraySet.EMPTY_SET);
-            tok = new LowerCaseFilter(Version.LUCENE_44, tok);
+            tok = new LowerCaseFilter(tok);
             return new TokenStreamComponents(tokenizer, tok);
         }
     }
