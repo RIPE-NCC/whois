@@ -52,7 +52,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -84,7 +83,6 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 
 @Component
-@Conditional(RdapEnabled.class)
 @Path("/")
 public class WhoisRdapService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRdapService.class);
