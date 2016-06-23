@@ -2,6 +2,54 @@ package net.ripe.db.whois.spec.update.lireditable;
 
 public class BaseLirEditableAttributeValidationSpec extends BaseLirEditableSpec {
 
+    //  MODIFY resource attributes by LIR
+
+    def "modify resource, add (all excl. mnt-lower) lir-unlocked attributes by lir"() {
+        given:
+        syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                ${resourceType}: ${resourceValue}
+                netname:      TEST-NET-NAME
+                descr:        some description  # added
+                country:      NL
+                country:      DE                # added
+                geoloc:       0.0 0.0           # added
+                language:     NL                # added
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                admin-c:      TP2-TEST          # added
+                tech-c:       TP1-TEST
+                tech-c:       TP2-TEST          # added
+                remarks:      a new remark      # added
+                notify:       notify@ripe.net   # added
+                status:       ${resourceStatus}
+                mnt-by:       ${resourceRipeMntner}
+                mnt-by:       LIR-MNT
+                mnt-routes:   OWNER-MNT         # added
+                mnt-domains:  DOMAINS-MNT       # added
+                mnt-irt:      IRT-TEST          # added
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+    }
+
     def "modify resource, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("RSC-RIPE-NCC-MNTNER") + "override: denis, override1")

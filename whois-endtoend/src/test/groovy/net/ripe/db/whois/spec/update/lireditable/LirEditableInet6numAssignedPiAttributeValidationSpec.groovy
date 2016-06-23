@@ -48,7 +48,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
 
     //  MODIFY resource attributes by LIR
 
-    def "modify resource, add (all) lir-unlocked attributes by lir"() {
+    def "modify resource, add (mnt-lower) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -61,24 +61,14 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         def ack = syncUpdateWithResponse("""
                 ${resourceType}: ${resourceValue}
                 netname:      TEST-NET-NAME
-                descr:        some description  # added
                 country:      NL
-                country:      DE                # added
-                geoloc:       0.0 0.0           # added
-                language:     NL                # added
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
-                admin-c:      TP2-TEST          # added
                 tech-c:       TP1-TEST
-                tech-c:       TP2-TEST          # added
-                remarks:      a new remark      # added
-                notify:       notify@ripe.net   # added
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-routes:   OWNER-MNT         # added
-                mnt-domains:  DOMAINS-MNT       # added
-                mnt-irt:      IRT-TEST          # added
+                mnt-lower:    LIR2-MNT          # added
                 source:       TEST
                 password: lir
                 password: irt
@@ -86,12 +76,15 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseLirEditab
         )
 
         then:
-        ack.success
+        ack.errors
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
+                "Changing \"mnt-lower:\" value requires administrative authorisation"
+        ]
     }
 
     def "modify resource, change (all) lir-unlocked attributes by lir"() {

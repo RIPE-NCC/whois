@@ -48,7 +48,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
 
     //  MODIFY resource attributes by LIR
 
-    def "modify resource, add (all) lir-unlocked attributes by lir"() {
+    def "modify resource, add (mnt-lower) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
@@ -61,25 +61,14 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
         def ack = syncUpdateWithResponse("""
                 ${resourceType}: ${resourceValue}
                 netname:      TEST-NET-NAME
-                descr:        some description  # added
                 country:      NL
-                country:      DE                # added
-                geoloc:       0.0 0.0           # added
-                language:     NL                # added
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
-                admin-c:      TP2-TEST          # added
                 tech-c:       TP1-TEST
-                tech-c:       TP2-TEST          # added
-                remarks:      a new remark      # added
-                notify:       notify@ripe.net   # added
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR2-MNT          # added
-                mnt-routes:   OWNER-MNT         # added
-                mnt-domains:  DOMAINS-MNT       # added
-                mnt-irt:      IRT-TEST          # added
                 source:       TEST
                 password: lir
                 password: irt
