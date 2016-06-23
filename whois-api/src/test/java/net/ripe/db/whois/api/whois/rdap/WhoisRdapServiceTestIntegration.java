@@ -1353,7 +1353,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            assertErrorTitle(e, "not found");
+            assertErrorTitle(e, "bad request");
         }
     }
 
