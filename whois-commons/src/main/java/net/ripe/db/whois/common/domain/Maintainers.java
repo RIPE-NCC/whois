@@ -2,10 +2,12 @@ package net.ripe.db.whois.common.domain;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
@@ -65,5 +67,21 @@ public class Maintainers {
 
     public Set<CIString> getDbmMaintainers() {
         return dbmMaintainers;
+    }
+
+    public boolean isEnduserMaintainer(Set<CIString> mntner) {
+        return !Sets.intersection(enduserMaintainers, mntner).isEmpty();
+    }
+
+    public boolean isAllocMaintainer(Set<CIString> mntner) {
+        return !Sets.intersection(allocMaintainers, mntner).isEmpty();
+    }
+
+    public boolean isRsMaintainer(CIString mntner) {
+        return isRsMaintainer(Collections.singleton(mntner));
+    }
+
+    public boolean isRsMaintainer(Set<CIString> mntner) {
+        return !Sets.intersection(rsMaintainers, mntner).isEmpty();
     }
 }

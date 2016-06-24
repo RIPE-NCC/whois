@@ -46,7 +46,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
-                    auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    auth:    MD5-PW \$1\$bzCpMX7h\$wl3EmBzNXG..8oTMmGVF51 # nccend
                     source:  TEST
                 """,
             "LEGACY-MNT"  : """\
@@ -1149,6 +1149,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "modify status ASSIGNED PI | ANYCAST authed by enduser maintainer may change org, desc, mnt-by, mnt-lower"() {
+
     given:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
                     inetnum: 192.0.0.0 - 192.0.0.255
@@ -1163,6 +1164,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     source: TEST
                     password: hm
                     password: update
+                    password: nccend
                 """.stripIndent()))
     expect:
       insertResponse =~ /SUCCESS/
@@ -1180,15 +1182,56 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:RIPE-NCC-END-MNT
                     mnt-by: TEST-MNT
                     org: ORG-TOL2-TEST
-                    mnt-lower:RIPE-NCC-END-MNT
                     source: TEST
-                    password:update
+                    password: nccend
+                    password: update
                 """.stripIndent())
     then:
       response =~ /SUCCESS/
   }
 
-  def "modify status ASSIGNED PI maintained by enduser maintainer may not change org, 1st descr, mnt-lower"() {
+    def "modify status ASSIGNED ANYCAST auth by enduser maintainer may NOT change mnt-lower"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0 - 192.0.0.255
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ASSIGNED ANYCAST
+                    mnt-by:RIPE-NCC-END-MNT
+                    org:ORG-TOL5-TEST
+                    source: TEST
+                    password: hm
+                    password: nccend
+                    password: update
+                """.stripIndent()))
+        expect:
+        insertResponse =~ /SUCCESS/
+        when:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0 - 192.0.0.255
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ASSIGNED ANYCAST
+                    mnt-by:RIPE-NCC-END-MNT
+                    mnt-lower:RIPE-NCC-END-MNT
+                    org:ORG-TOL5-TEST
+                    source: TEST
+                    password: hm
+                    password: update
+                """.stripIndent())
+        then:
+        response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Error:   Changing "mnt-lower:" value requires administrative authorisation/
+    }
+
+
+    def "modify status ASSIGNED PI maintained by enduser maintainer may not change org, 1st descr, mnt-lower"() {
     when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255

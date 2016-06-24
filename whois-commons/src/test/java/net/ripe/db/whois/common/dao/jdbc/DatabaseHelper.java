@@ -26,7 +26,6 @@ import net.ripe.db.whois.common.sso.AuthTranslator;
 import net.ripe.db.whois.common.sso.CrowdClient;
 import net.ripe.db.whois.common.sso.CrowdClientException;
 import net.ripe.db.whois.common.sso.SsoHelper;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -160,10 +159,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         ensureLocalhost(jdbcTemplate);
         cleanupOldTables(jdbcTemplate);
 
-        String uniqueForkId = System.getProperty("jvmId");
-        if (StringUtils.isBlank(uniqueForkId) || !StringUtils.isAlphanumeric(uniqueForkId)) {
-            uniqueForkId = DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
-        }
+        final String uniqueForkId = DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
+
         dbBaseName = "test_" + System.currentTimeMillis() + "_" + uniqueForkId;
 
         setupDatabase(jdbcTemplate, "acl.database", "ACL", "acl_schema.sql");

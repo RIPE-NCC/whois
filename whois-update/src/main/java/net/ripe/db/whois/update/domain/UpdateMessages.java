@@ -246,6 +246,11 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Changing \"%s:\" value requires administrative authorisation", attributeType.getName());
     }
 
+    public static Message canOnlyBeChangedByRipeNCC(final AttributeType attributeType) {
+        return new Message(Type.ERROR, "Attribute \"%s:\" can only be changed by the RIPE NCC for this object.\n" +
+                "Please contact \"ncc@ripe.net\" to change it.", attributeType.getName());
+    }
+
     public static Message orgAttributeMissing() {
         return new Message(Type.ERROR, "Missing required \"org:\" attribute");
     }
@@ -589,5 +594,13 @@ public final class UpdateMessages {
 
     public static Message rpslMntbyForbidden() {
         return new Message(Type.ERROR, "You cannot set mnt-by on this object to RIPE-NCC-RPSL-MNT");
+    }
+
+    public static Message netnameCannotBeChanged() {
+        return new Message(Type.ERROR, "The \"netname\" attribute can only be changed by the RIPE NCC");
+    }
+
+    public static Message multipleUserMntBy(Object[] userMntners) {
+        return new Message(Type.ERROR, "Multiple user-'mnt-by:' are not allowed, found are: '%s'", Joiner.on(", ").join(userMntners));
     }
 }

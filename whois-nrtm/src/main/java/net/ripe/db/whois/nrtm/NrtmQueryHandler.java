@@ -20,6 +20,7 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.scheduling.TaskScheduler;
 
@@ -154,7 +155,12 @@ public class NrtmQueryHandler extends SimpleChannelUpstreamHandler {
             }
         };
 
-        scheduledFuture = clientSynchronisationScheduler.scheduleAtFixedRate(instance, updateInterval * 1000);
+        try {
+            scheduledFuture = clientSynchronisationScheduler.scheduleAtFixedRate(instance, updateInterval * 1000);
+        } catch (TaskRejectedException e) {
+            LOGGER.warn("Unable to schedule keepalive instance ({})", e.getMessage());
+            throw e;
+        }
     }
 
     private void handleMirrorQuery(final Query query, final Channel channel) {

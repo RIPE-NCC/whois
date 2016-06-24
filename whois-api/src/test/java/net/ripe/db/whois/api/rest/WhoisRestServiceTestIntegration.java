@@ -94,6 +94,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -1433,8 +1434,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "  \"errormessages\" : {\n" +
                     "    \"errormessage\" : [ {\n" +
                     "      \"severity\" : \"Error\",\n" +
-                    "      \"text\" : \"ERROR:115: invalid search key\\n\\nSearch key entered is not valid for the specified object type(s)\\n\",\n" +
-                    "      \"args\" : [ ]\n" +
+                    "      \"text\" : \"ERROR:115: invalid search key\\n\\nSearch key entered is not valid for the specified object type(s)\\n\"\n" +
                     "    } ]\n" +
                     "  },"));
         }
@@ -1728,8 +1728,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "  \"errormessages\" : {\n" +
                     "    \"errormessage\" : [ {\n" +
                     "      \"severity\" : \"Error\",\n" +
-                    "      \"text\" : \"The validated collection is empty\",\n" +
-                    "      \"args\" : [ ]\n" +
+                    "      \"text\" : \"The validated collection is empty\"\n" +
                     "    } ]\n" +
                     "  },\n" +
                     "  \"terms-and-conditions\" : {\n" +
@@ -1765,7 +1764,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
             assertThat(whoisResources.getErrorMessages().get(0).toString(),
-                is("JSON processing exception: Unexpected character ('}' (code 125)): was expecting a colon to separate field name and value"));
+                startsWith("JSON processing exception: Unexpected character ('}' (code 125)): was expecting a colon to separate field name and value"));
         }
     }
 
@@ -1903,7 +1902,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
             assertThat(whoisResources.getErrorMessages().get(0).toString(),
-                is("JSON processing exception: Unexpected close marker '}': expected ']'"));
+                startsWith("JSON processing exception: Unexpected close marker '}': expected ']'"));
         }
     }
 
@@ -2299,7 +2298,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (BadRequestException e) {
             final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
             assertThat(whoisResources.getErrorMessages(), hasSize(1));
-            assertThat(whoisResources.getErrorMessages().get(0).toString(), is("JSON processing exception: Invalid UTF-8 middle byte 0x65"));
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), startsWith("JSON processing exception: Invalid UTF-8 middle byte 0x65"));
         }
     }
 

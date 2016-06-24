@@ -55,7 +55,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                     admin-c: TEST-PN
                     mnt-by:  RIPE-NCC-END-MNT
                     upd-to:  dbtest@ripe.net
-                    auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                    auth:    MD5-PW \$1\$bzCpMX7h\$wl3EmBzNXG..8oTMmGVF51 # nccend
                     source:  TEST
                 """,
                 "ORG1": """\

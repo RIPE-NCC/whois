@@ -66,7 +66,7 @@ public class CrossOriginFilter implements ContainerResponseFilter {
         try {
             return (new URL(origin)).getHost().endsWith(ALLOWED_ORIGIN);
         } catch (MalformedURLException e) {
-            LOGGER.warn("malformed URL " + origin);
+            LOGGER.debug("malformed URL " + origin);
             return false;
         }
     }

@@ -5612,4 +5612,5 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         then:
           modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
     }
+
 }

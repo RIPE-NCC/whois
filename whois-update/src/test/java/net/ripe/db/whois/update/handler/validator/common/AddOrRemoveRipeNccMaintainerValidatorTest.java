@@ -178,6 +178,36 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
     }
 
     @Test
+    public void validate_no_rs_auth_rs_maintainer_added_mnt_ref() {
+        when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
+
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "mntner: DEV-MNT\n" +
+                "mnt-ref: RS-MNT\n"));
+
+        when(update.getDifferences(AttributeType.MNT_REF)).thenReturn(ciSet("RS-MNT"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
+    }
+
+    @Test
+    public void validate_no_dbm_auth_dbm_maintainer_added_mnt_ref() {
+        when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
+
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "mntner: DEV-MNT\n" +
+                "mnt-ref: RS-MNT\n"));
+
+        when(update.getDifferences(AttributeType.MNT_REF)).thenReturn(ciSet("DBM-MNT"));
+
+        subject.validate(update, updateContext);
+
+        verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
+    }
+
+    @Test
     public void validate_added_override() {
         when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         when(authSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
