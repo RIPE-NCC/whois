@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.whois.rdap;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.IntegrationTest;
+import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
@@ -26,6 +27,7 @@ import static org.junit.Assert.fail;
 public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Autowired AuthoritativeResourceData authoritativeResourceData;
+    @Autowired DailySchedulerDao dailySchedulerDao;
 
     @BeforeClass
     public static void setProperties() throws IOException {
@@ -188,6 +190,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     @Test
     public void inet6num_outside_range() {
         addResourceData("one", "2001:67c:370::/48");
+
         refreshResourceData();
 
         try {
@@ -211,16 +214,19 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     }
 
     private void refreshResourceData() {
-        databaseHelper.getInternalsTemplate().update(
-                "DELETE FROM scheduler WHERE task = ?",
-                AuthoritativeResourceImportTask.class.getSimpleName());
-
-        databaseHelper.getInternalsTemplate().update(
-                "INSERT INTO scheduler (host, done, date, task) VALUES ('localhost', ?, ?, ?)",
-                testDateTimeProvider.getCurrentDateTime().getMillisOfDay() + 1,
-                testDateTimeProvider.getCurrentDate().toString(),
-                AuthoritativeResourceImportTask.class.getSimpleName());
-
+        updateScheduledTaskCompletion();
         authoritativeResourceData.refreshAuthoritativeResourceCache();
+    }
+
+    private void updateScheduledTaskCompletion() {
+        final long finish = dailySchedulerDao.getDailyTaskFinishTime(testDateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class);
+        if (finish == -1) {
+            // initialise
+            dailySchedulerDao.acquireDailyTask(testDateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class, "localhost");
+            dailySchedulerDao.markTaskDone(testDateTimeProvider.getNanoTime(), testDateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class);
+        } else {
+            // update
+            dailySchedulerDao.markTaskDone((finish + 1000L), testDateTimeProvider.getCurrentDate(), AuthoritativeResourceImportTask.class);
+        }
     }
 }
