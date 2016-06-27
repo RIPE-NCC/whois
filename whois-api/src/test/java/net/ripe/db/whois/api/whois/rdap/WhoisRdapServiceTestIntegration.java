@@ -1075,10 +1075,10 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getDomainSearchResults().get(0).getHandle(), equalTo("31.12.202.in-addr.arpa"));
     }
 
-    // search - nameserver
+    // search - nameservers
 
     @Test
-    public void search_nameserver_not_found() throws Exception {
+    public void search_nameservers_not_found() throws Exception {
         try {
             freeTextIndex.rebuild();
             createResource("nameservers?name=ns1.ripe.net")
@@ -1091,7 +1091,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_nameserver_empty_name() throws Exception {
+    public void search_nameservers_empty_name() throws Exception {
         try {
             freeTextIndex.rebuild();
             createResource("nameservers?name=")
@@ -1100,6 +1100,25 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             assertErrorTitle(e, "empty lookup key");
+        }
+    }
+
+    @Test
+    public void search_nameservers_bad_request_links() {
+        try {
+            createResource("nameservers?ip=caf?")
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final Entity response = e.getResponse().readEntity(Entity.class);
+            assertThat(response.getLinks(), hasSize(1));
+            assertThat(response.getLinks().get(0).getRel(), is("copyright"));
+            assertThat(response.getLinks().get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+            assertThat(response.getNotices(), hasSize(1));
+            assertThat(response.getNotices().get(0).getLinks(), hasSize(1));
+            assertThat(response.getNotices().get(0).getLinks().get(0).getRel(), is("terms-of-service"));
+            assertThat(response.getNotices().get(0).getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
         }
     }
 

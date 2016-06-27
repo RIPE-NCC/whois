@@ -52,6 +52,8 @@ class NoticeFactory {
     public List<Notice> generateNotices(final String selfLink, final RpslObject rpslObject) {
         final List<Notice> notices = Lists.newArrayList();
 
+        // TODO: [ES] add selfLink to notices
+
         if (this.filterIsFiltered.equals("true")) {
             final Notice filtered = new Notice();
             filtered.setTitle(this.filterTitle);
@@ -72,12 +74,7 @@ class NoticeFactory {
         final Notice tnc = new Notice();
         tnc.setTitle(this.tncTitle);
         tnc.getDescription().add(this.tncDescription);
-        final Link link = new Link();
-        link.setRel(this.tncLinkrel);
-        link.setHref(this.tncLinkhref);
-        link.setType(this.tncLinktype);
-        link.setValue(selfLink);
-        tnc.getLinks().add(link);
+        tnc.getLinks().add(new Link(selfLink, tncLinkrel, tncLinkhref, null, this.tncLinktype));
         return tnc;
     }
 }

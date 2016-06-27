@@ -157,16 +157,8 @@ public class RdapResponseJsonTest {
         ipAddresses.getIpv4().add("192.0.2.2");
         ipAddresses.getIpv6().add("2001:db8::123");
         nameserver.setIpAddresses(ipAddresses);
-
-        final Remark remark = new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
-        nameserver.getRemarks().add(remark);
-
-        final Link link = new Link()
-                .setHref("http://example.net/nameserver/xxxx")
-                .setValue("http://example.net/nameserver/xxxx")
-                .setRel("self");
-        nameserver.getLinks().add(link);
-
+        nameserver.getRemarks().add(new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan.")));
+        nameserver.getLinks().add(new Link("http://example.net/nameserver/xxxx", "self", "http://example.net/nameserver/xxxx", null, null));
         nameserver.setPort43("whois.example.net");
 
         final Event registrationEvent = new Event();
@@ -227,11 +219,7 @@ public class RdapResponseJsonTest {
 
         final Remark remark = new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
         domain.getRemarks().add(remark);
-
-        final Link link = new Link();
-        link.setHref("http://example.net/domain/XXXXX");
-        link.setValue("http://example.net/domain/XXXX");
-        link.setRel("self");
+        final Link link = new Link("http://example.net/domain/XXXX", "self", "http://example.net/domain/XXXXX", null, null);
         domain.getLinks().add(link);
 
         final Event registrationEvent = new Event();
@@ -256,10 +244,7 @@ public class RdapResponseJsonTest {
 
         domain.getEntitySearchResults().add(entity);
 
-        final Link entityLink = new Link();
-        entityLink.setHref("http://example.net/entity/xxxx");
-        entityLink.setValue("http://example.net/entity/xxxx");
-        entityLink.setRel("self");
+        final Link entityLink = new Link("http://example.net/entity/xxxx", "self", "http://example.net/entity/xxxx", null, null);
         entity.getLinks().add(entityLink);
 
         final VCardBuilder builder = new VCardBuilder();
@@ -373,16 +358,10 @@ public class RdapResponseJsonTest {
         final Remark remark = new Remark(Lists.newArrayList("She sells sea shells down by the sea shore.", "Originally written by Terry Sullivan."));
         ip.getRemarks().add(remark);
 
-        final Link link = new Link()
-                .setHref("http://example.net/ip/2001:db8::/48")
-                .setValue("http://example.net/ip/2001:db8::/48")
-                .setRel("self");
+        final Link link = new Link("http://example.net/ip/2001:db8::/48", "self", "http://example.net/ip/2001:db8::/48", null, null);
         ip.getLinks().add(link);
 
-        final Link uplink = new Link()
-                .setHref("http://example.net/ip/2001:C00::/23")
-                .setValue("http://example.net/ip/2001:db8::/48")
-                .setRel("up");
+        final Link uplink = new Link("http://example.net/ip/2001:db8::/48", "up", "http://example.net/ip/2001:C00::/23", null, null);
         ip.getLinks().add(uplink);
 
         final Event registrationEvent = new Event();
@@ -416,10 +395,7 @@ public class RdapResponseJsonTest {
         entity.getEvents().add(lastChangedEvent);
         ip.getEntitySearchResults().add(entity);
 
-        final Link entityLink = new Link()
-                .setHref("http://example.net/entity/xxxx")
-                .setValue("http://example.net/entity/xxxx")
-                .setRel("self");
+        final Link entityLink = new Link("http://example.net/entity/xxxx", "self", "http://example.net/entity/xxxx", null, null);
         entity.getLinks().add(entityLink);
 
         assertThat(marshal(ip), equalTo("" +
@@ -493,16 +469,11 @@ public class RdapResponseJsonTest {
         notices.getDescription().add("Beverages with caffeine for keeping horses awake.");
         notices.getDescription().add("Very effective.");
 
-        final Link link = new Link()
-                .setValue("http://example.com/context_uri")
-                .setRel("self")
-                .setHref("http://example.com/target_uri_href");
+        final Link link = new Link("http://example.com/context_uri", "self", "http://example.com/target_uri_href", "screen", "application/json");
         link.getHreflang().add("en");
         link.getHreflang().add("ch");
         link.getTitle().add("title1");
         link.getTitle().add("title2");
-        link.setMedia("screen");
-        link.setType("application/json");
         notices.getLinks().add(link);
 
         assertThat(marshal(notices), equalTo("" +

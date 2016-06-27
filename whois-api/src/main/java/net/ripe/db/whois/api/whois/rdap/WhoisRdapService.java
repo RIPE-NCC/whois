@@ -150,7 +150,11 @@ public class WhoisRdapService {
                 return lookupResource(request, key.contains(":") ? INET6NUM : INETNUM, key);
             }
             case "entity": {
-                validateEntity(key);
+                try {
+                    validateEntity(key);
+                } catch (IllegalArgumentException e) {
+                    throw badRequest(e.getMessage());
+                }
 
                 final Set<ObjectType> whoisObjectTypes = Sets.newHashSet();
                 if (key.toUpperCase().startsWith("ORG-")) {
@@ -251,11 +255,11 @@ public class WhoisRdapService {
     private void validateEntity(final String key) {
         if (key.toUpperCase().startsWith("ORG-")) {
             if (!AttributeType.ORGANISATION.isValidValue(ORGANISATION, key)) {
-                throw badRequest("Invalid syntax.");
+                throw new IllegalArgumentException("Invalid syntax.");
             }
         } else {
             if (!AttributeType.NIC_HDL.isValidValue(ObjectType.PERSON, key)) {
-                throw badRequest("Invalid syntax.");
+                throw new IllegalArgumentException("Invalid syntax.");
             }
         }
     }

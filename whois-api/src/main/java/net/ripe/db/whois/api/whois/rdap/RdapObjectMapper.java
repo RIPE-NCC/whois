@@ -56,7 +56,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 
 class RdapObjectMapper {
     private static final String TERMS_AND_CONDITIONS = "http://www.ripe.net/data-tools/support/documentation/terms";
-    private static final Link COPYRIGHT_LINK = new Link().setRel("copyright").setValue(TERMS_AND_CONDITIONS).setHref(TERMS_AND_CONDITIONS);
+    private static final Link COPYRIGHT_LINK = new Link(TERMS_AND_CONDITIONS, "copyright", TERMS_AND_CONDITIONS, null, null);
     private final String port43;
 
     private static final List<String> RDAP_CONFORMANCE_LEVEL = Lists.newArrayList("rdap_level_0");
@@ -153,7 +153,10 @@ class RdapObjectMapper {
 
         rdapResponse.getRdapConformance().addAll(RDAP_CONFORMANCE_LEVEL);
 
-        rdapResponse.getLinks().add(new Link().setRel("self").setValue(requestUrl).setHref(requestUrl));
+        if (requestUrl != null) {
+            rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null));
+        }
+
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
 
         rdapResponse.setPort43(port43);

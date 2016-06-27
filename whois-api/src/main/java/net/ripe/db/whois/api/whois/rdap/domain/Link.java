@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.whois.rdap.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -37,31 +38,38 @@ public class Link implements Serializable, Comparable<Link> {
     @XmlElement
     protected String type;
 
-    public String getValue() {
-        return value;
+    public Link() {
+        // required no-arg constructor
     }
 
-    public Link setValue(final String value) {
+    public Link(final String value, final String rel, final String href, final String media, final String type) {
+
+        if (Strings.isNullOrEmpty(href)) {
+            throw new IllegalArgumentException("link href is required");
+        }
+
+        if (Strings.isNullOrEmpty(rel)) {
+            throw new IllegalArgumentException("link rel is required");
+        }
+
         this.value = value;
-        return this;
+        this.rel = rel;
+        this.href = href;
+        this.media = media;
+        this.type = type;
+    }
+
+
+    public String getValue() {
+        return value;
     }
 
     public String getRel() {
         return rel;
     }
 
-    public Link setRel(final String value) {
-        this.rel = value;
-        return this;
-    }
-
     public String getHref() {
         return href;
-    }
-
-    public Link setHref(final String value) {
-        this.href = value;
-        return this;
     }
 
     public List<String> getHreflang() {
@@ -82,16 +90,8 @@ public class Link implements Serializable, Comparable<Link> {
         return media;
     }
 
-    public void setMedia(final String value) {
-        this.media = value;
-    }
-
     public String getType() {
         return type;
-    }
-
-    public void setType(final String value) {
-        this.type = value;
     }
 
     @Override
