@@ -144,6 +144,10 @@ public class RdapObject implements Serializable {
         this.errorDescription = description;
     }
 
+    public String getObjectClassName() {
+        return objectClassName;
+    }
+
     public void setObjectClassName(final String value) {
         this.objectClassName = value;
     }

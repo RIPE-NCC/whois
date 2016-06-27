@@ -232,6 +232,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getName(), is("TEST-NET-NAME"));
         assertThat(ip.getType(), is("OTHER"));
         assertThat(ip.getPort43(), is("whois.ripe.net"));
+        assertThat(ip.getObjectClassName(), is("ip"));
 
         final List<String> rdapConformance = ip.getRdapConformance();
         assertThat(rdapConformance, hasSize(1));
@@ -370,6 +371,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(ip.getEndAddress(), is("2001:2002:2003:ffff:ffff:ffff:ffff:ffff/128"));
         assertThat(ip.getName(), is("RIPE-NCC"));
         assertThat(ip.getType(), is("ASSIGNED PA"));
+        assertThat(ip.getObjectClassName(), is("ip"));
 
         final List<String> rdapConformance = ip.getRdapConformance();
         assertThat(rdapConformance, hasSize(1));
@@ -455,6 +457,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 "[email, {}, text, noreply@ripe.net]]"));
         assertThat(entity.getRdapConformance(), hasSize(1));
         assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
+        assertThat(entity.getObjectClassName(), is("entity"));
 
         assertThat(entity.getRemarks(), hasSize(0));
 
@@ -567,6 +570,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(domain.getRdapConformance(), hasSize(1));
         assertThat(domain.getRdapConformance().get(0), equalTo("rdap_level_0"));
         assertThat(domain.getPort43(), is("whois.ripe.net"));
+        assertThat(domain.getObjectClassName(), is("domain"));
 
         assertThat(domain.getNameservers(), hasSize(2));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
@@ -702,6 +706,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(autnum.getEndAutnum(), is(nullValue()));
         assertThat(autnum.getName(), equalTo("AS-TEST"));
         assertThat(autnum.getType(), equalTo("DIRECT ALLOCATION"));
+        assertThat(autnum.getObjectClassName(), is("autnum"));
 
         final List<Event> events = autnum.getEvents();
         assertThat(events, hasSize(1));
@@ -988,6 +993,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(entity.getRdapConformance(), hasSize(1));
         assertThat(entity.getRdapConformance().get(0), equalTo("rdap_level_0"));
         assertThat(entity.getLang(), is("EN"));
+        assertThat(entity.getObjectClassName(), is("entity"));
 
         assertThat(entity.getEvents().size(), equalTo(1));
         final Event event = entity.getEvents().get(0);
