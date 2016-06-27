@@ -4,7 +4,7 @@ import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class BaseLirEditableSpec extends BaseQueryUpdateSpec {
+class BaseLirEditableAttributes extends BaseQueryUpdateSpec {
 
     def createMandatory(String type,
                         String keyValue,

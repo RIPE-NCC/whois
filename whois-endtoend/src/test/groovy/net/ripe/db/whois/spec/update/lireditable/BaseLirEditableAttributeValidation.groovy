@@ -1,6 +1,6 @@
-package net.ripe.db.whois.spec.update.lireditable;
+package net.ripe.db.whois.spec.update.lireditable
 
-public class BaseLirEditableAttributeValidationSpec extends BaseLirEditableSpec {
+public class BaseLirEditableAttributeValidation extends BaseLirEditableAttributes {
 
     //  MODIFY resource attributes by LIR
 
