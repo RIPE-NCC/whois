@@ -1,8 +1,5 @@
 package net.ripe.db.whois.api.whois.rdap;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
@@ -30,7 +27,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.Nullable;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
@@ -40,6 +36,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -347,7 +344,6 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         } catch (final BadRequestException e) {
             assertErrorTitle(e, "Invalid syntax.");
         }
-
     }
 
     // inet6num
@@ -1406,7 +1402,7 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                     .get(Entity.class);
             fail();
         } catch (BadRequestException e) {
-            // expected
+            assertErrorTitle(e, "empty search term");
         }
     }
 
@@ -1430,30 +1426,21 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        final List<Entity> entities = result.getEntitySearchResults();
         assertThat(
-                Lists.transform(entities, new Function<Entity, String>() {
-                    @Override
-                    public String apply(@Nullable Entity entity) {
-                        return entity.getHandle();
-                    }
-            }), containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
+            result.getEntitySearchResults()
+                .stream()
+                .map(entity -> entity.getHandle())
+                .collect(Collectors.toList()),
+            containsInAnyOrder("TP1-TEST", "TP2-TEST", "PP1-TEST", "FR1-TEST", "ORG-TEST1-TEST"));
         assertThat(
-                Iterables.transform(
-                        Iterables.filter(entities, new Predicate<Entity>() {
-                            @Override
-                            public boolean apply(@Nullable Entity entity) {
-                                if (entity.getHandle().equals("ORG-TEST1-TEST")) {
-                                    return true;
-                                }
-                                return false;
-                            }
-                }).iterator().next().getNotices(), new Function<Notice, String>() {
-                    @Override
-                    public String apply(@Nullable Notice notice) {
-                        return notice.getTitle();
-                    }
-            }), containsInAnyOrder("Source", "Filtered"));
+            result.getEntitySearchResults()
+                .stream()
+                .filter(entity -> entity.getHandle().equals("ORG-TEST1-TEST"))
+                .map(entity -> entity.getNotices())
+                .flatMap(notices -> notices.stream())
+                .map(notice -> notice.getTitle())
+                .collect(Collectors.toList()),
+            containsInAnyOrder("Source", "Filtered"));
         assertThat(result.getNotices(), hasSize(1));
         assertThat(result.getNotices().get(0).getTitle(), is("Terms and Conditions"));
     }
