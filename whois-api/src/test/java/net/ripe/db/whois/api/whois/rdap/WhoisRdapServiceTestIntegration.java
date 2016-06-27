@@ -263,6 +263,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(notices.get(2).getLinks().get(0).getRel(), is("terms-of-service"));
         assertThat(notices.get(2).getLinks().get(0).getHref(), is("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
         assertThat(notices.get(2).getLinks().get(0).getType(), is("application/pdf"));
+
+        assertThat(ip.getLinks(), hasSize(2));
+        assertThat(ip.getLinks().get(0).getRel(), is("self"));
+        assertThat(ip.getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/192.0.2.0/24"));
+        assertThat(ip.getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/ip/192.0.2.0/24"));
+        assertThat(ip.getLinks().get(1).getRel(), is("copyright"));
+        assertThat(ip.getLinks().get(1).getValue(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(ip.getLinks().get(1).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
@@ -393,6 +401,14 @@ public class WhoisRdapServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(notices.get(1).getTitle(), is("Source"));
         assertThat(notices.get(2).getTitle(), is("Terms and Conditions"));
         assertThat(notices.get(2).getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/2001:2002:2003::/48"));
+
+        assertThat(ip.getLinks(), hasSize(2));
+        assertThat(ip.getLinks().get(0).getRel(), is("self"));
+        assertThat(ip.getLinks().get(0).getValue(), is("https://rdap.db.ripe.net/ip/2001:2002:2003::/48"));
+        assertThat(ip.getLinks().get(0).getHref(), is("https://rdap.db.ripe.net/ip/2001:2002:2003::/48"));
+        assertThat(ip.getLinks().get(1).getRel(), is("copyright"));
+        assertThat(ip.getLinks().get(1).getValue(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
+        assertThat(ip.getLinks().get(1).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
     }
 
     @Test
