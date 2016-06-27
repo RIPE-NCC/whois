@@ -75,7 +75,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
                 source:       TEST
                 """,
          "IRT"                                     : """\
-                irt:          irt-test
+                irt:          IRT-TEST
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
                 signature:    PGPKEY-D83C3FBD
@@ -118,16 +118,16 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    //  MODIFY allocations attributes by LIR
+    //  MODIFY resource attributes by LIR
 
-    def "modify inet6num, add (all) lir-unlocked attributes by lir"() {
+    def "modify resource, add (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -148,7 +148,6 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR2-MNT          # added
                 mnt-routes:   OWNER-MNT         # added
                 mnt-domains:  DOMAINS-MNT       # added
                 mnt-irt:      IRT-TEST          # added
@@ -167,7 +166,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    def "modify inet6num, change (all) lir-unlocked attributes by lir"() {
+    def "modify resource, change (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
         syncUpdate(getTransient("IRT2") + "override: denis, override1")
@@ -177,7 +176,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
         queryObject("-r -T mntner DOMAINS2-MNT", "mntner", "DOMAINS2-MNT")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
         queryObject("-r -T irt IRT-2-TEST", "irt", "IRT-2-TEST")
 
         when:
@@ -196,7 +195,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
                 mnt-by:       LIR-MNT
                 remarks:      a different remark# changed
                 notify:       other@ripe.net    # changed
-                mnt-lower:    LIR2-MNT          # changed
+                mnt-lower:    LIR-MNT
                 mnt-routes:   OWNER2-MNT        # changed
                 mnt-domains:  DOMAINS-MNT       # changed
                 mnt-irt:      IRT-2-TEST        # changed
@@ -215,7 +214,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    def "modify inet6num, cannot change lir-locked attributes by lir"() {
+    def "modify resource, cannot change lir-locked attributes by lir"() {
         // NOTE: this cannot really happen in real life.
         // An LIR mntner should (could) never have the password of owner3
         given:
@@ -229,7 +228,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
                 inet6num:     2001::/20
                 netname:      TEST-NET-NAME-CHANGED # changed
                 country:      NL
-                org:          ORG-OTO1-TEST         # changed
+                org:          ORG-LIR2-TEST         # changed
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED-BY-LIR      # changed
@@ -255,7 +254,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    def "modify inet6num, cannot add sponsoring-org by lir"() {
+    def "modify resource, cannot add sponsoring-org by lir"() {
         // NOTE: this cannot really happen in real life.
         // An LIR mntner should (could) never have the password of owner3
         given:
@@ -294,14 +293,14 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    def "modify inet6num, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -328,21 +327,22 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation",
+                "Changing \"mnt-lower:\" value requires administrative authorisation"
         ]
     }
 
-    def "modify inet6num, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -370,21 +370,22 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation",
+                "Changing \"mnt-lower:\" value requires administrative authorisation"
         ]
     }
 
-    def "modify inet6num, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-EXTRA-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         //      mnt-lower:   RIPE-NCC-HM-MNT  # cannot deleted
@@ -414,21 +415,22 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001::/20") == [
-                "Adding or removing a RIPE NCC maintainer requires administrative authorisation"
+                "Adding or removing a RIPE NCC maintainer requires administrative authorisation",
+                "Changing \"mnt-lower:\" value requires administrative authorisation"
         ]
     }
 
-    def "modify inet6num, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -464,14 +466,14 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    def "modify inet6num, cannot add ripe-ncc mntner (mnt-routes) by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -506,14 +508,14 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    def "modify inet6num, cannot delete ripe-ncc mntner (mnt-routes) by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-EXTRA-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         //      mnt-routes:   RIPE-NCC-HM-MNT  # cannot deleted
@@ -550,14 +552,14 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    def "modify inet6num, cannot change ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -591,14 +593,14 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    def "modify inet6num, cannot add ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
@@ -633,14 +635,14 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    def "modify inet6num, cannot delete ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-domains) by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-EXTRA-RIPE-NCC-LEGACY-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         //      mnt-domains:   RIPE-NCC-HM-MNT  # cannot deleted
@@ -677,14 +679,14 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    def "modify inet6num, delete (all) lir-unlocked attributes by lir"() {
+    def "modify resource, delete (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
         syncUpdate(getTransient("ASSIGNED-PI-EXTRA") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inet6num 2001::/20", "inet6num", "2001::/20")
-        queryObject("-r -T irt irt-test", "irt", "irt-test")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
         //        descr:        other description # deleted
@@ -694,7 +696,6 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         //        tech-c:       TP2-TEST          # deleted
         //        remarks:      a different remark# deleted
         //        notify:       other@ripe.net    # deleted
-        //        mnt-lower:    LIR2-MNT          # deleted
         //        mnt-routes:   OWNER2-MNT        # deleted
         //        mnt-domains:  DOMAINS-MNT       # deleted
         //        mnt-irt:      IRT-2-TEST        # deleted
@@ -708,6 +709,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
                 """.stripIndent()
@@ -723,7 +725,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    def "modify inet6num, cannot delete (some) mandatory lir-unlocked attributes by lir"() {
+    def "modify resource, cannot delete (some) mandatory lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 
@@ -758,7 +760,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
                 "Mandatory attribute \"tech-c\" is missing"]
     }
 
-    def "modify inet6num, cannot delete (org) lir-unlocked attributes by lir"() {
+    def "modify resource, cannot delete (org) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 
@@ -793,9 +795,9 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    //  MODIFY allocations attributes WITH OVERRIDE
+    //  MODIFY resource attributes WITH OVERRIDE
 
-    def "modify inet6num, change lir-locked attributes with override"() {
+    def "modify resource, change lir-locked attributes with override"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 
@@ -827,9 +829,9 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    //  MODIFY allocations attributes WITH RS PASSWORD
+    //  MODIFY resource attributes WITH RS PASSWORD
 
-    def "modify inet6num, change lir-locked attributes with rs password"() {
+    def "modify resource, change lir-locked attributes with rs password"() {
         // NOTE: this cannot really happen in real life.
         // An RS mntner should (could) never have the password of owner3
         given:
@@ -865,7 +867,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001::/20" }
     }
 
-    def "modify inet6num, change lir-locked (status) attributes with rs password"() {
+    def "modify resource, change lir-locked (status) attributes with rs password"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 
@@ -900,7 +902,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    def "modify inet6num, add 'single' attributes with rs password"() {
+    def "modify resource, add 'single' attributes with rs password"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 
@@ -914,7 +916,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
                 netname:      TEST-NET-NAME-2      # added
                 country:      NL
                 org:          ORG-LIR1-TEST
-                org:          ORG-OTO1-TEST        # added
+                org:          ORG-LIR2-TEST        # added
                 sponsoring-org: ORG-LIR1-TEST      # added
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
@@ -941,7 +943,7 @@ class LirEditableInet6numAssignedPiAttributeValidationSpec extends BaseQueryUpda
         ]
     }
 
-    def "modify inet6num, add sponsoring attributes with rs password"() {
+    def "modify resource, add sponsoring attributes with rs password"() {
         given:
         syncUpdate(getTransient("ASSIGNED-PI-MANDATORY") + "override: denis, override1")
 

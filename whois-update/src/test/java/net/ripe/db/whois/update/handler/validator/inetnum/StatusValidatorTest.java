@@ -4,7 +4,6 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
@@ -39,6 +38,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,8 +59,7 @@ public class StatusValidatorTest {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        when(maintainers.getEnduserMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT"));
-        when(maintainers.getRsMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT"));
+        when(maintainers.isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"))).thenReturn(true);
     }
 
     @Test
@@ -83,6 +82,7 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.objectLacksStatus("Child", child.getKey()));
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -107,6 +107,7 @@ public class StatusValidatorTest {
 
         verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -124,6 +125,8 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.incorrectChildStatus("ALLOCATED PA", "ALLOCATED PI", "192.0/32"));
+        verify(maintainers).isRsMaintainer(ciSet());
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -143,6 +146,7 @@ public class StatusValidatorTest {
 
         verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -158,6 +162,8 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.statusRequiresAuthorization("ASSIGNED ANYCAST"));
+        verify(maintainers).isRsMaintainer(ciSet());
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -175,6 +181,7 @@ public class StatusValidatorTest {
 
         verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -192,6 +199,9 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INETNUM, "ASSIGNED PA"));
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
+        verify(maintainers, times(2)).isRsMaintainer(ciSet());
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -209,6 +219,8 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INETNUM, "ASSIGNED PA"));
+        verify(maintainers, times(3)).isRsMaintainer(ciSet());
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -227,6 +239,7 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.objectLacksStatus("Parent", "192.0/16"));
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -247,6 +260,7 @@ public class StatusValidatorTest {
 
         verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -265,6 +279,8 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INETNUM, "SUB-ALLOCATED PA"));
+        verify(maintainers).isRsMaintainer(ciSet());
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -285,13 +301,13 @@ public class StatusValidatorTest {
 
         verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
     public void correct_parent_status_ipv4() {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inetnum: 192.0/24\nstatus: ASSIGNED PI\nmnt-by: RIPE-NCC-HM-MNT"));
 
         when(ipv4Tree.findFirstMoreSpecific(any(Ipv4Resource.class))).thenReturn(Lists.<Ipv4Entry>newArrayList());
@@ -304,6 +320,8 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -325,6 +343,7 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.objectLacksStatus("Child", child.getKey()));
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -348,6 +367,7 @@ public class StatusValidatorTest {
 
         verify(updateContext).getSubject(any(UpdateContainer.class));
         verifyNoMoreInteractions(updateContext);
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -366,6 +386,7 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.objectHasInvalidStatus("Child", "2001::/128", "ALLOCATED PI"));
+        verifyZeroInteractions(maintainers);
     }
 
     @Test
@@ -381,6 +402,8 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.statusRequiresAuthorization("ASSIGNED ANYCAST"));
+        verify(maintainers).isRsMaintainer(ciSet());
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -399,6 +422,8 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.objectLacksStatus("Parent", "2001::/24"));
+        verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -417,13 +442,14 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.incorrectParentStatus(ObjectType.INET6NUM, "ALLOCATED-BY-LIR"));
+        verify(maintainers, times(2)).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
     public void correct_parent_status_ipv6() {
         when(update.getType()).thenReturn(ObjectType.INET6NUM);
         when(authenticationSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
-        when(maintainers.getRsMaintainers()).thenReturn(CIString.ciSet("RIPE-NCC-HM-MNT"));
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("inet6num: 2001::/48\nstatus: ASSIGNED PI\nmnt-by: RIPE-NCC-HM-MNT\n"));
 
         when(ipv6Tree.findFirstMoreSpecific(any(Ipv6Resource.class))).thenReturn(Lists.<Ipv6Entry>newArrayList());
@@ -436,6 +462,8 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verify(maintainers, times(2)).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -453,6 +481,8 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.statusRequiresAuthorization("EARLY-REGISTRATION"));
+        verify(maintainers, times(2)).isRsMaintainer(ciSet());
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test
@@ -472,6 +502,8 @@ public class StatusValidatorTest {
         subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.statusRequiresAuthorization("EARLY-REGISTRATION"));
+        verify(maintainers, times(2)).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
+        verifyNoMoreInteractions(maintainers);
     }
 
     @Test

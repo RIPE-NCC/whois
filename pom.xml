@@ -40,12 +40,15 @@
         <commons-net.version>3.4</commons-net.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-codec.version>1.10</commons-codec.version>
+        <commons-collections.version>3.2.1</commons-collections.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
         <commons-lang.version>2.6</commons-lang.version>
         <commons-validator.version>1.4.1</commons-validator.version>
         <commons-ip-math.version>1.23</commons-ip-math.version>
 
         <diffutils.version>1.3.0</diffutils.version>
+
+        <ezvcard.version>0.8.2</ezvcard.version>
 
         <findbugs.version>1.3.9</findbugs.version>
 
@@ -110,6 +113,7 @@
     </distributionManagement>
 
     <modules>
+        <module>whois-rpsl</module>
         <module>whois-client</module>
         <module>whois-commons</module>
         <module>whois-query</module>
@@ -124,6 +128,18 @@
     <dependencyManagement>
         <dependencies>
             <!-- whois modules' artifacts -->
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-rpsl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-rpsl</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>net.ripe.db</groupId>
                 <artifactId>whois-client</artifactId>
@@ -388,7 +404,7 @@
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
-                <version>3.2.1</version>
+                <version>${commons-collections.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
@@ -521,7 +537,7 @@
             <dependency>
                 <groupId>com.googlecode.ez-vcard</groupId>
                 <artifactId>ez-vcard</artifactId>
-                <version>0.8.2</version>
+                <version>${ezvcard.version}</version>
             </dependency>
 
             <!-- Solr -->
@@ -789,6 +805,22 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <!-- TODO [TP]: if spring-aspects lib is removed from whois-rpsl/pom.xml,
+                                    then we need to exclude the paths to that module here.
+
+                                    In any case, we do not have aspects in that module.
+
+                                    (It would be even nicer if we had inclusion paths
+                                    for the modules/packages we actually need aspects)
+
+                    <excludes>
+                        <exclude>**/generated/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/rpsl/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/domain/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/io/**</exclude>
+                        <exclude>**/net/ripe/db/whois/common/ip/**</exclude>
+                    </excludes>
+                    -->
                     <complianceLevel>${java.version}</complianceLevel>
                     <Xlint>warning</Xlint>
                     <verbose>true</verbose>

@@ -1,26 +1,26 @@
-package net.ripe.db.whois.spec.update
+package net.ripe.db.whois.spec.update.lireditable
 
 import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
+class LirEditableAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
     Map<String, String> getTransients() {
-        ["LEGACY-MANDATORY"            : """\
+        ["ALLOC-PA-MANDATORY"            : """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
                 """,
-         "LEGACY-EXTRA"                : """\
+         "ALLOC-PA-EXTRA"                : """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        some description  # extra
@@ -30,8 +30,8 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 remarks:      a new remark      # extra
                 notify:       notify@ripe.net   # extra
@@ -41,40 +41,40 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-irt:      IRT-TEST          # extra
                 source:       TEST
                 """,
-         "LEGACY-RIPE-NCC-MNTNER"      : """\
+         "ALLOC-PA-RIPE-NCC-MNTNER": """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-LEGACY-MNT  # legacy-mnt
-                mnt-routes:   RIPE-NCC-LEGACY-MNT  # legacy-mnt
-                mnt-domains:  RIPE-NCC-LEGACY-MNT  # legacy-mnt
+                mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-routes:   RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-domains:  RIPE-NCC-HM-MNT  # hm-mnt
                 source:       TEST
                 """,
-         "LEGACY-EXTRA-RIPE-NCC-MNTNER": """\
+         "ALLOC-PA-EXTRA-RIPE-NCC-MNTNER": """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
-                mnt-by:       LIR-MNT              # extra
-                mnt-lower:    RIPE-NCC-LEGACY-MNT  # legacy-mnt
-                mnt-lower:    LIR-MNT              # extra
-                mnt-routes:   RIPE-NCC-LEGACY-MNT  # legacy-mnt
-                mnt-routes:   OWNER-MNT            # extra
-                mnt-domains:  RIPE-NCC-LEGACY-MNT  # legacy-mnt
-                mnt-domains:  DOMAINS-MNT          # extra
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-lower:    LIR-MNT          # extra
+                mnt-routes:   RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-routes:   OWNER-MNT        # extra
+                mnt-domains:  RIPE-NCC-HM-MNT  # hm-mnt
+                mnt-domains:  DOMAINS-MNT      # extra
                 source:       TEST
                 """,
-         "IRT"                         : """\
+         "IRT"                           : """\
                 irt:          IRT-TEST
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
@@ -89,7 +89,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER-MNT
                 source:       TEST
                 """,
-         "IRT2"                        : """\
+         "IRT2"                          : """\
                 irt:          IRT-2-TEST
                 address:      RIPE NCC
                 e-mail:       dbtest@ripe.net
@@ -104,7 +104,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       OWNER-MNT
                 source:       TEST
                 """,
-         "DOMAINS2-MNT"                : """\
+         "DOMAINS2-MNT"                  : """\
                 mntner:      DOMAINS2-MNT
                 descr:       used for mnt-domains
                 admin-c:     TP1-TEST
@@ -118,11 +118,11 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    //  MODIFY legcay attributes by LIR
+    //  MODIFY resource attributes by LIR
 
-    def "modify inetnum, add (all) lir-unlocked attributes by lir"() {
+    def "modify resource, add (all) lir-unlocked attributes by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -145,10 +145,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP2-TEST          # added
                 remarks:      a new remark      # added
                 notify:       notify@ripe.net   # added
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-by:       LIR2-MNT          # added
                 mnt-lower:    LIR2-MNT          # added
                 mnt-routes:   OWNER-MNT         # added
                 mnt-domains:  DOMAINS-MNT       # added
@@ -170,12 +169,12 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, change (all) lir-unlocked attributes by lir"() {
+    def "modify resource, change (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
         syncUpdate(getTransient("IRT2") + "override: denis, override1")
         syncUpdate(getTransient("DOMAINS2-MNT") + "override: denis, override1")
-        syncUpdate(getTransient("LEGACY-EXTRA") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-EXTRA") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -186,23 +185,23 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         when:
         def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME-CHANGED # changed
-                descr:        other description     # changed
-                country:      DE                    # changed
-                geoloc:       9.0 9.0               # changed
-                language:     DE                    # changed
+                netname:      TEST-NET-NAME
+                descr:        other description # changed
+                country:      DE                # changed
+                geoloc:       9.0 9.0           # changed
+                language:     DE                # changed
                 org:          ORG-LIR1-TEST
-                admin-c:      TP2-TEST              # changed
-                tech-c:       TP2-TEST              # changed
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
-                mnt-by:       LIR2-MNT              # changed
-                remarks:      a different remark    # changed
-                notify:       other@ripe.net        # changed
-                mnt-lower:    LIR2-MNT              # changed
-                mnt-routes:   OWNER2-MNT            # changed
-                mnt-domains:  DOMAINS-MNT           # changed
-                mnt-irt:      IRT-2-TEST            # changed
+                admin-c:      TP2-TEST          # changed
+                tech-c:       TP2-TEST          # changed
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                remarks:      a different remark# changed
+                notify:       other@ripe.net    # changed
+                mnt-lower:    LIR2-MNT          # changed
+                mnt-routes:   OWNER2-MNT        # changed
+                mnt-domains:  DOMAINS-MNT       # changed
+                mnt-irt:      IRT-2-TEST        # changed
                 source:       TEST
                 password: lir
                 password: irt
@@ -219,11 +218,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, cannot change lir-locked attributes by lir"() {
-        // NOTE: this cannot really happen in real life.
-        // An LIR mntner should (could) never have the password of owner3
+    def "modify resource, cannot change lir-locked attributes by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -231,14 +228,14 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         when:
         def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
+                netname:      TEST-NET-NAME-CHANGED # changed
                 country:      NL
-                org:          ORG-OTO1-TEST         # changed
+                org:          ORG-LIR2-TEST         # changed
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PI          # changed
-                mnt-by:       RIPE-NCC-LEGACY-MNT
-                mnt-by:       LIR-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR2-MNT              # changed
                 source:       TEST
                 password: lir
                 password: owner3
@@ -252,21 +249,20 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(4, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
                 "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference.",
-                "Referenced organisation has wrong \"org-type\". Allowed values are [IANA, RIR, LIR]",
+                "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
+                "The \"netname\" attribute can only be changed by the RIPE NCC",
                 "status value cannot be changed, you must delete and re-create the object"
         ]
     }
 
-    def "modify inetnum, cannot add sponsoring-org by lir"() {
-        // NOTE: this cannot really happen in real life.
-        // An LIR mntner should (could) never have the password of owner3
+    def "modify resource, cannot add sponsoring-org by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
         expect:
 
@@ -280,10 +276,10 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                sponsoring-org: ORG-LIR2-TEST # added
+                sponsoring-org: ORG-OTO1-TEST # added
                 source:       TEST
                 password: lir
                 password: owner3
@@ -301,13 +297,13 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "The \"sponsoring-org\" attribute can only be added by the RIPE NCC"
+                "The \"sponsoring-org:\" attribute is not allowed with status value \"ALLOCATED PA\""
         ]
     }
 
-    def "modify inetnum, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-lower) by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -322,12 +318,12 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR2-MNT          # changed
-                mnt-routes:   RIPE-NCC-LEGACY-MNT
-                mnt-domains:  RIPE-NCC-LEGACY-MNT
+                mnt-routes:   RIPE-NCC-HM-MNT
+                mnt-domains:  RIPE-NCC-HM-MNT
                 source:       TEST
                 password: lir
                 password: irt
@@ -348,9 +344,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -365,13 +361,13 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-LEGACY-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT          # added
-                mnt-routes:   RIPE-NCC-LEGACY-MNT
-                mnt-domains:  RIPE-NCC-LEGACY-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-LEGACY-MNT          # added
+                mnt-routes:   RIPE-NCC-HM-MNT
+                mnt-domains:  RIPE-NCC-HM-MNT
                 source:       TEST
                 password: lir
                 password: irt
@@ -392,9 +388,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-lower) by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -402,7 +398,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
-        //      mnt-lower:   RIPE-NCC-LEGACY-MNT  # cannot deleted
+        //      mnt-lower:   RIPE-NCC-HM-MNT  # cannot deleted
         def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -410,13 +406,13 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT          # extra
-                mnt-routes:   RIPE-NCC-LEGACY-MNT  # legacy-mnt
+                mnt-routes:   RIPE-NCC-HM-MNT  # hm-mnt
                 mnt-routes:   OWNER-MNT        # extra
-                mnt-domains:  RIPE-NCC-LEGACY-MNT  # legacy-mnt
+                mnt-domains:  RIPE-NCC-HM-MNT  # hm-mnt
                 mnt-domains:  DOMAINS-MNT      # extra
                 source:       TEST
                 password: lir
@@ -438,9 +434,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot change ripe-ncc mntner (mnt-routes)  by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -455,12 +451,12 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-LEGACY-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
                 mnt-routes:   LIR2-MNT          # changed
-                mnt-domains:  RIPE-NCC-LEGACY-MNT
+                mnt-domains:  RIPE-NCC-HM-MNT
                 source:       TEST
                 password: lir
                 password: irt
@@ -481,9 +477,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add ripe-ncc mntner (mnt-routes) by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-routes) by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -498,13 +494,13 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-LEGACY-MNT
-                mnt-routes:   RIPE-NCC-LEGACY-MNT
-                mnt-routes:   RIPE-NCC-HM-MNT          # added
-                mnt-domains:  RIPE-NCC-LEGACY-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                mnt-routes:   RIPE-NCC-HM-MNT
+                mnt-routes:   RIPE-NCC-LEGACY-MNT          # added
+                mnt-domains:  RIPE-NCC-HM-MNT
                 source:       TEST
                 password: lir
                 password: irt
@@ -525,9 +521,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-routes) by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-routes) by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -535,7 +531,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
-        //      mnt-routes:   RIPE-NCC-LEGACY-MNT  # cannot deleted
+        //      mnt-routes:   RIPE-NCC-HM-MNT  # cannot deleted
         def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -543,13 +539,13 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-LEGACY-MNT  # legacy-mnt
+                mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
                 mnt-lower:    LIR-MNT          # extra
                 mnt-routes:   OWNER-MNT        # extra
-                mnt-domains:  RIPE-NCC-LEGACY-MNT  # legacy-mnt
+                mnt-domains:  RIPE-NCC-HM-MNT  # hm-mnt
                 mnt-domains:  DOMAINS-MNT      # extra
                 source:       TEST
                 password: lir
@@ -571,9 +567,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot change ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify resource, cannot change ripe-ncc mntner (mnt-domains) by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -588,11 +584,11 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-LEGACY-MNT
-                mnt-routes:   RIPE-NCC-LEGACY-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                mnt-routes:   RIPE-NCC-HM-MNT
                 mnt-domains:  LIR2-MNT          # changed
                 source:       TEST
                 password: lir
@@ -614,9 +610,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot add ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify resource, cannot add ripe-ncc mntner (mnt-domains) by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -631,13 +627,13 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-LEGACY-MNT
-                mnt-routes:   RIPE-NCC-LEGACY-MNT
-                mnt-domains:  RIPE-NCC-LEGACY-MNT
-                mnt-domains:  RIPE-NCC-HM-MNT          # added
+                mnt-lower:    RIPE-NCC-HM-MNT
+                mnt-routes:   RIPE-NCC-HM-MNT
+                mnt-domains:  RIPE-NCC-HM-MNT
+                mnt-domains:  RIPE-NCC-LEGACY-MNT          # added
                 source:       TEST
                 password: lir
                 password: irt
@@ -658,9 +654,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, cannot delete ripe-ncc mntner (mnt-domains) by lir"() {
+    def "modify resource, cannot delete ripe-ncc mntner (mnt-domains) by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-EXTRA-RIPE-NCC-MNTNER") + "override: denis, override1")
         syncUpdate(getTransient("IRT") + "override: denis, override1")
 
         expect:
@@ -668,7 +664,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
 
         when:
-        //      mnt-domains:   RIPE-NCC-LEGACY-MNT  # cannot deleted
+        //      mnt-domains:   RIPE-NCC-HM-MNT  # cannot deleted
         def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
@@ -676,12 +672,12 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-LEGACY-MNT  # legacy-mnt
+                mnt-lower:    RIPE-NCC-HM-MNT  # hm-mnt
                 mnt-lower:    LIR-MNT          # extra
-                mnt-routes:   RIPE-NCC-LEGACY-MNT  # legacy-mnt
+                mnt-routes:   RIPE-NCC-HM-MNT  # hm-mnt
                 mnt-routes:   OWNER-MNT        # extra
                 mnt-domains:  DOMAINS-MNT      # extra
                 source:       TEST
@@ -704,10 +700,10 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, delete (all) lir-unlocked attributes by lir"() {
+    def "modify resource, delete (all) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
-        syncUpdate(getTransient("LEGACY-EXTRA") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-EXTRA") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -719,7 +715,6 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         //        language:     DE                # deleted
         //        admin-c:      TP2-TEST          # deleted
         //        tech-c:       TP2-TEST          # deleted
-        //        mnt-by:       LIR-MNT           # deleted
         //        remarks:      a different remark# deleted
         //        notify:       other@ripe.net    # deleted
         //        mnt-lower:    LIR2-MNT          # deleted
@@ -733,8 +728,8 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
@@ -751,9 +746,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, cannot delete (some) mandatory lir-unlocked attributes by lir"() {
+    def "modify resource, cannot delete (some) mandatory lir-unlocked attributes by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -766,8 +761,8 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         def ack = syncUpdateWithResponse("""
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
@@ -788,9 +783,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 "Mandatory attribute \"tech-c\" is missing"]
     }
 
-    def "modify inetnum, cannot delete (org) lir-unlocked attributes by lir"() {
+    def "modify resource, cannot delete (org) lir-unlocked attributes by lir"() {
         given:
-        syncUpdate(getTransient("LEGACY-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -803,8 +798,8 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
@@ -818,16 +813,17 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "Referenced organisation can only be removed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to remove this reference."]
+                "Referenced organisation can only be removed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to remove this reference.",
+                "Missing required \"org:\" attribute"]
     }
 
-    //  MODIFY allocations attributes WITH OVERRIDE
+    //  MODIFY resource attributes WITH OVERRIDE
 
-    def "modify inetnum, change lir-locked attributes with override"() {
+    def "modify resource, change lir-locked attributes with override"() {
         given:
-        syncUpdate(getTransient("LEGACY-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -841,7 +837,7 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PI          # changed
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR2-MNT              # changed
                 source:       TEST
                 override:     denis,override1
@@ -858,13 +854,11 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    //  MODIFY allocations attributes WITH RS PASSWORD
+    //  MODIFY resource attributes WITH RS PASSWORD
 
-    def "modify inetnum, change lir-locked attributes with rs password"() {
-        // NOTE: this cannot really happen in real life.
-        // An RS mntner should (could) never have the password of owner3
+    def "modify resource, change lir-locked attributes with rs password"() {
         given:
-        syncUpdate(getTransient("LEGACY-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -877,17 +871,19 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIRA-TEST         # changed
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR2-MNT              # changed
                 source:       TEST
-                password: legacy
+                password: hm
+                password: lir
                 password: owner3
                 """.stripIndent()
         )
 
         then:
         ack.success
+
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
@@ -895,9 +891,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
     }
 
-    def "modify inetnum, change lir-locked (status) attributes with rs password"() {
+    def "modify resource, change lir-locked (status) attributes with rs password"() {
         given:
-        syncUpdate(getTransient("LEGACY-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -911,10 +907,10 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PI         # changed
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
-                password: legacy
+                password: hm
                 """.stripIndent()
         )
 
@@ -931,9 +927,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, add 'single' attributes with rs password"() {
+    def "modify resource, add 'single' attributes with rs password"() {
         given:
-        syncUpdate(getTransient("LEGACY-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -945,13 +941,13 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 netname:      TEST-NET-NAME-2      # added
                 country:      NL
                 org:          ORG-LIR1-TEST
-                org:          ORG-OTO1-TEST        # added
+                org:          ORG-LIR2-TEST        # added
                 sponsoring-org: ORG-OTO1-TEST      # added
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
+                status:       ALLOCATED PA
                 status:       ALLOCATED PI         # added
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: hm
@@ -973,9 +969,9 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
         ]
     }
 
-    def "modify inetnum, add sponsoring attributes with rs password"() {
+    def "modify resource, add sponsoring attributes with rs password"() {
         given:
-        syncUpdate(getTransient("LEGACY-MANDATORY") + "override: denis, override1")
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -986,23 +982,65 @@ class LirEditableLegacyAttributeValidationSpec extends BaseQueryUpdateSpec {
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
-                sponsoring-org: ORG-LIR1-TEST      # added
+                sponsoring-org: ORG-OTO1-TEST      # added
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LEGACY
-                mnt-by:       RIPE-NCC-LEGACY-MNT
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
-                password: legacy
+                password: hm
                 """.stripIndent()
         )
 
         then:
-        ack.success
+        ack.errors
+
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "The \"sponsoring-org:\" attribute is not allowed with status value \"ALLOCATED PA\""]
+    }
+
+    // DELETE allocated resource by LIR
+
+    def "delete ALLOCATED-PA resource by user maintainer"() {
+      given:
+        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+
+      expect:
+        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+      when:
+        when:
+        def ack = syncUpdateWithResponse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                source:       TEST
+                delete: some reason
+                password: lir
+                """.stripIndent()
+        )
+
+      then:
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 0, 1)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Deleting this object requires administrative authorisation"]
     }
 }

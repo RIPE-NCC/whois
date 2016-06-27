@@ -18,8 +18,8 @@ CREATE TABLE `scheduler` (
   PRIMARY KEY (`date`, `task`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- the id columns is only there because of a mysql bug (see http://bugs.mysql.com/bug.php?id=58481http://bugs.mysql.com/bug.php?id=58481)
--- it should be dropped once we manage to upgrade
+-- TODO: the id columns is only there because of a mysql bug (see http://bugs.mysql.com/bug.php?id=58481http://bugs.mysql.com/bug.php?id=58481)
+-- TODO: it should be dropped once we manage to upgrade
 DROP TABLE IF EXISTS `authoritative_resource`;
 CREATE TABLE `authoritative_resource` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -67,4 +67,15 @@ CREATE TABLE `forgot_password_audit_log` (
   `user_sso_email`  varchar(256),
   PRIMARY KEY (`id`),
   CONSTRAINT FOREIGN KEY (`hash`) REFERENCES `email_links` (`hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `default_maintainer_history`;
+CREATE TABLE `default_maintainer_history` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `org` varchar(256) NOT NULL,
+  `mntner` varchar(256) NOT NULL,
+  `timestamp` timestamp NOT NULL,
+  `uuid` varchar(256) NOT NULL,
+  `email` varchar(256),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
