@@ -44,6 +44,7 @@ public class RdapObject implements Serializable {
     protected List<String> rdapConformance;
     protected List<Notice> notices;
     protected String port43;
+    protected String objectClassName;
 
     protected Integer errorCode;
     @XmlElement(name = "title")
@@ -141,5 +142,9 @@ public class RdapObject implements Serializable {
 
     public void setDescription(final List<String> description) {
         this.errorDescription = description;
+    }
+
+    public void setObjectClassName(final String value) {
+        this.objectClassName = value;
     }
 }

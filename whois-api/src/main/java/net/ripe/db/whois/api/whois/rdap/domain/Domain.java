@@ -39,10 +39,12 @@ public class Domain extends RdapObject implements Serializable {
     protected Map publicIds;
 
     public Domain() {
-        // requried no-arg constructor
+        super();
+        super.setObjectClassName("domain");
     }
 
     public Domain(final String handle, final String ldhName, final String unicodeName, final List<Nameserver> nameservers, final Domain.SecureDNS secureDNS, final Map publicIds) {
+        this();
         this.handle = handle;
         this.ldhName = ldhName;
         this.unicodeName = unicodeName;

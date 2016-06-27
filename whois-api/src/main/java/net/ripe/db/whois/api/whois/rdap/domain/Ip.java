@@ -40,6 +40,11 @@ public class Ip extends RdapObject implements Serializable {
     @XmlElement(required = true)
     protected String parentHandle;
 
+    public Ip() {
+        super();
+        super.setObjectClassName("ip network");
+    }
+
     public String getHandle() {
         return handle;
     }

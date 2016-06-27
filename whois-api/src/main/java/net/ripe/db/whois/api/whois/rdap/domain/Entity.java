@@ -33,10 +33,12 @@ public class Entity extends RdapObject implements Serializable, Comparable<Entit
     protected Map publicIds;
 
     public Entity() {
-        // required no-arg constructor
+        super();
+        super.setObjectClassName("entity");
     }
 
     public Entity(final String handle, final List<Object> vcardArray, final List<Role> roles, final Map publicIds) {
+        this();
         this.handle = handle;
         this.vcardArray = vcardArray;
         this.roles = roles;

@@ -39,6 +39,11 @@ public class Autnum extends RdapObject implements Serializable {
     @XmlElement(required = true)
     protected String country;
 
+    public Autnum() {
+        super();
+        super.setObjectClassName("autnum");
+    }
+
     public String getHandle() {
         return handle;
     }

@@ -32,10 +32,12 @@ public class Nameserver extends RdapObject implements Serializable {
     protected Nameserver.IpAddresses ipAddresses;
 
     public Nameserver() {
-        // required no-arg constructor
+        super();
+        super.setObjectClassName("nameserver");
     }
 
     public Nameserver(final String handle, final String ldhName, final String unicodeName, final Nameserver.IpAddresses ipAddresses) {
+        this();
         this.handle = handle;
         this.ldhName = ldhName;
         this.unicodeName = unicodeName;
