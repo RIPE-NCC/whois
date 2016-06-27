@@ -50,6 +50,54 @@ public class BaseLirEditableAttributeValidationSpec extends BaseLirEditableSpec 
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
     }
 
+    def "modify resource, change (all excl. mnt-lower) lir-unlocked attributes by lir"() {
+        given:
+        syncUpdate(getTransient("IRT") + "override: denis, override1")
+        syncUpdate(getTransient("IRT2") + "override: denis, override1")
+        syncUpdate(getTransient("DOMAINS2-MNT") + "override: denis, override1")
+        syncUpdate(getTransient("RSC-EXTRA") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
+        queryObject("-r -T mntner DOMAINS2-MNT", "mntner", "DOMAINS2-MNT")
+        queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
+        queryObject("-r -T irt IRT-2-TEST", "irt", "IRT-2-TEST")
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                ${resourceType}: ${resourceValue}
+                netname:      TEST-NET-NAME
+                descr:        other description # changed
+                country:      DE                # changed
+                geoloc:       9.0 9.0           # changed
+                language:     DE                # changed
+                org:          ORG-LIR1-TEST
+                admin-c:      TP2-TEST          # changed
+                tech-c:       TP2-TEST          # changed
+                status:       ${resourceStatus}
+                mnt-by:       ${resourceRipeMntner}
+                mnt-by:       LIR-MNT
+                remarks:      a different remark# changed
+                notify:       other@ripe.net    # changed
+                mnt-lower:    LIR-MNT
+                mnt-routes:   OWNER2-MNT        # changed
+                mnt-domains:  DOMAINS-MNT       # changed
+                mnt-irt:      IRT-2-TEST        # changed
+                source:       TEST
+                password: lir
+                password: irt
+                """.stripIndent()
+        )
+
+        then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+    }
+
     def "modify resource, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("RSC-RIPE-NCC-MNTNER") + "override: denis, override1")

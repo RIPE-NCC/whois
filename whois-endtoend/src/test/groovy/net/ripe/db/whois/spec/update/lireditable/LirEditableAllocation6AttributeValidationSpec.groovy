@@ -84,39 +84,35 @@ class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttri
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
     }
 
-    def "modify resource, change (all) lir-unlocked attributes by lir"() {
+    def "modify resource, change (mnt-lower) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("IRT") + "override: denis, override1")
-        syncUpdate(getTransient("IRT2") + "override: denis, override1")
-        syncUpdate(getTransient("DOMAINS2-MNT") + "override: denis, override1")
         syncUpdate(getTransient("RSC-EXTRA") + "override: denis, override1")
 
         expect:
         queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
-        queryObject("-r -T mntner DOMAINS2-MNT", "mntner", "DOMAINS2-MNT")
         queryObject("-r -T irt IRT-TEST", "irt", "IRT-TEST")
-        queryObject("-r -T irt IRT-2-TEST", "irt", "IRT-2-TEST")
 
         when:
         def ack = syncUpdateWithResponse("""
                 ${resourceType}: ${resourceValue}
                 netname:      TEST-NET-NAME
-                descr:        other description # changed
-                country:      DE                # changed
-                geoloc:       9.0 9.0           # changed
-                language:     DE                # changed
+                descr:        some description
+                country:      NL
+                geoloc:       0.0 0.0
+                language:     NL
                 org:          ORG-LIR1-TEST
-                admin-c:      TP2-TEST          # changed
-                tech-c:       TP2-TEST          # changed
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                remarks:      a different remark# changed
-                notify:       other@ripe.net    # changed
+                remarks:      a new remark
+                notify:       notify@ripe.net
                 mnt-lower:    LIR2-MNT          # changed
-                mnt-routes:   OWNER2-MNT        # changed
-                mnt-domains:  DOMAINS-MNT       # changed
-                mnt-irt:      IRT-2-TEST        # changed
+                mnt-routes:   OWNER-MNT
+                mnt-domains:  DOMAINS-MNT
+                mnt-irt:      IRT-TEST
                 source:       TEST
                 password: lir
                 password: irt
