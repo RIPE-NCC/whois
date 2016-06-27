@@ -61,6 +61,14 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
         deleteResourceData("test", "0.0.0.0/0");
         deleteResourceData("test", "::/0");
+
+        addResourceData("one", "AS100");
+        addResourceData("two", "AS200");
+        addResourceData("three", "AS300");
+
+        addResourceData("one", "193.0.0.0 - 193.0.7.255");
+        addResourceData("one", "2001:67c:370::/48");
+
         refreshResourceData();
     }
 
@@ -68,9 +76,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void autnum_redirect() throws Exception {
-        addResourceData("one", "AS100");
-        refreshResourceData();
-
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "autnum/100"))
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -90,9 +95,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test(expected = NotFoundException.class)
     public void autnum_empty_redirect_property() {
-        addResourceData("two", "AS200");
-        refreshResourceData();
-
         RestTest.target(getPort(), String.format("rdap/%s", "autnum/200"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
@@ -100,9 +102,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test(expected = NotFoundException.class)
     public void autnum_no_redirect_property() {
-        addResourceData("three", "AS300");
-        refreshResourceData();
-
         RestTest.target(getPort(), String.format("rdap/%s", "autnum/300"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
@@ -112,9 +111,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void inetnum_exact_match_redirect() {
-        addResourceData("one", "193.0.0.0 - 193.0.7.255");
-        refreshResourceData();
-
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/193.0.0.0/21"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -127,9 +123,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void inetnum_child_redirect() {
-        addResourceData("one", "193.0.0.0 - 193.0.7.255");
-        refreshResourceData();
-
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/193.0.0.1"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -142,9 +135,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void inetnum_outside_range() {
-        addResourceData("one", "193.0.0.0 - 193.0.7.255");
-        refreshResourceData();
-
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/192.0.0.1"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -159,9 +149,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void inet6num_exact_match_redirect() {
-        addResourceData("one", "2001:67c:370::/48");
-        refreshResourceData();
-
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/2001:67c:370::/48"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -174,9 +161,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void inet6num_child_redirect() {
-        addResourceData("one", "2001:67c:370::/48");
-        refreshResourceData();
-
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/2001:67c:370::1234"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -189,10 +173,6 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void inet6num_outside_range() {
-        addResourceData("one", "2001:67c:370::/48");
-
-        refreshResourceData();
-
         try {
             RestTest.target(getPort(), String.format("rdap/%s", "ip/2002::/32"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
