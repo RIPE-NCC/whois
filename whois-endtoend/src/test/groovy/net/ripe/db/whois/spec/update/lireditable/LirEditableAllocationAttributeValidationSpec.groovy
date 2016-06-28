@@ -447,26 +447,25 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
         ]
     }
 
-    // DELETE allocated resource by LIR
+    // DELETE resource by LIR
 
-    def "delete ALLOCATED-PA resource by user maintainer"() {
-      given:
-        syncUpdate(getTransient("ALLOC-PA-MANDATORY") + "override: denis, override1")
+    def "cannot delete resource by lir if also has ripe ncc mntner"() {
+        given:
+        syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
 
-      expect:
-        queryObject("-GBr -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+        expect:
+        queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
 
-      when:
         when:
         def ack = syncUpdateWithResponse("""
-                inetnum:      192.168.0.0 - 192.169.255.255
+                ${resourceType}: ${resourceValue}
                 netname:      TEST-NET-NAME
                 country:      NL
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM-MNT
+                status:       ${resourceStatus}
+                mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
                 source:       TEST
                 delete: some reason
@@ -474,15 +473,15 @@ class LirEditableAllocationAttributeValidationSpec extends BaseLirEditableAttrib
                 """.stripIndent()
         )
 
-      then:
+        then:
         ack.errors
-
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
         ack.countErrorWarnInfo(1, 0, 0)
-        ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
-        ack.errorMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
-                "Deleting this object requires administrative authorisation"]
+        ack.errors.any { it.operation == "Delete" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.errorMessagesFor("Delete", "[${resourceType}] ${resourceValue}") == [
+                "Deleting this object requires administrative authorisation"
+        ]
     }
 }

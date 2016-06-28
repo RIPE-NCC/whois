@@ -447,4 +447,42 @@ class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttri
                 "The \"sponsoring-org:\" attribute is not allowed with status value \"${resourceStatus}\""
         ]
     }
+
+    // DELETE resource by LIR
+
+    def "cannot delete resource by lir if also has ripe ncc mntner"() {
+        given:
+        syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                ${resourceType}: ${resourceValue}
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ${resourceStatus}
+                mnt-by:       ${resourceRipeMntner}
+                mnt-by:       LIR-MNT
+                source:       TEST
+                delete: some reason
+                password: lir
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 0, 1)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Delete" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.errorMessagesFor("Delete", "[${resourceType}] ${resourceValue}") == [
+                "Deleting this object requires administrative authorisation"
+        ]
+    }
 }
