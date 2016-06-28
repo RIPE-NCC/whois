@@ -370,41 +370,6 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
     }
 
-    def "modify resource, cannot delete (some) mandatory lir-unlocked attributes by lir"() {
-        given:
-        syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
-
-        expect:
-        queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
-
-        when:
-        //        org:          ORG-LIR1-TEST # cannot delete, but warning is NOT presented!!
-        //        country:      NL            # cannot delete
-        //        admin-c:      TP1-TEST      # cannot delete
-        //        tech-c:       TP1-TEST      # cannot delete
-        def ack = syncUpdateWithResponse("""
-                ${resourceType}: ${resourceValue}
-                netname:      TEST-NET-NAME
-                status:       ${resourceStatus}
-                mnt-by:       ${resourceRipeMntner}
-                mnt-by:       LIR-MNT
-                source:       TEST
-                password: lir
-                """.stripIndent()
-        )
-
-        then:
-        ack.errors
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(3, 0, 0)
-        ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "Mandatory attribute \"country\" is missing",
-                "Mandatory attribute \"admin-c\" is missing",
-                "Mandatory attribute \"tech-c\" is missing"]
-    }
-
     def "modify resource, cannot delete (org) lir-unlocked attributes by lir"() {
         given:
         syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
