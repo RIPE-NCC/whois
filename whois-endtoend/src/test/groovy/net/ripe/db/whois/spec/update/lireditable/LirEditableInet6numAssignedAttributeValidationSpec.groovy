@@ -128,7 +128,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
     }
 
-    def "modify resource, cannot change lir-locked attributes by lir"() {
+    def "modify resource, can change net-name and mnt-by (lir-locked) attributes by lir"() {
         given:
         syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
 
@@ -140,10 +140,10 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 ${resourceType}: ${resourceValue}
                 netname:      TEST-NET-NAME-CHANGED # changed
                 country:      NL
-                org:          ORG-LIR2-TEST         # changed
+                org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ${differentStatus}    # changed
+                status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR2-MNT              # changed
                 source:       TEST
@@ -153,16 +153,12 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
         )
 
         then:
-        ack.errors
+        ack.success
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
-        ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
-        ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference.",
-                "status value cannot be changed, you must delete and re-create the object"
-        ]
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 0, 0)
+        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
     }
 
     def "modify resource, cannot add sponsoring-org by lir"() {

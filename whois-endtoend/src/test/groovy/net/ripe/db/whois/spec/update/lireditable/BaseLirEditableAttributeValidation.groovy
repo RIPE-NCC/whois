@@ -98,6 +98,43 @@ public class BaseLirEditableAttributeValidation extends BaseLirEditableAttribute
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
     }
 
+    def "modify resource, cannot change org and status (lir-locked) attributes by lir"() {
+        given:
+        syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
+
+        expect:
+        queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                ${resourceType}: ${resourceValue}
+                netname:      TEST-NET-NAME
+                country:      NL
+                org:          ORG-LIR2-TEST         # changed
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ${differentStatus}    # changed
+                mnt-by:       ${resourceRipeMntner}
+                mnt-by:       LIR-MNT
+                source:       TEST
+                password: lir
+                password: owner3
+                """.stripIndent()
+        )
+
+        then:
+        ack.errors
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
+                "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference.",
+                "status value cannot be changed, you must delete and re-create the object"
+        ]
+    }
+
     def "modify resource, cannot change ripe-ncc mntner (mnt-routes) by lir"() {
         given:
         syncUpdate(getTransient("RSC-RIPE-NCC-MNTNER") + "override: denis, override1")

@@ -128,7 +128,7 @@ class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttri
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
     }
 
-    def "modify resource, cannot change lir-locked attributes by lir"() {
+    def "modify resource, cannot change net-name and mnt-by (lir-locked) attributes by lir"() {
         given:
         syncUpdate(getTransient("RSC-MANDATORY") + "override: denis, override1")
 
@@ -140,10 +140,10 @@ class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttri
                 ${resourceType}: ${resourceValue}
                 netname:      TEST-NET-NAME-CHANGED # changed
                 country:      NL
-                org:          ORG-LIR2-TEST         # changed
+                org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ${differentStatus}    # changed
+                status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR2-MNT              # changed
                 source:       TEST
@@ -157,13 +157,11 @@ class LirEditableAllocation6AttributeValidationSpec extends BaseLirEditableAttri
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(4, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference.",
                 "Attribute \"mnt-by:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it.",
-                "The \"netname\" attribute can only be changed by the RIPE NCC",
-                "status value cannot be changed, you must delete and re-create the object"
+                "The \"netname\" attribute can only be changed by the RIPE NCC"
         ]
     }
 
