@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
+import com.google.common.collect.ImmutableList;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -125,7 +126,7 @@ public class LirMntByAttributeCountValidatorTest {
         verifyNoMoreInteractions(maintainers);
         verify(update).getReferenceObject();
         verify(update).getUpdatedObject();
-        verify(updateContext).addMessage(update, UpdateMessages.multipleUserMntBy(ciImmutableSet("MNT1-LIR", "MNT2-LIR")));
+        verify(updateContext).addMessage(update, UpdateMessages.multipleUserMntBy(ImmutableList.of(ciString("MNT1-LIR"), ciString("MNT2-LIR"))));
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
     }
